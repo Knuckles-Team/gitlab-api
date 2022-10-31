@@ -38,6 +38,13 @@ print(users)
 created_merge_request = client.create_merge_request(project_id=123, source_branch="development", 
                                                     target_branch="production",title="Merge Request Title")
 print(created_merge_request)
+
+print(f"Users: {client.get_users()}")
+
+print(f"Projects: {client.get_projects()}")
+
+response = client.get_runners(runner_type='instance_type', all_runners=True)
+print(f"Runners: {response}")
 ```
 
 #### Build Instructions
