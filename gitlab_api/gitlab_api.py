@@ -5,6 +5,7 @@ import json
 import requests
 import urllib3
 from base64 import b64encode
+
 try:
     from gitlab_api.decorators import require_auth
 except ModuleNotFoundError:
@@ -44,13 +45,13 @@ class Api(object):
         else:
             raise MissingParameterError
 
-        r = self._session.get(f'{self.url}/projects', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects', headers=self.headers, verify=self.verify)
 
-        if r.status_code == 403:
+        if response.status_code == 403:
             raise UnauthorizedError
-        elif r.status_code == 401:
+        elif response.status_code == 401:
             raise AuthError
-        elif r.status_code == 404:
+        elif response.status_code == 404:
             raise ParameterError
 
     ####################################################################################################################
@@ -60,57 +61,57 @@ class Api(object):
     def get_branches(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/branches',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/branches',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_branch(self, project_id=None, branch=None):
         if project_id is None or branch is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/branches/{branch}',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/branches/{branch}',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def create_branch(self, project_id=None, branch=None, reference=None):
         if project_id is None or branch is None or reference is None:
             raise MissingParameterError
-        r = self._session.post(f'{self.url}/projects/{project_id}/repository/'
-                               f'branches?branch={branch}&ref={reference}',
-                               headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/repository/'
+                                      f'branches?branch={branch}&ref={reference}',
+                                      headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def delete_branch(self, project_id=None, branch=None):
         if project_id is None or branch is None:
             raise MissingParameterError
-        r = self._session.delete(f'{self.url}/projects/{project_id}/repository/branches?branch={branch}',
-                                 headers=self.headers, verify=self.verify)
+        response = self._session.delete(f'{self.url}/projects/{project_id}/repository/branches?branch={branch}',
+                                        headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def delete_merged_branches(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.delete(f'{self.url}/projects/{project_id}/repository/merged_branches',
-                                 headers=self.headers, verify=self.verify)
+        response = self._session.delete(f'{self.url}/projects/{project_id}/repository/merged_branches',
+                                        headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                                 Commits API                                                      #
@@ -119,34 +120,34 @@ class Api(object):
     def get_commits(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/commits',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/commits',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_commit(self, project_id=None, commit_hash=None):
         if project_id is None or commit_hash is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_commit_references(self, project_id=None, commit_hash=None):
         if project_id is None or commit_hash is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/refs',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/refs',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def cherry_pick_commit(self, project_id=None, commit_hash=None, branch=None, dry_run=None, message=None):
@@ -166,12 +167,12 @@ class Api(object):
                 raise ParameterError
             data['message'] = message
         data = json.dumps(data, indent=4)
-        r = self._session.post(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/cherry_pick',
-                               headers=self.headers, data=data, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/cherry_pick',
+                                      headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def create_commit(self, project_id=None, branch=None, commit_message=None, start_branch=None, start_sha=None,
@@ -220,12 +221,12 @@ class Api(object):
                 raise ParameterError
             data['force'] = force
         data = json.dumps(data, indent=4)
-        r = self._session.post(f'{self.url}/projects/{project_id}/repository/commits',
-                               headers=self.headers, data=data, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/repository/commits',
+                                      headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def revert_commit(self, project_id=None, commit_hash=None, branch=None, dry_run=None):
@@ -241,34 +242,34 @@ class Api(object):
                 raise ParameterError
             data['dry_run'] = dry_run
         data = json.dumps(data, indent=4)
-        r = self._session.post(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/revert',
-                               headers=self.headers, data=data, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/revert',
+                                      headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_commit_diff(self, project_id=None, commit_hash=None):
         if project_id is None or commit_hash is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/diff',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/diff',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_commit_comments(self, project_id=None, commit_hash=None):
         if project_id is None or commit_hash is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/comments',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/comments',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def create_commit_comment(self, project_id=None, commit_hash=None, note=None, path=None, line=None, line_type=None):
@@ -293,34 +294,34 @@ class Api(object):
             else:
                 data['line_type'] = line_type
         data = json.dumps(data, indent=4)
-        r = self._session.post(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/comments',
-                               headers=self.headers, data=data, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/comments',
+                                      headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_commit_discussions(self, project_id=None, commit_hash=None):
         if project_id is None or commit_hash is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/discussions',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/discussions',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_commit_statuses(self, project_id=None, commit_hash=None):
         if project_id is None or commit_hash is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/statuses',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/statuses',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def post_build_status_to_commit(self, project_id=None, commit_hash=None, state=None, reference=None, name=None,
@@ -362,67 +363,69 @@ class Api(object):
                 raise ParameterError
             data['pipeline_id'] = pipeline_id
         data = json.dumps(data, indent=4)
-        r = self._session.post(f'{self.url}/projects/{project_id}/statuses/{commit_hash}/',
-                               headers=self.headers, data=data, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/statuses/{commit_hash}/',
+                                      headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_commit_merge_requests(self, project_id=None, commit_hash=None):
         if project_id is None or commit_hash is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/merge_requests',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(
+            f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/merge_requests',
+            headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_commit_gpg_signature(self, project_id=None, commit_hash=None):
         if project_id is None or commit_hash is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/merge_requests',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(
+            f'{self.url}/projects/{project_id}/repository/commits/{commit_hash}/merge_requests',
+            headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                                Deploy Tokens API                                                 #
     ####################################################################################################################
     @require_auth
     def get_deploy_tokens(self):
-        r = self._session.get(f'{self.url}/deploy_tokens', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/deploy_tokens', headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_project_deploy_tokens(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/deploy_tokens',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/deploy_tokens',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_project_deploy_token(self, project_id=None, token=None):
         if project_id is None or token is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/deploy_tokens/{token}',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/deploy_tokens/{token}',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def create_project_deploy_token(self, project_id=None, name=None, expires_at=None, username=None, scopes=None):
@@ -448,45 +451,45 @@ class Api(object):
             else:
                 data['scopes'] = scopes
         data = json.dumps(data, indent=4)
-        r = self._session.get(f'{self.url}/projects/{project_id}/deploy_tokens',
-                              headers=self.headers, data=data, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/deploy_tokens',
+                                     headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def delete_project_deploy_token(self, project_id=None, token=None):
         if project_id is None or token is None:
             raise MissingParameterError
-        r = self._session.delete(f'{self.url}/projects/{project_id}/deploy_tokens/{token}',
-                                 headers=self.headers, verify=self.verify)
+        response = self._session.delete(f'{self.url}/projects/{project_id}/deploy_tokens/{token}',
+                                        headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_group_deploy_tokens(self, group_id=None):
         if group_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/groups/{group_id}/deploy_tokens',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}/deploy_tokens',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_group_deploy_token(self, group_id=None, token=None):
         if group_id is None or token is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/groups/{group_id}/deploy_tokens/{token}',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}/deploy_tokens/{token}',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def create_group_deploy_token(self, group_id=None, name=None, expires_at=None, username=None, scopes=None):
@@ -512,87 +515,88 @@ class Api(object):
             else:
                 data['scopes'] = scopes
         data = json.dumps(data, indent=4)
-        r = self._session.get(f'{self.url}/groups/{group_id}/deploy_tokens',
-                              headers=self.headers, data=data, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}/deploy_tokens',
+                                     headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def delete_group_deploy_token(self, group_id=None, token=None):
         if group_id is None or token is None:
             raise MissingParameterError
-        r = self._session.delete(f'{self.url}/groups/{group_id}/deploy_tokens/{token}',
-                                 headers=self.headers, verify=self.verify)
+        response = self._session.delete(f'{self.url}/groups/{group_id}/deploy_tokens/{token}',
+                                        headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                                Groups API                                                        #
     ####################################################################################################################
     @require_auth
     def get_groups(self):
-        r = self._session.get(f'{self.url}/groups?per_page=200', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups?per_page=200', headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_group(self, group_id):
         if group_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/groups/{group_id}', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}', headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_group_subgroups(self, group_id=None):
         if group_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/groups/{group_id}/subgroups', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}/subgroups', headers=self.headers,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_group_descendant_groups(self, group_id=None):
         if group_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/groups/{group_id}/descendant_groups',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}/descendant_groups',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_group_projects(self, group_id=None):
         if group_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/groups/{group_id}/projects?per_page=100',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}/projects?per_page=100',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_group_merge_requests(self, group_id=None, argument='state=opened'):
         if group_id is None or argument is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/groups/{group_id}/merge_requests?{argument}&per_page=100',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}/merge_requests?{argument}&per_page=100',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                               Members API                                                        #
@@ -601,23 +605,23 @@ class Api(object):
     def get_group_members(self, group_id=None):
         if group_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/groups/{group_id}/members?per_page=100', headers=self.headers,
-                              verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}/members?per_page=100', headers=self.headers,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_project_members(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/members?per_page=100', headers=self.headers,
-                              verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/members?per_page=100', headers=self.headers,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                            Merge Request API                                                     #
@@ -654,8 +658,12 @@ class Api(object):
             if not isinstance(approvals_before_merge, int):
                 raise ParameterError
             data['approvals_before_merge'] = approvals_before_merge
+        if assignee_id:
+            if not isinstance(assignee_id, int):
+                raise ParameterError
+            data['assignee_id'] = assignee_id
         if assignee_ids:
-            if not isinstance(assignee_ids, int):
+            if not isinstance(assignee_ids, list):
                 raise ParameterError
             data['assignee_ids'] = assignee_ids
         if description:
@@ -689,12 +697,12 @@ class Api(object):
 
         if len(data) > 0:
             data = json.dumps(data, indent=4)
-            r = self._session.post(f'{self.url}/projects/{project_id}/merge_requests', headers=self.headers,
-                                   data=data, verify=self.verify)
+            response = self._session.post(f'{self.url}/projects/{project_id}/merge_requests', headers=self.headers,
+                                          data=data, verify=self.verify)
             try:
-                return r.json()
+                return response.json()
             except ValueError:
-                return r
+                return response
         else:
             raise MissingParameterError
 
@@ -707,10 +715,11 @@ class Api(object):
                            target_branch=None, updated_after=None, updated_before=None, view=None,
                            with_labels_details=None, with_merge_status_recheck=None, wip=None, max_pages=0,
                            per_page=100):
-        r = self._session.get(f'{self.url}/merge_requests?per_page={per_page}&x-total-pages', headers=self.headers,
-                              verify=self.verify)
-        total_pages = int(r.headers['X-Total-Pages'])
-        r = []
+        response = self._session.get(f'{self.url}/merge_requests?per_page={per_page}&x-total-pages',
+                                     headers=self.headers,
+                                     verify=self.verify)
+        total_pages = int(response.headers['X-Total-Pages'])
+        response = []
         merge_filter = None
         if approved_by_ids:
             if not isinstance(approved_by_ids, list):
@@ -926,36 +935,38 @@ class Api(object):
         if max_pages == 0 or max_pages > total_pages:
             max_pages = total_pages
         for page in range(0, max_pages):
-            r_page = self._session.get(f'{self.url}/merge_requests{merge_filter}&per_page={per_page}&page={page}',
-                                       headers=self.headers, verify=self.verify)
-            r_page = json.loads(r_page.text.replace("'", "\""))
-            r = r + r_page
+            response_page = self._session.get(
+                f'{self.url}/merge_requests{merge_filter}&per_page={per_page}&page={page}',
+                headers=self.headers, verify=self.verify)
+            response_page = json.loads(response_page.text.replace("'", "\""))
+            response = response + response_page
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_project_merge_requests(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/merge_requests',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/merge_requests',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_project_merge_request(self, project_id=None, merge_id=None):
         if project_id is None or merge_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/merge_requests/{merge_id}', headers=self.headers,
-                              verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/merge_requests/{merge_id}',
+                                     headers=self.headers,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                            Merge Rules API                                                       #
@@ -964,23 +975,23 @@ class Api(object):
     def get_project_level_rules(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/approval_rules', headers=self.headers,
-                              verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/approval_rules', headers=self.headers,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_project_level_rule(self, project_id=None, approval_rule_id=None):
         if project_id is None or approval_rule_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/approval_rules/{approval_rule_id}',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/approval_rules/{approval_rule_id}',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def create_project_level_rule(self, project_id=None, approvals_required=None, name=None,
@@ -1023,12 +1034,13 @@ class Api(object):
             data['user_ids'] = user_ids
         if len(data) > 0:
             data = json.dumps(data, indent=4)
-            r = self._session.post(f'{self.url}/projects/{project_id}/approval_rules', headers=self.headers, data=data,
-                                   verify=self.verify)
+            response = self._session.post(f'{self.url}/projects/{project_id}/approval_rules', headers=self.headers,
+                                          data=data,
+                                          verify=self.verify)
             try:
-                return r.json()
+                return response.json()
             except ValueError:
-                return r
+                return response
         else:
             raise MissingParameterError
 
@@ -1073,12 +1085,12 @@ class Api(object):
             data['user_ids'] = user_ids
         if len(data) > 0:
             data = json.dumps(data, indent=4)
-            r = self._session.put(f'{self.url}/projects/{project_id}/approval_rules/{approval_rule_id}', data=data,
-                                  headers=self.headers, verify=self.verify)
-        try:
-            return r.json()
-        except ValueError:
-            return r
+            response = self._session.put(f'{self.url}/projects/{project_id}/approval_rules/{approval_rule_id}',
+                                         headers=self.headers, data=data, verify=self.verify)
+            try:
+                return response.json()
+            except ValueError and AttributeError:
+                return response
         else:
             raise MissingParameterError
 
@@ -1086,69 +1098,69 @@ class Api(object):
     def delete_project_level_rule(self, project_id=None, approval_rule_id=None):
         if project_id is None or approval_rule_id is None:
             raise MissingParameterError
-        r = self._session.delete(f'{self.url}/projects/{project_id}/approval_rules/{approval_rule_id}',
-                                 headers=self.headers, verify=self.verify)
+        response = self._session.delete(f'{self.url}/projects/{project_id}/approval_rules/{approval_rule_id}',
+                                        headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def merge_request_level_approvals(self, project_id=None, merge_request_iid=None):
         if project_id is None or merge_request_iid is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approvals',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approvals',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_approval_state_merge_requests(self, project_id=None, merge_request_iid=None):
         if project_id is None or merge_request_iid is None:
             raise MissingParameterError
-        r = self._session.get(
+        response = self._session.get(
             f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approval_state',
             headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_merge_request_level_rules(self, project_id=None, merge_request_iid=None):
         if project_id is None or merge_request_iid is None:
             raise MissingParameterError
-        r = self._session.get(
+        response = self._session.get(
             f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approval_rules',
             headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def approve_merge_request(self, project_id=None, merge_request_iid=None):
         if project_id is None or merge_request_iid is None:
             raise MissingParameterError
-        r = self._session.post(f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approve',
-                               headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approve',
+                                      headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def unapprove_merge_request(self, project_id=None, merge_request_iid=None):
         if project_id is None or merge_request_iid is None:
             raise MissingParameterError
-        r = self._session.post(f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/unapprove',
-                               headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/unapprove',
+                                      headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                               Packages API                                                       #
@@ -1156,11 +1168,12 @@ class Api(object):
     def get_repository_packages(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/packages', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/packages', headers=self.headers,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                                Pipeline API                                                      #
@@ -1169,23 +1182,23 @@ class Api(object):
     def get_pipelines(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{id}/pipelines?per_page=100', headers=self.headers,
-                              verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{id}/pipelines?per_page=100', headers=self.headers,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_pipeline(self, project_id=None, pipeline_id=None):
         if project_id is None or pipeline_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/pipelines/{pipeline_id}', headers=self.headers,
-                              verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/pipelines/{pipeline_id}', headers=self.headers,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def run_pipeline(self, project_id=None, reference=None, variables=None):
@@ -1193,25 +1206,27 @@ class Api(object):
             raise MissingParameterError
         if variables:
             data = json.dumps(variables, indent=4)
-            r = self._session.post(f'{self.url}/projects/{project_id}/pipeline?ref={reference}', headers=self.headers,
-                                   data=data, verify=self.verify)
+            response = self._session.post(f'{self.url}/projects/{project_id}/pipeline?ref={reference}',
+                                          headers=self.headers,
+                                          data=data, verify=self.verify)
         else:
-            r = self._session.post(f'{self.url}/projects/{project_id}/pipeline?ref={reference}', headers=self.headers,
-                                   verify=self.verify)
+            response = self._session.post(f'{self.url}/projects/{project_id}/pipeline?ref={reference}',
+                                          headers=self.headers,
+                                          verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                                Projects API                                                      #
     ####################################################################################################################
     @require_auth
     def get_projects(self, max_pages=0, per_page=100, order_by='updated'):
-        r = self._session.get(f'{self.url}/projects?per_page={per_page}&x-total-pages',
-                              headers=self.headers, verify=self.verify)
-        total_pages = int(r.headers['X-Total-Pages'])
-        r = []
+        response = self._session.get(f'{self.url}/projects?per_page={per_page}&x-total-pages',
+                                     headers=self.headers, verify=self.verify)
+        total_pages = int(response.headers['X-Total-Pages'])
+        response = []
         if order_by == 'updated':
             order_by = 'updated_at'
         else:
@@ -1219,24 +1234,25 @@ class Api(object):
         if max_pages == 0 or max_pages > total_pages:
             max_pages = total_pages
         for page in range(0, max_pages):
-            r_page = self._session.get(f'{self.url}/projects?per_page={per_page}&page={page}&order_by={order_by}',
-                                       headers=self.headers, verify=self.verify)
-            r_page = json.loads(r_page.text.replace("'", "\""))
-            r = r + r_page
+            response_page = self._session.get(
+                f'{self.url}/projects?per_page={per_page}&page={page}&order_by={order_by}',
+                headers=self.headers, verify=self.verify)
+            response_page = json.loads(response_page.text.replace("'", "\""))
+            response = response + response_page
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_project(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}', headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_nested_projects_by_group(self, group_id=None, max_pages=0, per_page=100):
@@ -1245,9 +1261,9 @@ class Api(object):
         projects = []
         groups = self.get_group_subgroups(group_id)
         for group in groups:
-            r = self._session.get(f'{self.url}/groups/{group["id"]}/projects?per_page={per_page}&x-total-pages',
-                                  headers=self.headers, verify=self.verify)
-            total_pages = int(r.headers['X-Total-Pages'])
+            response = self._session.get(f'{self.url}/groups/{group["id"]}/projects?per_page={per_page}&x-total-pages',
+                                         headers=self.headers, verify=self.verify)
+            total_pages = int(response.headers['X-Total-Pages'])
             if max_pages == 0 or max_pages > total_pages:
                 max_pages = total_pages
             for page in range(0, max_pages):
@@ -1260,23 +1276,23 @@ class Api(object):
     def get_project_contributors(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/repository/contributors',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/repository/contributors',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_project_statistics(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}?statistics=true',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}?statistics=true',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def edit_project(self, project_id=None, allow_merge_on_skipped_pipeline=None,
@@ -1289,7 +1305,7 @@ class Api(object):
                      container_registry_access_level=None, default_branch=None, description=None, emails_disabled=None,
                      enforce_auth_checks_on_uploads=None,
                      external_authorization_classification_label=None, forking_access_level=None, import_url=None,
-                     issues_access_level=None, issues_template=None, keep_latest_artifact=None,  lfs_enabled=None,
+                     issues_access_level=None, issues_template=None, keep_latest_artifact=None, lfs_enabled=None,
                      merge_commit_template=None, merge_method=None, merge_pipelines_enabled=None,
                      merge_requests_access_level=None, merge_requests_template=None,
                      merge_trains_enabled=None, mirror_overwrites_diverged_branches=None, mirror_trigger_builds=None,
@@ -1302,7 +1318,8 @@ class Api(object):
                      resolve_outdated_diff_discussions=None, restrict_user_defined_variables=None,
                      security_and_compliance_access_level=None, service_desk_enabled=None, shared_runners_enabled=None,
                      snippets_access_level=None, squash_commit_template=None, squash_option=None,
-                     suggestion_commit_message=None, tag_list=None, topics=None, visibility=None, wiki_access_level=None):
+                     suggestion_commit_message=None, tag_list=None, topics=None, visibility=None,
+                     wiki_access_level=None):
         if project_id is None:
             raise MissingParameterError
 
@@ -1589,11 +1606,12 @@ class Api(object):
             data['wiki_access_level'] = wiki_access_level
         if len(data) > 0:
             data = json.dumps(data, indent=4)
-            r = self._session.put(f'{self.url}/projects/{project_id}', data=data, headers=self.headers, verify=self.verify)
+            response = self._session.put(f'{self.url}/projects/{project_id}', data=data, headers=self.headers,
+                                         verify=self.verify)
             try:
-                return r.json()
+                return response.json()
             except ValueError:
-                return r
+                return response
         else:
             raise MissingParameterError
 
@@ -1601,41 +1619,44 @@ class Api(object):
     def get_project_groups(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/groups', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/groups', headers=self.headers,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def archive_project(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.post(f'{self.url}/projects/{project_id}/archive', headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/archive', headers=self.headers,
+                                      verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def unarchive_project(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.post(f'{self.url}/projects/{project_id}/unarchive', headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/unarchive', headers=self.headers,
+                                      verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def delete_project(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.delete(f'{self.url}/projects/{project_id}', headers=self.headers, verify=self.verify)
+        response = self._session.delete(f'{self.url}/projects/{project_id}', headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def share_project(self, project_id=None, group_id=None, group_access=None, expires_at=None):
@@ -1663,12 +1684,12 @@ class Api(object):
                 share_filter = f'{share_filter}&expires_at={expires_at}'
             else:
                 share_filter = f'?expires_at={expires_at}'
-        r = self._session.post(f'{self.url}/projects/{project_id}/share{share_filter}',
-                               headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/share{share_filter}',
+                                      headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                       Protected Branches API                                                     #
@@ -1677,23 +1698,23 @@ class Api(object):
     def get_protected_branches(self, project_id=None):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/protected_branches',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/protected_branches',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_protected_branch(self, project_id=None, branch=None):
         if project_id is None or branch is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/projects/{project_id}/protected_branches/{branch}',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/protected_branches/{branch}',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def protect_branch(self, project_id=None, branch=None, push_access_level=None, merge_access_level=None,
@@ -1742,15 +1763,15 @@ class Api(object):
 
         if len(data) > 0:
             data = json.dumps(data, indent=4)
-            r = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
-                                   headers=self.headers, data=data, verify=self.verify)
+            response = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
+                                          headers=self.headers, data=data, verify=self.verify)
         else:
-            r = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
-                                   headers=self.headers, verify=self.verify)
+            response = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
+                                          headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def unprotect_branch(self, project_id=None, branch=None):
@@ -1763,12 +1784,12 @@ class Api(object):
     def require_code_owner_approvals_single_branch(self, project_id=None, branch=None):
         if project_id is None or branch is None:
             raise MissingParameterError
-        r = self._session.patch(f'{self.url}/projects/{project_id}/protected_branches/{branch}',
-                                headers=self.headers, verify=self.verify)
+        response = self._session.patch(f'{self.url}/projects/{project_id}/protected_branches/{branch}',
+                                       headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                                Runners API                                                       #
@@ -1808,11 +1829,11 @@ class Api(object):
                 runner_filter = f'?tag_list={tag_list}'
         if runner_filter and runner_filter != "/all":
             print(f"REQUEST: {self.url}/runners{runner_filter}")
-            r = self._session.get(f'{self.url}/runners{runner_filter}', headers=self.headers, verify=self.verify)
+            response = self._session.get(f'{self.url}/runners{runner_filter}', headers=self.headers, verify=self.verify)
             try:
-                return r.json()
+                return response.json()
             except ValueError:
-                return r
+                return response
         else:
             raise ParameterError
 
@@ -1820,11 +1841,11 @@ class Api(object):
     def get_runner(self, runner_id=None):
         if runner_id is None:
             raise MissingParameterError
-        r = self._session.get(f'{self.url}/runners/{runner_id}', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/runners/{runner_id}', headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def update_runner_details(self, runner_id=None, description=None, active=None, paused=None, tag_list=None,
@@ -1865,11 +1886,12 @@ class Api(object):
                 raise ParameterError
             data['maximum_timeout'] = maximum_timeout
         data = json.dumps(data, indent=4)
-        r = self._session.put(f'{self.url}/runners/{runner_id}', headers=self.headers, data=data, verify=self.verify)
+        response = self._session.put(f'{self.url}/runners/{runner_id}', headers=self.headers, data=data,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def pause_runner(self, runner_id=None, active=None):
@@ -1877,21 +1899,22 @@ class Api(object):
             raise MissingParameterError
         data = {'active': active}
         data = json.dumps(data, indent=4)
-        r = self._session.put(f'{self.url}/runners/{runner_id}', headers=self.headers, data=data, verify=self.verify)
+        response = self._session.put(f'{self.url}/runners/{runner_id}', headers=self.headers, data=data,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_runner_jobs(self, runner_id=None):
         if runner_id is None:
             raise MissingParameterError
-        r = self._session.put(f'{self.url}/runners/{runner_id}/jobs', headers=self.headers, verify=self.verify)
+        response = self._session.put(f'{self.url}/runners/{runner_id}/jobs', headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_project_runners(self, project_id=None, runner_type=None, status=None, paused=None, tag_list=None,
@@ -1929,35 +1952,35 @@ class Api(object):
                 runner_filter = f'{runner_filter}&tag_list={tag_list}'
             else:
                 runner_filter = f'?tag_list={tag_list}'
-        r = self._session.get(f'{self.url}/projects/{project_id}/runners{runner_filter}',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/runners{runner_filter}',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def enable_project_runner(self, project_id=None, runner_id=None):
         if project_id is None or runner_id is None:
             raise MissingParameterError
         data = json.dumps({'runner_id': runner_id}, indent=4)
-        r = self._session.put(f'{self.url}/projects/{project_id}/runners', headers=self.headers, data=data,
-                              verify=self.verify)
+        response = self._session.put(f'{self.url}/projects/{project_id}/runners', headers=self.headers, data=data,
+                                     verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def delete_project_runner(self, project_id=None, runner_id=None):
         if project_id is None or runner_id is None:
             raise MissingParameterError
-        r = self._session.delete(f'{self.url}/projects/{project_id}/runners/{runner_id}', headers=self.headers,
-                                 verify=self.verify)
+        response = self._session.delete(f'{self.url}/projects/{project_id}/runners/{runner_id}', headers=self.headers,
+                                        verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_group_runners(self, group_id=None, runner_type=None, status=None, paused=None, tag_list=None,
@@ -1995,12 +2018,12 @@ class Api(object):
                 runner_filter = f'{runner_filter}&tag_list={tag_list}'
             else:
                 runner_filter = f'?tag_list={tag_list}'
-        r = self._session.get(f'{self.url}/groups/{group_id}/runners{runner_filter}',
-                              headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/groups/{group_id}/runners{runner_filter}',
+                                     headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def register_new_runner(self, token=None, description=None, info=None, paused=None, locked=None, run_untagged=None,
@@ -2043,27 +2066,27 @@ class Api(object):
                 raise ParameterError
             data['maintenance_note'] = maintenance_note
         data = json.dumps(data, indent=4)
-        r = self._session.put(f'{self.url}/runners', headers=self.headers, data=data, verify=self.verify)
+        response = self._session.put(f'{self.url}/runners', headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def delete_runner(self, runner_id=None, token=None):
         if runner_id is None and token is None:
             raise MissingParameterError
         if runner_id:
-            r = self._session.delete(f'{self.url}/runners/{runner_id}', headers=self.headers, verify=self.verify)
+            response = self._session.delete(f'{self.url}/runners/{runner_id}', headers=self.headers, verify=self.verify)
         else:
             data = {'token': token}
             data = json.dumps(data, indent=4)
-            r = self._session.delete(f'{self.url}/runners', headers=self.headers, data=data,
-                                     verify=self.verify)
+            response = self._session.delete(f'{self.url}/runners', headers=self.headers, data=data,
+                                            verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def verify_runner_authentication(self, token=None):
@@ -2071,41 +2094,42 @@ class Api(object):
             raise MissingParameterError
         data = {'token': token}
         data = json.dumps(data, indent=4)
-        r = self._session.post(f'{self.url}/runners/verify', headers=self.headers, data=data, verify=self.verify)
+        response = self._session.post(f'{self.url}/runners/verify', headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def reset_gitlab_runner_token(self):
-        r = self._session.post(f'{self.url}/runners/reset_registration_token', headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/runners/reset_registration_token', headers=self.headers,
+                                      verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def reset_project_runner_token(self, project_id):
         if project_id is None:
             raise MissingParameterError
-        r = self._session.post(f'{self.url}/projects/{project_id}/runners/reset_registration_token',
-                               headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project_id}/runners/reset_registration_token',
+                                      headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def reset_group_runner_token(self, group_id):
         if group_id is None:
             raise MissingParameterError
-        r = self._session.post(f'{self.url}/groups/{group_id}/runners/reset_registration_token',
-                               headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/groups/{group_id}/runners/reset_registration_token',
+                                      headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def reset_token(self, runner_id, token=None):
@@ -2113,12 +2137,12 @@ class Api(object):
             raise MissingParameterError
         data = {'token': token}
         data = json.dumps(data, indent=4)
-        r = self._session.post(f'{self.url}/runners/{runner_id}/reset_authentication_token',
-                               headers=self.headers, data=data, verify=self.verify)
+        response = self._session.post(f'{self.url}/runners/{runner_id}/reset_authentication_token',
+                                      headers=self.headers, data=data, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     ####################################################################################################################
     #                                                Users API                                                         #
@@ -2128,10 +2152,10 @@ class Api(object):
                   exclude_external=None, without_project_bots=None, extern_uid=None, provider=None, created_before=None,
                   created_after=None, with_custom_attributes=None, sort=None, order_by=None, two_factor=None,
                   without_projects=None, admins=None, saml_provider_id=None, max_pages=0, per_page=100):
-        r = self._session.get(f'{self.url}/users?per_page={per_page}&x-total-pages',
-                              headers=self.headers, verify=self.verify)
-        total_pages = int(r.headers['X-Total-Pages'])
-        r = []
+        response = self._session.get(f'{self.url}/users?per_page={per_page}&x-total-pages',
+                                     headers=self.headers, verify=self.verify)
+        total_pages = int(response.headers['X-Total-Pages'])
+        response = []
         user_filter = f"?per_page={per_page}"
         if username:
             if not isinstance(username, str):
@@ -2208,14 +2232,15 @@ class Api(object):
         if max_pages == 0 or max_pages > total_pages:
             max_pages = total_pages
         for page in range(0, max_pages):
-            r_page = self._session.get(f'{self.url}/users{user_filter}&page={page}',
-                                       headers=self.headers, verify=self.verify)
-            r_page = json.loads(r_page.text.replace("'", "\""))
-            r = r + r_page
+            response_page = self._session.get(f'{self.url}/users{user_filter}&page={page}',
+                                              headers=self.headers, verify=self.verify)
+            response_page = json.loads(response_page.text.replace("'", "\""))
+            response = response + response_page
         try:
-            return r.json()
-        except ValueError:
-            return r
+            print(f"RESPONSE: {response}")
+            return response.json()
+        except ValueError and AttributeError:
+            return response
 
     @require_auth
     def get_user(self, user_id=None, sudo=False):
@@ -2225,9 +2250,8 @@ class Api(object):
             user_url = f'?sudo={user_id}'
         else:
             user_url = f'/{user_id}'
-        r = self._session.get(f'{self.url}/users{user_url}', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/users{user_url}', headers=self.headers, verify=self.verify)
         try:
-            return r.json()
-        except ValueError:
-            return r
-
+            return response.json()
+        except ValueError and AttributeError:
+            return response
