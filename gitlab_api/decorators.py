@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import functools
-from exceptions import LoginRequiredError
+from gitlab_api.exceptions import LoginRequiredError
 
 
 def require_auth(function):

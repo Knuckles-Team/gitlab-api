@@ -5,8 +5,8 @@ import json
 import requests
 import urllib3
 from base64 import b64encode
-from decorators import require_auth
-from exceptions import (AuthError, UnauthorizedError, ParameterError, MissingParameterError)
+from gitlab_api.decorators import require_auth
+from gitlab_api.exceptions import (AuthError, UnauthorizedError, ParameterError, MissingParameterError)
 
 
 class Api(object):
