@@ -29,7 +29,8 @@ This repository is actively maintained and will continue adding more API calls
 import gitlab_api
 
 token = "<GITLAB_TOKEN/PERSONAL_TOKEN>"
-client = gitlab_api.Api(token=token)
+gitlab_url = "<GITLAB_URL>"
+client = gitlab_api.Api(url=gitlab_url, token=token)
 
 users = client.get_users()
 print(users)
