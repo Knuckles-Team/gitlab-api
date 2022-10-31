@@ -2,8 +2,10 @@
 # coding: utf-8
 
 import functools
-from gitlab_api.exceptions import LoginRequiredError
-
+try:
+    from gitlab_api.exceptions import LoginRequiredError
+except ModuleNotFoundError:
+    from exceptions import LoginRequiredError
 
 def require_auth(function):
     """
