@@ -577,10 +577,10 @@ class Api(object):
             return response
 
     @require_auth
-    def get_group_projects(self, group_id=None):
+    def get_group_projects(self, group_id=None, per_page=100):
         if group_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/groups/{group_id}/projects?per_page=100',
+        response = self._session.get(f'{self.url}/groups/{group_id}/projects?per_page={per_page}',
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
@@ -588,10 +588,10 @@ class Api(object):
             return response
 
     @require_auth
-    def get_group_merge_requests(self, group_id=None, argument='state=opened'):
+    def get_group_merge_requests(self, group_id=None, argument='state=opened', per_page=100):
         if group_id is None or argument is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/groups/{group_id}/merge_requests?{argument}&per_page=100',
+        response = self._session.get(f'{self.url}/groups/{group_id}/merge_requests?{argument}&per_page={per_page}',
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
@@ -602,10 +602,10 @@ class Api(object):
     #                                               Members API                                                        #
     ####################################################################################################################
     @require_auth
-    def get_group_members(self, group_id=None):
+    def get_group_members(self, group_id=None, per_page=100):
         if group_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/groups/{group_id}/members?per_page=100', headers=self.headers,
+        response = self._session.get(f'{self.url}/groups/{group_id}/members?per_page={per_page}', headers=self.headers,
                                      verify=self.verify)
         try:
             return response.json()
@@ -613,11 +613,11 @@ class Api(object):
             return response
 
     @require_auth
-    def get_project_members(self, project_id=None):
+    def get_project_members(self, project_id=None, per_page=100):
         if project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}/members?per_page=100', headers=self.headers,
-                                     verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/members?per_page={per_page}',
+                                     headers=self.headers, verify=self.verify)
         try:
             return response.json()
         except ValueError and AttributeError:
@@ -1259,8 +1259,7 @@ class Api(object):
         if group_id is None:
             raise MissingParameterError
         projects = []
-        groups = []
-        groups.append(self.get_group(group_id=group_id))
+        groups = [self.get_group(group_id=group_id)]
         groups = groups + self.get_group_subgroups(group_id=group_id)
         for group in groups:
             response = self._session.get(f'{self.url}/groups/{group["id"]}/projects?per_page={per_page}&x-total-pages',
@@ -1270,8 +1269,8 @@ class Api(object):
                 max_pages = total_pages
             for page in range(0, max_pages):
                 group_projects = self._session.get(f'{self.url}/groups/{group["id"]}/'
-                                                  f'projects?per_page={per_page}&page={page}',
-                                                  headers=self.headers, verify=self.verify)
+                                                   f'projects?per_page={per_page}&page={page}',
+                                                   headers=self.headers, verify=self.verify)
                 group_projects = json.loads(group_projects.text)
                 projects = projects + group_projects
         return projects
