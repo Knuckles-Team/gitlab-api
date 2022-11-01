@@ -1259,7 +1259,9 @@ class Api(object):
         if group_id is None:
             raise MissingParameterError
         projects = []
-        groups = self.get_group_subgroups(group_id)
+        groups = []
+        groups.append(self.get_group(group_id=group_id))
+        groups = groups + self.get_group_subgroups(group_id=group_id)
         for group in groups:
             response = self._session.get(f'{self.url}/groups/{group["id"]}/projects?per_page={per_page}&x-total-pages',
                                          headers=self.headers, verify=self.verify)
@@ -1267,9 +1269,11 @@ class Api(object):
             if max_pages == 0 or max_pages > total_pages:
                 max_pages = total_pages
             for page in range(0, max_pages):
-                projects.append(self._session.get(f'{self.url}/groups/{group["id"]}/'
+                group_projects = self._session.get(f'{self.url}/groups/{group["id"]}/'
                                                   f'projects?per_page={per_page}&page={page}',
-                                                  headers=self.headers, verify=self.verify))
+                                                  headers=self.headers, verify=self.verify)
+                group_projects = json.loads(group_projects.text)
+                projects = projects + group_projects
         return projects
 
     @require_auth
