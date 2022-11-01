@@ -6,7 +6,7 @@ from gitlab_api.gitlab_api import Api
 """
 GitLab API
 
-A web page full page screenshooting tool.
+A Python Wrapper for GitLab API
 """
 
 __version__ = __version__
