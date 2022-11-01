@@ -537,8 +537,8 @@ class Api(object):
     #                                                Groups API                                                        #
     ####################################################################################################################
     @require_auth
-    def get_groups(self):
-        response = self._session.get(f'{self.url}/groups?per_page=200', headers=self.headers, verify=self.verify)
+    def get_groups(self, per_page=100):
+        response = self._session.get(f'{self.url}/groups?per_page={per_page}', headers=self.headers, verify=self.verify)
         try:
             return response.json()
         except ValueError and AttributeError:
@@ -592,6 +592,138 @@ class Api(object):
         if group_id is None or argument is None:
             raise MissingParameterError
         response = self._session.get(f'{self.url}/groups/{group_id}/merge_requests?{argument}&per_page={per_page}',
+                                     headers=self.headers, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError and AttributeError:
+            return response
+
+    ####################################################################################################################
+    #                                                Jobs API                                                          #
+    ####################################################################################################################
+    @require_auth
+    def get_project_jobs(self, project_id=None, scope=None, per_page=100):
+        if project_id is None:
+            raise MissingParameterError
+        api_parameters = f'?per_page={per_page}'
+        if scope:
+            if isinstance(scope, list):
+                for scope_value in scope:
+                    if scope_value in ['created', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped',
+                                       'waiting_for_resource', 'manual']:
+                        api_parameters = f'{api_parameters}&scope[]={scope_value}'
+                    else:
+                        raise ParameterError
+            elif isinstance(scope, str) and scope in ['created', 'pending', 'running', 'failed', 'success', 'canceled',
+                                                      'skipped', 'waiting_for_resource', 'manual']:
+                api_parameters = f'{api_parameters}&scope[]={scope}'
+            else:
+                raise ParameterError
+
+        response = self._session.get(f'{self.url}/projects/{project_id}/jobs{api_parameters}', headers=self.headers,
+                                     verify=self.verify)
+        try:
+            return response.json()
+        except ValueError and AttributeError:
+            return response
+
+    @require_auth
+    def get_project_job(self, project_id=None, job_id=None):
+        if project_id is None or job_id is None:
+            raise MissingParameterError
+        response = self._session.get(f'{self.url}/projects/{project_id}/jobs/{job_id}',
+                                     headers=self.headers, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError and AttributeError:
+            return response
+
+    @require_auth
+    def get_project_job_log(self, project_id=None, job_id=None):
+        if project_id is None or job_id is None:
+            raise MissingParameterError
+        response = self._session.get(f'{self.url}/projects/{project_id}/jobs/{job_id}/trace',
+                                     headers=self.headers, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError and AttributeError:
+            return response
+
+    @require_auth
+    def cancel_project_job(self, project_id=None, job_id=None):
+        if project_id is None or job_id is None:
+            raise MissingParameterError
+        response = self._session.post(f'{self.url}/projects/{project_id}/jobs/{job_id}/cancel',
+                                      headers=self.headers, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError and AttributeError:
+            return response
+
+    @require_auth
+    def retry_project_job(self, project_id=None, job_id=None):
+        if project_id is None or job_id is None:
+            raise MissingParameterError
+        response = self._session.post(f'{self.url}/projects/{project_id}/jobs/{job_id}/retry',
+                                      headers=self.headers, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError and AttributeError:
+            return response
+
+    @require_auth
+    def erase_project_job(self, project_id=None, job_id=None):
+        if project_id is None or job_id is None:
+            raise MissingParameterError
+        response = self._session.post(f'{self.url}/projects/{project_id}/jobs/{job_id}/erase',
+                                      headers=self.headers, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError and AttributeError:
+            return response
+
+    @require_auth
+    def run_project_job(self, project_id=None, job_id=None, job_variable_attributes=None):
+        if project_id is None or job_id is None:
+            raise MissingParameterError
+        data = None
+        if job_variable_attributes:
+            if not isinstance(job_variable_attributes, dict) \
+                    or "job_variable_attributes" not in job_variable_attributes.keys():
+                raise ParameterError
+            data = json.dumps(job_variable_attributes, indent=4)
+        response = self._session.post(f'{self.url}/projects/{project_id}/jobs/{job_id}/play',
+                                      headers=self.headers, data=data, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError and AttributeError:
+            return response
+
+    @require_auth
+    def get_pipeline_jobs(self, project_id=None, pipeline_id=None, scope=None, include_retried=None, per_page=100):
+        if project_id is None or pipeline_id is None:
+            raise MissingParameterError
+        api_parameters = f'?per_page={per_page}'
+        if scope:
+            if isinstance(scope, list):
+                for scope_value in scope:
+                    if scope_value in ['created', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped',
+                                       'waiting_for_resource', 'manual']:
+                        api_parameters = f'{api_parameters}&scope[]={scope_value}'
+                    else:
+                        raise ParameterError
+            elif isinstance(scope, str) and scope in ['created', 'pending', 'running', 'failed', 'success', 'canceled',
+                                                      'skipped', 'waiting_for_resource', 'manual']:
+                api_parameters = f'{api_parameters}&scope[]={scope}'
+            else:
+                raise ParameterError
+        if include_retried:
+            if isinstance(include_retried, bool):
+                api_parameters = f'{api_parameters}&include_retried={str(include_retried).lower()}'
+        else:
+            raise ParameterError
+
+        response = self._session.get(f'{self.url}/projects/{project_id}/pipelines/{pipeline_id}/jobs{api_parameters}',
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()

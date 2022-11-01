@@ -1,5 +1,5 @@
 # GitLab API
-*Version: 0.0.4*
+*Version: 0.0.5*
 
 GitLab API Python Wrapper
 
@@ -12,6 +12,7 @@ This repository is actively maintained and will continue adding more API calls
 - Commits
 - Deploy Tokens
 - Groups
+- Jobs
 - Members
 - Merge Request
 - Merge Rules
