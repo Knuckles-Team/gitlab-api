@@ -28,7 +28,7 @@ class Api(object):
         self.verify = verify
 
         if self.verify is False:
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestsWarning)
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         if token:
             self.headers = {
