@@ -1179,11 +1179,11 @@ class Api(object):
     #                                                Pipeline API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_pipelines(self, project_id=None):
+    def get_pipelines(self, project_id=None, per_page=100):
         if project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{id}/pipelines?per_page=100', headers=self.headers,
-                                     verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project_id}/pipelines?per_page={per_page}',
+                                     headers=self.headers, verify=self.verify)
         try:
             return response.json()
         except ValueError and AttributeError:
