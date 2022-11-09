@@ -65,7 +65,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -76,7 +76,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -88,7 +88,7 @@ class Api(object):
                                       headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -99,7 +99,7 @@ class Api(object):
                                         headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -110,7 +110,7 @@ class Api(object):
                                         headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -124,7 +124,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -135,7 +135,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -146,7 +146,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -171,7 +171,7 @@ class Api(object):
                                       headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -225,7 +225,7 @@ class Api(object):
                                       headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -246,7 +246,7 @@ class Api(object):
                                       headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -257,7 +257,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -268,7 +268,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -298,7 +298,7 @@ class Api(object):
                                       headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -309,7 +309,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -320,7 +320,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -367,7 +367,7 @@ class Api(object):
                                       headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -379,7 +379,7 @@ class Api(object):
             headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -391,7 +391,7 @@ class Api(object):
             headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -402,7 +402,7 @@ class Api(object):
         response = self._session.get(f'{self.url}/deploy_tokens', headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -413,7 +413,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -424,7 +424,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -455,7 +455,7 @@ class Api(object):
                                      headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -466,7 +466,7 @@ class Api(object):
                                         headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -477,7 +477,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -488,7 +488,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -519,7 +519,7 @@ class Api(object):
                                      headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -530,7 +530,7 @@ class Api(object):
                                         headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -541,7 +541,7 @@ class Api(object):
         response = self._session.get(f'{self.url}/groups?per_page={per_page}', headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -551,7 +551,7 @@ class Api(object):
         response = self._session.get(f'{self.url}/groups/{group_id}', headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -562,7 +562,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -573,7 +573,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -584,7 +584,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -595,7 +595,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -624,7 +624,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -635,7 +635,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -646,7 +646,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -657,7 +657,7 @@ class Api(object):
                                       headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -668,7 +668,7 @@ class Api(object):
                                       headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -679,7 +679,7 @@ class Api(object):
                                       headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -696,7 +696,7 @@ class Api(object):
                                       headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -727,7 +727,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -741,7 +741,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -752,7 +752,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -1074,7 +1074,7 @@ class Api(object):
             response = response + response_page
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1085,7 +1085,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1097,7 +1097,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -1111,7 +1111,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1122,7 +1122,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1221,7 +1221,7 @@ class Api(object):
                                          headers=self.headers, data=data, verify=self.verify)
             try:
                 return response.json()
-            except ValueError and AttributeError:
+            except ValueError or AttributeError:
                 return response
         else:
             raise MissingParameterError
@@ -1234,7 +1234,7 @@ class Api(object):
                                         headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1245,7 +1245,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1257,7 +1257,7 @@ class Api(object):
             headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1269,7 +1269,7 @@ class Api(object):
             headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1280,7 +1280,7 @@ class Api(object):
                                       headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1291,7 +1291,7 @@ class Api(object):
                                       headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -1304,7 +1304,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -1318,7 +1318,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1329,7 +1329,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1347,7 +1347,7 @@ class Api(object):
                                           verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -1373,7 +1373,7 @@ class Api(object):
             response = response + response_page
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1383,7 +1383,7 @@ class Api(object):
         response = self._session.get(f'{self.url}/projects/{project_id}', headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1415,7 +1415,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1426,7 +1426,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1758,7 +1758,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1769,7 +1769,7 @@ class Api(object):
                                       verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1780,7 +1780,7 @@ class Api(object):
                                       verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1790,7 +1790,7 @@ class Api(object):
         response = self._session.delete(f'{self.url}/projects/{project_id}', headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1823,7 +1823,7 @@ class Api(object):
                                       headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -1837,7 +1837,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1848,7 +1848,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1905,7 +1905,7 @@ class Api(object):
                                           headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -1923,7 +1923,7 @@ class Api(object):
                                        headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -1979,7 +1979,7 @@ class Api(object):
         response = self._session.get(f'{self.url}/runners/{runner_id}', headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2025,7 +2025,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2038,7 +2038,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2048,7 +2048,7 @@ class Api(object):
         response = self._session.put(f'{self.url}/runners/{runner_id}/jobs', headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2091,7 +2091,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2103,7 +2103,7 @@ class Api(object):
                                      verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2114,7 +2114,7 @@ class Api(object):
                                         verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2157,7 +2157,7 @@ class Api(object):
                                      headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2204,7 +2204,7 @@ class Api(object):
         response = self._session.put(f'{self.url}/runners', headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2220,7 +2220,7 @@ class Api(object):
                                             verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2232,7 +2232,7 @@ class Api(object):
         response = self._session.post(f'{self.url}/runners/verify', headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2241,7 +2241,7 @@ class Api(object):
                                       verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2252,7 +2252,7 @@ class Api(object):
                                       headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2263,7 +2263,7 @@ class Api(object):
                                       headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2276,7 +2276,7 @@ class Api(object):
                                       headers=self.headers, data=data, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     ####################################################################################################################
@@ -2374,7 +2374,7 @@ class Api(object):
         try:
             print(f"RESPONSE: {response}")
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
 
     @require_auth
@@ -2388,5 +2388,5 @@ class Api(object):
         response = self._session.get(f'{self.url}/users{user_url}', headers=self.headers, verify=self.verify)
         try:
             return response.json()
-        except ValueError and AttributeError:
+        except ValueError or AttributeError:
             return response
