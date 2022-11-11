@@ -48,6 +48,13 @@ response = client.get_runners(runner_type='instance_type', all_runners=True)
 print(f"Runners: {response}")
 ```
 
+#### Install Instructions
+Install Python Package
+
+```bash
+python -m pip install listmonk-api
+```
+
 #### Build Instructions
 Build Python Package
 
