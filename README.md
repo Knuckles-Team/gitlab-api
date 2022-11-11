@@ -52,7 +52,7 @@ print(f"Runners: {response}")
 Install Python Package
 
 ```bash
-python -m pip install listmonk-api
+python -m pip install gitlab-api
 ```
 
 #### Build Instructions
