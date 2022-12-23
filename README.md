@@ -1,5 +1,5 @@
 # GitLab API
-*Version: 0.1.1*
+*Version: 0.1.2*
 
 GitLab API Python Wrapper
 
