@@ -4,12 +4,15 @@
 from setuptools import setup
 from gitlab_api.version import __version__, __author__, __credits__
 from pathlib import Path
+import os
 import re
+from pip._internal.network.session import PipSession
+from pip._internal.req import parse_requirements
 
 readme = Path('README.md').read_text()
 version = __version__
+requirements = parse_requirements(os.path.join(os.path.dirname(__file__), 'requirements.txt'), session=PipSession())
 readme = re.sub(r"Version: [0-9]*\.[0-9]*\.[0-9][0-9]*", f"Version: {version}", readme)
-print(f"README: {readme}")
 with open("README.md", "w") as readme_file:
     readme_file.write(readme)
 description = 'GitLab API Python Wrapper'
@@ -26,7 +29,7 @@ setup(
     license='Unlicense',
     packages=['gitlab_api'],
     include_package_data=True,
-    install_requires=['requests', 'urllib3'],
+    install_requires=[str(requirement.requirement) for requirement in requirements],
     py_modules=['gitlab_api'],
     package_data={'gitlab_api': ['gitlab_api']},
     classifiers=[
