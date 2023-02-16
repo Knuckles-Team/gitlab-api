@@ -22,6 +22,7 @@ This repository is actively maintained and will continue adding more API calls
 - Protected Branches
 - Runners
 - Users
+- Wiki
 
 ### Usage:
 ```python
