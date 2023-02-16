@@ -2311,12 +2311,10 @@ class Api(object):
     #                                                Users API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_users(self, username:str=None, active:bool=None, blocked:str=None, external:str=None,
-                  exclude_internal:str=None, exclude_external:str=None, without_project_bots:str=None,
-                  extern_uid:str=None, provider:str=None, created_before:str=None,
-                  created_after:str=None, with_custom_attributes:str=None, sort:str=None, order_by:str=None,
-                  two_factor:str=None, without_projects:bool=None, admins:bool=None, saml_provider_id:int=None,
-                  max_pages:int=0, per_page:int=100):
+    def get_users(self, username=None, active=None, blocked=None, external=None, exclude_internal=None,
+                  exclude_external=None, without_project_bots=None, extern_uid=None, provider=None, created_before=None,
+                  created_after=None, with_custom_attributes=None, sort=None, order_by=None, two_factor=None,
+                  without_projects=None, admins=None, saml_provider_id=None, max_pages=0, per_page=100):
         response = self._session.get(f'{self.url}/users?per_page={per_page}&x-total-pages',
                                      headers=self.headers, verify=self.verify)
         total_pages = int(response.headers['X-Total-Pages'])
@@ -2408,7 +2406,7 @@ class Api(object):
             return response
 
     @require_auth
-    def get_user(self, user_id:Union[int, str]=None, sudo:bool=False):
+    def get_user(self, user_id=None, sudo=False):
         if user_id is None:
             raise MissingParameterError
         if sudo:
@@ -2419,5 +2417,132 @@ class Api(object):
         try:
             return response.json()
         except ValueError or AttributeError:
+            return
+
+    ####################################################################################################################
+    #                                                 Wiki API                                                         #
+    ####################################################################################################################
+    @require_auth
+    def get_wiki_list(self,  project_id:Union[int, str]=None, with_content:bool=None):
+        if project_id is None:
+            raise MissingParameterError
+        runner_filter = None
+        if with_content:
+            if not isinstance(with_content, bool):
+                raise ParameterError
+            if runner_filter:
+                runner_filter = f'{runner_filter}&with_content=1'
+            else:
+                runner_filter = f'?with_content=1'
+        response = self._session.get(f'{self.url}/projects/{project_id}/wikis{runner_filter}',
+                                      headers=self.headers, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError or AttributeError:
             return response
 
+    @require_auth
+    def get_wiki_page(self, project_id:Union[int, str]=None, slug:str=None, render_html:bool=None, version:str=None):
+        if project_id is None or slug is None:
+            raise MissingParameterError
+        runner_filter = None
+        if render_html:
+            if not isinstance(render_html, bool):
+                raise ParameterError
+            if runner_filter:
+                runner_filter = f'{runner_filter}&render_html=1'
+            else:
+                runner_filter = f'?render_html=1'
+        if version:
+            if not isinstance(version, bool):
+                raise ParameterError
+            if runner_filter:
+                runner_filter = f'{version}&version'
+            else:
+                runner_filter = f'?version'
+        response = self._session.get(f'{self.url}/projects/{project_id}/wikis/{slug}{runner_filter}',
+                                      headers=self.headers, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError or AttributeError:
+            return response
+
+    @require_auth
+    def create_wiki_page(self, project_id:Union[int, str]=None, content:str=None, title:str=None, format_type:str=None):
+        if project_id is None:
+            raise MissingParameterError
+        data = {}
+        if content:
+            if not isinstance(content, str):
+                raise ParameterError
+            data['content'] = content
+        if title:
+            if not isinstance(title, bool):
+                raise ParameterError
+            data['title'] = title
+        if format_type:
+            if not isinstance(format_type, str):
+                raise ParameterError
+            data['format'] = format_type
+        data = json.dumps(data, indent=4)
+        response = self._session.post(f'{self.url}/projects/{project_id}/wikis',
+                                      headers=self.headers, verify=self.verify, data=data)
+        try:
+            return response.json()
+        except ValueError or AttributeError:
+            return response
+
+    @require_auth
+    def update_wiki_page(self, project_id:Union[int, str]=None, slug:str=None, content:str=None, title:str=None, format_type:str=None):
+        if project_id is None or slug is None:
+            raise MissingParameterError
+        data = {}
+        if content:
+            if not isinstance(content, str):
+                raise ParameterError
+            data['content'] = content
+        if title:
+            if not isinstance(title, bool):
+                raise ParameterError
+            data['title'] = title
+        if format_type:
+            if not isinstance(format_type, str):
+                raise ParameterError
+            data['format'] = format_type
+        data = json.dumps(data, indent=4)
+        response = self._session.put(f'{self.url}/projects/{project_id}/wikis/{slug}',
+                                     headers=self.headers, verify=self.verify, data=data)
+        try:
+            return response.json()
+        except ValueError or AttributeError:
+            return response
+
+    @require_auth
+    def delete_wiki_page(self, project_id:Union[int, str]=None, slug:str=None):
+        if project_id is None or slug is None:
+            raise MissingParameterError
+        response = self._session.delete(f'{self.url}/projects/{project_id}/wikis/{slug}',
+                                        headers=self.headers, verify=self.verify)
+        try:
+            return response.json()
+        except ValueError or AttributeError:
+            return response
+
+    @require_auth
+    def upload_wiki_page_attachment(self, project_id:Union[int, str]=None, file:str=None, branch:str=None):
+        if project_id is None or file is None or branch is None:
+            raise MissingParameterError
+        data = {}
+        if file:
+            if not isinstance(file, str):
+                raise ParameterError
+            data['file'] = f"@{file}"
+        data = json.dumps(data, indent=4)
+        headers = self.headres
+        headers['Content-Type'] = "multipart/form-data"
+        response = self._session.delete(f'{self.url}/projects/{project_id}/wikis/attachments',
+                                        headers=headers, verify=self.verify, data=data)
+        try:
+            return response.json()
+        except ValueError or AttributeError:
+            return response
