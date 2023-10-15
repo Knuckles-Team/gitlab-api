@@ -1,11 +1,32 @@
 # GitLab API
+
+![PyPI - Version](https://img.shields.io/pypi/v/gitlab-api)
+![PyPI - Downloads](https://img.shields.io/pypi/dd/gitlab-api)
+![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/gitlab-api)
+![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/gitlab-api)
+![GitHub contributors](https://img.shields.io/github/contributors/Knuckles-Team/gitlab-api)
+![PyPI - License](https://img.shields.io/pypi/l/gitlab-api)
+![GitHub](https://img.shields.io/github/license/Knuckles-Team/gitlab-api)
+
+![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/Knuckles-Team/gitlab-api)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Knuckles-Team/gitlab-api)
+![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/Knuckles-Team/gitlab-api)
+![GitHub issues](https://img.shields.io/github/issues/Knuckles-Team/gitlab-api)
+
+![GitHub top language](https://img.shields.io/github/languages/top/Knuckles-Team/gitlab-api)
+![GitHub language count](https://img.shields.io/github/languages/count/Knuckles-Team/gitlab-api)
+![GitHub repo size](https://img.shields.io/github/repo-size/Knuckles-Team/gitlab-api)
+![GitHub repo file count (file type)](https://img.shields.io/github/directory-file-count/Knuckles-Team/gitlab-api)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
+![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
+
 *Version: 0.5.0*
 
 GitLab API Python Wrapper
 
-Includes a large variety of API calls to GitLab
+Includes a large portion of useful API calls to GitLab
 
-This repository is actively maintained and will continue adding more API calls
+This repository is actively maintained - Contributions are welcome!
 
 ### API Calls:
 - Branches
@@ -24,7 +45,9 @@ This repository is actively maintained and will continue adding more API calls
 - Users
 - Wiki
 
-### Usage:
+<details>
+  <summary><b>Usage:</b></summary>
+
 ```python
 #!/usr/bin/python
 # coding: utf-8
@@ -49,22 +72,25 @@ response = client.get_runners(runner_type='instance_type', all_runners=True)
 print(f"Runners: {response}")
 ```
 
-#### Install Instructions
+</details>
+
+<details>
+  <summary><b>Installation Instructions:</b></summary>
+
 Install Python Package
 
 ```bash
 python -m pip install gitlab-api
 ```
 
-#### Build Instructions
-Build Python Package
+</details>
 
-```bash
-sudo chmod +x ./*.py
-pip install .
-python setup.py bdist_wheel --universal
-# Test Pypi
-twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose -u "Username" -p "Password"
-# Prod Pypi
-twine upload dist/* --verbose -u "Username" -p "Password"
-```
+<details>
+  <summary><b>Repository Owners:</b></summary>
+
+
+<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=Knucklessg1&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
+
+![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
+![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
+</details>
