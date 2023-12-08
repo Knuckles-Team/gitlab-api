@@ -816,6 +816,71 @@ class ProjectModel(BaseModel):
         return value
 
 
+class ProtectedBranchModel(BaseModel):
+    project_id: Union[int, str]
+    branch: str
+    push_access_level: int
+    merge_access_level: int
+    unprotect_access_level: int
+    allow_force_push: List[str]
+    allowed_to_push: List[str]
+    allowed_to_merge: List[str]
+    allowed_to_unprotect: List[str]
+    code_owner_approval_required: bool
+
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("branch") is not None:
+            filters.append(f'name={values["branch"]}')
+
+        if values.get("push_access_level") is not None:
+            filters.append(f'push_access_level={values["push_access_level"]}')
+
+        if values.get("merge_access_level") is not None:
+            filters.append(f'merge_access_level={values["merge_access_level"]}')
+
+        if values.get("unprotect_access_level") is not None:
+            filters.append(f'unprotect_access_level={values["unprotect_access_level"]}')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
+    @field_validator('project_id')
+    def validate_project_id(cls, value):
+        if value is None:
+            raise ValueError('Project ID cannot be None')
+        return value
+
+    @field_validator('project_id')
+    def validate_project_id_type(cls, value):
+        if not isinstance(value, (int, str)):
+            raise ValueError('Project ID must be an integer or a string')
+        return value
+
+    @field_validator("data")
+    def construct_data_dict(cls, values):
+        data = {
+            "allow_force_push": values.get("allow_force_push"),
+            "allowed_to_push": values.get("allowed_to_push"),
+            "allowed_to_merge": values.get("allowed_to_merge"),
+            "allowed_to_unprotect": values.get("allowed_to_unprotect"),
+            "code_owner_approval_required": values.get("code_owner_approval_required"),
+        }
+
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if not data:
+            raise ValueError("At least one key is required in the data dictionary.")
+
+        return data
+
+
 class RunnerModel(BaseModel):
     description: str = None
     active: bool = None

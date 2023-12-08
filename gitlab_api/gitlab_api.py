@@ -7,8 +7,8 @@ import urllib3
 from base64 import b64encode
 from typing import Union
 from gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel, JobModel, MembersModel,
-                           PackageModel, PipelineModel, ProjectModel, MergeRequestModel, MergeRequestRuleModel,
-                           RunnerModel, UserModel, WikiModel)
+                           PackageModel, PipelineModel, ProjectModel, ProtectedBranchModel, MergeRequestModel,
+                           MergeRequestRuleModel, ReleaseModel, RunnerModel, UserModel, WikiModel)
 from pydantic import ValidationError
 
 try:
@@ -958,91 +958,72 @@ class Api(object):
     #                                       Protected Branches API                                                     #
     ####################################################################################################################
     @require_auth
-    def get_protected_branches(self, project_id: Union[int, str] = None):
-        if project_id is None:
+    def get_protected_branches(self, protected_branch: ProtectedBranchModel):
+        if protected_branch.project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}/protected_branches',
-                                     headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{protected_branch.project_id}/protected_branches',
+                                     headers=self.headers,
+                                     verify=self.verify)
         return response
 
     @require_auth
-    def get_protected_branch(self, project_id: Union[int, str] = None, branch: str = None):
-        if project_id is None or branch is None:
+    def get_protected_branch(self, protected_branch: ProtectedBranchModel):
+        if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}/protected_branches/{branch}',
-                                     headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{protected_branch.project_id}'
+                                     f'/protected_branches/{protected_branch.branch}',
+                                     headers=self.headers,
+                                     verify=self.verify)
         return response
 
     @require_auth
-    def protect_branch(self, project_id: Union[int, str] = None, branch: str = None, push_access_level: int = None,
-                       merge_access_level: int = None, unprotect_access_level: int = None,
-                       allow_force_push: list = None,
-                       allowed_to_push: list = None, allowed_to_merge: list = None,
-                       allowed_to_unprotect: list = None, code_owner_approval_required: bool = None):
-        if project_id is None or branch is None:
+    def protect_branch(self, protected_branch: ProtectedBranchModel):
+        if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
-        branch_filter = None
-        data = {}
-        if branch:
-            if not isinstance(branch, str):
-                raise ParameterError
-            branch_filter = f'?name={branch}'
-        if push_access_level:
-            if not isinstance(push_access_level, int):
-                raise ParameterError
-            branch_filter = f'{branch_filter}&push_access_level={push_access_level}'
-        if merge_access_level:
-            if not isinstance(merge_access_level, int):
-                raise ParameterError
-            branch_filter = f'{branch_filter}&merge_access_level={merge_access_level}'
-        if unprotect_access_level:
-            if not isinstance(branch, int):
-                raise ParameterError
-            branch_filter = f'{branch_filter}&unprotect_access_level={unprotect_access_level}'
-        if allow_force_push:
-            if not isinstance(allow_force_push, list):
-                raise ParameterError
-            data['allow_force_push'] = allow_force_push
-        if allowed_to_push:
-            if not isinstance(allowed_to_push, list):
-                raise ParameterError
-            data['allowed_to_push'] = allowed_to_push
-        if allowed_to_merge:
-            if not isinstance(allowed_to_merge, list):
-                raise ParameterError
-            data['allowed_to_merge'] = allowed_to_merge
-        if allowed_to_unprotect:
-            if not isinstance(allowed_to_unprotect, list):
-                raise ParameterError
-            data['allowed_to_unprotect'] = allowed_to_unprotect
-        if code_owner_approval_required:
-            if not isinstance(code_owner_approval_required, bool):
-                raise ParameterError
-            data['code_owner_approval_required'] = code_owner_approval_required
 
-        if len(data) > 0:
-            data = json.dumps(data, indent=4)
-            response = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
-                                          headers=self.headers, data=json.dumps(protected_branch.data, indent=2),
+        if protected_branch.data:
+            response = self._session.post(f'{self.url}/projects/{protected_branch.project_id}'
+                                          f'/protected_branches{protected_branch.branch_filter}',
+                                          headers=self.headers,
+                                          data=json.dumps(protected_branch.data, indent=2),
                                           verify=self.verify)
         else:
-            response = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
+            response = self._session.post(f'{self.url}/projects/{protected_branch.project_id}'
+                                          f'/protected_branches{protected_branch.branch_filter}',
                                           headers=self.headers, verify=self.verify)
         return response
 
     @require_auth
-    def unprotect_branch(self, project_id: Union[int, str] = None, branch: str = None):
-        if project_id is None or branch is None:
+    def unprotect_branch(self, protected_branch: ProtectedBranchModel):
+        if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
-        self._session.delete(f'{self.url}/projects/{project_id}/protected_branches/{branch}',
-                             headers=self.headers, verify=self.verify)
+        self._session.delete(f'{self.url}/projects/{protected_branch.project_id}'
+                             f'/protected_branches/{protected_branch.branch}',
+                             headers=self.headers,
+                             verify=self.verify)
 
     @require_auth
-    def require_code_owner_approvals_single_branch(self, project_id: Union[int, str] = None, branch: str = None):
-        if project_id is None or branch is None:
+    def require_code_owner_approvals_single_branch(self, protected_branch: ProtectedBranchModel):
+        if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
-        response = self._session.patch(f'{self.url}/projects/{project_id}/protected_branches/{branch}',
-                                       headers=self.headers, verify=self.verify)
+        response = self._session.patch(f'{self.url}/projects/{protected_branch.project_id}'
+                                       f'/protected_branches/{protected_branch.branch}',
+                                       headers=self.headers,
+                                       verify=self.verify)
+        return response
+
+    ####################################################################################################################
+    #                                                Release API                                                       #
+    ####################################################################################################################
+    @require_auth
+    def get_releases(self, release: ReleaseModel):
+        try:
+            response = self._session.get(f'{self.url}'
+                                         f'/runners{release.api_parameters}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     ####################################################################################################################
