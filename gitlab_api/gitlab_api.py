@@ -6,11 +6,16 @@ import requests
 import urllib3
 from base64 import b64encode
 from typing import Union
-from gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel, JobModel, MembersModel,
-                           PackageModel, PipelineModel, ProjectModel, ProtectedBranchModel, MergeRequestModel,
-                           MergeRequestRuleModel, ReleaseModel, RunnerModel, UserModel, WikiModel)
 from pydantic import ValidationError
-
+try:
+    from gitlab_api.gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel, JobModel,
+                                          MembersModel, PackageModel, PipelineModel, ProjectModel, ProtectedBranchModel,
+                                          MergeRequestModel, MergeRequestRuleModel, ReleaseModel, RunnerModel,
+                                          UserModel, WikiModel)
+except ModuleNotFoundError:
+    from gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel, JobModel, MembersModel,
+                               PackageModel, PipelineModel, ProjectModel, ProtectedBranchModel, MergeRequestModel,
+                               MergeRequestRuleModel, ReleaseModel, RunnerModel, UserModel, WikiModel)
 try:
     from gitlab_api.decorators import require_auth
 except ModuleNotFoundError:
