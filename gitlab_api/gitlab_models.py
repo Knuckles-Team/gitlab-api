@@ -56,11 +56,12 @@ class CommitModel(BaseModel):
     report_type: str = None
     rule_type: str = None
     user_ids: list = None
+    data: Dict = None
 
     @field_validator('dry_run', 'stats', 'force')
-    def validate_bool_fields(cls, v, values):
+    def validate_bool_fields(cls, v):
         if v is not None and not isinstance(v, bool):
-            raise ParameterError
+            raise ValueError("Invalid states")
         return v
 
     @field_validator('project_id', 'commit_hash', 'branch', 'start_branch', 'start_sha', 'start_project',
@@ -69,48 +70,48 @@ class CommitModel(BaseModel):
         if 'project_id' in values and values['project_id'] is not None and v is not None:
             return v
         else:
-            raise MissingParameterError
+            raise ValueError("Invalid optional params")
 
     @field_validator('commit_hash', 'branch', 'reference', 'name', 'context', 'note', 'path', 'line_type')
-    def validate_string_parameters(cls, v, values):
+    def validate_string_parameters(cls, v):
         if v is not None and not isinstance(v, str):
-            raise ParameterError
+            raise ValueError("Invalid optional params")
         return v
 
     @field_validator('coverage')
     def validate_coverage(cls, v):
         if v is not None and not isinstance(v, (float, int)):
-            raise ParameterError
+            raise ValueError("Invalid states")
         return v
 
     @field_validator('state')
     def validate_state(cls, v):
         if v is not None and v not in ['pending', 'running', 'success', 'failed', 'canceled']:
-            raise ParameterError
+            raise ValueError("Invalid states")
         return v
 
     @field_validator('line_type')
     def validate_line_type(cls, v):
         if v is not None and v not in ['new', 'old']:
-            raise ParameterError
+            raise ValueError("Invalid line_type")
         return v
 
     @field_validator('report_type')
     def validate_report_type(cls, v):
         if v is not None and v not in ['license_scanning', 'code_coverage']:
-            raise ParameterError
+            raise ValueError("Invalid report_type")
         return v
 
     @field_validator('rule_type')
     def validate_rule_type(cls, v):
         if v is not None and v not in ['any_approver', 'regular']:
-            raise ParameterError
+            raise ValueError("Invalid rule_type")
         return v
 
     @field_validator('user_ids', 'group_ids', 'protected_branch_ids')
     def validate_list_parameters(cls, v):
         if v is not None and not isinstance(v, list):
-            raise ParameterError
+            raise ValueError("Invalid user_ids, group_ids, protected_branch_ids")
         return v
 
     @field_validator("data")
@@ -191,6 +192,7 @@ class GroupModel(BaseModel):
     per_page: int = 100
     page: int = 1
     argument: str = 'state=opened'
+    api_parameters: str = None
 
     @field_validator('per_page', 'page')
     def validate_positive_integer(cls, v):
@@ -235,6 +237,7 @@ class JobModel(BaseModel):
     page: int = 1
     include_retried: bool = None
     job_variable_attributes: Dict = None
+    api_parameters: str = None
 
     @field_validator('per_page', 'page')
     def validate_positive_integer(cls, v):
@@ -248,8 +251,8 @@ class JobModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('scope_value')
-    def validate_scope_value(cls, v):
+    @field_validator('scope')
+    def validate_scope(cls, v):
         if v not in ['created', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped',
                      'waiting_for_resource', 'manual']:
             raise ParameterError
@@ -286,6 +289,7 @@ class MembersModel(BaseModel):
     project_id: Union[int, str] = None
     per_page: int = 100
     page: int = 1
+    api_parameters: str = None
 
     @field_validator('per_page', 'page')
     def validate_positive_integer(cls, v):
@@ -355,6 +359,8 @@ class MergeRequestModel(BaseModel):
     target_project_id: Union[int, str] = None
     max_pages: int = 0
     per_page: int = 100
+    api_parameters: str = None
+    data: Dict = None
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
@@ -560,6 +566,7 @@ class MergeRequestRuleModel(BaseModel):
     report_type: str = None
     rule_type: str = None
     user_ids: List[int] = None
+    data: Dict = None
 
     @field_validator("project_id", "approvals_required", "name")
     def check_required_fields(cls, value):
@@ -608,6 +615,7 @@ class PackageModel(BaseModel):
     file_name: str = None
     status: str = None
     select: str = None
+    api_parameters: str = None
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
@@ -652,6 +660,7 @@ class PipelineModel(BaseModel):
     pipeline_id: Union[int, str] = None
     reference: str = None
     variables: Dict = None
+    api_parameters: str = None
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
@@ -722,6 +731,7 @@ class ProjectModel(BaseModel):
     mirror: bool = None
     mr_default_target_self: bool = None
     name: str = None
+    order_by: str = None
     only_allow_merge_if_all_discussions_are_resolved: bool = None
     only_allow_merge_if_pipeline_succeeds: bool = None
     only_mirror_protected_branches: bool = None
@@ -750,6 +760,8 @@ class ProjectModel(BaseModel):
     topics: List[str] = None
     visibility: str = None
     wiki_access_level: str = None
+    api_parameters: str = None
+    data: Dict = None
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
@@ -827,6 +839,8 @@ class ProtectedBranchModel(BaseModel):
     allowed_to_merge: List[str]
     allowed_to_unprotect: List[str]
     code_owner_approval_required: bool
+    api_parameters: str = None
+    data: Dict = None
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
@@ -895,6 +909,8 @@ class ReleaseModel(BaseModel):
     name: List[str] = None
     milestones: str = None
     released_at: str = None
+    api_parameters: str = None
+    data: Dict = None
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
@@ -977,6 +993,8 @@ class RunnerModel(BaseModel):
     runner_type: str = None
     status: str = None
     all_runners: bool = False
+    api_parameters: str = None
+    data: Dict = None
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
@@ -1067,6 +1085,7 @@ class UserModel(BaseModel):
     per_page: int = 100
     sudo: bool = False
     user_id: Union[str, int] = None
+    api_parameters: str = None
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
@@ -1173,6 +1192,8 @@ class WikiModel(BaseModel):
     with_content: bool = None
     file: str = None
     branch: str = None
+    api_parameters: str = None
+    data: Dict = None
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
