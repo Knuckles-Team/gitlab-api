@@ -1,5 +1,6 @@
-from typing import Union, List
+from typing import Union, List, Dict
 from pydantic import BaseModel, field_validator
+import re
 
 try:
     from gitlab_api.decorators import require_auth
@@ -178,7 +179,8 @@ class DeployTokenModel(BaseModel):
 
     @field_validator('scopes')
     def validate_scopes(cls, v):
-        valid_scopes = ['read_repository', 'read_registry', 'write_registry', 'read_package_registry', 'write_package_registry']
+        valid_scopes = ['read_repository', 'read_registry', 'write_registry', 'read_package_registry',
+                        'write_package_registry']
         if v is not None and v not in valid_scopes:
             raise ParameterError
         return v
@@ -217,6 +219,60 @@ class GroupModel(BaseModel):
 
         if values.get("per_page") is not None:
             filters.append(f'per_page={values["per_page"]}')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
+
+class JobModel(BaseModel):
+    project_id: Union[int, str] = None
+    job_id: Union[int, str] = None
+    scope: List[str] = None
+    per_page: int = 100
+    page: int = 1
+    include_retried: bool = None
+    job_variable_attributes: Dict = None
+
+    @field_validator('per_page', 'page')
+    def validate_positive_integer(cls, v):
+        if not isinstance(v, int) or v <= 0:
+            raise ParameterError
+        return v
+
+    @field_validator('include_retried')
+    def validate_include_retried(cls, v):
+        if v is not None and not isinstance(v, bool):
+            raise ParameterError
+        return v
+
+    @field_validator('scope_value')
+    def validate_scope_value(cls, v):
+        if v not in ['created', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped',
+                     'waiting_for_resource', 'manual']:
+            raise ParameterError
+        return v
+
+    @field_validator('job_variable_attributes')
+    def validate_job_variable_attributes(cls, v):
+        if v is not None and (not isinstance(v, dict) or "job_variable_attributes" not in v.keys()):
+            raise ParameterError
+        return v
+
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("page") is not None:
+            filters.append(f'page={values["page"]}')
+
+        if values.get("per_page") is not None:
+            filters.append(f'per_page={values["per_page"]}')
+
+        if values.get("scope") is not None:
+            filters.append(f'scope[]={values["scope"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
@@ -338,6 +394,35 @@ class ProjectModel(BaseModel):
         return value
 
 
+class MembersModel(BaseModel):
+    group_id: Union[int, str] = None
+    project_id: Union[int, str] = None
+    per_page: int = 100
+    page: int = 1
+
+    @field_validator('per_page', 'page')
+    def validate_positive_integer(cls, v):
+        if not isinstance(v, int) or v <= 0:
+            raise ParameterError
+        return v
+
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("page") is not None:
+            filters.append(f'page={values["page"]}')
+
+        if values.get("per_page") is not None:
+            filters.append(f'per_page={values["per_page"]}')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
+
 class MergeRequestModel(BaseModel):
     approved_by_ids: List[int] = None
     approver_ids: List[int] = None
@@ -353,6 +438,7 @@ class MergeRequestModel(BaseModel):
     labels: str = None
     milestone: str = None
     my_reaction_emoji: str = None
+    project_id: Union[int, str] = None
     search_exclude: str = None
     order_by: str = None
     reviewer_id: Union[int, str] = None
@@ -369,6 +455,17 @@ class MergeRequestModel(BaseModel):
     with_labels_details: bool = None
     with_merge_status_recheck: bool = None
     wip: str = None
+    title: str
+    allow_collaboration: bool = None
+    allow_maintainer_to_push: bool = None
+    approvals_before_merge: int = None
+    assignee_ids: List[int] = None
+    description: str = None
+    milestone_id: int = None
+    remove_source_branch: str = None
+    reviewer_ids: List[int] = None
+    squash: bool = None
+    target_project_id: Union[int, str] = None
     max_pages: int = 0
     per_page: int = 100
 
@@ -512,6 +609,57 @@ class MergeRequestModel(BaseModel):
             raise ValueError("Invalid wip value")
         return value
 
+    @field_validator('project_id', 'source_branch', 'target_branch', 'title')
+    def validate_string(cls, v):
+        if not isinstance(v, str):
+            raise ParameterError
+        return v
+
+    @field_validator('allow_collaboration', 'allow_maintainer_to_push', 'squash')
+    def validate_boolean(cls, v):
+        if not isinstance(v, bool):
+            raise ParameterError
+        return v
+
+    @field_validator('approvals_before_merge', 'assignee_id', 'milestone_id', 'target_project_id')
+    def validate_positive_integer(cls, v):
+        if not isinstance(v, int) or v <= 0:
+            raise ParameterError
+        return v
+
+    @field_validator('assignee_ids', 'reviewer_ids')
+    def validate_list_of_integers(cls, v):
+        if not isinstance(v, list) or not all(isinstance(i, int) for i in v):
+            raise ParameterError
+        return v
+
+    @field_validator("data")
+    def construct_data_dict(cls, values):
+        data = {
+            "source_branch": values.get("source_branch"),
+            "target_branch": values.get("target_branch"),
+            "title": values.get("title"),
+            "allow_collaboration": values.get("allow_collaboration"),
+            "allow_maintainer_to_push": values.get("allow_maintainer_to_push"),
+            "approvals_before_merge": values.get("approvals_before_merge"),
+            "assignee_id": values.get("assignee_id"),
+            "description": values.get("description"),
+            "labels": values.get("labels"),
+            "milestone_id": values.get("milestone_id"),
+            "remove_source_branch": values.get("remove_source_branch"),
+            "reviewer_ids": values.get("reviewer_ids"),
+            "squash": values.get("squash"),
+            "target_project_id": values.get("target_project_id"),
+        }
+
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if not data:
+            raise ValueError("At least one key is required in the data dictionary.")
+
+        return data
+
 
 class MergeRequestRuleModel(BaseModel):
     project_id: Union[int, str] = None
@@ -520,6 +668,7 @@ class MergeRequestRuleModel(BaseModel):
     name: str = None
     applies_to_all_protected_branches: bool = None
     group_ids: List[int] = None
+    merge_request_iid: Union[int, str] = None
     protected_branch_ids: List[int] = None
     report_type: str = None
     rule_type: str = None
@@ -543,13 +692,6 @@ class MergeRequestRuleModel(BaseModel):
             raise ValueError("Invalid rule_type")
         return value
 
-    @field_validator("approval_rule_id")
-    def validate_approval_rule_id(cls, value, values):
-        # Validate presence of approval_rule_id when creating rules
-        if values.get("approvals_required") is not None and value is None:
-            raise ValueError("approval_rule_id is required when creating rules.")
-        return value
-
     @field_validator("data")
     def construct_data_dict(cls, values):
         data = {
@@ -570,3 +712,35 @@ class MergeRequestRuleModel(BaseModel):
             raise ValueError("At least one key is required in the data dictionary.")
 
         return data
+
+
+class PackageModel(BaseModel):
+    project_id: Union[int, str] = None
+    package_name: str = None
+    package_version: str = None
+    file_name: str = None
+    status: str = None
+    select: str = None
+
+    @field_validator('file_name', 'package_name')
+    def validate_file_name(cls, value):
+        pattern = r'^[a-zA-Z0-9._-]+$'
+        if not re.match(pattern, value):
+            raise ValueError("Invalid characters in the filename")
+
+        if len(value) > 255:
+            raise ValueError("Filename is too long (maximum 255 characters)")
+
+        return value
+
+    @field_validator("status")
+    def validate_rule_type(cls, value):
+        if value not in ['default', 'hidden']:
+            raise ValueError("Invalid rule_type")
+        return value
+
+    @field_validator("select")
+    def validate_rule_type(cls, value):
+        if value not in ['package_file', 'package_file']:
+            raise ValueError("Invalid rule_type")
+        return value

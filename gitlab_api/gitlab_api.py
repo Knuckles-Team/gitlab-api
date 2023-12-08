@@ -6,8 +6,8 @@ import requests
 import urllib3
 from base64 import b64encode
 from typing import Union
-from gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel,
-                           ProjectModel, MergeRequestModel, MergeRequestRuleModel)
+from gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel, JobModel, MembersModel,
+                           PackageModel, ProjectModel, MergeRequestModel, MergeRequestRuleModel)
 from pydantic import ValidationError
 
 try:
@@ -443,133 +443,89 @@ class Api(object):
     #                                                Jobs API                                                          #
     ####################################################################################################################
     @require_auth
-    def get_project_jobs(self, project_id: Union[int, str] = None, scope: list = None, per_page: int = 100,
-                         page: int = 1):
-        if project_id is None:
-            raise MissingParameterError
-        api_parameters = f'?page={page}&per_page={per_page}'
-        if scope:
-            if isinstance(scope, list):
-                for scope_value in scope:
-                    if scope_value in ['created', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped',
-                                       'waiting_for_resource', 'manual']:
-                        api_parameters = f'{api_parameters}&scope[]={scope_value}'
-                    else:
-                        raise ParameterError
-            elif isinstance(scope, str) and scope in ['created', 'pending', 'running', 'failed', 'success', 'canceled',
-                                                      'skipped', 'waiting_for_resource', 'manual']:
-                api_parameters = f'{api_parameters}&scope[]={scope}'
-            else:
-                raise ParameterError
-
-        try:
-            response = self._session.get(f'{self.url}/projects/{project_id}/jobs{api_parameters}', headers=self.headers,
-                                         verify=self.verify)
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
-
-    @require_auth
-    def get_project_job(self, project_id: Union[int, str] = None, job_id: Union[int, str] = None):
-        if project_id is None or job_id is None:
+    def get_project_jobs(self, job: JobModel):
+        if job.project_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{project_id}/jobs/{job_id}',
+            response = self._session.get(f'{self.url}/projects/{job.project_id}/jobs{job.api_parameters}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def get_project_job_log(self, project_id: Union[int, str] = None, job_id: Union[int, str] = None):
-        if project_id is None or job_id is None:
+    def get_project_job(self, job: JobModel):
+        if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{project_id}/jobs/{job_id}/trace',
+            response = self._session.get(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def cancel_project_job(self, project_id: Union[int, str] = None, job_id: Union[int, str] = None):
-        if project_id is None or job_id is None:
+    def get_project_job_log(self, job: JobModel):
+        if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{project_id}/jobs/{job_id}/cancel',
+            response = self._session.get(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/trace',
+                                         headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def cancel_project_job(self, job: JobModel):
+        if job.project_id is None or job.job_id is None:
+            raise MissingParameterError
+        try:
+            response = self._session.post(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/cancel',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def retry_project_job(self, project_id: Union[int, str] = None, job_id: Union[int, str] = None):
-        if project_id is None or job_id is None:
+    def retry_project_job(self, job: JobModel):
+        if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{project_id}/jobs/{job_id}/retry',
+            response = self._session.post(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/retry',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def erase_project_job(self, project_id: Union[int, str] = None, job_id: Union[int, str] = None):
-        if project_id is None or job_id is None:
+    def erase_project_job(self, job: JobModel):
+        if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{project_id}/jobs/{job_id}/erase',
+            response = self._session.post(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/erase',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def run_project_job(self, project_id: Union[int, str] = None, job_id: Union[int, str] = None,
-                        job_variable_attributes: dict = None):
-        if project_id is None or job_id is None:
+    def run_project_job(self, job: JobModel):
+        if job.project_id is None or job.job_id is None:
             raise MissingParameterError
-        data = None
-        if job_variable_attributes:
-            if not isinstance(job_variable_attributes, dict) \
-                    or "job_variable_attributes" not in job_variable_attributes.keys():
-                raise ParameterError
-            data = json.dumps(job_variable_attributes, indent=4)
         try:
-            response = self._session.post(f'{self.url}/projects/{project_id}/jobs/{job_id}/play',
-                                          headers=self.headers, data=data, verify=self.verify)
+            response = self._session.post(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/play',
+                                          headers=self.headers, data=job.data, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def get_pipeline_jobs(self, project_id: Union[int, str] = None, pipeline_id: Union[int, str] = None,
-                          scope: list = None, include_retried: bool = None, per_page: int = 100, page: int = 1):
-        if project_id is None or pipeline_id is None:
+    def get_pipeline_jobs(self, job: JobModel):
+        if job.project_id is None or job.pipeline_id is None:
             raise MissingParameterError
-        api_parameters = f'?page={page}&per_page={per_page}'
-        if scope:
-            if isinstance(scope, list):
-                for scope_value in scope:
-                    if scope_value in ['created', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped',
-                                       'waiting_for_resource', 'manual']:
-                        api_parameters = f'{api_parameters}&scope[]={scope_value}'
-                    else:
-                        raise ParameterError
-            elif isinstance(scope, str) and scope in ['created', 'pending', 'running', 'failed', 'success', 'canceled',
-                                                      'skipped', 'waiting_for_resource', 'manual']:
-                api_parameters = f'{api_parameters}&scope[]={scope}'
-            else:
-                raise ParameterError
-        if include_retried:
-            if isinstance(include_retried, bool):
-                api_parameters = f'{api_parameters}&include_retried={str(include_retried).lower()}'
-        else:
-            raise ParameterError
-
         try:
             response = self._session.get(
-                f'{self.url}/projects/{project_id}/pipelines/{pipeline_id}/jobs{api_parameters}',
+                f'{self.url}/projects/{job.project_id}/pipelines/{job.pipeline_id}/jobs{job.api_parameters}',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -579,25 +535,23 @@ class Api(object):
     #                                               Members API                                                        #
     ####################################################################################################################
     @require_auth
-    def get_group_members(self, group_id: Union[int, str] = None, per_page: int = 100, page: int = 1):
-        if group_id is None:
+    def get_group_members(self, members: MembersModel):
+        if members.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/groups/{group_id}/members?page={page}&per_page={per_page}',
+            response = self._session.get(f'{self.url}/groups/{members.group_id}/members{members.api_parameters}',
                                          headers=self.headers,
                                          verify=self.verify)
-
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def get_project_members(self, project_id: Union[int, str] = None, per_page: int = 100, page: int = 1):
-        if project_id is None:
+    def get_project_members(self, members: MembersModel):
+        if members.project_id is None:
             raise MissingParameterError
-        api_parameters = f"?per_page={per_page}"
         try:
-            response = self._session.get(f'{self.url}/projects/{project_id}/members?per_page={per_page}',
+            response = self._session.get(f'{self.url}/projects/{members.project_id}/members{members.api_parameters}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -607,87 +561,19 @@ class Api(object):
     #                                            Merge Request API                                                     #
     ####################################################################################################################
     @require_auth
-    def create_merge_request(self, project_id: Union[int, str] = None, source_branch: str = None,
-                             target_branch: str = None,
-                             title: str = None, allow_collaboration: bool = None, allow_maintainer_to_push: bool = None,
-                             approvals_before_merge: int = None, assignee_id: int = None, assignee_ids: list = None,
-                             description: str = None, labels: str = None, milestone_id: int = None,
-                             remove_source_branch: str = None, reviewer_ids: list = None, squash: bool = None,
-                             target_project_id: Union[int, str] = None):
-        if project_id is None or source_branch is None or target_branch is None or title is None:
+    def create_merge_request(self, merge_request: MergeRequestModel):
+        if (merge_request.project_id is None
+                or merge_request.source_branch is None
+                or merge_request.target_branch is None
+                or merge_request.title is None):
             raise MissingParameterError
-        data = {}
-        if source_branch:
-            if not isinstance(source_branch, str):
-                raise ParameterError
-            data['source_branch'] = source_branch
-        if target_branch:
-            if not isinstance(target_branch, str):
-                raise ParameterError
-            data['target_branch'] = target_branch
-        if title:
-            if not isinstance(title, str):
-                raise ParameterError
-            data['title'] = title
-        if allow_collaboration:
-            if not isinstance(allow_collaboration, bool):
-                raise ParameterError
-            data['allow_collaboration'] = allow_collaboration
-        if allow_maintainer_to_push:
-            if not isinstance(allow_maintainer_to_push, bool):
-                raise ParameterError
-            data['allow_maintainer_to_push'] = allow_maintainer_to_push
-        if approvals_before_merge:
-            if not isinstance(approvals_before_merge, int):
-                raise ParameterError
-            data['approvals_before_merge'] = approvals_before_merge
-        if assignee_id:
-            if not isinstance(assignee_id, int):
-                raise ParameterError
-            data['assignee_id'] = assignee_id
-        if assignee_ids:
-            if not isinstance(assignee_ids, list):
-                raise ParameterError
-            data['assignee_ids'] = assignee_ids
-        if description:
-            if not isinstance(description, str):
-                raise ParameterError
-            data['description'] = description
-        if labels:
-            if not isinstance(labels, str):
-                raise ParameterError
-            data['labels'] = labels
-        if milestone_id:
-            if not isinstance(milestone_id, int):
-                raise ParameterError
-            data['milestone_id'] = milestone_id
-        if remove_source_branch:
-            if not isinstance(remove_source_branch, str):
-                raise ParameterError
-            data['remove_source_branch'] = remove_source_branch
-        if reviewer_ids:
-            if not isinstance(reviewer_ids, list):
-                raise ParameterError
-            data['reviewer_ids'] = reviewer_ids
-        if squash:
-            if not isinstance(squash, bool):
-                raise ParameterError
-            data['squash'] = squash
-        if target_project_id:
-            if not isinstance(target_project_id, int):
-                raise ParameterError
-            data['target_project_id'] = target_project_id
-
-        if len(data) > 0:
-            data = json.dumps(data, indent=4)
-            try:
-                response = self._session.post(f'{self.url}/projects/{project_id}/merge_requests', headers=self.headers,
-                                              data=data, verify=self.verify)
-            except ValidationError as e:
-                raise ParameterError(f"Invalid parameters: {e.errors()}")
-            return response
-        else:
-            raise MissingParameterError
+        try:
+            response = self._session.post(f'{self.url}/projects/{merge_request.project_id}/merge_requests',
+                                          headers=self.headers,
+                                          data=json.dumps(merge_request.data, indent=2), verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
 
     @require_auth
     def get_merge_requests(self, merge_request: MergeRequestModel):
@@ -698,7 +584,7 @@ class Api(object):
             total_pages = int(response.headers['X-Total-Pages'])
             response = []
             if merge_request.max_pages == 0 or merge_request.max_pages > total_pages:
-                max_pages = total_pages
+                merge_request.max_pages = total_pages
             for page in range(0, merge_request.max_pages):
                 response_page = self._session.get(
                     f'{self.url}/merge_requests{merge_request.api_parameters}&per_page={merge_request.per_page}&page={page}',
@@ -710,9 +596,9 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_merge_requests(self, project: ProjectModel):
+    def get_project_merge_requests(self, merge_request: MergeRequestModel):
         try:
-            response = self._session.get(f'{self.url}/projects/{project.project_id}/merge_requests',
+            response = self._session.get(f'{self.url}/projects/{merge_request.project_id}/merge_requests',
                                          headers=self.headers, verify=self.verify)
 
         except ValidationError as e:
@@ -720,12 +606,16 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_merge_request(self, project_id: Union[int, str] = None, merge_id: Union[int, str] = None):
-        if project_id is None or merge_id is None:
+    def get_project_merge_request(self, merge_request: MergeRequestModel):
+        if merge_request.project_id is None or merge_request.merge_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}/merge_requests/{merge_id}',
-                                     headers=self.headers,
-                                     verify=self.verify)
+        try:
+            response = self._session.get(f'{self.url}/projects/{merge_request.project_id}'
+                                         f'/merge_requests/{merge_request.merge_id}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     ####################################################################################################################
@@ -786,59 +676,61 @@ class Api(object):
         return response
 
     @require_auth
-    def merge_request_level_approvals(self, project_id: Union[int, str] = None,
-                                      merge_request_iid: Union[int, str] = None):
-        if project_id is None or merge_request_iid is None:
+    def merge_request_level_approvals(self, merge_rule: MergeRequestRuleModel):
+        if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approvals',
+        response = self._session.get(f'{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approvals',
                                      headers=self.headers, verify=self.verify)
         return response
 
     @require_auth
-    def get_approval_state_merge_requests(self, project_id: Union[int, str] = None,
-                                          merge_request_iid: Union[int, str] = None):
-        if project_id is None or merge_request_iid is None:
+    def get_approval_state_merge_requests(self, merge_rule: MergeRequestRuleModel):
+        if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         response = self._session.get(
-            f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approval_state',
+            f'{self.url}/projects/{merge_rule.project_id}'
+            f'/merge_requests/{merge_rule.merge_request_iid}/approval_state',
             headers=self.headers, verify=self.verify)
         return response
 
     @require_auth
-    def get_merge_request_level_rules(self, project_id: Union[int, str] = None,
-                                      merge_request_iid: Union[int, str] = None):
-        if project_id is None or merge_request_iid is None:
+    def get_merge_request_level_rules(self, merge_rule: MergeRequestRuleModel):
+        if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         response = self._session.get(
-            f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approval_rules',
+            f'{self.url}/projects/{merge_rule.project_id}'
+            f'/merge_requests/{merge_rule.merge_request_iid}/approval_rules',
             headers=self.headers, verify=self.verify)
         return response
 
     @require_auth
-    def approve_merge_request(self, project_id: Union[int, str] = None, merge_request_iid: Union[int, str] = None):
-        if project_id is None or merge_request_iid is None:
+    def approve_merge_request(self, merge_rule: MergeRequestRuleModel):
+        if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
-        response = self._session.post(f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/approve',
+        response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
+                                      f'/merge_requests/{merge_rule.merge_request_iid}/approve',
                                       headers=self.headers, verify=self.verify)
         return response
 
     @require_auth
-    def unapprove_merge_request(self, project_id: Union[int, str] = None, merge_request_iid: Union[int, str] = None):
-        if project_id is None or merge_request_iid is None:
+    def unapprove_merge_request(self, merge_rule: MergeRequestRuleModel):
+        if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
-        response = self._session.post(f'{self.url}/projects/{project_id}/merge_requests/{merge_request_iid}/unapprove',
+        response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
+                                      f'/merge_requests/{merge_rule.merge_request_iid}/unapprove',
                                       headers=self.headers, verify=self.verify)
         return response
 
     ####################################################################################################################
     #                                               Packages API                                                       #
     ####################################################################################################################
-    def get_repository_packages(self, project_id: Union[int, str] = None):
+    def get_repository_packages(self, package: PackageModel):
         if project_id is None:
             raise MissingParameterError
         response = self._session.get(f'{self.url}/projects/{project_id}/packages', headers=self.headers,
                                      verify=self.verify)
         return response
+
 
     ####################################################################################################################
     #                                                Pipeline API                                                      #
