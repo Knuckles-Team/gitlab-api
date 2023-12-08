@@ -722,6 +722,19 @@ class PackageModel(BaseModel):
     status: str = None
     select: str = None
 
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("status") is not None:
+            filters.append(f'status={values["status"]}')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
     @field_validator('file_name', 'package_name')
     def validate_file_name(cls, value):
         pattern = r'^[a-zA-Z0-9._-]+$'

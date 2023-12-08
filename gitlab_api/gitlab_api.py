@@ -679,59 +679,105 @@ class Api(object):
     def merge_request_level_approvals(self, merge_rule: MergeRequestRuleModel):
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approvals',
+        try:
+            response = self._session.get(f'{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approvals',
                                      headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
     def get_approval_state_merge_requests(self, merge_rule: MergeRequestRuleModel):
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
-        response = self._session.get(
+        try:
+            response = self._session.get(
             f'{self.url}/projects/{merge_rule.project_id}'
             f'/merge_requests/{merge_rule.merge_request_iid}/approval_state',
             headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
     def get_merge_request_level_rules(self, merge_rule: MergeRequestRuleModel):
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
-        response = self._session.get(
+        try:
+            response = self._session.get(
             f'{self.url}/projects/{merge_rule.project_id}'
             f'/merge_requests/{merge_rule.merge_request_iid}/approval_rules',
             headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
     def approve_merge_request(self, merge_rule: MergeRequestRuleModel):
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
-        response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
+        try:
+            response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
                                       f'/merge_requests/{merge_rule.merge_request_iid}/approve',
                                       headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
     def unapprove_merge_request(self, merge_rule: MergeRequestRuleModel):
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
-        response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
+        try:
+            response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
                                       f'/merge_requests/{merge_rule.merge_request_iid}/unapprove',
                                       headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     ####################################################################################################################
     #                                               Packages API                                                       #
     ####################################################################################################################
     def get_repository_packages(self, package: PackageModel):
-        if project_id is None:
+        if package.project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}/packages', headers=self.headers,
+        try:
+            response = self._session.get(f'{self.url}/projects/{package.project_id}/packages', headers=self.headers,
                                      verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
+    def publish_repository_package(self, package: PackageModel):
+        if (package.project_id is None
+                or package.package_name is None
+                or package.package_version is None
+                or package.file_name is None):
+            raise MissingParameterError
+        try:
+            response = self._session.put(f'{self.url}/projects/{package.project_id}'
+                                     f'/packages/generic/{package.package_name}/{package.package_version}'
+                                     f'/{package.file_name}{package.api_parameters}', headers=self.headers,
+                                     verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
 
+    def download_repository_package(self, package: PackageModel):
+        if (package.project_id is None
+                or package.package_name is None
+                or package.package_version is None
+                or package.file_name is None):
+            raise MissingParameterError
+        try:
+            response = self._session.get(f'{self.url}/projects/{package.project_id}'
+                                     f'/packages/generic/{package.package_name}/{package.package_version}'
+                                     f'/{package.file_name}', headers=self.headers,
+                                     verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
     ####################################################################################################################
     #                                                Pipeline API                                                      #
     ####################################################################################################################
@@ -740,16 +786,22 @@ class Api(object):
         if project_id is None:
             raise MissingParameterError
         api_parameters = f"?per_page={per_page}"
-        response = self._session.get(f'{self.url}/projects/{project_id}/pipelines?per_page={per_page}',
+        try:
+            response = self._session.get(f'{self.url}/projects/{project_id}/pipelines?per_page={per_page}',
                                      headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
     def get_pipeline(self, project_id: Union[int, str] = None, pipeline_id: Union[int, str] = None):
         if project_id is None or pipeline_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}/pipelines/{pipeline_id}', headers=self.headers,
+        try:
+            response = self._session.get(f'{self.url}/projects/{project_id}/pipelines/{pipeline_id}', headers=self.headers,
                                      verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
