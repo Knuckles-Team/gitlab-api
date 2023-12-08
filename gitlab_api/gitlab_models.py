@@ -675,6 +675,7 @@ class PipelineModel(BaseModel):
 
 class ProjectModel(BaseModel):
     project_id: Union[int, str]
+    group_id: Union[int, str] = None
     allow_merge_on_skipped_pipeline: bool = None
     only_allow_merge_if_all_status_checks_passed: bool = None
     analytics_access_level: str = None
@@ -699,12 +700,16 @@ class ProjectModel(BaseModel):
     emails_disabled: bool = None
     enforce_auth_checks_on_uploads: bool = None
     external_authorization_classification_label: str = None
+    expires_at: str = None
     forking_access_level: str = None
+    group_acces: int = None
     import_url: str = None
     issues_access_level: str = None
     issues_template: str = None
     keep_latest_artifact: bool = None
     lfs_enabled: bool = None
+    max_pages: int = 0
+    per_page: int = 100
     merge_commit_template: str = None
     merge_method: str = None
     merge_pipelines_enabled: bool = None
@@ -746,6 +751,25 @@ class ProjectModel(BaseModel):
     visibility: str = None
     wiki_access_level: str = None
 
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("group_id") is not None:
+            filters.append(f'group_id={values["group_id"]}')
+
+        if values.get("group_access") is not None:
+            filters.append(f'group_access={values["group_access"]}')
+
+        if values.get("expires_at") is not None:
+            filters.append(f'expires_at={values["expires_at"]}')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
     @field_validator("analytics_access_level", "builds_access_level", "container_registry_access_level",
                      "forking_access_level", "issues_access_level", "operations_access_level", "pages_access_level",
                      "releases_access_level", "repository_access_level", "requirements_access_level",
@@ -784,6 +808,13 @@ class ProjectModel(BaseModel):
         if value is not None and not all(isinstance(tag, str) for tag in value):
             raise ValueError("Invalid tag or topic value")
         return value
+
+    @field_validator("order_by")
+    def validate_order_by(cls, value):
+        if value not in ['id', 'name', 'username', 'created_at', 'updated_at']:
+            raise ValueError("Invalid order_by")
+        return value
+
 
 class RunnerModel(BaseModel):
     description: str = None

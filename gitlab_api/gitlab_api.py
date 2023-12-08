@@ -830,67 +830,68 @@ class Api(object):
     #                                                Projects API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_projects(self, max_pages: int = 0, per_page: int = 100,
-                     order_by: str = 'updated'):
-        response = self._session.get(f'{self.url}/projects?per_page={per_page}&x-total-pages',
+    def get_projects(self, project: ProjectModel):
+        response = self._session.get(f'{self.url}/projects?per_page={project.per_page}&x-total-pages',
                                      headers=self.headers, verify=self.verify)
         total_pages = int(response.headers['X-Total-Pages'])
         response = []
-        if order_by == 'updated':
-            order_by = 'updated_at'
-        else:
-            order_by = 'updated_at'
-        if max_pages == 0 or max_pages > total_pages:
+        if project.max_pages == 0 or project.max_pages > total_pages:
             max_pages = total_pages
-        for page in range(0, max_pages):
+        for page in range(0, project.max_pages):
             response_page = self._session.get(
-                f'{self.url}/projects?per_page={per_page}&page={page}&order_by={order_by}',
+                f'{self.url}/projects?per_page={project.per_page}&page={page}&order_by={project.order_by}',
                 headers=self.headers, verify=self.verify)
             response_page = json.loads(response_page.text.replace("'", "\""))
             response = response + response_page
         return response
 
     @require_auth
-    def get_project(self, project_id: Union[int, str] = None):
-        if project_id is None:
+    def get_project(self, project: ProjectModel):
+        if project.project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/projects/{project.project_id}',
+                                     headers=self.headers,
+                                     verify=self.verify)
         return response
 
     @require_auth
-    def get_nested_projects_by_group(self, group_id: Union[int, str] = None, max_pages: int = 0, per_page: int = 100):
-        if group_id is None:
+    def get_nested_projects_by_group(self, project: ProjectModel):
+        if project.group_id is None:
             raise MissingParameterError
         projects = []
-        groups = [self.get_group(group_id=group_id)]
-        groups = groups + self.get_group_subgroups(group_id=group_id)
+        groups = [self.get_group(group_id=project.group_id)]
+        groups = groups + self.get_group_subgroups(group_id=project.group_id)
         for group in groups:
-            response = self._session.get(f'{self.url}/groups/{group["id"]}/projects?per_page={per_page}&x-total-pages',
+            response = self._session.get(f'{self.url}'
+                                         f'/groups/{group["id"]}'
+                                         f'/projects?per_page={project.per_page}&x-total-pages',
                                          headers=self.headers, verify=self.verify)
             total_pages = int(response.headers['X-Total-Pages'])
-            if max_pages == 0 or max_pages > total_pages:
-                max_pages = total_pages
-            for page in range(0, max_pages):
+            if project.max_pages == 0 or project.max_pages > total_pages:
+                project.max_pages = total_pages
+            for page in range(0, project.max_pages):
                 group_projects = self._session.get(f'{self.url}/groups/{group["id"]}/'
-                                                   f'projects?per_page={per_page}&page={page}',
+                                                   f'projects?per_page={project.per_page}&page={page}',
                                                    headers=self.headers, verify=self.verify)
                 group_projects = json.loads(group_projects.text)
                 projects = projects + group_projects
         return projects
 
     @require_auth
-    def get_project_contributors(self, project_id: Union[int, str] = None):
-        if project_id is None:
+    def get_project_contributors(self, project: ProjectModel):
+        if project.project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}/repository/contributors',
+        response = self._session.get(f'{self.url}'
+                                     f'/projects/{project.project_id}/repository/contributors',
                                      headers=self.headers, verify=self.verify)
         return response
 
     @require_auth
-    def get_project_statistics(self, project_id: Union[int, str] = None):
-        if project_id is None:
+    def get_project_statistics(self, project: ProjectModel):
+        if project.project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project_id}?statistics=true',
+        response = self._session.get(f'{self.url}'
+                                     f'/projects/{project.project_id}?statistics=true',
                                      headers=self.headers, verify=self.verify)
         return response
 
@@ -926,50 +927,31 @@ class Api(object):
         return response
 
     @require_auth
-    def unarchive_project(self, project_id: Union[int, str] = None):
-        if project_id is None:
+    def unarchive_project(self, project: ProjectModel):
+        if project.project_id is None:
             raise MissingParameterError
-        response = self._session.post(f'{self.url}/projects/{project_id}/unarchive', headers=self.headers,
+        response = self._session.post(f'{self.url}/projects/{project.project_id}/unarchive',
+                                      headers=self.headers,
                                       verify=self.verify)
         return response
 
     @require_auth
-    def delete_project(self, project_id: Union[int, str] = None):
-        if project_id is None:
+    def delete_project(self, project: ProjectModel):
+        if project.project_id is None:
             raise MissingParameterError
-        response = self._session.delete(f'{self.url}/projects/{project_id}', headers=self.headers, verify=self.verify)
+        response = self._session.delete(f'{self.url}/projects/{project.project_id}',
+                                        headers=self.headers,
+                                        verify=self.verify)
         return response
 
     @require_auth
-    def share_project(self, project_id: Union[int, str] = None, group_id: Union[int, str] = None,
-                      group_access: int = None,
-                      expires_at: str = None):
-        if project_id is None or group_id is None or group_access is None:
+    def share_project(self, project: ProjectModel):
+        if project.project_id is None or project.group_id is None or project.group_access is None:
             raise MissingParameterError
-        share_filter = None
-        if group_id:
-            if not isinstance(group_id, int):
-                raise ParameterError
-            if share_filter:
-                share_filter = f'{share_filter}&group_id={group_id}'
-            else:
-                share_filter = f'?group_id={group_id}'
-        if group_access:
-            if not isinstance(group_access, int):
-                raise ParameterError
-            if share_filter:
-                share_filter = f'{share_filter}&group_access={group_access}'
-            else:
-                share_filter = f'?group_access={group_access}'
-        if expires_at:
-            if not isinstance(expires_at, str):
-                raise ParameterError
-            if share_filter:
-                share_filter = f'{share_filter}&expires_at={expires_at}'
-            else:
-                share_filter = f'?expires_at={expires_at}'
-        response = self._session.post(f'{self.url}/projects/{project_id}/share{share_filter}',
-                                      headers=self.headers, verify=self.verify)
+        response = self._session.post(f'{self.url}/projects/{project.project_id}'
+                                      f'/share{project.api_parameters}',
+                                      headers=self.headers,
+                                      verify=self.verify)
         return response
 
     ####################################################################################################################
@@ -1041,7 +1023,7 @@ class Api(object):
         if len(data) > 0:
             data = json.dumps(data, indent=4)
             response = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
-                                          headers=self.headers, data=json.dumps(runner.data, indent=2),
+                                          headers=self.headers, data=json.dumps(protected_branch.data, indent=2),
                                           verify=self.verify)
         else:
             response = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
