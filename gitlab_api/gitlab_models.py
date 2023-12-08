@@ -967,8 +967,6 @@ class UserModel(BaseModel):
 
         return None
 
-
-
     @field_validator("order_by")
     def validate_order_by(cls, value):
         if value not in ['id', 'name', 'username', 'created_at', 'updated_at']:
@@ -989,3 +987,60 @@ class UserModel(BaseModel):
             raise ValueError("Invalid two_factor value")
         return value
 
+
+class WikiModel(BaseModel):
+    project_id: Union[int, str] = None
+    slug: str = None
+    content: str = None
+    title: str = None
+    format_type: str = None
+    with_content: bool = None
+    file: str = None
+    branch: str = None
+
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("with_content") is not None:
+            filters.append(f'with_content={values["1"]}')
+
+        if values.get("render_html") is not None:
+            filters.append(f'render_html={values["1"]}')
+
+        if values.get("version") is not None:
+            filters.append(f'version={values["version"]}')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
+    @field_validator('project_id')
+    def validate_project_id(cls, value):
+        if value is None:
+            raise ValueError('Project ID cannot be None')
+        return value
+
+    @field_validator('project_id')
+    def validate_project_id_type(cls, value):
+        if not isinstance(value, (int, str)):
+            raise ValueError('Project ID must be an integer or a string')
+        return value
+
+    @field_validator("data")
+    def construct_data_dict(cls, values):
+        data = {
+            "content": values.get("content"),
+            "title": values.get("title"),
+            "format": values.get("format"),
+        }
+
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if not data:
+            raise ValueError("At least one key is required in the data dictionary.")
+
+        return data

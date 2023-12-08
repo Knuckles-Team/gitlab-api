@@ -8,7 +8,7 @@ from base64 import b64encode
 from typing import Union
 from gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel, JobModel, MembersModel,
                            PackageModel, PipelineModel, ProjectModel, MergeRequestModel, MergeRequestRuleModel,
-                           RunnerModel, UserModel)
+                           RunnerModel, UserModel, WikiModel)
 from pydantic import ValidationError
 
 try:
@@ -1286,7 +1286,6 @@ class Api(object):
         total_pages = int(response.headers['X-Total-Pages'])
         response = []
 
-
         if user.max_pages == 0 or user.max_pages > total_pages:
             user.max_pages = total_pages
         for page in range(0, user.max_pages):
@@ -1300,120 +1299,96 @@ class Api(object):
     def get_user(self, user: UserModel):
         if user.user_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/users{user.api_parameters}',
-                                     headers=self.headers,
-                                     verify=self.verify)
+        try:
+            response = self._session.get(f'{self.url}/users{user.api_parameters}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     ####################################################################################################################
     #                                                 Wiki API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_wiki_list(self, project_id: Union[int, str] = None, with_content: bool = None):
-        if project_id is None:
+    def get_wiki_list(self, wiki: WikiModel):
+        if wiki.project_id is None:
             raise MissingParameterError
-        runner_filter = None
-        if with_content:
-            if not isinstance(with_content, bool):
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&with_content=1'
-            else:
-                runner_filter = f'?with_content=1'
-        response = self._session.get(f'{self.url}/projects/{project_id}/wikis{runner_filter}',
-                                     headers=self.headers, verify=self.verify)
+        try:
+            response = self._session.get(f'{self.url}/projects/{wiki.project_id}'
+                                         f'/wikis{wiki.api_parameters}',
+                                         headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def get_wiki_page(self, project_id: Union[int, str] = None, slug: str = None, render_html: bool = None,
-                      version: str = None):
-        if project_id is None or slug is None:
+    def get_wiki_page(self, wiki: WikiModel):
+        if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
-        runner_filter = None
-        if render_html:
-            if not isinstance(render_html, bool):
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&render_html=1'
-            else:
-                runner_filter = f'?render_html=1'
-        if version:
-            if not isinstance(version, bool):
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{version}&version'
-            else:
-                runner_filter = f'?version'
-        response = self._session.get(f'{self.url}/projects/{project_id}/wikis/{slug}{runner_filter}',
-                                     headers=self.headers, verify=self.verify)
+        try:
+            response = self._session.get(f'{self.url}/projects/{wiki.project_id}'
+                                         f'/wikis/{wiki.slug}{wiki.api_parameters}',
+                                         headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def create_wiki_page(self, project_id: Union[int, str] = None, content: str = None, title: str = None,
-                         format_type: str = None):
-        if project_id is None:
+    def create_wiki_page(self, wiki: WikiModel):
+        if wiki.project_id is None:
+            raise MissingParameterError
+        try:
+            response = self._session.post(f'{self.url}/projects/{wiki.project_id}/wikis',
+                                          headers=self.headers,
+                                          verify=self.verify,
+                                          data=json.dumps(wiki.data, indent=2))
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def update_wiki_page(self, wiki: WikiModel):
+        if wiki.project_id is None or wiki.slug is None:
+            raise MissingParameterError
+        try:
+            response = self._session.put(f'{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}',
+                                         headers=self.headers,
+                                         verify=self.verify,
+                                         data=json.dumps(wiki.data, indent=2))
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def delete_wiki_page(self, wiki: WikiModel):
+        if wiki.project_id is None or wiki.slug is None:
+            raise MissingParameterError
+        try:
+            response = self._session.delete(f'{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}',
+                                            headers=self.headers,
+                                            verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def upload_wiki_page_attachment(self, wiki: WikiModel):
+        if wiki.project_id is None or wiki.file is None or wiki.branch is None:
             raise MissingParameterError
         data = {}
-        if content:
-            if not isinstance(content, str):
+        if wiki.file:
+            if not isinstance(wiki.file, str):
                 raise ParameterError
-            data['content'] = content
-        if title:
-            if not isinstance(title, bool):
-                raise ParameterError
-            data['title'] = title
-        if format_type:
-            if not isinstance(format_type, str):
-                raise ParameterError
-            data['format'] = format_type
-        data = json.dumps(data, indent=4)
-        response = self._session.post(f'{self.url}/projects/{project_id}/wikis',
-                                      headers=self.headers, verify=self.verify, data=json.dumps(wiki.data, indent=2))
-        return response
-
-    @require_auth
-    def update_wiki_page(self, project_id: Union[int, str] = None, slug: str = None, content: str = None,
-                         title: str = None, format_type: str = None):
-        if project_id is None or slug is None:
-            raise MissingParameterError
-        data = {}
-        if content:
-            if not isinstance(content, str):
-                raise ParameterError
-            data['content'] = content
-        if title:
-            if not isinstance(title, bool):
-                raise ParameterError
-            data['title'] = title
-        if format_type:
-            if not isinstance(format_type, str):
-                raise ParameterError
-            data['format'] = format_type
-        data = json.dumps(data, indent=4)
-        response = self._session.put(f'{self.url}/projects/{project_id}/wikis/{slug}',
-                                     headers=self.headers, verify=self.verify, data=json.dumps(wiki.data, indent=2))
-        return response
-
-    @require_auth
-    def delete_wiki_page(self, project_id: Union[int, str] = None, slug: str = None):
-        if project_id is None or slug is None:
-            raise MissingParameterError
-        response = self._session.delete(f'{self.url}/projects/{project_id}/wikis/{slug}',
-                                        headers=self.headers, verify=self.verify)
-        return response
-
-    @require_auth
-    def upload_wiki_page_attachment(self, project_id: Union[int, str] = None, file: str = None, branch: str = None):
-        if project_id is None or file is None or branch is None:
-            raise MissingParameterError
-        data = {}
-        if file:
-            if not isinstance(file, str):
-                raise ParameterError
-            data['file'] = f"@{file}"
+            data['file'] = f"@{wiki.file}"
         data = json.dumps(data, indent=4)
         headers = self.headers
         headers['Content-Type'] = "multipart/form-data"
-        response = self._session.delete(f'{self.url}/projects/{project_id}/wikis/attachments',
-                                        headers=headers, verify=self.verify, data=json.dumps(wiki.data, indent=2))
+        try:
+            response = self._session.put(f'{self.url}/projects/{wiki.project_id}/wikis/attachments',
+                                         headers=headers,
+                                         verify=self.verify,
+                                         data=data)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
