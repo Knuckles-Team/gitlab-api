@@ -36,11 +36,12 @@ This repository is actively maintained - Contributions are welcome!
 - Jobs
 - Members
 - Merge Request
-- Merge Rules
+- Merge Request Rules
 - Packages
 - Pipeline
 - Projects
 - Protected Branches
+- Releases
 - Runners
 - Users
 - Wiki

@@ -7,7 +7,8 @@ import urllib3
 from base64 import b64encode
 from typing import Union
 from gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel, JobModel, MembersModel,
-                           PackageModel, ProjectModel, MergeRequestModel, MergeRequestRuleModel)
+                           PackageModel, PipelineModel, ProjectModel, MergeRequestModel, MergeRequestRuleModel,
+                           RunnerModel, UserModel)
 from pydantic import ValidationError
 
 try:
@@ -680,8 +681,9 @@ class Api(object):
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approvals',
-                                     headers=self.headers, verify=self.verify)
+            response = self._session.get(
+                f'{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approvals',
+                headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -692,9 +694,9 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-            f'{self.url}/projects/{merge_rule.project_id}'
-            f'/merge_requests/{merge_rule.merge_request_iid}/approval_state',
-            headers=self.headers, verify=self.verify)
+                f'{self.url}/projects/{merge_rule.project_id}'
+                f'/merge_requests/{merge_rule.merge_request_iid}/approval_state',
+                headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -705,9 +707,9 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-            f'{self.url}/projects/{merge_rule.project_id}'
-            f'/merge_requests/{merge_rule.merge_request_iid}/approval_rules',
-            headers=self.headers, verify=self.verify)
+                f'{self.url}/projects/{merge_rule.project_id}'
+                f'/merge_requests/{merge_rule.merge_request_iid}/approval_rules',
+                headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -718,8 +720,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
-                                      f'/merge_requests/{merge_rule.merge_request_iid}/approve',
-                                      headers=self.headers, verify=self.verify)
+                                          f'/merge_requests/{merge_rule.merge_request_iid}/approve',
+                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -730,8 +732,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
-                                      f'/merge_requests/{merge_rule.merge_request_iid}/unapprove',
-                                      headers=self.headers, verify=self.verify)
+                                          f'/merge_requests/{merge_rule.merge_request_iid}/unapprove',
+                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -744,7 +746,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(f'{self.url}/projects/{package.project_id}/packages', headers=self.headers,
-                                     verify=self.verify)
+                                         verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -757,9 +759,9 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.put(f'{self.url}/projects/{package.project_id}'
-                                     f'/packages/generic/{package.package_name}/{package.package_version}'
-                                     f'/{package.file_name}{package.api_parameters}', headers=self.headers,
-                                     verify=self.verify)
+                                         f'/packages/generic/{package.package_name}/{package.package_version}'
+                                         f'/{package.file_name}{package.api_parameters}', headers=self.headers,
+                                         verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -772,49 +774,54 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(f'{self.url}/projects/{package.project_id}'
-                                     f'/packages/generic/{package.package_name}/{package.package_version}'
-                                     f'/{package.file_name}', headers=self.headers,
-                                     verify=self.verify)
+                                         f'/packages/generic/{package.package_name}/{package.package_version}'
+                                         f'/{package.file_name}', headers=self.headers,
+                                         verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
+
     ####################################################################################################################
     #                                                Pipeline API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_pipelines(self, project_id: Union[int, str] = None, per_page: int = 100, page: int = 1):
-        if project_id is None:
+    def get_pipelines(self, pipeline: PipelineModel):
+        if pipeline.project_id is None:
             raise MissingParameterError
-        api_parameters = f"?per_page={per_page}"
+        api_parameters = f"?per_page={pipeline.per_page}"
         try:
-            response = self._session.get(f'{self.url}/projects/{project_id}/pipelines?per_page={per_page}',
-                                     headers=self.headers, verify=self.verify)
+            response = self._session.get(
+                f'{self.url}/projects/{pipeline.project_id}/pipelines{pipeline.api_parameters}',
+                headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def get_pipeline(self, project_id: Union[int, str] = None, pipeline_id: Union[int, str] = None):
-        if project_id is None or pipeline_id is None:
+    def get_pipeline(self, pipeline: PipelineModel):
+        if pipeline.project_id is None or pipeline.pipeline_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{project_id}/pipelines/{pipeline_id}', headers=self.headers,
-                                     verify=self.verify)
+            response = self._session.get(f'{self.url}/projects/{pipeline.project_id}'
+                                         f'/pipelines/{pipeline.pipeline_id}',
+                                         headers=self.headers,
+                                         verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def run_pipeline(self, project_id: Union[int, str] = None, reference: str = None, variables: dict = None):
-        if project_id is None or reference is None:
+    def run_pipeline(self, pipeline: PipelineModel):
+        if pipeline.project_id is None or pipeline.reference is None:
             raise MissingParameterError
-        if variables:
-            data = json.dumps(variables, indent=4)
-            response = self._session.post(f'{self.url}/projects/{project_id}/pipeline?ref={reference}',
+        if pipeline.variables:
+            response = self._session.post(f'{self.url}/projects/{pipeline.project_id}'
+                                          f'/pipeline{pipeline.api_parameters}',
                                           headers=self.headers,
-                                          data=data, verify=self.verify)
+                                          data=json.dumps(pipeline.variables, indent=2), verify=self.verify)
         else:
-            response = self._session.post(f'{self.url}/projects/{project_id}/pipeline?ref={reference}',
+            response = self._session.post(f'{self.url}/projects/{pipeline.project_id}'
+                                          f'/pipeline{pipeline.api_parameters}',
                                           headers=self.headers,
                                           verify=self.verify)
         return response
@@ -1034,7 +1041,8 @@ class Api(object):
         if len(data) > 0:
             data = json.dumps(data, indent=4)
             response = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
-                                          headers=self.headers, data=data, verify=self.verify)
+                                          headers=self.headers, data=json.dumps(runner.data, indent=2),
+                                          verify=self.verify)
         else:
             response = self._session.post(f'{self.url}/projects/{project_id}/protected_branches{branch_filter}',
                                           headers=self.headers, verify=self.verify)
@@ -1059,421 +1067,242 @@ class Api(object):
     #                                                Runners API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_runners(self, runner_type: str = None, status: str = None, paused: bool = None, tag_list: list = None,
-                    all_runners: bool = False):
-        runner_filter = None
-        if all_runners:
-            runner_filter = '/all'
-        if runner_type:
-            if runner_type not in ['instance_type', 'group_type', 'project_type']:
-                raise ParameterError
-            if runner_filter and runner_filter != "/all":
-                runner_filter = f'{runner_filter}&type={runner_type}'
-            else:
-                runner_filter = f'?type={runner_type}'
-        if status:
-            if status not in ['online', 'offline', 'stale', 'never_contacted', 'active', 'paused']:
-                raise ParameterError
-            if runner_filter and runner_filter != "/all":
-                runner_filter = f'{runner_filter}&status={status}'
-            else:
-                runner_filter = f'?status={status}'
-        if paused:
-            if not isinstance(paused, bool):
-                raise ParameterError
-            if runner_filter and runner_filter != "/all":
-                runner_filter = f'{runner_filter}&paused={paused}'
-            else:
-                runner_filter = f'?paused={paused}'
-        if tag_list:
-            if not isinstance(tag_list, list):
-                raise ParameterError
-            if runner_filter and runner_filter != "/all":
-                runner_filter = f'{runner_filter}&tag_list={tag_list}'
-            else:
-                runner_filter = f'?tag_list={tag_list}'
-        if runner_filter and runner_filter != "/all":
-            print(f"REQUEST: {self.url}/runners{runner_filter}")
-            response = self._session.get(f'{self.url}/runners{runner_filter}', headers=self.headers, verify=self.verify)
-            try:
-                return response.json()
-            except ValueError:
-                return response
-        else:
-            raise ParameterError
-
-    @require_auth
-    def get_runner(self, runner_id: Union[int, str] = None):
-        if runner_id is None:
-            raise MissingParameterError
-        response = self._session.get(f'{self.url}/runners/{runner_id}', headers=self.headers, verify=self.verify)
+    def get_runners(self, runner: RunnerModel):
+        try:
+            response = self._session.get(f'{self.url}'
+                                         f'/runners{runner.api_parameters}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def update_runner_details(self, runner_id: Union[int, str] = None, description: str = None, active: bool = None,
-                              paused: bool = None, tag_list: list = None, run_untagged: bool = None,
-                              locked: bool = None,
-                              access_level: str = None, maximum_timeout: int = None):
-        if runner_id is None:
+    def get_runner(self, runner: RunnerModel):
+        if runner.runner_id is None:
             raise MissingParameterError
-        data = {}
-        if description:
-            if not isinstance(active, str):
-                raise ParameterError
-            data['description'] = description
-        if active:
-            if not isinstance(active, bool):
-                raise ParameterError
-            data['active'] = active
-        if paused:
-            if not isinstance(paused, bool):
-                raise ParameterError
-            data['paused'] = paused
-        if tag_list:
-            if not isinstance(tag_list, list):
-                raise ParameterError
-            data['tag_list'] = tag_list
-        if run_untagged:
-            if not isinstance(run_untagged, bool):
-                raise ParameterError
-            data['run_untagged'] = run_untagged
-        if locked:
-            if not isinstance(locked, bool):
-                raise ParameterError
-            data['locked'] = locked
-        if access_level:
-            if access_level not in ['not_protected', 'ref_protected']:
-                raise ParameterError
-            data['access_level'] = access_level
-        if maximum_timeout:
-            if not isinstance(maximum_timeout, int):
-                raise ParameterError
-            data['maximum_timeout'] = maximum_timeout
-        data = json.dumps(data, indent=4)
-        response = self._session.put(f'{self.url}/runners/{runner_id}', headers=self.headers, data=data,
-                                     verify=self.verify)
+        try:
+            response = self._session.get(f'{self.url}'
+                                         f'/runners/{runner.runner_id}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def pause_runner(self, runner_id: Union[int, str] = None, active: bool = None):
-        if runner_id is None or active is None:
+    def update_runner_details(self, runner: RunnerModel):
+        if runner.runner_id is None:
             raise MissingParameterError
-        data = {'active': active}
-        data = json.dumps(data, indent=4)
-        response = self._session.put(f'{self.url}/runners/{runner_id}', headers=self.headers, data=data,
-                                     verify=self.verify)
+        try:
+            response = self._session.put(f'{self.url}/runners/{runner.runner_id}',
+                                         headers=self.headers,
+                                         data=json.dumps(runner.data, indent=2),
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def get_runner_jobs(self, runner_id: Union[int, str] = None):
-        if runner_id is None:
+    def pause_runner(self, runner: RunnerModel):
+        if runner.runner_id is None or runner.active is None:
             raise MissingParameterError
-        response = self._session.put(f'{self.url}/runners/{runner_id}/jobs', headers=self.headers, verify=self.verify)
+        try:
+            response = self._session.put(f'{self.url}/runners/{runner.runner_id}',
+                                         headers=self.headers,
+                                         data=json.dumps(runner.data, indent=2),
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def get_project_runners(self, project_id: Union[int, str] = None, runner_type=None, status=None, paused=None,
-                            tag_list=None,
-                            all_runners=False):
-        if project_id is None:
+    def get_runner_jobs(self, runner: RunnerModel):
+        if runner.runner_id is None:
             raise MissingParameterError
-        runner_filter = None
-        if all_runners:
-            runner_filter = '/all'
-        if runner_type:
-            if runner_type not in ['instance_type', 'group_type', 'project_type']:
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&type={runner_type}'
-            else:
-                runner_filter = f'?type={runner_type}'
-        if status:
-            if status not in ['online', 'offline', 'stale', 'never_contacted', 'active', 'paused']:
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&status={status}'
-            else:
-                runner_filter = f'?status={status}'
-        if paused:
-            if not isinstance(paused, bool):
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&paused={paused}'
-            else:
-                runner_filter = f'?paused={paused}'
-        if tag_list:
-            if not isinstance(tag_list, list):
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&tag_list={tag_list}'
-            else:
-                runner_filter = f'?tag_list={tag_list}'
-        response = self._session.get(f'{self.url}/projects/{project_id}/runners{runner_filter}',
-                                     headers=self.headers, verify=self.verify)
+        try:
+            response = self._session.put(f'{self.url}/runners'
+                                         f'/{runner.runner_id}/jobs',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def enable_project_runner(self, project_id: Union[int, str] = None, runner_id: Union[int, str] = None):
-        if project_id is None or runner_id is None:
+    def get_project_runners(self, runner: RunnerModel):
+        if runner.project_id is None:
             raise MissingParameterError
-        data = json.dumps({'runner_id': runner_id}, indent=4)
-        response = self._session.put(f'{self.url}/projects/{project_id}/runners', headers=self.headers, data=data,
-                                     verify=self.verify)
+        try:
+            response = self._session.get(f'{self.url}/projects/{runner.project_id}'
+                                         f'/runners{runner.runner_filter}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def delete_project_runner(self, project_id: Union[int, str] = None, runner_id: Union[int, str] = None):
-        if project_id is None or runner_id is None:
+    def enable_project_runner(self, runner: RunnerModel):
+        if runner.project_id is None or runner.runner_id is None:
             raise MissingParameterError
-        response = self._session.delete(f'{self.url}/projects/{project_id}/runners/{runner_id}', headers=self.headers,
-                                        verify=self.verify)
+
+        try:
+            response = self._session.put(f'{self.url}/projects'
+                                         f'/{runner.project_id}/runners',
+                                         headers=self.headers,
+                                         data=json.dumps(runner.data, indent=2),
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def get_group_runners(self, group_id: Union[int, str] = None, runner_type=None, status=None, paused=None,
-                          tag_list=None,
-                          all_runners=False):
-        if group_id is None:
+    def delete_project_runner(self, runner: RunnerModel):
+        if runner.project_id is None or runner.runner_id is None:
             raise MissingParameterError
-        runner_filter = None
-        if all_runners:
-            runner_filter = '/all'
-        if runner_type:
-            if runner_type not in ['instance_type', 'group_type', 'project_type']:
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&type={runner_type}'
-            else:
-                runner_filter = f'?type={runner_type}'
-        if status:
-            if status not in ['online', 'offline', 'stale', 'never_contacted', 'active', 'paused']:
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&status={status}'
-            else:
-                runner_filter = f'?status={status}'
-        if paused:
-            if not isinstance(paused, bool):
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&paused={paused}'
-            else:
-                runner_filter = f'?paused={paused}'
-        if tag_list:
-            if not isinstance(tag_list, list):
-                raise ParameterError
-            if runner_filter:
-                runner_filter = f'{runner_filter}&tag_list={tag_list}'
-            else:
-                runner_filter = f'?tag_list={tag_list}'
-        response = self._session.get(f'{self.url}/groups/{group_id}/runners{runner_filter}',
-                                     headers=self.headers, verify=self.verify)
-        return response
-
-    @require_auth
-    def register_new_runner(self, token: str = None, description: str = None, info=None, paused=None, locked=None,
-                            run_untagged=None,
-                            tag_list=None, access_level=None, maximum_timeout=None, maintenance_note: str = None):
-        if token is None:
-            raise MissingParameterError
-        data = {}
-        if description:
-            data['description'] = description
-        if info:
-            if not isinstance(info, str):
-                raise ParameterError
-            data['info'] = info
-        if paused:
-            if not isinstance(paused, bool):
-                raise ParameterError
-            data['paused'] = paused
-        if locked:
-            if not isinstance(locked, bool):
-                raise ParameterError
-            data['locked'] = locked
-        if run_untagged:
-            if not isinstance(run_untagged, bool):
-                raise ParameterError
-            data['run_untagged'] = run_untagged
-        if tag_list:
-            if not isinstance(tag_list, list):
-                raise ParameterError
-            data['tag_list'] = tag_list
-        if access_level:
-            if not isinstance(access_level, str):
-                raise ParameterError
-            data['access_level'] = access_level
-        if maximum_timeout:
-            if not isinstance(maximum_timeout, int):
-                raise ParameterError
-            data['maximum_timeout'] = maximum_timeout
-        if maintenance_note:
-            if not isinstance(maintenance_note, str):
-                raise ParameterError
-            data['maintenance_note'] = maintenance_note
-        data = json.dumps(data, indent=4)
-        response = self._session.put(f'{self.url}/runners', headers=self.headers, data=data, verify=self.verify)
-        return response
-
-    @require_auth
-    def delete_runner(self, runner_id: Union[int, str] = None, token: str = None):
-        if runner_id is None and token is None:
-            raise MissingParameterError
-        if runner_id:
-            response = self._session.delete(f'{self.url}/runners/{runner_id}', headers=self.headers, verify=self.verify)
-        else:
-            data = {'token': token}
-            data = json.dumps(data, indent=4)
-            response = self._session.delete(f'{self.url}/runners', headers=self.headers, data=data,
+        try:
+            response = self._session.delete(f'{self.url}/projects/{runner.project_id}'
+                                            f'/runners/{runner.runner_id}',
+                                            headers=self.headers,
                                             verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def verify_runner_authentication(self, token: str = None):
-        if token is None:
+    def get_group_runners(self, runner: RunnerModel):
+        if runner.group_id is None:
             raise MissingParameterError
-        data = {'token': token}
-        data = json.dumps(data, indent=4)
-        response = self._session.post(f'{self.url}/runners/verify', headers=self.headers, data=data, verify=self.verify)
+        try:
+            response = self._session.get(f'{self.url}/groups/{runner.group_id}'
+                                         f'/runners{runner.api_parameters}',
+                                         headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def register_new_runner(self, runner: RunnerModel):
+        if runner.token is None:
+            raise MissingParameterError
+        try:
+            response = self._session.put(f'{self.url}/runners',
+                                         headers=self.headers,
+                                         data=runner.data,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def delete_runner(self, runner: RunnerModel):
+        if runner.runner_id is None and runner.token is None:
+            raise MissingParameterError
+        if runner.runner_id:
+            response = self._session.delete(f'{self.url}/runners/{runner.runner_id}',
+                                            headers=self.headers,
+                                            verify=self.verify)
+        else:
+            try:
+                response = self._session.delete(f'{self.url}/runners',
+                                                headers=self.headers,
+                                                data=json.dumps(runner.data, indent=2),
+                                                verify=self.verify)
+            except ValidationError as e:
+                raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def verify_runner_authentication(self, runner: RunnerModel):
+        if runner.token is None:
+            raise MissingParameterError
+        try:
+            response = self._session.post(f'{self.url}/runners/verify',
+                                          headers=self.headers,
+                                          data=json.dumps(runner.data, indent=2),
+                                          verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
     def reset_gitlab_runner_token(self):
-        response = self._session.post(f'{self.url}/runners/reset_registration_token', headers=self.headers,
-                                      verify=self.verify)
+        try:
+            response = self._session.post(f'{self.url}/runners'
+                                          f'/reset_registration_token', headers=self.headers,
+                                          verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def reset_project_runner_token(self, project_id: Union[int, str] = None):
-        if project_id is None:
+    def reset_project_runner_token(self, runner: RunnerModel):
+        if runner.project_id is None:
             raise MissingParameterError
-        response = self._session.post(f'{self.url}/projects/{project_id}/runners/reset_registration_token',
-                                      headers=self.headers, verify=self.verify)
+        try:
+            response = self._session.post(f'{self.url}/projects/{runner.project_id}'
+                                          f'/runners/reset_registration_token',
+                                          headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def reset_group_runner_token(self, group_id: Union[int, str] = None):
-        if group_id is None:
+    def reset_group_runner_token(self, runner: RunnerModel):
+        if runner.group_id is None:
             raise MissingParameterError
-        response = self._session.post(f'{self.url}/groups/{group_id}/runners/reset_registration_token',
-                                      headers=self.headers, verify=self.verify)
+        try:
+            response = self._session.post(f'{self.url}/groups/{runner.group_id}'
+                                          f'/runners/reset_registration_token',
+                                          headers=self.headers, verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def reset_token(self, runner_id: Union[int, str] = None, token: str = None):
-        if runner_id is None or token is None:
+    def reset_token(self, runner: RunnerModel):
+        if runner.runner_id is None or runner.token is None:
             raise MissingParameterError
-        data = {'token': token}
-        data = json.dumps(data, indent=4)
-        response = self._session.post(f'{self.url}/runners/{runner_id}/reset_authentication_token',
-                                      headers=self.headers, data=data, verify=self.verify)
+        try:
+            response = self._session.post(f'{self.url}/runners/{runner.runner_id}'
+                                          f'/reset_authentication_token',
+                                          headers=self.headers,
+                                          data=json.dumps(runner.data,
+                                                          indent=2),
+                                          verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     ####################################################################################################################
     #                                                Users API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_users(self, username=None, active=None, blocked=None, external=None, exclude_internal=None,
-                  exclude_external=None, without_project_bots=None, extern_uid=None, provider=None, created_before=None,
-                  created_after=None, with_custom_attributes=None, sort=None, order_by=None, two_factor=None,
-                  without_projects=None, admins=None, saml_provider_id=None,
-                  max_pages: int = 0, page: int = 1, per_page: int = 100):
-        api_parameters = f"?per_page={per_page}"
+    def get_users(self, user: UserModel):
+        api_parameters = f"?per_page={user.per_page}"
         response = self._session.get(f'{self.url}/users{api_parameters}&x-total-pages',
                                      headers=self.headers, verify=self.verify)
         total_pages = int(response.headers['X-Total-Pages'])
         response = []
 
-        if username:
-            if not isinstance(username, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&username={username}'
-        if active:
-            if not isinstance(active, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&active={active}'
-        if blocked:
-            if not isinstance(blocked, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&blocked={blocked}'
-        if external:
-            if not isinstance(external, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&external={external}'
-        if exclude_internal:
-            if not isinstance(exclude_internal, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&exclude_internal={exclude_internal}'
-        if exclude_external:
-            if not isinstance(exclude_external, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&exclude_external={exclude_external}'
-        if without_project_bots:
-            if not isinstance(without_project_bots, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&without_project_bots={without_project_bots}'
-        if order_by:
-            if order_by not in ['id', 'name', 'username', 'created_at', 'updated_at']:
-                raise ParameterError
-            api_parameters = f'{api_parameters}&order_by={order_by}'
-        if sort:
-            if sort not in ['asc', 'desc']:
-                raise ParameterError
-            api_parameters = f'{api_parameters}&sort={sort}'
-        if two_factor:
-            if two_factor not in ['enabled', 'disabled']:
-                raise ParameterError
-            api_parameters = f'{api_parameters}&two_factor={two_factor}'
-        if without_projects:
-            if not isinstance(without_projects, bool):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&without_projects={without_projects}'
-        if admins:
-            if not isinstance(admins, bool):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&admins={admins}'
-        if saml_provider_id:
-            if not isinstance(saml_provider_id, int):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&saml_provider_id={saml_provider_id}'
-        if extern_uid:
-            if not isinstance(extern_uid, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&extern_uid={extern_uid}'
-        if provider:
-            if not isinstance(provider, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&provider={provider}'
-        if created_before:
-            if not isinstance(created_before, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&created_before={created_before}'
-        if created_after:
-            if not isinstance(created_after, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&created_after={created_after}'
-        if with_custom_attributes:
-            if not isinstance(with_custom_attributes, str):
-                raise ParameterError
-            api_parameters = f'{api_parameters}&with_custom_attributes={with_custom_attributes}'
-        if max_pages == 0 or max_pages > total_pages:
-            max_pages = total_pages
-        for page in range(0, max_pages):
-            response_page = self._session.get(f'{self.url}/users{api_parameters}&page={page}',
+
+        if user.max_pages == 0 or user.max_pages > total_pages:
+            user.max_pages = total_pages
+        for page in range(0, user.max_pages):
+            response_page = self._session.get(f'{self.url}/users{user.api_parameters}&page={page}',
                                               headers=self.headers, verify=self.verify)
             response_page = json.loads(response_page.text.replace("'", "\""))
             response = response + response_page
         return response
 
     @require_auth
-    def get_user(self, user_id=None, sudo=False):
-        if user_id is None:
+    def get_user(self, user: UserModel):
+        if user.user_id is None:
             raise MissingParameterError
-        if sudo:
-            user_url = f'?sudo={user_id}'
-        else:
-            user_url = f'/{user_id}'
-        response = self._session.get(f'{self.url}/users{user_url}', headers=self.headers, verify=self.verify)
+        response = self._session.get(f'{self.url}/users{user.api_parameters}',
+                                     headers=self.headers,
+                                     verify=self.verify)
         return response
 
     ####################################################################################################################
@@ -1539,7 +1368,7 @@ class Api(object):
             data['format'] = format_type
         data = json.dumps(data, indent=4)
         response = self._session.post(f'{self.url}/projects/{project_id}/wikis',
-                                      headers=self.headers, verify=self.verify, data=data)
+                                      headers=self.headers, verify=self.verify, data=json.dumps(wiki.data, indent=2))
         return response
 
     @require_auth
@@ -1562,7 +1391,7 @@ class Api(object):
             data['format'] = format_type
         data = json.dumps(data, indent=4)
         response = self._session.put(f'{self.url}/projects/{project_id}/wikis/{slug}',
-                                     headers=self.headers, verify=self.verify, data=data)
+                                     headers=self.headers, verify=self.verify, data=json.dumps(wiki.data, indent=2))
         return response
 
     @require_auth
@@ -1586,5 +1415,5 @@ class Api(object):
         headers = self.headers
         headers['Content-Type'] = "multipart/form-data"
         response = self._session.delete(f'{self.url}/projects/{project_id}/wikis/attachments',
-                                        headers=headers, verify=self.verify, data=data)
+                                        headers=headers, verify=self.verify, data=json.dumps(wiki.data, indent=2))
         return response

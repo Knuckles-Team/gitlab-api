@@ -281,119 +281,6 @@ class JobModel(BaseModel):
         return None
 
 
-class ProjectModel(BaseModel):
-    project_id: Union[int, str]
-    allow_merge_on_skipped_pipeline: bool = None
-    only_allow_merge_if_all_status_checks_passed: bool = None
-    analytics_access_level: str = None
-    approvals_before_merge: int = None
-    auto_cancel_pending_pipelines: str = None
-    auto_devops_deploy_strategy: str = None
-    auto_devops_enabled: bool = None
-    autoclose_referenced_issues: bool = None
-    avatar: str = None
-    build_git_strategy: str = None
-    build_timeout: int = None
-    builds_access_level: str = None
-    ci_config_path: str = None
-    ci_default_git_depth: int = None
-    ci_forward_deployment_enabled: bool = None
-    ci_allow_fork_pipelines_to_run_in_parent_project: bool = None
-    ci_separated_caches: bool = None
-    container_expiration_policy_attributes: str = None
-    container_registry_access_level: str = None
-    default_branch: str = None
-    description: str = None
-    emails_disabled: bool = None
-    enforce_auth_checks_on_uploads: bool = None
-    external_authorization_classification_label: str = None
-    forking_access_level: str = None
-    import_url: str = None
-    issues_access_level: str = None
-    issues_template: str = None
-    keep_latest_artifact: bool = None
-    lfs_enabled: bool = None
-    merge_commit_template: str = None
-    merge_method: str = None
-    merge_pipelines_enabled: bool = None
-    merge_requests_access_level: str = None
-    merge_requests_template: str = None
-    merge_trains_enabled: bool = None
-    mirror_overwrites_diverged_branches: bool = None
-    mirror_trigger_builds: bool = None
-    mirror_user_id: int = None
-    mirror: bool = None
-    mr_default_target_self: bool = None
-    name: str = None
-    only_allow_merge_if_all_discussions_are_resolved: bool = None
-    only_allow_merge_if_pipeline_succeeds: bool = None
-    only_mirror_protected_branches: bool = None
-    operations_access_level: str = None
-    packages_enabled: bool = None
-    pages_access_level: str = None
-    path: str = None
-    printing_merge_request_link_enabled: bool = None
-    public_builds: bool = None
-    releases_access_level: str = None
-    remove_source_branch_after_merge: bool = None
-    repository_access_level: str = None
-    repository_storage: str = None
-    request_access_enabled: bool = None
-    requirements_access_level: str = None
-    resolve_outdated_diff_discussions: bool = None
-    restrict_user_defined_variables: bool = None
-    security_and_compliance_access_level: str = None
-    service_desk_enabled: bool = None
-    shared_runners_enabled: bool = None
-    snippets_access_level: str = None
-    squash_commit_template: str = None
-    squash_option: str = None
-    suggestion_commit_message: str = None
-    tag_list: List[str] = None
-    topics: List[str] = None
-    visibility: str = None
-    wiki_access_level: str = None
-
-    @field_validator("analytics_access_level", "builds_access_level", "container_registry_access_level",
-                     "forking_access_level", "issues_access_level", "operations_access_level", "pages_access_level",
-                     "releases_access_level", "repository_access_level", "requirements_access_level",
-                     "security_and_compliance_access_level", "snippets_access_level", "wiki_access_level")
-    def validate_access_level(cls, value):
-        valid_access_levels = ['disabled', 'private', 'enabled']
-        if value and value not in valid_access_levels:
-            raise ValueError("Invalid access level value")
-        return value
-
-    @field_validator("auto_cancel_pending_pipelines", "auto_devops_deploy_strategy",
-                     "mirror_overwrites_diverged_branches",
-                     "mirror_trigger_builds", "mr_default_target_self",
-                     "only_allow_merge_if_all_discussions_are_resolved",
-                     "only_allow_merge_if_pipeline_succeeds", "only_mirror_protected_branches", "auto_devops_enabled",
-                     "autoclose_referenced_issues", "emails_disabled", "enforce_auth_checks_on_uploads",
-                     "ci_forward_deployment_enabled", "ci_allow_fork_pipelines_to_run_in_parent_project",
-                     "ci_separated_caches", "keep_latest_artifact", "lfs_enabled", "merge_pipelines_enabled",
-                     "merge_trains_enabled", "printing_merge_request_link_enabled", "public_builds",
-                     "remove_source_branch_after_merge", "request_access_enabled", "resolve_outdated_diff_discussions",
-                     "restrict_user_defined_variables", "service_desk_enabled", "shared_runners_enabled",
-                     "packages_enabled")
-    def validate_boolean(cls, value):
-        if value is not None and not isinstance(value, bool):
-            raise ValueError("Invalid boolean value")
-        return value
-
-    @field_validator("approvals_before_merge", "build_timeout", "ci_default_git_depth", "mirror_user_id")
-    def validate_positive_integer(cls, value):
-        if value is not None and (not isinstance(value, int) or value < 0):
-            raise ValueError("Invalid positive integer value")
-        return value
-
-    @field_validator("tag_list", "topics")
-    def validate_tag_topics(cls, value):
-        if value is not None and not all(isinstance(tag, str) for tag in value):
-            raise ValueError("Invalid tag or topic value")
-        return value
-
-
 class MembersModel(BaseModel):
     group_id: Union[int, str] = None
     project_id: Union[int, str] = None
@@ -757,3 +644,348 @@ class PackageModel(BaseModel):
         if value not in ['package_file', 'package_file']:
             raise ValueError("Invalid rule_type")
         return value
+
+class PipelineModel(BaseModel):
+    project_id: Union[int, str] = None
+    per_page: int = 100
+    page: int = 1
+    pipeline_id: Union[int, str] = None
+    reference: str = None
+    variables: Dict = None
+
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("page") is not None:
+            filters.append(f'page={values["page"]}')
+
+        if values.get("per_page") is not None:
+            filters.append(f'per_page={values["per_page"]}')
+
+        if values.get("ref") is not None:
+            filters.append(f'ref={values["reference"]}')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
+
+class ProjectModel(BaseModel):
+    project_id: Union[int, str]
+    allow_merge_on_skipped_pipeline: bool = None
+    only_allow_merge_if_all_status_checks_passed: bool = None
+    analytics_access_level: str = None
+    approvals_before_merge: int = None
+    auto_cancel_pending_pipelines: str = None
+    auto_devops_deploy_strategy: str = None
+    auto_devops_enabled: bool = None
+    autoclose_referenced_issues: bool = None
+    avatar: str = None
+    build_git_strategy: str = None
+    build_timeout: int = None
+    builds_access_level: str = None
+    ci_config_path: str = None
+    ci_default_git_depth: int = None
+    ci_forward_deployment_enabled: bool = None
+    ci_allow_fork_pipelines_to_run_in_parent_project: bool = None
+    ci_separated_caches: bool = None
+    container_expiration_policy_attributes: str = None
+    container_registry_access_level: str = None
+    default_branch: str = None
+    description: str = None
+    emails_disabled: bool = None
+    enforce_auth_checks_on_uploads: bool = None
+    external_authorization_classification_label: str = None
+    forking_access_level: str = None
+    import_url: str = None
+    issues_access_level: str = None
+    issues_template: str = None
+    keep_latest_artifact: bool = None
+    lfs_enabled: bool = None
+    merge_commit_template: str = None
+    merge_method: str = None
+    merge_pipelines_enabled: bool = None
+    merge_requests_access_level: str = None
+    merge_requests_template: str = None
+    merge_trains_enabled: bool = None
+    mirror_overwrites_diverged_branches: bool = None
+    mirror_trigger_builds: bool = None
+    mirror_user_id: int = None
+    mirror: bool = None
+    mr_default_target_self: bool = None
+    name: str = None
+    only_allow_merge_if_all_discussions_are_resolved: bool = None
+    only_allow_merge_if_pipeline_succeeds: bool = None
+    only_mirror_protected_branches: bool = None
+    operations_access_level: str = None
+    packages_enabled: bool = None
+    pages_access_level: str = None
+    path: str = None
+    printing_merge_request_link_enabled: bool = None
+    public_builds: bool = None
+    releases_access_level: str = None
+    remove_source_branch_after_merge: bool = None
+    repository_access_level: str = None
+    repository_storage: str = None
+    request_access_enabled: bool = None
+    requirements_access_level: str = None
+    resolve_outdated_diff_discussions: bool = None
+    restrict_user_defined_variables: bool = None
+    security_and_compliance_access_level: str = None
+    service_desk_enabled: bool = None
+    shared_runners_enabled: bool = None
+    snippets_access_level: str = None
+    squash_commit_template: str = None
+    squash_option: str = None
+    suggestion_commit_message: str = None
+    tag_list: List[str] = None
+    topics: List[str] = None
+    visibility: str = None
+    wiki_access_level: str = None
+
+    @field_validator("analytics_access_level", "builds_access_level", "container_registry_access_level",
+                     "forking_access_level", "issues_access_level", "operations_access_level", "pages_access_level",
+                     "releases_access_level", "repository_access_level", "requirements_access_level",
+                     "security_and_compliance_access_level", "snippets_access_level", "wiki_access_level")
+    def validate_access_level(cls, value):
+        valid_access_levels = ['disabled', 'private', 'enabled']
+        if value and value not in valid_access_levels:
+            raise ValueError("Invalid access level value")
+        return value
+
+    @field_validator("auto_cancel_pending_pipelines", "auto_devops_deploy_strategy",
+                     "mirror_overwrites_diverged_branches",
+                     "mirror_trigger_builds", "mr_default_target_self",
+                     "only_allow_merge_if_all_discussions_are_resolved",
+                     "only_allow_merge_if_pipeline_succeeds", "only_mirror_protected_branches", "auto_devops_enabled",
+                     "autoclose_referenced_issues", "emails_disabled", "enforce_auth_checks_on_uploads",
+                     "ci_forward_deployment_enabled", "ci_allow_fork_pipelines_to_run_in_parent_project",
+                     "ci_separated_caches", "keep_latest_artifact", "lfs_enabled", "merge_pipelines_enabled",
+                     "merge_trains_enabled", "printing_merge_request_link_enabled", "public_builds",
+                     "remove_source_branch_after_merge", "request_access_enabled", "resolve_outdated_diff_discussions",
+                     "restrict_user_defined_variables", "service_desk_enabled", "shared_runners_enabled",
+                     "packages_enabled")
+    def validate_boolean(cls, value):
+        if value is not None and not isinstance(value, bool):
+            raise ValueError("Invalid boolean value")
+        return value
+
+    @field_validator("approvals_before_merge", "build_timeout", "ci_default_git_depth", "mirror_user_id")
+    def validate_positive_integer(cls, value):
+        if value is not None and (not isinstance(value, int) or value < 0):
+            raise ValueError("Invalid positive integer value")
+        return value
+
+    @field_validator("tag_list", "topics")
+    def validate_tag_topics(cls, value):
+        if value is not None and not all(isinstance(tag, str) for tag in value):
+            raise ValueError("Invalid tag or topic value")
+        return value
+
+class RunnerModel(BaseModel):
+    description: str = None
+    active: bool = None
+    paused: bool = None
+    tag_list: List[str] = None
+    run_untagged: bool = None
+    locked: bool = None
+    access_level: str = None
+    maintenance_note: str = None
+    info: str = None
+    token: str = None
+    project_id: Union[int, str] = None
+    group_id: Union[int, str] = None
+    maximum_timeout: int = None
+    runner_type: str = None
+    status: str = None
+    all_runners: bool = False
+
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("tag_list") is not None:
+            filters.append(f'tag_list={values["tag_list"]}')
+
+        if values.get("runner_type") is not None:
+            filters.append(f'runner_type={values["runner_type"]}')
+
+        if values.get("status") is not None:
+            filters.append(f'status={values["status"]}')
+
+        if values.get("paused") is not None:
+            filters.append(f'paused={values["paused"]}')
+
+        if values.get("tag_list") is not None:
+            filters.append(f'tag_list={values["tag_list"]}')
+
+        if values.get("all_runners"):
+            filters = ['/all']
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
+    @field_validator("runner_type")
+    def validate_runner_type(cls, value):
+        if value not in ['instance_type', 'group_type', 'project_type']:
+            raise ValueError("Invalid runner_type")
+        return value
+
+    @field_validator("status")
+    def validate_status(cls, value):
+        if value not in ['online', 'offline', 'stale', 'never_contacted', 'active', 'paused']:
+            raise ValueError("Invalid status")
+        return value
+
+    @field_validator("data")
+    def construct_data_dict(cls, values):
+        data = {
+            "description": values.get("description"),
+            "active": values.get("active"),
+            "paused": values.get("paused"),
+            "tag_list": values.get("tag_list"),
+            "run_untagged": values.get("run_untagged"),
+            "locked": values.get("locked"),
+            "access_level": values.get("access_level"),
+            "maximum_timeout": values.get("maximum_timeout"),
+            "info": values.get("info"),
+            "maintenance_note": values.get("maximum_timeout"),
+            "token": values.get("token"),
+        }
+
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if not data:
+            raise ValueError("At least one key is required in the data dictionary.")
+
+        return data
+
+class UserModel(BaseModel):
+    username: str = None
+    active: bool = None
+    blocked: bool = None
+    external: bool = None
+    exclude_internal: bool = None
+    exclude_external: bool = None
+    without_project_bots: bool = None
+    extern_uid: str = None
+    provider: str = None
+    created_before: str = None
+    created_after: str = None
+    with_custom_attributes: str = None
+    sort: str = None
+    order_by: str = None
+    two_factor: str = None
+    without_projects: bool = None
+    admins: bool = None
+    saml_provider_id: str = None
+    max_pages: int = 0
+    page: int = 1
+    per_page: int = 100
+    sudo: bool = False
+    user_id: Union[str, int] = None
+
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("username") is not None:
+            filters.append(f'username={values["username"]}')
+
+        if values.get("active") is not None:
+            filters.append(f'active={values["active"]}')
+
+        if values.get("blocked") is not None:
+            filters.append(f'blocked={values["blocked"]}')
+
+        if values.get("external") is not None:
+            filters.append(f'external={values["external"]}')
+
+        if values.get("exclude_internal") is not None:
+            filters.append(f'exclude_internal={values["exclude_internal"]}')
+
+        if values.get("exclude_external") is not None:
+            filters.append(f'exclude_external={values["exclude_external"]}')
+
+        if values.get("without_project_bots") is not None:
+            filters.append(f'without_project_bots={values["without_project_bots"]}')
+
+        if values.get("order_by") is not None:
+            filters.append(f'order_by={values["order_by"]}')
+
+        if values.get("sort") is not None:
+            filters.append(f'sort={values["sort"]}')
+
+        if values.get("two_factor") is not None:
+            filters.append(f'two_factor={values["two_factor"]}')
+
+        if values.get("without_projects") is not None:
+            filters.append(f'without_projects={values["without_projects"]}')
+
+        if values.get("admins") is not None:
+            filters.append(f'admins={values["admins"]}')
+
+        if values.get("saml_provider_id") is not None:
+            filters.append(f'saml_provider_id={values["saml_provider_id"]}')
+
+        if values.get("extern_uid") is not None:
+            filters.append(f'extern_uid={values["extern_uid"]}')
+
+        if values.get("provider") is not None:
+            filters.append(f'provider={values["provider"]}')
+
+        if values.get("created_before") is not None:
+            filters.append(f'created_before={values["created_before"]}')
+
+        if values.get("created_after") is not None:
+            filters.append(f'created_after={values["created_after"]}')
+
+        if values.get("with_custom_attributes") is not None:
+            filters.append(f'with_custom_attributes={values["with_custom_attributes"]}')
+
+        if values.get("sudo") is not None:
+            filters.append(f'sudo={values["user_id"]}')
+        elif values.get("user_id") is not None:
+            filters.append(f'{values["user_id"]}')
+
+        if values.get("page") is not None:
+            filters.append(f'page={values["page"]}')
+
+        if values.get("per_page") is not None:
+            filters.append(f'per_page={values["per_page"]}')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
+
+
+    @field_validator("order_by")
+    def validate_order_by(cls, value):
+        if value not in ['id', 'name', 'username', 'created_at', 'updated_at']:
+            raise ValueError("Invalid order_by")
+        return value
+
+    @field_validator("sort")
+    def validate_sort(cls, value):
+        valid_sorts = ['asc', 'desc']
+        if value and value not in valid_sorts:
+            raise ValueError("Invalid sort value")
+        return value
+
+    @field_validator("two_factor")
+    def validate_two_factor(cls, value):
+        valid_two_factor = ['enabled', 'disabled']
+        if value and value not in valid_two_factor:
+            raise ValueError("Invalid two_factor value")
+        return value
+
