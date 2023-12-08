@@ -881,6 +881,85 @@ class ProtectedBranchModel(BaseModel):
         return data
 
 
+class ReleaseModel(BaseModel):
+    project_id: Union[int, str]
+    order_by: str = None
+    sort: str = None
+    simple: bool = None
+    include_html_description: bool = None
+    tag_name: str = None
+    description: str = None
+    tag_message: str = None
+    ref: str = None
+    direct_asset_path: str = None
+    name: List[str] = None
+    milestones: str = None
+    released_at: str = None
+
+    @field_validator("api_parameters")
+    def build_api_parameters(cls, values):
+        filters = []
+
+        if values.get("simple") is not None:
+            filters.append(f'simple=true')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            return api_parameters
+
+        return None
+
+
+    @field_validator("order_by")
+    def validate_order_by(cls, value):
+        if value not in ['id', 'name', 'username', 'created_at', 'updated_at']:
+            raise ValueError("Invalid order_by")
+        return value
+
+    @field_validator("sort")
+    def validate_sort(cls, value):
+        valid_sorts = ['asc', 'desc']
+        if value and value not in valid_sorts:
+            raise ValueError("Invalid sort value")
+        return value
+
+    @field_validator('project_id')
+    def validate_project_id(cls, value):
+        if value is None:
+            raise ValueError('Project ID cannot be None')
+        return value
+
+    @field_validator('project_id')
+    def validate_project_id_type(cls, value):
+        if not isinstance(value, (int, str)):
+            raise ValueError('Project ID must be an integer or a string')
+        return value
+
+    @field_validator("data")
+    def construct_data_dict(cls, values):
+        data = {
+            "name": values.get("description"),
+            "tag_name": values.get("tag_name"),
+            "tag_message": values.get("tag_message"),
+            "description": values.get("description"),
+            "ref": values.get("ref"),
+            "milestones": values.get("milestones"),
+            "assets:links": values.get("assets:links"),
+            "assets:links:name": values.get("assets:links:name"),
+            "assets:links:url": values.get("assets:links:url"),
+            "assets:links:direct_asset_path": values.get("assets:links:direct_asset_path"),
+            "released_at": values.get("released_at"),
+        }
+
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if not data:
+            raise ValueError("At least one key is required in the data dictionary.")
+
+        return data
+
+
 class RunnerModel(BaseModel):
     description: str = None
     active: bool = None
@@ -962,6 +1041,7 @@ class RunnerModel(BaseModel):
             raise ValueError("At least one key is required in the data dictionary.")
 
         return data
+
 
 class UserModel(BaseModel):
     username: str = None

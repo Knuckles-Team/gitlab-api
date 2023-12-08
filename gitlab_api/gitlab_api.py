@@ -1019,7 +1019,126 @@ class Api(object):
     def get_releases(self, release: ReleaseModel):
         try:
             response = self._session.get(f'{self.url}'
-                                         f'/runners{release.api_parameters}',
+                                         f'/projects/{release.project_id}/releases',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def get_latest_release(self, release: ReleaseModel):
+        try:
+            response = self._session.get(f'{self.url}'
+                                         f'/projects/{release.project_id}/releases'
+                                         f'/permalink/latest',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def get_latest_release_evidence(self, release: ReleaseModel):
+        try:
+            response = self._session.get(f'{self.url}'
+                                         f'/projects/{release.project_id}/releases'
+                                         f'/permalink/latest/evidence',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def get_latest_release_asset(self, release: ReleaseModel):
+        try:
+            response = self._session.get(f'{self.url}'
+                                         f'/projects/{release.project_id}/releases'
+                                         f'/permalink/latest/{release.direct_asset_path}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def get_group_releases(self, release: ReleaseModel):
+        try:
+            response = self._session.get(f'{self.url}'
+                                         f'/groups/{release.group_id}/releases{release.api_parameters}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def download_release_asset(self, release: ReleaseModel):
+        try:
+            response = self._session.get(f'{self.url}'
+                                         f'/groups/{release.group_id}'
+                                         f'/releases/{release.tag_name}'
+                                         f'/downloads/{release.direct_asset_path}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def get_release_by_tag(self, release: ReleaseModel):
+        try:
+            response = self._session.get(f'{self.url}'
+                                         f'/projects/{release.project_id}/releases/{release.tag_name}',
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+
+    @require_auth
+    def create_release(self, release: ReleaseModel):
+        try:
+            response = self._session.post(f'{self.url}'
+                                         f'/projects/{release.project_id}/releases',
+                                         data=json.dumps(release.data, indent=2),
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def create_release_evidence(self, release: ReleaseModel):
+        try:
+            response = self._session.post(f'{self.url}'
+                                          f'/projects/{release.project_id}'
+                                          f'/releases/{release.tag_name}/evidence',
+                                          headers=self.headers,
+                                          verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def update_release(self, release: ReleaseModel):
+        try:
+            response = self._session.put(f'{self.url}'
+                                         f'/projects/{release.project_id}/releases/{release.tag_name}',
+                                         data=json.dumps(release.data, indent=2),
+                                         headers=self.headers,
+                                         verify=self.verify)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        return response
+
+    @require_auth
+    def update_release(self, release: ReleaseModel):
+        try:
+            response = self._session.delete(f'{self.url}'
+                                         f'/projects/{release.project_id}/releases/{release.tag_name}',
                                          headers=self.headers,
                                          verify=self.verify)
         except ValidationError as e:
