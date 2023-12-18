@@ -71,6 +71,18 @@ class Api(object):
     ####################################################################################################################
     @require_auth
     def get_branches(self, **kwargs):
+        """
+        Retrieve information about branches in a project.
+
+        Args:
+            **kwargs: Additional keyword arguments to initialize the BranchModel.
+
+        Returns:
+            Response: The response object from the GET request.
+
+        Raises:
+            ParameterError: If the provided parameters are invalid based on the BranchModel.
+        """
         branch = BranchModel(**kwargs)
         try:
             response = self._session.get(
@@ -84,6 +96,18 @@ class Api(object):
 
     @require_auth
     def get_branch(self, **kwargs):
+        """
+        Retrieve information about a specific branch in a project.
+
+        Args:
+            **kwargs: Additional keyword arguments to initialize the BranchModel.
+
+        Returns:
+            Response: The response object from the GET request.
+
+        Raises:
+            ParameterError: If the provided parameters are invalid based on the BranchModel.
+        """
         branch = BranchModel(**kwargs)
         try:
             response = self._session.get(
@@ -96,6 +120,18 @@ class Api(object):
 
     @require_auth
     def create_branch(self, **kwargs):
+        """
+        Create a new branch in a project.
+
+        Args:
+            **kwargs: Additional keyword arguments to initialize the BranchModel.
+
+        Returns:
+            Response: The response object from the POST request.
+
+        Raises:
+            ParameterError: If the provided parameters are invalid based on the BranchModel.
+        """
         branch = BranchModel(**kwargs)
         try:
             response = self._session.post(
@@ -108,6 +144,18 @@ class Api(object):
 
     @require_auth
     def delete_branch(self, **kwargs):
+        """
+        Delete a specific branch in a project.
+
+        Args:
+            **kwargs: Additional keyword arguments to initialize the BranchModel.
+
+        Returns:
+            Response: The response object from the DELETE request.
+
+        Raises:
+            ParameterError: If the provided parameters are invalid based on the BranchModel.
+        """
         branch = BranchModel(**kwargs)
         try:
             response = self._session.delete(url=f'{self.url}/projects/{branch.project_id}'
@@ -119,6 +167,18 @@ class Api(object):
 
     @require_auth
     def delete_merged_branches(self, **kwargs):
+        """
+        Delete merged branches in a project.
+
+        Args:
+            **kwargs: Additional keyword arguments to initialize the BranchModel.
+
+        Returns:
+            Response: The response object from the DELETE request.
+
+        Raises:
+            ParameterError: If the provided parameters are invalid based on the BranchModel.
+        """
         branch = BranchModel(**kwargs)
         try:
             response = self._session.delete(url=f'{self.url}/projects/{branch.project_id}'

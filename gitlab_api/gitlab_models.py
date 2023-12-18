@@ -13,12 +13,34 @@ except ModuleNotFoundError:
 
 
 class BranchModel(BaseModel):
+    """
+    Pydantic model representing information about a branch.
+
+    Attributes:
+        project_id (Union[int, str]): The identifier of the project associated with the branch.
+        branch (str, optional): The name of the branch.
+        reference (str, optional): Reference information for the branch.
+
+    Notes:
+        This model includes a validator `validate_required_parameters` to ensure that the `project_id` field is
+        provided when either `branch` or `reference` is specified.
+    """
     project_id: Union[int, str]
     branch: str = None
     reference: str = None
 
     @field_validator('branch', 'reference')
     def validate_required_parameters(cls, v, values):
+        """
+        Validator to ensure that `project_id` is provided when either `branch` or `reference` is specified.
+
+        Args:
+            v (str): The value of the current field being validated.
+            values (dict): The values of all fields in the model.
+
+        Raises:
+            ValueError: If `project_id` is missing or `None` when either `branch` or `reference` is specified.
+        """
         if 'project_id' in values and values['project_id'] is not None and v is not None:
             return v
         else:
