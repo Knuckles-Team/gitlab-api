@@ -57,7 +57,7 @@ class Api(object):
         else:
             raise MissingParameterError
 
-        response = self._session.get(f'{self.url}/projects', headers=self.headers, verify=self.verify)
+        response = self._session.get(url=f'{self.url}/projects', headers=self.headers, verify=self.verify)
 
         if response.status_code == 403:
             raise UnauthorizedError
@@ -74,7 +74,7 @@ class Api(object):
         branch = BranchModel(**kwargs)
         try:
             response = self._session.get(
-                f'{self.url}/projects/{branch.project_id}/repository/branches',
+                url=f'{self.url}/projects/{branch.project_id}/repository/branches',
                 headers=self.headers,
                 verify=self.verify)
 
@@ -87,7 +87,7 @@ class Api(object):
         branch = BranchModel(**kwargs)
         try:
             response = self._session.get(
-                f'{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}',
+                url=f'{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}',
                 headers=self.headers,
                 verify=self.verify)
         except ValidationError as e:
@@ -99,7 +99,7 @@ class Api(object):
         branch = BranchModel(**kwargs)
         try:
             response = self._session.post(
-                f'{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}',
+                url=f'{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}',
                 headers=self.headers,
                 verify=self.verify)
         except ValidationError as e:
@@ -110,7 +110,7 @@ class Api(object):
     def delete_branch(self, **kwargs):
         branch = BranchModel(**kwargs)
         try:
-            response = self._session.delete(f'{self.url}/projects/{branch.project_id}'
+            response = self._session.delete(url=f'{self.url}/projects/{branch.project_id}'
                                             f'/repository/branches?branch={branch.branch}',
                                             headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -121,7 +121,7 @@ class Api(object):
     def delete_merged_branches(self, **kwargs):
         branch = BranchModel(**kwargs)
         try:
-            response = self._session.delete(f'{self.url}/projects/{branch.project_id}'
+            response = self._session.delete(url=f'{self.url}/projects/{branch.project_id}'
                                             f'/repository/merged_branches',
                                             headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -135,7 +135,7 @@ class Api(object):
     def get_commits(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -146,7 +146,7 @@ class Api(object):
     def get_commit(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -157,7 +157,7 @@ class Api(object):
     def get_commit_references(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/refs',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -168,7 +168,7 @@ class Api(object):
     def cherry_pick_commit(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.post(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits/{commit.commit_hash}/cherry_pick',
                                           headers=self.headers, data=commit.data, verify=self.verify)
         except ValidationError as e:
@@ -179,7 +179,7 @@ class Api(object):
     def create_commit(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.post(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits',
                                           headers=self.headers, data=commit.data, verify=self.verify)
         except ValidationError as e:
@@ -190,7 +190,7 @@ class Api(object):
     def revert_commit(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.post(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits/{commit.commit_hash}/revert',
                                           headers=self.headers, data=commit.data, verify=self.verify)
         except ValidationError as e:
@@ -201,7 +201,7 @@ class Api(object):
     def get_commit_diff(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/diff',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -212,7 +212,7 @@ class Api(object):
     def get_commit_comments(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/comments',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -223,7 +223,7 @@ class Api(object):
     def create_commit_comment(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.post(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits/{commit.commit_hash}/comments',
                                           headers=self.headers, data=commit.data, verify=self.verify)
         except ValidationError as e:
@@ -234,7 +234,7 @@ class Api(object):
     def get_commit_discussions(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/discussions',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -245,7 +245,7 @@ class Api(object):
     def get_commit_statuses(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/statuses',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -256,7 +256,7 @@ class Api(object):
     def post_build_status_to_commit(self, **kwargs):
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.post(f'{self.url}/projects/{commit.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/statuses/{commit.commit_hash}/',
                                           headers=self.headers, data=commit.data, verify=self.verify)
         except ValidationError as e:
@@ -268,7 +268,7 @@ class Api(object):
         commit = CommitModel(**kwargs)
         try:
             response = self._session.get(
-                f'{self.url}/projects/{commit.project_id}'
+                url=f'{self.url}/projects/{commit.project_id}'
                 f'/repository/commits/{commit.commit_hash}/merge_requests',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -280,7 +280,7 @@ class Api(object):
         commit = CommitModel(**kwargs)
         try:
             response = self._session.get(
-                f'{self.url}/projects/{commit.project_id}'
+                url=f'{self.url}/projects/{commit.project_id}'
                 f'/repository/commits/{commit.commit_hash}/merge_requests',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -293,7 +293,7 @@ class Api(object):
     @require_auth
     def get_deploy_tokens(self):
         try:
-            response = self._session.get(f'{self.url}/deploy_tokens', headers=self.headers, verify=self.verify)
+            response = self._session.get(url=f'{self.url}/deploy_tokens', headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -302,7 +302,7 @@ class Api(object):
     def get_project_deploy_tokens(self, **kwargs):
         deploy_token = DeployTokenModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens',
+            response = self._session.get(url=f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -313,7 +313,7 @@ class Api(object):
         deploy_token = DeployTokenModel(**kwargs)
         try:
             response = self._session.get(
-                f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}',
+                url=f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -325,7 +325,7 @@ class Api(object):
         if deploy_token.project_id is None or deploy_token.name is None or deploy_token.scopes is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens',
+            response = self._session.post(url=f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens',
                                           headers=self.headers,
                                           data=json.dumps(deploy_token.model_dump(exclude_none=True), indent=4),
                                           verify=self.verify)
@@ -340,7 +340,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.delete(
-                f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}',
+                url=f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -352,7 +352,7 @@ class Api(object):
         if deploy_token.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/groups/{deploy_token.group_id}/deploy_tokens',
+            response = self._session.get(url=f'{self.url}/groups/{deploy_token.group_id}/deploy_tokens',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -364,7 +364,7 @@ class Api(object):
         if deploy_token.group_id is None or deploy_token.token is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/groups/'
+            response = self._session.get(url=f'{self.url}/groups/'
                                          f'{deploy_token.group_id}/deploy_tokens/{deploy_token.token}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -378,7 +378,7 @@ class Api(object):
         if deploy_token.group_id is None or deploy_token.name is None or deploy_token.scopes is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/groups/{deploy_token.group_id}/deploy_tokens',
+            response = self._session.post(url=f'{self.url}/groups/{deploy_token.group_id}/deploy_tokens',
                                           headers=self.headers, data=json.dumps(deploy_token_dict, indent=4),
                                           verify=self.verify)
         except ValidationError as e:
@@ -392,7 +392,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.delete(
-                f'{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.token}',
+                url=f'{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.token}',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -405,7 +405,7 @@ class Api(object):
     def get_groups(self, **kwargs):
         group = GroupModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/groups{group.api_parameters}', headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -417,7 +417,7 @@ class Api(object):
         if group.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/groups/{group.group_id}', headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -429,7 +429,7 @@ class Api(object):
         if group.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/groups/{group.group_id}'
                                          f'/subgroups', headers=self.headers,
                                          verify=self.verify)
@@ -443,7 +443,7 @@ class Api(object):
         if group.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/groups/{group.group_id}'
                                          f'/descendant_groups',
                                          headers=self.headers, verify=self.verify)
@@ -457,7 +457,7 @@ class Api(object):
         if group.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/groups/{group.group_id}'
                                          f'/projects{group.api_parameters}',
                                          headers=self.headers, verify=self.verify)
@@ -471,7 +471,7 @@ class Api(object):
         if group.group_id is None or group.argument is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/groups/{group.group_id}'
                                          f'/merge_requests{group.api_parameters}',
                                          headers=self.headers, verify=self.verify)
@@ -488,7 +488,7 @@ class Api(object):
         if job.project_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{job.project_id}/jobs{job.api_parameters}',
+            response = self._session.get(url=f'{self.url}/projects/{job.project_id}/jobs{job.api_parameters}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -500,7 +500,7 @@ class Api(object):
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}',
+            response = self._session.get(url=f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -512,7 +512,7 @@ class Api(object):
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/trace',
+            response = self._session.get(url=f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/trace',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -524,7 +524,7 @@ class Api(object):
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/cancel',
+            response = self._session.post(url=f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/cancel',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -536,7 +536,7 @@ class Api(object):
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/retry',
+            response = self._session.post(url=f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/retry',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -548,7 +548,7 @@ class Api(object):
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/erase',
+            response = self._session.post(url=f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/erase',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -560,7 +560,7 @@ class Api(object):
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/play',
+            response = self._session.post(url=f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/play',
                                           headers=self.headers, data=job.data, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -573,7 +573,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                f'{self.url}/projects/{job.project_id}/pipelines/{job.pipeline_id}/jobs{job.api_parameters}',
+                url=f'{self.url}/projects/{job.project_id}/pipelines/{job.pipeline_id}/jobs{job.api_parameters}',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -588,7 +588,7 @@ class Api(object):
         if members.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/groups/{members.group_id}/members{members.api_parameters}',
+            response = self._session.get(url=f'{self.url}/groups/{members.group_id}/members{members.api_parameters}',
                                          headers=self.headers,
                                          verify=self.verify)
         except ValidationError as e:
@@ -601,7 +601,7 @@ class Api(object):
         if members.project_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{members.project_id}/members{members.api_parameters}',
+            response = self._session.get(url=f'{self.url}/projects/{members.project_id}/members{members.api_parameters}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -619,7 +619,7 @@ class Api(object):
                 or merge_request.title is None):
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{merge_request.project_id}/merge_requests',
+            response = self._session.post(url=f'{self.url}/projects/{merge_request.project_id}/merge_requests',
                                           headers=self.headers,
                                           data=json.dumps(merge_request.data, indent=2), verify=self.verify)
         except ValidationError as e:
@@ -630,7 +630,7 @@ class Api(object):
     def get_merge_requests(self, **kwargs):
         merge_request = MergeRequestModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/merge_requests?per_page={merge_request.per_page}&x-total-pages',
+            response = self._session.get(url=f'{self.url}/merge_requests?per_page={merge_request.per_page}&x-total-pages',
                                          headers=self.headers,
                                          verify=self.verify)
             total_pages = int(response.headers['X-Total-Pages'])
@@ -639,7 +639,7 @@ class Api(object):
                 merge_request.max_pages = total_pages
             for page in range(0, merge_request.max_pages):
                 response_page = self._session.get(
-                    f'{self.url}/merge_requests'
+                    url=f'{self.url}/merge_requests'
                     f'{merge_request.api_parameters}&per_page={merge_request.per_page}&page={page}',
                     headers=self.headers, verify=self.verify)
                 response_page = json.loads(response_page.text.replace("'", "\""))
@@ -652,7 +652,7 @@ class Api(object):
     def get_project_merge_requests(self, **kwargs):
         merge_request = MergeRequestModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{merge_request.project_id}/merge_requests',
+            response = self._session.get(url=f'{self.url}/projects/{merge_request.project_id}/merge_requests',
                                          headers=self.headers, verify=self.verify)
 
         except ValidationError as e:
@@ -665,7 +665,7 @@ class Api(object):
         if merge_request.project_id is None or merge_request.merge_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{merge_request.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{merge_request.project_id}'
                                          f'/merge_requests/{merge_request.merge_id}',
                                          headers=self.headers,
                                          verify=self.verify)
@@ -680,7 +680,7 @@ class Api(object):
     def get_project_level_rules(self, **kwargs):
         merge_rule = MergeRequestRuleModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{merge_rule.project_id}/approval_rules',
+            response = self._session.get(url=f'{self.url}/projects/{merge_rule.project_id}/approval_rules',
                                          headers=self.headers,
                                          verify=self.verify)
         except ValidationError as e:
@@ -692,7 +692,7 @@ class Api(object):
         merge_rule = MergeRequestRuleModel(**kwargs)
         try:
             response = self._session.get(
-                f'{self.url}/projects/{merge_rule.project_id}/approval_rules/{merge_rule.approval_rule_id}',
+                url=f'{self.url}/projects/{merge_rule.project_id}/approval_rules/{merge_rule.approval_rule_id}',
                 headers=self.headers,
                 verify=self.verify)
 
@@ -704,7 +704,7 @@ class Api(object):
     def create_project_level_rule(self, **kwargs):
         merge_rule = MergeRequestRuleModel(**kwargs)
         try:
-            response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}/approval_rules',
+            response = self._session.post(url=f'{self.url}/projects/{merge_rule.project_id}/approval_rules',
                                           headers=self.headers,
                                           data=merge_rule.data,
                                           verify=self.verify)
@@ -717,7 +717,7 @@ class Api(object):
     def update_project_level_rule(self, **kwargs):
         merge_rule = MergeRequestRuleModel(**kwargs)
         try:
-            response = self._session.put(f'{self.url}/projects/{merge_rule.project_id}'
+            response = self._session.put(url=f'{self.url}/projects/{merge_rule.project_id}'
                                          f'/approval_rules/{merge_rule.approval_rule_id}',
                                          headers=self.headers, data=merge_rule.data, verify=self.verify)
         except ValidationError as e:
@@ -728,7 +728,7 @@ class Api(object):
     def delete_project_level_rule(self, **kwargs):
         merge_rule = MergeRequestRuleModel(**kwargs)
         try:
-            response = self._session.put(f'{self.url}/projects/{merge_rule.project_id}'
+            response = self._session.put(url=f'{self.url}/projects/{merge_rule.project_id}'
                                          f'/approval_rules/{merge_rule.approval_rule_id}',
                                          headers=self.headers, data=merge_rule.data, verify=self.verify)
         except ValidationError as e:
@@ -742,7 +742,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                f'{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approvals',
+                url=f'{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approvals',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -755,7 +755,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                f'{self.url}/projects/{merge_rule.project_id}'
+                url=f'{self.url}/projects/{merge_rule.project_id}'
                 f'/merge_requests/{merge_rule.merge_request_iid}/approval_state',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -769,7 +769,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                f'{self.url}/projects/{merge_rule.project_id}'
+                url=f'{self.url}/projects/{merge_rule.project_id}'
                 f'/merge_requests/{merge_rule.merge_request_iid}/approval_rules',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -782,7 +782,7 @@ class Api(object):
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{merge_rule.project_id}'
                                           f'/merge_requests/{merge_rule.merge_request_iid}/approve',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -795,7 +795,7 @@ class Api(object):
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{merge_rule.project_id}'
                                           f'/merge_requests/{merge_rule.merge_request_iid}/unapprove',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -810,7 +810,7 @@ class Api(object):
         if package.project_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{package.project_id}/packages', headers=self.headers,
+            response = self._session.get(url=f'{self.url}/projects/{package.project_id}/packages', headers=self.headers,
                                          verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -824,7 +824,7 @@ class Api(object):
                 or package.file_name is None):
             raise MissingParameterError
         try:
-            response = self._session.put(f'{self.url}/projects/{package.project_id}'
+            response = self._session.put(url=f'{self.url}/projects/{package.project_id}'
                                          f'/packages/generic/{package.package_name}/{package.package_version}'
                                          f'/{package.file_name}{package.api_parameters}', headers=self.headers,
                                          verify=self.verify)
@@ -840,7 +840,7 @@ class Api(object):
                 or package.file_name is None):
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{package.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{package.project_id}'
                                          f'/packages/generic/{package.package_name}/{package.package_version}'
                                          f'/{package.file_name}', headers=self.headers,
                                          verify=self.verify)
@@ -858,7 +858,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                f'{self.url}/projects/{pipeline.project_id}/pipelines{pipeline.api_parameters}',
+                url=f'{self.url}/projects/{pipeline.project_id}/pipelines{pipeline.api_parameters}',
                 headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -870,7 +870,7 @@ class Api(object):
         if pipeline.project_id is None or pipeline.pipeline_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{pipeline.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{pipeline.project_id}'
                                          f'/pipelines/{pipeline.pipeline_id}',
                                          headers=self.headers,
                                          verify=self.verify)
@@ -884,12 +884,12 @@ class Api(object):
         if pipeline.project_id is None or pipeline.reference is None:
             raise MissingParameterError
         if pipeline.variables:
-            response = self._session.post(f'{self.url}/projects/{pipeline.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{pipeline.project_id}'
                                           f'/pipeline{pipeline.api_parameters}',
                                           headers=self.headers,
                                           data=json.dumps(pipeline.variables, indent=2), verify=self.verify)
         else:
-            response = self._session.post(f'{self.url}/projects/{pipeline.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{pipeline.project_id}'
                                           f'/pipeline{pipeline.api_parameters}',
                                           headers=self.headers,
                                           verify=self.verify)
@@ -901,7 +901,7 @@ class Api(object):
     @require_auth
     def get_projects(self, **kwargs):
         project = ProjectModel(**kwargs)
-        response = self._session.get(f'{self.url}/projects?per_page={project.per_page}&x-total-pages',
+        response = self._session.get(url=f'{self.url}/projects?per_page={project.per_page}&x-total-pages',
                                      headers=self.headers, verify=self.verify)
         total_pages = int(response.headers['X-Total-Pages'])
         response = []
@@ -909,7 +909,7 @@ class Api(object):
             project.max_pages = total_pages
         for page in range(0, project.max_pages):
             response_page = self._session.get(
-                f'{self.url}/projects?per_page={project.per_page}&page={page}&order_by={project.order_by}',
+                url=f'{self.url}/projects?per_page={project.per_page}&page={page}&order_by={project.order_by}',
                 headers=self.headers, verify=self.verify)
             response_page = json.loads(response_page.text.replace("'", "\""))
             response = response + response_page
@@ -920,7 +920,7 @@ class Api(object):
         project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{project.project_id}',
+        response = self._session.get(url=f'{self.url}/projects/{project.project_id}',
                                      headers=self.headers,
                                      verify=self.verify)
         return response
@@ -934,7 +934,7 @@ class Api(object):
         groups = [self.get_group(group_id=project.group_id)]
         groups = groups + self.get_group_subgroups(group_id=project.group_id)
         for group in groups:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/groups/{group["id"]}'
                                          f'/projects?per_page={project.per_page}&x-total-pages',
                                          headers=self.headers, verify=self.verify)
@@ -942,7 +942,7 @@ class Api(object):
             if project.max_pages == 0 or project.max_pages > total_pages:
                 project.max_pages = total_pages
             for page in range(0, project.max_pages):
-                group_projects = self._session.get(f'{self.url}/groups/{group["id"]}/'
+                group_projects = self._session.get(url=f'{self.url}/groups/{group["id"]}/'
                                                    f'projects?per_page={project.per_page}&page={page}',
                                                    headers=self.headers, verify=self.verify)
                 group_projects = json.loads(group_projects.text)
@@ -954,7 +954,7 @@ class Api(object):
         project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}'
+        response = self._session.get(url=f'{self.url}'
                                      f'/projects/{project.project_id}/repository/contributors',
                                      headers=self.headers, verify=self.verify)
         return response
@@ -964,7 +964,7 @@ class Api(object):
         project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}'
+        response = self._session.get(url=f'{self.url}'
                                      f'/projects/{project.project_id}?statistics=true',
                                      headers=self.headers, verify=self.verify)
         return response
@@ -973,7 +973,7 @@ class Api(object):
     def edit_project(self, **kwargs):
         project = ProjectModel(**kwargs)
         try:
-            response = self._session.put(f'{self.url}/projects/{project.project_id}',
+            response = self._session.put(url=f'{self.url}/projects/{project.project_id}',
                                          data=project.model_dump_json(),
                                          headers=self.headers,
                                          verify=self.verify)
@@ -985,7 +985,7 @@ class Api(object):
     def get_project_groups(self, **kwargs):
         project = ProjectModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}/projects/{project.project_id}/groups',
+            response = self._session.get(url=f'{self.url}/projects/{project.project_id}/groups',
                                          headers=self.headers,
                                          verify=self.verify)
         except ValidationError as e:
@@ -996,7 +996,7 @@ class Api(object):
     def archive_project(self, **kwargs):
         project = ProjectModel(**kwargs)
         try:
-            response = self._session.post(f'{self.url}/projects/{project.project_id}/archive',
+            response = self._session.post(url=f'{self.url}/projects/{project.project_id}/archive',
                                           headers=self.headers,
                                           verify=self.verify)
         except ValidationError as e:
@@ -1008,7 +1008,7 @@ class Api(object):
         project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
-        response = self._session.post(f'{self.url}/projects/{project.project_id}/unarchive',
+        response = self._session.post(url=f'{self.url}/projects/{project.project_id}/unarchive',
                                       headers=self.headers,
                                       verify=self.verify)
         return response
@@ -1018,7 +1018,7 @@ class Api(object):
         project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
-        response = self._session.delete(f'{self.url}/projects/{project.project_id}',
+        response = self._session.delete(url=f'{self.url}/projects/{project.project_id}',
                                         headers=self.headers,
                                         verify=self.verify)
         return response
@@ -1028,7 +1028,7 @@ class Api(object):
         project = ProjectModel(**kwargs)
         if project.project_id is None or project.group_id is None or project.group_access is None:
             raise MissingParameterError
-        response = self._session.post(f'{self.url}/projects/{project.project_id}'
+        response = self._session.post(url=f'{self.url}/projects/{project.project_id}'
                                       f'/share{project.api_parameters}',
                                       headers=self.headers,
                                       verify=self.verify)
@@ -1042,7 +1042,7 @@ class Api(object):
         protected_branch = ProtectedBranchModel(**kwargs)
         if protected_branch.project_id is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{protected_branch.project_id}/protected_branches',
+        response = self._session.get(url=f'{self.url}/projects/{protected_branch.project_id}/protected_branches',
                                      headers=self.headers,
                                      verify=self.verify)
         return response
@@ -1052,7 +1052,7 @@ class Api(object):
         protected_branch = ProtectedBranchModel(**kwargs)
         if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
-        response = self._session.get(f'{self.url}/projects/{protected_branch.project_id}'
+        response = self._session.get(url=f'{self.url}/projects/{protected_branch.project_id}'
                                      f'/protected_branches/{protected_branch.branch}',
                                      headers=self.headers,
                                      verify=self.verify)
@@ -1065,13 +1065,13 @@ class Api(object):
             raise MissingParameterError
 
         if protected_branch.data:
-            response = self._session.post(f'{self.url}/projects/{protected_branch.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{protected_branch.project_id}'
                                           f'/protected_branches{protected_branch.branch_filter}',
                                           headers=self.headers,
                                           data=json.dumps(protected_branch.data, indent=2),
                                           verify=self.verify)
         else:
-            response = self._session.post(f'{self.url}/projects/{protected_branch.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{protected_branch.project_id}'
                                           f'/protected_branches{protected_branch.branch_filter}',
                                           headers=self.headers, verify=self.verify)
         return response
@@ -1081,7 +1081,7 @@ class Api(object):
         protected_branch = ProtectedBranchModel(**kwargs)
         if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
-        self._session.delete(f'{self.url}/projects/{protected_branch.project_id}'
+        self._session.delete(url=f'{self.url}/projects/{protected_branch.project_id}'
                              f'/protected_branches/{protected_branch.branch}',
                              headers=self.headers,
                              verify=self.verify)
@@ -1091,7 +1091,7 @@ class Api(object):
         protected_branch = ProtectedBranchModel(**kwargs)
         if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
-        response = self._session.patch(f'{self.url}/projects/{protected_branch.project_id}'
+        response = self._session.patch(url=f'{self.url}/projects/{protected_branch.project_id}'
                                        f'/protected_branches/{protected_branch.branch}',
                                        headers=self.headers,
                                        verify=self.verify)
@@ -1104,7 +1104,7 @@ class Api(object):
     def get_releases(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/projects/{release.project_id}/releases',
                                          headers=self.headers,
                                          verify=self.verify)
@@ -1116,7 +1116,7 @@ class Api(object):
     def get_latest_release(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/projects/{release.project_id}/releases'
                                          f'/permalink/latest',
                                          headers=self.headers,
@@ -1129,7 +1129,7 @@ class Api(object):
     def get_latest_release_evidence(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/projects/{release.project_id}/releases'
                                          f'/permalink/latest/evidence',
                                          headers=self.headers,
@@ -1142,7 +1142,7 @@ class Api(object):
     def get_latest_release_asset(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/projects/{release.project_id}/releases'
                                          f'/permalink/latest/{release.direct_asset_path}',
                                          headers=self.headers,
@@ -1155,7 +1155,7 @@ class Api(object):
     def get_group_releases(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/groups/{release.group_id}/releases{release.api_parameters}',
                                          headers=self.headers,
                                          verify=self.verify)
@@ -1167,7 +1167,7 @@ class Api(object):
     def download_release_asset(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/groups/{release.group_id}'
                                          f'/releases/{release.tag_name}'
                                          f'/downloads/{release.direct_asset_path}',
@@ -1181,7 +1181,7 @@ class Api(object):
     def get_release_by_tag(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/projects/{release.project_id}/releases/{release.tag_name}',
                                          headers=self.headers,
                                          verify=self.verify)
@@ -1193,7 +1193,7 @@ class Api(object):
     def create_release(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.post(f'{self.url}'
+            response = self._session.post(url=f'{self.url}'
                                           f'/projects/{release.project_id}/releases',
                                           data=json.dumps(release.data, indent=2),
                                           headers=self.headers,
@@ -1206,7 +1206,7 @@ class Api(object):
     def create_release_evidence(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.post(f'{self.url}'
+            response = self._session.post(url=f'{self.url}'
                                           f'/projects/{release.project_id}'
                                           f'/releases/{release.tag_name}/evidence',
                                           headers=self.headers,
@@ -1219,7 +1219,7 @@ class Api(object):
     def update_release(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.put(f'{self.url}'
+            response = self._session.put(url=f'{self.url}'
                                          f'/projects/{release.project_id}/releases/{release.tag_name}',
                                          data=json.dumps(release.data, indent=2),
                                          headers=self.headers,
@@ -1232,7 +1232,7 @@ class Api(object):
     def update_release(self, **kwargs):
         release = ReleaseModel(**kwargs)
         try:
-            response = self._session.delete(f'{self.url}'
+            response = self._session.delete(url=f'{self.url}'
                                             f'/projects/{release.project_id}/releases/{release.tag_name}',
                                             headers=self.headers,
                                             verify=self.verify)
@@ -1247,7 +1247,7 @@ class Api(object):
     def get_runners(self, **kwargs):
         runner = RunnerModel(**kwargs)
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/runners{runner.api_parameters}',
                                          headers=self.headers,
                                          verify=self.verify)
@@ -1261,7 +1261,7 @@ class Api(object):
         if runner.runner_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}'
+            response = self._session.get(url=f'{self.url}'
                                          f'/runners/{runner.runner_id}',
                                          headers=self.headers,
                                          verify=self.verify)
@@ -1275,7 +1275,7 @@ class Api(object):
         if runner.runner_id is None:
             raise MissingParameterError
         try:
-            response = self._session.put(f'{self.url}/runners/{runner.runner_id}',
+            response = self._session.put(url=f'{self.url}/runners/{runner.runner_id}',
                                          headers=self.headers,
                                          data=json.dumps(runner.data, indent=2),
                                          verify=self.verify)
@@ -1289,7 +1289,7 @@ class Api(object):
         if runner.runner_id is None or runner.active is None:
             raise MissingParameterError
         try:
-            response = self._session.put(f'{self.url}/runners/{runner.runner_id}',
+            response = self._session.put(url=f'{self.url}/runners/{runner.runner_id}',
                                          headers=self.headers,
                                          data=json.dumps(runner.data, indent=2),
                                          verify=self.verify)
@@ -1303,7 +1303,7 @@ class Api(object):
         if runner.runner_id is None:
             raise MissingParameterError
         try:
-            response = self._session.put(f'{self.url}/runners'
+            response = self._session.put(url=f'{self.url}/runners'
                                          f'/{runner.runner_id}/jobs',
                                          headers=self.headers,
                                          verify=self.verify)
@@ -1317,7 +1317,7 @@ class Api(object):
         if runner.project_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{runner.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{runner.project_id}'
                                          f'/runners{runner.runner_filter}',
                                          headers=self.headers,
                                          verify=self.verify)
@@ -1332,7 +1332,7 @@ class Api(object):
             raise MissingParameterError
 
         try:
-            response = self._session.put(f'{self.url}/projects'
+            response = self._session.put(url=f'{self.url}/projects'
                                          f'/{runner.project_id}/runners',
                                          headers=self.headers,
                                          data=json.dumps(runner.data, indent=2),
@@ -1347,7 +1347,7 @@ class Api(object):
         if runner.project_id is None or runner.runner_id is None:
             raise MissingParameterError
         try:
-            response = self._session.delete(f'{self.url}/projects/{runner.project_id}'
+            response = self._session.delete(url=f'{self.url}/projects/{runner.project_id}'
                                             f'/runners/{runner.runner_id}',
                                             headers=self.headers,
                                             verify=self.verify)
@@ -1361,7 +1361,7 @@ class Api(object):
         if runner.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/groups/{runner.group_id}'
+            response = self._session.get(url=f'{self.url}/groups/{runner.group_id}'
                                          f'/runners{runner.api_parameters}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -1374,7 +1374,7 @@ class Api(object):
         if runner.token is None:
             raise MissingParameterError
         try:
-            response = self._session.put(f'{self.url}/runners',
+            response = self._session.put(url=f'{self.url}/runners',
                                          headers=self.headers,
                                          data=runner.data,
                                          verify=self.verify)
@@ -1388,12 +1388,12 @@ class Api(object):
         if runner.runner_id is None and runner.token is None:
             raise MissingParameterError
         if runner.runner_id:
-            response = self._session.delete(f'{self.url}/runners/{runner.runner_id}',
+            response = self._session.delete(url=f'{self.url}/runners/{runner.runner_id}',
                                             headers=self.headers,
                                             verify=self.verify)
         else:
             try:
-                response = self._session.delete(f'{self.url}/runners',
+                response = self._session.delete(url=f'{self.url}/runners',
                                                 headers=self.headers,
                                                 data=json.dumps(runner.data, indent=2),
                                                 verify=self.verify)
@@ -1407,7 +1407,7 @@ class Api(object):
         if runner.token is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/runners/verify',
+            response = self._session.post(url=f'{self.url}/runners/verify',
                                           headers=self.headers,
                                           data=json.dumps(runner.data, indent=2),
                                           verify=self.verify)
@@ -1418,7 +1418,7 @@ class Api(object):
     @require_auth
     def reset_gitlab_runner_token(self):
         try:
-            response = self._session.post(f'{self.url}/runners'
+            response = self._session.post(url=f'{self.url}/runners'
                                           f'/reset_registration_token', headers=self.headers,
                                           verify=self.verify)
         except ValidationError as e:
@@ -1431,7 +1431,7 @@ class Api(object):
         if runner.project_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{runner.project_id}'
+            response = self._session.post(url=f'{self.url}/projects/{runner.project_id}'
                                           f'/runners/reset_registration_token',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -1444,7 +1444,7 @@ class Api(object):
         if runner.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/groups/{runner.group_id}'
+            response = self._session.post(url=f'{self.url}/groups/{runner.group_id}'
                                           f'/runners/reset_registration_token',
                                           headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -1457,7 +1457,7 @@ class Api(object):
         if runner.runner_id is None or runner.token is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/runners/{runner.runner_id}'
+            response = self._session.post(url=f'{self.url}/runners/{runner.runner_id}'
                                           f'/reset_authentication_token',
                                           headers=self.headers,
                                           data=json.dumps(runner.data,
@@ -1474,7 +1474,7 @@ class Api(object):
     def get_users(self, **kwargs):
         user = UserModel(**kwargs)
         api_parameters = f"?per_page={user.per_page}"
-        response = self._session.get(f'{self.url}/users{api_parameters}&x-total-pages',
+        response = self._session.get(url=f'{self.url}/users{api_parameters}&x-total-pages',
                                      headers=self.headers, verify=self.verify)
         total_pages = int(response.headers['X-Total-Pages'])
         response = []
@@ -1482,7 +1482,7 @@ class Api(object):
         if user.max_pages == 0 or user.max_pages > total_pages:
             user.max_pages = total_pages
         for page in range(0, user.max_pages):
-            response_page = self._session.get(f'{self.url}/users{user.api_parameters}&page={page}',
+            response_page = self._session.get(url=f'{self.url}/users{user.api_parameters}&page={page}',
                                               headers=self.headers, verify=self.verify)
             response_page = json.loads(response_page.text.replace("'", "\""))
             response = response + response_page
@@ -1494,7 +1494,7 @@ class Api(object):
         if user.user_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/users{user.api_parameters}',
+            response = self._session.get(url=f'{self.url}/users{user.api_parameters}',
                                          headers=self.headers,
                                          verify=self.verify)
         except ValidationError as e:
@@ -1510,7 +1510,7 @@ class Api(object):
         if wiki.project_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{wiki.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{wiki.project_id}'
                                          f'/wikis{wiki.api_parameters}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -1523,7 +1523,7 @@ class Api(object):
         if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
         try:
-            response = self._session.get(f'{self.url}/projects/{wiki.project_id}'
+            response = self._session.get(url=f'{self.url}/projects/{wiki.project_id}'
                                          f'/wikis/{wiki.slug}{wiki.api_parameters}',
                                          headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -1536,7 +1536,7 @@ class Api(object):
         if wiki.project_id is None:
             raise MissingParameterError
         try:
-            response = self._session.post(f'{self.url}/projects/{wiki.project_id}/wikis',
+            response = self._session.post(url=f'{self.url}/projects/{wiki.project_id}/wikis',
                                           headers=self.headers,
                                           verify=self.verify,
                                           data=json.dumps(wiki.data, indent=2))
@@ -1550,7 +1550,7 @@ class Api(object):
         if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
         try:
-            response = self._session.put(f'{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}',
+            response = self._session.put(url=f'{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}',
                                          headers=self.headers,
                                          verify=self.verify,
                                          data=json.dumps(wiki.data, indent=2))
@@ -1564,7 +1564,7 @@ class Api(object):
         if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
         try:
-            response = self._session.delete(f'{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}',
+            response = self._session.delete(url=f'{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}',
                                             headers=self.headers,
                                             verify=self.verify)
         except ValidationError as e:
@@ -1585,7 +1585,7 @@ class Api(object):
         headers = self.headers
         headers['Content-Type'] = "multipart/form-data"
         try:
-            response = self._session.put(f'{self.url}/projects/{wiki.project_id}/wikis/attachments',
+            response = self._session.put(url=f'{self.url}/projects/{wiki.project_id}/wikis/attachments',
                                          headers=headers,
                                          verify=self.verify,
                                          data=data)
