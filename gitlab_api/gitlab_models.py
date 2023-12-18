@@ -735,6 +735,60 @@ class MembersModel(BaseModel):
 
 
 class MergeRequestModel(BaseModel):
+    """
+    Pydantic model representing a merge request.
+
+    Attributes:
+    - approved_by_ids (List[int]): List of user IDs who approved the merge request.
+    - approver_ids (List[int]): List of user IDs who can approve the merge request.
+    - assignee_id (int): User ID assigned to the merge request.
+    - author_id (int): User ID of the author of the merge request.
+    - author_username (str): Username of the author of the merge request.
+    - created_after (str): Date string for filtering merge requests created after a certain date.
+    - created_before (str): Date string for filtering merge requests created before a certain date.
+    - deployed_after (str): Date string for filtering merge requests deployed after a certain date.
+    - deployed_before (str): Date string for filtering merge requests deployed before a certain date.
+    - environment (str): Environment of the merge request.
+    - search_in (str): Field to search within the merge request.
+    - labels (str): Labels associated with the merge request.
+    - milestone (str): Milestone of the merge request.
+    - my_reaction_emoji (str): User's reaction emoji for the merge request.
+    - project_id (Union[int, str]): Identifier for the project.
+    - search_exclude (str): Field to exclude from search.
+    - order_by (str): Field to order results by.
+    - reviewer_id (Union[int, str]): User ID of the reviewer.
+    - reviewer_username (str): Username of the reviewer.
+    - scope (List[str]): List of scopes for the merge request.
+    - search (str): Search term for filtering merge requests.
+    - sort (str): Sort order for results.
+    - source_branch (str): Source branch of the merge request.
+    - state (str): State of the merge request.
+    - target_branch (str): Target branch of the merge request.
+    - updated_after (str): Date string for filtering merge requests updated after a certain date.
+    - updated_before (str): Date string for filtering merge requests updated before a certain date.
+    - view (str): View setting for the merge request.
+    - with_labels_details (bool): Include label details in the merge request.
+    - with_merge_status_recheck (bool): Include merge status recheck in the merge request.
+    - wip (str): Work in progress status for the merge request.
+    - title (str): Title of the merge request.
+    - allow_collaboration (bool): Allow collaboration on the merge request.
+    - allow_maintainer_to_push (bool): Allow maintainer to push to the merge request.
+    - approvals_before_merge (int): Number of approvals required before merging.
+    - assignee_ids (List[int]): List of user IDs assigned to the merge request.
+    - description (str): Description of the merge request.
+    - milestone_id (int): Milestone ID of the merge request.
+    - remove_source_branch (str): Branch removal status for the merge request.
+    - reviewer_ids (List[int]): List of user IDs who reviewed the merge request.
+    - squash (bool): Squash commits on merge.
+    - target_project_id (Union[int, str]): Identifier for the target project.
+    - max_pages (int): Maximum number of pages to retrieve (default is 0).
+    - per_page (int): Number of items to display per page (default is 100).
+    - api_parameters (str): Additional API parameters for the merge request.
+    - data (Dict): Additional data for the merge request.
+
+    Note:
+    The class includes field_validator functions for specific attribute validations.
+    """
     approved_by_ids: List[int] = None
     approver_ids: List[int] = None
     assignee_id: int = None
@@ -784,6 +838,18 @@ class MergeRequestModel(BaseModel):
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters for the merge request.
+
+        Args:
+        - values: Dictionary of all values.
+
+        Returns:
+        - str: The constructed API parameters.
+
+        Note:
+        Constructs API parameters based on provided values.
+        """
         filters = []
 
         if values.get("approved_by_ids") is not None:
@@ -881,6 +947,18 @@ class MergeRequestModel(BaseModel):
 
     @field_validator("scope")
     def validate_scope(cls, value):
+        """
+        Validate the 'scope' field.
+
+        Args:
+        - value: The value of the 'scope' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid scope.
+        """
         valid_scopes = ['created_by_me', 'assigned_to_me', 'all']
         if value and not all(scope in valid_scopes for scope in value):
             raise ValueError("Invalid scope values")
@@ -888,6 +966,18 @@ class MergeRequestModel(BaseModel):
 
     @field_validator("search_in")
     def validate_search_in(cls, value):
+        """
+        Validate the 'search_in' field.
+
+        Args:
+        - value: The value of the 'search_in' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid search_in value.
+        """
         valid_search_in = ['title', 'description', 'title,description']
         if value and value not in valid_search_in:
             raise ValueError("Invalid search_in value")
@@ -895,6 +985,18 @@ class MergeRequestModel(BaseModel):
 
     @field_validator("search_exclude")
     def validate_search_exclude(cls, value):
+        """
+        Validate the 'search_exclude' field.
+
+        Args:
+        - value: The value of the 'search_exclude' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid search_exclude value.
+        """
         valid_search_exclude = ['labels', 'milestone', 'author_id', 'assignee_id', 'author_username',
                                 'reviewer_id', 'reviewer_username', 'my_reaction_emoji']
         if value and value not in valid_search_exclude:
@@ -903,6 +1005,19 @@ class MergeRequestModel(BaseModel):
 
     @field_validator("state")
     def validate_state(cls, value):
+        """
+        Validate the 'state' field.
+
+        Args:
+        - value: The value of the 'state' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid state value.
+        """
+
         valid_states = ['opened', 'closed', 'locked', 'merged']
         if value and value not in valid_states:
             raise ValueError("Invalid state value")
@@ -910,6 +1025,18 @@ class MergeRequestModel(BaseModel):
 
     @field_validator("sort")
     def validate_sort(cls, value):
+        """
+        Validate the 'sort' field.
+
+        Args:
+        - value: The value of the 'sort' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid sort value.
+        """
         valid_sorts = ['asc', 'desc']
         if value and value not in valid_sorts:
             raise ValueError("Invalid sort value")
@@ -917,6 +1044,18 @@ class MergeRequestModel(BaseModel):
 
     @field_validator("wip")
     def validate_wip(cls, value):
+        """
+        Validate the 'wip' field.
+
+        Args:
+        - value: The value of the 'wip' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid wip value.
+        """
         valid_wip_values = ['yes', 'no']
         if value and value not in valid_wip_values:
             raise ValueError("Invalid wip value")
@@ -924,30 +1063,90 @@ class MergeRequestModel(BaseModel):
 
     @field_validator('project_id', 'source_branch', 'target_branch', 'title')
     def validate_string(cls, v):
+        """
+        Validate string fields.
+
+        Args:
+        - v: The value of the string field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ParameterError: If 'v' is not a valid string.
+        """
         if not isinstance(v, str):
             raise ParameterError
         return v
 
     @field_validator('allow_collaboration', 'allow_maintainer_to_push', 'squash')
     def validate_boolean(cls, v):
+        """
+        Validate boolean fields.
+
+        Args:
+        - v: The value of the boolean field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ParameterError: If 'v' is not a valid boolean.
+        """
         if not isinstance(v, bool):
             raise ParameterError
         return v
 
     @field_validator('approvals_before_merge', 'assignee_id', 'milestone_id', 'target_project_id')
     def validate_positive_integer(cls, v):
+        """
+        Validate positive integer fields.
+
+        Args:
+        - v: The value of the positive integer field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ParameterError: If 'v' is not a valid positive integer.
+        """
         if not isinstance(v, int) or v <= 0:
             raise ParameterError
         return v
 
     @field_validator('assignee_ids', 'reviewer_ids')
     def validate_list_of_integers(cls, v):
+        """
+        Validate lists of integers.
+
+        Args:
+        - v: The value of the list of integers.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ParameterError: If 'v' is not a valid list of integers.
+        """
         if not isinstance(v, list) or not all(isinstance(i, int) for i in v):
             raise ParameterError
         return v
 
     @field_validator("data")
     def construct_data_dict(cls, values):
+        """
+        Construct a data dictionary.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed data dictionary.
+
+        Raises:
+        - ValueError: If the data dictionary is empty.
+        """
         data = {
             "source_branch": values.get("source_branch"),
             "target_branch": values.get("target_branch"),
@@ -975,6 +1174,35 @@ class MergeRequestModel(BaseModel):
 
 
 class MergeRequestRuleModel(BaseModel):
+    """
+    Documentation for the MergeRequestRuleModel Pydantic model.
+
+    This model represents a set of rules for merge requests.
+
+    Attributes:
+    - project_id (Union[int, str]): The ID of the project.
+    - approval_rule_id (Union[int, str]): The ID of the approval rule.
+    - approvals_required (int): The number of approvals required.
+    - name (str): The name of the rule.
+    - applies_to_all_protected_branches (bool): Indicates if the rule applies to all protected branches.
+    - group_ids (List[int]): List of group IDs.
+    - merge_request_iid (Union[int, str]): The IID of the merge request.
+    - protected_branch_ids (List[int]): List of protected branch IDs.
+    - report_type (str): The type of report associated with the rule.
+    - rule_type (str): The type of rule.
+    - user_ids (List[int]): List of user IDs.
+    - data (Dict): Additional data dictionary.
+
+    Methods:
+    - check_required_fields(value): Validate required fields.
+    - validate_report_type(value): Validate the 'report_type' field.
+    - validate_rule_type(value): Validate the 'rule_type' field.
+    - construct_data_dict(values): Construct a data dictionary.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
     project_id: Union[int, str] = None
     approval_rule_id: Union[int, str] = None
     approvals_required: int = None
@@ -990,24 +1218,73 @@ class MergeRequestRuleModel(BaseModel):
 
     @field_validator("project_id", "approvals_required", "name")
     def check_required_fields(cls, value):
+        """
+        Check if required fields are provided.
+
+        Args:
+        - value: The value to check.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If the required fields are missing.
+        """
         if value is None:
             raise ValueError("This field is required.")
         return value
 
     @field_validator("report_type")
     def validate_report_type(cls, value):
+        """
+        Validate the 'report_type' field.
+
+        Args:
+        - value: The value of the 'report_type' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid report_type.
+        """
         if value not in ['license_scanning', 'code_coverage']:
             raise ValueError("Invalid report_type")
         return value
 
     @field_validator("rule_type")
     def validate_rule_type(cls, value):
+        """
+        Validate the 'rule_type' field.
+
+        Args:
+        - value: The value of the 'rule_type' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid rule_type.
+        """
+
         if value not in ['any_approver', 'regular']:
             raise ValueError("Invalid rule_type")
         return value
 
     @field_validator("data")
     def construct_data_dict(cls, values):
+        """
+        Construct a data dictionary.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed data dictionary.
+
+        Raises:
+        - ValueError: If the data dictionary is empty.
+        """
         data = {
             "approvals_required": values.get("approvals_required"),
             "name": values.get("name"),
@@ -1029,6 +1306,30 @@ class MergeRequestRuleModel(BaseModel):
 
 
 class PackageModel(BaseModel):
+    """
+    Documentation for the PackageModel Pydantic model.
+
+    This model represents information about a package in a project.
+
+    Attributes:
+    - project_id (Union[int, str]): The ID of the project.
+    - package_name (str): The name of the package.
+    - package_version (str): The version of the package.
+    - file_name (str): The name of the file associated with the package.
+    - status (str): The status of the package.
+    - select (str): Selection criteria for the package.
+    - api_parameters (str): Additional API parameters.
+
+    Methods:
+    - build_api_parameters(values): Build API parameters.
+    - validate_file_name(value): Validate the 'file_name' field.
+    - validate_status(value): Validate the 'status' field.
+    - validate_select(value): Validate the 'select' field.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
     project_id: Union[int, str] = None
     package_name: str = None
     package_version: str = None
@@ -1039,6 +1340,18 @@ class PackageModel(BaseModel):
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
         filters = []
 
         if values.get("status") is not None:
@@ -1052,6 +1365,18 @@ class PackageModel(BaseModel):
 
     @field_validator('file_name', 'package_name')
     def validate_file_name(cls, value):
+        """
+        Validate the 'file_name' field.
+
+        Args:
+        - value: The value of the 'file_name' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' contains invalid characters or exceeds the maximum length.
+        """
         pattern = r'^[a-zA-Z0-9._-]+$'
         if not re.match(pattern, value):
             raise ValueError("Invalid characters in the filename")
@@ -1063,15 +1388,40 @@ class PackageModel(BaseModel):
 
     @field_validator("status")
     def validate_rule_type(cls, value):
+        """
+        Validate the 'status' field.
+
+        Args:
+        - value: The value of the 'status' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid status.
+        """
         if value not in ['default', 'hidden']:
             raise ValueError("Invalid rule_type")
         return value
 
     @field_validator("select")
     def validate_rule_type(cls, value):
+        """
+        Validate the 'select' field.
+
+        Args:
+        - value: The value of the 'select' field.
+
+        Returns:
+        - The validated value if valid.
+
+        Raises:
+        - ValueError: If 'value' is not a valid selection criteria.
+        """
         if value not in ['package_file', 'package_file']:
             raise ValueError("Invalid rule_type")
         return value
+
 
 class PipelineModel(BaseModel):
     project_id: Union[int, str] = None
