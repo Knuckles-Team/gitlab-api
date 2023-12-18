@@ -7,6 +7,7 @@ import urllib3
 from base64 import b64encode
 from typing import Union
 from pydantic import ValidationError
+
 try:
     from gitlab_api.gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel, JobModel,
                                           MembersModel, PackageModel, PipelineModel, ProjectModel, ProtectedBranchModel,
@@ -69,7 +70,8 @@ class Api(object):
     #                                                 Branches API                                                     #
     ####################################################################################################################
     @require_auth
-    def get_branches(self, branch: BranchModel):
+    def get_branches(self, **kwargs):
+        branch = BranchModel(**kwargs)
         try:
             response = self._session.get(
                 f'{self.url}/projects/{branch.project_id}/repository/branches',
@@ -81,7 +83,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_branch(self, branch: BranchModel):
+    def get_branch(self, **kwargs):
+        branch = BranchModel(**kwargs)
         try:
             response = self._session.get(
                 f'{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}',
@@ -92,7 +95,8 @@ class Api(object):
         return response
 
     @require_auth
-    def create_branch(self, branch: BranchModel):
+    def create_branch(self, **kwargs):
+        branch = BranchModel(**kwargs)
         try:
             response = self._session.post(
                 f'{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}',
@@ -103,7 +107,8 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_branch(self, branch: BranchModel):
+    def delete_branch(self, **kwargs):
+        branch = BranchModel(**kwargs)
         try:
             response = self._session.delete(f'{self.url}/projects/{branch.project_id}'
                                             f'/repository/branches?branch={branch.branch}',
@@ -113,7 +118,8 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_merged_branches(self, branch: BranchModel):
+    def delete_merged_branches(self, **kwargs):
+        branch = BranchModel(**kwargs)
         try:
             response = self._session.delete(f'{self.url}/projects/{branch.project_id}'
                                             f'/repository/merged_branches',
@@ -126,7 +132,8 @@ class Api(object):
     #                                                 Commits API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_commits(self, commit: CommitModel):
+    def get_commits(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits',
@@ -136,7 +143,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_commit(self, commit: CommitModel):
+    def get_commit(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}',
@@ -146,7 +154,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_commit_references(self, commit: CommitModel):
+    def get_commit_references(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/refs',
@@ -156,7 +165,8 @@ class Api(object):
         return response
 
     @require_auth
-    def cherry_pick_commit(self, commit: CommitModel):
+    def cherry_pick_commit(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.post(f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits/{commit.commit_hash}/cherry_pick',
@@ -166,7 +176,8 @@ class Api(object):
         return response
 
     @require_auth
-    def create_commit(self, commit: CommitModel):
+    def create_commit(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.post(f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits',
@@ -176,7 +187,8 @@ class Api(object):
         return response
 
     @require_auth
-    def revert_commit(self, commit: CommitModel):
+    def revert_commit(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.post(f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits/{commit.commit_hash}/revert',
@@ -186,7 +198,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_commit_diff(self, commit: CommitModel):
+    def get_commit_diff(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/diff',
@@ -196,7 +209,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_commit_comments(self, commit: CommitModel):
+    def get_commit_comments(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/comments',
@@ -206,7 +220,8 @@ class Api(object):
         return response
 
     @require_auth
-    def create_commit_comment(self, commit: CommitModel):
+    def create_commit_comment(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.post(f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits/{commit.commit_hash}/comments',
@@ -216,7 +231,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_commit_discussions(self, commit: CommitModel):
+    def get_commit_discussions(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/discussions',
@@ -226,7 +242,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_commit_statuses(self, commit: CommitModel):
+    def get_commit_statuses(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{commit.project_id}'
                                          f'/repository/commits/{commit.commit_hash}/statuses',
@@ -236,7 +253,8 @@ class Api(object):
         return response
 
     @require_auth
-    def post_build_status_to_commit(self, commit: CommitModel):
+    def post_build_status_to_commit(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.post(f'{self.url}/projects/{commit.project_id}'
                                           f'/statuses/{commit.commit_hash}/',
@@ -246,7 +264,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_commit_merge_requests(self, commit: CommitModel):
+    def get_commit_merge_requests(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.get(
                 f'{self.url}/projects/{commit.project_id}'
@@ -257,7 +276,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_commit_gpg_signature(self, commit: CommitModel):
+    def get_commit_gpg_signature(self, **kwargs):
+        commit = CommitModel(**kwargs)
         try:
             response = self._session.get(
                 f'{self.url}/projects/{commit.project_id}'
@@ -271,7 +291,7 @@ class Api(object):
     #                                                Deploy Tokens API                                                 #
     ####################################################################################################################
     @require_auth
-    def get_deploy_tokens(self, deploy_token: DeployTokenModel):
+    def get_deploy_tokens(self):
         try:
             response = self._session.get(f'{self.url}/deploy_tokens', headers=self.headers, verify=self.verify)
         except ValidationError as e:
@@ -279,7 +299,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_deploy_tokens(self, deploy_token: DeployTokenModel):
+    def get_project_deploy_tokens(self, **kwargs):
+        deploy_token = DeployTokenModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens',
                                          headers=self.headers, verify=self.verify)
@@ -288,7 +309,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_deploy_token(self, deploy_token: DeployTokenModel):
+    def get_project_deploy_token(self, **kwargs):
+        deploy_token = DeployTokenModel(**kwargs)
         try:
             response = self._session.get(
                 f'{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}',
@@ -298,7 +320,8 @@ class Api(object):
         return response
 
     @require_auth
-    def create_project_deploy_token(self, deploy_token: DeployTokenModel):
+    def create_project_deploy_token(self, **kwargs):
+        deploy_token = DeployTokenModel(**kwargs)
         if deploy_token.project_id is None or deploy_token.name is None or deploy_token.scopes is None:
             raise MissingParameterError
         try:
@@ -311,7 +334,8 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_project_deploy_token(self, deploy_token: DeployTokenModel):
+    def delete_project_deploy_token(self, **kwargs):
+        deploy_token = DeployTokenModel(**kwargs)
         if deploy_token.project_id is None or deploy_token.token is None:
             raise MissingParameterError
         try:
@@ -323,7 +347,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group_deploy_tokens(self, deploy_token: DeployTokenModel):
+    def get_group_deploy_tokens(self, **kwargs):
+        deploy_token = DeployTokenModel(**kwargs)
         if deploy_token.group_id is None:
             raise MissingParameterError
         try:
@@ -334,20 +359,22 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group_deploy_token(self, deploy_token: DeployTokenModel):
+    def get_group_deploy_token(self, **kwargs):
+        deploy_token = DeployTokenModel(**kwargs)
         if deploy_token.group_id is None or deploy_token.token is None:
             raise MissingParameterError
         try:
-            response = self._session.get(
-                f'{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.token}',
-                headers=self.headers, verify=self.verify)
+            response = self._session.get(f'{self.url}/groups/'
+                                         f'{deploy_token.group_id}/deploy_tokens/{deploy_token.token}',
+                                         headers=self.headers, verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def create_group_deploy_token(self, deploy_token: DeployTokenModel):
-        deploy_token_dict = deploy_token.dict(exclude_none=True)
+    def create_group_deploy_token(self, **kwargs):
+        deploy_token = DeployTokenModel(**kwargs)
+        deploy_token_dict = deploy_token.model_dump(exclude_none=True)
         if deploy_token.group_id is None or deploy_token.name is None or deploy_token.scopes is None:
             raise MissingParameterError
         try:
@@ -359,7 +386,8 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_group_deploy_token(self, deploy_token: DeployTokenModel):
+    def delete_group_deploy_token(self, **kwargs):
+        deploy_token = DeployTokenModel(**kwargs)
         if deploy_token.group_id is None or deploy_token.token is None:
             raise MissingParameterError
         try:
@@ -374,7 +402,8 @@ class Api(object):
     #                                                Groups API                                                        #
     ####################################################################################################################
     @require_auth
-    def get_groups(self, group: GroupModel):
+    def get_groups(self, **kwargs):
+        group = GroupModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}'
                                          f'/groups{group.api_parameters}', headers=self.headers, verify=self.verify)
@@ -383,7 +412,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group(self, group: GroupModel):
+    def get_group(self, **kwargs):
+        group = GroupModel(**kwargs)
         if group.group_id is None:
             raise MissingParameterError
         try:
@@ -394,7 +424,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group_subgroups(self, group: GroupModel):
+    def get_group_subgroups(self, **kwargs):
+        group = GroupModel(**kwargs)
         if group.group_id is None:
             raise MissingParameterError
         try:
@@ -407,7 +438,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group_descendant_groups(self, group: GroupModel):
+    def get_group_descendant_groups(self, **kwargs):
+        group = GroupModel(**kwargs)
         if group.group_id is None:
             raise MissingParameterError
         try:
@@ -420,7 +452,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group_projects(self, group: GroupModel):
+    def get_group_projects(self, **kwargs):
+        group = GroupModel(**kwargs)
         if group.group_id is None:
             raise MissingParameterError
         try:
@@ -433,7 +466,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group_merge_requests(self, group: GroupModel):
+    def get_group_merge_requests(self, **kwargs):
+        group = GroupModel(**kwargs)
         if group.group_id is None or group.argument is None:
             raise MissingParameterError
         try:
@@ -449,7 +483,8 @@ class Api(object):
     #                                                Jobs API                                                          #
     ####################################################################################################################
     @require_auth
-    def get_project_jobs(self, job: JobModel):
+    def get_project_jobs(self, **kwargs):
+        job = JobModel(**kwargs)
         if job.project_id is None:
             raise MissingParameterError
         try:
@@ -460,7 +495,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_job(self, job: JobModel):
+    def get_project_job(self, **kwargs):
+        job = JobModel(**kwargs)
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
@@ -471,7 +507,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_job_log(self, job: JobModel):
+    def get_project_job_log(self, **kwargs):
+        job = JobModel(**kwargs)
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
@@ -482,7 +519,8 @@ class Api(object):
         return response
 
     @require_auth
-    def cancel_project_job(self, job: JobModel):
+    def cancel_project_job(self, **kwargs):
+        job = JobModel(**kwargs)
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
@@ -493,7 +531,8 @@ class Api(object):
         return response
 
     @require_auth
-    def retry_project_job(self, job: JobModel):
+    def retry_project_job(self, **kwargs):
+        job = JobModel(**kwargs)
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
@@ -504,7 +543,8 @@ class Api(object):
         return response
 
     @require_auth
-    def erase_project_job(self, job: JobModel):
+    def erase_project_job(self, **kwargs):
+        job = JobModel(**kwargs)
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
@@ -515,7 +555,8 @@ class Api(object):
         return response
 
     @require_auth
-    def run_project_job(self, job: JobModel):
+    def run_project_job(self, **kwargs):
+        job = JobModel(**kwargs)
         if job.project_id is None or job.job_id is None:
             raise MissingParameterError
         try:
@@ -526,7 +567,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_pipeline_jobs(self, job: JobModel):
+    def get_pipeline_jobs(self, **kwargs):
+        job = JobModel(**kwargs)
         if job.project_id is None or job.pipeline_id is None:
             raise MissingParameterError
         try:
@@ -541,7 +583,8 @@ class Api(object):
     #                                               Members API                                                        #
     ####################################################################################################################
     @require_auth
-    def get_group_members(self, members: MembersModel):
+    def get_group_members(self, **kwargs):
+        members = MembersModel(**kwargs)
         if members.group_id is None:
             raise MissingParameterError
         try:
@@ -553,7 +596,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_members(self, members: MembersModel):
+    def get_project_members(self, **kwargs):
+        members = MembersModel(**kwargs)
         if members.project_id is None:
             raise MissingParameterError
         try:
@@ -567,7 +611,8 @@ class Api(object):
     #                                            Merge Request API                                                     #
     ####################################################################################################################
     @require_auth
-    def create_merge_request(self, merge_request: MergeRequestModel):
+    def create_merge_request(self, **kwargs):
+        merge_request = MergeRequestModel(**kwargs)
         if (merge_request.project_id is None
                 or merge_request.source_branch is None
                 or merge_request.target_branch is None
@@ -582,7 +627,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_merge_requests(self, merge_request: MergeRequestModel):
+    def get_merge_requests(self, **kwargs):
+        merge_request = MergeRequestModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/merge_requests?per_page={merge_request.per_page}&x-total-pages',
                                          headers=self.headers,
@@ -593,7 +639,8 @@ class Api(object):
                 merge_request.max_pages = total_pages
             for page in range(0, merge_request.max_pages):
                 response_page = self._session.get(
-                    f'{self.url}/merge_requests{merge_request.api_parameters}&per_page={merge_request.per_page}&page={page}',
+                    f'{self.url}/merge_requests'
+                    f'{merge_request.api_parameters}&per_page={merge_request.per_page}&page={page}',
                     headers=self.headers, verify=self.verify)
                 response_page = json.loads(response_page.text.replace("'", "\""))
                 response = response + response_page
@@ -602,7 +649,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_merge_requests(self, merge_request: MergeRequestModel):
+    def get_project_merge_requests(self, **kwargs):
+        merge_request = MergeRequestModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{merge_request.project_id}/merge_requests',
                                          headers=self.headers, verify=self.verify)
@@ -612,7 +660,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_merge_request(self, merge_request: MergeRequestModel):
+    def get_project_merge_request(self, **kwargs):
+        merge_request = MergeRequestModel(**kwargs)
         if merge_request.project_id is None or merge_request.merge_id is None:
             raise MissingParameterError
         try:
@@ -628,7 +677,8 @@ class Api(object):
     #                                            Merge Rules API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_project_level_rules(self, merge_rule: MergeRequestRuleModel):
+    def get_project_level_rules(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{merge_rule.project_id}/approval_rules',
                                          headers=self.headers,
@@ -638,7 +688,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_level_rule(self, merge_rule: MergeRequestRuleModel):
+    def get_project_level_rule(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         try:
             response = self._session.get(
                 f'{self.url}/projects/{merge_rule.project_id}/approval_rules/{merge_rule.approval_rule_id}',
@@ -650,7 +701,8 @@ class Api(object):
         return response
 
     @require_auth
-    def create_project_level_rule(self, merge_rule: MergeRequestRuleModel):
+    def create_project_level_rule(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         try:
             response = self._session.post(f'{self.url}/projects/{merge_rule.project_id}/approval_rules',
                                           headers=self.headers,
@@ -662,7 +714,8 @@ class Api(object):
         return response
 
     @require_auth
-    def update_project_level_rule(self, merge_rule: MergeRequestRuleModel):
+    def update_project_level_rule(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         try:
             response = self._session.put(f'{self.url}/projects/{merge_rule.project_id}'
                                          f'/approval_rules/{merge_rule.approval_rule_id}',
@@ -672,7 +725,8 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_project_level_rule(self, merge_rule: MergeRequestRuleModel):
+    def delete_project_level_rule(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         try:
             response = self._session.put(f'{self.url}/projects/{merge_rule.project_id}'
                                          f'/approval_rules/{merge_rule.approval_rule_id}',
@@ -682,7 +736,8 @@ class Api(object):
         return response
 
     @require_auth
-    def merge_request_level_approvals(self, merge_rule: MergeRequestRuleModel):
+    def merge_request_level_approvals(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         try:
@@ -694,7 +749,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_approval_state_merge_requests(self, merge_rule: MergeRequestRuleModel):
+    def get_approval_state_merge_requests(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         try:
@@ -707,7 +763,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_merge_request_level_rules(self, merge_rule: MergeRequestRuleModel):
+    def get_merge_request_level_rules(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         try:
@@ -720,7 +777,8 @@ class Api(object):
         return response
 
     @require_auth
-    def approve_merge_request(self, merge_rule: MergeRequestRuleModel):
+    def approve_merge_request(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         try:
@@ -732,7 +790,8 @@ class Api(object):
         return response
 
     @require_auth
-    def unapprove_merge_request(self, merge_rule: MergeRequestRuleModel):
+    def unapprove_merge_request(self, **kwargs):
+        merge_rule = MergeRequestRuleModel(**kwargs)
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         try:
@@ -746,7 +805,8 @@ class Api(object):
     ####################################################################################################################
     #                                               Packages API                                                       #
     ####################################################################################################################
-    def get_repository_packages(self, package: PackageModel):
+    def get_repository_packages(self, **kwargs):
+        package = PackageModel(**kwargs)
         if package.project_id is None:
             raise MissingParameterError
         try:
@@ -756,7 +816,8 @@ class Api(object):
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
-    def publish_repository_package(self, package: PackageModel):
+    def publish_repository_package(self, **kwargs):
+        package = PackageModel(**kwargs)
         if (package.project_id is None
                 or package.package_name is None
                 or package.package_version is None
@@ -771,7 +832,8 @@ class Api(object):
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
-    def download_repository_package(self, package: PackageModel):
+    def download_repository_package(self, **kwargs):
+        package = PackageModel(**kwargs)
         if (package.project_id is None
                 or package.package_name is None
                 or package.package_version is None
@@ -790,10 +852,10 @@ class Api(object):
     #                                                Pipeline API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_pipelines(self, pipeline: PipelineModel):
+    def get_pipelines(self, **kwargs):
+        pipeline = PipelineModel(**kwargs)
         if pipeline.project_id is None:
             raise MissingParameterError
-        api_parameters = f"?per_page={pipeline.per_page}"
         try:
             response = self._session.get(
                 f'{self.url}/projects/{pipeline.project_id}/pipelines{pipeline.api_parameters}',
@@ -803,7 +865,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_pipeline(self, pipeline: PipelineModel):
+    def get_pipeline(self, **kwargs):
+        pipeline = PipelineModel(**kwargs)
         if pipeline.project_id is None or pipeline.pipeline_id is None:
             raise MissingParameterError
         try:
@@ -816,7 +879,8 @@ class Api(object):
         return response
 
     @require_auth
-    def run_pipeline(self, pipeline: PipelineModel):
+    def run_pipeline(self, **kwargs):
+        pipeline = PipelineModel(**kwargs)
         if pipeline.project_id is None or pipeline.reference is None:
             raise MissingParameterError
         if pipeline.variables:
@@ -835,13 +899,14 @@ class Api(object):
     #                                                Projects API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_projects(self, project: ProjectModel):
+    def get_projects(self, **kwargs):
+        project = ProjectModel(**kwargs)
         response = self._session.get(f'{self.url}/projects?per_page={project.per_page}&x-total-pages',
                                      headers=self.headers, verify=self.verify)
         total_pages = int(response.headers['X-Total-Pages'])
         response = []
         if project.max_pages == 0 or project.max_pages > total_pages:
-            max_pages = total_pages
+            project.max_pages = total_pages
         for page in range(0, project.max_pages):
             response_page = self._session.get(
                 f'{self.url}/projects?per_page={project.per_page}&page={page}&order_by={project.order_by}',
@@ -851,7 +916,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project(self, project: ProjectModel):
+    def get_project(self, **kwargs):
+        project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
         response = self._session.get(f'{self.url}/projects/{project.project_id}',
@@ -860,7 +926,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_nested_projects_by_group(self, project: ProjectModel):
+    def get_nested_projects_by_group(self, **kwargs):
+        project = ProjectModel(**kwargs)
         if project.group_id is None:
             raise MissingParameterError
         projects = []
@@ -883,7 +950,8 @@ class Api(object):
         return projects
 
     @require_auth
-    def get_project_contributors(self, project: ProjectModel):
+    def get_project_contributors(self, **kwargs):
+        project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
         response = self._session.get(f'{self.url}'
@@ -892,7 +960,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_statistics(self, project: ProjectModel):
+    def get_project_statistics(self, **kwargs):
+        project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
         response = self._session.get(f'{self.url}'
@@ -901,7 +970,8 @@ class Api(object):
         return response
 
     @require_auth
-    def edit_project(self, project: ProjectModel):
+    def edit_project(self, **kwargs):
+        project = ProjectModel(**kwargs)
         try:
             response = self._session.put(f'{self.url}/projects/{project.project_id}',
                                          data=project.model_dump_json(),
@@ -912,7 +982,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_groups(self, project: ProjectModel):
+    def get_project_groups(self, **kwargs):
+        project = ProjectModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}/projects/{project.project_id}/groups',
                                          headers=self.headers,
@@ -922,7 +993,8 @@ class Api(object):
         return response
 
     @require_auth
-    def archive_project(self, project: ProjectModel):
+    def archive_project(self, **kwargs):
+        project = ProjectModel(**kwargs)
         try:
             response = self._session.post(f'{self.url}/projects/{project.project_id}/archive',
                                           headers=self.headers,
@@ -932,7 +1004,8 @@ class Api(object):
         return response
 
     @require_auth
-    def unarchive_project(self, project: ProjectModel):
+    def unarchive_project(self, **kwargs):
+        project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
         response = self._session.post(f'{self.url}/projects/{project.project_id}/unarchive',
@@ -941,7 +1014,8 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_project(self, project: ProjectModel):
+    def delete_project(self, **kwargs):
+        project = ProjectModel(**kwargs)
         if project.project_id is None:
             raise MissingParameterError
         response = self._session.delete(f'{self.url}/projects/{project.project_id}',
@@ -950,7 +1024,8 @@ class Api(object):
         return response
 
     @require_auth
-    def share_project(self, project: ProjectModel):
+    def share_project(self, **kwargs):
+        project = ProjectModel(**kwargs)
         if project.project_id is None or project.group_id is None or project.group_access is None:
             raise MissingParameterError
         response = self._session.post(f'{self.url}/projects/{project.project_id}'
@@ -963,7 +1038,8 @@ class Api(object):
     #                                       Protected Branches API                                                     #
     ####################################################################################################################
     @require_auth
-    def get_protected_branches(self, protected_branch: ProtectedBranchModel):
+    def get_protected_branches(self, **kwargs):
+        protected_branch = ProtectedBranchModel(**kwargs)
         if protected_branch.project_id is None:
             raise MissingParameterError
         response = self._session.get(f'{self.url}/projects/{protected_branch.project_id}/protected_branches',
@@ -972,7 +1048,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_protected_branch(self, protected_branch: ProtectedBranchModel):
+    def get_protected_branch(self, **kwargs):
+        protected_branch = ProtectedBranchModel(**kwargs)
         if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
         response = self._session.get(f'{self.url}/projects/{protected_branch.project_id}'
@@ -982,7 +1059,8 @@ class Api(object):
         return response
 
     @require_auth
-    def protect_branch(self, protected_branch: ProtectedBranchModel):
+    def protect_branch(self, **kwargs):
+        protected_branch = ProtectedBranchModel(**kwargs)
         if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
 
@@ -999,7 +1077,8 @@ class Api(object):
         return response
 
     @require_auth
-    def unprotect_branch(self, protected_branch: ProtectedBranchModel):
+    def unprotect_branch(self, **kwargs):
+        protected_branch = ProtectedBranchModel(**kwargs)
         if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
         self._session.delete(f'{self.url}/projects/{protected_branch.project_id}'
@@ -1008,7 +1087,8 @@ class Api(object):
                              verify=self.verify)
 
     @require_auth
-    def require_code_owner_approvals_single_branch(self, protected_branch: ProtectedBranchModel):
+    def require_code_owner_approvals_single_branch(self, **kwargs):
+        protected_branch = ProtectedBranchModel(**kwargs)
         if protected_branch.project_id is None or protected_branch.branch is None:
             raise MissingParameterError
         response = self._session.patch(f'{self.url}/projects/{protected_branch.project_id}'
@@ -1021,7 +1101,8 @@ class Api(object):
     #                                                Release API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_releases(self, release: ReleaseModel):
+    def get_releases(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}'
                                          f'/projects/{release.project_id}/releases',
@@ -1032,7 +1113,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_latest_release(self, release: ReleaseModel):
+    def get_latest_release(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}'
                                          f'/projects/{release.project_id}/releases'
@@ -1044,7 +1126,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_latest_release_evidence(self, release: ReleaseModel):
+    def get_latest_release_evidence(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}'
                                          f'/projects/{release.project_id}/releases'
@@ -1056,7 +1139,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_latest_release_asset(self, release: ReleaseModel):
+    def get_latest_release_asset(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}'
                                          f'/projects/{release.project_id}/releases'
@@ -1068,7 +1152,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group_releases(self, release: ReleaseModel):
+    def get_group_releases(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}'
                                          f'/groups/{release.group_id}/releases{release.api_parameters}',
@@ -1079,7 +1164,8 @@ class Api(object):
         return response
 
     @require_auth
-    def download_release_asset(self, release: ReleaseModel):
+    def download_release_asset(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}'
                                          f'/groups/{release.group_id}'
@@ -1092,7 +1178,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_release_by_tag(self, release: ReleaseModel):
+    def get_release_by_tag(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}'
                                          f'/projects/{release.project_id}/releases/{release.tag_name}',
@@ -1102,21 +1189,22 @@ class Api(object):
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
-
     @require_auth
-    def create_release(self, release: ReleaseModel):
+    def create_release(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.post(f'{self.url}'
-                                         f'/projects/{release.project_id}/releases',
-                                         data=json.dumps(release.data, indent=2),
-                                         headers=self.headers,
-                                         verify=self.verify)
+                                          f'/projects/{release.project_id}/releases',
+                                          data=json.dumps(release.data, indent=2),
+                                          headers=self.headers,
+                                          verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
-    def create_release_evidence(self, release: ReleaseModel):
+    def create_release_evidence(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.post(f'{self.url}'
                                           f'/projects/{release.project_id}'
@@ -1128,7 +1216,8 @@ class Api(object):
         return response
 
     @require_auth
-    def update_release(self, release: ReleaseModel):
+    def update_release(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.put(f'{self.url}'
                                          f'/projects/{release.project_id}/releases/{release.tag_name}',
@@ -1140,12 +1229,13 @@ class Api(object):
         return response
 
     @require_auth
-    def update_release(self, release: ReleaseModel):
+    def update_release(self, **kwargs):
+        release = ReleaseModel(**kwargs)
         try:
             response = self._session.delete(f'{self.url}'
-                                         f'/projects/{release.project_id}/releases/{release.tag_name}',
-                                         headers=self.headers,
-                                         verify=self.verify)
+                                            f'/projects/{release.project_id}/releases/{release.tag_name}',
+                                            headers=self.headers,
+                                            verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -1154,7 +1244,8 @@ class Api(object):
     #                                                Runners API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_runners(self, runner: RunnerModel):
+    def get_runners(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         try:
             response = self._session.get(f'{self.url}'
                                          f'/runners{runner.api_parameters}',
@@ -1165,7 +1256,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_runner(self, runner: RunnerModel):
+    def get_runner(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.runner_id is None:
             raise MissingParameterError
         try:
@@ -1178,7 +1270,8 @@ class Api(object):
         return response
 
     @require_auth
-    def update_runner_details(self, runner: RunnerModel):
+    def update_runner_details(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.runner_id is None:
             raise MissingParameterError
         try:
@@ -1191,7 +1284,8 @@ class Api(object):
         return response
 
     @require_auth
-    def pause_runner(self, runner: RunnerModel):
+    def pause_runner(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.runner_id is None or runner.active is None:
             raise MissingParameterError
         try:
@@ -1204,7 +1298,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_runner_jobs(self, runner: RunnerModel):
+    def get_runner_jobs(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.runner_id is None:
             raise MissingParameterError
         try:
@@ -1217,7 +1312,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_runners(self, runner: RunnerModel):
+    def get_project_runners(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.project_id is None:
             raise MissingParameterError
         try:
@@ -1230,7 +1326,8 @@ class Api(object):
         return response
 
     @require_auth
-    def enable_project_runner(self, runner: RunnerModel):
+    def enable_project_runner(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.project_id is None or runner.runner_id is None:
             raise MissingParameterError
 
@@ -1245,7 +1342,8 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_project_runner(self, runner: RunnerModel):
+    def delete_project_runner(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.project_id is None or runner.runner_id is None:
             raise MissingParameterError
         try:
@@ -1258,7 +1356,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group_runners(self, runner: RunnerModel):
+    def get_group_runners(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.group_id is None:
             raise MissingParameterError
         try:
@@ -1270,7 +1369,8 @@ class Api(object):
         return response
 
     @require_auth
-    def register_new_runner(self, runner: RunnerModel):
+    def register_new_runner(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.token is None:
             raise MissingParameterError
         try:
@@ -1283,7 +1383,8 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_runner(self, runner: RunnerModel):
+    def delete_runner(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.runner_id is None and runner.token is None:
             raise MissingParameterError
         if runner.runner_id:
@@ -1301,7 +1402,8 @@ class Api(object):
         return response
 
     @require_auth
-    def verify_runner_authentication(self, runner: RunnerModel):
+    def verify_runner_authentication(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.token is None:
             raise MissingParameterError
         try:
@@ -1324,7 +1426,8 @@ class Api(object):
         return response
 
     @require_auth
-    def reset_project_runner_token(self, runner: RunnerModel):
+    def reset_project_runner_token(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.project_id is None:
             raise MissingParameterError
         try:
@@ -1336,7 +1439,8 @@ class Api(object):
         return response
 
     @require_auth
-    def reset_group_runner_token(self, runner: RunnerModel):
+    def reset_group_runner_token(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.group_id is None:
             raise MissingParameterError
         try:
@@ -1348,7 +1452,8 @@ class Api(object):
         return response
 
     @require_auth
-    def reset_token(self, runner: RunnerModel):
+    def reset_token(self, **kwargs):
+        runner = RunnerModel(**kwargs)
         if runner.runner_id is None or runner.token is None:
             raise MissingParameterError
         try:
@@ -1366,7 +1471,8 @@ class Api(object):
     #                                                Users API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_users(self, user: UserModel):
+    def get_users(self, **kwargs):
+        user = UserModel(**kwargs)
         api_parameters = f"?per_page={user.per_page}"
         response = self._session.get(f'{self.url}/users{api_parameters}&x-total-pages',
                                      headers=self.headers, verify=self.verify)
@@ -1383,7 +1489,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_user(self, user: UserModel):
+    def get_user(self, **kwargs):
+        user = UserModel(**kwargs)
         if user.user_id is None:
             raise MissingParameterError
         try:
@@ -1398,7 +1505,8 @@ class Api(object):
     #                                                 Wiki API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_wiki_list(self, wiki: WikiModel):
+    def get_wiki_list(self, **kwargs):
+        wiki = WikiModel(**kwargs)
         if wiki.project_id is None:
             raise MissingParameterError
         try:
@@ -1410,7 +1518,8 @@ class Api(object):
         return response
 
     @require_auth
-    def get_wiki_page(self, wiki: WikiModel):
+    def get_wiki_page(self, **kwargs):
+        wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
         try:
@@ -1422,7 +1531,8 @@ class Api(object):
         return response
 
     @require_auth
-    def create_wiki_page(self, wiki: WikiModel):
+    def create_wiki_page(self, **kwargs):
+        wiki = WikiModel(**kwargs)
         if wiki.project_id is None:
             raise MissingParameterError
         try:
@@ -1435,7 +1545,8 @@ class Api(object):
         return response
 
     @require_auth
-    def update_wiki_page(self, wiki: WikiModel):
+    def update_wiki_page(self, **kwargs):
+        wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
         try:
@@ -1448,7 +1559,8 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_wiki_page(self, wiki: WikiModel):
+    def delete_wiki_page(self, **kwargs):
+        wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
         try:
@@ -1460,7 +1572,8 @@ class Api(object):
         return response
 
     @require_auth
-    def upload_wiki_page_attachment(self, wiki: WikiModel):
+    def upload_wiki_page_attachment(self, **kwargs):
+        wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.file is None or wiki.branch is None:
             raise MissingParameterError
         data = {}
