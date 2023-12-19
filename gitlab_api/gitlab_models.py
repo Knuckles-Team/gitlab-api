@@ -48,6 +48,45 @@ class BranchModel(BaseModel):
 
 
 class CommitModel(BaseModel):
+    """
+    Pydantic model representing a commit.
+
+    Attributes:
+    - project_id (Union[int, str]): Identifier for the project.
+    - commit_hash (str): Hash of the commit.
+    - branch (str): Name of the branch.
+    - dry_run (bool): Flag indicating a dry run.
+    - message (str): Commit message.
+    - state (str): State of the commit.
+    - reference (str): Reference identifier.
+    - name (str): Name of the commit.
+    - context (str): Context of the commit.
+    - target_url (str): Target URL for the commit.
+    - description (str): Description of the commit.
+    - coverage (Union[float, str]): Code coverage value.
+    - pipeline_id (Union[int, str]): Identifier for the pipeline.
+    - actions (list): List of actions.
+    - start_branch (str): Starting branch for the commit.
+    - start_sha (str): Starting SHA for the commit.
+    - start_project (Union[int, str]): Identifier for the starting project.
+    - author_email (str): Email of the author.
+    - author_name (str): Name of the author.
+    - stats (bool): Flag indicating whether to include stats.
+    - force (bool): Flag indicating a forced commit.
+    - line (int): Line number for the commit.
+    - line_type (str): Type of line.
+    - note (str): Note for the commit.
+    - path (str): Path for the commit.
+    - group_ids (list): List of group identifiers.
+    - protected_branch_ids (list): List of protected branch identifiers.
+    - report_type (str): Type of report.
+    - rule_type (str): Type of rule.
+    - user_ids (list): List of user identifiers.
+    - data (Dict): Dictionary containing additional data.
+
+    Note:
+    The class includes field_validator functions for specific attribute validations.
+    """
     project_id: Union[int, str]
     commit_hash: str = None
     branch: str = None
@@ -82,6 +121,18 @@ class CommitModel(BaseModel):
 
     @field_validator('dry_run', 'stats', 'force')
     def validate_bool_fields(cls, v):
+        """
+        Validate boolean fields to ensure they are valid boolean values.
+
+        Args:
+        - v: The value of the field.
+
+        Returns:
+        - bool: The validated field value.
+
+        Raises:
+        - ValueError: If the field is provided and not a boolean.
+        """
         if v is not None and not isinstance(v, bool):
             raise ValueError("Invalid states")
         return v
@@ -89,6 +140,19 @@ class CommitModel(BaseModel):
     @field_validator('project_id', 'commit_hash', 'branch', 'start_branch', 'start_sha', 'start_project',
                      'pipeline_id', 'line')
     def validate_optional_parameters(cls, v, values):
+        """
+        Validate optional parameters to ensure they are provided only when 'project_id' is not None.
+
+        Args:
+        - v: The value of the parameter.
+        - values: Dictionary of all values.
+
+        Returns:
+        - Any: The validated parameter value.
+
+        Raises:
+        - ValueError: If the parameter is provided and 'project_id' is None.
+        """
         if 'project_id' in values and values['project_id'] is not None and v is not None:
             return v
         else:
@@ -96,48 +160,144 @@ class CommitModel(BaseModel):
 
     @field_validator('commit_hash', 'branch', 'reference', 'name', 'context', 'note', 'path', 'line_type')
     def validate_string_parameters(cls, v):
+        """
+        Validate string parameters to ensure they are valid strings.
+
+        Args:
+        - v: The value of the parameter.
+
+        Returns:
+        - str: The validated parameter value.
+
+        Raises:
+        - ValueError: If the parameter is provided and not a string.
+        """
         if v is not None and not isinstance(v, str):
             raise ValueError("Invalid optional params")
         return v
 
     @field_validator('coverage')
     def validate_coverage(cls, v):
+        """
+        Validate the 'coverage' parameter to ensure it is a valid float or int.
+
+        Args:
+        - v: The value of 'coverage'.
+
+        Returns:
+        - Union[float, str]: The validated 'coverage' value.
+
+        Raises:
+        - ValueError: If 'coverage' is provided and not a float or int.
+        """
         if v is not None and not isinstance(v, (float, int)):
             raise ValueError("Invalid states")
         return v
 
     @field_validator('state')
     def validate_state(cls, v):
+        """
+        Validate the 'state' parameter to ensure it is a valid state.
+
+        Args:
+        - v: The value of 'state'.
+
+        Returns:
+        - str: The validated 'state'.
+
+        Raises:
+        - ValueError: If 'state' is provided and not a valid state.
+        """
         if v is not None and v not in ['pending', 'running', 'success', 'failed', 'canceled']:
             raise ValueError("Invalid states")
         return v
 
     @field_validator('line_type')
     def validate_line_type(cls, v):
+        """
+        Validate the 'line_type' parameter to ensure it is a valid line type.
+
+        Args:
+        - v: The value of 'line_type'.
+
+        Returns:
+        - str: The validated 'line_type'.
+
+        Raises:
+        - ValueError: If 'line_type' is provided and not a valid line type.
+        """
         if v is not None and v not in ['new', 'old']:
             raise ValueError("Invalid line_type")
         return v
 
     @field_validator('report_type')
     def validate_report_type(cls, v):
+        """
+        Validate the 'report_type' parameter to ensure it is a valid report type.
+
+        Args:
+        - v: The value of 'report_type'.
+
+        Returns:
+        - str: The validated 'report_type'.
+
+        Raises:
+        - ValueError: If 'report_type' is provided and not a valid report type.
+        """
         if v is not None and v not in ['license_scanning', 'code_coverage']:
             raise ValueError("Invalid report_type")
         return v
 
     @field_validator('rule_type')
     def validate_rule_type(cls, v):
+        """
+        Validate the 'rule_type' parameter to ensure it is a valid rule type.
+
+        Args:
+        - v: The value of 'rule_type'.
+
+        Returns:
+        - str: The validated 'rule_type'.
+
+        Raises:
+        - ValueError: If 'rule_type' is provided and not a valid rule type.
+        """
         if v is not None and v not in ['any_approver', 'regular']:
             raise ValueError("Invalid rule_type")
         return v
 
     @field_validator('user_ids', 'group_ids', 'protected_branch_ids')
     def validate_list_parameters(cls, v):
+        """
+        Validate list parameters to ensure they are valid lists.
+
+        Args:
+        - v: The value of the parameter.
+
+        Returns:
+        - list: The validated parameter value.
+
+        Raises:
+        - ValueError: If the parameter is provided and not a list.
+        """
         if v is not None and not isinstance(v, list):
             raise ValueError("Invalid user_ids, group_ids, protected_branch_ids")
         return v
 
     @field_validator("data")
     def construct_data_dict(cls, values):
+        """
+        Construct a data dictionary from specific values.
+
+        Args:
+        - values: The values of specific parameters.
+
+        Returns:
+        - Dict: The constructed data dictionary.
+
+        Raises:
+        - ValueError: If no key is present in the data dictionary.
+        """
         data = {
             "branch": values.get("branch"),
             "commit_message": values.get("commit_message"),
@@ -173,6 +333,21 @@ class CommitModel(BaseModel):
 
 
 class DeployTokenModel(BaseModel):
+    """
+    Pydantic model representing a deploy token.
+
+    Attributes:
+    - project_id (Union[int, str]): Identifier for the project.
+    - group_id (Union[int, str]): Identifier for the group.
+    - token (str): Deploy token.
+    - name (str): Name associated with the token.
+    - expires_at (str): Expiration date and time of the token.
+    - username (str): Username associated with the token.
+    - scopes (str): Scopes assigned to the token.
+
+    Note:
+    The class includes field_validator functions for specific attribute validations.
+    """
     project_id: Union[int, str] = None
     group_id: Union[int, str] = None
     token: str = None
@@ -183,12 +358,37 @@ class DeployTokenModel(BaseModel):
 
     @field_validator('expires_at')
     def validate_expires_at(cls, v):
+        """
+        Validate the 'expires_at' parameter to ensure it is a valid string.
+
+        Args:
+        - v: The value of 'expires_at'.
+
+        Returns:
+        - str: The validated 'expires_at' value.
+
+        Raises:
+        - ParameterError: If 'expires_at' is provided and not a string.
+        """
         if v is not None and not isinstance(v, str):
             raise ParameterError
         return v
 
     @field_validator('project_id', 'group_id', 'token')
     def validate_optional_parameters(cls, v, values):
+        """
+        Validate optional parameters to ensure they are provided only when 'project_id' or 'group_id' is provided.
+
+        Args:
+        - v: The value of the parameter.
+        - values: Dictionary of all values.
+
+        Returns:
+        - Any: The validated parameter value.
+
+        Raises:
+        - MissingParameterError: If the parameter is provided and 'project_id' and 'group_id' are None.
+        """
         if ('project_id' in values or 'group_id' in values) and v is not None:
             return v
         else:
@@ -196,12 +396,36 @@ class DeployTokenModel(BaseModel):
 
     @field_validator('name', 'username', 'scopes')
     def validate_string_parameters(cls, v):
+        """
+        Validate string parameters to ensure they are valid strings.
+
+        Args:
+        - v: The value of the parameter.
+
+        Returns:
+        - str: The validated parameter value.
+
+        Raises:
+        - ParameterError: If the parameter is provided and not a string.
+        """
         if v is not None and not isinstance(v, str):
             raise ParameterError
         return v
 
     @field_validator('scopes')
     def validate_scopes(cls, v):
+        """
+        Validate the 'scopes' parameter to ensure it is a valid scope.
+
+        Args:
+        - v: The value of 'scopes'.
+
+        Returns:
+        - str: The validated 'scopes' value.
+
+        Raises:
+        - ParameterError: If 'scopes' is provided and not a valid scope.
+        """
         valid_scopes = ['read_repository', 'read_registry', 'write_registry', 'read_package_registry',
                         'write_package_registry']
         if v is not None and v not in valid_scopes:
@@ -210,6 +434,19 @@ class DeployTokenModel(BaseModel):
 
 
 class GroupModel(BaseModel):
+    """
+    Pydantic model representing a group.
+
+    Attributes:
+    - group_id (Union[int, str]): Identifier for the group.
+    - per_page (int): Number of items to display per page (default is 100).
+    - page (int): Page number for pagination (default is 1).
+    - argument (str): Argument to filter groups (default is 'state=opened').
+    - api_parameters (str): Additional API parameters for the group.
+
+    Note:
+    The class includes field_validator functions for specific attribute validations.
+    """
     group_id: Union[int, str] = None
     per_page: int = 100
     page: int = 1
@@ -218,24 +455,72 @@ class GroupModel(BaseModel):
 
     @field_validator('per_page', 'page')
     def validate_positive_integer(cls, v):
+        """
+        Validate positive integer parameters.
+
+        Args:
+        - v: The value of the parameter.
+
+        Returns:
+        - int: The validated parameter value.
+
+        Raises:
+        - ParameterError: If the parameter is not a positive integer.
+        """
         if not isinstance(v, int) or v <= 0:
             raise ParameterError
         return v
 
     @field_validator('argument')
     def validate_argument(cls, v):
+        """
+        Validate the 'argument' parameter to ensure it is a valid string.
+
+        Args:
+        - v: The value of 'argument'.
+
+        Returns:
+        - str: The validated 'argument' value.
+
+        Raises:
+        - ParameterError: If 'argument' is provided and not a string.
+        """
         if not isinstance(v, str):
             raise ParameterError
         return v
 
     @field_validator('group_id')
     def validate_group_id(cls, v):
+        """
+        Validate the 'group_id' parameter to ensure it is provided.
+
+        Args:
+        - v: The value of 'group_id'.
+
+        Returns:
+        - Union[int, str]: The validated 'group_id' value.
+
+        Raises:
+        - MissingParameterError: If 'group_id' is None.
+        """
         if v is None:
             raise MissingParameterError
         return v
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters for the group.
+
+        Args:
+        - values: Dictionary of all values.
+
+        Returns:
+        - str: The constructed API parameters.
+
+        Note:
+        Constructs API parameters based on provided values.
+        """
         filters = []
 
         if values.get("page") is not None:
@@ -252,6 +537,22 @@ class GroupModel(BaseModel):
 
 
 class JobModel(BaseModel):
+    """
+    Pydantic model representing a job.
+
+    Attributes:
+    - project_id (Union[int, str]): Identifier for the project.
+    - job_id (Union[int, str]): Identifier for the job.
+    - scope (List[str]): List of job scopes.
+    - per_page (int): Number of items to display per page (default is 100).
+    - page (int): Page number for pagination (default is 1).
+    - include_retried (bool): Flag indicating whether to include retried jobs.
+    - job_variable_attributes (Dict): Dictionary of job variable attributes.
+    - api_parameters (str): Additional API parameters for the job.
+
+    Note:
+    The class includes field_validator functions for specific attribute validations.
+    """
     project_id: Union[int, str] = None
     job_id: Union[int, str] = None
     scope: List[str] = None
@@ -263,18 +564,54 @@ class JobModel(BaseModel):
 
     @field_validator('per_page', 'page')
     def validate_positive_integer(cls, v):
+        """
+        Validate positive integer parameters.
+
+        Args:
+        - v: The value of the parameter.
+
+        Returns:
+        - int: The validated parameter value.
+
+        Raises:
+        - ParameterError: If the parameter is not a positive integer.
+        """
         if not isinstance(v, int) or v <= 0:
             raise ParameterError
         return v
 
     @field_validator('include_retried')
     def validate_include_retried(cls, v):
+        """
+        Validate the 'include_retried' parameter to ensure it is a valid boolean.
+
+        Args:
+        - v: The value of 'include_retried'.
+
+        Returns:
+        - bool: The validated 'include_retried' value.
+
+        Raises:
+        - ParameterError: If 'include_retried' is provided and not a boolean.
+        """
         if v is not None and not isinstance(v, bool):
             raise ParameterError
         return v
 
     @field_validator('scope')
     def validate_scope(cls, v):
+        """
+        Validate the 'scope' parameter to ensure it is a valid list of job scopes.
+
+        Args:
+        - v: The value of 'scope'.
+
+        Returns:
+        - List[str]: The validated 'scope' value.
+
+        Raises:
+        - ParameterError: If 'scope' contains invalid values.
+        """
         if v not in ['created', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped',
                      'waiting_for_resource', 'manual']:
             raise ParameterError
@@ -282,12 +619,36 @@ class JobModel(BaseModel):
 
     @field_validator('job_variable_attributes')
     def validate_job_variable_attributes(cls, v):
+        """
+        Validate the 'job_variable_attributes' parameter to ensure it is a valid dictionary.
+
+        Args:
+        - v: The value of 'job_variable_attributes'.
+
+        Returns:
+        - Dict: The validated 'job_variable_attributes' value.
+
+        Raises:
+        - ParameterError: If 'job_variable_attributes' is provided and not a dictionary or missing key.
+        """
         if v is not None and (not isinstance(v, dict) or "job_variable_attributes" not in v.keys()):
             raise ParameterError
         return v
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters for the job.
+
+        Args:
+        - values: Dictionary of all values.
+
+        Returns:
+        - str: The constructed API parameters.
+
+        Note:
+        Constructs API parameters based on provided values.
+        """
         filters = []
 
         if values.get("page") is not None:
@@ -307,6 +668,19 @@ class JobModel(BaseModel):
 
 
 class MembersModel(BaseModel):
+    """
+    Pydantic model representing members.
+
+    Attributes:
+    - group_id (Union[int, str]): Identifier for the group.
+    - project_id (Union[int, str]): Identifier for the project.
+    - per_page (int): Number of items to display per page (default is 100).
+    - page (int): Page number for pagination (default is 1).
+    - api_parameters (str): Additional API parameters for members.
+
+    Note:
+    The class includes field_validator functions for specific attribute validations.
+    """
     group_id: Union[int, str] = None
     project_id: Union[int, str] = None
     per_page: int = 100
@@ -315,12 +689,36 @@ class MembersModel(BaseModel):
 
     @field_validator('per_page', 'page')
     def validate_positive_integer(cls, v):
+        """
+        Validate positive integer parameters.
+
+        Args:
+        - v: The value of the parameter.
+
+        Returns:
+        - int: The validated parameter value.
+
+        Raises:
+        - ParameterError: If the parameter is not a positive integer.
+        """
         if not isinstance(v, int) or v <= 0:
             raise ParameterError
         return v
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters for members.
+
+        Args:
+        - values: Dictionary of all values.
+
+        Returns:
+        - str: The constructed API parameters.
+
+        Note:
+        Constructs API parameters based on provided values.
+        """
         filters = []
 
         if values.get("page") is not None:
