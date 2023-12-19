@@ -1405,7 +1405,7 @@ class PackageModel(BaseModel):
         return value
 
     @field_validator("select")
-    def validate_rule_type(cls, value):
+    def validate_select(cls, value):
         """
         Validate the 'select' field.
 
@@ -1424,6 +1424,27 @@ class PackageModel(BaseModel):
 
 
 class PipelineModel(BaseModel):
+    """
+    Documentation for the PipelineModel Pydantic model.
+
+    This model represents information about a pipeline in a project.
+
+    Attributes:
+    - project_id (Union[int, str]): The ID of the project.
+    - per_page (int): Number of items per page.
+    - page (int): Page number.
+    - pipeline_id (Union[int, str]): The ID of the pipeline.
+    - reference (str): Reference for the pipeline.
+    - variables (Dict): Variables associated with the pipeline.
+    - api_parameters (str): Additional API parameters.
+
+    Methods:
+    - build_api_parameters(values): Build API parameters.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
     project_id: Union[int, str] = None
     per_page: int = 100
     page: int = 1
@@ -1434,6 +1455,18 @@ class PipelineModel(BaseModel):
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
         filters = []
 
         if values.get("page") is not None:
@@ -1453,6 +1486,33 @@ class PipelineModel(BaseModel):
 
 
 class ProjectModel(BaseModel):
+    """
+    Documentation for the ProjectModel Pydantic model.
+
+    This model represents information about a project.
+
+    Attributes:
+    - project_id (Union[int, str]): The ID of the project.
+    - group_id (Union[int, str]): The ID of the group associated with the project.
+    - allow_merge_on_skipped_pipeline (bool): Allow merge on skipped pipeline.
+    - only_allow_merge_if_all_status_checks_passed (bool): Allow merge only if all status checks passed.
+    - analytics_access_level (str): Access level for analytics.
+    - approvals_before_merge (int): Number of approvals required before merge.
+    - auto_cancel_pending_pipelines (str): Auto-cancel pending pipelines.
+    - ... (other attributes)
+
+    Methods:
+    - build_api_parameters(values): Build API parameters.
+    - validate_access_level(value): Validate access level values.
+    - validate_boolean(value): Validate boolean values.
+    - validate_positive_integer(value): Validate positive integer values.
+    - validate_tag_topics(value): Validate tag or topic values.
+    - validate_order_by(value): Validate order_by value.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
     project_id: Union[int, str]
     group_id: Union[int, str] = None
     allow_merge_on_skipped_pipeline: bool = None
@@ -1535,6 +1595,18 @@ class ProjectModel(BaseModel):
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
         filters = []
 
         if values.get("group_id") is not None:
@@ -1557,6 +1629,19 @@ class ProjectModel(BaseModel):
                      "releases_access_level", "repository_access_level", "requirements_access_level",
                      "security_and_compliance_access_level", "snippets_access_level", "wiki_access_level")
     def validate_access_level(cls, value):
+        """
+        Validate access level values.
+
+        Args:
+        - value: Access level value to validate.
+
+        Returns:
+        - The validated access level value.
+
+        Raises:
+        - ValueError: If the value is not a valid access level.
+        """
+
         valid_access_levels = ['disabled', 'private', 'enabled']
         if value and value not in valid_access_levels:
             raise ValueError("Invalid access level value")
@@ -1575,30 +1660,107 @@ class ProjectModel(BaseModel):
                      "restrict_user_defined_variables", "service_desk_enabled", "shared_runners_enabled",
                      "packages_enabled")
     def validate_boolean(cls, value):
+        """
+        Validate boolean values.
+
+        Args:
+        - value: Boolean value to validate.
+
+        Returns:
+        - The validated boolean value.
+
+        Raises:
+        - ValueError: If the value is not a valid boolean.
+        """
         if value is not None and not isinstance(value, bool):
             raise ValueError("Invalid boolean value")
         return value
 
     @field_validator("approvals_before_merge", "build_timeout", "ci_default_git_depth", "mirror_user_id")
     def validate_positive_integer(cls, value):
+        """
+        Validate positive integer values.
+
+        Args:
+        - value: Positive integer value to validate.
+
+        Returns:
+        - The validated positive integer value.
+
+        Raises:
+        - ValueError: If the value is not a valid positive integer.
+        """
         if value is not None and (not isinstance(value, int) or value < 0):
             raise ValueError("Invalid positive integer value")
         return value
 
     @field_validator("tag_list", "topics")
     def validate_tag_topics(cls, value):
+        """
+        Validate tag or topic values.
+
+        Args:
+        - value: List of tags or topics to validate.
+
+        Returns:
+        - The validated list of tags or topics.
+
+        Raises:
+        - ValueError: If the value contains invalid elements.
+        """
         if value is not None and not all(isinstance(tag, str) for tag in value):
             raise ValueError("Invalid tag or topic value")
         return value
 
     @field_validator("order_by")
     def validate_order_by(cls, value):
+        """
+        Validate order_by value.
+
+        Args:
+        - value: Order_by value to validate.
+
+        Returns:
+        - The validated order_by value.
+
+        Raises:
+        - ValueError: If the value is not a valid order_by.
+        """
         if value not in ['id', 'name', 'username', 'created_at', 'updated_at']:
             raise ValueError("Invalid order_by")
         return value
 
 
 class ProtectedBranchModel(BaseModel):
+    """
+    Documentation for the ProtectedBranchModel Pydantic model.
+
+    This model represents information about a protected branch.
+
+    Attributes:
+    - project_id (Union[int, str]): The ID of the project.
+    - branch (str): The name of the protected branch.
+    - push_access_level (int): Access level for push operations.
+    - merge_access_level (int): Access level for merge operations.
+    - unprotect_access_level (int): Access level for unprotecting the branch.
+    - allow_force_push (List[str]): List of users/groups allowed to force push.
+    - allowed_to_push (List[str]): List of users/groups allowed to push.
+    - allowed_to_merge (List[str]): List of users/groups allowed to merge.
+    - allowed_to_unprotect (List[str]): List of users/groups allowed to unprotect.
+    - code_owner_approval_required (bool): Indicates if code owner approval is required.
+    - api_parameters (str): Constructed API parameters string.
+    - data (Dict): Dictionary containing additional data.
+
+    Methods:
+    - build_api_parameters(values): Build API parameters.
+    - validate_project_id(value): Validate project ID for non-None.
+    - validate_project_id_type(value): Validate project ID for type (int or str).
+    - construct_data_dict(values): Construct data dictionary.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
     project_id: Union[int, str]
     branch: str
     push_access_level: int
@@ -1614,6 +1776,18 @@ class ProtectedBranchModel(BaseModel):
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
         filters = []
 
         if values.get("branch") is not None:
@@ -1636,18 +1810,54 @@ class ProtectedBranchModel(BaseModel):
 
     @field_validator('project_id')
     def validate_project_id(cls, value):
+        """
+        Validate project ID for non-None.
+
+        Args:
+        - value: Project ID to validate.
+
+        Returns:
+        - The validated project ID.
+
+        Raises:
+        - ValueError: If the project ID is None.
+        """
         if value is None:
             raise ValueError('Project ID cannot be None')
         return value
 
     @field_validator('project_id')
     def validate_project_id_type(cls, value):
+        """
+        Validate project ID for type (int or str).
+
+        Args:
+        - value: Project ID to validate.
+
+        Returns:
+        - The validated project ID.
+
+        Raises:
+        - ValueError: If the project ID is not an integer or a string.
+        """
         if not isinstance(value, (int, str)):
             raise ValueError('Project ID must be an integer or a string')
         return value
 
     @field_validator("data")
     def construct_data_dict(cls, values):
+        """
+        Construct data dictionary.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed data dictionary.
+
+        Raises:
+        - ValueError: If no key is present in the data dictionary.
+        """
         data = {
             "allow_force_push": values.get("allow_force_push"),
             "allowed_to_push": values.get("allowed_to_push"),
@@ -1666,6 +1876,41 @@ class ProtectedBranchModel(BaseModel):
 
 
 class ReleaseModel(BaseModel):
+    """
+    Documentation for the ReleaseModel Pydantic model.
+
+    This model represents information about a release.
+
+    Attributes:
+    - project_id (Union[int, str]): The ID of the project.
+    - order_by (str): Order releases by a specific attribute.
+    - sort (str): Sort releases in ascending or descending order.
+    - simple (bool): Flag indicating whether to include only basic information.
+    - include_html_description (bool): Flag indicating whether to include HTML description.
+    - tag_name (str): The name of the tag associated with the release.
+    - description (str): Description of the release.
+    - tag_message (str): Message associated with the tag of the release.
+    - ref (str): Reference (branch or commit) associated with the release.
+    - direct_asset_path (str): Direct path to the release assets.
+    - name (List[str]): List of release names.
+    - milestones (str): Milestones associated with the release.
+    - released_at (str): Date and time when the release was made.
+    - api_parameters (str): Constructed API parameters string.
+    - data (Dict): Dictionary containing additional data.
+
+    Methods:
+    - build_api_parameters(values): Build API parameters.
+    - validate_order_by(value): Validate order_by attribute.
+    - validate_sort(value): Validate sort attribute.
+    - validate_project_id(value): Validate project ID for non-None.
+    - validate_project_id_type(value): Validate project ID for type (int or str).
+    - construct_data_dict(values): Construct data dictionary.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
+
     project_id: Union[int, str]
     order_by: str = None
     sort: str = None
@@ -1684,6 +1929,18 @@ class ReleaseModel(BaseModel):
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
         filters = []
 
         if values.get("simple") is not None:
@@ -1695,15 +1952,38 @@ class ReleaseModel(BaseModel):
 
         return None
 
-
     @field_validator("order_by")
     def validate_order_by(cls, value):
+        """
+        Validate order_by attribute.
+
+        Args:
+        - value: Order_by attribute to validate.
+
+        Returns:
+        - The validated order_by attribute.
+
+        Raises:
+        - ValueError: If the order_by attribute is not valid.
+        """
         if value not in ['id', 'name', 'username', 'created_at', 'updated_at']:
             raise ValueError("Invalid order_by")
         return value
 
     @field_validator("sort")
     def validate_sort(cls, value):
+        """
+        Validate sort attribute.
+
+        Args:
+        - value: Sort attribute to validate.
+
+        Returns:
+        - The validated sort attribute.
+
+        Raises:
+        - ValueError: If the sort attribute is not valid.
+        """
         valid_sorts = ['asc', 'desc']
         if value and value not in valid_sorts:
             raise ValueError("Invalid sort value")
@@ -1711,18 +1991,54 @@ class ReleaseModel(BaseModel):
 
     @field_validator('project_id')
     def validate_project_id(cls, value):
+        """
+        Validate project ID for non-None.
+
+        Args:
+        - value: Project ID to validate.
+
+        Returns:
+        - The validated project ID.
+
+        Raises:
+        - ValueError: If the project ID is None.
+        """
         if value is None:
             raise ValueError('Project ID cannot be None')
         return value
 
     @field_validator('project_id')
     def validate_project_id_type(cls, value):
+        """
+        Validate project ID for type (int or str).
+
+        Args:
+        - value: Project ID to validate.
+
+        Returns:
+        - The validated project ID.
+
+        Raises:
+        - ValueError: If the project ID is not an integer or a string.
+        """
         if not isinstance(value, (int, str)):
             raise ValueError('Project ID must be an integer or a string')
         return value
 
     @field_validator("data")
     def construct_data_dict(cls, values):
+        """
+        Construct data dictionary.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed data dictionary.
+
+        Raises:
+        - ValueError: If no key is present in the data dictionary.
+        """
         data = {
             "name": values.get("description"),
             "tag_name": values.get("tag_name"),
@@ -1747,6 +2063,41 @@ class ReleaseModel(BaseModel):
 
 
 class RunnerModel(BaseModel):
+    """
+    Documentation for the RunnerModel Pydantic model.
+
+    This model represents information about a runner.
+
+    Attributes:
+    - description (str): Description of the runner.
+    - active (bool): Flag indicating whether the runner is active.
+    - paused (bool): Flag indicating whether the runner is paused.
+    - tag_list (List[str]): List of tags associated with the runner.
+    - run_untagged (bool): Flag indicating whether the runner can run untagged jobs.
+    - locked (bool): Flag indicating whether the runner is locked.
+    - access_level (str): Access level of the runner.
+    - maintenance_note (str): Maintenance note associated with the runner.
+    - info (str): Additional information about the runner.
+    - token (str): Token associated with the runner.
+    - project_id (Union[int, str]): The ID of the project associated with the runner.
+    - group_id (Union[int, str]): The ID of the group associated with the runner.
+    - maximum_timeout (int): Maximum timeout allowed for the runner.
+    - runner_type (str): Type of the runner (instance_type, group_type, project_type).
+    - status (str): Status of the runner.
+    - all_runners (bool): Flag indicating whether to include all runners.
+    - api_parameters (str): Constructed API parameters string.
+    - data (Dict): Dictionary containing additional data.
+
+    Methods:
+    - build_api_parameters(values): Build API parameters.
+    - validate_runner_type(value): Validate runner_type attribute.
+    - validate_status(value): Validate status attribute.
+    - construct_data_dict(values): Construct data dictionary.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
     description: str = None
     active: bool = None
     paused: bool = None
@@ -1768,6 +2119,19 @@ class RunnerModel(BaseModel):
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
+
         filters = []
 
         if values.get("tag_list") is not None:
@@ -1796,18 +2160,54 @@ class RunnerModel(BaseModel):
 
     @field_validator("runner_type")
     def validate_runner_type(cls, value):
+        """
+        Validate runner_type attribute.
+
+        Args:
+        - value: Runner_type attribute to validate.
+
+        Returns:
+        - The validated runner_type attribute.
+
+        Raises:
+        - ValueError: If the runner_type attribute is not valid.
+        """
         if value not in ['instance_type', 'group_type', 'project_type']:
             raise ValueError("Invalid runner_type")
         return value
 
     @field_validator("status")
     def validate_status(cls, value):
+        """
+        Validate status attribute.
+
+        Args:
+        - value: Status attribute to validate.
+
+        Returns:
+        - The validated status attribute.
+
+        Raises:
+        - ValueError: If the status attribute is not valid.
+        """
         if value not in ['online', 'offline', 'stale', 'never_contacted', 'active', 'paused']:
             raise ValueError("Invalid status")
         return value
 
     @field_validator("data")
     def construct_data_dict(cls, values):
+        """
+        Construct data dictionary.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed data dictionary.
+
+        Raises:
+        - ValueError: If no key is present in the data dictionary.
+        """
         data = {
             "description": values.get("description"),
             "active": values.get("active"),
@@ -1832,6 +2232,47 @@ class RunnerModel(BaseModel):
 
 
 class UserModel(BaseModel):
+    """
+    Documentation for the UserModel Pydantic model.
+
+    This model represents information about a user.
+
+    Attributes:
+    - username (str): Username of the user.
+    - active (bool): Flag indicating whether the user is active.
+    - blocked (bool): Flag indicating whether the user is blocked.
+    - external (bool): Flag indicating whether the user is external.
+    - exclude_internal (bool): Flag indicating whether to exclude internal users.
+    - exclude_external (bool): Flag indicating whether to exclude external users.
+    - without_project_bots (bool): Flag indicating whether to exclude project bots.
+    - extern_uid (str): External UID associated with the user.
+    - provider (str): Provider associated with the user.
+    - created_before (str): Filter users created before a specific date.
+    - created_after (str): Filter users created after a specific date.
+    - with_custom_attributes (str): Filter users with custom attributes.
+    - sort (str): Sort order for the results.
+    - order_by (str): Order results by a specific field.
+    - two_factor (str): Filter users by two-factor authentication status.
+    - without_projects (bool): Flag indicating whether to exclude users with projects.
+    - admins (bool): Flag indicating whether to filter only admin users.
+    - saml_provider_id (str): SAML provider ID associated with the user.
+    - max_pages (int): Maximum number of pages.
+    - page (int): Current page number.
+    - per_page (int): Number of results per page.
+    - sudo (bool): Flag indicating sudo user mode.
+    - user_id (Union[str, int]): ID of the user.
+    - api_parameters (str): Constructed API parameters string.
+
+    Methods:
+    - build_api_parameters(values): Build API parameters.
+    - validate_order_by(value): Validate order_by attribute.
+    - validate_sort(value): Validate sort attribute.
+    - validate_two_factor(value): Validate two_factor attribute.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
     username: str = None
     active: bool = None
     blocked: bool = None
@@ -1859,6 +2300,18 @@ class UserModel(BaseModel):
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
         filters = []
 
         if values.get("username") is not None:
@@ -1934,12 +2387,36 @@ class UserModel(BaseModel):
 
     @field_validator("order_by")
     def validate_order_by(cls, value):
+        """
+        Validate order_by attribute.
+
+        Args:
+        - value: Order_by attribute to validate.
+
+        Returns:
+        - The validated order_by attribute.
+
+        Raises:
+        - ValueError: If the order_by attribute is not valid.
+        """
         if value not in ['id', 'name', 'username', 'created_at', 'updated_at']:
             raise ValueError("Invalid order_by")
         return value
 
     @field_validator("sort")
     def validate_sort(cls, value):
+        """
+        Validate sort attribute.
+
+        Args:
+        - value: Sort attribute to validate.
+
+        Returns:
+        - The validated sort attribute.
+
+        Raises:
+        - ValueError: If the sort attribute is not valid.
+        """
         valid_sorts = ['asc', 'desc']
         if value and value not in valid_sorts:
             raise ValueError("Invalid sort value")
@@ -1947,6 +2424,18 @@ class UserModel(BaseModel):
 
     @field_validator("two_factor")
     def validate_two_factor(cls, value):
+        """
+        Validate two_factor attribute.
+
+        Args:
+        - value: Two_factor attribute to validate.
+
+        Returns:
+        - The validated two_factor attribute.
+
+        Raises:
+        - ValueError: If the two_factor attribute is not valid.
+        """
         valid_two_factor = ['enabled', 'disabled']
         if value and value not in valid_two_factor:
             raise ValueError("Invalid two_factor value")
@@ -1954,6 +2443,34 @@ class UserModel(BaseModel):
 
 
 class WikiModel(BaseModel):
+    """
+    Documentation for the WikiModel Pydantic model.
+
+    This model represents information about a wiki.
+
+    Attributes:
+    - project_id (Union[int, str]): ID of the project associated with the wiki.
+    - slug (str): Slug of the wiki.
+    - content (str): Content of the wiki.
+    - title (str): Title of the wiki.
+    - format_type (str): Format type of the wiki.
+    - with_content (bool): Flag indicating whether to include content.
+    - file (str): File associated with the wiki.
+    - branch (str): Branch of the wiki.
+    - api_parameters (str): Constructed API parameters string.
+    - data (Dict): Dictionary containing additional data.
+
+    Methods:
+    - build_api_parameters(values): Build API parameters.
+    - validate_project_id(value): Validate project_id attribute.
+    - validate_project_id_type(value): Validate project_id type.
+    - construct_data_dict(values): Construct data dictionary.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
+
     project_id: Union[int, str] = None
     slug: str = None
     content: str = None
@@ -1967,6 +2484,18 @@ class WikiModel(BaseModel):
 
     @field_validator("api_parameters")
     def build_api_parameters(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
         filters = []
 
         if values.get("with_content") is not None:
@@ -1986,18 +2515,54 @@ class WikiModel(BaseModel):
 
     @field_validator('project_id')
     def validate_project_id(cls, value):
+        """
+        Validate project_id attribute.
+
+        Args:
+        - value: Project_id attribute to validate.
+
+        Returns:
+        - The validated project_id attribute.
+
+        Raises:
+        - ValueError: If the project_id attribute is None.
+        """
         if value is None:
             raise ValueError('Project ID cannot be None')
         return value
 
     @field_validator('project_id')
     def validate_project_id_type(cls, value):
+        """
+        Validate project_id type.
+
+        Args:
+        - value: Project_id attribute to validate.
+
+        Returns:
+        - The validated project_id attribute.
+
+        Raises:
+        - ValueError: If the project_id attribute is not an integer or a string.
+        """
         if not isinstance(value, (int, str)):
             raise ValueError('Project ID must be an integer or a string')
         return value
 
     @field_validator("data")
     def construct_data_dict(cls, values):
+        """
+        Construct data dictionary.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed data dictionary.
+
+        Raises:
+        - ValueError: If no key is present in the data dictionary.
+        """
         data = {
             "content": values.get("content"),
             "title": values.get("title"),
