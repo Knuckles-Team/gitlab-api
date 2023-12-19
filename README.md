@@ -28,6 +28,9 @@ Includes a large portion of useful API calls to GitLab
 
 This repository is actively maintained - Contributions are welcome!
 
+AI Skill Ready (**PEP8** Documented) - Assimilate the following package into your agent and begin using it! 
+
+
 ### API Calls:
 - Branches
 - Commits
