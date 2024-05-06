@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 0.15.0*
+*Version: 0.15.1*
 
 GitLab API Python Wrapper
 
@@ -90,6 +90,15 @@ python -m pip install gitlab-api
 </details>
 
 <details>
+  <summary><b>Tests:</b></summary>
+
+```bash
+python ./test/test_gitlab_models.py
+```
+</details>
+
+
+<details>
   <summary><b>Repository Owners:</b></summary>
 
 
@@ -98,3 +107,4 @@ python -m pip install gitlab-api
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
 </details>
+
