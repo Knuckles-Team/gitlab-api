@@ -1513,7 +1513,7 @@ class ProjectModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
-    project_id: Union[int, str]
+    project_id: Union[int, str] = None
     group_id: Union[int, str] = None
     allow_merge_on_skipped_pipeline: bool = None
     only_allow_merge_if_all_status_checks_passed: bool = None
