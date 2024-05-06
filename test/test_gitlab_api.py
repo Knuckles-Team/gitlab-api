@@ -20,18 +20,21 @@ reason = "do not run on MacOS or windows OR dependency is not installed OR " + r
 
 
 @pytest.mark.skipif(
-    sys.platform in ["darwin", "win32"] or skip,
+    sys.platform in ["darwin"] or skip,
     reason=reason,
     )
 def test_gitlab_api():
     # gitlab url
-    gitlab_url = "http://gitlab.com/api/v4/"
+    gitlab_url = "http://gitlab.arpa/api/v4/"
     # get token from env vars
-    token = os.environ.get("token", default="NA")
+    token = os.environ.get("GITLAB_TOKEN", default="NA")
     # create client
     client = gitlab_api.Api(url=gitlab_url, token=token, verify=False)
-    projects = client.get_nested_projects_by_group(group_id="891091").json()
-    assert projects == List
+
+    group_id = 2
+    # Get nested projects
+    projects = client.get_nested_projects_by_group(group_id=group_id)
+    assert isinstance(projects, List)
 
 
 if __name__ == "__main__":

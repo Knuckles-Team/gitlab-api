@@ -1776,7 +1776,7 @@ class Api(object):
         if project.group_id is None:
             raise MissingParameterError
         projects = []
-        groups = [self.get_group(group_id=project.group_id)]
+        groups = [self.get_group(group_id=project.group_id).json()]
         groups = groups + self.get_group_subgroups(group_id=project.group_id).json()
         for group in groups:
             response = self._session.get(url=f'{self.url}'
