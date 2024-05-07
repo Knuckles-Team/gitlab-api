@@ -442,7 +442,7 @@ class GroupModel(BaseModel):
     per_page: int = 100
     page: int = 1
     argument: str = 'state=opened'
-    api_parameters: str = None
+    api_parameters: Optional[str] = ""
 
     @field_validator('per_page', 'page')
     def validate_positive_integer(cls, v):
@@ -550,7 +550,7 @@ class JobModel(BaseModel):
     page: int = 1
     include_retried: bool = None
     job_variable_attributes: Dict = None
-    api_parameters: str = None
+    api_parameters: Optional[str] = ""
 
     @field_validator('per_page', 'page')
     def validate_positive_integer(cls, v):
@@ -674,7 +674,7 @@ class MembersModel(BaseModel):
     project_id: Union[int, str] = None
     per_page: int = 100
     page: int = 1
-    api_parameters: str = None
+    api_parameters: Optional[str] = ""
 
     @field_validator('per_page', 'page')
     def validate_positive_integer(cls, v):
@@ -777,52 +777,52 @@ class MergeRequestModel(BaseModel):
     Note:
     The class includes field_validator functions for specific attribute validations.
     """
-    approved_by_ids: List[int] = None
-    approver_ids: List[int] = None
-    assignee_id: int = None
-    author_id: int = None
-    author_username: str = None
-    created_after: str = None
-    created_before: str = None
-    deployed_after: str = None
-    deployed_before: str = None
-    environment: str = None
-    search_in: str = None
-    labels: str = None
-    milestone: str = None
-    my_reaction_emoji: str = None
-    project_id: Union[int, str] = None
-    search_exclude: str = None
-    order_by: str = None
-    reviewer_id: Union[int, str] = None
-    reviewer_username: str = None
-    scope: List[str] = None
-    search: str = None
-    sort: str = None
-    source_branch: str = None
-    state: str = None
-    target_branch: str = None
-    updated_after: str = None
-    updated_before: str = None
-    view: str = None
-    with_labels_details: bool = None
-    with_merge_status_recheck: bool = None
-    wip: str = None
+    approved_by_ids: Optional[List[int]] = None
+    approver_ids: Optional[List[int]] = None
+    assignee_id: Optional[int] = None
+    author_id: Optional[int] = None
+    author_username: Optional[str] = None
+    created_after: Optional[str] = None
+    created_before: Optional[str] = None
+    deployed_after: Optional[str] = None
+    deployed_before: Optional[str] = None
+    environment: Optional[str] = None
+    search_in: Optional[str] = None
+    labels: Optional[str] = None
+    milestone: Optional[str] = None
+    my_reaction_emoji: Optional[str] = None
+    project_id: Optional[Union[int, str]] = None
+    search_exclude: Optional[str] = None
+    order_by: Optional[str] = None
+    reviewer_id: Optional[Union[int, str]] = None
+    reviewer_username: Optional[str] = None
+    scope: Optional[List[str]] = None
+    search: Optional[str] = None
+    sort: Optional[str] = None
+    source_branch: Optional[str] = None
+    state: Optional[str] = None
+    target_branch: Optional[str] = None
+    updated_after: Optional[str] = None
+    updated_before: Optional[str] = None
+    view: Optional[str] = None
+    with_labels_details: Optional[bool] = None
+    with_merge_status_recheck: Optional[bool] = None
+    wip: Optional[str] = None
     title: str
-    allow_collaboration: bool = None
-    allow_maintainer_to_push: bool = None
-    approvals_before_merge: int = None
-    assignee_ids: List[int] = None
-    description: str = None
-    milestone_id: int = None
-    remove_source_branch: str = None
-    reviewer_ids: List[int] = None
-    squash: bool = None
-    target_project_id: Union[int, str] = None
-    max_pages: int = 0
-    per_page: int = 100
-    api_parameters: str = None
-    data: Dict = None
+    allow_collaboration: Optional[bool] = None
+    allow_maintainer_to_push: Optional[bool] = None
+    approvals_before_merge: Optional[int] = None
+    assignee_ids: Optional[List[int]] = None
+    description: Optional[str] = None
+    milestone_id: Optional[int] = None
+    remove_source_branch: Optional[str] = None
+    reviewer_ids: Optional[List[int]] = None
+    squash: Optional[bool] = None
+    target_project_id: Optional[Union[int, str]] = None
+    max_pages: Optional[int] = 0
+    per_page: Optional[int] = 100
+    api_parameters: Optional[str] = ""
+    data: Optional[Dict] = None
 
     @model_validator(mode="before")
     def build_api_parameters(cls, values):
@@ -839,94 +839,66 @@ class MergeRequestModel(BaseModel):
         Constructs API parameters based on provided values.
         """
         filters = []
-
-        if values.get("approved_by_ids") is not None:
+        if 'approved_by_ids' in values:
             filters.append(f'approved_by_ids={values["approved_by_ids"]}')
-
-        if values.get("approver_ids") is not None:
+        if 'approver_ids' in values:
             filters.append(f'approver_ids={values["approver_ids"]}')
-
-        if values.get("assignee_id") is not None:
+        if 'assignee_id' in values:
             filters.append(f'assignee_id={values["assignee_id"]}')
-
-        if values.get("author_id") is not None:
+        if 'author_id' in values:
             filters.append(f'author_id={values["author_id"]}')
-
-        if values.get("author_username") is not None:
+        if 'author_username' in values:
             filters.append(f'author_username={values["author_username"]}')
-
-        if values.get("created_after") is not None:
+        if 'created_after' in values:
             filters.append(f'created_after={values["created_after"]}')
-
-        if values.get("deployed_after") is not None:
+        if 'deployed_after' in values:
             filters.append(f'deployed_after={values["deployed_after"]}')
-
-        if values.get("deployed_before") is not None:
+        if 'deployed_before' in values:
             filters.append(f'deployed_before={values["deployed_before"]}')
-
-        if values.get("environment") is not None:
+        if 'environment' in values:
             filters.append(f'environment={values["environment"]}')
-
-        if values.get("search_in") is not None:
+        if 'search_in' in values:
             filters.append(f'search_in={values["search_in"]}')
-
-        if values.get("labels") is not None:
+        if 'labels' in values:
             filters.append(f'labels={values["labels"]}')
-
-        if values.get("milestone") is not None:
+        if 'milestone' in values:
             filters.append(f'milestone={values["milestone"]}')
-
-        if values.get("my_reaction_emoji") is not None:
+        if 'my_reaction_emoji' in values:
             filters.append(f'my_reaction_emoji={values["my_reaction_emoji"]}')
-
-        if values.get("search_exclude") is not None:
+        if 'search_exclude' in values:
             filters.append(f'search_exclude={values["search_exclude"]}')
-
-        if values.get("order_by") is not None:
+        if 'order_by' in values:
             filters.append(f'order_by={values["order_by"]}')
-
-        if values.get("reviewer_id") is not None:
+        if 'reviewer_id' in values:
             filters.append(f'reviewer_id={values["reviewer_id"]}')
-
-        if values.get("reviewer_username") is not None:
+        if 'reviewer_username' in values:
             filters.append(f'reviewer_username={values["reviewer_username"]}')
-
-        if values.get("scope") is not None:
+        if 'scope' in values:
             filters.append(f'scope={values["scope"]}')
-
-        if values.get("search") is not None:
+        if 'search' in values:
             filters.append(f'search={values["search"]}')
-
-        if values.get("sort") is not None:
-            filters.append(f'sort={values["sort"]}')
-
-        if values.get("source_branch") is not None:
+        if 'source_branch' in values:
             filters.append(f'source_branch={values["source_branch"]}')
-
-        if values.get("state") is not None:
+        if 'state' in values:
             filters.append(f'state={values["state"]}')
-
-        if values.get("target_branch") is not None:
+        if 'target_branch' in values:
             filters.append(f'target_branch={values["target_branch"]}')
-
-        if values.get("updated_after") is not None:
+        if 'updated_after' in values:
             filters.append(f'updated_after={values["updated_after"]}')
-
-        if values.get("updated_before") is not None:
+        if 'updated_before' in values:
             filters.append(f'updated_before={values["updated_before"]}')
-
-        if values.get("view") is not None:
+        if 'view' in values:
             filters.append(f'view={values["view"]}')
-
-        if values.get("with_labels_details") is not None:
+        if 'with_labels_details' in values:
             filters.append(f'with_labels_details={values["with_labels_details"]}')
-
-        if values.get("with_merge_status_recheck") is not None:
+        if 'with_merge_status_recheck' in values:
             filters.append(f'with_merge_status_recheck={values["with_merge_status_recheck"]}')
-
-        if values.get("wip") is not None:
+        if 'wip' in values:
             filters.append(f'wip={values["wip"]}')
-
+        if 'with_merge_status_recheck' in values:
+            filters.append(f'with_merge_status_recheck={values["with_merge_status_recheck"]}')
+        if 'with_merge_status_recheck' in values:
+            filters.append(f'with_merge_status_recheck={values["with_merge_status_recheck"]}')
         if filters:
             api_parameters = "?" + "&".join(filters)
             values['api_parameters'] = api_parameters
@@ -1048,7 +1020,7 @@ class MergeRequestModel(BaseModel):
             raise ValueError("Invalid wip value")
         return value
 
-    @field_validator('project_id', 'source_branch', 'target_branch', 'title')
+    @field_validator('source_branch', 'target_branch', 'title')
     def validate_string(cls, v):
         """
         Validate string fields.
@@ -1191,17 +1163,17 @@ class MergeRequestRuleModel(BaseModel):
     - Example 2: Another example of usage.
     """
     project_id: Union[int, str] = None
-    approval_rule_id: Union[int, str] = None
+    approval_rule_id: Optional[Union[int, str]] = None
     approvals_required: int = None
     name: str = None
-    applies_to_all_protected_branches: bool = None
-    group_ids: List[int] = None
-    merge_request_iid: Union[int, str] = None
-    protected_branch_ids: List[int] = None
-    report_type: str = None
-    rule_type: str = None
-    user_ids: List[int] = None
-    data: Dict = None
+    applies_to_all_protected_branches: Optional[bool] = None
+    group_ids: Optional[List[int]] = None
+    merge_request_iid: Optional[Union[int, str]] = None
+    protected_branch_ids: Optional[List[int]] = None
+    report_type: Optional[str] = None
+    rule_type: Optional[str] = None
+    user_ids: Optional[List[int]] = None
+    data: Optional[Dict] = None
 
     @field_validator("project_id", "approvals_required", "name")
     def check_required_fields(cls, value):
@@ -1323,7 +1295,7 @@ class PackageModel(BaseModel):
     file_name: str = None
     status: str = None
     select: str = None
-    api_parameters: str = None
+    api_parameters: Optional[str] = ""
 
     @model_validator(mode="before")
     def build_api_parameters(cls, values):
@@ -1432,12 +1404,12 @@ class PipelineModel(BaseModel):
     - Example 2: Another example of usage.
     """
     project_id: Union[int, str] = None
-    per_page: int = 100
-    page: int = 1
-    pipeline_id: Union[int, str] = None
-    reference: str = None
-    variables: Dict = None
-    api_parameters: str = None
+    per_page: Optional[int] = 100
+    page: Optional[int] = 1
+    pipeline_id: Optional[Union[int, str]] = None
+    reference: Optional[str] = None
+    variables: Optional[Dict] = None
+    api_parameters: Optional[str] = ""
 
     @model_validator(mode="before")
     def build_api_parameters(cls, values):
@@ -1454,14 +1426,11 @@ class PipelineModel(BaseModel):
         - None.
         """
         filters = []
-
-        if values.get("page") is not None:
+        if 'page' in values:
             filters.append(f'page={values["page"]}')
-
-        if values.get("per_page") is not None:
+        if 'per_page' in values:
             filters.append(f'per_page={values["per_page"]}')
-
-        if values.get("ref") is not None:
+        if 'reference' in values:
             filters.append(f'ref={values["reference"]}')
 
         if filters:
@@ -2091,7 +2060,7 @@ class RunnerModel(BaseModel):
     runner_type: str = None
     status: str = None
     all_runners: bool = False
-    api_parameters: str = None
+    api_parameters: Optional[str] = ""
     data: Dict = None
 
     @model_validator(mode="before")
@@ -2272,7 +2241,7 @@ class UserModel(BaseModel):
     per_page: int = 100
     sudo: bool = False
     user_id: Union[str, int] = None
-    api_parameters: str = None
+    api_parameters: Optional[str] = ""
 
     @model_validator(mode="before")
     def build_api_parameters(cls, values):
@@ -2454,7 +2423,7 @@ class WikiModel(BaseModel):
     with_content: Optional[bool] = None
     file: Optional[str] = None
     branch: Optional[str] = None
-    api_parameters: Optional[str] = None
+    api_parameters: Optional[str] = ""
     data: Optional[Dict] = None
 
     @model_validator(mode="before")

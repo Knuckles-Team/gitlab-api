@@ -29,7 +29,6 @@ reason = "do not run on MacOS or windows OR dependency is not installed OR " + r
     reason=reason,
     )
 def test_branch_model():
-    # test Branch model
     project_id = 2
     branch_name = "test_branch"
     reference = "main"
@@ -47,6 +46,50 @@ def test_commit_model():
     branch_name = "test_branch"
     commit = CommitModel(project_id=project_id, branch_name=branch_name)
     assert commit.project_id == project_id
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_merge_request_model():
+    project_id = 2
+    title = "test merge"
+    author_id = 12341
+    source_branch = "development"
+    target_branch = "production"
+    merge_request_rule = MergeRequestModel(project_id=project_id, title=title, author_id=author_id,
+                                           source_branch=source_branch, target_branch=target_branch)
+    assert merge_request_rule.project_id == project_id
+    assert merge_request_rule.title == title
+    assert merge_request_rule.author_id == author_id
+    assert merge_request_rule.target_branch == target_branch
+    assert merge_request_rule.source_branch == source_branch
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_merge_request_rule_model():
+    project_id = 2
+    name = "test rule"
+    merge_request_rule = MergeRequestRuleModel(project_id=project_id, name=name, approvals_required=9)
+    assert merge_request_rule.project_id == project_id
+    assert merge_request_rule.name == name
+    assert merge_request_rule.approvals_required == 9
+
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_pipeline_model():
+    project_id = 1234
+    pipeline = PipelineModel(project_id=project_id, per_page=100, reference="test")
+    assert project_id == pipeline.project_id
+    assert pipeline.api_parameters == "?per_page=100&ref=test"
 
 
 @pytest.mark.skipif(
@@ -81,7 +124,6 @@ def test_protected_branches_model():
     reason=reason,
     )
 def test_release_model():
-    group_id = 1234
     project_id = 5679
     release = ReleaseModel(project_id=project_id, simple=True)
     assert project_id == release.project_id
@@ -93,7 +135,6 @@ def test_release_model():
     reason=reason,
     )
 def test_wiki_model():
-    group_id = 1234
     project_id = 5679
     wiki = WikiModel(project_id=project_id, with_content=True)
     assert project_id == wiki.project_id
@@ -103,7 +144,9 @@ def test_wiki_model():
 if __name__ == "__main__":
     test_branch_model()
     test_commit_model()
-
+    test_merge_request_model()
+    test_merge_request_rule_model()
+    test_pipeline_model()
     test_project_model()
     test_protected_branches_model()
     test_release_model()
