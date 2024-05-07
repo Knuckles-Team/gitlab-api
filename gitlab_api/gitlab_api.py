@@ -2048,13 +2048,13 @@ class Api(object):
 
         if protected_branch.data:
             response = self._session.post(url=f'{self.url}/projects/{protected_branch.project_id}'
-                                          f'/protected_branches{protected_branch.branch_filter}',
+                                          f'/protected_branches{protected_branch.api_parameters}',
                                           headers=self.headers,
                                           data=json.dumps(protected_branch.data, indent=2),
                                           verify=self.verify)
         else:
             response = self._session.post(url=f'{self.url}/projects/{protected_branch.project_id}'
-                                          f'/protected_branches{protected_branch.branch_filter}',
+                                          f'/protected_branches{protected_branch.api_parameters}',
                                           headers=self.headers, verify=self.verify)
         return response
 
@@ -2530,7 +2530,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(url=f'{self.url}/projects/{runner.project_id}'
-                                         f'/runners{runner.runner_filter}',
+                                         f'/runners{runner.api_parameters}',
                                          headers=self.headers,
                                          verify=self.verify)
         except ValidationError as e:

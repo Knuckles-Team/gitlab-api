@@ -115,8 +115,14 @@ def test_project_model():
     )
 def test_protected_branches_model():
     project_id = 5679
-    protected_branch = ProtectedBranchModel(project_id=project_id, branch="test")
+    branch="test"
+    protected_branch = ProtectedBranchModel(project_id=project_id, branch=branch,
+                                            allowed_to_push=[{"access_level": 40}],
+                                            allowed_to_merge=[{"access_level": 20}],
+                                            all_runners=True)
     assert project_id == protected_branch.project_id
+    assert protected_branch.allowed_to_push == [{"access_level": 40}]
+    assert protected_branch.allowed_to_merge == [{"access_level": 20}]
 
 
 @pytest.mark.skipif(
@@ -127,7 +133,30 @@ def test_release_model():
     project_id = 5679
     release = ReleaseModel(project_id=project_id, simple=True)
     assert project_id == release.project_id
-    assert release.api_parameters == "?simple=True"
+    assert release.api_parameters == "?simple=true"
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_runner_model():
+    project_id = 5679
+    runner = RunnerModel(project_id=project_id, active=True, status="Online")
+    assert project_id == runner.project_id
+    assert runner.api_parameters == "?status=online"
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_user_model():
+    username = "test_user"
+    user = UserModel(username=username, active=True)
+    assert user.username == username
+    assert user.active == True
+    assert user.api_parameters == "?username=test_user&active=true"
 
 
 @pytest.mark.skipif(
@@ -138,7 +167,7 @@ def test_wiki_model():
     project_id = 5679
     wiki = WikiModel(project_id=project_id, with_content=True)
     assert project_id == wiki.project_id
-    assert wiki.api_parameters == "?with_content=True"
+    assert wiki.api_parameters == "?with_content=true"
 
 
 if __name__ == "__main__":
@@ -150,4 +179,6 @@ if __name__ == "__main__":
     test_project_model()
     test_protected_branches_model()
     test_release_model()
+    test_runner_model()
+    test_user_model()
     test_wiki_model()
