@@ -57,7 +57,7 @@ def test_create_project_rule():
     # Create branch
     project = 79
     response = client.create_project_level_rule(project_id=project, name="Test_Rule", approvals_required=9)
-    assert response.status_code == 201 or response.status_code == 400
+    assert response.status_code == 201
 
 
 @pytest.mark.skipif(
@@ -68,7 +68,7 @@ def test_get_project_rules():
     # Create branch
     project = 79
     response = client.get_project_level_rules(project_id=project)
-    assert response.status_code == 200 or response.status_code == 404
+    assert response.status_code == 200
 
 
 if __name__ == "__main__":

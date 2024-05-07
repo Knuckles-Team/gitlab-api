@@ -278,7 +278,9 @@ class Api(object):
         try:
             response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits/{commit.commit_hash}/cherry_pick',
-                                          headers=self.headers, data=commit.data, verify=self.verify)
+                                          headers=self.headers,
+                                          data=json.dumps(commit.data, indent=2),
+                                          verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -301,7 +303,9 @@ class Api(object):
         try:
             response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits',
-                                          headers=self.headers, data=commit.data, verify=self.verify)
+                                          headers=self.headers,
+                                          data=json.dumps(commit.data, indent=2),
+                                          verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -324,7 +328,9 @@ class Api(object):
         try:
             response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits/{commit.commit_hash}/revert',
-                                          headers=self.headers, data=commit.data, verify=self.verify)
+                                          headers=self.headers,
+                                          data=json.dumps(commit.data, indent=2),
+                                          verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -393,7 +399,9 @@ class Api(object):
         try:
             response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/repository/commits/{commit.commit_hash}/comments',
-                                          headers=self.headers, data=commit.data, verify=self.verify)
+                                          headers=self.headers,
+                                          data=json.dumps(commit.data, indent=2),
+                                          verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -462,7 +470,9 @@ class Api(object):
         try:
             response = self._session.post(url=f'{self.url}/projects/{commit.project_id}'
                                           f'/statuses/{commit.commit_hash}/',
-                                          headers=self.headers, data=commit.data, verify=self.verify)
+                                          headers=self.headers,
+                                          data=json.dumps(commit.data, indent=2),
+                                          verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -1071,7 +1081,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.post(url=f'{self.url}/projects/{job.project_id}/jobs/{job.job_id}/play',
-                                          headers=self.headers, data=job.data, verify=self.verify)
+                                          headers=self.headers, data=json.dumps(job.data, indent=2), verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -1345,7 +1355,7 @@ class Api(object):
         try:
             response = self._session.post(url=f'{self.url}/projects/{merge_rule.project_id}/approval_rules',
                                           headers=self.headers,
-                                          data=merge_rule.data,
+                                          data=json.dumps(merge_rule.data, indent=2),
                                           verify=self.verify)
 
         except ValidationError as e:
@@ -1370,7 +1380,8 @@ class Api(object):
         try:
             response = self._session.put(url=f'{self.url}/projects/{merge_rule.project_id}'
                                          f'/approval_rules/{merge_rule.approval_rule_id}',
-                                         headers=self.headers, data=merge_rule.data, verify=self.verify)
+                                         headers=self.headers, data=json.dumps(merge_rule.data, indent=2),
+                                         verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -1393,7 +1404,8 @@ class Api(object):
         try:
             response = self._session.put(url=f'{self.url}/projects/{merge_rule.project_id}'
                                          f'/approval_rules/{merge_rule.approval_rule_id}',
-                                         headers=self.headers, data=merge_rule.data, verify=self.verify)
+                                         headers=self.headers, data=json.dumps(merge_rule.data, indent=2),
+                                         verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
@@ -2640,7 +2652,7 @@ class Api(object):
         try:
             response = self._session.put(url=f'{self.url}/runners',
                                          headers=self.headers,
-                                         data=runner.data,
+                                         data=json.dumps(runner.data, indent=2),
                                          verify=self.verify)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3030,7 +3042,7 @@ class Api(object):
             response = self._session.put(url=f'{self.url}/projects/{wiki.project_id}/wikis/attachments',
                                          headers=headers,
                                          verify=self.verify,
-                                         data=data)
+                                         data=json.dumps(data, indent=2))
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
