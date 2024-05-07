@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-__version__ = '0.15.4'
+__version__ = '0.15.5'
 __author__ = 'Audel Rouhi'
 __credits__ = 'Audel Rouhi'
