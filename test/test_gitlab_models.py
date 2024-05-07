@@ -73,8 +73,12 @@ def test_merge_request_model():
     )
 def test_merge_request_rule_model():
     project_id = 2
+    group_ids = [1,2,3,4]
     name = "test rule"
-    merge_request_rule = MergeRequestRuleModel(project_id=project_id, name=name, approvals_required=9)
+    merge_request_rule = MergeRequestRuleModel(project_id=project_id,
+                                               name=name,
+                                               approvals_required=9,
+                                               group_ids=group_ids)
     assert merge_request_rule.project_id == project_id
     assert merge_request_rule.name == name
     assert merge_request_rule.approvals_required == 9

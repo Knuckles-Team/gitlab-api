@@ -1170,7 +1170,8 @@ class MergeRequestRuleModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
-    project_id: Union[int, str] = None
+    project_id: Optional[Union[int, str]] = None
+    group_id: Optional[Union[int, str]] = None
     approval_rule_id: Optional[Union[int, str]] = None
     approvals_required: Optional[int] = None
     name: Optional[str] = None
@@ -1270,6 +1271,8 @@ class MergeRequestRuleModel(BaseModel):
             data['rule_type'] = values.get("rule_type")
         if 'user_ids' in values:
             data['user_ids'] = values.get("user_ids")
+        if 'usernames' in values:
+            data['usernames'] = values.get("usernames")
 
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}

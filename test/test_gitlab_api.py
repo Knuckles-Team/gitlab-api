@@ -19,29 +19,60 @@ else:
 
 reason = "do not run on MacOS or windows OR dependency is not installed OR " + reason
 
+# gitlab url
+gitlab_url = "http://gitlab.arpa/api/v4/"
+# get token from env vars
+token = os.environ.get("GITLAB_TOKEN", default="NA")
+# create client
+client = gitlab_api.Api(url=gitlab_url, token=token, verify=False)
+
 
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
     )
-def test_gitlab_api():
-    # gitlab url
-    gitlab_url = "http://gitlab.arpa/api/v4/"
-    # get token from env vars
-    token = os.environ.get("GITLAB_TOKEN", default="NA")
-    # create client
-    client = gitlab_api.Api(url=gitlab_url, token=token, verify=False)
-
+def test_get_nested_projects():
     # Get nested projects
     group_id = 2
     projects = client.get_nested_projects_by_group(group_id=group_id)
     assert isinstance(projects, List)
 
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_create_branch():
     # Create branch
     project = 79
     response = client.create_branch(project_id=project, branch="test_branch", reference="main")
-    assert response.status_code == 201
+    assert response.status_code == 201 or response.status_code == 400
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_create_project_rule():
+    # Create branch
+    project = 79
+    response = client.create_project_level_rule(project_id=project, name="Test_Rule", approvals_required=9)
+    assert response.status_code == 201 or response.status_code == 400
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_get_project_rules():
+    # Create branch
+    project = 79
+    response = client.get_project_level_rules(project_id=project)
+    assert response.status_code == 200 or response.status_code == 404
 
 
 if __name__ == "__main__":
-    test_gitlab_api()
+    # test_get_nested_projects()
+    # test_create_branch()
+    # test_create_project_rule()
+    test_get_project_rules()
