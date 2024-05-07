@@ -135,7 +135,7 @@ class Api(object):
         branch = BranchModel(**kwargs)
         try:
             response = self._session.post(
-                url=f'{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}',
+                url=f'{self.url}/projects/{branch.project_id}/repository/branches{branch.api_parameters}',
                 headers=self.headers,
                 verify=self.verify)
         except ValidationError as e:

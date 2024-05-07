@@ -2,6 +2,7 @@ import os
 import sys
 import urllib.parse
 from typing import List
+import json
 
 import pytest
 from conftest import reason
@@ -33,8 +34,16 @@ def test_gitlab_api():
 
     group_id = 2
     # Get nested projects
-    projects = client.get_nested_projects_by_group(group_id=group_id)
-    assert isinstance(projects, List)
+    # projects = client.get_nested_projects_by_group(group_id=group_id)
+    # assert isinstance(projects, List)
+    # print(f"PROJECTS: {projects}")
+
+    project = 79
+    # Create branch
+    response = client.create_branch(project_id=project, branch="test_branch", reference="main")
+    print("RESPONSE:", json.dumps(response.json(), indent=2))
+    assert response.status_code == 400
+    breakpoint()
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
-from typing import Union, List, Dict
-from pydantic import BaseModel, field_validator
+from typing import Union, List, Dict, Any, Optional
+from typing_extensions import Self
+from pydantic import BaseModel, ValidationInfo, field_validator, model_validator
 import re
 
 try:
@@ -20,31 +21,42 @@ class BranchModel(BaseModel):
         project_id (Union[int, str]): The identifier of the project associated with the branch.
         branch (str, optional): The name of the branch.
         reference (str, optional): Reference information for the branch.
+        api_parameters (str): Additional API parameters for the group.
 
     Notes:
         This model includes a validator `validate_required_parameters` to ensure that the `project_id` field is
         provided when either `branch` or `reference` is specified.
     """
     project_id: Union[int, str]
-    branch: str = None
-    reference: str = None
+    branch: Optional[str] = None
+    reference: Optional[str] = None
+    api_parameters: Optional[str] = ""
 
-    @field_validator('branch', 'reference')
-    def validate_required_parameters(cls, v, values):
+    @model_validator(mode="before")
+    def build_api_parameters(cls, values):
         """
-        Validator to ensure that `project_id` is provided when either `branch` or `reference` is specified.
+        Build API parameters for the job.
 
         Args:
-            v (str): The value of the current field being validated.
-            values (dict): The values of all fields in the model.
+        - values: Dictionary of all values.
 
-        Raises:
-            ValueError: If `project_id` is missing or `None` when either `branch` or `reference` is specified.
+        Returns:
+        - str: The constructed API parameters.
+
+        Note:
+        Constructs API parameters based on provided values.
         """
-        if 'project_id' in values and values['project_id'] is not None and v is not None:
-            return v
-        else:
-            raise ValueError("Missing project_id field, it is required")
+
+        filters = []
+        if 'branch' in values:
+            filters.append(f'branch={values["branch"]}')
+        if 'reference' in values:
+            filters.append(f'ref={values["reference"]}')
+
+        if filters:
+            api_parameters = "?" + "&".join(filters)
+            values['api_parameters'] = api_parameters
+        return values
 
 
 class CommitModel(BaseModel):
@@ -88,36 +100,36 @@ class CommitModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
     project_id: Union[int, str]
-    commit_hash: str = None
-    branch: str = None
-    dry_run: bool = None
-    message: str = None
-    state: str = None
-    reference: str = None
-    name: str = None
-    context: str = None
-    target_url: str = None
-    description: str = None
-    coverage: Union[float, str] = None
-    pipeline_id: Union[int, str] = None
-    actions: list = None
-    start_branch: str = None
-    start_sha: str = None
-    start_project: Union[int, str] = None
-    author_email: str = None
-    author_name: str = None
-    stats: bool = None
-    force: bool = None
-    line: int = None
-    line_type: str = None
-    note: str = None
-    path: str = None
-    group_ids: list = None
-    protected_branch_ids: list = None
-    report_type: str = None
-    rule_type: str = None
-    user_ids: list = None
-    data: Dict = None
+    commit_hash: Optional[str] = None
+    branch: Optional[str] = None
+    dry_run: Optional[bool] = None
+    message: Optional[str] = None
+    state: Optional[str] = None
+    reference: Optional[str] = None
+    name: Optional[str] = None
+    context: Optional[str] = None
+    target_url: Optional[str] = None
+    description: Optional[str] = None
+    coverage: Optional[Union[float, str]] = None
+    pipeline_id: Optional[Union[int, str]] = None
+    actions: Optional[list] = None
+    start_branch: Optional[str] = None
+    start_sha: Optional[str] = None
+    start_project: Optional[Union[int, str]] = None
+    author_email: Optional[str] = None
+    author_name: Optional[str] = None
+    stats: Optional[bool] = None
+    force: Optional[bool] = None
+    line: Optional[int] = None
+    line_type: Optional[str] = None
+    note: Optional[str] = None
+    path: Optional[str] = None
+    group_ids: Optional[list] = None
+    protected_branch_ids: Optional[list] = None
+    report_type: Optional[str] = None
+    rule_type: Optional[str] = None
+    user_ids: Optional[list] = None
+    data: Optional[Dict] = None
 
     @field_validator('dry_run', 'stats', 'force')
     def validate_bool_fields(cls, v):
@@ -136,27 +148,6 @@ class CommitModel(BaseModel):
         if v is not None and not isinstance(v, bool):
             raise ValueError("Invalid states")
         return v
-
-    @field_validator('project_id', 'commit_hash', 'branch', 'start_branch', 'start_sha', 'start_project',
-                     'pipeline_id', 'line')
-    def validate_optional_parameters(cls, v, values):
-        """
-        Validate optional parameters to ensure they are provided only when 'project_id' is not None.
-
-        Args:
-        - v: The value of the parameter.
-        - values: Dictionary of all values.
-
-        Returns:
-        - Any: The validated parameter value.
-
-        Raises:
-        - ValueError: If the parameter is provided and 'project_id' is None.
-        """
-        if 'project_id' in values and values['project_id'] is not None and v is not None:
-            return v
-        else:
-            raise ValueError("Invalid optional params")
 
     @field_validator('commit_hash', 'branch', 'reference', 'name', 'context', 'note', 'path', 'line_type')
     def validate_string_parameters(cls, v):
@@ -507,7 +498,7 @@ class GroupModel(BaseModel):
             raise MissingParameterError
         return v
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters for the group.
@@ -531,9 +522,8 @@ class GroupModel(BaseModel):
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
 
 class JobModel(BaseModel):
@@ -635,7 +625,7 @@ class JobModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters for the job.
@@ -662,9 +652,8 @@ class JobModel(BaseModel):
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
 
 class MembersModel(BaseModel):
@@ -705,7 +694,7 @@ class MembersModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters for members.
@@ -729,9 +718,8 @@ class MembersModel(BaseModel):
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
 
 class MergeRequestModel(BaseModel):
@@ -836,7 +824,7 @@ class MergeRequestModel(BaseModel):
     api_parameters: str = None
     data: Dict = None
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters for the merge request.
@@ -941,9 +929,8 @@ class MergeRequestModel(BaseModel):
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
     @field_validator("scope")
     def validate_scope(cls, value):
@@ -1338,7 +1325,7 @@ class PackageModel(BaseModel):
     select: str = None
     api_parameters: str = None
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters.
@@ -1359,9 +1346,8 @@ class PackageModel(BaseModel):
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
     @field_validator('file_name', 'package_name')
     def validate_file_name(cls, value):
@@ -1453,7 +1439,7 @@ class PipelineModel(BaseModel):
     variables: Dict = None
     api_parameters: str = None
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters.
@@ -1480,9 +1466,8 @@ class PipelineModel(BaseModel):
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
 
 class ProjectModel(BaseModel):
@@ -1513,87 +1498,87 @@ class ProjectModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
-    project_id: Union[int, str] = None
-    group_id: Union[int, str] = None
-    allow_merge_on_skipped_pipeline: bool = None
-    only_allow_merge_if_all_status_checks_passed: bool = None
-    analytics_access_level: str = None
-    approvals_before_merge: int = None
-    auto_cancel_pending_pipelines: str = None
-    auto_devops_deploy_strategy: str = None
-    auto_devops_enabled: bool = None
-    autoclose_referenced_issues: bool = None
-    avatar: str = None
-    build_git_strategy: str = None
-    build_timeout: int = None
-    builds_access_level: str = None
-    ci_config_path: str = None
-    ci_default_git_depth: int = None
-    ci_forward_deployment_enabled: bool = None
-    ci_allow_fork_pipelines_to_run_in_parent_project: bool = None
-    ci_separated_caches: bool = None
-    container_expiration_policy_attributes: str = None
-    container_registry_access_level: str = None
-    default_branch: str = None
-    description: str = None
-    emails_disabled: bool = None
-    enforce_auth_checks_on_uploads: bool = None
-    external_authorization_classification_label: str = None
-    expires_at: str = None
-    forking_access_level: str = None
-    group_acces: int = None
-    import_url: str = None
-    issues_access_level: str = None
-    issues_template: str = None
-    keep_latest_artifact: bool = None
-    lfs_enabled: bool = None
-    max_pages: int = 0
-    per_page: int = 100
-    merge_commit_template: str = None
-    merge_method: str = None
-    merge_pipelines_enabled: bool = None
-    merge_requests_access_level: str = None
-    merge_requests_template: str = None
-    merge_trains_enabled: bool = None
-    mirror_overwrites_diverged_branches: bool = None
-    mirror_trigger_builds: bool = None
-    mirror_user_id: int = None
-    mirror: bool = None
-    mr_default_target_self: bool = None
-    name: str = None
-    order_by: str = None
-    only_allow_merge_if_all_discussions_are_resolved: bool = None
-    only_allow_merge_if_pipeline_succeeds: bool = None
-    only_mirror_protected_branches: bool = None
-    operations_access_level: str = None
-    packages_enabled: bool = None
-    pages_access_level: str = None
-    path: str = None
-    printing_merge_request_link_enabled: bool = None
-    public_builds: bool = None
-    releases_access_level: str = None
-    remove_source_branch_after_merge: bool = None
-    repository_access_level: str = None
-    repository_storage: str = None
-    request_access_enabled: bool = None
-    requirements_access_level: str = None
-    resolve_outdated_diff_discussions: bool = None
-    restrict_user_defined_variables: bool = None
-    security_and_compliance_access_level: str = None
-    service_desk_enabled: bool = None
-    shared_runners_enabled: bool = None
-    snippets_access_level: str = None
-    squash_commit_template: str = None
-    squash_option: str = None
-    suggestion_commit_message: str = None
-    tag_list: List[str] = None
-    topics: List[str] = None
-    visibility: str = None
-    wiki_access_level: str = None
-    api_parameters: str = None
-    data: Dict = None
+    project_id: Optional[Union[int, str]] = None
+    group_id: Optional[Union[int, str]] = None
+    allow_merge_on_skipped_pipeline: Optional[bool] = None
+    only_allow_merge_if_all_status_checks_passed: Optional[bool] = None
+    analytics_access_level: Optional[str] = None
+    approvals_before_merge: Optional[int] = None
+    auto_cancel_pending_pipelines: Optional[str] = None
+    auto_devops_deploy_strategy: Optional[str] = None
+    auto_devops_enabled: Optional[bool] = None
+    autoclose_referenced_issues: Optional[bool] = None
+    avatar: Optional[str] = None
+    build_git_strategy: Optional[str] = None
+    build_timeout: Optional[int] = None
+    builds_access_level: Optional[str] = None
+    ci_config_path: Optional[str] = None
+    ci_default_git_depth: Optional[int] = None
+    ci_forward_deployment_enabled: Optional[bool] = None
+    ci_allow_fork_pipelines_to_run_in_parent_project: Optional[bool] = None
+    ci_separated_caches: Optional[bool] = None
+    container_expiration_policy_attributes: Optional[str] = None
+    container_registry_access_level: Optional[str] = None
+    default_branch: Optional[str] = None
+    description: Optional[str] = None
+    emails_disabled: Optional[bool] = None
+    enforce_auth_checks_on_uploads: Optional[bool] = None
+    external_authorization_classification_label: Optional[str] = None
+    expires_at: Optional[str] = None
+    forking_access_level: Optional[str] = None
+    group_acces: Optional[int] = None
+    import_url: Optional[str] = None
+    issues_access_level: Optional[str] = None
+    issues_template: Optional[str] = None
+    keep_latest_artifact: Optional[bool] = None
+    lfs_enabled: Optional[bool] = None
+    max_pages: Optional[int] = 0
+    per_page: Optional[int] = 100
+    merge_commit_template: Optional[str] = None
+    merge_method: Optional[str] = None
+    merge_pipelines_enabled: Optional[bool] = None
+    merge_requests_access_level: Optional[str] = None
+    merge_requests_template: Optional[str] = None
+    merge_trains_enabled: Optional[bool] = None
+    mirror_overwrites_diverged_branches: Optional[bool] = None
+    mirror_trigger_builds: Optional[bool] = None
+    mirror_user_id: Optional[int] = None
+    mirror: Optional[bool] = None
+    mr_default_target_self: Optional[bool] = None
+    name: Optional[str] = None
+    order_by: Optional[str] = None
+    only_allow_merge_if_all_discussions_are_resolved: Optional[bool] = None
+    only_allow_merge_if_pipeline_succeeds: Optional[bool] = None
+    only_mirror_protected_branches: Optional[bool] = None
+    operations_access_level: Optional[str] = None
+    packages_enabled: Optional[bool] = None
+    pages_access_level: Optional[str] = None
+    path: Optional[str] = None
+    printing_merge_request_link_enabled: Optional[bool] = None
+    public_builds: Optional[bool] = None
+    releases_access_level: Optional[str] = None
+    remove_source_branch_after_merge: Optional[bool] = None
+    repository_access_level: Optional[str] = None
+    repository_storage: Optional[str] = None
+    request_access_enabled: Optional[bool] = None
+    requirements_access_level: Optional[str] = None
+    resolve_outdated_diff_discussions: Optional[bool] = None
+    restrict_user_defined_variables: Optional[bool] = None
+    security_and_compliance_access_level: Optional[str] = None
+    service_desk_enabled: Optional[bool] = None
+    shared_runners_enabled: Optional[bool] = None
+    snippets_access_level: Optional[str] = None
+    squash_commit_template: Optional[str] = None
+    squash_option: Optional[str] = None
+    suggestion_commit_message: Optional[str] = None
+    tag_list: Optional[List[str]] = None
+    topics: Optional[List[str]] = None
+    visibility: Optional[str] = None
+    wiki_access_level: Optional[str] = None
+    api_parameters: Optional[str] = None
+    data: Optional[Dict] = None
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters.
@@ -1609,20 +1594,17 @@ class ProjectModel(BaseModel):
         """
         filters = []
 
-        if values.get("group_id") is not None:
+        if 'group_id' in values:
             filters.append(f'group_id={values["group_id"]}')
-
-        if values.get("group_access") is not None:
+        if 'group_access' in values:
             filters.append(f'group_access={values["group_access"]}')
-
-        if values.get("expires_at") is not None:
+        if 'expires_at' in values:
             filters.append(f'expires_at={values["expires_at"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
     @field_validator("analytics_access_level", "builds_access_level", "container_registry_access_level",
                      "forking_access_level", "issues_access_level", "operations_access_level", "pages_access_level",
@@ -1763,18 +1745,18 @@ class ProtectedBranchModel(BaseModel):
     """
     project_id: Union[int, str]
     branch: str
-    push_access_level: int
-    merge_access_level: int
-    unprotect_access_level: int
-    allow_force_push: List[str]
-    allowed_to_push: List[str]
-    allowed_to_merge: List[str]
-    allowed_to_unprotect: List[str]
-    code_owner_approval_required: bool
-    api_parameters: str = None
-    data: Dict = None
+    push_access_level: Optional[int] = None
+    merge_access_level: Optional[int] = None
+    unprotect_access_level: Optional[int] = None
+    allow_force_push: Optional[List[str]] = None
+    allowed_to_push: Optional[List[str]] = None
+    allowed_to_merge: Optional[List[str]] = None
+    allowed_to_unprotect: Optional[List[str]] = None
+    code_owner_approval_required: Optional[bool] = None
+    api_parameters: Optional[str] = ""
+    data: Optional[Dict] = None
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters.
@@ -1788,91 +1770,87 @@ class ProtectedBranchModel(BaseModel):
         Raises:
         - None.
         """
+
         filters = []
-
-        if values.get("branch") is not None:
-            filters.append(f'name={values["branch"]}')
-
-        if values.get("push_access_level") is not None:
+        if 'branch' in values:
+            filters.append(f'branch={values["branch"]}')
+        if 'push_access_level' in values:
             filters.append(f'push_access_level={values["push_access_level"]}')
-
-        if values.get("merge_access_level") is not None:
+        if 'merge_access_level' in values:
             filters.append(f'merge_access_level={values["merge_access_level"]}')
-
-        if values.get("unprotect_access_level") is not None:
+        if 'unprotect_access_level' in values:
             filters.append(f'unprotect_access_level={values["unprotect_access_level"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
+            values['api_parameters'] = api_parameters
+        return values
 
-        return None
+    # @field_validator('project_id')
+    # def validate_project_id(cls, value):
+    #     """
+    #     Validate project ID for non-None.
+    #
+    #     Args:
+    #     - value: Project ID to validate.
+    #
+    #     Returns:
+    #     - The validated project ID.
+    #
+    #     Raises:
+    #     - ValueError: If the project ID is None.
+    #     """
+    #     if value is None:
+    #         raise ValueError('Project ID cannot be None')
+    #     return value
+    #
+    # @field_validator('project_id')
+    # def validate_project_id_type(cls, value):
+    #     """
+    #     Validate project ID for type (int or str).
+    #
+    #     Args:
+    #     - value: Project ID to validate.
+    #
+    #     Returns:
+    #     - The validated project ID.
+    #
+    #     Raises:
+    #     - ValueError: If the project ID is not an integer or a string.
+    #     """
+    #     if not isinstance(value, (int, str)):
+    #         raise ValueError('Project ID must be an integer or a string')
+    #     return value
 
-    @field_validator('project_id')
-    def validate_project_id(cls, value):
-        """
-        Validate project ID for non-None.
-
-        Args:
-        - value: Project ID to validate.
-
-        Returns:
-        - The validated project ID.
-
-        Raises:
-        - ValueError: If the project ID is None.
-        """
-        if value is None:
-            raise ValueError('Project ID cannot be None')
-        return value
-
-    @field_validator('project_id')
-    def validate_project_id_type(cls, value):
-        """
-        Validate project ID for type (int or str).
-
-        Args:
-        - value: Project ID to validate.
-
-        Returns:
-        - The validated project ID.
-
-        Raises:
-        - ValueError: If the project ID is not an integer or a string.
-        """
-        if not isinstance(value, (int, str)):
-            raise ValueError('Project ID must be an integer or a string')
-        return value
-
-    @field_validator("data")
-    def construct_data_dict(cls, values):
-        """
-        Construct data dictionary.
-
-        Args:
-        - values: Dictionary of values.
-
-        Returns:
-        - The constructed data dictionary.
-
-        Raises:
-        - ValueError: If no key is present in the data dictionary.
-        """
-        data = {
-            "allow_force_push": values.get("allow_force_push"),
-            "allowed_to_push": values.get("allowed_to_push"),
-            "allowed_to_merge": values.get("allowed_to_merge"),
-            "allowed_to_unprotect": values.get("allowed_to_unprotect"),
-            "code_owner_approval_required": values.get("code_owner_approval_required"),
-        }
-
-        # Remove None values
-        data = {k: v for k, v in data.items() if v is not None}
-
-        if not data:
-            raise ValueError("At least one key is required in the data dictionary.")
-
-        return data
+    # @model_validator(mode="before")
+    # def construct_data_dict(cls, values):
+    #     """
+    #     Construct data dictionary.
+    #
+    #     Args:
+    #     - values: Dictionary of values.
+    #
+    #     Returns:
+    #     - The constructed data dictionary.
+    #
+    #     Raises:
+    #     - ValueError: If no key is present in the data dictionary.
+    #     """
+    #     data = {
+    #         "allow_force_push": values.get("allow_force_push"),
+    #         "allowed_to_push": values.get("allowed_to_push"),
+    #         "allowed_to_merge": values.get("allowed_to_merge"),
+    #         "allowed_to_unprotect": values.get("allowed_to_unprotect"),
+    #         "code_owner_approval_required": values.get("code_owner_approval_required"),
+    #     }
+    #
+    #     # Remove None values
+    #     data = {k: v for k, v in data.items() if v is not None}
+    #
+    #     if not data:
+    #         raise ValueError("At least one key is required in the data dictionary.")
+    #
+    #     return data
 
 
 class ReleaseModel(BaseModel):
@@ -1912,22 +1890,22 @@ class ReleaseModel(BaseModel):
     """
 
     project_id: Union[int, str]
-    order_by: str = None
-    sort: str = None
-    simple: bool = None
-    include_html_description: bool = None
-    tag_name: str = None
-    description: str = None
-    tag_message: str = None
-    ref: str = None
-    direct_asset_path: str = None
-    name: List[str] = None
-    milestones: str = None
-    released_at: str = None
-    api_parameters: str = None
-    data: Dict = None
+    order_by: Optional[str] = None
+    sort: Optional[str] = None
+    simple: Optional[bool] = None
+    include_html_description: Optional[bool] = None
+    tag_name: Optional[str] = None
+    description: Optional[str] = None
+    tag_message: Optional[str] = None
+    ref: Optional[str] = None
+    direct_asset_path: Optional[str] = None
+    name: Optional[List[str]] = None
+    milestones: Optional[str] = None
+    released_at: Optional[str] = None
+    api_parameters: Optional[str] = None
+    data: Optional[Dict] = None
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters.
@@ -1943,14 +1921,13 @@ class ReleaseModel(BaseModel):
         """
         filters = []
 
-        if values.get("simple") is not None:
-            filters.append(f'simple=true')
+        if 'simple' in values:
+            filters.append(f'simple={values["simple"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
     @field_validator("order_by")
     def validate_order_by(cls, value):
@@ -2117,7 +2094,7 @@ class RunnerModel(BaseModel):
     api_parameters: str = None
     data: Dict = None
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters.
@@ -2154,9 +2131,8 @@ class RunnerModel(BaseModel):
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
     @field_validator("runner_type")
     def validate_runner_type(cls, value):
@@ -2298,7 +2274,7 @@ class UserModel(BaseModel):
     user_id: Union[str, int] = None
     api_parameters: str = None
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters.
@@ -2381,9 +2357,8 @@ class UserModel(BaseModel):
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
     @field_validator("order_by")
     def validate_order_by(cls, value):
@@ -2472,17 +2447,17 @@ class WikiModel(BaseModel):
     """
 
     project_id: Union[int, str] = None
-    slug: str = None
-    content: str = None
-    title: str = None
-    format_type: str = None
-    with_content: bool = None
-    file: str = None
-    branch: str = None
-    api_parameters: str = None
-    data: Dict = None
+    slug: Optional[str] = None
+    content: Optional[str] = None
+    title: Optional[str] = None
+    format_type: Optional[str] = None
+    with_content: Optional[bool] = None
+    file: Optional[str] = None
+    branch: Optional[str] = None
+    api_parameters: Optional[str] = None
+    data: Optional[Dict] = None
 
-    @field_validator("api_parameters")
+    @model_validator(mode="before")
     def build_api_parameters(cls, values):
         """
         Build API parameters.
@@ -2498,20 +2473,19 @@ class WikiModel(BaseModel):
         """
         filters = []
 
-        if values.get("with_content") is not None:
-            filters.append(f'with_content={values["1"]}')
+        if 'with_content' in values:
+            filters.append(f'with_content={values["with_content"]}')
 
-        if values.get("render_html") is not None:
-            filters.append(f'render_html={values["1"]}')
+        if 'render_html' in values:
+            filters.append(f'render_html={values["render_html"]}')
 
-        if values.get("version") is not None:
+        if 'version' in values:
             filters.append(f'version={values["version"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            return api_parameters
-
-        return None
+            values['api_parameters'] = api_parameters
+        return values
 
     @field_validator('project_id')
     def validate_project_id(cls, value):
