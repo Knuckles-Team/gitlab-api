@@ -32,18 +32,15 @@ def test_gitlab_api():
     # create client
     client = gitlab_api.Api(url=gitlab_url, token=token, verify=False)
 
-    group_id = 2
     # Get nested projects
-    # projects = client.get_nested_projects_by_group(group_id=group_id)
-    # assert isinstance(projects, List)
-    # print(f"PROJECTS: {projects}")
+    group_id = 2
+    projects = client.get_nested_projects_by_group(group_id=group_id)
+    assert isinstance(projects, List)
 
-    project = 79
     # Create branch
+    project = 79
     response = client.create_branch(project_id=project, branch="test_branch", reference="main")
-    print("RESPONSE:", json.dumps(response.json(), indent=2))
-    assert response.status_code == 400
-    breakpoint()
+    assert response.status_code == 201
 
 
 if __name__ == "__main__":
