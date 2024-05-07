@@ -820,7 +820,7 @@ class MergeRequestModel(BaseModel):
     with_labels_details: Optional[bool] = None
     with_merge_status_recheck: Optional[bool] = None
     wip: Optional[str] = None
-    title: str
+    title: Optional[str]
     allow_collaboration: Optional[bool] = None
     allow_maintainer_to_push: Optional[bool] = None
     approvals_before_merge: Optional[int] = None
@@ -1172,8 +1172,8 @@ class MergeRequestRuleModel(BaseModel):
     """
     project_id: Union[int, str] = None
     approval_rule_id: Optional[Union[int, str]] = None
-    approvals_required: int = None
-    name: str = None
+    approvals_required: Optional[int] = None
+    name: Optional[str] = None
     applies_to_all_protected_branches: Optional[bool] = None
     group_ids: Optional[List[int]] = None
     merge_request_iid: Optional[Union[int, str]] = None
