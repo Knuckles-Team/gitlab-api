@@ -1512,7 +1512,7 @@ class ProjectModel(BaseModel):
     external_authorization_classification_label: Optional[str] = None
     expires_at: Optional[str] = None
     forking_access_level: Optional[str] = None
-    group_acces: Optional[int] = None
+    group_access: Optional[int] = None
     import_url: Optional[str] = None
     issues_access_level: Optional[str] = None
     issues_template: Optional[str] = None
