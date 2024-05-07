@@ -116,7 +116,10 @@ def test_project_model():
 def test_protected_branches_model():
     project_id = 5679
     branch="test"
-    protected_branch = ProtectedBranchModel(project_id=project_id, branch=branch,
+    protected_branch = ProtectedBranchModel(project_id=project_id,
+                                            branch=branch,
+                                            allow_force_push=False,
+                                            code_owner_approval_required=False,
                                             allowed_to_push=[{"access_level": 40}],
                                             allowed_to_merge=[{"access_level": 20}],
                                             all_runners=True)

@@ -1904,7 +1904,7 @@ class ProtectedBranchModel(BaseModel):
     push_access_level: Optional[int] = None
     merge_access_level: Optional[int] = None
     unprotect_access_level: Optional[int] = None
-    allow_force_push: Optional[List[str]] = None
+    allow_force_push: Optional[bool] = None
     allowed_to_push: Optional[List[Dict]] = None
     allowed_to_merge: Optional[List[Dict]] = None
     allowed_to_unprotect: Optional[List[Dict]] = None
@@ -1959,6 +1959,24 @@ class ProtectedBranchModel(BaseModel):
 
         values['data'] = data
         return values
+
+    @field_validator('allow_force_push', 'code_owner_approval_required')
+    def validate_bool_fields(cls, v):
+        """
+        Validate boolean fields to ensure they are valid boolean values.
+
+        Args:
+        - v: The value of the field.
+
+        Returns:
+        - bool: The validated field value.
+
+        Raises:
+        - ValueError: If the field is provided and not a boolean.
+        """
+        if v is not None and not isinstance(v, bool):
+            raise ValueError("Invalid states")
+        return v
 
     @field_validator('project_id')
     def validate_project_id(cls, value):
