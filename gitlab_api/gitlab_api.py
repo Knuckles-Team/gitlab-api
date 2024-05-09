@@ -619,7 +619,7 @@ class Api(object):
     #                                                Deploy Tokens API                                                 #
     ####################################################################################################################
     @require_auth
-    def get_deploy_tokens(self):
+    def get_deploy_tokens(self) -> Response:
         """
         Get all deploy tokens.
 
@@ -3031,7 +3031,7 @@ class Api(object):
         return response
 
     @require_auth
-    def reset_gitlab_runner_token(self):
+    def reset_gitlab_runner_token(self) -> Response:
         """
         Reset GitLab runner registration token.
 
