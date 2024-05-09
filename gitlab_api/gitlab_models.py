@@ -299,7 +299,7 @@ class CommitModel(BaseModel):
             raise ValueError("Invalid user_ids, group_ids, protected_branch_ids")
         return v
 
-    @model_validator("data")
+    @model_validator(mode="before")
     def construct_data_dict(cls, values):
         """
         Construct a data dictionary from specific values.
