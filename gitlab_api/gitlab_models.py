@@ -1,16 +1,23 @@
-from typing import Union, List, Dict, Any, Optional
-from typing_extensions import Self
-from pydantic import BaseModel, ValidationInfo, field_validator, model_validator
+from typing import Union, List, Dict, Optional
+from pydantic import BaseModel, field_validator, model_validator
 import re
 
 try:
     from gitlab_api.decorators import require_auth
 except ModuleNotFoundError:
-    from decorators import require_auth
+    pass
 try:
-    from gitlab_api.exceptions import (AuthError, UnauthorizedError, ParameterError, MissingParameterError)
+    from gitlab_api.exceptions import (
+        AuthError,
+        UnauthorizedError,
+        ParameterError,
+        MissingParameterError,
+    )
 except ModuleNotFoundError:
-    from exceptions import (AuthError, UnauthorizedError, ParameterError, MissingParameterError)
+    from exceptions import (
+        ParameterError,
+        MissingParameterError,
+    )
 
 
 class BranchModel(BaseModel):
@@ -27,6 +34,7 @@ class BranchModel(BaseModel):
         This model includes a validator `validate_required_parameters` to ensure that the `project_id` field is
         provided when either `branch` or `reference` is specified.
     """
+
     project_id: Union[int, str]
     branch: Optional[str] = None
     reference: Optional[str] = None
@@ -48,14 +56,14 @@ class BranchModel(BaseModel):
         """
 
         filters = []
-        if 'branch' in values:
+        if "branch" in values:
             filters.append(f'branch={values["branch"]}')
-        if 'reference' in values:
+        if "reference" in values:
             filters.append(f'ref={values["reference"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
         return values
 
 
@@ -99,6 +107,7 @@ class CommitModel(BaseModel):
     Note:
     The class includes field_validator functions for specific attribute validations.
     """
+
     project_id: Union[int, str]
     commit_hash: Optional[str] = None
     branch: Optional[str] = None
@@ -131,7 +140,7 @@ class CommitModel(BaseModel):
     user_ids: Optional[list] = None
     data: Optional[Dict] = None
 
-    @field_validator('dry_run', 'stats', 'force')
+    @field_validator("dry_run", "stats", "force")
     def validate_bool_fields(cls, v):
         """
         Validate boolean fields to ensure they are valid boolean values.
@@ -149,7 +158,16 @@ class CommitModel(BaseModel):
             raise ValueError("Invalid states")
         return v
 
-    @field_validator('commit_hash', 'branch', 'reference', 'name', 'context', 'note', 'path', 'line_type')
+    @field_validator(
+        "commit_hash",
+        "branch",
+        "reference",
+        "name",
+        "context",
+        "note",
+        "path",
+        "line_type",
+    )
     def validate_string_parameters(cls, v):
         """
         Validate string parameters to ensure they are valid strings.
@@ -167,7 +185,7 @@ class CommitModel(BaseModel):
             raise ValueError("Invalid optional params")
         return v
 
-    @field_validator('coverage')
+    @field_validator("coverage")
     def validate_coverage(cls, v):
         """
         Validate the 'coverage' parameter to ensure it is a valid float or int.
@@ -185,7 +203,7 @@ class CommitModel(BaseModel):
             raise ValueError("Invalid states")
         return v
 
-    @field_validator('state')
+    @field_validator("state")
     def validate_state(cls, v):
         """
         Validate the 'state' parameter to ensure it is a valid state.
@@ -199,11 +217,17 @@ class CommitModel(BaseModel):
         Raises:
         - ValueError: If 'state' is provided and not a valid state.
         """
-        if v is not None and v.lower() not in ['pending', 'running', 'success', 'failed', 'canceled']:
+        if v is not None and v.lower() not in [
+            "pending",
+            "running",
+            "success",
+            "failed",
+            "canceled",
+        ]:
             raise ValueError("Invalid states")
         return v
 
-    @field_validator('line_type')
+    @field_validator("line_type")
     def validate_line_type(cls, v):
         """
         Validate the 'line_type' parameter to ensure it is a valid line type.
@@ -217,11 +241,11 @@ class CommitModel(BaseModel):
         Raises:
         - ValueError: If 'line_type' is provided and not a valid line type.
         """
-        if v is not None and v.lower() not in ['new', 'old']:
+        if v is not None and v.lower() not in ["new", "old"]:
             raise ValueError("Invalid line_type")
         return v
 
-    @field_validator('report_type')
+    @field_validator("report_type")
     def validate_report_type(cls, v):
         """
         Validate the 'report_type' parameter to ensure it is a valid report type.
@@ -235,11 +259,11 @@ class CommitModel(BaseModel):
         Raises:
         - ValueError: If 'report_type' is provided and not a valid report type.
         """
-        if v is not None and v.lower() not in ['license_scanning', 'code_coverage']:
+        if v is not None and v.lower() not in ["license_scanning", "code_coverage"]:
             raise ValueError("Invalid report_type")
         return v
 
-    @field_validator('rule_type')
+    @field_validator("rule_type")
     def validate_rule_type(cls, v):
         """
         Validate the 'rule_type' parameter to ensure it is a valid rule type.
@@ -253,11 +277,11 @@ class CommitModel(BaseModel):
         Raises:
         - ValueError: If 'rule_type' is provided and not a valid rule type.
         """
-        if v is not None and v.lower() not in ['any_approver', 'regular']:
+        if v is not None and v.lower() not in ["any_approver", "regular"]:
             raise ValueError("Invalid rule_type")
         return v
 
-    @field_validator('user_ids', 'group_ids', 'protected_branch_ids')
+    @field_validator("user_ids", "group_ids", "protected_branch_ids")
     def validate_list_parameters(cls, v):
         """
         Validate list parameters to ensure they are valid lists.
@@ -291,54 +315,54 @@ class CommitModel(BaseModel):
         """
         data = {}
 
-        if 'branch' in values:
-            data['branch'] = values.get("branch")
-        if 'commit_message' in values:
-            data['commit_message'] = values.get("commit_message")
-        if 'start_branch' in values:
-            data['start_branch'] = values.get("start_branch")
-        if 'start_sha' in values:
-            data['start_sha'] = values.get("start_sha")
-        if 'start_project' in values:
-            data['start_project'] = values.get("start_project")
-        if 'actions' in values:
-            data['actions'] = values.get("actions")
-        if 'author_email' in values:
-            data['author_email'] = values.get("author_email")
-        if 'author_name' in values:
-            data['author_name'] = values.get("author_name")
-        if 'stats' in values:
-            data['stats'] = values.get("stats")
-        if 'force' in values:
-            data['force'] = values.get("force")
-        if 'note' in values:
-            data['note'] = values.get("note")
-        if 'path' in values:
-            data['path'] = values.get("path")
-        if 'line' in values:
-            data['line'] = values.get("line")
-        if 'line_type' in values:
-            data['line_type'] = values.get("line_type")
-        if 'state' in values:
-            data['state'] = values.get("state")
-        if 'reference' in values:
-            data['ref'] = values.get("reference")
-        if 'name' in values:
-            data['name'] = values.get("name")
-        if 'context' in values:
-            data['context'] = values.get("context")
-        if 'target_url' in values:
-            data['target_url'] = values.get("target_url")
-        if 'description' in values:
-            data['description'] = values.get("description")
-        if 'coverage' in values:
-            data['coverage'] = values.get("coverage")
-        if 'pipeline_id' in values:
-            data['pipeline_id'] = values.get("pipeline_id")
+        if "branch" in values:
+            data["branch"] = values.get("branch")
+        if "commit_message" in values:
+            data["commit_message"] = values.get("commit_message")
+        if "start_branch" in values:
+            data["start_branch"] = values.get("start_branch")
+        if "start_sha" in values:
+            data["start_sha"] = values.get("start_sha")
+        if "start_project" in values:
+            data["start_project"] = values.get("start_project")
+        if "actions" in values:
+            data["actions"] = values.get("actions")
+        if "author_email" in values:
+            data["author_email"] = values.get("author_email")
+        if "author_name" in values:
+            data["author_name"] = values.get("author_name")
+        if "stats" in values:
+            data["stats"] = values.get("stats")
+        if "force" in values:
+            data["force"] = values.get("force")
+        if "note" in values:
+            data["note"] = values.get("note")
+        if "path" in values:
+            data["path"] = values.get("path")
+        if "line" in values:
+            data["line"] = values.get("line")
+        if "line_type" in values:
+            data["line_type"] = values.get("line_type")
+        if "state" in values:
+            data["state"] = values.get("state")
+        if "reference" in values:
+            data["ref"] = values.get("reference")
+        if "name" in values:
+            data["name"] = values.get("name")
+        if "context" in values:
+            data["context"] = values.get("context")
+        if "target_url" in values:
+            data["target_url"] = values.get("target_url")
+        if "description" in values:
+            data["description"] = values.get("description")
+        if "coverage" in values:
+            data["coverage"] = values.get("coverage")
+        if "pipeline_id" in values:
+            data["pipeline_id"] = values.get("pipeline_id")
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values['data'] = data
+        values["data"] = data
         return values
 
 
@@ -358,6 +382,7 @@ class DeployTokenModel(BaseModel):
     Note:
     The class includes field_validator functions for specific attribute validations.
     """
+
     project_id: Union[int, str] = None
     group_id: Optional[Union[int, str]] = None
     token: Optional[str] = None
@@ -366,7 +391,7 @@ class DeployTokenModel(BaseModel):
     username: Optional[str] = None
     scopes: Optional[str] = None
 
-    @field_validator('expires_at')
+    @field_validator("expires_at")
     def validate_expires_at(cls, v):
         """
         Validate the 'expires_at' parameter to ensure it is a valid string.
@@ -384,7 +409,7 @@ class DeployTokenModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('project_id', 'group_id', 'token')
+    @field_validator("project_id", "group_id", "token")
     def validate_optional_parameters(cls, v, values):
         """
         Validate optional parameters to ensure they are provided only when 'project_id' or 'group_id' is provided.
@@ -399,12 +424,14 @@ class DeployTokenModel(BaseModel):
         Raises:
         - MissingParameterError: If the parameter is provided and 'project_id' and 'group_id' are None.
         """
-        if ('project_id' in values.lower() or 'group_id' in values.lower()) and v is not None:
+        if (
+            "project_id" in values.lower() or "group_id" in values.lower()
+        ) and v is not None:
             return v.lower()
         else:
             raise MissingParameterError
 
-    @field_validator('name', 'username', 'scopes')
+    @field_validator("name", "username", "scopes")
     def validate_string_parameters(cls, v):
         """
         Validate string parameters to ensure they are valid strings.
@@ -422,7 +449,7 @@ class DeployTokenModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('scopes')
+    @field_validator("scopes")
     def validate_scopes(cls, v):
         """
         Validate the 'scopes' parameter to ensure it is a valid scope.
@@ -436,8 +463,13 @@ class DeployTokenModel(BaseModel):
         Raises:
         - ParameterError: If 'scopes' is provided and not a valid scope.
         """
-        valid_scopes = ['read_repository', 'read_registry', 'write_registry', 'read_package_registry',
-                        'write_package_registry']
+        valid_scopes = [
+            "read_repository",
+            "read_registry",
+            "write_registry",
+            "read_package_registry",
+            "write_package_registry",
+        ]
         if v is not None and v.lower() not in valid_scopes:
             raise ParameterError
         return v
@@ -457,13 +489,14 @@ class GroupModel(BaseModel):
     Note:
     The class includes field_validator functions for specific attribute validations.
     """
+
     group_id: Union[int, str] = None
     per_page: Optional[int] = 100
     page: Optional[int] = 1
-    argument: Optional[str] = 'state=opened'
+    argument: Optional[str] = "state=opened"
     api_parameters: Optional[str] = ""
 
-    @field_validator('per_page', 'page')
+    @field_validator("per_page", "page")
     def validate_positive_integer(cls, v):
         """
         Validate positive integer parameters.
@@ -481,7 +514,7 @@ class GroupModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('argument')
+    @field_validator("argument")
     def validate_argument(cls, v):
         """
         Validate the 'argument' parameter to ensure it is a valid string.
@@ -499,7 +532,7 @@ class GroupModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('group_id')
+    @field_validator("group_id")
     def validate_group_id(cls, v):
         """
         Validate the 'group_id' parameter to ensure it is provided.
@@ -532,14 +565,14 @@ class GroupModel(BaseModel):
         Constructs API parameters based on provided values.
         """
         filters = []
-        if 'page' in values:
+        if "page" in values:
             filters.append(f'page={values["page"]}')
-        if 'per_page' in values:
+        if "per_page" in values:
             filters.append(f'per_page={values["per_page"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
         return values
 
 
@@ -560,6 +593,7 @@ class JobModel(BaseModel):
     Note:
     The class includes field_validator functions for specific attribute validations.
     """
+
     project_id: Union[int, str] = None
     job_id: Union[int, str] = None
     scope: Optional[List[str]] = None
@@ -569,7 +603,7 @@ class JobModel(BaseModel):
     job_variable_attributes: Optional[Dict] = None
     api_parameters: Optional[str] = ""
 
-    @field_validator('per_page', 'page')
+    @field_validator("per_page", "page")
     def validate_positive_integer(cls, v):
         """
         Validate positive integer parameters.
@@ -587,7 +621,7 @@ class JobModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('include_retried')
+    @field_validator("include_retried")
     def validate_include_retried(cls, v):
         """
         Validate the 'include_retried' parameter to ensure it is a valid boolean.
@@ -605,7 +639,7 @@ class JobModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('scope')
+    @field_validator("scope")
     def validate_scope(cls, v):
         """
         Validate the 'scope' parameter to ensure it is a valid list of job scopes.
@@ -619,12 +653,21 @@ class JobModel(BaseModel):
         Raises:
         - ParameterError: If 'scope' contains invalid values.
         """
-        if v.lower() not in ['created', 'pending', 'running', 'failed', 'success', 'canceled', 'skipped',
-                             'waiting_for_resource', 'manual']:
+        if v.lower() not in [
+            "created",
+            "pending",
+            "running",
+            "failed",
+            "success",
+            "canceled",
+            "skipped",
+            "waiting_for_resource",
+            "manual",
+        ]:
             raise ParameterError
         return v.lower()
 
-    @field_validator('job_variable_attributes')
+    @field_validator("job_variable_attributes")
     def validate_job_variable_attributes(cls, v):
         """
         Validate the 'job_variable_attributes' parameter to ensure it is a valid dictionary.
@@ -638,7 +681,9 @@ class JobModel(BaseModel):
         Raises:
         - ParameterError: If 'job_variable_attributes' is provided and not a dictionary or missing key.
         """
-        if v is not None and (not isinstance(v, dict) or "job_variable_attributes" not in v.keys()):
+        if v is not None and (
+            not isinstance(v, dict) or "job_variable_attributes" not in v.keys()
+        ):
             raise ParameterError
         return v
 
@@ -657,16 +702,16 @@ class JobModel(BaseModel):
         Constructs API parameters based on provided values.
         """
         filters = []
-        if 'page' in values:
+        if "page" in values:
             filters.append(f'page={values["page"]}')
-        if 'per_page' in values:
+        if "per_page" in values:
             filters.append(f'per_page={values["per_page"]}')
-        if 'scope' in values:
+        if "scope" in values:
             filters.append(f'scope[]={values["scope"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
         return values
 
 
@@ -684,13 +729,14 @@ class MembersModel(BaseModel):
     Note:
     The class includes field_validator functions for specific attribute validations.
     """
+
     group_id: Optional[Union[int, str]] = None
     project_id: Optional[Union[int, str]] = None
     per_page: Optional[int] = 100
     page: Optional[int] = 1
     api_parameters: Optional[str] = ""
 
-    @field_validator('per_page', 'page')
+    @field_validator("per_page", "page")
     def validate_positive_integer(cls, v):
         """
         Validate positive integer parameters.
@@ -723,14 +769,14 @@ class MembersModel(BaseModel):
         Constructs API parameters based on provided values.
         """
         filters = []
-        if 'page' in values:
+        if "page" in values:
             filters.append(f'page={values["page"]}')
-        if 'per_page' in values:
+        if "per_page" in values:
             filters.append(f'per_page={values["per_page"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
         return values
 
 
@@ -789,6 +835,7 @@ class MergeRequestModel(BaseModel):
     Note:
     The class includes field_validator functions for specific attribute validations.
     """
+
     approved_by_ids: Optional[List[int]] = None
     approver_ids: Optional[List[int]] = None
     assignee_id: Optional[int] = None
@@ -851,104 +898,110 @@ class MergeRequestModel(BaseModel):
         Constructs API parameters based on provided values.
         """
         filters = []
-        if 'approved_by_ids' in values:
+        if "approved_by_ids" in values:
             filters.append(f'approved_by_ids={values["approved_by_ids"]}')
-        if 'approver_ids' in values:
+        if "approver_ids" in values:
             filters.append(f'approver_ids={values["approver_ids"]}')
-        if 'assignee_id' in values:
+        if "assignee_id" in values:
             filters.append(f'assignee_id={values["assignee_id"]}')
-        if 'author_id' in values:
+        if "author_id" in values:
             filters.append(f'author_id={values["author_id"]}')
-        if 'author_username' in values:
+        if "author_username" in values:
             filters.append(f'author_username={values["author_username"]}')
-        if 'created_after' in values:
+        if "created_after" in values:
             filters.append(f'created_after={values["created_after"]}')
-        if 'deployed_after' in values:
+        if "deployed_after" in values:
             filters.append(f'deployed_after={values["deployed_after"]}')
-        if 'deployed_before' in values:
+        if "deployed_before" in values:
             filters.append(f'deployed_before={values["deployed_before"]}')
-        if 'environment' in values:
+        if "environment" in values:
             filters.append(f'environment={values["environment"]}')
-        if 'search_in' in values:
+        if "search_in" in values:
             filters.append(f'search_in={values["search_in"]}')
-        if 'labels' in values:
+        if "labels" in values:
             filters.append(f'labels={values["labels"]}')
-        if 'milestone' in values:
+        if "milestone" in values:
             filters.append(f'milestone={values["milestone"]}')
-        if 'my_reaction_emoji' in values:
+        if "my_reaction_emoji" in values:
             filters.append(f'my_reaction_emoji={values["my_reaction_emoji"]}')
-        if 'search_exclude' in values:
+        if "search_exclude" in values:
             filters.append(f'search_exclude={values["search_exclude"]}')
-        if 'order_by' in values:
+        if "order_by" in values:
             filters.append(f'order_by={values["order_by"]}')
-        if 'reviewer_id' in values:
+        if "reviewer_id" in values:
             filters.append(f'reviewer_id={values["reviewer_id"]}')
-        if 'reviewer_username' in values:
+        if "reviewer_username" in values:
             filters.append(f'reviewer_username={values["reviewer_username"]}')
-        if 'scope' in values:
+        if "scope" in values:
             filters.append(f'scope={values["scope"]}')
-        if 'search' in values:
+        if "search" in values:
             filters.append(f'search={values["search"]}')
-        if 'source_branch' in values:
+        if "source_branch" in values:
             filters.append(f'source_branch={values["source_branch"]}')
-        if 'state' in values:
+        if "state" in values:
             filters.append(f'state={values["state"]}')
-        if 'target_branch' in values:
+        if "target_branch" in values:
             filters.append(f'target_branch={values["target_branch"]}')
-        if 'updated_after' in values:
+        if "updated_after" in values:
             filters.append(f'updated_after={values["updated_after"]}')
-        if 'updated_before' in values:
+        if "updated_before" in values:
             filters.append(f'updated_before={values["updated_before"]}')
-        if 'view' in values:
+        if "view" in values:
             filters.append(f'view={values["view"]}')
-        if 'with_labels_details' in values:
+        if "with_labels_details" in values:
             filters.append(f'with_labels_details={values["with_labels_details"]}')
-        if 'with_merge_status_recheck' in values:
-            filters.append(f'with_merge_status_recheck={values["with_merge_status_recheck"]}')
-        if 'wip' in values:
+        if "with_merge_status_recheck" in values:
+            filters.append(
+                f'with_merge_status_recheck={values["with_merge_status_recheck"]}'
+            )
+        if "wip" in values:
             filters.append(f'wip={values["wip"]}')
-        if 'with_merge_status_recheck' in values:
-            filters.append(f'with_merge_status_recheck={values["with_merge_status_recheck"]}')
-        if 'with_merge_status_recheck' in values:
-            filters.append(f'with_merge_status_recheck={values["with_merge_status_recheck"]}')
+        if "with_merge_status_recheck" in values:
+            filters.append(
+                f'with_merge_status_recheck={values["with_merge_status_recheck"]}'
+            )
+        if "with_merge_status_recheck" in values:
+            filters.append(
+                f'with_merge_status_recheck={values["with_merge_status_recheck"]}'
+            )
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
 
         data = {}
 
-        if 'source_branch' in values:
-            data['source_branch'] = values.get("source_branch")
-        if 'target_branch' in values:
-            data['target_branch'] = values.get("target_branch")
-        if 'title' in values:
-            data['title'] = values.get("title")
-        if 'allow_collaboration' in values:
-            data['allow_collaboration'] = values.get("allow_collaboration")
-        if 'allow_maintainer_to_push' in values:
-            data['allow_maintainer_to_push'] = values.get("allow_maintainer_to_push")
-        if 'approvals_before_merge' in values:
-            data['approvals_before_merge'] = values.get("approvals_before_merge")
-        if 'assignee_id' in values:
-            data['assignee_id'] = values.get("assignee_id")
-        if 'description' in values:
-            data['description'] = values.get("description")
-        if 'labels' in values:
-            data['labels'] = values.get("labels")
-        if 'milestone_id' in values:
-            data['milestone_id'] = values.get("milestone_id")
-        if 'remove_source_branch' in values:
-            data['remove_source_branch'] = values.get("remove_source_branch")
-        if 'reviewer_ids' in values:
-            data['reviewer_ids'] = values.get("reviewer_ids")
-        if 'squash' in values:
-            data['squash'] = values.get("squash")
-        if 'target_project_id' in values:
-            data['target_project_id'] = values.get("target_project_id")
+        if "source_branch" in values:
+            data["source_branch"] = values.get("source_branch")
+        if "target_branch" in values:
+            data["target_branch"] = values.get("target_branch")
+        if "title" in values:
+            data["title"] = values.get("title")
+        if "allow_collaboration" in values:
+            data["allow_collaboration"] = values.get("allow_collaboration")
+        if "allow_maintainer_to_push" in values:
+            data["allow_maintainer_to_push"] = values.get("allow_maintainer_to_push")
+        if "approvals_before_merge" in values:
+            data["approvals_before_merge"] = values.get("approvals_before_merge")
+        if "assignee_id" in values:
+            data["assignee_id"] = values.get("assignee_id")
+        if "description" in values:
+            data["description"] = values.get("description")
+        if "labels" in values:
+            data["labels"] = values.get("labels")
+        if "milestone_id" in values:
+            data["milestone_id"] = values.get("milestone_id")
+        if "remove_source_branch" in values:
+            data["remove_source_branch"] = values.get("remove_source_branch")
+        if "reviewer_ids" in values:
+            data["reviewer_ids"] = values.get("reviewer_ids")
+        if "squash" in values:
+            data["squash"] = values.get("squash")
+        if "target_project_id" in values:
+            data["target_project_id"] = values.get("target_project_id")
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values['data'] = data
+        values["data"] = data
         return values
 
     @field_validator("scope")
@@ -965,7 +1018,7 @@ class MergeRequestModel(BaseModel):
         Raises:
         - ValueError: If 'value' is not a valid scope.
         """
-        valid_scopes = ['created_by_me', 'assigned_to_me', 'all']
+        valid_scopes = ["created_by_me", "assigned_to_me", "all"]
         if value and not all(scope in valid_scopes for scope in value.lower()):
             raise ValueError("Invalid scope values")
         return value.lower()
@@ -984,7 +1037,7 @@ class MergeRequestModel(BaseModel):
         Raises:
         - ValueError: If 'value' is not a valid search_in value.
         """
-        valid_search_in = ['title', 'description', 'title,description']
+        valid_search_in = ["title", "description", "title,description"]
         if value and value.lower() not in valid_search_in:
             raise ValueError("Invalid search_in value")
         return value.lower()
@@ -1003,8 +1056,16 @@ class MergeRequestModel(BaseModel):
         Raises:
         - ValueError: If 'value' is not a valid search_exclude value.
         """
-        valid_search_exclude = ['labels', 'milestone', 'author_id', 'assignee_id', 'author_username',
-                                'reviewer_id', 'reviewer_username', 'my_reaction_emoji']
+        valid_search_exclude = [
+            "labels",
+            "milestone",
+            "author_id",
+            "assignee_id",
+            "author_username",
+            "reviewer_id",
+            "reviewer_username",
+            "my_reaction_emoji",
+        ]
         if value and value.lower() not in valid_search_exclude:
             raise ValueError("Invalid search_exclude value")
         return value.lower()
@@ -1024,7 +1085,7 @@ class MergeRequestModel(BaseModel):
         - ValueError: If 'value' is not a valid state value.
         """
 
-        valid_states = ['opened', 'closed', 'locked', 'merged']
+        valid_states = ["opened", "closed", "locked", "merged"]
         if value and value.lower() not in valid_states:
             raise ValueError("Invalid state value")
         return value.lower()
@@ -1043,7 +1104,7 @@ class MergeRequestModel(BaseModel):
         Raises:
         - ValueError: If 'value' is not a valid sort value.
         """
-        valid_sorts = ['asc', 'desc']
+        valid_sorts = ["asc", "desc"]
         if value and value.lower() not in valid_sorts:
             raise ValueError("Invalid sort value")
         return value.lower()
@@ -1062,12 +1123,12 @@ class MergeRequestModel(BaseModel):
         Raises:
         - ValueError: If 'value' is not a valid wip value.
         """
-        valid_wip_values = ['yes', 'no']
+        valid_wip_values = ["yes", "no"]
         if value and value.lower() not in valid_wip_values:
             raise ValueError("Invalid wip value")
         return value.lower()
 
-    @field_validator('source_branch', 'target_branch', 'title')
+    @field_validator("source_branch", "target_branch", "title")
     def validate_string(cls, v):
         """
         Validate string fields.
@@ -1085,7 +1146,7 @@ class MergeRequestModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('allow_collaboration', 'allow_maintainer_to_push', 'squash')
+    @field_validator("allow_collaboration", "allow_maintainer_to_push", "squash")
     def validate_boolean(cls, v):
         """
         Validate boolean fields.
@@ -1103,7 +1164,9 @@ class MergeRequestModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('approvals_before_merge', 'assignee_id', 'milestone_id', 'target_project_id')
+    @field_validator(
+        "approvals_before_merge", "assignee_id", "milestone_id", "target_project_id"
+    )
     def validate_positive_integer(cls, v):
         """
         Validate positive integer fields.
@@ -1121,7 +1184,7 @@ class MergeRequestModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator('assignee_ids', 'reviewer_ids')
+    @field_validator("assignee_ids", "reviewer_ids")
     def validate_list_of_integers(cls, v):
         """
         Validate lists of integers.
@@ -1170,6 +1233,7 @@ class MergeRequestRuleModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
+
     project_id: Optional[Union[int, str]] = None
     group_id: Optional[Union[int, str]] = None
     approval_rule_id: Optional[Union[int, str]] = None
@@ -1216,7 +1280,7 @@ class MergeRequestRuleModel(BaseModel):
         Raises:
         - ValueError: If 'value' is not a valid report_type.
         """
-        if value not in ['license_scanning', 'code_coverage']:
+        if value not in ["license_scanning", "code_coverage"]:
             raise ValueError("Invalid report_type")
         return value
 
@@ -1235,7 +1299,7 @@ class MergeRequestRuleModel(BaseModel):
         - ValueError: If 'value' is not a valid rule_type.
         """
 
-        if value not in ['any_approver', 'regular']:
+        if value not in ["any_approver", "regular"]:
             raise ValueError("Invalid rule_type")
         return value
 
@@ -1255,29 +1319,31 @@ class MergeRequestRuleModel(BaseModel):
         """
         data = {}
 
-        if 'approvals_required' in values:
-            data['approvals_required'] = values.get("approvals_required")
-        if 'name' in values:
-            data['name'] = values.get("name")
-        if 'applies_to_all_protected_branches' in values:
-            data['applies_to_all_protected_branches'] = values.get("applies_to_all_protected_branches")
-        if 'group_ids' in values:
-            data['group_ids'] = values.get("group_ids")
-        if 'protected_branch_ids' in values:
-            data['protected_branch_ids'] = values.get("protected_branch_ids")
-        if 'report_type' in values:
-            data['report_type'] = values.get("report_type")
-        if 'rule_type' in values:
-            data['rule_type'] = values.get("rule_type")
-        if 'user_ids' in values:
-            data['user_ids'] = values.get("user_ids")
-        if 'usernames' in values:
-            data['usernames'] = values.get("usernames")
+        if "approvals_required" in values:
+            data["approvals_required"] = values.get("approvals_required")
+        if "name" in values:
+            data["name"] = values.get("name")
+        if "applies_to_all_protected_branches" in values:
+            data["applies_to_all_protected_branches"] = values.get(
+                "applies_to_all_protected_branches"
+            )
+        if "group_ids" in values:
+            data["group_ids"] = values.get("group_ids")
+        if "protected_branch_ids" in values:
+            data["protected_branch_ids"] = values.get("protected_branch_ids")
+        if "report_type" in values:
+            data["report_type"] = values.get("report_type")
+        if "rule_type" in values:
+            data["rule_type"] = values.get("rule_type")
+        if "user_ids" in values:
+            data["user_ids"] = values.get("user_ids")
+        if "usernames" in values:
+            data["usernames"] = values.get("usernames")
 
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
-        values['data'] = data
+        values["data"] = data
         return values
 
 
@@ -1306,6 +1372,7 @@ class PackageModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
+
     project_id: Union[int, str] = None
     package_name: Optional[str] = None
     package_version: Optional[str] = None
@@ -1329,19 +1396,19 @@ class PackageModel(BaseModel):
         - None.
         """
         filters = []
-        if 'status' in values:
+        if "status" in values:
             filters.append(f'status={values["status"]}')
-        if 'per_page' in values:
+        if "per_page" in values:
             filters.append(f'per_page={values["per_page"]}')
-        if 'reference' in values:
+        if "reference" in values:
             filters.append(f'ref={values["reference"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
         return values
 
-    @field_validator('file_name', 'package_name')
+    @field_validator("file_name", "package_name")
     def validate_file_name(cls, value):
         """
         Validate the 'file_name' field.
@@ -1355,7 +1422,7 @@ class PackageModel(BaseModel):
         Raises:
         - ValueError: If 'value' contains invalid characters or exceeds the maximum length.
         """
-        pattern = r'^[a-zA-Z0-9._-]+$'
+        pattern = r"^[a-zA-Z0-9._-]+$"
         if not re.match(pattern, value):
             raise ValueError("Invalid characters in the filename")
 
@@ -1378,7 +1445,7 @@ class PackageModel(BaseModel):
         Raises:
         - ValueError: If 'value' is not a valid status.
         """
-        if value not in ['default', 'hidden']:
+        if value not in ["default", "hidden"]:
             raise ValueError("Invalid rule_type")
         return value
 
@@ -1396,7 +1463,7 @@ class PackageModel(BaseModel):
         Raises:
         - ValueError: If 'value' is not a valid selection criteria.
         """
-        if value not in ['package_file', 'package_file']:
+        if value not in ["package_file", "package_file"]:
             raise ValueError("Invalid rule_type")
         return value
 
@@ -1423,6 +1490,7 @@ class PipelineModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
+
     project_id: Union[int, str] = None
     per_page: Optional[int] = 100
     page: Optional[int] = 1
@@ -1446,16 +1514,16 @@ class PipelineModel(BaseModel):
         - None.
         """
         filters = []
-        if 'page' in values:
+        if "page" in values:
             filters.append(f'page={values["page"]}')
-        if 'per_page' in values:
+        if "per_page" in values:
             filters.append(f'per_page={values["per_page"]}')
-        if 'reference' in values:
+        if "reference" in values:
             filters.append(f'ref={values["reference"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
         return values
 
 
@@ -1487,6 +1555,7 @@ class ProjectModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
+
     project_id: Optional[Union[int, str]] = None
     group_id: Optional[Union[int, str]] = None
     allow_merge_on_skipped_pipeline: Optional[bool] = None
@@ -1583,192 +1652,246 @@ class ProjectModel(BaseModel):
         """
         filters = []
 
-        if 'group_id' in values:
+        if "group_id" in values:
             filters.append(f'group_id={values["group_id"]}')
-        if 'group_access' in values:
+        if "group_access" in values:
             filters.append(f'group_access={values["group_access"]}')
-        if 'expires_at' in values:
+        if "expires_at" in values:
             filters.append(f'expires_at={values["expires_at"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
 
         data = {}
 
-        if 'allow_merge_on_skipped_pipeline' in values:
-            data['allow_merge_on_skipped_pipeline'] = values.get("allow_merge_on_skipped_pipeline")
-        if 'allow_pipeline_trigger_approve_deployment' in values:
-            data['allow_pipeline_trigger_approve_deployment'] = values.get("allow_pipeline_trigger_approve_deployment")
-        if 'only_allow_merge_if_all_status_checks_passed' in values:
-            data['only_allow_merge_if_all_status_checks_passed'] = (
-                values.get("only_allow_merge_if_all_status_checks_passed"))
-        if 'analytics_access_level' in values:
-            data['analytics_access_level'] = values.get("analytics_access_level")
-        if 'approvals_before_merge' in values:
-            data['approvals_before_merge'] = values.get("approvals_before_merge")
-        if 'auto_cancel_pending_pipelines' in values:
-            data['auto_cancel_pending_pipelines'] = values.get("auto_cancel_pending_pipelines")
-        if 'auto_devops_deploy_strategy' in values:
-            data['auto_devops_deploy_strategy'] = values.get("auto_devops_deploy_strategy")
-        if 'auto_devops_enabled' in values:
-            data['auto_devops_enabled'] = values.get("auto_devops_enabled")
-        if 'autoclose_referenced_issues' in values:
-            data['autoclose_referenced_issues'] = values.get("autoclose_referenced_issues")
-        if 'avatar' in values:
-            data['avatar'] = values.get("avatar")
-        if 'build_git_strategy' in values:
-            data['build_git_strategy'] = values.get("build_git_strategy")
-        if 'build_timeout' in values:
-            data['build_timeout'] = values.get("build_timeout")
-        if 'builds_access_level' in values:
-            data['builds_access_level'] = values.get("builds_access_level")
-        if 'ci_config_path' in values:
-            data['ci_config_path'] = values.get("ci_config_path")
-        if 'container_registry_access_level' in values:
-            data['container_registry_access_level'] = values.get("container_registry_access_level")
-        if 'container_registry_enabled' in values:
-            data['container_registry_enabled'] = values.get("container_registry_enabled")
-        if 'default_branch' in values:
-            data['default_branch'] = values.get("default_branch")
-        if 'description' in values:
-            data['description'] = values.get("description")
-        if 'emails_disabled' in values:
-            data['emails_disabled'] = values.get("emails_disabled")
-        if 'emails_enabled' in values:
-            data['emails_enabled'] = values.get("emails_enabled")
-        if 'enforce_auth_checks_on_uploads' in values:
-            data['enforce_auth_checks_on_uploads'] = values.get("enforce_auth_checks_on_uploads")
-        if 'environments_access_level' in values:
-            data['environments_access_level'] = values.get("environments_access_level")
-        if 'external_authorization_classification_label' in values:
-            data['external_authorization_classification_label'] = (
-                values.get("external_authorization_classification_label"))
-        if 'feature_flags_access_level' in values:
-            data['feature_flags_access_level'] = values.get("feature_flags_access_level")
-        if 'forking_access_level' in values:
-            data['forking_access_level'] = values.get("forking_access_level")
-        if 'group_runners_enabled' in values:
-            data['group_runners_enabled'] = values.get("group_runners_enabled")
-        if 'group_with_project_templates_id' in values:
-            data['group_with_project_templates_id'] = values.get("group_with_project_templates_id")
-        if 'import_url' in values:
-            data['import_url'] = values.get("import_url")
-        if 'infrastructure_access_level' in values:
-            data['infrastructure_access_level'] = values.get("infrastructure_access_level")
-        if 'initialize_with_readme' in values:
-            data['initialize_with_readme'] = values.get("initialize_with_readme")
-        if 'issue_branch_template' in values:
-            data['issue_branch_template'] = values.get("issue_branch_template")
-        if 'issues_access_level' in values:
-            data['issues_access_level'] = values.get("issues_access_level")
-        if 'issues_enabled' in values:
-            data['issues_enabled'] = values.get("issues_enabled")
-        if 'jobs_enabled' in values:
-            data['jobs_enabled'] = values.get("jobs_enabled")
-        if 'lfs_enabled' in values:
-            data['lfs_enabled'] = values.get("lfs_enabled")
-        if 'merge_commit_template' in values:
-            data['merge_commit_template'] = values.get("merge_commit_template")
-        if 'merge_method' in values:
-            data['merge_method'] = values.get("merge_method")
-        if 'merge_requests_access_level' in values:
-            data['merge_requests_access_level'] = values.get("merge_requests_access_level")
-        if 'merge_requests_enabled' in values:
-            data['merge_requests_enabled'] = values.get("merge_requests_enabled")
-        if 'mirror_trigger_builds' in values:
-            data['mirror_trigger_builds'] = values.get("mirror_trigger_builds")
-        if 'mirror' in values:
-            data['mirror'] = values.get("mirror")
-        if 'model_experiments_access_level' in values:
-            data['model_experiments_access_level'] = values.get("model_experiments_access_level")
-        if 'model_registry_access_level' in values:
-            data['model_registry_access_level'] = values.get("model_registry_access_level")
-        if 'monitor_access_level' in values:
-            data['monitor_access_level'] = values.get("monitor_access_level")
-        if 'namespace_id' in values:
-            data['namespace_id'] = values.get("namespace_id")
-        if 'only_allow_merge_if_all_discussions_are_resolved' in values:
-            data['only_allow_merge_if_all_discussions_are_resolved'] = (
-                values.get("only_allow_merge_if_all_discussions_are_resolved"))
-        if 'only_allow_merge_if_all_status_checks_passed' in values:
-            data['only_allow_merge_if_all_status_checks_passed'] = (
-                values.get("only_allow_merge_if_all_status_checks_passed"))
-        if 'only_allow_merge_if_pipeline_succeeds' in values:
-            data['only_allow_merge_if_pipeline_succeeds'] = values.get("only_allow_merge_if_pipeline_succeeds")
-        if 'packages_enabled' in values:
-            data['packages_enabled'] = values.get("packages_enabled")
-        if 'pages_access_level' in values:
-            data['pages_access_level'] = values.get("pages_access_level")
-        if 'path' in values:
-            data['path'] = values.get("path")
-        if 'printing_merge_request_link_enabled' in values:
-            data['printing_merge_request_link_enabled'] = values.get("printing_merge_request_link_enabled")
-        if 'public_builds' in values:
-            data['public_builds'] = values.get("public_builds")
-        if 'public_jobs' in values:
-            data['public_jobs'] = values.get("public_jobs")
-        if 'releases_access_level' in values:
-            data['releases_access_level'] = values.get("releases_access_level")
-        if 'repository_object_format' in values:
-            data['repository_object_format'] = values.get("repository_object_format")
-        if 'remove_source_branch_after_merge' in values:
-            data['remove_source_branch_after_merge'] = values.get("remove_source_branch_after_merge")
-        if 'repository_access_level' in values:
-            data['repository_access_level'] = values.get("repository_access_level")
-        if 'repository_storage' in values:
-            data['repository_storage'] = values.get("repository_storage")
-        if 'request_access_enabled' in values:
-            data['request_access_enabled'] = values.get("request_access_enabled")
-        if 'requirements_access_level' in values:
-            data['requirements_access_level'] = values.get("requirements_access_level")
-        if 'resolve_outdated_diff_discussions' in values:
-            data['resolve_outdated_diff_discussions'] = values.get("resolve_outdated_diff_discussions")
-        if 'security_and_compliance_access_level' in values:
-            data['security_and_compliance_access_level'] = values.get("security_and_compliance_access_level")
-        if 'shared_runners_enabled' in values:
-            data['shared_runners_enabled'] = values.get("shared_runners_enabled")
-        if 'show_default_award_emojis' in values:
-            data['show_default_award_emojis'] = values.get("show_default_award_emojis")
-        if 'snippets_access_level' in values:
-            data['snippets_access_level'] = values.get("snippets_access_level")
-        if 'snippets_enabled' in values:
-            data['snippets_enabled'] = values.get("snippets_enabled")
-        if 'squash_commit_template' in values:
-            data['squash_commit_template'] = values.get("squash_commit_template")
-        if 'squash_option' in values:
-            data['squash_option'] = values.get("squash_option")
-        if 'suggestion_commit_message' in values:
-            data['suggestion_commit_message'] = values.get("suggestion_commit_message")
-        if 'tag_list' in values:
-            data['tag_list'] = values.get("tag_list")
-        if 'template_name' in values:
-            data['template_name'] = values.get("template_name")
-        if 'topics' in values:
-            data['topics'] = values.get("topics")
-        if 'use_custom_template' in values:
-            data['use_custom_template'] = values.get("use_custom_template")
-        if 'visibility' in values:
-            data['visibility'] = values.get("visibility")
-        if 'warn_about_potentially_unwanted_characters' in values:
-            data['warn_about_potentially_unwanted_characters'] = (
-                values.get("warn_about_potentially_unwanted_characters"))
-        if 'wiki_access_level' in values:
-            data['wiki_access_level'] = values.get("wiki_access_level")
-        if 'wiki_enabled' in values:
-            data['wiki_enabled'] = values.get("wiki_enabled")
+        if "allow_merge_on_skipped_pipeline" in values:
+            data["allow_merge_on_skipped_pipeline"] = values.get(
+                "allow_merge_on_skipped_pipeline"
+            )
+        if "allow_pipeline_trigger_approve_deployment" in values:
+            data["allow_pipeline_trigger_approve_deployment"] = values.get(
+                "allow_pipeline_trigger_approve_deployment"
+            )
+        if "only_allow_merge_if_all_status_checks_passed" in values:
+            data["only_allow_merge_if_all_status_checks_passed"] = values.get(
+                "only_allow_merge_if_all_status_checks_passed"
+            )
+        if "analytics_access_level" in values:
+            data["analytics_access_level"] = values.get("analytics_access_level")
+        if "approvals_before_merge" in values:
+            data["approvals_before_merge"] = values.get("approvals_before_merge")
+        if "auto_cancel_pending_pipelines" in values:
+            data["auto_cancel_pending_pipelines"] = values.get(
+                "auto_cancel_pending_pipelines"
+            )
+        if "auto_devops_deploy_strategy" in values:
+            data["auto_devops_deploy_strategy"] = values.get(
+                "auto_devops_deploy_strategy"
+            )
+        if "auto_devops_enabled" in values:
+            data["auto_devops_enabled"] = values.get("auto_devops_enabled")
+        if "autoclose_referenced_issues" in values:
+            data["autoclose_referenced_issues"] = values.get(
+                "autoclose_referenced_issues"
+            )
+        if "avatar" in values:
+            data["avatar"] = values.get("avatar")
+        if "build_git_strategy" in values:
+            data["build_git_strategy"] = values.get("build_git_strategy")
+        if "build_timeout" in values:
+            data["build_timeout"] = values.get("build_timeout")
+        if "builds_access_level" in values:
+            data["builds_access_level"] = values.get("builds_access_level")
+        if "ci_config_path" in values:
+            data["ci_config_path"] = values.get("ci_config_path")
+        if "container_registry_access_level" in values:
+            data["container_registry_access_level"] = values.get(
+                "container_registry_access_level"
+            )
+        if "container_registry_enabled" in values:
+            data["container_registry_enabled"] = values.get(
+                "container_registry_enabled"
+            )
+        if "default_branch" in values:
+            data["default_branch"] = values.get("default_branch")
+        if "description" in values:
+            data["description"] = values.get("description")
+        if "emails_disabled" in values:
+            data["emails_disabled"] = values.get("emails_disabled")
+        if "emails_enabled" in values:
+            data["emails_enabled"] = values.get("emails_enabled")
+        if "enforce_auth_checks_on_uploads" in values:
+            data["enforce_auth_checks_on_uploads"] = values.get(
+                "enforce_auth_checks_on_uploads"
+            )
+        if "environments_access_level" in values:
+            data["environments_access_level"] = values.get("environments_access_level")
+        if "external_authorization_classification_label" in values:
+            data["external_authorization_classification_label"] = values.get(
+                "external_authorization_classification_label"
+            )
+        if "feature_flags_access_level" in values:
+            data["feature_flags_access_level"] = values.get(
+                "feature_flags_access_level"
+            )
+        if "forking_access_level" in values:
+            data["forking_access_level"] = values.get("forking_access_level")
+        if "group_runners_enabled" in values:
+            data["group_runners_enabled"] = values.get("group_runners_enabled")
+        if "group_with_project_templates_id" in values:
+            data["group_with_project_templates_id"] = values.get(
+                "group_with_project_templates_id"
+            )
+        if "import_url" in values:
+            data["import_url"] = values.get("import_url")
+        if "infrastructure_access_level" in values:
+            data["infrastructure_access_level"] = values.get(
+                "infrastructure_access_level"
+            )
+        if "initialize_with_readme" in values:
+            data["initialize_with_readme"] = values.get("initialize_with_readme")
+        if "issue_branch_template" in values:
+            data["issue_branch_template"] = values.get("issue_branch_template")
+        if "issues_access_level" in values:
+            data["issues_access_level"] = values.get("issues_access_level")
+        if "issues_enabled" in values:
+            data["issues_enabled"] = values.get("issues_enabled")
+        if "jobs_enabled" in values:
+            data["jobs_enabled"] = values.get("jobs_enabled")
+        if "lfs_enabled" in values:
+            data["lfs_enabled"] = values.get("lfs_enabled")
+        if "merge_commit_template" in values:
+            data["merge_commit_template"] = values.get("merge_commit_template")
+        if "merge_method" in values:
+            data["merge_method"] = values.get("merge_method")
+        if "merge_requests_access_level" in values:
+            data["merge_requests_access_level"] = values.get(
+                "merge_requests_access_level"
+            )
+        if "merge_requests_enabled" in values:
+            data["merge_requests_enabled"] = values.get("merge_requests_enabled")
+        if "mirror_trigger_builds" in values:
+            data["mirror_trigger_builds"] = values.get("mirror_trigger_builds")
+        if "mirror" in values:
+            data["mirror"] = values.get("mirror")
+        if "model_experiments_access_level" in values:
+            data["model_experiments_access_level"] = values.get(
+                "model_experiments_access_level"
+            )
+        if "model_registry_access_level" in values:
+            data["model_registry_access_level"] = values.get(
+                "model_registry_access_level"
+            )
+        if "monitor_access_level" in values:
+            data["monitor_access_level"] = values.get("monitor_access_level")
+        if "namespace_id" in values:
+            data["namespace_id"] = values.get("namespace_id")
+        if "only_allow_merge_if_all_discussions_are_resolved" in values:
+            data["only_allow_merge_if_all_discussions_are_resolved"] = values.get(
+                "only_allow_merge_if_all_discussions_are_resolved"
+            )
+        if "only_allow_merge_if_all_status_checks_passed" in values:
+            data["only_allow_merge_if_all_status_checks_passed"] = values.get(
+                "only_allow_merge_if_all_status_checks_passed"
+            )
+        if "only_allow_merge_if_pipeline_succeeds" in values:
+            data["only_allow_merge_if_pipeline_succeeds"] = values.get(
+                "only_allow_merge_if_pipeline_succeeds"
+            )
+        if "packages_enabled" in values:
+            data["packages_enabled"] = values.get("packages_enabled")
+        if "pages_access_level" in values:
+            data["pages_access_level"] = values.get("pages_access_level")
+        if "path" in values:
+            data["path"] = values.get("path")
+        if "printing_merge_request_link_enabled" in values:
+            data["printing_merge_request_link_enabled"] = values.get(
+                "printing_merge_request_link_enabled"
+            )
+        if "public_builds" in values:
+            data["public_builds"] = values.get("public_builds")
+        if "public_jobs" in values:
+            data["public_jobs"] = values.get("public_jobs")
+        if "releases_access_level" in values:
+            data["releases_access_level"] = values.get("releases_access_level")
+        if "repository_object_format" in values:
+            data["repository_object_format"] = values.get("repository_object_format")
+        if "remove_source_branch_after_merge" in values:
+            data["remove_source_branch_after_merge"] = values.get(
+                "remove_source_branch_after_merge"
+            )
+        if "repository_access_level" in values:
+            data["repository_access_level"] = values.get("repository_access_level")
+        if "repository_storage" in values:
+            data["repository_storage"] = values.get("repository_storage")
+        if "request_access_enabled" in values:
+            data["request_access_enabled"] = values.get("request_access_enabled")
+        if "requirements_access_level" in values:
+            data["requirements_access_level"] = values.get("requirements_access_level")
+        if "resolve_outdated_diff_discussions" in values:
+            data["resolve_outdated_diff_discussions"] = values.get(
+                "resolve_outdated_diff_discussions"
+            )
+        if "security_and_compliance_access_level" in values:
+            data["security_and_compliance_access_level"] = values.get(
+                "security_and_compliance_access_level"
+            )
+        if "shared_runners_enabled" in values:
+            data["shared_runners_enabled"] = values.get("shared_runners_enabled")
+        if "show_default_award_emojis" in values:
+            data["show_default_award_emojis"] = values.get("show_default_award_emojis")
+        if "snippets_access_level" in values:
+            data["snippets_access_level"] = values.get("snippets_access_level")
+        if "snippets_enabled" in values:
+            data["snippets_enabled"] = values.get("snippets_enabled")
+        if "squash_commit_template" in values:
+            data["squash_commit_template"] = values.get("squash_commit_template")
+        if "squash_option" in values:
+            data["squash_option"] = values.get("squash_option")
+        if "suggestion_commit_message" in values:
+            data["suggestion_commit_message"] = values.get("suggestion_commit_message")
+        if "tag_list" in values:
+            data["tag_list"] = values.get("tag_list")
+        if "template_name" in values:
+            data["template_name"] = values.get("template_name")
+        if "topics" in values:
+            data["topics"] = values.get("topics")
+        if "use_custom_template" in values:
+            data["use_custom_template"] = values.get("use_custom_template")
+        if "visibility" in values:
+            data["visibility"] = values.get("visibility")
+        if "warn_about_potentially_unwanted_characters" in values:
+            data["warn_about_potentially_unwanted_characters"] = values.get(
+                "warn_about_potentially_unwanted_characters"
+            )
+        if "wiki_access_level" in values:
+            data["wiki_access_level"] = values.get("wiki_access_level")
+        if "wiki_enabled" in values:
+            data["wiki_enabled"] = values.get("wiki_enabled")
 
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
-        values['data'] = data
+        values["data"] = data
 
         return values
 
-    @field_validator("analytics_access_level", "builds_access_level", "container_registry_access_level",
-                     "forking_access_level", "issues_access_level", "operations_access_level", "pages_access_level",
-                     "releases_access_level", "repository_access_level", "requirements_access_level",
-                     "security_and_compliance_access_level", "snippets_access_level", "wiki_access_level")
+    @field_validator(
+        "analytics_access_level",
+        "builds_access_level",
+        "container_registry_access_level",
+        "forking_access_level",
+        "issues_access_level",
+        "operations_access_level",
+        "pages_access_level",
+        "releases_access_level",
+        "repository_access_level",
+        "requirements_access_level",
+        "security_and_compliance_access_level",
+        "snippets_access_level",
+        "wiki_access_level",
+    )
     def validate_access_level(cls, value):
         """
         Validate access level values.
@@ -1783,23 +1906,41 @@ class ProjectModel(BaseModel):
         - ValueError: If the value is not a valid access level.
         """
 
-        valid_access_levels = ['disabled', 'private', 'enabled']
+        valid_access_levels = ["disabled", "private", "enabled"]
         if value and value.lower() not in valid_access_levels:
             raise ValueError("Invalid access level value")
         return value.lower()
 
-    @field_validator("auto_cancel_pending_pipelines", "auto_devops_deploy_strategy",
-                     "mirror_overwrites_diverged_branches",
-                     "mirror_trigger_builds", "mr_default_target_self",
-                     "only_allow_merge_if_all_discussions_are_resolved",
-                     "only_allow_merge_if_pipeline_succeeds", "only_mirror_protected_branches", "auto_devops_enabled",
-                     "autoclose_referenced_issues", "emails_disabled", "enforce_auth_checks_on_uploads",
-                     "ci_forward_deployment_enabled", "ci_allow_fork_pipelines_to_run_in_parent_project",
-                     "ci_separated_caches", "keep_latest_artifact", "lfs_enabled", "merge_pipelines_enabled",
-                     "merge_trains_enabled", "printing_merge_request_link_enabled", "public_builds",
-                     "remove_source_branch_after_merge", "request_access_enabled", "resolve_outdated_diff_discussions",
-                     "restrict_user_defined_variables", "service_desk_enabled", "shared_runners_enabled",
-                     "packages_enabled")
+    @field_validator(
+        "auto_cancel_pending_pipelines",
+        "auto_devops_deploy_strategy",
+        "mirror_overwrites_diverged_branches",
+        "mirror_trigger_builds",
+        "mr_default_target_self",
+        "only_allow_merge_if_all_discussions_are_resolved",
+        "only_allow_merge_if_pipeline_succeeds",
+        "only_mirror_protected_branches",
+        "auto_devops_enabled",
+        "autoclose_referenced_issues",
+        "emails_disabled",
+        "enforce_auth_checks_on_uploads",
+        "ci_forward_deployment_enabled",
+        "ci_allow_fork_pipelines_to_run_in_parent_project",
+        "ci_separated_caches",
+        "keep_latest_artifact",
+        "lfs_enabled",
+        "merge_pipelines_enabled",
+        "merge_trains_enabled",
+        "printing_merge_request_link_enabled",
+        "public_builds",
+        "remove_source_branch_after_merge",
+        "request_access_enabled",
+        "resolve_outdated_diff_discussions",
+        "restrict_user_defined_variables",
+        "service_desk_enabled",
+        "shared_runners_enabled",
+        "packages_enabled",
+    )
     def validate_boolean(cls, value):
         """
         Validate boolean values.
@@ -1817,7 +1958,12 @@ class ProjectModel(BaseModel):
             raise ValueError("Invalid boolean value")
         return value
 
-    @field_validator("approvals_before_merge", "build_timeout", "ci_default_git_depth", "mirror_user_id")
+    @field_validator(
+        "approvals_before_merge",
+        "build_timeout",
+        "ci_default_git_depth",
+        "mirror_user_id",
+    )
     def validate_positive_integer(cls, value):
         """
         Validate positive integer values.
@@ -1867,7 +2013,7 @@ class ProjectModel(BaseModel):
         Raises:
         - ValueError: If the value is not a valid order_by.
         """
-        if value.lower() not in ['id', 'name', 'username', 'created_at', 'updated_at']:
+        if value.lower() not in ["id", "name", "username", "created_at", "updated_at"]:
             raise ValueError("Invalid order_by")
         return value.lower()
 
@@ -1902,6 +2048,7 @@ class ProtectedBranchModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
+
     project_id: Union[int, str]
     branch: str
     push_access_level: Optional[int] = None
@@ -1931,39 +2078,41 @@ class ProtectedBranchModel(BaseModel):
         """
 
         filters = []
-        if 'branch' in values:
+        if "branch" in values:
             filters.append(f'branch={values["branch"]}')
-        if 'push_access_level' in values:
+        if "push_access_level" in values:
             filters.append(f'push_access_level={values["push_access_level"]}')
-        if 'merge_access_level' in values:
+        if "merge_access_level" in values:
             filters.append(f'merge_access_level={values["merge_access_level"]}')
-        if 'unprotect_access_level' in values:
+        if "unprotect_access_level" in values:
             filters.append(f'unprotect_access_level={values["unprotect_access_level"]}')
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
 
         data = {}
 
-        if 'allow_force_push' in values:
-            data['allow_force_push'] = values.get("allow_force_push")
-        if 'allowed_to_push' in values:
-            data['allowed_to_push'] = values.get("allowed_to_push")
-        if 'allowed_to_merge' in values:
-            data['allowed_to_merge'] = values.get("allowed_to_merge")
-        if 'allowed_to_unprotect' in values:
-            data['allowed_to_unprotect'] = values.get("allowed_to_unprotect")
-        if 'code_owner_approval_required' in values:
-            data['code_owner_approval_required'] = values.get("code_owner_approval_required")
+        if "allow_force_push" in values:
+            data["allow_force_push"] = values.get("allow_force_push")
+        if "allowed_to_push" in values:
+            data["allowed_to_push"] = values.get("allowed_to_push")
+        if "allowed_to_merge" in values:
+            data["allowed_to_merge"] = values.get("allowed_to_merge")
+        if "allowed_to_unprotect" in values:
+            data["allowed_to_unprotect"] = values.get("allowed_to_unprotect")
+        if "code_owner_approval_required" in values:
+            data["code_owner_approval_required"] = values.get(
+                "code_owner_approval_required"
+            )
 
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
-        values['data'] = data
+        values["data"] = data
         return values
 
-    @field_validator('allow_force_push', 'code_owner_approval_required')
+    @field_validator("allow_force_push", "code_owner_approval_required")
     def validate_bool_fields(cls, v):
         """
         Validate boolean fields to ensure they are valid boolean values.
@@ -1981,7 +2130,7 @@ class ProtectedBranchModel(BaseModel):
             raise ValueError("Invalid states")
         return v
 
-    @field_validator('project_id')
+    @field_validator("project_id")
     def validate_project_id(cls, value):
         """
         Validate project ID for non-None.
@@ -1996,10 +2145,10 @@ class ProtectedBranchModel(BaseModel):
         - ValueError: If the project ID is None.
         """
         if value is None:
-            raise ValueError('Project ID cannot be None')
+            raise ValueError("Project ID cannot be None")
         return value
 
-    @field_validator('project_id')
+    @field_validator("project_id")
     def validate_project_id_type(cls, value):
         """
         Validate project ID for type (int or str).
@@ -2014,7 +2163,7 @@ class ProtectedBranchModel(BaseModel):
         - ValueError: If the project ID is not an integer or a string.
         """
         if not isinstance(value, (int, str)):
-            raise ValueError('Project ID must be an integer or a string')
+            raise ValueError("Project ID must be an integer or a string")
         return value
 
 
@@ -2054,7 +2203,8 @@ class ReleaseModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: Union[int, str]
+    project_id: Union[int, str] = None
+    group_id: Union[int, str] = None
     order_by: Optional[str] = None
     sort: Optional[str] = None
     simple: Optional[bool] = None
@@ -2086,41 +2236,43 @@ class ReleaseModel(BaseModel):
         """
         filters = []
 
-        if 'simple' in values:
+        if "simple" in values:
             filters.append(f'simple={values["simple"]}'.lower())
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
 
         data = {}
 
-        if 'description' in values:
-            data['name'] = values.get("description")
-        if 'tag_name' in values:
-            data['tag_name'] = values.get("tag_name")
-        if 'tag_message' in values:
-            data['tag_message'] = values.get("tag_message")
-        if 'description' in values:
-            data['description'] = values.get("description")
-        if 'ref' in values:
-            data['ref'] = values.get("reference")
-        if 'milestones' in values:
-            data['milestones'] = values.get("milestones")
-        if 'assets:links' in values:
-            data['assets:links'] = values.get("assets:links")
-        if 'assets:links:name' in values:
-            data['assets:links:name'] = values.get("assets:links:name")
-        if 'assets:links:url' in values:
-            data['assets:links:url'] = values.get("assets:links:url")
-        if 'assets:links:direct_asset_path' in values:
-            data['assets:links:direct_asset_path'] = values.get("assets:links:direct_asset_path")
-        if 'released_at' in values:
-            data['released_at'] = values.get("released_at")
+        if "description" in values:
+            data["name"] = values.get("description")
+        if "tag_name" in values:
+            data["tag_name"] = values.get("tag_name")
+        if "tag_message" in values:
+            data["tag_message"] = values.get("tag_message")
+        if "description" in values:
+            data["description"] = values.get("description")
+        if "ref" in values:
+            data["ref"] = values.get("reference")
+        if "milestones" in values:
+            data["milestones"] = values.get("milestones")
+        if "assets:links" in values:
+            data["assets:links"] = values.get("assets:links")
+        if "assets:links:name" in values:
+            data["assets:links:name"] = values.get("assets:links:name")
+        if "assets:links:url" in values:
+            data["assets:links:url"] = values.get("assets:links:url")
+        if "assets:links:direct_asset_path" in values:
+            data["assets:links:direct_asset_path"] = values.get(
+                "assets:links:direct_asset_path"
+            )
+        if "released_at" in values:
+            data["released_at"] = values.get("released_at")
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values['data'] = data
+        values["data"] = data
 
         return values
 
@@ -2138,7 +2290,7 @@ class ReleaseModel(BaseModel):
         Raises:
         - ValueError: If the order_by attribute is not valid.
         """
-        if value not in ['id', 'name', 'username', 'created_at', 'updated_at']:
+        if value not in ["id", "name", "username", "created_at", "updated_at"]:
             raise ValueError("Invalid order_by")
         return value
 
@@ -2156,12 +2308,12 @@ class ReleaseModel(BaseModel):
         Raises:
         - ValueError: If the sort attribute is not valid.
         """
-        valid_sorts = ['asc', 'desc']
+        valid_sorts = ["asc", "desc"]
         if value and value not in valid_sorts:
             raise ValueError("Invalid sort value")
         return value
 
-    @field_validator('project_id')
+    @field_validator("project_id")
     def validate_project_id(cls, value):
         """
         Validate project ID for non-None.
@@ -2176,10 +2328,10 @@ class ReleaseModel(BaseModel):
         - ValueError: If the project ID is None.
         """
         if value is None:
-            raise ValueError('Project ID cannot be None')
+            raise ValueError("Project ID cannot be None")
         return value
 
-    @field_validator('project_id')
+    @field_validator("project_id")
     def validate_project_id_type(cls, value):
         """
         Validate project ID for type (int or str).
@@ -2194,7 +2346,7 @@ class ReleaseModel(BaseModel):
         - ValueError: If the project ID is not an integer or a string.
         """
         if not isinstance(value, (int, str)):
-            raise ValueError('Project ID must be an integer or a string')
+            raise ValueError("Project ID must be an integer or a string")
         return value
 
 
@@ -2234,6 +2386,8 @@ class RunnerModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
+
+    runner_id: Optional[Union[str, int]] = None
     description: Optional[str] = None
     active: Optional[bool] = None
     paused: Optional[bool] = None
@@ -2268,49 +2422,49 @@ class RunnerModel(BaseModel):
         - None.
         """
         filters = []
-        if 'tag_list' in values:
+        if "tag_list" in values:
             filters.append(f'tag_list={values["tag_list"].lower()}')
-        if 'runner_type' in values:
+        if "runner_type" in values:
             filters.append(f'runner_type={values["runner_type"].lower()}')
-        if 'status' in values:
+        if "status" in values:
             filters.append(f'status={values["status"].lower()}')
-        if 'paused' in values:
+        if "paused" in values:
             filters.append(f'paused={values["paused"].lower()}')
-        if 'all_runners' in values:
-            filters = ['/all']
+        if "all_runners" in values:
+            filters = ["/all"]
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
 
         data = {}
 
-        if 'description' in values:
-            data['name'] = values.get("description")
-        if 'active' in values:
-            data['active'] = values.get("active")
-        if 'paused' in values:
-            data['paused'] = values.get("paused")
-        if 'tag_list' in values:
-            data['tag_list'] = values.get("tag_list")
-        if 'run_untagged' in values:
-            data['run_untagged'] = values.get("run_untagged")
-        if 'locked' in values:
-            data['locked'] = values.get("locked")
-        if 'access_level' in values:
-            data['access_level'] = values.get("access_level")
-        if 'maximum_timeout' in values:
-            data['maximum_timeout'] = values.get("maximum_timeout")
-        if 'info' in values:
-            data['info'] = values.get("info")
-        if 'maintenance_note' in values:
-            data['maintenance_note'] = values.get("maintenance_note")
-        if 'token' in values:
-            data['token'] = values.get("token")
+        if "description" in values:
+            data["name"] = values.get("description")
+        if "active" in values:
+            data["active"] = values.get("active")
+        if "paused" in values:
+            data["paused"] = values.get("paused")
+        if "tag_list" in values:
+            data["tag_list"] = values.get("tag_list")
+        if "run_untagged" in values:
+            data["run_untagged"] = values.get("run_untagged")
+        if "locked" in values:
+            data["locked"] = values.get("locked")
+        if "access_level" in values:
+            data["access_level"] = values.get("access_level")
+        if "maximum_timeout" in values:
+            data["maximum_timeout"] = values.get("maximum_timeout")
+        if "info" in values:
+            data["info"] = values.get("info")
+        if "maintenance_note" in values:
+            data["maintenance_note"] = values.get("maintenance_note")
+        if "token" in values:
+            data["token"] = values.get("token")
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values['data'] = data
+        values["data"] = data
 
         return values
 
@@ -2328,7 +2482,7 @@ class RunnerModel(BaseModel):
         Raises:
         - ValueError: If the runner_type attribute is not valid.
         """
-        if value.lower() not in ['instance_type', 'group_type', 'project_type']:
+        if value.lower() not in ["instance_type", "group_type", "project_type"]:
             raise ValueError("Invalid runner_type")
         return value.lower()
 
@@ -2346,7 +2500,14 @@ class RunnerModel(BaseModel):
         Raises:
         - ValueError: If the status attribute is not valid.
         """
-        if value.lower() not in ['online', 'offline', 'stale', 'never_contacted', 'active', 'paused']:
+        if value.lower() not in [
+            "online",
+            "offline",
+            "stale",
+            "never_contacted",
+            "active",
+            "paused",
+        ]:
             raise ValueError("Invalid status")
         return value.lower()
 
@@ -2393,6 +2554,7 @@ class UserModel(BaseModel):
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
     """
+
     username: Optional[str] = None
     active: Optional[bool] = None
     blocked: Optional[bool] = None
@@ -2435,54 +2597,58 @@ class UserModel(BaseModel):
 
         filters = []
 
-        if 'username' in values:
+        if "username" in values:
             filters.append(f'username={values["username"]}'.lower())
-        if 'active' in values:
+        if "active" in values:
             filters.append(f'active={values["active"]}'.lower())
-        if 'blocked' in values:
+        if "blocked" in values:
             filters.append(f'blocked={values["blocked"]}'.lower())
-        if 'external' in values:
+        if "external" in values:
             filters.append(f'external={values["external"]}'.lower())
-        if 'exclude_internal' in values:
+        if "exclude_internal" in values:
             filters.append(f'exclude_internal={values["exclude_internal"]}'.lower())
-        if 'exclude_external' in values:
+        if "exclude_external" in values:
             filters.append(f'exclude_external={values["exclude_external"]}'.lower())
-        if 'without_project_bots' in values:
-            filters.append(f'without_project_bots={values["without_project_bots"]}'.lower())
-        if 'order_by' in values:
+        if "without_project_bots" in values:
+            filters.append(
+                f'without_project_bots={values["without_project_bots"]}'.lower()
+            )
+        if "order_by" in values:
             filters.append(f'order_by={values["order_by"]}'.lower())
-        if 'sort' in values:
+        if "sort" in values:
             filters.append(f'sort={values["sort"]}'.lower())
-        if 'two_factor' in values:
+        if "two_factor" in values:
             filters.append(f'two_factor={values["two_factor"]}'.lower())
-        if 'without_projects' in values:
+        if "without_projects" in values:
             filters.append(f'without_projects={values["without_projects"]}'.lower())
-        if 'admins' in values:
+        if "admins" in values:
             filters.append(f'admins={values["admins"]}'.lower())
-        if 'saml_provider_id' in values:
+        if "saml_provider_id" in values:
             filters.append(f'saml_provider_id={values["saml_provider_id"]}'.lower())
-        if 'extern_uid' in values:
+        if "extern_uid" in values:
             filters.append(f'extern_uid={values["extern_uid"]}'.lower())
-        if 'provider' in values:
+        if "provider" in values:
             filters.append(f'provider={values["provider"]}'.lower())
-        if 'created_before' in values:
+        if "created_before" in values:
             filters.append(f'created_before={values["created_before"]}'.lower())
-        if 'created_after' in values:
+        if "created_after" in values:
             filters.append(f'created_after={values["created_after"]}'.lower())
-        if 'with_custom_attributes' in values:
-            filters.append(f'with_custom_attributes={values["with_custom_attributes"]}'.lower())
-        if 'sudo' in values:
+        if "with_custom_attributes" in values:
+            filters.append(
+                f'with_custom_attributes={values["with_custom_attributes"]}'.lower()
+            )
+        if "sudo" in values:
             filters.append(f'sudo={values["user_id"]}'.lower())
-        if 'user_id' in values:
+        if "user_id" in values:
             filters.append(f'user_id={values["user_id"]}'.lower())
-        if 'page' in values:
+        if "page" in values:
             filters.append(f'page={values["page"]}'.lower())
-        if 'per_page' in values:
+        if "per_page" in values:
             filters.append(f'per_page={values["per_page"]}'.lower())
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
 
         return values
 
@@ -2500,7 +2666,7 @@ class UserModel(BaseModel):
         Raises:
         - ValueError: If the order_by attribute is not valid.
         """
-        if value.lower() not in ['id', 'name', 'username', 'created_at', 'updated_at']:
+        if value.lower() not in ["id", "name", "username", "created_at", "updated_at"]:
             raise ValueError("Invalid order_by")
         return value.lower()
 
@@ -2518,7 +2684,7 @@ class UserModel(BaseModel):
         Raises:
         - ValueError: If the sort attribute is not valid.
         """
-        valid_sorts = ['asc', 'desc']
+        valid_sorts = ["asc", "desc"]
         if value and value.lower() not in valid_sorts:
             raise ValueError("Invalid sort value")
         return value.lower()
@@ -2537,7 +2703,7 @@ class UserModel(BaseModel):
         Raises:
         - ValueError: If the two_factor attribute is not valid.
         """
-        valid_two_factor = ['enabled', 'disabled']
+        valid_two_factor = ["enabled", "disabled"]
         if value and value.lower() not in valid_two_factor:
             raise ValueError("Invalid two_factor value")
         return value.lower()
@@ -2599,35 +2765,35 @@ class WikiModel(BaseModel):
         """
         filters = []
 
-        if 'with_content' in values:
+        if "with_content" in values:
             filters.append(f'with_content={values["with_content"]}'.lower())
 
-        if 'render_html' in values:
+        if "render_html" in values:
             filters.append(f'render_html={values["render_html"]}'.lower())
 
-        if 'version' in values:
+        if "version" in values:
             filters.append(f'version={values["version"]}'.lower())
 
         if filters:
             api_parameters = "?" + "&".join(filters)
-            values['api_parameters'] = api_parameters
+            values["api_parameters"] = api_parameters
 
         data = {}
 
-        if 'content' in values:
-            data['content'] = values.get("content")
-        if 'title' in values:
-            data['title'] = values.get("title")
-        if 'format' in values:
-            data['format'] = values.get("format")
+        if "content" in values:
+            data["content"] = values.get("content")
+        if "title" in values:
+            data["title"] = values.get("title")
+        if "format" in values:
+            data["format"] = values.get("format")
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values['data'] = data
+        values["data"] = data
 
         return values
 
-    @field_validator('project_id')
+    @field_validator("project_id")
     def validate_project_id(cls, value):
         """
         Validate project_id attribute.
@@ -2642,10 +2808,10 @@ class WikiModel(BaseModel):
         - ValueError: If the project_id attribute is None.
         """
         if value is None:
-            raise ValueError('Project ID cannot be None')
+            raise ValueError("Project ID cannot be None")
         return value
 
-    @field_validator('project_id')
+    @field_validator("project_id")
     def validate_project_id_type(cls, value):
         """
         Validate project_id type.
@@ -2660,5 +2826,5 @@ class WikiModel(BaseModel):
         - ValueError: If the project_id attribute is not an integer or a string.
         """
         if not isinstance(value, (int, str)):
-            raise ValueError('Project ID must be an integer or a string')
+            raise ValueError("Project ID must be an integer or a string")
         return value

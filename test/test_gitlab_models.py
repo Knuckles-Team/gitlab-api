@@ -1,6 +1,5 @@
 import os
 import sys
-import urllib.parse
 
 import pytest
 from conftest import reason
@@ -9,10 +8,24 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 try:
     import gitlab_api
-    from gitlab_api.gitlab_models import (BranchModel, CommitModel, DeployTokenModel, GroupModel, JobModel,
-                                          MembersModel, PackageModel, PipelineModel, ProjectModel, ProtectedBranchModel,
-                                          MergeRequestModel, MergeRequestRuleModel, ReleaseModel, RunnerModel,
-                                          UserModel, WikiModel)
+    from gitlab_api.gitlab_models import (
+        BranchModel,
+        CommitModel,
+        DeployTokenModel,
+        GroupModel,
+        JobModel,
+        MembersModel,
+        PackageModel,
+        PipelineModel,
+        ProjectModel,
+        ProtectedBranchModel,
+        MergeRequestModel,
+        MergeRequestRuleModel,
+        ReleaseModel,
+        RunnerModel,
+        UserModel,
+        WikiModel,
+    )
 
 except ImportError:
     skip = True
@@ -27,7 +40,7 @@ reason = "do not run on MacOS or windows OR dependency is not installed OR " + r
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_branch_model():
     project_id = 2
     branch_name = "test_branch"
@@ -40,7 +53,7 @@ def test_branch_model():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_commit_model():
     project_id = 2
     branch_name = "test_branch"
@@ -51,15 +64,20 @@ def test_commit_model():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_merge_request_model():
     project_id = 2
     title = "test merge"
     author_id = 12341
     source_branch = "development"
     target_branch = "production"
-    merge_request_rule = MergeRequestModel(project_id=project_id, title=title, author_id=author_id,
-                                           source_branch=source_branch, target_branch=target_branch)
+    merge_request_rule = MergeRequestModel(
+        project_id=project_id,
+        title=title,
+        author_id=author_id,
+        source_branch=source_branch,
+        target_branch=target_branch,
+    )
     assert merge_request_rule.project_id == project_id
     assert merge_request_rule.title == title
     assert merge_request_rule.author_id == author_id
@@ -70,25 +88,23 @@ def test_merge_request_model():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_merge_request_rule_model():
     project_id = 2
-    group_ids = [1,2,3,4]
+    group_ids = [1, 2, 3, 4]
     name = "test rule"
-    merge_request_rule = MergeRequestRuleModel(project_id=project_id,
-                                               name=name,
-                                               approvals_required=9,
-                                               group_ids=group_ids)
+    merge_request_rule = MergeRequestRuleModel(
+        project_id=project_id, name=name, approvals_required=9, group_ids=group_ids
+    )
     assert merge_request_rule.project_id == project_id
     assert merge_request_rule.name == name
     assert merge_request_rule.approvals_required == 9
 
 
-
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_pipeline_model():
     project_id = 1234
     pipeline = PipelineModel(project_id=project_id, per_page=100, reference="test")
@@ -99,7 +115,7 @@ def test_pipeline_model():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_project_model():
     group_id = 1234
     project_id = 5679
@@ -107,7 +123,7 @@ def test_project_model():
     assert group_id == project.group_id
     project = ProjectModel(project_id=project_id)
     assert project_id == project.project_id
-    project = ProjectModel(project_id=project_id,group_id=group_id)
+    project = ProjectModel(project_id=project_id, group_id=group_id)
     assert project_id == project.project_id
     assert group_id == project.group_id
     assert project.api_parameters == "?group_id=1234"
@@ -116,17 +132,19 @@ def test_project_model():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_protected_branches_model():
     project_id = 5679
-    branch="test"
-    protected_branch = ProtectedBranchModel(project_id=project_id,
-                                            branch=branch,
-                                            allow_force_push=False,
-                                            code_owner_approval_required=False,
-                                            allowed_to_push=[{"access_level": 40}],
-                                            allowed_to_merge=[{"access_level": 20}],
-                                            all_runners=True)
+    branch = "test"
+    protected_branch = ProtectedBranchModel(
+        project_id=project_id,
+        branch=branch,
+        allow_force_push=False,
+        code_owner_approval_required=False,
+        allowed_to_push=[{"access_level": 40}],
+        allowed_to_merge=[{"access_level": 20}],
+        all_runners=True,
+    )
     assert project_id == protected_branch.project_id
     assert protected_branch.allowed_to_push == [{"access_level": 40}]
     assert protected_branch.allowed_to_merge == [{"access_level": 20}]
@@ -135,7 +153,7 @@ def test_protected_branches_model():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_release_model():
     project_id = 5679
     release = ReleaseModel(project_id=project_id, simple=True)
@@ -146,7 +164,7 @@ def test_release_model():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_runner_model():
     project_id = 5679
     runner = RunnerModel(project_id=project_id, active=True, status="Online")
@@ -157,7 +175,7 @@ def test_runner_model():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_user_model():
     username = "test_user"
     user = UserModel(username=username, active=True)
@@ -169,7 +187,7 @@ def test_user_model():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_wiki_model():
     project_id = 5679
     wiki = WikiModel(project_id=project_id, with_content=True)

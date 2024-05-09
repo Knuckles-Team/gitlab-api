@@ -1,8 +1,6 @@
 import os
 import sys
-import urllib.parse
 from typing import List
-import json
 
 import pytest
 from conftest import reason
@@ -30,7 +28,7 @@ client = gitlab_api.Api(url=gitlab_url, token=token, verify=False)
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_get_nested_projects():
     # Get nested projects
     group_id = 2
@@ -41,29 +39,33 @@ def test_get_nested_projects():
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_create_branch():
     # Create branch
     project = 79
-    response = client.create_branch(project_id=project, branch="test_branch", reference="main")
+    response = client.create_branch(
+        project_id=project, branch="test_branch", reference="main"
+    )
     assert response.status_code == 201 or response.status_code == 400
 
 
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_create_project_rule():
     # Create branch
     project = 79
-    response = client.create_project_level_rule(project_id=project, name="Test_Rule", approvals_required=9)
+    response = client.create_project_level_rule(
+        project_id=project, name="Test_Rule", approvals_required=9
+    )
     assert response.status_code == 201
 
 
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_get_project_rules():
     # Create branch
     project = 79

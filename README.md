@@ -28,7 +28,7 @@ Includes a large portion of useful API calls to GitLab
 
 This repository is actively maintained - Contributions are welcome!
 
-AI Skill Ready (**PEP8** Documented) - Assimilate the following package into your agent and begin using it! 
+AI Skill Ready (**PEP8** Documented) - Assimilate the following package into your agent and begin using it!
 
 
 ### API Calls:
@@ -64,7 +64,7 @@ client = gitlab_api.Api(url=gitlab_url, token=token)
 users = client.get_users()
 print(users)
 
-created_merge_request = client.create_merge_request(project_id=123, source_branch="development", 
+created_merge_request = client.create_merge_request(project_id=123, source_branch="development",
                                                     target_branch="production",title="Merge Request Title")
 print(created_merge_request)
 
@@ -92,8 +92,14 @@ python -m pip install gitlab-api
 <details>
   <summary><b>Tests:</b></summary>
 
+pre-commit check
 ```bash
-python ./test/test_gitlab_models.py
+pre-commit run --all-files
+```
+
+pytest
+```bash
+pytest ./test/test_gitlab_models.py
 ```
 </details>
 
@@ -107,4 +113,3 @@ python ./test/test_gitlab_models.py
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
 </details>
-
