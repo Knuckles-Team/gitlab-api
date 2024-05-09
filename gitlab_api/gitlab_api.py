@@ -1940,7 +1940,7 @@ class Api(object):
     #                                                Projects API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_projects(self, **kwargs) -> requests.response():
+    def get_projects(self, **kwargs) -> Response:
         """
         Get information about projects.
 
