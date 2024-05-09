@@ -30,3 +30,22 @@ A Python Wrapper for GitLab API
 __version__ = __version__
 __author__ = __author__
 __credits__ = __credits__
+
+__all__ = [
+    "Api",
+    "BranchModel",
+    "CommitModel",
+    "DeployTokenModel",
+    "GroupModel",
+    "JobModel",
+    "MembersModel",
+    "PackageModel",
+    "PipelineModel",
+    "ProjectModel",
+    "ProtectedBranchModel",
+    "MergeRequestModel",
+    "ReleaseModel",
+    "RunnerModel",
+    "UserModel",
+    "WikiModel",
+]
