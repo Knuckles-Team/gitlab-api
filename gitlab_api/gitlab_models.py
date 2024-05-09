@@ -2079,7 +2079,7 @@ class ProtectedBranchModel(BaseModel):
 
         filters = []
         if "branch" in values:
-            filters.append(f'branch={values["branch"]}')
+            filters.append(f'name={values["branch"]}')
         if "push_access_level" in values:
             filters.append(f'push_access_level={values["push_access_level"]}')
         if "merge_access_level" in values:
