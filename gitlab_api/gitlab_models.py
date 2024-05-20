@@ -1,5 +1,5 @@
 from typing import Union, List, Dict, Optional
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, field_validator, model_validator, Field
 import re
 
 try:
@@ -2844,3 +2844,148 @@ class WikiModel(BaseModel):
 #                                              Output Models                                                           #
 ########################################################################################################################
 
+class Response(BaseModel):
+    scope: str = Field(
+        default=None,
+        description="Amount of access granted by the access token. The scope is always useraccount, meaning that the "
+                    "access token has the same rights as the user account that authorized the token. For example, "
+                    "if Abel Tuter authorizes an application by providing login credentials, then the resulting "
+                    "access token grants the token bearer the same access privileges as Abel Tuter.",
+    )
+    token_type: str = Field(
+        default=None,
+        description="Type of token issued by the request as defined in the OAuth RFC. The token type is always "
+                    "Bearer, meaning that anyone in possession of the access token can access a protected resource "
+                    "without providing a cryptographic key.",
+    )
+    expires_in: Optional[int] = Field(
+        default=None, description="Lifespan of the access token in seconds."
+    )
+    refresh_token: str = Field(
+        default=None, description="String value of the refresh token."
+    )
+    access_token: str = Field(
+        default=None,
+        description="String value of the access token. Access requests made within the access token expiration time "
+                    "always return the current access token.",
+    )
+    format: str = Field(default=None, description="Output Format type. Always JSON")
+    import_set: Optional[str] = Field(None, description="Name of the import set.")
+    staging_table: Optional[str] = Field(
+        None, description="Name of the import staging table."
+    )
+    result: Optional[
+        Union[
+            Dict,
+            List,
+            BatchInstallResult,
+            CICD,
+            List[ConfigurationItem],
+            ConfigurationItem,
+            List[ImportSetResult],
+            ImportSetResult,
+            Schedule,
+            List[State],
+            State,
+            CMDB,
+            List[Task],
+            Task,
+            List[ChangeRequest],
+            ChangeRequest,
+            Table,
+        ]
+    ] = Field(default=None, description="Result containing available responses.")
+    cmdb: Optional[Union[Dict, List, CMDB]] = Field(
+        default=None,
+        description="List of objects that describe the CIs associated with the specified application service.",
+    )
+    service: Optional[Union[Dict, List, Service]] = Field(
+        default=None, description="List of services related to the identified service."
+    )
+    error: Optional[Any] = None
+
+    @field_validator("service")
+    def determine_application_service_type(cls, v):
+        models = [
+            Service,
+        ]
+        if v:
+            for model in models:
+                try:
+                    if isinstance(v, Dict):
+                        v = model(**v)
+                    elif isinstance(v, List):
+                        if all(isinstance(i, Dict) for i in v):
+                            for model in models:
+                                try:
+                                    return [model(**item) for item in v]
+                                except Exception:
+                                    # print(
+                                    #     f"Error validating one of the models in the list: {e}"
+                                    # )
+                                    continue
+                except Exception:
+                    # print(f"Validation Failed for {model} - {v}\nError: {e}")
+                    pass
+        return v
+
+    @field_validator("cmdb")
+    def determine_cmdb_type(cls, v):
+        models = [
+            CMDB,
+        ]
+        if v:
+            for model in models:
+                try:
+                    if isinstance(v, Dict):
+                        v = model(**v)
+                    elif isinstance(v, List):
+                        if all(isinstance(i, Dict) for i in v):
+                            for model in models:
+                                try:
+                                    return [model(**item) for item in v]
+                                except Exception:
+                                    # print(
+                                    #     f"Error validating one of the models in the list: {e}"
+                                    # )
+                                    continue
+                except Exception:
+                    # print(f"Validation Failed for {model} - {v}\nError: {e}")
+                    pass
+        return v
+
+    @field_validator("result")
+    def determine_result_type(cls, v):
+        models = [
+            BatchInstallResult,
+            CICD,
+            List[ConfigurationItem],
+            ConfigurationItem,
+            List[ImportSetResult],
+            ImportSetResult,
+            Schedule,
+            List[State],
+            State,
+            CMDB,
+            List[Task],
+            Task,
+            List[ChangeRequest],
+            ChangeRequest,
+            Table,
+        ]
+        if v:
+            for model in models:
+                try:
+                    if isinstance(v, Dict):
+                        v = model(**v)
+                    elif isinstance(v, List):
+                        if all(isinstance(i, Dict) for i in v):
+                            for model in models:
+                                try:
+                                    return [model(**item) for item in v]
+                                except Exception:
+                                    continue
+                except Exception:
+                    # print(f"Validation Failed for {model} - {v}\nError: {e}")
+                    pass
+        return v
