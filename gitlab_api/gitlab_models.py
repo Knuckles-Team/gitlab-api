@@ -365,7 +365,8 @@ class CommitModel(BaseModel):
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
         return values
 
 
@@ -1004,7 +1005,8 @@ class MergeRequestModel(BaseModel):
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
         return values
 
     @field_validator("scope")
@@ -1346,7 +1348,8 @@ class MergeRequestRuleModel(BaseModel):
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
         return values
 
 
@@ -1876,7 +1879,8 @@ class ProjectModel(BaseModel):
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
 
         return values
 
@@ -2112,7 +2116,8 @@ class ProtectedBranchModel(BaseModel):
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
         return values
 
     @field_validator("allow_force_push", "code_owner_approval_required")
@@ -2275,7 +2280,8 @@ class ReleaseModel(BaseModel):
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
 
         return values
 
@@ -2467,7 +2473,8 @@ class RunnerModel(BaseModel):
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
 
         return values
 
@@ -2792,7 +2799,8 @@ class WikiModel(BaseModel):
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
 
         return values
 
