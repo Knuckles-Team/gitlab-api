@@ -557,7 +557,9 @@ class Api(object):
         return response
 
     @require_auth
-    def post_build_status_to_commit(self, **kwargs) -> Union[Response, requests.Response]:
+    def post_build_status_to_commit(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Post build status to a commit.
 
@@ -717,7 +719,9 @@ class Api(object):
         return response
 
     @require_auth
-    def create_project_deploy_token(self, **kwargs) -> Union[Response, requests.Response]:
+    def create_project_deploy_token(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Create a deploy token for a project.
 
@@ -751,7 +755,9 @@ class Api(object):
         return response
 
     @require_auth
-    def delete_project_deploy_token(self, **kwargs) -> Union[Response, requests.Response]:
+    def delete_project_deploy_token(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Delete a deploy token for a project.
 
@@ -989,7 +995,9 @@ class Api(object):
         return response
 
     @require_auth
-    def get_group_descendant_groups(self, **kwargs) -> Union[Response, requests.Response]:
+    def get_group_descendant_groups(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get descendant groups of a specific group.
 
@@ -1459,7 +1467,9 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_merge_requests(self, **kwargs) -> Union[Response, requests.Response]:
+    def get_project_merge_requests(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get merge requests for a specific project.
 
@@ -1657,7 +1667,9 @@ class Api(object):
         return response
 
     @require_auth
-    def merge_request_level_approvals(self, **kwargs) -> Union[Response, requests.Response]:
+    def merge_request_level_approvals(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get approvals for a specific merge request.
 
@@ -1677,7 +1689,7 @@ class Api(object):
         try:
             response = self._session.get(
                 url=f"{self.url}/projects/{merge_rule.project_id}/merge_requests/"
-                    f"{merge_rule.merge_request_iid}/approvals",
+                f"{merge_rule.merge_request_iid}/approvals",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1687,7 +1699,9 @@ class Api(object):
         return response
 
     @require_auth
-    def get_approval_state_merge_requests(self, **kwargs) -> Union[Response, requests.Response]:
+    def get_approval_state_merge_requests(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get the approval state of merge requests for a specific project.
 
@@ -1717,7 +1731,9 @@ class Api(object):
         return response
 
     @require_auth
-    def get_merge_request_level_rules(self, **kwargs) -> Union[Response, requests.Response]:
+    def get_merge_request_level_rules(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get merge request-level approval rules for a specific project and merge request.
 
@@ -1837,7 +1853,9 @@ class Api(object):
         response = process_response(response=response)
         return response
 
-    def publish_repository_package(self, **kwargs) -> Union[Response, requests.Response]:
+    def publish_repository_package(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Publish a repository package for a specific project.
 
@@ -1872,7 +1890,9 @@ class Api(object):
         response = process_response(response=response)
         return response
 
-    def download_repository_package(self, **kwargs) -> Union[Response, requests.Response]:
+    def download_repository_package(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Download a repository package for a specific project.
 
@@ -2071,7 +2091,9 @@ class Api(object):
         return response
 
     @require_auth
-    def get_nested_projects_by_group(self, **kwargs) -> Union[Response, requests.Response]:
+    def get_nested_projects_by_group(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get information about nested projects within a group.
 
@@ -2441,7 +2463,9 @@ class Api(object):
         return response
 
     @require_auth
-    def require_code_owner_approvals_single_branch(self, **kwargs) -> Union[Response, requests.Response]:
+    def require_code_owner_approvals_single_branch(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Require code owner approvals for a specific branch in a project.
 
@@ -2524,7 +2548,9 @@ class Api(object):
         return response
 
     @require_auth
-    def get_latest_release_evidence(self, **kwargs) -> Union[Response, requests.Response]:
+    def get_latest_release_evidence(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get evidence for the latest release in a project.
 
@@ -3108,7 +3134,9 @@ class Api(object):
         return response
 
     @require_auth
-    def verify_runner_authentication(self, **kwargs) -> Union[Response, requests.Response]:
+    def verify_runner_authentication(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Verify runner authentication.
 
@@ -3160,7 +3188,9 @@ class Api(object):
         return response
 
     @require_auth
-    def reset_project_runner_token(self, **kwargs) -> Union[Response, requests.Response]:
+    def reset_project_runner_token(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Reset registration token for a project's runner.
 
@@ -3473,7 +3503,9 @@ class Api(object):
         return response
 
     @require_auth
-    def upload_wiki_page_attachment(self, **kwargs) -> Union[Response, requests.Response]:
+    def upload_wiki_page_attachment(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Upload an attachment to a wiki page for a project.
 

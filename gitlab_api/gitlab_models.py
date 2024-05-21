@@ -1,6 +1,7 @@
 from typing import Union, List, Dict, Optional
-from pydantic import BaseModel, field_validator, model_validator, Field
+from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
 import re
+from datetime import datetime
 
 try:
     from gitlab_api.decorators import require_auth
@@ -19,9 +20,11 @@ except ModuleNotFoundError:
         MissingParameterError,
     )
 
+
 ########################################################################################################################
 #                                               Input Models                                                           #
 ########################################################################################################################
+
 
 class BranchModel(BaseModel):
     """
@@ -429,7 +432,7 @@ class DeployTokenModel(BaseModel):
         - MissingParameterError: If the parameter is provided and 'project_id' and 'group_id' are None.
         """
         if (
-            "project_id" in values.lower() or "group_id" in values.lower()
+                "project_id" in values.lower() or "group_id" in values.lower()
         ) and v is not None:
             return v.lower()
         else:
@@ -686,7 +689,7 @@ class JobModel(BaseModel):
         - ParameterError: If 'job_variable_attributes' is provided and not a dictionary or missing key.
         """
         if v is not None and (
-            not isinstance(v, dict) or "job_variable_attributes" not in v.keys()
+                not isinstance(v, dict) or "job_variable_attributes" not in v.keys()
         ):
             raise ParameterError
         return v
@@ -2840,152 +2843,642 @@ class WikiModel(BaseModel):
             raise ValueError("Project ID must be an integer or a string")
         return value
 
+
 ########################################################################################################################
 #                                              Output Models                                                           #
 ########################################################################################################################
 
+
+class Identity(BaseModel):
+    provider: Optional[str] = Field(None, description="The external provider.")
+    extern_uid: Optional[str] = Field(
+        None, description="The external authentication provider UID."
+    )
+
+
+class User(BaseModel):
+    id: Optional[int] = Field(None, description="The unique ID of the user.")
+    username: Optional[str] = Field(None, description="The username of the user.")
+    email: Optional[str] = Field(None, description="The email of the user.")
+    name: Optional[str] = Field(None, description="The name of the user.")
+    state: Optional[str] = Field(
+        None, description="The state of the user (e.g., active, blocked)."
+    )
+    locked: Optional[bool] = Field(None, description="Indicates if the user is locked.")
+    avatar_url: Optional[str] = Field(None, description="The URL of the user's avatar.")
+    web_url: Optional[str] = Field(
+        None, description="The URL of the user's web profile."
+    )
+    created_at: Optional[datetime] = Field(
+        None, description="The creation date of the user."
+    )
+    is_admin: Optional[bool] = Field(
+        None, description="Indicates if the user is an administrator."
+    )
+    bio: Optional[str] = Field(None, description="The bio of the user.")
+    location: Optional[str] = Field(None, description="The location of the user.")
+    skype: Optional[str] = Field(None, description="The Skype ID of the user.")
+    linkedin: Optional[str] = Field(None, description="The LinkedIn ID of the user.")
+    twitter: Optional[str] = Field(None, description="The Twitter handle of the user.")
+    discord: Optional[str] = Field(None, description="The Discord ID of the user.")
+    website_url: Optional[str] = Field(None, description="The website URL of the user.")
+    organization: Optional[str] = Field(
+        None, description="The organization the user belongs to."
+    )
+    job_title: Optional[str] = Field(None, description="The job title of the user.")
+    last_sign_in_at: Optional[datetime] = Field(
+        None, description="The last sign-in date of the user."
+    )
+    confirmed_at: Optional[datetime] = Field(
+        None, description="The date the user was confirmed."
+    )
+    theme_id: Optional[int] = Field(
+        None, description="The theme ID of the user's profile."
+    )
+    last_activity_on: Optional[datetime] = Field(
+        None, description="The last activity date of the user."
+    )
+    color_scheme_id: Optional[int] = Field(
+        None, description="The color scheme ID of the user's profile."
+    )
+    projects_limit: Optional[int] = Field(
+        None, description="The project limit for the user."
+    )
+    current_sign_in_at: Optional[datetime] = Field(
+        None, description="The current sign-in date of the user."
+    )
+    note: Optional[str] = Field(None, description="A note about the user.")
+    identities: Optional[List[Identity]] = Field(
+        None, description="List of external identities associated with the user."
+    )
+    can_create_group: Optional[bool] = Field(
+        None, description="Indicates if the user can create groups."
+    )
+    can_create_project: Optional[bool] = Field(
+        None, description="Indicates if the user can create projects."
+    )
+    two_factor_enabled: Optional[bool] = Field(
+        None, description="Indicates if two-factor authentication is enabled."
+    )
+    external: Optional[bool] = Field(
+        None, description="Indicates if the user is external."
+    )
+    private_profile: Optional[bool] = Field(
+        None, description="Indicates if the user's profile is private."
+    )
+    current_sign_in_ip: Optional[str] = Field(
+        None, description="The current sign-in IP of the user."
+    )
+    last_sign_in_ip: Optional[str] = Field(
+        None, description="The last sign-in IP of the user."
+    )
+    namespace_id: Optional[int] = Field(
+        None, description="The namespace ID of the user."
+    )
+    created_by: Optional[int] = Field(
+        None, description="The ID of the user who created this user."
+    )
+    email_reset_offered_at: Optional[datetime] = Field(
+        None, description="The date when an email reset was offered."
+    )
+
+
+class Users(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default=list(), description="List of users")
+    users: List[User] = Field(default=None, description="All the users")
+
+
+class Namespace(BaseModel):
+    id: Optional[int] = Field(default=None, description="The ID of the namespace.")
+    name: Optional[str] = Field(default=None, description="The name of the namespace.")
+    path: Optional[str] = Field(default=None, description="The path of the namespace.")
+    kind: Optional[str] = Field(default=None, description="The kind of the namespace.")
+    full_path: Optional[str] = Field(
+        default=None, description="The full path of the namespace."
+    )
+    parent_id: Optional[int] = Field(
+        default=None, description="The parent ID of the namespace, if any."
+    )
+    avatar_url: Optional[str] = Field(
+        default=None, description="The avatar URL of the namespace."
+    )
+    web_url: Optional[str] = Field(
+        default=None, description="The web URL of the namespace."
+    )
+
+
+class ContainerExpirationPolicy(BaseModel):
+    cadence: Optional[str] = Field(
+        default=None, description="The cadence of the expiration policy."
+    )
+    enabled: Optional[bool] = Field(
+        default=None, description="Whether the expiration policy is enabled."
+    )
+    keep_n: Optional[int] = Field(default=None, description="Number of items to keep.")
+    older_than: Optional[str] = Field(
+        default=None, description="Items older than this will be removed."
+    )
+    name_regex: Optional[str] = Field(default=None, description="Regex to match names.")
+    name_regex_keep: Optional[str] = Field(
+        default=None, description="Regex to match names to keep."
+    )
+    next_run_at: Optional[datetime] = Field(
+        default=None, description="The next run time of the policy."
+    )
+
+
+class Permissions(BaseModel):
+    project_access: Optional[Dict] = Field(
+        default=None, description="Project access level and notification settings."
+    )
+    group_access: Optional[Dict] = Field(
+        default=None, description="Group access level and notification settings."
+    )
+
+
+class ProjectStatistics(BaseModel):
+    commit_count: Optional[int] = Field(
+        default=None, description="The number of commits in the project."
+    )
+    storage_size: Optional[int] = Field(
+        default=None, description="The total storage size of the project."
+    )
+    repository_size: Optional[int] = Field(
+        default=None, description="The size of the repository."
+    )
+    wiki_size: Optional[int] = Field(default=None, description="The size of the wiki.")
+    lfs_objects_size: Optional[int] = Field(
+        default=None, description="The size of LFS objects."
+    )
+    job_artifacts_size: Optional[int] = Field(
+        default=None, description="The size of job artifacts."
+    )
+    pipeline_artifacts_size: Optional[int] = Field(
+        default=None, description="The size of pipeline artifacts."
+    )
+    packages_size: Optional[int] = Field(
+        default=None, description="The size of packages."
+    )
+    snippets_size: Optional[int] = Field(
+        default=None, description="The size of snippets."
+    )
+    uploads_size: Optional[int] = Field(
+        default=None, description="The size of uploads."
+    )
+
+
+class Links(BaseModel):
+    self: Optional[str] = Field(default=None, description="URL to the project itself.")
+    issues: Optional[str] = Field(
+        default=None, description="URL to the project's issues."
+    )
+    merge_requests: Optional[str] = Field(
+        default=None, description="URL to the project's merge requests."
+    )
+    repo_branches: Optional[str] = Field(
+        default=None, description="URL to the project's repository branches."
+    )
+    labels: Optional[str] = Field(
+        default=None, description="URL to the project's labels."
+    )
+    events: Optional[str] = Field(
+        default=None, description="URL to the project's events."
+    )
+    members: Optional[str] = Field(
+        default=None, description="URL to the project's members."
+    )
+    cluster_agents: Optional[str] = Field(
+        default=None, description="URL to the project's cluster agents."
+    )
+
+
+class Project(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Project")
+    id: Optional[int] = Field(default=None, description="The ID of the project.")
+    description: Optional[str] = Field(
+        default=None, description="The description of the project."
+    )
+    description_html: Optional[str] = Field(
+        default=None, description="The HTML description of the project."
+    )
+    name: Optional[str] = Field(default=None, description="The name of the project.")
+    name_with_namespace: Optional[str] = Field(
+        default=None, description="The name with namespace of the project."
+    )
+    path: Optional[str] = Field(default=None, description="The path of the project.")
+    path_with_namespace: Optional[str] = Field(
+        default=None, description="The path with namespace of the project."
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="The creation time of the project."
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None, description="The last update time of the project."
+    )
+    default_branch: Optional[str] = Field(
+        default=None, description="The default branch of the project."
+    )
+    tag_list: Optional[List[str]] = Field(
+        default=None, description="Deprecated. Use `topics` instead."
+    )
+    topics: Optional[List[str]] = Field(
+        default=None, description="The topics of the project."
+    )
+    ssh_url_to_repo: Optional[str] = Field(
+        default=None, description="The SSH URL to the repository."
+    )
+    http_url_to_repo: Optional[str] = Field(
+        default=None, description="The HTTP URL to the repository."
+    )
+    web_url: Optional[str] = Field(
+        default=None, description="The web URL to the project."
+    )
+    readme_url: Optional[str] = Field(
+        default=None, description="The URL to the README file."
+    )
+    avatar_url: Optional[str] = Field(
+        default=None, description="The avatar URL of the project."
+    )
+    forks_count: Optional[int] = Field(default=None, description="The number of forks.")
+    star_count: Optional[int] = Field(default=None, description="The number of stars.")
+    last_activity_at: Optional[datetime] = Field(
+        default=None, description="The time of the last activity."
+    )
+    namespace: Optional[Namespace] = Field(
+        default=None, description="The namespace of the project."
+    )
+    container_registry_image_prefix: Optional[str] = Field(
+        default=None, description="The container registry image prefix."
+    )
+    additional_links: Optional[Links] = Field(
+        default=None, alias="_links", description="Related links."
+    )
+    packages_enabled: Optional[bool] = Field(
+        default=None, description="Whether packages are enabled."
+    )
+    empty_repo: Optional[bool] = Field(
+        default=None, description="Whether the repository is empty."
+    )
+    archived: Optional[bool] = Field(
+        default=None, description="Whether the project is archived."
+    )
+    visibility: Optional[str] = Field(
+        default=None, description="The visibility of the project."
+    )
+    resolve_outdated_diff_discussions: Optional[bool] = Field(
+        default=None, description="Whether outdated diff discussions are resolved."
+    )
+    container_expiration_policy: Optional[ContainerExpirationPolicy] = Field(
+        default=None, description="The container expiration policy."
+    )
+    issues_enabled: Optional[bool] = Field(
+        default=None, description="Whether issues are enabled."
+    )
+    merge_requests_enabled: Optional[bool] = Field(
+        default=None, description="Whether merge requests are enabled."
+    )
+    wiki_enabled: Optional[bool] = Field(
+        default=None, description="Whether the wiki is enabled."
+    )
+    jobs_enabled: Optional[bool] = Field(
+        default=None, description="Whether jobs are enabled."
+    )
+    snippets_enabled: Optional[bool] = Field(
+        default=None, description="Whether snippets are enabled."
+    )
+    container_registry_enabled: Optional[bool] = Field(
+        default=None,
+        description="Deprecated. Use `container_registry_access_level` instead.",
+    )
+    container_registry_access_level: Optional[str] = Field(
+        default=None, description="The access level for the container registry."
+    )
+    security_and_compliance_access_level: Optional[str] = Field(
+        default=None, description="The access level for security and compliance."
+    )
+    creator_id: Optional[int] = Field(
+        default=None, description="The ID of the creator."
+    )
+    import_url: Optional[str] = Field(default=None, description="The import URL.")
+    import_type: Optional[str] = Field(default=None, description="The import type.")
+    import_status: Optional[str] = Field(default=None, description="The import status.")
+    import_error: Optional[str] = Field(default=None, description="The import error.")
+    shared_runners_enabled: Optional[bool] = Field(
+        default=None, description="Whether shared runners are enabled."
+    )
+    group_runners_enabled: Optional[bool] = Field(
+        default=None, description="Whether group runners are enabled."
+    )
+    lfs_enabled: Optional[bool] = Field(
+        default=None, description="Whether LFS is enabled."
+    )
+    ci_default_git_depth: Optional[int] = Field(
+        default=None, description="The default git depth for CI."
+    )
+    ci_forward_deployment_enabled: Optional[bool] = Field(
+        default=None, description="Whether forward deployment is enabled for CI."
+    )
+    ci_forward_deployment_rollback_allowed: Optional[bool] = Field(
+        default=None,
+        description="Whether rollback is allowed for CI forward deployment.",
+    )
+    ci_allow_fork_pipelines_to_run_in_parent_project: Optional[bool] = Field(
+        default=None,
+        description="Whether fork pipelines can run in the parent project.",
+    )
+    ci_separated_caches: Optional[bool] = Field(
+        default=None, description="Whether CI caches are separated."
+    )
+    ci_restrict_pipeline_cancellation_role: Optional[str] = Field(
+        default=None, description="The role that can cancel pipelines."
+    )
+    public_jobs: Optional[bool] = Field(
+        default=None, description="Whether jobs are public."
+    )
+    shared_with_groups: Optional[List] = Field(
+        default=None, description="Groups the project is shared with."
+    )
+    only_allow_merge_if_pipeline_succeeds: Optional[bool] = Field(
+        default=None,
+        description="Whether merging is only allowed if the pipeline succeeds.",
+    )
+    allow_merge_on_skipped_pipeline: Optional[bool] = Field(
+        default=None, description="Whether merging is allowed on skipped pipelines."
+    )
+    restrict_user_defined_variables: Optional[bool] = Field(
+        default=None, description="Whether user-defined variables are restricted."
+    )
+    only_allow_merge_if_all_discussions_are_resolved: Optional[bool] = Field(
+        default=None,
+        description="Whether merging is only allowed if all discussions are resolved.",
+    )
+    remove_source_branch_after_merge: Optional[bool] = Field(
+        default=None, description="Whether the source branch is removed after merging."
+    )
+    request_access_enabled: Optional[bool] = Field(
+        default=None, description="Whether requesting access is enabled."
+    )
+    merge_method: Optional[str] = Field(
+        default=None, description="The method used for merging."
+    )
+    squash_option: Optional[str] = Field(default=None, description="The squash option.")
+    enforce_auth_checks_on_uploads: Optional[bool] = Field(
+        default=None, description="Whether auth checks are enforced on uploads."
+    )
+    suggestion_commit_message: Optional[str] = Field(
+        default=None, description="The suggestion commit message."
+    )
+    compliance_frameworks: Optional[List[str]] = Field(
+        default=None, description="The compliance frameworks."
+    )
+    issues_template: Optional[str] = Field(
+        default=None, description="The issues template."
+    )
+    merge_requests_template: Optional[str] = Field(
+        default=None, description="The merge requests template."
+    )
+    packages_relocation_enabled: Optional[bool] = Field(
+        default=None, description="Whether package relocation is enabled."
+    )
+    requirements_enabled: Optional[bool] = Field(
+        default=None, description="The requirements feature enabled status."
+    )
+    build_git_strategy: Optional[str] = Field(
+        default=None, description="The build git strategy."
+    )
+    build_timeout: Optional[int] = Field(default=None, description="The build timeout.")
+    auto_cancel_pending_pipelines: Optional[str] = Field(
+        default=None, description="The auto-cancel pending pipelines setting."
+    )
+    build_coverage_regex: Optional[str] = Field(
+        default=None, description="The build coverage regex."
+    )
+    ci_config_path: Optional[str] = Field(
+        default=None, description="The CI config path."
+    )
+    shared_runners_minutes_limit: Optional[int] = Field(
+        default=None, description="The shared runners minutes limit."
+    )
+    extra_shared_runners_minutes_limit: Optional[int] = Field(
+        default=None, description="The extra shared runners minutes limit."
+    )
+    printing_merge_request_link_enabled: Optional[bool] = Field(
+        default=None, description="Whether printing the merge request link is enabled."
+    )
+    merge_trains_enabled: Optional[bool] = Field(
+        default=None, description="Whether merge trains are enabled."
+    )
+    has_open_issues: Optional[bool] = Field(
+        default=None, description="Whether the project has open issues."
+    )
+    approvals_before_merge: Optional[int] = Field(
+        default=None, description="Number of approvals required before merging."
+    )
+    mirror: Optional[bool] = Field(
+        default=None, description="Whether the project is a mirror."
+    )
+    mirror_user_id: Optional[int] = Field(
+        default=None, description="The ID of the mirror user."
+    )
+    mirror_trigger_builds: Optional[bool] = Field(
+        default=None, description="Whether mirror builds are triggered."
+    )
+    only_mirror_protected_branches: Optional[bool] = Field(
+        default=None, description="Whether only protected branches are mirrored."
+    )
+    mirror_overwrites_diverged_branches: Optional[bool] = Field(
+        default=None, description="Whether diverged branches are overwritten."
+    )
+    permissions: Optional[Permissions] = Field(
+        default=None, description="The permissions settings."
+    )
+    statistics: Optional[ProjectStatistics] = Field(
+        default=None, description="The project statistics."
+    )
+    links: Optional[Links] = Field(default=None, description="Related links.")
+    service_desk_enabled: Optional[bool] = Field(
+        default=None, description="Service Desk Enabled"
+    )
+    can_create_merge_request_in: Optional[bool] = Field(
+        default=None, description="Can create merge request in"
+    )
+    repository_access_level: Optional[str] = Field(
+        default=None, description="Repository access level"
+    )
+    merge_requests_access_level: Optional[str] = Field(
+        default=None, description="Merge request access level"
+    )
+    issues_access_level: Optional[str] = Field(
+        default=None, description="Issue access level"
+    )
+    forking_access_level: Optional[str] = Field(
+        default=None, description="Forking access level"
+    )
+    wiki_access_level: Optional[str] = Field(
+        default=None, description="Wiki access level"
+    )
+    builds_access_level: Optional[str] = Field(
+        default=None, description="Build access level"
+    )
+    snippets_access_level: Optional[str] = Field(
+        default=None, description="Snippet access level"
+    )
+    pages_access_level: Optional[str] = Field(
+        default=None, description="Page access level"
+    )
+    analytics_access_level: Optional[str] = Field(
+        default=None, description="Analytics access level"
+    )
+    emails_disabled: Optional[str] = Field(default=None, description="Emails disabled")
+    emails_enabled: Optional[str] = Field(default=None, description="Emails enabled")
+    open_issues_count: Optional[int] = Field(
+        default=None, description="Open issues in project"
+    )
+    ci_job_token_scope_enabled: Optional[bool] = Field(
+        default=None, description="CI Job Token scope enabled"
+    )
+    merge_commit_template: Optional[str] = Field(
+        default=None, description="Merge commit template"
+    )
+    squash_commit_template: Optional[str] = Field(
+        default=None, description="Squash commit template"
+    )
+    issue_branch_template: Optional[str] = Field(
+        default=None, description="Squash commit template"
+    )
+    auto_devops_enabled: Optional[bool] = Field(
+        default=None, description="Autodevops enabled"
+    )
+    auto_devops_deploy_strategy: Optional[str] = Field(
+        default=None, description="Autodevops deploy strategy"
+    )
+    autoclose_referenced_issues: Optional[bool] = Field(
+        default=None, description="Autoclose referenced issues"
+    )
+    keep_latest_artifact: Optional[bool] = Field(
+        default=None, description="Keep latest artifact"
+    )
+    runner_token_expiration_interval: Optional[bool] = Field(
+        default=None, description="Runner token expiration interval"
+    )
+    external_authorization_classification_label: Optional[str] = Field(
+        default=None, description="External authorization classification label"
+    )
+    requirements_access_level: Optional[str] = Field(
+        default=None, description="Requirements access level"
+    )
+    security_and_compliance_enabled: Optional[bool] = Field(
+        default=None, description="Security compliance enabled"
+    )
+    warn_about_potentially_unwanted_characters: Optional[bool] = Field(
+        default=None, description="Warna bout potentially unwanted characters."
+    )
+    owner: Optional[User] = Field(default=None, description="Owner user")
+    runners_token: Optional[str] = Field(default=None, description="Runners token")
+    repository_storage: Optional[str] = Field(
+        default=None, description="Repository storage enabled"
+    )
+    service_desk_address: Optional[str] = Field(
+        default=None, description="Service desk address"
+    )
+    marked_for_deletion_at: Optional[str] = Field(
+        default=None, description="Marked for deletion at"
+    )
+    marked_for_deletion_on: Optional[str] = Field(
+        default=None, description="Marked for deletion on"
+    )
+
+
+class Projects(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Projects")
+    projects: List[Project] = Field(default=list(), description="All the projects")
+
+    @field_validator("projects")
+    def validate_list(cls, values):
+        """
+        Validate project_id type.
+
+        Args:
+        - value: Project_id attribute to validate.
+
+        Returns:
+        - The validated project_id attribute.
+
+        Raises:
+        - ValueError: If the project_id attribute is not an integer or a string.
+        """
+
+        if isinstance(values, Dict):
+            print("RETURNING NOW")
+            return Project(**values)
+        try:
+            if isinstance(values, List) and all(
+                    isinstance(item, Dict) for item in values
+            ):
+                print("RETURNING LISTED ITEMS")
+                return [Project(**item) for item in values]
+        except Exception as e:
+            print(f"Validation Failed for PROJECTS{Project} - {values}\nError: {e}")
+        return values
+
+
+# class Response(BaseModel):
+#     model_config = ConfigDict(extra="allow")
+#     __hash__ = object.__hash__
+#     base_type: str = Field(default="Response")
+#     projects: Optional[Projects] = Field(
+#         default=None, description="List of projects"
+#     )
+#     users: Optional[Users] = Field(default=None, description="List of users")
+#
+#     @model_validator(mode="before")
+#     def determine_model_type(cls, values):
+#         models = [
+#             User,
+#             Users,
+#             Project,
+#             Projects,
+#         ]
+#         for model in models:
+#             try:
+#                 if isinstance(values, Dict) or isinstance(values, List):
+#                     print(f"RETURNING MODEL: {values}, MODEL {model}")
+#                     return model(**values)
+#             except Exception as e:
+#                 print(f"\n\n\n RESPONSE Validation Failed for {model} - {values}\nError: {e}")
+#         return values
+
 class Response(BaseModel):
-    scope: str = Field(
-        default=None,
-        description="Amount of access granted by the access token. The scope is always useraccount, meaning that the "
-                    "access token has the same rights as the user account that authorized the token. For example, "
-                    "if Abel Tuter authorizes an application by providing login credentials, then the resulting "
-                    "access token grants the token bearer the same access privileges as Abel Tuter.",
-    )
-    token_type: str = Field(
-        default=None,
-        description="Type of token issued by the request as defined in the OAuth RFC. The token type is always "
-                    "Bearer, meaning that anyone in possession of the access token can access a protected resource "
-                    "without providing a cryptographic key.",
-    )
-    expires_in: Optional[int] = Field(
-        default=None, description="Lifespan of the access token in seconds."
-    )
-    refresh_token: str = Field(
-        default=None, description="String value of the refresh token."
-    )
-    access_token: str = Field(
-        default=None,
-        description="String value of the access token. Access requests made within the access token expiration time "
-                    "always return the current access token.",
-    )
-    format: str = Field(default=None, description="Output Format type. Always JSON")
-    import_set: Optional[str] = Field(None, description="Name of the import set.")
-    staging_table: Optional[str] = Field(
-        None, description="Name of the import staging table."
-    )
-    result: Optional[
-        Union[
-            Dict,
-            List,
-            BatchInstallResult,
-            CICD,
-            List[ConfigurationItem],
-            ConfigurationItem,
-            List[ImportSetResult],
-            ImportSetResult,
-            Schedule,
-            List[State],
-            State,
-            CMDB,
-            List[Task],
-            Task,
-            List[ChangeRequest],
-            ChangeRequest,
-            Table,
-        ]
-    ] = Field(default=None, description="Result containing available responses.")
-    cmdb: Optional[Union[Dict, List, CMDB]] = Field(
-        default=None,
-        description="List of objects that describe the CIs associated with the specified application service.",
-    )
-    service: Optional[Union[Dict, List, Service]] = Field(
-        default=None, description="List of services related to the identified service."
-    )
-    error: Optional[Any] = None
+    base_type: str = Field(default="Response")
+    data: Optional[Union[List, Dict, Projects, Project, Users, User]] = Field(default=None, description="Data")
 
-    @field_validator("service")
-    def determine_application_service_type(cls, v):
-        models = [
-            Service,
-        ]
-        if v:
-            for model in models:
-                try:
-                    if isinstance(v, Dict):
-                        v = model(**v)
-                    elif isinstance(v, List):
-                        if all(isinstance(i, Dict) for i in v):
-                            for model in models:
-                                try:
-                                    return [model(**item) for item in v]
-                                except Exception:
-                                    # print(
-                                    #     f"Error validating one of the models in the list: {e}"
-                                    # )
-                                    continue
-                except Exception:
-                    # print(f"Validation Failed for {model} - {v}\nError: {e}")
-                    pass
-        return v
+    @model_validator(mode="before")
+    def determine_model_type(cls, values):
+        models = {
+            'Projects': Projects,
+            'Project': Project,
+            'Users': Users,
+            'User': User,
+            # Add other models as needed...
+        }
+        for model_name, model in models.items():
+            try:
+                if isinstance(values, Dict):
+                    return model(**values)
+                if isinstance(values, List):
+                    if model_name == "Projects":
+                        print(f"\n\n\nRETURNING PROJECTS: {values}")
+                        return Projects(projects=values)
+                    if model_name == "Users":
+                        print(f"\n\n\nRETURNING USERS: {values}")
+                        return Users(users=values)
 
-    @field_validator("cmdb")
-    def determine_cmdb_type(cls, v):
-        models = [
-            CMDB,
-        ]
-        if v:
-            for model in models:
-                try:
-                    if isinstance(v, Dict):
-                        v = model(**v)
-                    elif isinstance(v, List):
-                        if all(isinstance(i, Dict) for i in v):
-                            for model in models:
-                                try:
-                                    return [model(**item) for item in v]
-                                except Exception:
-                                    # print(
-                                    #     f"Error validating one of the models in the list: {e}"
-                                    # )
-                                    continue
-                except Exception:
-                    # print(f"Validation Failed for {model} - {v}\nError: {e}")
-                    pass
-        return v
-
-    @field_validator("result")
-    def determine_result_type(cls, v):
-        models = [
-            BatchInstallResult,
-            CICD,
-            List[ConfigurationItem],
-            ConfigurationItem,
-            List[ImportSetResult],
-            ImportSetResult,
-            Schedule,
-            List[State],
-            State,
-            CMDB,
-            List[Task],
-            Task,
-            List[ChangeRequest],
-            ChangeRequest,
-            Table,
-        ]
-        if v:
-            for model in models:
-                try:
-                    if isinstance(v, Dict):
-                        v = model(**v)
-                    elif isinstance(v, List):
-                        if all(isinstance(i, Dict) for i in v):
-                            for model in models:
-                                try:
-                                    return [model(**item) for item in v]
-                                except Exception:
-                                    continue
-                except Exception:
-                    # print(f"Validation Failed for {model} - {v}\nError: {e}")
-                    pass
-        return v
+            except Exception as e:
+                print(f"\n\n\n RESPONSE Validation Failed for {model_name} - {values}\nError: {e}")
+        return values
