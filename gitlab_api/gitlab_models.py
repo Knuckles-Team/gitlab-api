@@ -1,5 +1,13 @@
-from typing import Union, List, Dict, Optional
-from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
+from typing import Union, List, Dict, Optional, Any
+from pydantic import (
+    BaseModel,
+    Field,
+    ConfigDict,
+    field_validator,
+    model_validator,
+    HttpUrl,
+    EmailStr,
+)
 import re
 from datetime import datetime
 
@@ -131,7 +139,7 @@ class CommitModel(BaseModel):
     start_branch: Optional[str] = None
     start_sha: Optional[str] = None
     start_project: Optional[Union[int, str]] = None
-    author_email: Optional[str] = None
+    author_email: Optional[EmailStr] = None
     author_name: Optional[str] = None
     stats: Optional[bool] = None
     force: Optional[bool] = None
@@ -432,7 +440,7 @@ class DeployTokenModel(BaseModel):
         - MissingParameterError: If the parameter is provided and 'project_id' and 'group_id' are None.
         """
         if (
-                "project_id" in values.lower() or "group_id" in values.lower()
+            "project_id" in values.lower() or "group_id" in values.lower()
         ) and v is not None:
             return v.lower()
         else:
@@ -689,7 +697,7 @@ class JobModel(BaseModel):
         - ParameterError: If 'job_variable_attributes' is provided and not a dictionary or missing key.
         """
         if v is not None and (
-                not isinstance(v, dict) or "job_variable_attributes" not in v.keys()
+            not isinstance(v, dict) or "job_variable_attributes" not in v.keys()
         ):
             raise ParameterError
         return v
@@ -2850,6 +2858,7 @@ class WikiModel(BaseModel):
 
 
 class Identity(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     provider: Optional[str] = Field(None, description="The external provider.")
     extern_uid: Optional[str] = Field(
         None, description="The external authentication provider UID."
@@ -2857,9 +2866,12 @@ class Identity(BaseModel):
 
 
 class User(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="User")
     id: Optional[int] = Field(None, description="The unique ID of the user.")
     username: Optional[str] = Field(None, description="The username of the user.")
-    email: Optional[str] = Field(None, description="The email of the user.")
+    email: Optional[EmailStr] = Field(None, description="The email of the user.")
     name: Optional[str] = Field(None, description="The name of the user.")
     state: Optional[str] = Field(
         None, description="The state of the user (e.g., active, blocked)."
@@ -2946,11 +2958,12 @@ class User(BaseModel):
 class Users(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
-    base_type: str = Field(default=list(), description="List of users")
+    base_type: str = Field(default="Users")
     users: List[User] = Field(default=None, description="All the users")
 
 
 class Namespace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     id: Optional[int] = Field(default=None, description="The ID of the namespace.")
     name: Optional[str] = Field(default=None, description="The name of the namespace.")
     path: Optional[str] = Field(default=None, description="The path of the namespace.")
@@ -2970,6 +2983,7 @@ class Namespace(BaseModel):
 
 
 class ContainerExpirationPolicy(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     cadence: Optional[str] = Field(
         default=None, description="The cadence of the expiration policy."
     )
@@ -2990,6 +3004,7 @@ class ContainerExpirationPolicy(BaseModel):
 
 
 class Permissions(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     project_access: Optional[Dict] = Field(
         default=None, description="Project access level and notification settings."
     )
@@ -2999,6 +3014,7 @@ class Permissions(BaseModel):
 
 
 class ProjectStatistics(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     commit_count: Optional[int] = Field(
         default=None, description="The number of commits in the project."
     )
@@ -3030,6 +3046,7 @@ class ProjectStatistics(BaseModel):
 
 
 class Links(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     self: Optional[str] = Field(default=None, description="URL to the project itself.")
     issues: Optional[str] = Field(
         default=None, description="URL to the project's issues."
@@ -3052,6 +3069,407 @@ class Links(BaseModel):
     cluster_agents: Optional[str] = Field(
         default=None, description="URL to the project's cluster agents."
     )
+
+
+class Diff(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Diff")
+    diff: Optional[str] = Field(None, description="The diff of the file")
+    new_path: Optional[str] = Field(None, description="The new path of the file")
+    old_path: Optional[str] = Field(None, description="The old path of the file")
+    a_mode: Optional[str] = Field(None, description="The file mode for the old file")
+    b_mode: Optional[str] = Field(None, description="The file mode for the new file")
+    new_file: Optional[bool] = Field(None, description="Whether this is a new file")
+    renamed_file: Optional[bool] = Field(
+        None, description="Whether this file was renamed"
+    )
+    deleted_file: Optional[bool] = Field(
+        None, description="Whether this file was deleted"
+    )
+
+
+class CommitStats(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="CommitStats")
+    additions: Optional[int] = Field(
+        None, description="Number of additions in the commit"
+    )
+    deletions: Optional[int] = Field(
+        None, description="Number of deletions in the commit"
+    )
+    total: Optional[int] = Field(
+        None, description="Total number of changes in the commit"
+    )
+
+
+class Pipeline(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Pipeline")
+    id: Optional[int] = Field(None, description="ID of the pipeline")
+    ref: Optional[str] = Field(None, description="Reference name of the pipeline")
+    sha: Optional[str] = Field(None, description="SHA of the pipeline")
+    status: Optional[str] = Field(None, description="Status of the pipeline")
+
+
+class Pipelines(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Pipelines")
+    pipelines: List[Pipeline] = Field(default=None, description="List of pipelines")
+
+
+class CommitSignature(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="CommitSignature")
+    signature_type: Optional[str] = Field(None, description="Type of the signature")
+    verification_status: Optional[str] = Field(
+        None, description="Verification status of the signature"
+    )
+    commit_source: Optional[str] = Field(None, description="Source of the commit")
+    gpg_key_id: Optional[int] = Field(None, description="ID of the GPG key")
+    gpg_key_primary_keyid: Optional[str] = Field(
+        None, description="Primary key ID of the GPG key"
+    )
+    gpg_key_user_name: Optional[str] = Field(
+        None, description="User name of the GPG key owner"
+    )
+    gpg_key_user_email: Optional[str] = Field(
+        None, description="User email of the GPG key owner"
+    )
+    gpg_key_subkey_id: Optional[str] = Field(
+        None, description="Subkey ID of the GPG key"
+    )
+    key: Optional[Dict[str, Any]] = Field(None, description="SSH key details")
+    x509_certificate: Optional[Dict[str, Any]] = Field(
+        None, description="X509 certificate details"
+    )
+
+
+class Author(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Author")
+    id: Optional[int] = Field(None, description="ID of the author")
+    name: Optional[str] = Field(None, description="Name of the author")
+    username: Optional[str] = Field(None, description="Username of the author")
+    email: Optional[str] = Field(None, description="Email of the author")
+    state: Optional[str] = Field(None, description="State of the author")
+    created_at: Optional[datetime] = Field(
+        None, description="When the author was created"
+    )
+    web_url: Optional[str] = Field(None, description="Web URL of the author")
+    avatar_url: Optional[str] = Field(None, description="Avatar URL of the author")
+
+
+class Note(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Note")
+    id: Optional[int] = Field(None, description="ID of the note")
+    type: Optional[str] = Field(None, description="Type of the note")
+    body: Optional[str] = Field(None, description="Body content of the note")
+    attachment: Optional[Any] = Field(
+        None, description="Attachment associated with the note"
+    )
+    author: Optional[Author] = Field(None, description="Author of the note")
+    created_at: Optional[datetime] = Field(
+        None, description="Creation date of the note"
+    )
+    updated_at: Optional[datetime] = Field(
+        None, description="Last update date of the note"
+    )
+    system: Optional[bool] = Field(
+        None, description="Whether the note is a system note"
+    )
+    noteable_id: Optional[int] = Field(None, description="ID of the noteable entity")
+    noteable_type: Optional[str] = Field(
+        None, description="Type of the noteable entity"
+    )
+    resolvable: Optional[bool] = Field(
+        None, description="Whether the note is resolvable"
+    )
+    confidential: Optional[bool] = Field(
+        None, description="Whether the note is confidential"
+    )
+    noteable_iid: Optional[int] = Field(None, description="IID of the noteable entity")
+    commands_changes: Optional[Dict[str, Any]] = Field(
+        None, description="Command changes associated with the note"
+    )
+
+
+class Notes(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Notes")
+    notes: List[Note] = Field(default=None, description="List of notes")
+
+
+class Commit(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Commit")
+    id: Optional[str] = Field(default=None, description="The commit ID.")
+    short_id: Optional[str] = Field(
+        default=None, description="A shortened version of the commit ID."
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="The creation date of the commit."
+    )
+    parent_ids: Optional[List[str]] = Field(
+        default=None, description="A list of parent commit IDs."
+    )
+    title: Optional[str] = Field(default=None, description="The title of the commit.")
+    message: Optional[str] = Field(default=None, description="The commit message.")
+    author_name: Optional[str] = Field(
+        default=None, description="The name of the commit author."
+    )
+    author_email: Optional[EmailStr] = Field(
+        default=None, description="The email of the commit author."
+    )
+    authored_date: Optional[datetime] = Field(
+        default=None, description="The date the commit was authored."
+    )
+    committer_name: Optional[str] = Field(
+        default=None, description="The name of the committer."
+    )
+    committer_email: Optional[EmailStr] = Field(
+        default=None, description="The email of the committer."
+    )
+    committed_date: Optional[datetime] = Field(
+        default=None, description="The date the commit was committed."
+    )
+    web_url: Optional[HttpUrl] = Field(
+        default=None, description="The web URL for the commit."
+    )
+    trailers: Optional[Dict[str, Any]] = Field(
+        None, description="Trailers of the commit"
+    )
+    extended_trailers: Optional[Dict[str, List[str]]] = Field(
+        None, description="Extended trailers of the commit"
+    )
+    stats: Optional[CommitStats] = Field(None, description="Statistics of the commit")
+    status: Optional[str] = Field(None, description="Status of the commit")
+    last_pipeline: Optional[Pipeline] = Field(
+        None, description="Last pipeline associated with the commit"
+    )
+    signature: Optional[CommitSignature] = Field(
+        None, description="Signature associated with the commit"
+    )
+
+
+class Commits(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Commits")
+    commits: List[Commit] = Field(default=None, description="List of commits")
+
+
+class MergeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="MergeRequest")
+    id: Optional[int] = Field(None, description="ID of the merge request")
+    iid: Optional[int] = Field(None, description="Internal ID of the merge request")
+    project_id: Optional[int] = Field(
+        None, description="ID of the project the merge request belongs to"
+    )
+    title: Optional[str] = Field(None, description="Title of the merge request")
+    description: Optional[str] = Field(
+        None, description="Description of the merge request"
+    )
+    state: Optional[str] = Field(None, description="State of the merge request")
+    created_at: Optional[datetime] = Field(
+        None, description="Creation date of the merge request"
+    )
+    updated_at: Optional[datetime] = Field(
+        None, description="Last update date of the merge request"
+    )
+    target_branch: Optional[str] = Field(
+        None, description="Target branch of the merge request"
+    )
+    source_branch: Optional[str] = Field(
+        None, description="Source branch of the merge request"
+    )
+    upvotes: Optional[int] = Field(
+        None, description="Number of upvotes the merge request has received"
+    )
+    downvotes: Optional[int] = Field(
+        None, description="Number of downvotes the merge request has received"
+    )
+    author: Optional[Author] = Field(None, description="Author of the merge request")
+    assignee: Optional[Author] = Field(
+        None, description="Assignee of the merge request"
+    )
+    source_project_id: Optional[int] = Field(
+        None, description="ID of the source project"
+    )
+    target_project_id: Optional[int] = Field(
+        None, description="ID of the target project"
+    )
+    labels: Optional[List[str]] = Field(
+        None, description="List of labels assigned to the merge request"
+    )
+    work_in_progress: Optional[bool] = Field(
+        None, description="Whether the merge request is a work in progress"
+    )
+    milestone: Optional[Dict[str, Any]] = Field(
+        None, description="Milestone associated with the merge request"
+    )
+    merge_when_pipeline_succeeds: Optional[bool] = Field(
+        None, description="Whether to merge when the pipeline succeeds"
+    )
+    merge_status: Optional[str] = Field(
+        None, description="Merge status of the merge request"
+    )
+    sha: Optional[str] = Field(None, description="SHA of the merge request")
+    merge_commit_sha: Optional[str] = Field(
+        None, description="Merge commit SHA of the merge request"
+    )
+    squash_commit_sha: Optional[str] = Field(
+        None, description="Squash commit SHA of the merge request"
+    )
+    user_notes_count: Optional[int] = Field(
+        None, description="Number of user notes on the merge request"
+    )
+    discussion_locked: Optional[bool] = Field(
+        None, description="Whether the discussion is locked"
+    )
+    should_remove_source_branch: Optional[bool] = Field(
+        None, description="Whether the source branch should be removed"
+    )
+    force_remove_source_branch: Optional[bool] = Field(
+        None, description="Whether to force remove the source branch"
+    )
+    allow_collaboration: Optional[bool] = Field(
+        None, description="Whether collaboration is allowed"
+    )
+    allow_maintainer_to_push: Optional[bool] = Field(
+        None, description="Whether the maintainer can push"
+    )
+    web_url: Optional[str] = Field(None, description="Web URL of the merge request")
+    references: Optional[Dict[str, Any]] = Field(
+        None, description="References associated with the merge request"
+    )
+    time_stats: Optional[Dict[str, Any]] = Field(
+        None, description="Time statistics for the merge request"
+    )
+    squash: Optional[bool] = Field(
+        None, description="Whether the merge request should be squashed"
+    )
+    task_completion_status: Optional[Dict[str, Any]] = Field(
+        None, description="Task completion status of the merge request"
+    )
+    has_conflicts: Optional[bool] = Field(
+        None, description="Whether the merge request has conflicts"
+    )
+    blocking_discussions_resolved: Optional[bool] = Field(
+        None, description="Whether blocking discussions are resolved"
+    )
+    changes: Optional[List[Diff]] = Field(
+        None, description="List of changes (diffs) in the merge request"
+    )
+    merged_by: Optional[Author] = Field(
+        None, description="Author who merged the merge request"
+    )
+    merged_at: Optional[datetime] = Field(
+        None, description="Date when the merge request was merged"
+    )
+    closed_by: Optional[Author] = Field(
+        None, description="Author who closed the merge request"
+    )
+    closed_at: Optional[datetime] = Field(
+        None, description="Date when the merge request was closed"
+    )
+    latest_build_started_at: Optional[datetime] = Field(
+        None, description="Start date of the latest build"
+    )
+    latest_build_finished_at: Optional[datetime] = Field(
+        None, description="Finish date of the latest build"
+    )
+    first_deployed_to_production_at: Optional[datetime] = Field(
+        None, description="Date when first deployed to production"
+    )
+    pipeline: Optional[Pipeline] = Field(
+        None, description="Pipeline associated with the merge request"
+    )
+    head_pipeline: Optional[Pipeline] = Field(
+        None, description="Head pipeline associated with the merge request"
+    )
+    diff_refs: Optional[Dict[str, Any]] = Field(
+        None, description="Diff references associated with the merge request"
+    )
+    user: Optional[Dict[str, Any]] = Field(
+        None, description="User-specific information"
+    )
+    changes_count: Optional[str] = Field(
+        None, description="Count of changes in the merge request"
+    )
+    rebase_in_progress: Optional[bool] = Field(
+        None, description="Whether a rebase is in progress"
+    )
+    approvals_before_merge: Optional[int] = Field(
+        None, description="Number of approvals required before merging"
+    )
+    tag_list: Optional[List[str]] = Field(
+        None, description="List of tags associated with the merge request"
+    )
+    reviewer: Optional[List[Author]] = Field(
+        None, description="List of reviewers for the merge request"
+    )
+    review: Optional[Dict[str, Any]] = Field(
+        None, description="Review information associated with the merge request"
+    )
+
+
+class MergeRequests(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="MergeRequests")
+    merge_requests: List[MergeRequest] = Field(
+        default=None, description="List of merge requests"
+    )
+
+
+class Branch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Branch")
+    name: Optional[str] = Field(default=None, description="The name of the branch.")
+    merged: Optional[bool] = Field(
+        default=None, description="Whether the branch is merged."
+    )
+    protected: Optional[bool] = Field(
+        default=None, description="Whether the branch is protected."
+    )
+    default: Optional[bool] = Field(
+        default=None, description="Whether the branch is the default branch."
+    )
+    developers_can_push: Optional[bool] = Field(
+        default=None, description="Whether developers can push to the branch."
+    )
+    developers_can_merge: Optional[bool] = Field(
+        default=None, description="Whether developers can merge the branch."
+    )
+    can_push: Optional[bool] = Field(
+        default=None, description="Whether the user can push to the branch."
+    )
+    web_url: Optional[HttpUrl] = Field(
+        default=None, description="The web URL for the branch."
+    )
+    commit: Optional[Commit] = Field(
+        default=None, description="The commit associated with the branch."
+    )
+
+
+class Branches(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Branches")
+    branches: List[Branch] = Field(default=None, description="List of branches")
 
 
 class Project(BaseModel):
@@ -3394,91 +3812,102 @@ class Project(BaseModel):
 
 
 class Projects(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Projects")
-    projects: List[Project] = Field(default=list(), description="All the projects")
+    projects: List[Project] = Field(default=None, description="List of projects")
 
-    @field_validator("projects")
-    def validate_list(cls, values):
-        """
-        Validate project_id type.
-
-        Args:
-        - value: Project_id attribute to validate.
-
-        Returns:
-        - The validated project_id attribute.
-
-        Raises:
-        - ValueError: If the project_id attribute is not an integer or a string.
-        """
-
-        if isinstance(values, Dict):
-            print("RETURNING NOW")
-            return Project(**values)
-        try:
-            if isinstance(values, List) and all(
-                    isinstance(item, Dict) for item in values
-            ):
-                print("RETURNING LISTED ITEMS")
-                return [Project(**item) for item in values]
-        except Exception as e:
-            print(f"Validation Failed for PROJECTS{Project} - {values}\nError: {e}")
-        return values
-
-
-# class Response(BaseModel):
-#     model_config = ConfigDict(extra="allow")
-#     __hash__ = object.__hash__
-#     base_type: str = Field(default="Response")
-#     projects: Optional[Projects] = Field(
-#         default=None, description="List of projects"
-#     )
-#     users: Optional[Users] = Field(default=None, description="List of users")
-#
-#     @model_validator(mode="before")
-#     def determine_model_type(cls, values):
-#         models = [
-#             User,
-#             Users,
-#             Project,
-#             Projects,
-#         ]
-#         for model in models:
-#             try:
-#                 if isinstance(values, Dict) or isinstance(values, List):
-#                     print(f"RETURNING MODEL: {values}, MODEL {model}")
-#                     return model(**values)
-#             except Exception as e:
-#                 print(f"\n\n\n RESPONSE Validation Failed for {model} - {values}\nError: {e}")
-#         return values
 
 class Response(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     base_type: str = Field(default="Response")
-    data: Optional[Union[List, Dict, Projects, Project, Users, User]] = Field(default=None, description="Data")
+    data: Optional[
+        Union[
+            List,
+            Dict,
+            Branches,
+            Branch,
+            Commits,
+            Commit,
+            Users,
+            User,
+            MergeRequests,
+            MergeRequest,
+            Pipelines,
+            Pipeline,
+            Projects,
+            Project,
+        ]
+    ] = Field(default=None, description="Data")
+    status_code: Union[str, int] = Field(
+        default=None, description="Response status code"
+    )
+    json_output: Optional[Union[List, Dict]] = Field(
+        default=None, description="Response JSON data"
+    )
+    raw_output: Optional[bytes] = Field(default=None, description="Response Raw bytes")
 
-    @model_validator(mode="before")
-    def determine_model_type(cls, values):
-        models = {
-            'Projects': Projects,
-            'Project': Project,
-            'Users': Users,
-            'User': User,
-            # Add other models as needed...
+    @field_validator("data")
+    def determine_model_type(cls, value):
+        single_models = {
+            "Branch": Branch,
+            "Commit": Commit,
+            "MergeRequest": MergeRequest,
+            "Pipeline": Pipeline,
+            "User": User,
+            "Project": Project,
         }
-        for model_name, model in models.items():
-            try:
-                if isinstance(values, Dict):
-                    return model(**values)
-                if isinstance(values, List):
-                    if model_name == "Projects":
-                        print(f"\n\n\nRETURNING PROJECTS: {values}")
-                        return Projects(projects=values)
-                    if model_name == "Users":
-                        print(f"\n\n\nRETURNING USERS: {values}")
-                        return Users(users=values)
+        if isinstance(value, list):
+            print(f"\n\nScanning {value}")
+            if all(isinstance(item, Dict) for item in value):
+                try:
+                    branches = [Branch(**item) for item in value]
+                    value = Branches(branches=branches)
+                    print(f"\n\n\n Branches Validation Success: {value}")
+                except Exception as e:
+                    print(f"\n\n\n Branches Validation Failed: {value}\nError: {e}")
+                try:
+                    commits = [Commit(**item) for item in value]
+                    print(f"Commits Try: {commits}")
+                    value = Commits(commits=commits)
+                    print(f"\n\n\n Commits Validation Success: {value}")
+                except Exception as e:
+                    print(f"\n\n\n Commits Validation Failed: {value}\nError: {e}")
+                try:
+                    merge_requests = [MergeRequest(**item) for item in value]
+                    value = MergeRequests(merge_requests=merge_requests)
+                    print(f"\n\n\n merge_requests Validation Success: {value}")
+                except Exception as e:
+                    print(
+                        f"\n\n\n merge_requests Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    pipelines = [Pipeline(**item) for item in value]
+                    value = Pipelines(pipelines=pipelines)
+                    print(f"\n\n\n pipelines Validation Success: {value}")
+                except Exception as e:
+                    print(f"\n\n\n pipelines Validation Failed: {value}\nError: {e}")
+                try:
+                    users = [User(**item) for item in value]
+                    value = Users(users=users)
+                    print(f"\n\n\n Users Validation Success: {value}")
+                except Exception as e:
+                    print(f"\n\n\n Users Validation Failed: {value}\nError: {e}")
+                try:
+                    projects = [Project(**item) for item in value]
+                    value = Projects(projects=projects)
+                except Exception as e:
+                    print(f"\n\n\n Projects Validation Failed: {value}\nError: {e}")
+        elif isinstance(value, dict):
+            # Add logic to determine if it's a Project, User, or any other model.
+            for model_name, model in single_models.items():
+                try:
+                    print(f"\n\n\n Trying to validate model: {value}")
+                    value = model(**value)
+                    print(f"\n\n\n Model Validation Success: {value}")
+                except Exception as e:
+                    print(
+                        f"\n\n\n RESPONSE Validation Failed for {model_name} - {value}\nError: {e}"
+                    )
 
-            except Exception as e:
-                print(f"\n\n\n RESPONSE Validation Failed for {model_name} - {values}\nError: {e}")
-        return values
+        return value
