@@ -66,9 +66,9 @@ print(users)
 
 created_merge_request = client.create_merge_request(project_id=123, source_branch="development",
                                                     target_branch="production",title="Merge Request Title")
-print(created_merge_request)
-
-print(f"Users: {client.get_users()}")
+print(f"Merge Request Title: {created_merge_request.data.title}\nDescription: {created_merge_request.data.description}")
+users = client.get_users()
+print(f"First user's email: {users.data[0].email}")
 
 print(f"Projects: {client.get_projects()}")
 

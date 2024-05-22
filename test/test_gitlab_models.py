@@ -1440,6 +1440,2067 @@ def test_deploy_token_response():
     assert response.data.base_type == "DeployToken"
 
 
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
+def test_merge_request_response():
+    example_data = [
+        {
+            "id": 1,
+            "iid": 1,
+            "project_id": 3,
+            "title": "test1",
+            "description": "fixed login page css paddings",
+            "state": "merged",
+            "imported": False,
+            "imported_from": "none",
+            "merged_by": {
+                "id": 87854,
+                "name": "Douwe Maan",
+                "username": "DouweM",
+                "state": "active",
+                "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+                "web_url": "https://gitlab.com/DouweM",
+            },
+            "merge_user": {
+                "id": 87854,
+                "name": "Douwe Maan",
+                "username": "DouweM",
+                "state": "active",
+                "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+                "web_url": "https://gitlab.com/DouweM",
+            },
+            "merged_at": "2018-09-07T11:16:17.520Z",
+            "prepared_at": "2018-09-04T11:16:17.520Z",
+            "closed_by": None,
+            "closed_at": None,
+            "created_at": "2017-04-29T08:46:00Z",
+            "updated_at": "2017-04-29T08:46:00Z",
+            "target_branch": "main",
+            "source_branch": "test1",
+            "upvotes": 0,
+            "downvotes": 0,
+            "author": {
+                "id": 1,
+                "name": "Administrator",
+                "username": "admin",
+                "state": "active",
+                "avatar_url": None,
+                "web_url": "https://gitlab.example.com/admin",
+            },
+            "assignee": {
+                "id": 1,
+                "name": "Administrator",
+                "username": "admin",
+                "state": "active",
+                "avatar_url": None,
+                "web_url": "https://gitlab.example.com/admin",
+            },
+            "assignees": [
+                {
+                    "name": "Miss Monserrate Beier",
+                    "username": "axel.block",
+                    "id": 12,
+                    "state": "active",
+                    "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                    "web_url": "https://gitlab.example.com/axel.block",
+                }
+            ],
+            "reviewers": [
+                {
+                    "id": 2,
+                    "name": "Sam Bauch",
+                    "username": "kenyatta_oconnell",
+                    "state": "active",
+                    "avatar_url": "https://www.gravatar.com/avatar/956c92487c6f6f7616b536927e22c9a0?s=80&d=identicon",
+                    "web_url": "http://gitlab.example.com//kenyatta_oconnell",
+                }
+            ],
+            "source_project_id": 2,
+            "target_project_id": 3,
+            "labels": ["Community contribution", "Manage"],
+            "draft": False,
+            "work_in_progress": False,
+            "milestone": {
+                "id": 5,
+                "iid": 1,
+                "project_id": 3,
+                "title": "v2.0",
+                "description": "Assumenda aut placeat expedita exercitationem labore sunt enim earum.",
+                "state": "closed",
+                "created_at": "2015-02-02T19:49:26.013Z",
+                "updated_at": "2015-02-02T19:49:26.013Z",
+                "due_date": "2018-09-22",
+                "start_date": "2018-08-08",
+                "web_url": "https://gitlab.example.com/my-group/my-project/milestones/1",
+            },
+            "merge_when_pipeline_succeeds": True,
+            "merge_status": "can_be_merged",
+            "detailed_merge_status": "not_open",
+            "sha": "8888888888888888888888888888888888888888",
+            "merge_commit_sha": None,
+            "squash_commit_sha": None,
+            "user_notes_count": 1,
+            "discussion_locked": None,
+            "should_remove_source_branch": True,
+            "force_remove_source_branch": False,
+            "allow_collaboration": False,
+            "allow_maintainer_to_push": False,
+            "web_url": "http://gitlab.example.com/my-group/my-project/merge_requests/1",
+            "references": {
+                "short": "!1",
+                "relative": "my-group/my-project!1",
+                "full": "my-group/my-project!1",
+            },
+            "time_stats": {
+                "time_estimate": 0,
+                "total_time_spent": 0,
+                "human_time_estimate": None,
+                "human_total_time_spent": None,
+            },
+            "squash": False,
+            "task_completion_status": {"count": 0, "completed_count": 0},
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequests"
+
+    example_data = [
+        {
+            "id": 1,
+            "iid": 1,
+            "project_id": 3,
+            "title": "test1",
+            "description": "fixed login page css paddings",
+            "state": "merged",
+            "imported": False,
+            "imported_from": "none",
+            "merged_by": {
+                "id": 87854,
+                "name": "Douwe Maan",
+                "username": "DouweM",
+                "state": "active",
+                "locked": False,
+                "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+                "web_url": "https://gitlab.com/DouweM",
+            },
+            "merge_user": {
+                "id": 87854,
+                "name": "Douwe Maan",
+                "username": "DouweM",
+                "state": "active",
+                "locked": False,
+                "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+                "web_url": "https://gitlab.com/DouweM",
+            },
+            "merged_at": "2018-09-07T11:16:17.520Z",
+            "prepared_at": "2018-09-04T11:16:17.520Z",
+            "closed_by": None,
+            "closed_at": None,
+            "created_at": "2017-04-29T08:46:00Z",
+            "updated_at": "2017-04-29T08:46:00Z",
+            "target_branch": "main",
+            "source_branch": "test1",
+            "upvotes": 0,
+            "downvotes": 0,
+            "author": {
+                "id": 1,
+                "name": "Administrator",
+                "username": "admin",
+                "state": "active",
+                "locked": False,
+                "avatar_url": None,
+                "web_url": "https://gitlab.example.com/admin",
+            },
+            "assignee": {
+                "id": 1,
+                "name": "Administrator",
+                "username": "admin",
+                "state": "active",
+                "locked": False,
+                "avatar_url": None,
+                "web_url": "https://gitlab.example.com/admin",
+            },
+            "assignees": [
+                {
+                    "name": "Miss Monserrate Beier",
+                    "username": "axel.block",
+                    "id": 12,
+                    "state": "active",
+                    "locked": False,
+                    "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                    "web_url": "https://gitlab.example.com/axel.block",
+                }
+            ],
+            "reviewers": [
+                {
+                    "id": 2,
+                    "name": "Sam Bauch",
+                    "username": "kenyatta_oconnell",
+                    "state": "active",
+                    "avatar_url": "https://www.gravatar.com/avatar/956c92487c6f6f7616b536927e22c9a0?s=80&d=identicon",
+                    "web_url": "http://gitlab.example.com//kenyatta_oconnell",
+                }
+            ],
+            "source_project_id": 2,
+            "target_project_id": 3,
+            "labels": ["Community contribution", "Manage"],
+            "draft": False,
+            "work_in_progress": False,
+            "milestone": {
+                "id": 5,
+                "iid": 1,
+                "project_id": 3,
+                "title": "v2.0",
+                "description": "Assumenda aut placeat expedita exercitationem labore sunt enim earum.",
+                "state": "closed",
+                "created_at": "2015-02-02T19:49:26.013Z",
+                "updated_at": "2015-02-02T19:49:26.013Z",
+                "due_date": "2018-09-22",
+                "start_date": "2018-08-08",
+                "web_url": "https://gitlab.example.com/my-group/my-project/milestones/1",
+            },
+            "merge_when_pipeline_succeeds": True,
+            "merge_status": "can_be_merged",
+            "detailed_merge_status": "not_open",
+            "sha": "8888888888888888888888888888888888888888",
+            "merge_commit_sha": None,
+            "squash_commit_sha": None,
+            "user_notes_count": 1,
+            "discussion_locked": None,
+            "should_remove_source_branch": True,
+            "force_remove_source_branch": False,
+            "web_url": "http://gitlab.example.com/my-group/my-project/merge_requests/1",
+            "reference": "!1",
+            "references": {
+                "short": "!1",
+                "relative": "!1",
+                "full": "my-group/my-project!1",
+            },
+            "time_stats": {
+                "time_estimate": 0,
+                "total_time_spent": 0,
+                "human_time_estimate": None,
+                "human_total_time_spent": None,
+            },
+            "squash": False,
+            "squash_on_merge": False,
+            "task_completion_status": {"count": 0, "completed_count": 0},
+            "has_conflicts": False,
+            "blocking_discussions_resolved": True,
+            "approvals_before_merge": 2,
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequests"
+
+    example_data = [
+        {
+            "id": 1,
+            "iid": 1,
+            "project_id": 3,
+            "title": "test1",
+            "description": "fixed login page css paddings",
+            "state": "merged",
+            "imported": False,
+            "imported_from": "none",
+            "merged_by": {
+                "id": 87854,
+                "name": "Douwe Maan",
+                "username": "DouweM",
+                "state": "active",
+                "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+                "web_url": "https://gitlab.com/DouweM",
+            },
+            "merge_user": {
+                "id": 87854,
+                "name": "Douwe Maan",
+                "username": "DouweM",
+                "state": "active",
+                "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+                "web_url": "https://gitlab.com/DouweM",
+            },
+            "merged_at": "2018-09-07T11:16:17.520Z",
+            "prepared_at": "2018-09-04T11:16:17.520Z",
+            "closed_by": None,
+            "closed_at": None,
+            "created_at": "2017-04-29T08:46:00Z",
+            "updated_at": "2017-04-29T08:46:00Z",
+            "target_branch": "main",
+            "source_branch": "test1",
+            "upvotes": 0,
+            "downvotes": 0,
+            "author": {
+                "id": 1,
+                "name": "Administrator",
+                "username": "admin",
+                "state": "active",
+                "avatar_url": None,
+                "web_url": "https://gitlab.example.com/admin",
+            },
+            "assignee": {
+                "id": 1,
+                "name": "Administrator",
+                "username": "admin",
+                "state": "active",
+                "avatar_url": None,
+                "web_url": "https://gitlab.example.com/admin",
+            },
+            "assignees": [
+                {
+                    "name": "Miss Monserrate Beier",
+                    "username": "axel.block",
+                    "id": 12,
+                    "state": "active",
+                    "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                    "web_url": "https://gitlab.example.com/axel.block",
+                }
+            ],
+            "reviewers": [
+                {
+                    "id": 2,
+                    "name": "Sam Bauch",
+                    "username": "kenyatta_oconnell",
+                    "state": "active",
+                    "avatar_url": "https://www.gravatar.com/avatar/956c92487c6f6f7616b536927e22c9a0?s=80&d=identicon",
+                    "web_url": "http://gitlab.example.com//kenyatta_oconnell",
+                }
+            ],
+            "source_project_id": 2,
+            "target_project_id": 3,
+            "labels": ["Community contribution", "Manage"],
+            "draft": False,
+            "work_in_progress": False,
+            "milestone": {
+                "id": 5,
+                "iid": 1,
+                "project_id": 3,
+                "title": "v2.0",
+                "description": "Assumenda aut placeat expedita exercitationem labore sunt enim earum.",
+                "state": "closed",
+                "created_at": "2015-02-02T19:49:26.013Z",
+                "updated_at": "2015-02-02T19:49:26.013Z",
+                "due_date": "2018-10-22",
+                "start_date": "2018-09-08",
+                "web_url": "gitlab.example.com/my-group/my-project/milestones/1",
+            },
+            "merge_when_pipeline_succeeds": True,
+            "merge_status": "can_be_merged",
+            "detailed_merge_status": "not_open",
+            "sha": "8888888888888888888888888888888888888888",
+            "merge_commit_sha": None,
+            "squash_commit_sha": None,
+            "user_notes_count": 1,
+            "discussion_locked": None,
+            "should_remove_source_branch": True,
+            "force_remove_source_branch": False,
+            "web_url": "http://gitlab.example.com/my-group/my-project/merge_requests/1",
+            "references": {
+                "short": "!1",
+                "relative": "my-project!1",
+                "full": "my-group/my-project!1",
+            },
+            "time_stats": {
+                "time_estimate": 0,
+                "total_time_spent": 0,
+                "human_time_estimate": None,
+                "human_total_time_spent": None,
+            },
+            "squash": False,
+            "task_completion_status": {"count": 0, "completed_count": 0},
+            "has_conflicts": False,
+            "blocking_discussions_resolved": True,
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequests"
+
+    # Users Model
+    example_data = [
+        {
+            "id": 1,
+            "name": "John Doe1",
+            "username": "user1",
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
+            "web_url": "http://localhost/user1",
+        },
+        {
+            "id": 2,
+            "name": "John Doe2",
+            "username": "user2",
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/10fc7f102be8de7657fb4d80898bbfe3?s=80&d=identicon",
+            "web_url": "http://localhost/user2",
+        },
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Users"
+
+    # Reviewers
+    example_data = [
+        {
+            "user": {
+                "id": 1,
+                "name": "John Doe1",
+                "username": "user1",
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
+                "web_url": "http://localhost/user1",
+            },
+            "state": "unreviewed",
+            "created_at": "2022-07-27T17:03:27.684Z",
+        },
+        {
+            "user": {
+                "id": 2,
+                "name": "John Doe2",
+                "username": "user2",
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/10fc7f102be8de7657fb4d80898bbfe3?s=80&d=identicon",
+                "web_url": "http://localhost/user2",
+            },
+            "state": "reviewed",
+            "created_at": "2022-07-27T17:03:27.684Z",
+        },
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequests"
+
+    # Commits
+    example_data = [
+        {
+            "id": "ed899a2f4b50b4370feeea94676502b42383c746",
+            "short_id": "ed899a2f4b5",
+            "title": "Replace sanitize with escape once",
+            "author_name": "Example User",
+            "author_email": "user@example.com",
+            "created_at": "2012-09-20T11:50:22+03:00",
+            "message": "Replace sanitize with escape once",
+        },
+        {
+            "id": "6104942438c14ec7bd21c6cd5bd995272b3faff6",
+            "short_id": "6104942438c",
+            "title": "Sanitize for network graph",
+            "author_name": "Example User",
+            "author_email": "user@example.com",
+            "created_at": "2012-09-20T09:06:12+03:00",
+            "message": "Sanitize for network graph",
+        },
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Commits"
+
+    # Changes
+    example_data = {
+        "id": 21,
+        "iid": 1,
+        "project_id": 4,
+        "title": "Blanditiis beatae suscipit hic assumenda et molestias nisi asperiores repellat et.",
+        "state": "reopened",
+        "created_at": "2015-02-02T19:49:39.159Z",
+        "updated_at": "2015-02-02T20:08:49.959Z",
+        "target_branch": "secret_token",
+        "source_branch": "version-1-9",
+        "upvotes": 0,
+        "downvotes": 0,
+        "author": {
+            "name": "Chad Hamill",
+            "username": "jarrett",
+            "id": 5,
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/b95567800f828948baf5f4160ebb2473?s=40&d=identicon",
+            "web_url": "https://gitlab.example.com/jarrett",
+        },
+        "assignee": {
+            "name": "Administrator",
+            "username": "root",
+            "id": 1,
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=40&d=identicon",
+            "web_url": "https://gitlab.example.com/root",
+        },
+        "assignees": [
+            {
+                "name": "Miss Monserrate Beier",
+                "username": "axel.block",
+                "id": 12,
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                "web_url": "https://gitlab.example.com/axel.block",
+            }
+        ],
+        "reviewers": [
+            {
+                "name": "Miss Monserrate Beier",
+                "username": "axel.block",
+                "id": 12,
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                "web_url": "https://gitlab.example.com/axel.block",
+            }
+        ],
+        "source_project_id": 4,
+        "target_project_id": 4,
+        "labels": [],
+        "description": "Qui voluptatibus placeat ipsa alias quasi. Deleniti rem ut sint. Optio velit qui distinctio.",
+        "draft": False,
+        "work_in_progress": False,
+        "milestone": {
+            "id": 5,
+            "iid": 1,
+            "project_id": 4,
+            "title": "v2.0",
+            "description": "Assumenda aut placeat expedita exercitationem labore sunt enim earum.",
+            "state": "closed",
+            "created_at": "2015-02-02T19:49:26.013Z",
+            "updated_at": "2015-02-02T19:49:26.013Z",
+            "due_date": None,
+        },
+        "merge_when_pipeline_succeeds": True,
+        "merge_status": "can_be_merged",
+        "detailed_merge_status": "can_be_merged",
+        "subscribed": True,
+        "sha": "8888888888888888888888888888888888888888",
+        "merge_commit_sha": None,
+        "squash_commit_sha": None,
+        "user_notes_count": 1,
+        "changes_count": "1",
+        "should_remove_source_branch": True,
+        "force_remove_source_branch": False,
+        "squash": False,
+        "web_url": "http://gitlab.example.com/my-group/my-project/merge_requests/1",
+        "references": {
+            "short": "!1",
+            "relative": "!1",
+            "full": "my-group/my-project!1",
+        },
+        "discussion_locked": False,
+        "time_stats": {
+            "time_estimate": 0,
+            "total_time_spent": 0,
+            "human_time_estimate": None,
+            "human_total_time_spent": None,
+        },
+        "task_completion_status": {"count": 0, "completed_count": 0},
+        "changes": [
+            {
+                "old_path": "VERSION",
+                "new_path": "VERSION",
+                "a_mode": "100644",
+                "b_mode": "100644",
+                "diff": "@@ -1 +1 @@\ -1.9.7\ +1.9.8",
+                "new_file": False,
+                "renamed_file": False,
+                "deleted_file": False,
+            }
+        ],
+        "overflow": False,
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequest"
+
+    # Diff
+    example_data = [
+        {
+            "old_path": "README",
+            "new_path": "README",
+            "a_mode": "100644",
+            "b_mode": "100644",
+            "diff": "@@ -1 +1 @@\ -Title\ +README",
+            "new_file": False,
+            "renamed_file": False,
+            "deleted_file": False,
+            "generated_file": False,
+        },
+        {
+            "old_path": "VERSION",
+            "new_path": "VERSION",
+            "a_mode": "100644",
+            "b_mode": "100644",
+            "diff": "@@\ -1.9.7\ +1.9.8",
+            "new_file": False,
+            "renamed_file": False,
+            "deleted_file": False,
+            "generated_file": False,
+        },
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Diffs"
+
+    # Pipelines
+    example_data = [
+        {
+            "id": 77,
+            "sha": "959e04d7c7a30600c894bd3c0cd0e1ce7f42c11d",
+            "ref": "main",
+            "status": "success",
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipelines"
+
+    # Merge Request
+    example_data = {
+        "id": 1,
+        "iid": 1,
+        "project_id": 3,
+        "title": "test1",
+        "description": "fixed login page css paddings",
+        "state": "merged",
+        "imported": False,
+        "imported_from": "none",
+        "created_at": "2017-04-29T08:46:00Z",
+        "updated_at": "2017-04-29T08:46:00Z",
+        "target_branch": "main",
+        "source_branch": "test1",
+        "upvotes": 0,
+        "downvotes": 0,
+        "author": {
+            "id": 1,
+            "name": "Administrator",
+            "username": "admin",
+            "state": "active",
+            "avatar_url": None,
+            "web_url": "https://gitlab.example.com/admin",
+        },
+        "assignee": {
+            "id": 1,
+            "name": "Administrator",
+            "username": "admin",
+            "state": "active",
+            "avatar_url": None,
+            "web_url": "https://gitlab.example.com/admin",
+        },
+        "source_project_id": 2,
+        "target_project_id": 3,
+        "labels": ["Community contribution", "Manage"],
+        "draft": False,
+        "work_in_progress": False,
+        "milestone": {
+            "id": 5,
+            "iid": 1,
+            "project_id": 3,
+            "title": "v2.0",
+            "description": "Assumenda aut placeat expedita exercitationem labore sunt enim earum.",
+            "state": "closed",
+            "created_at": "2015-02-02T19:49:26.013Z",
+            "updated_at": "2015-02-02T19:49:26.013Z",
+            "due_date": "2018-09-22",
+            "start_date": "2018-08-08",
+            "web_url": "https://gitlab.example.com/my-group/my-project/milestones/1",
+        },
+        "merge_when_pipeline_succeeds": True,
+        "merge_status": "can_be_merged",
+        "detailed_merge_status": "not_open",
+        "merge_error": None,
+        "sha": "8888888888888888888888888888888888888888",
+        "merge_commit_sha": None,
+        "squash_commit_sha": None,
+        "user_notes_count": 1,
+        "discussion_locked": None,
+        "should_remove_source_branch": True,
+        "force_remove_source_branch": False,
+        "allow_collaboration": False,
+        "allow_maintainer_to_push": False,
+        "web_url": "http://gitlab.example.com/my-group/my-project/merge_requests/1",
+        "references": {
+            "short": "!1",
+            "relative": "!1",
+            "full": "my-group/my-project!1",
+        },
+        "time_stats": {
+            "time_estimate": 0,
+            "total_time_spent": 0,
+            "human_time_estimate": None,
+            "human_total_time_spent": None,
+        },
+        "squash": False,
+        "subscribed": False,
+        "changes_count": "1",
+        "merged_by": {
+            "id": 87854,
+            "name": "Douwe Maan",
+            "username": "DouweM",
+            "state": "active",
+            "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+            "web_url": "https://gitlab.com/DouweM",
+        },
+        "merge_user": {
+            "id": 87854,
+            "name": "Douwe Maan",
+            "username": "DouweM",
+            "state": "active",
+            "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+            "web_url": "https://gitlab.com/DouweM",
+        },
+        "merged_at": "2018-09-07T11:16:17.520Z",
+        "prepared_at": "2018-09-04T11:16:17.520Z",
+        "closed_by": None,
+        "closed_at": None,
+        "latest_build_started_at": "2018-09-07T07:27:38.472Z",
+        "latest_build_finished_at": "2018-09-07T08:07:06.012Z",
+        "first_deployed_to_production_at": None,
+        "pipeline": {
+            "id": 29626725,
+            "sha": "2be7ddb704c7b6b83732fdd5b9f09d5a397b5f8f",
+            "ref": "patch-28",
+            "status": "success",
+            "web_url": "https://gitlab.example.com/my-group/my-project/pipelines/29626725",
+        },
+        "diff_refs": {
+            "base_sha": "c380d3acebd181f13629a25d2e2acca46ffe1e00",
+            "head_sha": "2be7ddb704c7b6b83732fdd5b9f09d5a397b5f8f",
+            "start_sha": "c380d3acebd181f13629a25d2e2acca46ffe1e00",
+        },
+        "diverged_commits_count": 2,
+        "task_completion_status": {"count": 0, "completed_count": 0},
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequest"
+
+    example_data = {
+        "id": 1,
+        "iid": 1,
+        "project_id": 3,
+        "title": "test1",
+        "description": "fixed login page css paddings",
+        "state": "merged",
+        "created_at": "2017-04-29T08:46:00Z",
+        "updated_at": "2017-04-29T08:46:00Z",
+        "target_branch": "main",
+        "source_branch": "test1",
+        "upvotes": 0,
+        "downvotes": 0,
+        "author": {
+            "id": 1,
+            "name": "Administrator",
+            "username": "admin",
+            "state": "active",
+            "avatar_url": None,
+            "web_url": "https://gitlab.example.com/admin",
+        },
+        "assignee": {
+            "id": 1,
+            "name": "Administrator",
+            "username": "admin",
+            "state": "active",
+            "avatar_url": None,
+            "web_url": "https://gitlab.example.com/admin",
+        },
+        "assignees": [
+            {
+                "name": "Miss Monserrate Beier",
+                "username": "axel.block",
+                "id": 12,
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                "web_url": "https://gitlab.example.com/axel.block",
+            }
+        ],
+        "reviewers": [
+            {
+                "name": "Miss Monserrate Beier",
+                "username": "axel.block",
+                "id": 12,
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                "web_url": "https://gitlab.example.com/axel.block",
+            }
+        ],
+        "source_project_id": 2,
+        "target_project_id": 3,
+        "labels": ["Community contribution", "Manage"],
+        "draft": False,
+        "work_in_progress": False,
+        "milestone": {
+            "id": 5,
+            "iid": 1,
+            "project_id": 3,
+            "title": "v2.0",
+            "description": "Assumenda aut placeat expedita exercitationem labore sunt enim earum.",
+            "state": "closed",
+            "created_at": "2015-02-02T19:49:26.013Z",
+            "updated_at": "2015-02-02T19:49:26.013Z",
+            "due_date": "2018-09-22",
+            "start_date": "2018-08-08",
+            "web_url": "https://gitlab.example.com/my-group/my-project/milestones/1",
+        },
+        "merge_when_pipeline_succeeds": True,
+        "merge_status": "can_be_merged",
+        "detailed_merge_status": "not_open",
+        "merge_error": None,
+        "sha": "8888888888888888888888888888888888888888",
+        "merge_commit_sha": None,
+        "squash_commit_sha": None,
+        "user_notes_count": 1,
+        "discussion_locked": None,
+        "should_remove_source_branch": True,
+        "force_remove_source_branch": False,
+        "allow_collaboration": False,
+        "allow_maintainer_to_push": False,
+        "web_url": "http://gitlab.example.com/my-group/my-project/merge_requests/1",
+        "references": {
+            "short": "!1",
+            "relative": "!1",
+            "full": "my-group/my-project!1",
+        },
+        "time_stats": {
+            "time_estimate": 0,
+            "total_time_spent": 0,
+            "human_time_estimate": None,
+            "human_total_time_spent": None,
+        },
+        "squash": False,
+        "subscribed": False,
+        "changes_count": "1",
+        "merged_by": {
+            "id": 87854,
+            "name": "Douwe Maan",
+            "username": "DouweM",
+            "state": "active",
+            "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+            "web_url": "https://gitlab.com/DouweM",
+        },
+        "merge_user": {
+            "id": 87854,
+            "name": "Douwe Maan",
+            "username": "DouweM",
+            "state": "active",
+            "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+            "web_url": "https://gitlab.com/DouweM",
+        },
+        "merged_at": "2018-09-07T11:16:17.520Z",
+        "prepared_at": "2018-09-04T11:16:17.520Z",
+        "closed_by": None,
+        "closed_at": None,
+        "latest_build_started_at": "2018-09-07T07:27:38.472Z",
+        "latest_build_finished_at": "2018-09-07T08:07:06.012Z",
+        "first_deployed_to_production_at": None,
+        "pipeline": {
+            "id": 29626725,
+            "sha": "2be7ddb704c7b6b83732fdd5b9f09d5a397b5f8f",
+            "ref": "patch-28",
+            "status": "success",
+            "web_url": "https://gitlab.example.com/my-group/my-project/pipelines/29626725",
+        },
+        "diff_refs": {
+            "base_sha": "c380d3acebd181f13629a25d2e2acca46ffe1e00",
+            "head_sha": "2be7ddb704c7b6b83732fdd5b9f09d5a397b5f8f",
+            "start_sha": "c380d3acebd181f13629a25d2e2acca46ffe1e00",
+        },
+        "diverged_commits_count": 2,
+        "task_completion_status": {"count": 0, "completed_count": 0},
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequest"
+
+    example_data = {
+        "id": 1,
+        "iid": 1,
+        "project_id": 3,
+        "title": "test1",
+        "description": "fixed login page css paddings",
+        "state": "merged",
+        "created_at": "2017-04-29T08:46:00Z",
+        "updated_at": "2017-04-29T08:46:00Z",
+        "target_branch": "main",
+        "source_branch": "test1",
+        "upvotes": 0,
+        "downvotes": 0,
+        "author": {
+            "id": 1,
+            "name": "Administrator",
+            "username": "admin",
+            "state": "active",
+            "avatar_url": None,
+            "web_url": "https://gitlab.example.com/admin",
+        },
+        "assignee": {
+            "id": 1,
+            "name": "Administrator",
+            "username": "admin",
+            "state": "active",
+            "avatar_url": None,
+            "web_url": "https://gitlab.example.com/admin",
+        },
+        "assignees": [
+            {
+                "name": "Miss Monserrate Beier",
+                "username": "axel.block",
+                "id": 12,
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                "web_url": "https://gitlab.example.com/axel.block",
+            }
+        ],
+        "reviewers": [
+            {
+                "name": "Miss Monserrate Beier",
+                "username": "axel.block",
+                "id": 12,
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                "web_url": "https://gitlab.example.com/axel.block",
+            }
+        ],
+        "source_project_id": 2,
+        "target_project_id": 3,
+        "labels": ["Community contribution", "Manage"],
+        "draft": False,
+        "work_in_progress": False,
+        "milestone": {
+            "id": 5,
+            "iid": 1,
+            "project_id": 3,
+            "title": "v2.0",
+            "description": "Assumenda aut placeat expedita exercitationem labore sunt enim earum.",
+            "state": "closed",
+            "created_at": "2015-02-02T19:49:26.013Z",
+            "updated_at": "2015-02-02T19:49:26.013Z",
+            "due_date": "2018-09-22",
+            "start_date": "2018-08-08",
+            "web_url": "https://gitlab.example.com/my-group/my-project/milestones/1",
+        },
+        "merge_when_pipeline_succeeds": False,
+        "merge_status": "can_be_merged",
+        "detailed_merge_status": "not_open",
+        "merge_error": None,
+        "sha": "8888888888888888888888888888888888888888",
+        "merge_commit_sha": None,
+        "squash_commit_sha": None,
+        "user_notes_count": 1,
+        "discussion_locked": None,
+        "should_remove_source_branch": True,
+        "force_remove_source_branch": False,
+        "allow_collaboration": False,
+        "allow_maintainer_to_push": False,
+        "web_url": "http://gitlab.example.com/my-group/my-project/merge_requests/1",
+        "references": {
+            "short": "!1",
+            "relative": "!1",
+            "full": "my-group/my-project!1",
+        },
+        "time_stats": {
+            "time_estimate": 0,
+            "total_time_spent": 0,
+            "human_time_estimate": None,
+            "human_total_time_spent": None,
+        },
+        "squash": False,
+        "subscribed": False,
+        "changes_count": "1",
+        "merged_by": {
+            "id": 87854,
+            "name": "Douwe Maan",
+            "username": "DouweM",
+            "state": "active",
+            "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+            "web_url": "https://gitlab.com/DouweM",
+        },
+        "merge_user": {
+            "id": 87854,
+            "name": "Douwe Maan",
+            "username": "DouweM",
+            "state": "active",
+            "avatar_url": "https://gitlab.example.com/uploads/-/system/user/avatar/87854/avatar.png",
+            "web_url": "https://gitlab.com/DouweM",
+        },
+        "merged_at": "2018-09-07T11:16:17.520Z",
+        "prepared_at": "2018-09-04T11:16:17.520Z",
+        "closed_by": None,
+        "closed_at": None,
+        "latest_build_started_at": "2018-09-07T07:27:38.472Z",
+        "latest_build_finished_at": "2018-09-07T08:07:06.012Z",
+        "first_deployed_to_production_at": None,
+        "pipeline": {
+            "id": 29626725,
+            "sha": "2be7ddb704c7b6b83732fdd5b9f09d5a397b5f8f",
+            "ref": "patch-28",
+            "status": "success",
+            "web_url": "https://gitlab.example.com/my-group/my-project/pipelines/29626725",
+        },
+        "diff_refs": {
+            "base_sha": "c380d3acebd181f13629a25d2e2acca46ffe1e00",
+            "head_sha": "2be7ddb704c7b6b83732fdd5b9f09d5a397b5f8f",
+            "start_sha": "c380d3acebd181f13629a25d2e2acca46ffe1e00",
+        },
+        "diverged_commits_count": 2,
+        "task_completion_status": {"count": 0, "completed_count": 0},
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequest"
+
+    example_data = {"rebase_in_progress": True}
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequest"
+
+    example_data = {"rebase_in_progress": True, "merge_error": None}
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequest"
+
+    example_data = {"rebase_in_progress": False, "merge_error": None}
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequest"
+
+    example_data = {
+        "rebase_in_progress": False,
+        "merge_error": "Rebase failed. Please rebase locally",
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "MergeRequest"
+
+    # Issues
+    example_data = [
+        {
+            "state": "opened",
+            "description": "Ratione dolores corrupti mollitia soluta quia.",
+            "author": {
+                "state": "active",
+                "id": 18,
+                "web_url": "https://gitlab.example.com/eileen.lowe",
+                "name": "Alexandra Bashirian",
+                "avatar_url": None,
+                "username": "eileen.lowe",
+            },
+            "milestone": {
+                "project_id": 1,
+                "description": "Ducimus nam enim ex consequatur cumque ratione.",
+                "state": "closed",
+                "due_date": None,
+                "iid": 2,
+                "created_at": "2016-01-04T15:31:39.996Z",
+                "title": "v4.0",
+                "id": 17,
+                "updated_at": "2016-01-04T15:31:39.996Z",
+            },
+            "project_id": 1,
+            "assignee": {
+                "state": "active",
+                "id": 1,
+                "name": "Administrator",
+                "web_url": "https://gitlab.example.com/root",
+                "avatar_url": None,
+                "username": "root",
+            },
+            "updated_at": "2016-01-04T15:31:51.081Z",
+            "id": 76,
+            "title": "Consequatur vero maxime deserunt laboriosam est voluptas dolorem.",
+            "created_at": "2016-01-04T15:31:51.081Z",
+            "iid": 6,
+            "labels": [],
+            "user_notes_count": 1,
+            "changes_count": "1",
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Issues"
+
+    # Comments on Merge Request
+    example_data = [
+        {
+            "state": "opened",
+            "description": "Ratione dolores corrupti mollitia soluta quia.",
+            "author": {
+                "state": "active",
+                "id": 18,
+                "web_url": "https://gitlab.example.com/eileen.lowe",
+                "name": "Alexandra Bashirian",
+                "avatar_url": None,
+                "username": "eileen.lowe",
+            },
+            "milestone": {
+                "project_id": 1,
+                "description": "Ducimus nam enim ex consequatur cumque ratione.",
+                "state": "closed",
+                "due_date": None,
+                "iid": 2,
+                "created_at": "2016-01-04T15:31:39.996Z",
+                "title": "v4.0",
+                "id": 17,
+                "updated_at": "2016-01-04T15:31:39.996Z",
+            },
+            "project_id": 1,
+            "assignee": {
+                "state": "active",
+                "id": 1,
+                "name": "Administrator",
+                "web_url": "https://gitlab.example.com/root",
+                "avatar_url": None,
+                "username": "root",
+            },
+            "updated_at": "2016-01-04T15:31:51.081Z",
+            "id": 76,
+            "title": "Consequatur vero maxime deserunt laboriosam est voluptas dolorem.",
+            "created_at": "2016-01-04T15:31:51.081Z",
+            "iid": 6,
+            "labels": [],
+            "user_notes_count": 1,
+            "changes_count": "1",
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Issues"
+
+    # Time tracking for Merge Request
+    example_data = {
+        "human_time_estimate": "2h",
+        "human_total_time_spent": "1h",
+        "time_estimate": 7200,
+        "total_time_spent": 3600,
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "TimeStats"
+
+    example_data = {
+        "human_time_estimate": None,
+        "human_total_time_spent": None,
+        "time_estimate": 0,
+        "total_time_spent": 0,
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "TimeStats"
+
+    # Merge diff versions
+    example_data = [
+        {
+            "id": 110,
+            "head_commit_sha": "33e2ee8579fda5bc36accc9c6fbd0b4fefda9e30",
+            "base_commit_sha": "eeb57dffe83deb686a60a71c16c32f71046868fd",
+            "start_commit_sha": "eeb57dffe83deb686a60a71c16c32f71046868fd",
+            "created_at": "2016-07-26T14:44:48.926Z",
+            "merge_request_id": 105,
+            "state": "collected",
+            "real_size": "1",
+            "patch_id_sha": "d504412d5b6e6739647e752aff8e468dde093f2f",
+        },
+        {
+            "id": 108,
+            "head_commit_sha": "3eed087b29835c48015768f839d76e5ea8f07a24",
+            "base_commit_sha": "eeb57dffe83deb686a60a71c16c32f71046868fd",
+            "start_commit_sha": "eeb57dffe83deb686a60a71c16c32f71046868fd",
+            "created_at": "2016-07-25T14:21:33.028Z",
+            "merge_request_id": 105,
+            "state": "collected",
+            "real_size": "1",
+            "patch_id_sha": "72c30d1f0115fc1d2bb0b29b24dc2982cbcdfd32",
+        },
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Diffs"
+
+
+# @pytest.mark.skipif(
+#     sys.platform in ["darwin"] or skip,
+#     reason=reason,
+# )
+# def test_issues_response():
+#     example_data = [
+#         {
+#             "state": "opened",
+#             "description": "Ratione dolores corrupti mollitia soluta quia.",
+#             "author": {
+#                 "state": "active",
+#                 "id": 18,
+#                 "web_url": "https://gitlab.example.com/eileen.lowe",
+#                 "name": "Alexandra Bashirian",
+#                 "avatar_url": None,
+#                 "username": "eileen.lowe"
+#             },
+#             "milestone": {
+#                 "project_id": 1,
+#                 "description": "Ducimus nam enim ex consequatur cumque ratione.",
+#                 "state": "closed",
+#                 "due_date": None,
+#                 "iid": 2,
+#                 "created_at": "2016-01-04T15:31:39.996Z",
+#                 "title": "v4.0",
+#                 "id": 17,
+#                 "updated_at": "2016-01-04T15:31:39.996Z"
+#             },
+#             "project_id": 1,
+#             "assignees": [{
+#                 "state": "active",
+#                 "id": 1,
+#                 "name": "Administrator",
+#                 "web_url": "https://gitlab.example.com/root",
+#                 "avatar_url": None,
+#                 "username": "root"
+#             }],
+#             "assignee": {
+#                 "state": "active",
+#                 "id": 1,
+#                 "name": "Administrator",
+#                 "web_url": "https://gitlab.example.com/root",
+#                 "avatar_url": None,
+#                 "username": "root"
+#             },
+#             "type": "ISSUE",
+#             "updated_at": "2016-01-04T15:31:51.081Z",
+#             "closed_at": None,
+#             "closed_by": None,
+#             "id": 76,
+#             "title": "Consequatur vero maxime deserunt laboriosam est voluptas dolorem.",
+#             "created_at": "2016-01-04T15:31:51.081Z",
+#             "moved_to_id": None,
+#             "iid": 6,
+#             "labels": ["foo", "bar"],
+#             "upvotes": 4,
+#             "downvotes": 0,
+#             "merge_requests_count": 0,
+#             "user_notes_count": 1,
+#             "due_date": "2016-07-22",
+#             "imported": False,
+#             "imported_from": "none",
+#             "web_url": "http://gitlab.example.com/my-group/my-project/issues/6",
+#             "references": {
+#                 "short": "#6",
+#                 "relative": "my-group/my-project#6",
+#                 "full": "my-group/my-project#6"
+#             },
+#             "time_stats": {
+#                 "time_estimate": 0,
+#                 "total_time_spent": 0,
+#                 "human_time_estimate": None,
+#                 "human_total_time_spent": None
+#             },
+#             "has_tasks": True,
+#             "task_status": "10 of 15 tasks completed",
+#             "confidential": False,
+#             "discussion_locked": False,
+#             "issue_type": "issue",
+#             "severity": "UNKNOWN",
+#             "_links": {
+#                 "self": "http://gitlab.example.com/api/v4/projects/1/issues/76",
+#                 "notes": "http://gitlab.example.com/api/v4/projects/1/issues/76/notes",
+#                 "award_emoji": "http://gitlab.example.com/api/v4/projects/1/issues/76/award_emoji",
+#                 "project": "http://gitlab.example.com/api/v4/projects/1",
+#                 "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+#             },
+#             "task_completion_status": {
+#                 "count": 0,
+#                 "completed_count": 0
+#             }
+#         }
+#     ]
+#
+#     example_data = [
+#         {
+#             "state": "opened",
+#             "description": "Ratione dolores corrupti mollitia soluta quia.",
+#             "weight": None,
+#
+#         }
+#     ]
+#
+#     example_data = {
+#         "project_id": 4,
+#         "description": "Omnis vero earum sunt corporis dolor et placeat.",
+#         "epic_iid": 5,
+#         "epic": {
+#             "id": 42,
+#             "iid": 5,
+#             "title": "My epic epic",
+#             "url": "/groups/h5bp/-/epics/5",
+#             "group_id": 8
+#         },
+#
+#     }
+#
+#     example_data = {
+#         "iteration": {
+#             "id": 90,
+#             "iid": 4,
+#             "sequence": 2,
+#             "group_id": 162,
+#             "title": None,
+#             "description": None,
+#             "state": 2,
+#             "created_at": "2022-03-14T05:21:11.929Z",
+#             "updated_at": "2022-03-14T05:21:11.929Z",
+#             "start_date": "2022-03-08",
+#             "due_date": "2022-03-14",
+#             "web_url": "https://gitlab.com/groups/my-group/-/iterations/90"
+#         }
+#
+#     }
+#
+#     example_data = [
+#         {
+#             "state": "opened",
+#             "description": "Ratione dolores corrupti mollitia soluta quia.",
+#             "health_status": "on_track",
+#
+#         }
+#     ]
+#
+#     example_data = [
+#         {
+#             "project_id": 4,
+#             "milestone": {
+#                 "due_date": None,
+#                 "project_id": 4,
+#                 "state": "closed",
+#                 "description": "Rerum est voluptatem provident consequuntur molestias similique ipsum dolor.",
+#                 "iid": 3,
+#                 "id": 11,
+#                 "title": "v3.0",
+#                 "created_at": "2016-01-04T15:31:39.788Z",
+#                 "updated_at": "2016-01-04T15:31:39.788Z"
+#             },
+#             "author": {
+#                 "state": "active",
+#                 "web_url": "https://gitlab.example.com/root",
+#                 "avatar_url": None,
+#                 "username": "root",
+#                 "id": 1,
+#                 "name": "Administrator"
+#             },
+#             "description": "Omnis vero earum sunt corporis dolor et placeat.",
+#             "state": "closed",
+#             "iid": 1,
+#             "assignees": [{
+#                 "avatar_url": None,
+#                 "web_url": "https://gitlab.example.com/lennie",
+#                 "state": "active",
+#                 "username": "lennie",
+#                 "id": 9,
+#                 "name": "Dr. Luella Kovacek"
+#             }],
+#             "assignee": {
+#                 "avatar_url": None,
+#                 "web_url": "https://gitlab.example.com/lennie",
+#                 "state": "active",
+#                 "username": "lennie",
+#                 "id": 9,
+#                 "name": "Dr. Luella Kovacek"
+#             },
+#             "type": "ISSUE",
+#             "labels": ["foo", "bar"],
+#             "upvotes": 4,
+#             "downvotes": 0,
+#             "merge_requests_count": 0,
+#             "id": 41,
+#             "title": "Ut commodi ullam eos dolores perferendis nihil sunt.",
+#             "updated_at": "2016-01-04T15:31:46.176Z",
+#             "created_at": "2016-01-04T15:31:46.176Z",
+#             "closed_at": None,
+#             "closed_by": None,
+#             "user_notes_count": 1,
+#             "due_date": None,
+#             "imported": False,
+#             "imported_from": "none",
+#             "web_url": "http://gitlab.example.com/my-group/my-project/issues/1",
+#             "references": {
+#                 "short": "#1",
+#                 "relative": "my-project#1",
+#                 "full": "my-group/my-project#1"
+#             },
+#             "time_stats": {
+#                 "time_estimate": 0,
+#                 "total_time_spent": 0,
+#                 "human_time_estimate": None,
+#                 "human_total_time_spent": None
+#             },
+#             "has_tasks": True,
+#             "task_status": "10 of 15 tasks completed",
+#             "confidential": False,
+#             "discussion_locked": False,
+#             "issue_type": "issue",
+#             "severity": "UNKNOWN",
+#             "_links": {
+#                 "self": "http://gitlab.example.com/api/v4/projects/4/issues/41",
+#                 "notes": "http://gitlab.example.com/api/v4/projects/4/issues/41/notes",
+#                 "award_emoji": "http://gitlab.example.com/api/v4/projects/4/issues/41/award_emoji",
+#                 "project": "http://gitlab.example.com/api/v4/projects/4",
+#                 "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+#             },
+#             "task_completion_status": {
+#                 "count": 0,
+#                 "completed_count": 0
+#             },
+#             "weight": None,
+#             "epic_iid": 5,
+#             "epic": {
+#                 "id": 42,
+#                 "iid": 5,
+#                 "title": "My epic epic",
+#                 "url": "/groups/h5bp/-/epics/5",
+#                 "group_id": 8
+#             },
+#             "health_status": "at_risk",
+#         }
+#     ]
+#
+#     example_data = [
+#         {
+#             "project_id": 4,
+#             "milestone": {
+#                 "due_date": None,
+#                 "project_id": 4,
+#                 "state": "closed",
+#                 "description": "Rerum est voluptatem provident consequuntur molestias similique ipsum dolor.",
+#                 "iid": 3,
+#                 "id": 11,
+#                 "title": "v3.0",
+#                 "created_at": "2016-01-04T15:31:39.788Z",
+#                 "updated_at": "2016-01-04T15:31:39.788Z"
+#             },
+#             "author": {
+#                 "state": "active",
+#                 "web_url": "https://gitlab.example.com/root",
+#                 "avatar_url": None,
+#                 "username": "root",
+#                 "id": 1,
+#                 "name": "Administrator"
+#             },
+#             "description": "Omnis vero earum sunt corporis dolor et placeat.",
+#             "state": "closed",
+#             "iid": 1,
+#             "assignees": [{
+#                 "avatar_url": None,
+#                 "web_url": "https://gitlab.example.com/lennie",
+#                 "state": "active",
+#                 "username": "lennie",
+#                 "id": 9,
+#                 "name": "Dr. Luella Kovacek"
+#             }],
+#             "assignee": {
+#                 "avatar_url": None,
+#                 "web_url": "https://gitlab.example.com/lennie",
+#                 "state": "active",
+#                 "username": "lennie",
+#                 "id": 9,
+#                 "name": "Dr. Luella Kovacek"
+#             },
+#             "type": "ISSUE",
+#             "labels": ["foo", "bar"],
+#             "upvotes": 4,
+#             "downvotes": 0,
+#             "merge_requests_count": 0,
+#             "id": 41,
+#             "title": "Ut commodi ullam eos dolores perferendis nihil sunt.",
+#             "updated_at": "2016-01-04T15:31:46.176Z",
+#             "created_at": "2016-01-04T15:31:46.176Z",
+#             "closed_at": "2016-01-05T15:31:46.176Z",
+#             "closed_by": {
+#                 "state": "active",
+#                 "web_url": "https://gitlab.example.com/root",
+#                 "avatar_url": None,
+#                 "username": "root",
+#                 "id": 1,
+#                 "name": "Administrator"
+#             },
+#             "user_notes_count": 1,
+#             "due_date": "2016-07-22",
+#             "imported": False,
+#             "imported_from": "none",
+#             "web_url": "http://gitlab.example.com/my-group/my-project/issues/1",
+#             "references": {
+#                 "short": "#1",
+#                 "relative": "#1",
+#                 "full": "my-group/my-project#1"
+#             },
+#             "time_stats": {
+#                 "time_estimate": 0,
+#                 "total_time_spent": 0,
+#                 "human_time_estimate": None,
+#                 "human_total_time_spent": None
+#             },
+#             "has_tasks": True,
+#             "task_status": "10 of 15 tasks completed",
+#             "confidential": False,
+#             "discussion_locked": False,
+#             "issue_type": "issue",
+#             "severity": "UNKNOWN",
+#             "_links": {
+#                 "self": "http://gitlab.example.com/api/v4/projects/4/issues/41",
+#                 "notes": "http://gitlab.example.com/api/v4/projects/4/issues/41/notes",
+#                 "award_emoji": "http://gitlab.example.com/api/v4/projects/4/issues/41/award_emoji",
+#                 "project": "http://gitlab.example.com/api/v4/projects/4",
+#                 "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+#             },
+#             "task_completion_status": {
+#                 "count": 0,
+#                 "completed_count": 0
+#             },
+#             "weight": None,
+#             "epic_iid": 5,
+#             "epic": {
+#                 "id": 42,
+#                 "iid": 5,
+#                 "title": "My epic epic",
+#                 "url": "/groups/h5bp/-/epics/5",
+#                 "group_id": 8
+#             },
+#             "health_status": "at_risk",
+#         }
+#     ]
+#
+#     example_data = {
+#         "id": 1,
+#         "milestone": {
+#             "due_date": None,
+#             "project_id": 4,
+#             "state": "closed",
+#             "description": "Rerum est voluptatem provident consequuntur molestias similique ipsum dolor.",
+#             "iid": 3,
+#             "id": 11,
+#             "title": "v3.0",
+#             "created_at": "2016-01-04T15:31:39.788Z",
+#             "updated_at": "2016-01-04T15:31:39.788Z",
+#             "closed_at": "2016-01-05T15:31:46.176Z"
+#         },
+#         "author": {
+#             "state": "active",
+#             "web_url": "https://gitlab.example.com/root",
+#             "avatar_url": None,
+#             "username": "root",
+#             "id": 1,
+#             "name": "Administrator"
+#         },
+#         "description": "Omnis vero earum sunt corporis dolor et placeat.",
+#         "state": "closed",
+#         "iid": 1,
+#         "assignees": [
+#             {
+#                 "avatar_url": None,
+#                 "web_url": "https://gitlab.example.com/lennie",
+#                 "state": "active",
+#                 "username": "lennie",
+#                 "id": 9,
+#                 "name": "Dr. Luella Kovacek"
+#             }
+#         ],
+#         "assignee": {
+#             "avatar_url": None,
+#             "web_url": "https://gitlab.example.com/lennie",
+#             "state": "active",
+#             "username": "lennie",
+#             "id": 9,
+#             "name": "Dr. Luella Kovacek"
+#         },
+#         "type": "ISSUE",
+#         "labels": [],
+#         "upvotes": 4,
+#         "downvotes": 0,
+#         "merge_requests_count": 0,
+#         "title": "Ut commodi ullam eos dolores perferendis nihil sunt.",
+#         "updated_at": "2016-01-04T15:31:46.176Z",
+#         "created_at": "2016-01-04T15:31:46.176Z",
+#         "closed_at": None,
+#         "closed_by": None,
+#         "subscribed": False,
+#         "user_notes_count": 1,
+#         "due_date": None,
+#         "imported": False,
+#         "imported_from": "none",
+#         "web_url": "http://example.com/my-group/my-project/issues/1",
+#         "references": {
+#             "short": "#1",
+#             "relative": "#1",
+#             "full": "my-group/my-project#1"
+#         },
+#         "time_stats": {
+#             "time_estimate": 0,
+#             "total_time_spent": 0,
+#             "human_time_estimate": None,
+#             "human_total_time_spent": None
+#         },
+#         "confidential": False,
+#         "discussion_locked": False,
+#         "issue_type": "issue",
+#         "severity": "UNKNOWN",
+#         "task_completion_status": {
+#             "count": 0,
+#             "completed_count": 0
+#         },
+#         "weight": None,
+#         "has_tasks": False,
+#         "_links": {
+#             "self": "http://gitlab.example:3000/api/v4/projects/1/issues/1",
+#             "notes": "http://gitlab.example:3000/api/v4/projects/1/issues/1/notes",
+#             "award_emoji": "http://gitlab.example:3000/api/v4/projects/1/issues/1/award_emoji",
+#             "project": "http://gitlab.example:3000/api/v4/projects/1",
+#             "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+#         },
+#         "moved_to_id": None,
+#         "service_desk_reply_to": "service.desk@gitlab.com"
+#     }
+#
+#     example_data = {
+#         "project_id": 4,
+#         "id": 84,
+#         "created_at": "2016-01-07T12:44:33.959Z",
+#         "iid": 14,
+#         "title": "Issues with auth",
+#         "state": "opened",
+#         "assignees": [],
+#         "assignee": None,
+#         "type": "ISSUE",
+#         "labels": [
+#             "bug"
+#         ],
+#         "upvotes": 4,
+#         "downvotes": 0,
+#         "merge_requests_count": 0,
+#         "author": {
+#             "name": "Alexandra Bashirian",
+#             "avatar_url": None,
+#             "state": "active",
+#             "web_url": "https://gitlab.example.com/eileen.lowe",
+#             "id": 18,
+#             "username": "eileen.lowe"
+#         },
+#         "description": None,
+#         "updated_at": "2016-01-07T12:44:33.959Z",
+#         "closed_at": None,
+#         "closed_by": None,
+#         "milestone": None,
+#         "subscribed": True,
+#         "user_notes_count": 0,
+#         "due_date": None,
+#         "web_url": "http://gitlab.example.com/my-group/my-project/issues/14",
+#         "references": {
+#             "short": "#14",
+#             "relative": "#14",
+#             "full": "my-group/my-project#14"
+#         },
+#         "time_stats": {
+#             "time_estimate": 0,
+#             "total_time_spent": 0,
+#             "human_time_estimate": None,
+#             "human_total_time_spent": None
+#         },
+#         "confidential": False,
+#         "discussion_locked": False,
+#         "issue_type": "issue",
+#         "severity": "UNKNOWN",
+#         "_links": {
+#             "self": "http://gitlab.example.com/api/v4/projects/1/issues/2",
+#             "notes": "http://gitlab.example.com/api/v4/projects/1/issues/2/notes",
+#             "award_emoji": "http://gitlab.example.com/api/v4/projects/1/issues/2/award_emoji",
+#             "project": "http://gitlab.example.com/api/v4/projects/1",
+#             "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+#         },
+#         "task_completion_status": {
+#             "count": 0,
+#             "completed_count": 0
+#         }
+#     }
+#
+#     example_data = {
+#         "id": 92,
+#         "iid": 11,
+#         "project_id": 5,
+#         "title": "Sit voluptas tempora quisquam aut doloribus et.",
+#         "description": "Repellat voluptas quibusdam voluptatem exercitationem.",
+#         "state": "opened",
+#         "created_at": "2016-04-05T21:41:45.652Z",
+#         "updated_at": "2016-04-07T12:20:17.596Z",
+#         "closed_at": None,
+#         "closed_by": None,
+#         "labels": [],
+#         "upvotes": 4,
+#         "downvotes": 0,
+#         "merge_requests_count": 0,
+#         "milestone": None,
+#         "assignees": [{
+#             "name": "Miss Monserrate Beier",
+#             "username": "axel.block",
+#             "id": 12,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/axel.block"
+#         }],
+#         "assignee": {
+#             "name": "Miss Monserrate Beier",
+#             "username": "axel.block",
+#             "id": 12,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/axel.block"
+#         },
+#         "type": "ISSUE",
+#         "author": {
+#             "name": "Kris Steuber",
+#             "username": "solon.cremin",
+#             "id": 10,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/7a190fecbaa68212a4b68aeb6e3acd10?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/solon.cremin"
+#         },
+#         "due_date": None,
+#         "imported": False,
+#         "imported_from": "none",
+#         "web_url": "http://gitlab.example.com/my-group/my-project/issues/11",
+#         "references": {
+#             "short": "#11",
+#             "relative": "#11",
+#             "full": "my-group/my-project#11"
+#         },
+#         "time_stats": {
+#             "time_estimate": 0,
+#             "total_time_spent": 0,
+#             "human_time_estimate": None,
+#             "human_total_time_spent": None
+#         },
+#         "confidential": False,
+#         "discussion_locked": False,
+#         "issue_type": "issue",
+#         "severity": "UNKNOWN",
+#         "_links": {
+#             "self": "http://gitlab.example.com/api/v4/projects/1/issues/2",
+#             "notes": "http://gitlab.example.com/api/v4/projects/1/issues/2/notes",
+#             "award_emoji": "http://gitlab.example.com/api/v4/projects/1/issues/2/award_emoji",
+#             "project": "http://gitlab.example.com/api/v4/projects/1",
+#             "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+#         },
+#         "task_completion_status": {
+#             "count": 0,
+#             "completed_count": 0
+#         }
+#     }
+#
+#     example_data = {
+#         "id": 290,
+#         "iid": 1,
+#         "project_id": 143,
+#         "title": "foo",
+#         "description": "closed",
+#         "state": "opened",
+#         "created_at": "2021-09-14T22:24:11.696Z",
+#         "updated_at": "2021-09-14T22:24:11.696Z",
+#         "closed_at": None,
+#         "closed_by": None,
+#         "labels": [
+#
+#         ],
+#         "milestone": None,
+#         "assignees": [
+#             {
+#                 "id": 179,
+#                 "name": "John Doe2",
+#                 "username": "john",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/10fc7f102be8de7657fb4d80898bbfe3?s=80\u0026d=identicon",
+#                 "web_url": "https://gitlab.example.com/john"
+#             }
+#         ],
+#         "author": {
+#             "id": 179,
+#             "name": "John Doe2",
+#             "username": "john",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/10fc7f102be8de7657fb4d80898bbfe3?s=80\u0026d=identicon",
+#             "web_url": "https://gitlab.example.com/john"
+#         },
+#         "type": "ISSUE",
+#         "assignee": {
+#             "id": 179,
+#             "name": "John Doe2",
+#             "username": "john",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/10fc7f102be8de7657fb4d80898bbfe3?s=80\u0026d=identicon",
+#             "web_url": "https://gitlab.example.com/john"
+#         },
+#         "user_notes_count": 1,
+#         "merge_requests_count": 0,
+#         "upvotes": 0,
+#         "downvotes": 0,
+#         "due_date": None,
+#         "imported": False,
+#         "imported_from": "none",
+#         "confidential": False,
+#         "discussion_locked": None,
+#         "issue_type": "issue",
+#         "severity": "UNKNOWN",
+#         "web_url": "https://gitlab.example.com/namespace1/project2/-/issues/1",
+#         "time_stats": {
+#             "time_estimate": 0,
+#             "total_time_spent": 0,
+#             "human_time_estimate": None,
+#             "human_total_time_spent": None
+#         },
+#         "task_completion_status": {
+#             "count": 0,
+#             "completed_count": 0
+#         },
+#         "blocking_issues_count": 0,
+#         "has_tasks": False,
+#         "_links": {
+#             "self": "https://gitlab.example.com/api/v4/projects/143/issues/1",
+#             "notes": "https://gitlab.example.com/api/v4/projects/143/issues/1/notes",
+#             "award_emoji": "https://gitlab.example.com/api/v4/projects/143/issues/1/award_emoji",
+#             "project": "https://gitlab.example.com/api/v4/projects/143",
+#             "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+#         },
+#         "references": {
+#             "short": "#1",
+#             "relative": "#1",
+#             "full": "namespace1/project2#1"
+#         },
+#         "subscribed": True,
+#         "moved_to_id": None,
+#         "service_desk_reply_to": None
+#     }
+#
+#     example_data = {
+#         "id": 92,
+#         "iid": 11,
+#         "project_id": 5,
+#         "title": "Sit voluptas tempora quisquam aut doloribus et.",
+#         "description": "Repellat voluptas quibusdam voluptatem exercitationem.",
+#         "state": "opened",
+#         "created_at": "2016-04-05T21:41:45.652Z",
+#         "updated_at": "2016-04-07T12:20:17.596Z",
+#         "closed_at": None,
+#         "closed_by": None,
+#         "labels": [],
+#         "upvotes": 4,
+#         "downvotes": 0,
+#         "merge_requests_count": 0,
+#         "milestone": None,
+#         "assignees": [{
+#             "name": "Miss Monserrate Beier",
+#             "username": "axel.block",
+#             "id": 12,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/axel.block"
+#         }],
+#         "assignee": {
+#             "name": "Miss Monserrate Beier",
+#             "username": "axel.block",
+#             "id": 12,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/axel.block"
+#         },
+#         "type": "ISSUE",
+#         "author": {
+#             "name": "Kris Steuber",
+#             "username": "solon.cremin",
+#             "id": 10,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/7a190fecbaa68212a4b68aeb6e3acd10?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/solon.cremin"
+#         },
+#         "due_date": None,
+#         "web_url": "http://gitlab.example.com/my-group/my-project/issues/11",
+#         "references": {
+#             "short": "#11",
+#             "relative": "#11",
+#             "full": "my-group/my-project#11"
+#         },
+#         "time_stats": {
+#             "time_estimate": 0,
+#             "total_time_spent": 0,
+#             "human_time_estimate": None,
+#             "human_total_time_spent": None
+#         },
+#         "confidential": False,
+#         "discussion_locked": False,
+#         "issue_type": "issue",
+#         "severity": "UNKNOWN",
+#         "_links": {
+#             "self": "http://gitlab.example.com/api/v4/projects/1/issues/2",
+#             "notes": "http://gitlab.example.com/api/v4/projects/1/issues/2/notes",
+#             "award_emoji": "http://gitlab.example.com/api/v4/projects/1/issues/2/award_emoji",
+#             "project": "http://gitlab.example.com/api/v4/projects/1",
+#             "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+#         },
+#         "task_completion_status": {
+#             "count": 0,
+#             "completed_count": 0
+#         }
+#     }
+#
+#     example_data = {
+#         "id": 93,
+#         "iid": 12,
+#         "project_id": 5,
+#         "title": "Incidunt et rerum ea expedita iure quibusdam.",
+#         "description": "Et cumque architecto sed aut ipsam.",
+#         "state": "opened",
+#         "created_at": "2016-04-05T21:41:45.217Z",
+#         "updated_at": "2016-04-07T13:02:37.905Z",
+#         "labels": [],
+#         "upvotes": 4,
+#         "downvotes": 0,
+#         "merge_requests_count": 0,
+#         "milestone": None,
+#         "assignee": {
+#             "name": "Edwardo Grady",
+#             "username": "keyon",
+#             "id": 21,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/3e6f06a86cf27fa8b56f3f74f7615987?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/keyon"
+#         },
+#         "type": "ISSUE",
+#         "closed_at": None,
+#         "closed_by": None,
+#         "author": {
+#             "name": "Vivian Hermann",
+#             "username": "orville",
+#             "id": 11,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/5224fd70153710e92fb8bcf79ac29d67?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/orville"
+#         },
+#         "subscribed": False,
+#         "due_date": None,
+#         "web_url": "http://gitlab.example.com/my-group/my-project/issues/12",
+#         "references": {
+#             "short": "#12",
+#             "relative": "#12",
+#             "full": "my-group/my-project#12"
+#         },
+#         "confidential": False,
+#         "discussion_locked": False,
+#         "issue_type": "issue",
+#         "severity": "UNKNOWN",
+#         "task_completion_status": {
+#             "count": 0,
+#             "completed_count": 0
+#         }
+#     }
+#
+#     example_data = {
+#         "id": 112,
+#         "project": {
+#             "id": 5,
+#             "name": "GitLab CI/CD",
+#             "name_with_namespace": "GitLab Org / GitLab CI/CD",
+#             "path": "gitlab-ci",
+#             "path_with_namespace": "gitlab-org/gitlab-ci"
+#         },
+#         "author": {
+#             "name": "Administrator",
+#             "username": "root",
+#             "id": 1,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/root"
+#         },
+#         "action_name": "marked",
+#         "target_type": "Issue",
+#         "target": {
+#             "id": 93,
+#             "iid": 10,
+#             "project_id": 5,
+#             "title": "Vel voluptas atque dicta mollitia adipisci qui at.",
+#             "description": "Tempora laboriosam sint magni sed voluptas similique.",
+#             "state": "closed",
+#             "created_at": "2016-06-17T07:47:39.486Z",
+#             "updated_at": "2016-07-01T11:09:13.998Z",
+#             "labels": [],
+#             "milestone": {
+#                 "id": 26,
+#                 "iid": 1,
+#                 "project_id": 5,
+#                 "title": "v0.0",
+#                 "description": "Accusantium nostrum rerum quae quia quis nesciunt suscipit id.",
+#                 "state": "closed",
+#                 "created_at": "2016-06-17T07:47:33.832Z",
+#                 "updated_at": "2016-06-17T07:47:33.832Z",
+#                 "due_date": None
+#             },
+#             "assignees": [{
+#                 "name": "Jarret O'Keefe",
+#                 "username": "francisca",
+#                 "id": 14,
+#                 "state": "active",
+#                 "avatar_url": "http://www.gravatar.com/avatar/a7fa515d53450023c83d62986d0658a8?s=80&d=identicon",
+#                 "web_url": "https://gitlab.example.com/francisca"
+#             }],
+#             "assignee": {
+#                 "name": "Jarret O'Keefe",
+#                 "username": "francisca",
+#                 "id": 14,
+#                 "state": "active",
+#                 "avatar_url": "http://www.gravatar.com/avatar/a7fa515d53450023c83d62986d0658a8?s=80&d=identicon",
+#                 "web_url": "https://gitlab.example.com/francisca"
+#             },
+#             "type": "ISSUE",
+#             "author": {
+#                 "name": "Maxie Medhurst",
+#                 "username": "craig_rutherford",
+#                 "id": 12,
+#                 "state": "active",
+#                 "avatar_url": "http://www.gravatar.com/avatar/a0d477b3ea21970ce6ffcbb817b0b435?s=80&d=identicon",
+#                 "web_url": "https://gitlab.example.com/craig_rutherford"
+#             },
+#             "subscribed": True,
+#             "user_notes_count": 7,
+#             "upvotes": 0,
+#             "downvotes": 0,
+#             "merge_requests_count": 0,
+#             "due_date": None,
+#             "web_url": "http://gitlab.example.com/my-group/my-project/issues/10",
+#             "references": {
+#                 "short": "#10",
+#                 "relative": "#10",
+#                 "full": "my-group/my-project#10"
+#             },
+#             "confidential": False,
+#             "discussion_locked": False,
+#             "issue_type": "issue",
+#             "severity": "UNKNOWN",
+#             "task_completion_status": {
+#                 "count": 0,
+#                 "completed_count": 0
+#             }
+#         },
+#         "target_url": "https://gitlab.example.com/gitlab-org/gitlab-ci/issues/10",
+#         "body": "Vel voluptas atque dicta mollitia adipisci qui at.",
+#         "state": "pending",
+#         "created_at": "2016-07-01T11:09:13.992Z"
+#     }
+#
+#     example_data = {
+#         "id": 699,
+#         "type": None,
+#         "body": "Lets promote this to an epic",
+#         "attachment": None,
+#         "author": {
+#             "id": 1,
+#             "name": "Alexandra Bashirian",
+#             "username": "eileen.lowe",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "https://gitlab.example.com/eileen.lowe"
+#         },
+#         "created_at": "2020-12-03T12:27:17.844Z",
+#         "updated_at": "2020-12-03T12:27:17.844Z",
+#         "system": False,
+#         "noteable_id": 461,
+#         "noteable_type": "Issue",
+#         "resolvable": False,
+#         "confidential": False,
+#         "noteable_iid": 33,
+#         "commands_changes": {
+#             "promote_to_epic": True
+#         }
+#     }
+#
+#     example_data = {
+#         "human_time_estimate": "3h 30m",
+#         "human_total_time_spent": None,
+#         "time_estimate": 12600,
+#         "total_time_spent": 0
+#     }
+#
+#     example_data = {
+#         "human_time_estimate": None,
+#         "human_total_time_spent": None,
+#         "time_estimate": 0,
+#         "total_time_spent": 0
+#     }
+
+
 if __name__ == "__main__":
     test_branch_model()
     test_commit_model()
@@ -1457,3 +3518,5 @@ if __name__ == "__main__":
     test_branch_response()
     test_commit_response()
     test_deploy_token_response()
+    test_merge_request_response()
+    #test_issues_response()
