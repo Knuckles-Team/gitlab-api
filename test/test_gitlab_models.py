@@ -808,134 +808,126 @@ def test_user_response():
     sys.platform in ["darwin"] or skip,
     reason=reason,
 )
-# def test_branch_response():
-#     example_data = [
-#         {
-#             "name": "main",
-#             "merged": False,
-#             "protected": True,
-#             "default": True,
-#             "developers_can_push": False,
-#             "developers_can_merge": False,
-#             "can_push": True,
-#             "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
-#             "commit": {
-#                 "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
-#                 "short_id": "7b5c3cc",
-#                 "created_at": "2012-06-28T03:44:20-07:00",
-#                 "parent_ids": [
-#                     "4ad91d3c1144c406e50c7b33bae684bd6837faf8"
-#                 ],
-#                 "title": "add projects API",
-#                 "message": "add projects API",
-#                 "author_name": "John Smith",
-#                 "author_email": "john@example.com",
-#                 "authored_date": "2012-06-27T05:51:39-07:00",
-#                 "committer_name": "John Smith",
-#                 "committer_email": "john@example.com",
-#                 "committed_date": "2012-06-28T03:44:20-07:00",
-#                 "trailers": {},
-#                 "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c"
-#             }
-#         }
-#     ]
-#     response = Response(data=example_data, status_code=200, json_output=example_data)
-#     assert response.data.base_type == "Branches"
-#
-#     example_data = {
-#         "name": "main",
-#         "merged": False,
-#         "protected": True,
-#         "default": True,
-#         "developers_can_push": False,
-#         "developers_can_merge": False,
-#         "can_push": True,
-#         "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
-#         "commit": {
-#             "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
-#             "short_id": "7b5c3cc",
-#             "created_at": "2012-06-28T03:44:20-07:00",
-#             "parent_ids": [
-#                 "4ad91d3c1144c406e50c7b33bae684bd6837faf8"
-#             ],
-#             "title": "add projects API",
-#             "message": "add projects API",
-#             "author_name": "John Smith",
-#             "author_email": "john@example.com",
-#             "authored_date": "2012-06-27T05:51:39-07:00",
-#             "committer_name": "John Smith",
-#             "committer_email": "john@example.com",
-#             "committed_date": "2012-06-28T03:44:20-07:00",
-#             "trailers": {},
-#             "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c"
-#         }
-#     }
-#     response = Response(data=example_data, status_code=200, json_output=example_data)
-#     assert response.data.base_type == "Branch"
-#
-#     example_data = {
-#         "commit": {
-#             "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
-#             "short_id": "7b5c3cc",
-#             "created_at": "2012-06-28T03:44:20-07:00",
-#             "parent_ids": [
-#                 "4ad91d3c1144c406e50c7b33bae684bd6837faf8"
-#             ],
-#             "title": "add projects API",
-#             "message": "add projects API",
-#             "author_name": "John Smith",
-#             "author_email": "john@example.com",
-#             "authored_date": "2012-06-27T05:51:39-07:00",
-#             "committer_name": "John Smith",
-#             "committer_email": "john@example.com",
-#             "committed_date": "2012-06-28T03:44:20-07:00",
-#             "trailers": {},
-#             "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c"
-#         },
-#         "name": "newbranch",
-#         "merged": False,
-#         "protected": False,
-#         "default": False,
-#         "developers_can_push": False,
-#         "developers_can_merge": False,
-#         "can_push": True,
-#         "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/newbranch"
-#     }
-#     response = Response(data=example_data, status_code=200, json_output=example_data)
-#     assert response.data.base_type == "Branch"
-#
-#     example_data = [
-#         {
-#             "name": "main",
-#             "merged": False,
-#             "protected": True,
-#             "default": True,
-#             "developers_can_push": False,
-#             "developers_can_merge": False,
-#             "can_push": True,
-#             "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
-#             "commit": {
-#                 "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
-#                 "short_id": "7b5c3cc",
-#                 "created_at": "2012-06-28T03:44:20-07:00",
-#                 "parent_ids": [
-#                     "4ad91d3c1144c406e50c7b33bae684bd6837faf8"
-#                 ],
-#                 "title": "add projects API",
-#                 "message": "add projects API",
-#                 "author_name": "John Smith",
-#                 "author_email": "john@example.com",
-#                 "authored_date": "2012-06-27T05:51:39-07:00",
-#                 "committer_name": "John Smith",
-#                 "committer_email": "john@example.com",
-#                 "committed_date": "2012-06-28T03:44:20-07:00",
-#                 "trailers": {},
-#                 "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c"
-#             }
-#         }
-#     ]
-#     response = Response(data=example_data, status_code=200, json_output=example_data)
-#     assert response.data.base_type == "Branches"
+def test_branch_response():
+    example_data = [
+        {
+            "name": "main",
+            "merged": False,
+            "protected": True,
+            "default": True,
+            "developers_can_push": False,
+            "developers_can_merge": False,
+            "can_push": True,
+            "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
+            "commit": {
+                "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+                "short_id": "7b5c3cc",
+                "created_at": "2012-06-28T03:44:20-07:00",
+                "parent_ids": ["4ad91d3c1144c406e50c7b33bae684bd6837faf8"],
+                "title": "add projects API",
+                "message": "add projects API",
+                "author_name": "John Smith",
+                "author_email": "john@example.com",
+                "authored_date": "2012-06-27T05:51:39-07:00",
+                "committer_name": "John Smith",
+                "committer_email": "john@example.com",
+                "committed_date": "2012-06-28T03:44:20-07:00",
+                "trailers": {},
+                "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+            },
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Branches"
+
+    example_data = {
+        "name": "main",
+        "merged": False,
+        "protected": True,
+        "default": True,
+        "developers_can_push": False,
+        "developers_can_merge": False,
+        "can_push": True,
+        "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
+        "commit": {
+            "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+            "short_id": "7b5c3cc",
+            "created_at": "2012-06-28T03:44:20-07:00",
+            "parent_ids": ["4ad91d3c1144c406e50c7b33bae684bd6837faf8"],
+            "title": "add projects API",
+            "message": "add projects API",
+            "author_name": "John Smith",
+            "author_email": "john@example.com",
+            "authored_date": "2012-06-27T05:51:39-07:00",
+            "committer_name": "John Smith",
+            "committer_email": "john@example.com",
+            "committed_date": "2012-06-28T03:44:20-07:00",
+            "trailers": {},
+            "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+        },
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Branch"
+
+    example_data = {
+        "commit": {
+            "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+            "short_id": "7b5c3cc",
+            "created_at": "2012-06-28T03:44:20-07:00",
+            "parent_ids": ["4ad91d3c1144c406e50c7b33bae684bd6837faf8"],
+            "title": "add projects API",
+            "message": "add projects API",
+            "author_name": "John Smith",
+            "author_email": "john@example.com",
+            "authored_date": "2012-06-27T05:51:39-07:00",
+            "committer_name": "John Smith",
+            "committer_email": "john@example.com",
+            "committed_date": "2012-06-28T03:44:20-07:00",
+            "trailers": {},
+            "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+        },
+        "name": "newbranch",
+        "merged": False,
+        "protected": False,
+        "default": False,
+        "developers_can_push": False,
+        "developers_can_merge": False,
+        "can_push": True,
+        "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/newbranch",
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Branch"
+
+    example_data = [
+        {
+            "name": "main",
+            "merged": False,
+            "protected": True,
+            "default": True,
+            "developers_can_push": False,
+            "developers_can_merge": False,
+            "can_push": True,
+            "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
+            "commit": {
+                "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+                "short_id": "7b5c3cc",
+                "created_at": "2012-06-28T03:44:20-07:00",
+                "parent_ids": ["4ad91d3c1144c406e50c7b33bae684bd6837faf8"],
+                "title": "add projects API",
+                "message": "add projects API",
+                "author_name": "John Smith",
+                "author_email": "john@example.com",
+                "authored_date": "2012-06-27T05:51:39-07:00",
+                "committer_name": "John Smith",
+                "committer_email": "john@example.com",
+                "committed_date": "2012-06-28T03:44:20-07:00",
+                "trailers": {},
+                "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+            },
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Branches"
 
 
 @pytest.mark.skipif(
@@ -1001,7 +993,7 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Commit"
 
     example_data = {
         "id": "6104942438c14ec7bd21c6cd5bd995272b3faff6",
@@ -1028,12 +1020,12 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Commit"
 
     example_data = {"count": 632}
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Commit"
 
     example_data = {
         "id": "8b090c1b79a14f2bd9e8a738f717824ff53aebad",
@@ -1052,7 +1044,7 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Commit"
 
     example_data = {
         "id": "8b090c1b79a14f2bd9e8a738f717824ff53aebad",
@@ -1071,7 +1063,7 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Commit"
 
     example_data = {
         "message": "Sorry, we cannot revert this commit automatically. This commit may already have been reverted, or a more recent commit may have updated some of its content.",
@@ -1079,12 +1071,12 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Commit"
 
     example_data = {"dry_run": "success"}
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Commit"
 
     example_data = [
         {
@@ -1100,7 +1092,7 @@ def test_commit_response():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Diffs"
 
     example_data = [
         {
@@ -1117,7 +1109,7 @@ def test_commit_response():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Comments"
 
     example_data = {
         "author": {
@@ -1136,7 +1128,7 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Comment"
 
     example_data = [
         {
@@ -1245,7 +1237,7 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "Commit"
 
     example_data = [
         {
@@ -1296,7 +1288,7 @@ def test_commit_response():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "MergeRequests"
 
     example_data = {
         "signature_type": "PGP",
@@ -1310,7 +1302,7 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "CommitSignature"
 
     example_data = {
         "signature_type": "SSH",
@@ -1327,7 +1319,7 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "CommitSignature"
 
     example_data = {
         "signature_type": "X509",
@@ -1350,12 +1342,102 @@ def test_commit_response():
     }
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "CommitSignature"
 
     example_data = {"message": "404 GPG Signature Not Found"}
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+    assert response.data.base_type == "CommitSignature"
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
+def test_deploy_token_response():
+    example_data = [
+        {
+            "id": 1,
+            "name": "MyToken",
+            "username": "gitlab+deploy-token-1",
+            "expires_at": "2020-02-14T00:00:00.000Z",
+            "revoked": False,
+            "expired": False,
+            "scopes": ["read_repository", "read_registry"],
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "DeployTokens"
+
+    example_data = [
+        {
+            "id": 1,
+            "name": "MyToken",
+            "username": "gitlab+deploy-token-1",
+            "expires_at": "2020-02-14T00:00:00.000Z",
+            "revoked": False,
+            "expired": False,
+            "scopes": ["read_repository", "read_registry"],
+        }
+    ]
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "DeployTokens"
+
+    example_data = {
+        "id": 1,
+        "name": "MyToken",
+        "username": "gitlab+deploy-token-1",
+        "expires_at": "2020-02-14T00:00:00.000Z",
+        "revoked": False,
+        "expired": False,
+        "scopes": ["read_repository", "read_registry"],
+    }
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "DeployToken"
+
+    example_data = {
+        "id": 1,
+        "name": "My deploy token",
+        "username": "custom-user",
+        "expires_at": "2021-01-01T00:00:00.000Z",
+        "token": "jMRvtPNxrn3crTAGukpZ",
+        "revoked": False,
+        "expired": False,
+        "scopes": ["read_repository"],
+    }
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "DeployToken"
+
+    example_data = [
+        {
+            "id": 1,
+            "name": "MyToken",
+            "username": "gitlab+deploy-token-1",
+            "expires_at": "2020-02-14T00:00:00.000Z",
+            "revoked": False,
+            "expired": False,
+            "scopes": ["read_repository", "read_registry"],
+        }
+    ]
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "DeployTokens"
+
+    example_data = {
+        "id": 1,
+        "name": "MyToken",
+        "username": "gitlab+deploy-token-1",
+        "expires_at": "2020-02-14T00:00:00.000Z",
+        "revoked": False,
+        "expired": False,
+        "scopes": ["read_repository", "read_registry"],
+    }
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "DeployToken"
 
 
 if __name__ == "__main__":
@@ -1374,3 +1456,4 @@ if __name__ == "__main__":
     test_user_response()
     test_branch_response()
     test_commit_response()
+    test_deploy_token_response()
