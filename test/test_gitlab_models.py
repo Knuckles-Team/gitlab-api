@@ -1944,7 +1944,7 @@ def test_merge_request_response():
         "source_project_id": 4,
         "target_project_id": 4,
         "labels": [],
-        "description": "Qui voluptatibus placeat ipsa alias quasi. Deleniti rem ut sint. Optio velit qui distinctio.",
+        "description": "Qui voluptatibus placeat ipsa alias quasi. Deleniti rem ut sint. Option velit qui distinctio.",
         "draft": False,
         "work_in_progress": False,
         "milestone": {
@@ -3499,334 +3499,4796 @@ def test_merge_request_response():
 #         "time_estimate": 0,
 #         "total_time_spent": 0
 #     }
+#
+#
+# @pytest.mark.skipif(
+#     sys.platform in ["darwin"] or skip,
+#     reason=reason,
+# )
+# def test_pipeline_response():
+#     example_data = [
+#         {
+#             "id": 47,
+#             "iid": 12,
+#             "project_id": 1,
+#             "status": "pending",
+#             "source": "push",
+#             "ref": "new-pipeline",
+#             "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#             "name": "Build pipeline",
+#             "web_url": "https://example.com/foo/bar/pipelines/47",
+#             "created_at": "2016-08-11T11:28:34.085Z",
+#             "updated_at": "2016-08-11T11:32:35.169Z",
+#         },
+#         {
+#             "id": 48,
+#             "iid": 13,
+#             "project_id": 1,
+#             "status": "pending",
+#             "source": "web",
+#             "ref": "new-pipeline",
+#             "sha": "eb94b618fb5865b26e80fdd8ae531b7a63ad851a",
+#             "name": "Build pipeline",
+#             "web_url": "https://example.com/foo/bar/pipelines/48",
+#             "created_at": "2016-08-12T10:06:04.561Z",
+#             "updated_at": "2016-08-12T10:09:56.223Z",
+#         },
+#     ]
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "Pipelines"
+#
+#     example_data = {
+#         "id": 46,
+#         "iid": 11,
+#         "project_id": 1,
+#         "name": "Build pipeline",
+#         "status": "success",
+#         "ref": "main",
+#         "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#         "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#         "tag": False,
+#         "yaml_errors": None,
+#         "user": {
+#             "name": "Administrator",
+#             "username": "root",
+#             "id": 1,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://localhost:3000/root",
+#         },
+#         "created_at": "2016-08-11T11:28:34.085Z",
+#         "updated_at": "2016-08-11T11:32:35.169Z",
+#         "started_at": None,
+#         "finished_at": "2016-08-11T11:32:35.145Z",
+#         "committed_at": None,
+#         "duration": 123.65,
+#         "queued_duration": 0.010,
+#         "coverage": "30.0",
+#         "web_url": "https://example.com/foo/bar/pipelines/46",
+#     }
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "Pipeline"
+#
+#     example_data = [
+#         {"key": "RUN_NIGHTLY_BUILD", "variable_type": "env_var", "value": "true"},
+#         {"key": "foo", "value": "bar"},
+#     ]
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "PipelineVariables"
+#
+#     example_data = {
+#         "total_time": 5,
+#         "total_count": 1,
+#         "success_count": 1,
+#         "failed_count": 0,
+#         "skipped_count": 0,
+#         "error_count": 0,
+#         "test_suites": [
+#             {
+#                 "name": "Secure",
+#                 "total_time": 5,
+#                 "total_count": 1,
+#                 "success_count": 1,
+#                 "failed_count": 0,
+#                 "skipped_count": 0,
+#                 "error_count": 0,
+#                 "test_cases": [
+#                     {
+#                         "status": "success",
+#                         "name": "Security Reports can create an auto-remediation MR",
+#                         "classname": "vulnerability_management_spec",
+#                         "execution_time": 5,
+#                         "system_output": None,
+#                         "stack_trace": None,
+#                     }
+#                 ],
+#             }
+#         ],
+#     }
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "Pipeline"
+#     {
+#         "total": {
+#             "time": 1904,
+#             "count": 3363,
+#             "success": 3351,
+#             "failed": 0,
+#             "skipped": 12,
+#             "error": 0,
+#             "suite_error": None,
+#         },
+#         "test_suites": [
+#             {
+#                 "name": "test",
+#                 "total_time": 1904,
+#                 "total_count": 3363,
+#                 "success_count": 3351,
+#                 "failed_count": 0,
+#                 "skipped_count": 12,
+#                 "error_count": 0,
+#                 "build_ids": [66004],
+#                 "suite_error": None,
+#             }
+#         ],
+#     }
+#
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "Pipelines"
+#     example_data = {
+#         "total": {
+#             "time": 1904,
+#             "count": 3363,
+#             "success": 3351,
+#             "failed": 0,
+#             "skipped": 12,
+#             "error": 0,
+#             "suite_error": None,
+#         },
+#         "test_suites": [
+#             {
+#                 "name": "test",
+#                 "total_time": 1904,
+#                 "total_count": 3363,
+#                 "success_count": 3351,
+#                 "failed_count": 0,
+#                 "skipped_count": 12,
+#                 "error_count": 0,
+#                 "build_ids": [66004],
+#                 "suite_error": None,
+#             }
+#         ],
+#     }
+#
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "Pipelines"
+#     example_data = {
+#         "id": 287,
+#         "iid": 144,
+#         "project_id": 21,
+#         "name": "Build pipeline",
+#         "sha": "50f0acb76a40e34a4ff304f7347dcc6587da8a14",
+#         "ref": "main",
+#         "status": "success",
+#         "source": "push",
+#         "created_at": "2022-09-21T01:05:07.200Z",
+#         "updated_at": "2022-09-21T01:05:50.185Z",
+#         "web_url": "http://127.0.0.1:3000/test-group/test-project/-/pipelines/287",
+#         "before_sha": "8a24fb3c5877a6d0b611ca41fc86edc174593e2b",
+#         "tag": False,
+#         "yaml_errors": None,
+#         "user": {
+#             "id": 1,
+#             "username": "root",
+#             "name": "Administrator",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://127.0.0.1:3000/root",
+#         },
+#         "started_at": "2022-09-21T01:05:14.197Z",
+#         "finished_at": "2022-09-21T01:05:50.175Z",
+#         "committed_at": None,
+#         "duration": 34,
+#         "queued_duration": 6,
+#         "coverage": None,
+#         "detailed_status": {
+#             "icon": "status_success",
+#             "text": "passed",
+#             "label": "passed",
+#             "group": "success",
+#             "tooltip": "passed",
+#             "has_details": False,
+#             "details_path": "/test-group/test-project/-/pipelines/287",
+#             "illustration": None,
+#             "favicon": "/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2.png",
+#         },
+#     }
+#
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "Pipelines"
+#     example_data = {
+#         "id": 61,
+#         "iid": 21,
+#         "project_id": 1,
+#         "sha": "384c444e840a515b23f21915ee5766b87068a70d",
+#         "ref": "main",
+#         "status": "pending",
+#         "before_sha": "0000000000000000000000000000000000000000",
+#         "tag": False,
+#         "yaml_errors": None,
+#         "user": {
+#             "name": "Administrator",
+#             "username": "root",
+#             "id": 1,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://localhost:3000/root",
+#         },
+#         "created_at": "2016-11-04T09:36:13.747Z",
+#         "updated_at": "2016-11-04T09:36:13.977Z",
+#         "started_at": None,
+#         "finished_at": None,
+#         "committed_at": None,
+#         "duration": None,
+#         "queued_duration": 0.010,
+#         "coverage": None,
+#         "web_url": "https://example.com/foo/bar/pipelines/61",
+#     }
+#
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "Pipelines"
+#     example_data = {
+#         "id": 46,
+#         "iid": 11,
+#         "project_id": 1,
+#         "status": "pending",
+#         "ref": "main",
+#         "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#         "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#         "tag": False,
+#         "yaml_errors": None,
+#         "user": {
+#             "name": "Administrator",
+#             "username": "root",
+#             "id": 1,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://localhost:3000/root",
+#         },
+#         "created_at": "2016-08-11T11:28:34.085Z",
+#         "updated_at": "2016-08-11T11:32:35.169Z",
+#         "started_at": None,
+#         "finished_at": "2016-08-11T11:32:35.145Z",
+#         "committed_at": None,
+#         "duration": None,
+#         "queued_duration": 0.010,
+#         "coverage": None,
+#         "web_url": "https://example.com/foo/bar/pipelines/46",
+#     }
+#
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "Pipelines"
+#     example_data = {
+#         "id": 46,
+#         "iid": 11,
+#         "project_id": 1,
+#         "status": "canceled",
+#         "ref": "main",
+#         "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#         "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#         "tag": False,
+#         "yaml_errors": None,
+#         "user": {
+#             "name": "Administrator",
+#             "username": "root",
+#             "id": 1,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://localhost:3000/root",
+#         },
+#         "created_at": "2016-08-11T11:28:34.085Z",
+#         "updated_at": "2016-08-11T11:32:35.169Z",
+#         "started_at": None,
+#         "finished_at": "2016-08-11T11:32:35.145Z",
+#         "committed_at": None,
+#         "duration": None,
+#         "queued_duration": 0.010,
+#         "coverage": None,
+#         "web_url": "https://example.com/foo/bar/pipelines/46",
+#     }
+#
+#     response = Response(data=example_data, status_code=200, json_output=example_data)
+#     assert response.data.base_type == "Pipelines"
+#     example_data = {
+#         "id": 46,
+#         "iid": 11,
+#         "project_id": 1,
+#         "status": "running",
+#         "ref": "main",
+#         "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#         "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#         "tag": False,
+#         "yaml_errors": None,
+#         "user": {
+#             "name": "Administrator",
+#             "username": "root",
+#             "id": 1,
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://localhost:3000/root",
+#         },
+#         "created_at": "2016-08-11T11:28:34.085Z",
+#         "updated_at": "2016-08-11T11:32:35.169Z",
+#         "started_at": None,
+#         "finished_at": "2016-08-11T11:32:35.145Z",
+#         "committed_at": None,
+#         "duration": None,
+#         "queued_duration": 0.010,
+#         "coverage": None,
+#         "web_url": "https://example.com/foo/bar/pipelines/46",
+#         "name": "Some new pipeline name",
+#     }
+#
+# test_group_responses():
+# example_data = [
+#     {
+#         "id": 1,
+#         "name": "Foobar Group",
+#         "path": "foo-bar",
+#         "description": "An interesting group",
+#         "visibility": "public",
+#         "share_with_group_lock": False,
+#         "require_two_factor_authentication": False,
+#         "two_factor_grace_period": 48,
+#         "project_creation_level": "developer",
+#         "auto_devops_enabled": None,
+#         "subgroup_creation_level": "owner",
+#         "emails_disabled": None,
+#         "emails_enabled": None,
+#         "mentions_disabled": None,
+#         "lfs_enabled": True,
+#         "default_branch": None,
+#         "default_branch_protection": 2,
+#         "default_branch_protection_defaults": {
+#             "allowed_to_push": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ],
+#             "allow_force_push": False,
+#             "allowed_to_merge": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ]
+#         },
+#         "avatar_url": "http://localhost:3000/uploads/group/avatar/1/foo.jpg",
+#         "web_url": "http://localhost:3000/groups/foo-bar",
+#         "request_access_enabled": False,
+#         "repository_storage": "default",
+#         "full_name": "Foobar Group",
+#         "full_path": "foo-bar",
+#         "file_template_project_id": 1,
+#         "parent_id": None,
+#         "created_at": "2020-01-15T12:36:29.590Z",
+#         "ip_restriction_ranges": None
+#     }
+# ]
+#
+# example_data = [
+#     {
+#         "id": 1,
+#         "name": "Foobar Group",
+#         "path": "foo-bar",
+#         "description": "An interesting group",
+#         "visibility": "public",
+#         "share_with_group_lock": False,
+#         "require_two_factor_authentication": False,
+#         "two_factor_grace_period": 48,
+#         "project_creation_level": "developer",
+#         "auto_devops_enabled": None,
+#         "subgroup_creation_level": "owner",
+#         "emails_disabled": None,
+#         "emails_enabled": None,
+#         "mentions_disabled": None,
+#         "lfs_enabled": True,
+#         "default_branch": None,
+#         "default_branch_protection": 2,
+#         "default_branch_protection_defaults": {
+#             "allowed_to_push": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ],
+#             "allow_force_push": False,
+#             "allowed_to_merge": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ]
+#         },
+#         "avatar_url": "http://localhost:3000/uploads/group/avatar/1/foo.jpg",
+#         "web_url": "http://localhost:3000/groups/foo-bar",
+#         "request_access_enabled": False,
+#         "repository_storage": "default",
+#         "full_name": "Foobar Group",
+#         "full_path": "foo-bar",
+#         "file_template_project_id": 1,
+#         "parent_id": None,
+#         "created_at": "2020-01-15T12:36:29.590Z",
+#         "statistics": {
+#             "storage_size": 363,
+#             "repository_size": 33,
+#             "wiki_size": 100,
+#             "lfs_objects_size": 123,
+#             "job_artifacts_size": 57,
+#             "pipeline_artifacts_size": 0,
+#             "packages_size": 0,
+#             "snippets_size": 50,
+#             "uploads_size": 0
+#         },
+#         "wiki_access_level": "private",
+#         "duo_features_enabled": True,
+#         "lock_duo_features_enabled": False,
+#     }
+# ]
+#
+# example_data = [
+#     {
+#         "id": 1,
+#         "name": "Foobar Group",
+#         "path": "foo-bar",
+#         "description": "An interesting group",
+#         "visibility": "public",
+#         "share_with_group_lock": False,
+#         "require_two_factor_authentication": False,
+#         "two_factor_grace_period": 48,
+#         "project_creation_level": "developer",
+#         "auto_devops_enabled": None,
+#         "subgroup_creation_level": "owner",
+#         "emails_disabled": None,
+#         "emails_enabled": None,
+#         "mentions_disabled": None,
+#         "lfs_enabled": True,
+#         "default_branch": None,
+#         "default_branch_protection": 2,
+#         "default_branch_protection_defaults": {
+#             "allowed_to_push": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ],
+#             "allow_force_push": False,
+#             "allowed_to_merge": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ]
+#         },
+#         "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/foo.jpg",
+#         "web_url": "http://gitlab.example.com/groups/foo-bar",
+#         "request_access_enabled": False,
+#         "repository_storage": "default",
+#         "full_name": "Foobar Group",
+#         "full_path": "foo-bar",
+#         "file_template_project_id": 1,
+#         "parent_id": 123,
+#         "created_at": "2020-01-15T12:36:29.590Z"
+#     }
+# ]
+#
+# example_data = [
+#     {
+#         "id": 2,
+#         "name": "Bar Group",
+#         "path": "bar",
+#         "description": "A subgroup of Foo Group",
+#         "visibility": "public",
+#         "share_with_group_lock": False,
+#         "require_two_factor_authentication": False,
+#         "two_factor_grace_period": 48,
+#         "project_creation_level": "developer",
+#         "auto_devops_enabled": None,
+#         "subgroup_creation_level": "owner",
+#         "emails_disabled": None,
+#         "emails_enabled": None,
+#         "mentions_disabled": None,
+#         "lfs_enabled": True,
+#         "default_branch": None,
+#         "default_branch_protection": 2,
+#         "default_branch_protection_defaults": {
+#             "allowed_to_push": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ],
+#             "allow_force_push": False,
+#             "allowed_to_merge": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ]
+#         },
+#         "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/bar.jpg",
+#         "web_url": "http://gitlab.example.com/groups/foo/bar",
+#         "request_access_enabled": False,
+#         "full_name": "Bar Group",
+#         "full_path": "foo/bar",
+#         "file_template_project_id": 1,
+#         "parent_id": 123,
+#         "created_at": "2020-01-15T12:36:29.590Z"
+#     },
+#     {
+#         "id": 3,
+#         "name": "Baz Group",
+#         "path": "baz",
+#         "description": "A subgroup of Bar Group",
+#         "visibility": "public",
+#         "share_with_group_lock": False,
+#         "require_two_factor_authentication": False,
+#         "two_factor_grace_period": 48,
+#         "project_creation_level": "developer",
+#         "auto_devops_enabled": None,
+#         "subgroup_creation_level": "owner",
+#         "emails_disabled": None,
+#         "emails_enabled": None,
+#         "mentions_disabled": None,
+#         "lfs_enabled": True,
+#         "default_branch": None,
+#         "default_branch_protection": 2,
+#         "default_branch_protection_defaults": {
+#             "allowed_to_push": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ],
+#             "allow_force_push": False,
+#             "allowed_to_merge": [
+#                 {
+#                     "access_level": 40
+#                 }
+#             ]
+#         },
+#         "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/baz.jpg",
+#         "web_url": "http://gitlab.example.com/groups/foo/bar/baz",
+#         "request_access_enabled": False,
+#         "full_name": "Baz Group",
+#         "full_path": "foo/bar/baz",
+#         "file_template_project_id": 1,
+#         "parent_id": 123,
+#         "created_at": "2020-01-15T12:36:29.590Z"
+#     }
+# ]
+#
+# # List groups
+# example_data = [
+#     {
+#         "id": 9,
+#         "description": "foo",
+#         "default_branch": "main",
+#         "tag_list": [], //deprecated, use `topics` instead
+#     "topics": [],
+# "archived": False,
+# "visibility": "internal",
+# "ssh_url_to_repo": "git@gitlab.example.com/html5-boilerplate.git",
+# "http_url_to_repo": "http://gitlab.example.com/h5bp/html5-boilerplate.git",
+# "web_url": "http://gitlab.example.com/h5bp/html5-boilerplate",
+# "name": "Html5 Boilerplate",
+# "name_with_namespace": "Experimental / Html5 Boilerplate",
+# "path": "html5-boilerplate",
+# "path_with_namespace": "h5bp/html5-boilerplate",
+# "issues_enabled": True,
+# "merge_requests_enabled": True,
+# "wiki_enabled": True,
+# "jobs_enabled": True,
+# "snippets_enabled": True,
+# "created_at": "2016-04-05T21:40:50.169Z",
+# "last_activity_at": "2016-04-06T16:52:08.432Z",
+# "shared_runners_enabled": True,
+# "creator_id": 1,
+# "namespace": {
+#     "id": 5,
+#     "name": "Experimental",
+#     "path": "h5bp",
+#     "kind": "group"
+# },
+# "avatar_url": None,
+# "star_count": 1,
+# "forks_count": 0,
+# "open_issues_count": 3,
+# "public_jobs": True,
+# "shared_with_groups": [],
+# "request_access_enabled": False
+# }
+# ]
+#
+# # Groups shared projects
+# example_data = [
+#     {
+#         "id":8,
+#         "description":"Shared project for Html5 Boilerplate",
+#         "name":"Html5 Boilerplate",
+#         "name_with_namespace":"H5bp / Html5 Boilerplate",
+#         "path":"html5-boilerplate",
+#         "path_with_namespace":"h5bp/html5-boilerplate",
+#         "created_at":"2020-04-27T06:13:22.642Z",
+#         "default_branch":"main",
+#         "tag_list":[], //deprecated, use `topics` instead
+#     "topics":[],
+# "ssh_url_to_repo":"ssh://git@gitlab.com/h5bp/html5-boilerplate.git",
+# "http_url_to_repo":"https://gitlab.com/h5bp/html5-boilerplate.git",
+# "web_url":"https://gitlab.com/h5bp/html5-boilerplate",
+# "readme_url":"https://gitlab.com/h5bp/html5-boilerplate/-/blob/main/README.md",
+# "avatar_url":null,
+# "star_count":0,
+# "forks_count":4,
+# "last_activity_at":"2020-04-27T06:13:22.642Z",
+# "namespace":{
+#     "id":28,
+#     "name":"H5bp",
+#     "path":"h5bp",
+#     "kind":"group",
+#     "full_path":"h5bp",
+#     "parent_id":null,
+#     "avatar_url":null,
+#     "web_url":"https://gitlab.com/groups/h5bp"
+# },
+# "_links":{
+#     "self":"https://gitlab.com/api/v4/projects/8",
+#     "issues":"https://gitlab.com/api/v4/projects/8/issues",
+#     "merge_requests":"https://gitlab.com/api/v4/projects/8/merge_requests",
+#     "repo_branches":"https://gitlab.com/api/v4/projects/8/repository/branches",
+#     "labels":"https://gitlab.com/api/v4/projects/8/labels",
+#     "events":"https://gitlab.com/api/v4/projects/8/events",
+#     "members":"https://gitlab.com/api/v4/projects/8/members"
+# },
+# "empty_repo":false,
+# "archived":false,
+# "visibility":"public",
+# "resolve_outdated_diff_discussions":false,
+# "container_registry_enabled":true,
+# "container_expiration_policy":{
+#     "cadence":"7d",
+#     "enabled":true,
+#     "keep_n":null,
+#     "older_than":null,
+#     "name_regex":null,
+#     "name_regex_keep":null,
+#     "next_run_at":"2020-05-04T06:13:22.654Z"
+# },
+# "issues_enabled":true,
+# "merge_requests_enabled":true,
+# "wiki_enabled":true,
+# "jobs_enabled":true,
+# "snippets_enabled":true,
+# "can_create_merge_request_in":true,
+# "issues_access_level":"enabled",
+# "repository_access_level":"enabled",
+# "merge_requests_access_level":"enabled",
+# "forking_access_level":"enabled",
+# "wiki_access_level":"enabled",
+# "builds_access_level":"enabled",
+# "snippets_access_level":"enabled",
+# "pages_access_level":"enabled",
+# "security_and_compliance_access_level":"enabled",
+# "emails_disabled":null,
+# "emails_enabled": None,
+# "shared_runners_enabled":true,
+# "lfs_enabled":true,
+# "creator_id":1,
+# "import_status":"failed",
+# "open_issues_count":10,
+# "ci_default_git_depth":50,
+# "ci_forward_deployment_enabled":true,
+# "ci_forward_deployment_rollback_allowed": True,
+# "ci_allow_fork_pipelines_to_run_in_parent_project":true,
+# "public_jobs":true,
+# "build_timeout":3600,
+# "auto_cancel_pending_pipelines":"enabled",
+# "ci_config_path":null,
+# "shared_with_groups":[
+#     {
+#         "group_id":24,
+#         "group_name":"Commit451",
+#         "group_full_path":"Commit451",
+#         "group_access_level":30,
+#         "expires_at":null
+#     }
+# ],
+# "only_allow_merge_if_pipeline_succeeds":false,
+# "request_access_enabled":true,
+# "only_allow_merge_if_all_discussions_are_resolved":false,
+# "remove_source_branch_after_merge":true,
+# "printing_merge_request_link_enabled":true,
+# "merge_method":"merge",
+# "suggestion_commit_message":null,
+# "auto_devops_enabled":true,
+# "auto_devops_deploy_strategy":"continuous",
+# "autoclose_referenced_issues":true,
+# "repository_storage":"default"
+# }
+# ]
+#
+# # Details of a group
+# example_data = {
+#     "id": 4,
+#     "name": "Twitter",
+#     "path": "twitter",
+#     "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
+#     "visibility": "public",
+#     "avatar_url": None,
+#     "web_url": "https://gitlab.example.com/groups/twitter",
+#     "request_access_enabled": False,
+#     "repository_storage": "default",
+#     "full_name": "Twitter",
+#     "full_path": "twitter",
+#     "runners_token": "ba324ca7b1c77fc20bb9",
+#     "file_template_project_id": 1,
+#     "parent_id": None,
+#     "enabled_git_access_protocol": "all",
+#     "created_at": "2020-01-15T12:36:29.590Z",
+#     "shared_with_groups": [
+#         {
+#             "group_id": 28,
+#             "group_name": "H5bp",
+#             "group_full_path": "h5bp",
+#             "group_access_level": 20,
+#             "expires_at": None
+#         }
+#     ],
+#     "prevent_sharing_groups_outside_hierarchy": False,
+#     "projects": [ // Deprecated and will be removed in API v5
+#         {
+#             "id": 7,
+#             "description": "Voluptas veniam qui et beatae voluptas doloremque explicabo facilis.",
+#             "default_branch": "main",
+#             "tag_list": [], //deprecated, use `topics` instead
+#         "topics": [],
+# "archived": False,
+# "visibility": "public",
+# "ssh_url_to_repo": "git@gitlab.example.com:twitter/typeahead-js.git",
+# "http_url_to_repo": "https://gitlab.example.com/twitter/typeahead-js.git",
+# "web_url": "https://gitlab.example.com/twitter/typeahead-js",
+# "name": "Typeahead.Js",
+# "name_with_namespace": "Twitter / Typeahead.Js",
+# "path": "typeahead-js",
+# "path_with_namespace": "twitter/typeahead-js",
+# "issues_enabled": True,
+# "merge_requests_enabled": True,
+# "wiki_enabled": True,
+# "jobs_enabled": True,
+# "snippets_enabled": False,
+# "container_registry_enabled": True,
+# "created_at": "2016-06-17T07:47:25.578Z",
+# "last_activity_at": "2016-06-17T07:47:25.881Z",
+# "shared_runners_enabled": True,
+# "creator_id": 1,
+# "namespace": {
+#     "id": 4,
+#     "name": "Twitter",
+#     "path": "twitter",
+#     "kind": "group"
+# },
+# "avatar_url": None,
+# "star_count": 0,
+# "forks_count": 0,
+# "open_issues_count": 3,
+# "public_jobs": True,
+# "shared_with_groups": [],
+# "request_access_enabled": False
+# },
+# {
+#     "id": 6,
+#     "description": "Aspernatur omnis repudiandae qui voluptatibus eaque.",
+#     "default_branch": "main",
+#     "tag_list": [], //deprecated, use `topics` instead
+# "topics": [],
+# "archived": False,
+# "visibility": "internal",
+# "ssh_url_to_repo": "git@gitlab.example.com:twitter/flight.git",
+# "http_url_to_repo": "https://gitlab.example.com/twitter/flight.git",
+# "web_url": "https://gitlab.example.com/twitter/flight",
+# "name": "Flight",
+# "name_with_namespace": "Twitter / Flight",
+# "path": "flight",
+# "path_with_namespace": "twitter/flight",
+# "issues_enabled": True,
+# "merge_requests_enabled": True,
+# "wiki_enabled": True,
+# "jobs_enabled": True,
+# "snippets_enabled": False,
+# "container_registry_enabled": True,
+# "created_at": "2016-06-17T07:47:24.661Z",
+# "last_activity_at": "2016-06-17T07:47:24.838Z",
+# "shared_runners_enabled": True,
+# "creator_id": 1,
+# "namespace": {
+#     "id": 4,
+#     "name": "Twitter",
+#     "path": "twitter",
+#     "kind": "group"
+# },
+# "avatar_url": None,
+# "star_count": 0,
+# "forks_count": 0,
+# "open_issues_count": 8,
+# "public_jobs": True,
+# "shared_with_groups": [],
+# "request_access_enabled": False
+# }
+# ],
+# "shared_projects": [ // Deprecated and will be removed in API v5
+# {
+#     "id": 8,
+#     "description": "Velit eveniet provident fugiat saepe eligendi autem.",
+#     "default_branch": "main",
+#     "tag_list": [], //deprecated, use `topics` instead
+# "topics": [],
+# "archived": False,
+# "visibility": "private",
+# "ssh_url_to_repo": "git@gitlab.example.com:h5bp/html5-boilerplate.git",
+# "http_url_to_repo": "https://gitlab.example.com/h5bp/html5-boilerplate.git",
+# "web_url": "https://gitlab.example.com/h5bp/html5-boilerplate",
+# "name": "Html5 Boilerplate",
+# "name_with_namespace": "H5bp / Html5 Boilerplate",
+# "path": "html5-boilerplate",
+# "path_with_namespace": "h5bp/html5-boilerplate",
+# "issues_enabled": True,
+# "merge_requests_enabled": True,
+# "wiki_enabled": True,
+# "jobs_enabled": True,
+# "snippets_enabled": False,
+# "container_registry_enabled": True,
+# "created_at": "2016-06-17T07:47:27.089Z",
+# "last_activity_at": "2016-06-17T07:47:27.310Z",
+# "shared_runners_enabled": True,
+# "creator_id": 1,
+# "namespace": {
+#     "id": 5,
+#     "name": "H5bp",
+#     "path": "h5bp",
+#     "kind": "group"
+# },
+# "avatar_url": None,
+# "star_count": 0,
+# "forks_count": 0,
+# "open_issues_count": 4,
+# "public_jobs": True,
+# "shared_with_groups": [
+#     {
+#         "group_id": 4,
+#         "group_name": "Twitter",
+#         "group_full_path": "twitter",
+#         "group_access_level": 30,
+#         "expires_at": None
+#     },
+#     {
+#         "group_id": 3,
+#         "group_name": "Gitlab Org",
+#         "group_full_path": "gitlab-org",
+#         "group_access_level": 10,
+#         "expires_at": "2018-08-14"
+#     }
+# ]
+# }
+# ],
+# "ip_restriction_ranges": None,
+# "math_rendering_limits_enabled": True,
+# "lock_math_rendering_limits_enabled": False
+# }
+#
+# # Details of a group
+# example_data = {
+#     "id": 4,
+#     "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
+#     "shared_runners_minutes_limit": 133,
+#     "extra_shared_runners_minutes_limit": 133,
+#     "marked_for_deletion_on": "2020-04-03",
+#     "membership_lock": False,
+#     "wiki_access_level": "disabled",
+#     "duo_features_enabled": True,
+#     "lock_duo_features_enabled": False,
+#     ...
+# }
+#
+# # Details of a group
+# example_data = {
+#     "id": 4,
+#     "name": "Twitter",
+#     "path": "twitter",
+#     "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
+#     "visibility": "public",
+#     "avatar_url": None,
+#     "web_url": "https://gitlab.example.com/groups/twitter",
+#     "request_access_enabled": False,
+#     "repository_storage": "default",
+#     "full_name": "Twitter",
+#     "full_path": "twitter",
+#     "file_template_project_id": 1,
+#     "parent_id": None
+# }
+#
+# # Get groups to which a user can transfer a group
+# example_data = [
+#     {
+#         "id": 27,
+#         "web_url": "https://gitlab.example.com/groups/gitlab",
+#         "name": "GitLab",
+#         "avatar_url": None,
+#         "full_name": "GitLab",
+#         "full_path": "GitLab"
+#     },
+#     {
+#         "id": 31,
+#         "web_url": "https://gitlab.example.com/groups/foobar",
+#         "name": "FooBar",
+#         "avatar_url": None,
+#         "full_name": "FooBar",
+#         "full_path": "FooBar"
+#     }
+# ]
+#
+# # Update group
+# example_data = {
+#     "id": 5,
+#     "name": "Experimental",
+#     "path": "h5bp",
+#     "description": "foo",
+#     "visibility": "internal",
+#     "avatar_url": None,
+#     "web_url": "http://gitlab.example.com/groups/h5bp",
+#     "request_access_enabled": False,
+#     "repository_storage": "default",
+#     "full_name": "Foobar Group",
+#     "full_path": "h5bp",
+#     "file_template_project_id": 1,
+#     "parent_id": None,
+#     "enabled_git_access_protocol": "all",
+#     "created_at": "2020-01-15T12:36:29.590Z",
+#     "prevent_sharing_groups_outside_hierarchy": False,
+#     "projects": [ // Deprecated and will be removed in API v5
+#         {
+#             "id": 9,
+#             "description": "foo",
+#             "default_branch": "main",
+#             "tag_list": [], //deprecated, use `topics` instead
+#         "topics": [],
+# "public": False,
+# "archived": False,
+# "visibility": "internal",
+# "ssh_url_to_repo": "git@gitlab.example.com/html5-boilerplate.git",
+# "http_url_to_repo": "http://gitlab.example.com/h5bp/html5-boilerplate.git",
+# "web_url": "http://gitlab.example.com/h5bp/html5-boilerplate",
+# "name": "Html5 Boilerplate",
+# "name_with_namespace": "Experimental / Html5 Boilerplate",
+# "path": "html5-boilerplate",
+# "path_with_namespace": "h5bp/html5-boilerplate",
+# "issues_enabled": True,
+# "merge_requests_enabled": True,
+# "wiki_enabled": True,
+# "jobs_enabled": True,
+# "snippets_enabled": True,
+# "created_at": "2016-04-05T21:40:50.169Z",
+# "last_activity_at": "2016-04-06T16:52:08.432Z",
+# "shared_runners_enabled": True,
+# "creator_id": 1,
+# "namespace": {
+#     "id": 5,
+#     "name": "Experimental",
+#     "path": "h5bp",
+#     "kind": "group"
+# },
+# "avatar_url": None,
+# "star_count": 1,
+# "forks_count": 0,
+# "open_issues_count": 3,
+# "public_jobs": True,
+# "shared_with_groups": [],
+# "request_access_enabled": False
+# }
+# ],
+# "ip_restriction_ranges": None,
+# "math_rendering_limits_enabled": True,
+# "lock_math_rendering_limits_enabled": False
+# }
+#
+# # Search for a group
+# example_data = [
+#     {
+#         "id": 1,
+#         "name": "Foobar Group",
+#         "path": "foo-bar",
+#         "description": "An interesting group"
+#     }
+# ]
+#
+# # List provisioned users
+# example_data = [
+#     {
+#         "id": 66,
+#         "username": "user22",
+#         "name": "John Doe22",
+#         "state": "active",
+#         "avatar_url": "https://www.gravatar.com/avatar/xxx?s=80&d=identicon",
+#         "web_url": "http://my.gitlab.com/user22",
+#         "created_at": "2021-09-10T12:48:22.381Z",
+#         "bio": "",
+#         "location": None,
+#         "public_email": "",
+#         "skype": "",
+#         "linkedin": "",
+#         "twitter": "",
+#         "website_url": "",
+#         "organization": None,
+#         "job_title": "",
+#         "pronouns": None,
+#         "bot": False,
+#         "work_information": None,
+#         "followers": 0,
+#         "following": 0,
+#         "local_time": None,
+#         "last_sign_in_at": None,
+#         "confirmed_at": "2021-09-10T12:48:22.330Z",
+#         "last_activity_on": None,
+#         "email": "user22@example.org",
+#         "theme_id": 1,
+#         "color_scheme_id": 1,
+#         "projects_limit": 100000,
+#         "current_sign_in_at": None,
+#         "identities": [ ],
+#         "can_create_group": True,
+#         "can_create_project": True,
+#         "two_factor_enabled": False,
+#         "external": False,
+#         "private_profile": False,
+#         "commit_email": "user22@example.org",
+#         "shared_runners_minutes_limit": None,
+#         "extra_shared_runners_minutes_limit": None
+#     }
+# ]
+#
+# # List group users
+# example_data = [
+#     {
+#         "id": 66,
+#         "username": "user22",
+#         "name": "John Doe22",
+#         "state": "active",
+#         "avatar_url": "https://www.gravatar.com/avatar/xxx?s=80&d=identicon",
+#         "web_url": "http://my.gitlab.com/user22",
+#         "created_at": "2021-09-10T12:48:22.381Z",
+#         "bio": "",
+#         "location": None,
+#         "public_email": "",
+#         "skype": "",
+#         "linkedin": "",
+#         "twitter": "",
+#         "website_url": "",
+#         "organization": None,
+#         "job_title": "",
+#         "pronouns": None,
+#         "bot": False,
+#         "work_information": None,
+#         "followers": 0,
+#         "following": 0,
+#         "local_time": None,
+#         "last_sign_in_at": None,
+#         "confirmed_at": "2021-09-10T12:48:22.330Z",
+#         "last_activity_on": None,
+#         "email": "user22@example.org",
+#         "theme_id": 1,
+#         "color_scheme_id": 1,
+#         "projects_limit": 100000,
+#         "current_sign_in_at": None,
+#         "identities": [ ],
+#         "can_create_group": True,
+#         "can_create_project": True,
+#         "two_factor_enabled": False,
+#         "external": False,
+#         "private_profile": False,
+#         "commit_email": "user22@example.org",
+#         "shared_runners_minutes_limit": None,
+#         "extra_shared_runners_minutes_limit": None
+#     }
+# ]
+#
+# # Create Service Account User
+# example_data = {
+#     "id": 57,
+#     "username": "service_account_group_345_6018816a18e515214e0c34c2b33523fc",
+#     "name": "Service account user"
+# }
+#
+# # Create Personal Access Token for Service Account User
+# example_data = {
+#     "id":6,
+#     "name":"service_accounts_token",
+#     "revoked":false,
+#     "created_at":"2023-06-13T07:47:13.900Z",
+#     "scopes":["api"],
+#     "user_id":71,
+#     "last_used_at":null,
+#     "active":true,
+#     "expires_at":"2024-06-12",
+#     "token":"<token_value>"
+# }
+#
+# # Rotate a Personal Access Token for Service Account User
+# example_data = {
+#     "id":7,
+#     "name":"service_accounts_token",
+#     "revoked":false,
+#     "created_at":"2023-06-13T07:54:49.962Z",
+#     "scopes":["api"],
+#     "user_id":71,
+#     "last_used_at":null,
+#     "active":true,
+#     "expires_at":"2023-06-20",
+#     "token":"<token_value>"
+# }
+#
+# # Get group hook
+# example_data = {
+#     "id": 1,
+#     "url": "http://example.com/hook",
+#     "name": "Hook name",
+#     "description": "Hook description",
+#     "group_id": 3,
+#     "push_events": True,
+#     "push_events_branch_filter": "",
+#     "issues_events": True,
+#     "confidential_issues_events": True,
+#     "merge_requests_events": True,
+#     "tag_push_events": True,
+#     "note_events": True,
+#     "confidential_note_events": True,
+#     "job_events": True,
+#     "pipeline_events": True,
+#     "wiki_page_events": True,
+#     "deployment_events": True,
+#     "releases_events": True,
+#     "subgroup_events": True,
+#     "member_events": True,
+#     "enable_ssl_verification": True,
+#     "repository_update_events": False,
+#     "alert_status": "executable",
+#     "disabled_until": None,
+#     "url_variables": [ ],
+#     "created_at": "2012-10-12T17:04:47Z",
+#     "resource_access_token_events": True,
+#     "custom_webhook_template": "{\"event\":\"{{object_kind}}\"}"
+# }
+#
+# # Push Rules
+# example_data = {
+#     "id": 2,
+#     "created_at": "2020-08-17T19:09:19.580Z",
+#     "commit_committer_check": True,
+#     "commit_committer_name_check": True,
+#     "reject_unsigned_commits": False,
+#     "commit_message_regex": "[a-zA-Z]",
+#     "commit_message_negative_regex": "[x+]",
+#     "branch_name_regex": "[a-z]",
+#     "deny_delete_tag": True,
+#     "member_check": True,
+#     "prevent_secrets": True,
+#     "author_email_regex": "^[A-Za-z0-9.]+@gitlab.com$",
+#     "file_name_regex": "(exe)$",
+#     "max_file_size": 100
+# }
+#
+# # Add SAML group link
+# example_data = {
+#     "name": "saml-group-1",
+#     "access_level": 10,
+#     "member_role_id": 12
+# }
+#
+#
+# # Get saml group link
+# example_data = {
+#     "name": "saml-group-1",
+#     "access_level": 10,
+#     "member_role_id": 12
+# }
+
+# @pytest.mark.skipif(
+#     sys.platform in ["darwin"] or skip,
+#     reason=reason,
+# )
+# def test_jobs_response():
+# List project jobs
+# example_data =[
+#     {
+#         "commit": {
+#             "author_email": "admin@example.com",
+#             "author_name": "Administrator",
+#             "created_at": "2015-12-24T16:51:14.000+01:00",
+#             "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "message": "Test the CI integration.",
+#             "short_id": "0ff3ae19",
+#             "title": "Test the CI integration."
+#         },
+#         "coverage": None,
+#         "archived": False,
+#         "allow_failure": False,
+#         "created_at": "2015-12-24T15:51:21.802Z",
+#         "started_at": "2015-12-24T17:54:27.722Z",
+#         "finished_at": "2015-12-24T17:54:27.895Z",
+#         "erased_at": None,
+#         "duration": 0.173,
+#         "queued_duration": 0.010,
+#         "artifacts_file": {
+#             "filename": "artifacts.zip",
+#             "size": 1000
+#         },
+#         "artifacts": [
+#             {"file_type": "archive", "size": 1000, "filename": "artifacts.zip", "file_format": "zip"},
+#             {"file_type": "metadata", "size": 186, "filename": "metadata.gz", "file_format": "gzip"},
+#             {"file_type": "trace", "size": 1500, "filename": "job.log", "file_format": "raw"},
+#             {"file_type": "junit", "size": 750, "filename": "junit.xml.gz", "file_format": "gzip"}
+#         ],
+#         "artifacts_expire_at": "2016-01-23T17:54:27.895Z",
+#         "tag_list": [
+#             "docker runner", "ubuntu18"
+#         ],
+#         "id": 7,
+#         "name": "teaspoon",
+#         "pipeline": {
+#             "id": 6,
+#             "project_id": 1,
+#             "ref": "main",
+#             "sha": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "status": "pending"
+#         },
+#         "ref": "main",
+#         "runner": {
+#             "id": 32,
+#             "description": "",
+#             "ip_address": None,
+#             "active": True,
+#             "paused": False,
+#             "is_shared": True,
+#             "runner_type": "instance_type",
+#             "name": None,
+#             "online": False,
+#             "status": "offline"
+#         },
+#         "runner_manager": {
+#             "id": 1,
+#             "system_id": "s_89e5e9956577",
+#             "version": "16.11.1",
+#             "revision": "535ced5f",
+#             "platform": "linux",
+#             "architecture": "amd64",
+#             "created_at": "2024-05-01T10:12:02.507Z",
+#             "contacted_at": "2024-05-07T06:30:09.355Z",
+#             "ip_address": "127.0.0.1",
+#             "status": "offline"
+#         },
+#         "stage": "test",
+#         "status": "failed",
+#         "failure_reason": "script_failure",
+#         "tag": False,
+#         "web_url": "https://example.com/foo/bar/-/jobs/7",
+#         "project": {
+#             "ci_job_token_scope_enabled": False
+#         },
+#         "user": {
+#             "id": 1,
+#             "name": "Administrator",
+#             "username": "root",
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://gitlab.dev/root",
+#             "created_at": "2015-12-21T13:14:24.077Z",
+#             "bio": None,
+#             "location": None,
+#             "public_email": "",
+#             "skype": "",
+#             "linkedin": "",
+#             "twitter": "",
+#             "website_url": "",
+#             "organization": ""
+#         }
+#     },
+#     {
+#         "commit": {
+#             "author_email": "admin@example.com",
+#             "author_name": "Administrator",
+#             "created_at": "2015-12-24T16:51:14.000+01:00",
+#             "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "message": "Test the CI integration.",
+#             "short_id": "0ff3ae19",
+#             "title": "Test the CI integration."
+#         },
+#         "coverage": None,
+#         "archived": False,
+#         "allow_failure": False,
+#         "created_at": "2015-12-24T15:51:21.727Z",
+#         "started_at": "2015-12-24T17:54:24.729Z",
+#         "finished_at": "2015-12-24T17:54:24.921Z",
+#         "erased_at": None,
+#         "duration": 0.192,
+#         "queued_duration": 0.023,
+#         "artifacts_expire_at": "2016-01-23T17:54:24.921Z",
+#         "tag_list": [
+#             "docker runner", "win10-2004"
+#         ],
+#         "id": 6,
+#         "name": "rspec:other",
+#         "pipeline": {
+#             "id": 6,
+#             "project_id": 1,
+#             "ref": "main",
+#             "sha": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "status": "pending"
+#         },
+#         "ref": "main",
+#         "artifacts": [],
+#         "runner": None,
+#         "runner_manager": None,
+#         "stage": "test",
+#         "status": "failed",
+#         "failure_reason": "stuck_or_timeout_failure",
+#         "tag": False,
+#         "web_url": "https://example.com/foo/bar/-/jobs/6",
+#         "project": {
+#             "ci_job_token_scope_enabled": False
+#         },
+#         "user": {
+#             "id": 1,
+#             "name": "Administrator",
+#             "username": "root",
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://gitlab.dev/root",
+#             "created_at": "2015-12-21T13:14:24.077Z",
+#             "bio": None,
+#             "location": None,
+#             "public_email": "",
+#             "skype": "",
+#             "linkedin": "",
+#             "twitter": "",
+#             "website_url": "",
+#             "organization": ""
+#         }
+#     }
+# ]
+#
+# # List pipeline jobs
+# example_data =[
+#     {
+#         "commit": {
+#             "author_email": "admin@example.com",
+#             "author_name": "Administrator",
+#             "created_at": "2015-12-24T16:51:14.000+01:00",
+#             "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "message": "Test the CI integration.",
+#             "short_id": "0ff3ae19",
+#             "title": "Test the CI integration."
+#         },
+#         "coverage": None,
+#         "archived": False,
+#         "allow_failure": False,
+#         "created_at": "2015-12-24T15:51:21.727Z",
+#         "started_at": "2015-12-24T17:54:24.729Z",
+#         "finished_at": "2015-12-24T17:54:24.921Z",
+#         "erased_at": None,
+#         "duration": 0.192,
+#         "queued_duration": 0.023,
+#         "artifacts_expire_at": "2016-01-23T17:54:24.921Z",
+#         "tag_list": [
+#             "docker runner", "ubuntu18"
+#         ],
+#         "id": 6,
+#         "name": "rspec:other",
+#         "pipeline": {
+#             "id": 6,
+#             "project_id": 1,
+#             "ref": "main",
+#             "sha": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "status": "pending"
+#         },
+#         "ref": "main",
+#         "artifacts": [],
+#         "runner": {
+#             "id": 32,
+#             "description": "",
+#             "ip_address": None,
+#             "active": True,
+#             "paused": False,
+#             "is_shared": True,
+#             "runner_type": "instance_type",
+#             "name": None,
+#             "online": False,
+#             "status": "offline"
+#         },
+#         "runner_manager": {
+#             "id": 1,
+#             "system_id": "s_89e5e9956577",
+#             "version": "16.11.1",
+#             "revision": "535ced5f",
+#             "platform": "linux",
+#             "architecture": "amd64",
+#             "created_at": "2024-05-01T10:12:02.507Z",
+#             "contacted_at": "2024-05-07T06:30:09.355Z",
+#             "ip_address": "127.0.0.1",
+#         },
+#         "stage": "test",
+#         "status": "failed",
+#         "failure_reason": "stuck_or_timeout_failure",
+#         "tag": False,
+#         "web_url": "https://example.com/foo/bar/-/jobs/6",
+#         "project": {
+#             "ci_job_token_scope_enabled": False
+#         },
+#         "user": {
+#             "id": 1,
+#             "name": "Administrator",
+#             "username": "root",
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://gitlab.dev/root",
+#             "created_at": "2015-12-21T13:14:24.077Z",
+#             "bio": None,
+#             "location": None,
+#             "public_email": "",
+#             "skype": "",
+#             "linkedin": "",
+#             "twitter": "",
+#             "website_url": "",
+#             "organization": ""
+#         }
+#     },
+#     {
+#         "commit": {
+#             "author_email": "admin@example.com",
+#             "author_name": "Administrator",
+#             "created_at": "2015-12-24T16:51:14.000+01:00",
+#             "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "message": "Test the CI integration.",
+#             "short_id": "0ff3ae19",
+#             "title": "Test the CI integration."
+#         },
+#         "coverage": None,
+#         "archived": False,
+#         "allow_failure": False,
+#         "created_at": "2015-12-24T15:51:21.802Z",
+#         "started_at": "2015-12-24T17:54:27.722Z",
+#         "finished_at": "2015-12-24T17:54:27.895Z",
+#         "erased_at": None,
+#         "duration": 0.173,
+#         "queued_duration": 0.023,
+#         "artifacts_file": {
+#             "filename": "artifacts.zip",
+#             "size": 1000
+#         },
+#         "artifacts": [
+#             {"file_type": "archive", "size": 1000, "filename": "artifacts.zip", "file_format": "zip"},
+#             {"file_type": "metadata", "size": 186, "filename": "metadata.gz", "file_format": "gzip"},
+#             {"file_type": "trace", "size": 1500, "filename": "job.log", "file_format": "raw"},
+#             {"file_type": "junit", "size": 750, "filename": "junit.xml.gz", "file_format": "gzip"}
+#         ],
+#         "artifacts_expire_at": "2016-01-23T17:54:27.895Z",
+#         "tag_list": [
+#             "docker runner", "ubuntu18"
+#         ],
+#         "id": 7,
+#         "name": "teaspoon",
+#         "pipeline": {
+#             "id": 6,
+#             "project_id": 1,
+#             "ref": "main",
+#             "sha": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "status": "pending"
+#         },
+#         "ref": "main",
+#         "runner": None,
+#         "runner_manager": None,
+#         "stage": "test",
+#         "status": "failed",
+#         "failure_reason": "script_failure",
+#         "tag": False,
+#         "web_url": "https://example.com/foo/bar/-/jobs/7",
+#         "project": {
+#             "ci_job_token_scope_enabled": False
+#         },
+#         "user": {
+#             "id": 1,
+#             "name": "Administrator",
+#             "username": "root",
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://gitlab.dev/root",
+#             "created_at": "2015-12-21T13:14:24.077Z",
+#             "bio": None,
+#             "location": None,
+#             "public_email": "",
+#             "skype": "",
+#             "linkedin": "",
+#             "twitter": "",
+#             "website_url": "",
+#             "organization": ""
+#         }
+#     }
+# ]
+#
+# # List pipeline trigger jobs
+# example_data =[
+#     {
+#         "commit": {
+#             "author_email": "admin@example.com",
+#             "author_name": "Administrator",
+#             "created_at": "2015-12-24T16:51:14.000+01:00",
+#             "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "message": "Test the CI integration.",
+#             "short_id": "0ff3ae19",
+#             "title": "Test the CI integration."
+#         },
+#         "coverage": None,
+#         "archived": False,
+#         "allow_failure": False,
+#         "created_at": "2015-12-24T15:51:21.802Z",
+#         "started_at": "2015-12-24T17:54:27.722Z",
+#         "finished_at": "2015-12-24T17:58:27.895Z",
+#         "erased_at": None,
+#         "duration": 240,
+#         "queued_duration": 0.123,
+#         "id": 7,
+#         "name": "teaspoon",
+#         "pipeline": {
+#             "id": 6,
+#             "project_id": 1,
+#             "ref": "main",
+#             "sha": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#             "status": "pending",
+#             "created_at": "2015-12-24T15:50:16.123Z",
+#             "updated_at": "2015-12-24T18:00:44.432Z",
+#             "web_url": "https://example.com/foo/bar/pipelines/6"
+#         },
+#         "ref": "main",
+#         "stage": "test",
+#         "status": "pending",
+#         "tag": False,
+#         "web_url": "https://example.com/foo/bar/-/jobs/7",
+#         "project": {
+#             "ci_job_token_scope_enabled": False
+#         },
+#         "user": {
+#             "id": 1,
+#             "name": "Administrator",
+#             "username": "root",
+#             "state": "active",
+#             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#             "web_url": "http://gitlab.dev/root",
+#             "created_at": "2015-12-21T13:14:24.077Z",
+#             "bio": None,
+#             "location": None,
+#             "public_email": "",
+#             "skype": "",
+#             "linkedin": "",
+#             "twitter": "",
+#             "website_url": "",
+#             "organization": ""
+#         },
+#         "downstream_pipeline": {
+#             "id": 5,
+#             "sha": "f62a4b2fb89754372a346f24659212eb8da13601",
+#             "ref": "main",
+#             "status": "pending",
+#             "created_at": "2015-12-24T17:54:27.722Z",
+#             "updated_at": "2015-12-24T17:58:27.896Z",
+#             "web_url": "https://example.com/diaspora/diaspora-client/pipelines/5"
+#         }
+#     }
+# ]
+#
+# # Get job token’s job
+# example_data ={
+#     "commit": {
+#         "author_email": "admin@example.com",
+#         "author_name": "Administrator",
+#         "created_at": "2015-12-24T16:51:14.000+01:00",
+#         "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#         "message": "Test the CI integration.",
+#         "short_id": "0ff3ae19",
+#         "title": "Test the CI integration."
+#     },
+#     "coverage": None,
+#     "archived": False,
+#     "allow_failure": False,
+#     "created_at": "2015-12-24T15:51:21.880Z",
+#     "started_at": "2015-12-24T17:54:30.733Z",
+#     "finished_at": "2015-12-24T17:54:31.198Z",
+#     "erased_at": None,
+#     "duration": 0.465,
+#     "queued_duration": 0.123,
+#     "artifacts_expire_at": "2016-01-23T17:54:31.198Z",
+#     "id": 8,
+#     "name": "rubocop",
+#     "pipeline": {
+#         "id": 6,
+#         "project_id": 1,
+#         "ref": "main",
+#         "sha": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#         "status": "pending"
+#     },
+#     "ref": "main",
+#     "artifacts": [],
+#     "runner": None,
+#     "runner_manager": None,
+#     "stage": "test",
+#     "status": "failed",
+#     "failure_reason": "script_failure",
+#     "tag": False,
+#     "web_url": "https://example.com/foo/bar/-/jobs/8",
+#     "project": {
+#         "ci_job_token_scope_enabled": False
+#     },
+#     "user": {
+#         "id": 1,
+#         "name": "Administrator",
+#         "username": "root",
+#         "state": "active",
+#         "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#         "web_url": "http://gitlab.dev/root",
+#         "created_at": "2015-12-21T13:14:24.077Z",
+#         "bio": None,
+#         "location": None,
+#         "public_email": "",
+#         "skype": "",
+#         "linkedin": "",
+#         "twitter": "",
+#         "website_url": "",
+#         "organization": ""
+#     }
+# }
+#
+# # Get GitLab agent by CI_JOB_TOKEN
+# example_data ={
+#     "allowed_agents": [
+#         {
+#             "id": 1,
+#             "config_project": {
+#                 "id": 1,
+#                 "description": None,
+#                 "name": "project1",
+#                 "name_with_namespace": "John Doe2 / project1",
+#                 "path": "project1",
+#                 "path_with_namespace": "namespace1/project1",
+#                 "created_at": "2022-11-16T14:51:50.579Z"
+#             }
+#         }
+#     ],
+#     "job": {
+#         "id": 1
+#     },
+#     "pipeline": {
+#         "id": 2
+#     },
+#     "project": {
+#         "id": 1,
+#         "groups": [
+#             {
+#                 "id": 1
+#             },
+#             {
+#                 "id": 2
+#             },
+#             {
+#                 "id": 3
+#             }
+#         ]
+#     },
+#     "user": {
+#         "id": 2,
+#         "name": "John Doe3",
+#         "username": "user2",
+#         "state": "active",
+#         "avatar_url": "https://www.gravatar.com/avatar/10fc7f102b",
+#         "web_url": "http://localhost/user2"
+#     }
+# }
+#
+# example_data =Get a single job
+#
+# example_data ={
+#     "commit": {
+#         "author_email": "admin@example.com",
+#         "author_name": "Administrator",
+#         "created_at": "2015-12-24T16:51:14.000+01:00",
+#         "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#         "message": "Test the CI integration.",
+#         "short_id": "0ff3ae19",
+#         "title": "Test the CI integration."
+#     },
+#     "coverage": None,
+#     "archived": False,
+#     "allow_failure": False,
+#     "created_at": "2015-12-24T15:51:21.880Z",
+#     "started_at": "2015-12-24T17:54:30.733Z",
+#     "finished_at": "2015-12-24T17:54:31.198Z",
+#     "erased_at": None,
+#     "duration": 0.465,
+#     "queued_duration": 0.010,
+#     "artifacts_expire_at": "2016-01-23T17:54:31.198Z",
+#     "tag_list": [
+#         "docker runner", "macos-10.15"
+#     ],
+#     "id": 8,
+#     "name": "rubocop",
+#     "pipeline": {
+#         "id": 6,
+#         "project_id": 1,
+#         "ref": "main",
+#         "sha": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#         "status": "pending"
+#     },
+#     "ref": "main",
+#     "artifacts": [],
+#     "runner": None,
+#     "runner_manager": None,
+#     "stage": "test",
+#     "status": "failed",
+#     "tag": False,
+#     "web_url": "https://example.com/foo/bar/-/jobs/8",
+#     "project": {
+#         "ci_job_token_scope_enabled": False
+#     },
+#     "user": {
+#         "id": 1,
+#         "name": "Administrator",
+#         "username": "root",
+#         "state": "active",
+#         "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+#         "web_url": "http://gitlab.dev/root",
+#         "created_at": "2015-12-21T13:14:24.077Z",
+#         "bio": None,
+#         "location": None,
+#         "public_email": "",
+#         "skype": "",
+#         "linkedin": "",
+#         "twitter": "",
+#         "website_url": "",
+#         "organization": ""
+#     }
+# }
+#
+# # Cancel a job
+# example_data ={
+#     "commit": {
+#         "author_email": "admin@example.com",
+#         "author_name": "Administrator",
+#         "created_at": "2015-12-24T16:51:14.000+01:00",
+#         "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#         "message": "Test the CI integration.",
+#         "short_id": "0ff3ae19",
+#         "title": "Test the CI integration."
+#     },
+#     "coverage": None,
+#     "archived": False,
+#     "allow_failure": False,
+#     "created_at": "2016-01-11T10:13:33.506Z",
+#     "started_at": "2016-01-11T10:14:09.526Z",
+#     "finished_at": None,
+#     "erased_at": None,
+#     "duration": 8,
+#     "queued_duration": 0.010,
+#     "id": 1,
+#     "name": "rubocop",
+#     "ref": "main",
+#     "artifacts": [],
+#     "runner": None,
+#     "runner_manager": None,
+#     "stage": "test",
+#     "status": "canceled",
+#     "tag": False,
+#     "web_url": "https://example.com/foo/bar/-/jobs/1",
+#     "project": {
+#         "ci_job_token_scope_enabled": False
+#     },
+#     "user": None
+# }
+#
+# # Retry a job
+# example_data ={
+#     "commit": {
+#         "author_email": "admin@example.com",
+#         "author_name": "Administrator",
+#         "created_at": "2015-12-24T16:51:14.000+01:00",
+#         "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#         "message": "Test the CI integration.",
+#         "short_id": "0ff3ae19",
+#         "title": "Test the CI integration."
+#     },
+#     "coverage": None,
+#     "archived": False,
+#     "allow_failure": False,
+#     "created_at": "2016-01-11T10:13:33.506Z",
+#     "started_at": None,
+#     "finished_at": None,
+#     "erased_at": None,
+#     "duration": None,
+#     "queued_duration": 0.010,
+#     "id": 1,
+#     "name": "rubocop",
+#     "ref": "main",
+#     "artifacts": [],
+#     "runner": None,
+#     "runner_manager": None,
+#     "stage": "test",
+#     "status": "pending",
+#     "tag": False,
+#     "web_url": "https://example.com/foo/bar/-/jobs/1",
+#     "project": {
+#         "ci_job_token_scope_enabled": False
+#     },
+#     "user": None
+# }
+#
+# # Run a job
+# example_data ={
+#     "commit": {
+#         "author_email": "admin@example.com",
+#         "author_name": "Administrator",
+#         "created_at": "2015-12-24T16:51:14.000+01:00",
+#         "id": "0ff3ae198f8601a285adcf5c0fff204ee6fba5fd",
+#         "message": "Test the CI integration.",
+#         "short_id": "0ff3ae19",
+#         "title": "Test the CI integration."
+#     },
+#     "coverage": None,
+#     "archived": False,
+#     "allow_failure": False,
+#     "created_at": "2016-01-11T10:13:33.506Z",
+#     "started_at": None,
+#     "finished_at": None,
+#     "erased_at": None,
+#     "duration": None,
+#     "queued_duration": 0.010,
+#     "id": 1,
+#     "name": "rubocop",
+#     "ref": "main",
+#     "artifacts": [],
+#     "runner": None,
+#     "runner_manager": None,
+#     "stage": "test",
+#     "status": "pending",
+#     "tag": False,
+#     "web_url": "https://example.com/foo/bar/-/jobs/1",
+#     "project": {
+#         "ci_job_token_scope_enabled": False
+#     },
+#     "user": None
+# }
+#
+# @pytest.mark.skipif(
+#     sys.platform in ["darwin"] or skip,
+#     reason=reason,
+# )
+# def test_member_responses():
+#     # List all members of a group or project
+#     example_data = [
+#         {
+#             "id": 1,
+#             "username": "raymond_smith",
+#             "name": "Raymond Smith",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root",
+#             "created_at": "2012-09-22T14:13:35Z",
+#             "created_by": {
+#                 "id": 2,
+#                 "username": "john_doe",
+#                 "name": "John Doe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#                 "web_url": "http://192.168.1.8:3000/root"
+#             },
+#             "expires_at": "2012-10-22T14:13:35Z",
+#             "access_level": 30,
+#             "group_saml_identity": None
+#         },
+#         {
+#             "id": 2,
+#             "username": "john_doe",
+#             "name": "John Doe",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root",
+#             "created_at": "2012-09-22T14:13:35Z",
+#             "created_by": {
+#                 "id": 1,
+#                 "username": "raymond_smith",
+#                 "name": "Raymond Smith",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#                 "web_url": "http://192.168.1.8:3000/root"
+#             },
+#             "expires_at": "2012-10-22T14:13:35Z",
+#             "access_level": 30,
+#             "email": "john@example.com",
+#             "group_saml_identity": {
+#                 "extern_uid":"ABC-1234567890",
+#                 "provider": "group_saml",
+#                 "saml_provider_id": 10
+#             }
+#         }
+#     ]
+#
+#     # List all members of a group or project including inherited and invited members
+#     example_data = [
+#         {
+#             "id": 1,
+#             "username": "raymond_smith",
+#             "name": "Raymond Smith",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root",
+#             "created_at": "2012-09-22T14:13:35Z",
+#             "created_by": {
+#                 "id": 2,
+#                 "username": "john_doe",
+#                 "name": "John Doe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#                 "web_url": "http://192.168.1.8:3000/root"
+#             },
+#             "expires_at": "2012-10-22T14:13:35Z",
+#             "access_level": 30,
+#             "group_saml_identity": None
+#         },
+#         {
+#             "id": 2,
+#             "username": "john_doe",
+#             "name": "John Doe",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root",
+#             "created_at": "2012-09-22T14:13:35Z",
+#             "created_by": {
+#                 "id": 1,
+#                 "username": "raymond_smith",
+#                 "name": "Raymond Smith",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#                 "web_url": "http://192.168.1.8:3000/root"
+#             },
+#             "expires_at": "2012-10-22T14:13:35Z",
+#             "access_level": 30,
+#             "email": "john@example.com",
+#             "group_saml_identity": {
+#                 "extern_uid":"ABC-1234567890",
+#                 "provider": "group_saml",
+#                 "saml_provider_id": 10
+#             }
+#         },
+#         {
+#             "id": 3,
+#             "username": "foo_bar",
+#             "name": "Foo bar",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root",
+#             "created_at": "2012-10-22T14:13:35Z",
+#             "created_by": {
+#                 "id": 2,
+#                 "username": "john_doe",
+#                 "name": "John Doe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#                 "web_url": "http://192.168.1.8:3000/root"
+#             },
+#             "expires_at": "2012-11-22T14:13:35Z",
+#             "access_level": 30,
+#             "group_saml_identity": None
+#         }
+#     ]
+#
+#     # Get a member of a group or project
+#     example_data = {
+#         "id": 1,
+#         "username": "raymond_smith",
+#         "name": "Raymond Smith",
+#         "state": "active",
+#         "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#         "web_url": "http://192.168.1.8:3000/root",
+#         "access_level": 30,
+#         "email": "john@example.com",
+#         "created_at": "2012-10-22T14:13:35Z",
+#         "created_by": {
+#             "id": 2,
+#             "username": "john_doe",
+#             "name": "John Doe",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root"
+#         },
+#         "expires_at": None,
+#         "group_saml_identity": None
+#     }
+#
+#     # Get a member of a group or project, including inherited and invited members
+#     example_data = {
+#         "id": 1,
+#         "username": "raymond_smith",
+#         "name": "Raymond Smith",
+#         "state": "active",
+#         "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#         "web_url": "http://192.168.1.8:3000/root",
+#         "access_level": 30,
+#         "created_at": "2012-10-22T14:13:35Z",
+#         "created_by": {
+#             "id": 2,
+#             "username": "john_doe",
+#             "name": "John Doe",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root"
+#         },
+#         "email": "john@example.com",
+#         "expires_at": None,
+#         "group_saml_identity": None
+#     }
+#
+#     #
+#     example_data = [
+#         {
+#             "id": 1,
+#             "username": "raymond_smith",
+#             "name": "Raymond Smith",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root",
+#             "last_activity_on": "2021-01-27",
+#             "membership_type": "group_member",
+#             "removable": True,
+#             "created_at": "2021-01-03T12:16:02.000Z",
+#             "last_login_at": "2022-10-09T01:33:06.000Z"
+#         },
+#         {
+#             "id": 2,
+#             "username": "john_doe",
+#             "name": "John Doe",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root",
+#             "email": "john@example.com",
+#             "last_activity_on": "2021-01-25",
+#             "membership_type": "group_member",
+#             "removable": True,
+#             "created_at": "2021-01-04T18:46:42.000Z",
+#             "last_login_at": "2022-09-29T22:18:46.000Z"
+#         },
+#         {
+#             "id": 3,
+#             "username": "foo_bar",
+#             "name": "Foo bar",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root",
+#             "last_activity_on": "2021-01-20",
+#             "membership_type": "group_invite",
+#             "removable": False,
+#             "created_at": "2021-01-09T07:12:31.000Z",
+#             "last_login_at": "2022-10-10T07:28:56.000Z"
+#         }
+#     ]
+#
+#     # List memberships for a billable member of a group
+#     example_data = [
+#         {
+#             "id": 168,
+#             "source_id": 131,
+#             "source_full_name": "Root Group / Sub Group One",
+#             "source_members_url": "https://gitlab.example.com/groups/root-group/sub-group-one/-/group_members",
+#             "created_at": "2021-03-31T17:28:44.812Z",
+#             "expires_at": "2022-03-21",
+#             "access_level": {
+#                 "string_value": "Developer",
+#                 "integer_value": 30
+#             }
+#         },
+#         {
+#             "id": 169,
+#             "source_id": 63,
+#             "source_full_name": "Root Group / Sub Group One / My Project",
+#             "source_members_url": "https://gitlab.example.com/root-group/sub-group-one/my-project/-/project_members",
+#             "created_at": "2021-03-31T17:29:14.934Z",
+#             "expires_at": None,
+#             "access_level": {
+#                 "string_value": "Maintainer",
+#                 "integer_value": 40
+#             }
+#         }
+#     ]
+#
+#     # Add a member to a group or project
+#     example_data = {
+#         "id": 1,
+#         "username": "raymond_smith",
+#         "name": "Raymond Smith",
+#         "state": "active",
+#         "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#         "web_url": "http://192.168.1.8:3000/root",
+#         "created_at": "2012-10-22T14:13:35Z",
+#         "created_by": {
+#             "id": 2,
+#             "username": "john_doe",
+#             "name": "John Doe",
+#             "state": "active",
+#             "avatar_url": "https://www.gravatar.com/avatar/c2525a7f58ae3776070e44c106c48e15?s=80&d=identicon",
+#             "web_url": "http://192.168.1.8:3000/root"
+#         },
+#         "expires_at": "2012-10-22T14:13:35Z",
+#         "access_level": 30,
+#         "email": "john@example.com",
+#         "group_saml_identity": None
+#     }
+#
+#     # List pending members of a group and its subgroups and projects
+#     example_data = [
+#         {
+#             "id": 168,
+#             "name": "Alex Garcia",
+#             "username": "alex_garcia",
+#             "email": "alex@example.com",
+#             "avatar_url": "http://example.com/uploads/user/avatar/1/cd8.jpeg",
+#             "web_url": "http://example.com/alex_garcia",
+#             "approved": False,
+#             "invited": False
+#         },
+#         {
+#             "id": 169,
+#             "email": "sidney@example.com",
+#             "avatar_url": "http://gravatar.com/../e346561cd8.jpeg",
+#             "approved": False,
+#             "invited": True
+#         },
+#         {
+#             "id": 170,
+#             "email": "zhang@example.com",
+#             "avatar_url": "http://gravatar.com/../e32131cd8.jpeg",
+#             "approved": True,
+#             "invited": True
+#         }
+#     ]
+# @pytest.mark.skipif(
+#     sys.platform in ["darwin"] or skip,
+#     reason=reason,
+# )
+# def test_approval_rule_responses():
+#     # Get group-level approval rules
+#     example_data = [
+#         {
+#             "id": 2,
+#             "name": "rule1",
+#             "rule_type": "any_approver",
+#             "eligible_approvers": [],
+#             "approvals_required": 3,
+#             "users": [],
+#             "groups": [],
+#             "contains_hidden_groups": False,
+#             "protected_branches": [],
+#             "applies_to_all_protected_branches": True
+#         },
+#         {
+#             "id": 3,
+#             "name": "rule2",
+#             "rule_type": "code_owner",
+#             "eligible_approvers": [],
+#             "approvals_required": 2,
+#             "users": [],
+#             "groups": [],
+#             "contains_hidden_groups": False,
+#             "protected_branches": [],
+#             "applies_to_all_protected_branches": True
+#         }
+#     ]
+#     # Create group-level approval rules
+#     example_data = {
+#         "id": 5,
+#         "name": "security",
+#         "rule_type": "any_approver",
+#         "eligible_approvers": [],
+#         "approvals_required": 2,
+#         "users": [],
+#         "groups": [],
+#         "contains_hidden_groups": False,
+#         "protected_branches": [
+#             {
+#                 "id": 5,
+#                 "name": "master",
+#                 "push_access_levels": [
+#                     {
+#                         "id": 5,
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers",
+#                         "deploy_key_id": None,
+#                         "user_id": None,
+#                         "group_id": None
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "id": 5,
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers",
+#                         "user_id": None,
+#                         "group_id": None
+#                     }
+#                 ],
+#                 "allow_force_push": False,
+#                 "unprotect_access_levels": [],
+#                 "code_owner_approval_required": False,
+#                 "inherited": False
+#             }
+#         ],
+#         "applies_to_all_protected_branches": True
+#     }
+#
+#
+#     # Update group-level approval rules
+#     example_data = {
+#         "id": 5,
+#         "name": "security2",
+#         "rule_type": "any_approver",
+#         "eligible_approvers": [],
+#         "approvals_required": 1,
+#         "users": [],
+#         "groups": [],
+#         "contains_hidden_groups": False,
+#         "protected_branches": [
+#             {
+#                 "id": 5,
+#                 "name": "master",
+#                 "push_access_levels": [
+#                     {
+#                         "id": 5,
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers",
+#                         "deploy_key_id": None,
+#                         "user_id": None,
+#                         "group_id": None
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "id": 5,
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers",
+#                         "user_id": None,
+#                         "group_id": None
+#                     }
+#                 ],
+#                 "allow_force_push": False,
+#                 "unprotect_access_levels": [],
+#                 "code_owner_approval_required": False,
+#                 "inherited": False
+#             }
+#         ],
+#         "applies_to_all_protected_branches": True
+#     }
+#
+#     # Change configuration
+#     example_data = {
+#                        "approvals_before_merge": 2, // Use Approval Rules instead
+#     "reset_approvals_on_push": True,
+#     "selective_code_owner_removals": False,
+#     "disable_overriding_approvers_per_merge_request": False,
+#     "merge_requests_author_approval": False,
+#     "merge_requests_disable_committers_approval": False,
+#     "require_password_to_approve": True
+#     }
+#
+#     # Project-level MR approvals
+#     example_data = {
+#                        "approvers": [], // Deprecated in GitLab 12.3, always returns empty
+#     "approver_groups": [], // Deprecated in GitLab 12.3, always returns empty
+#     "approvals_before_merge": 2, // Deprecated in GitLab 12.3, use Approval Rules instead
+#     "reset_approvals_on_push": True,
+#     "selective_code_owner_removals": False,
+#     "disable_overriding_approvers_per_merge_request": False,
+#     "merge_requests_author_approval": True,
+#     "merge_requests_disable_committers_approval": False,
+#     "require_password_to_approve": True
+#     }
+#
+#     # Get project-level rules
+#     example_data = [
+#         {
+#             "id": 1,
+#             "name": "security",
+#             "rule_type": "regular",
+#             "eligible_approvers": [
+#                 {
+#                     "id": 5,
+#                     "name": "John Doe",
+#                     "username": "jdoe",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/jdoe"
+#                 },
+#                 {
+#                     "id": 50,
+#                     "name": "Group Member 1",
+#                     "username": "group_member_1",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/group_member_1"
+#                 }
+#             ],
+#             "approvals_required": 3,
+#             "users": [
+#                 {
+#                     "id": 5,
+#                     "name": "John Doe",
+#                     "username": "jdoe",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/jdoe"
+#                 }
+#             ],
+#             "groups": [
+#                 {
+#                     "id": 5,
+#                     "name": "group1",
+#                     "path": "group1",
+#                     "description": "",
+#                     "visibility": "public",
+#                     "lfs_enabled": False,
+#                     "avatar_url": None,
+#                     "web_url": "http://localhost/groups/group1",
+#                     "request_access_enabled": False,
+#                     "full_name": "group1",
+#                     "full_path": "group1",
+#                     "parent_id": None,
+#                     "ldap_cn": None,
+#                     "ldap_access": None
+#                 }
+#             ],
+#             "applies_to_all_protected_branches": False,
+#             "protected_branches": [
+#                 {
+#                     "id": 1,
+#                     "name": "main",
+#                     "push_access_levels": [
+#                         {
+#                             "access_level": 30,
+#                             "access_level_description": "Developers + Maintainers"
+#                         }
+#                     ],
+#                     "merge_access_levels": [
+#                         {
+#                             "access_level": 30,
+#                             "access_level_description": "Developers + Maintainers"
+#                         }
+#                     ],
+#                     "unprotect_access_levels": [
+#                         {
+#                             "access_level": 40,
+#                             "access_level_description": "Maintainers"
+#                         }
+#                     ],
+#                     "code_owner_approval_required": "false"
+#                 }
+#             ],
+#             "contains_hidden_groups": False
+#         }
+#     ]
+#
+#
+#     # Get a single project-level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 5,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 3,
+#         "users": [
+#             {
+#                 "id": 5,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "applies_to_all_protected_branches": False,
+#         "protected_branches": [
+#             {
+#                 "id": 1,
+#                 "name": "main",
+#                 "push_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "unprotect_access_levels": [
+#                     {
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers"
+#                     }
+#                 ],
+#                 "code_owner_approval_required": "false"
+#             }
+#         ],
+#         "contains_hidden_groups": False
+#     }
+#     # Create project-level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 1,
+#         "users": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "applies_to_all_protected_branches": False,
+#         "protected_branches": [
+#             {
+#                 "id": 1,
+#                 "name": "main",
+#                 "push_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "unprotect_access_levels": [
+#                     {
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers"
+#                     }
+#                 ],
+#                 "code_owner_approval_required": "false"
+#             }
+#         ],
+#         "contains_hidden_groups": False
+#     }
+#
+#
+#     # Update Project level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 1,
+#         "users": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "applies_to_all_protected_branches": False,
+#         "protected_branches": [
+#             {
+#                 "id": 1,
+#                 "name": "main",
+#                 "push_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "unprotect_access_levels": [
+#                     {
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers"
+#                     }
+#                 ],
+#                 "code_owner_approval_required": "false"
+#             }
+#         ],
+#         "contains_hidden_groups": False
+#     }
+#     # Merge request-level MR approvals
+#     example_data = {
+#         "id": 5,
+#         "iid": 5,
+#         "project_id": 1,
+#         "title": "Approvals API",
+#         "description": "Test",
+#         "state": "opened",
+#         "created_at": "2016-06-08T00:19:52.638Z",
+#         "updated_at": "2016-06-08T21:20:42.470Z",
+#         "merge_status": "cannot_be_merged",
+#         "approvals_required": 2,
+#         "approvals_left": 1,
+#         "approved_by": [
+#             {
+#                 "user": {
+#                     "name": "Administrator",
+#                     "username": "root",
+#                     "id": 1,
+#                     "state": "active",
+#                     "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#                     "web_url": "http://localhost:3000/root"
+#                 }
+#             }
+#         ]
+#     }
+#     # Get the approval state of merge requests
+#     example_data = {
+#         "approval_rules_overwritten": True,
+#         "rules": [
+#             {
+#                 "id": 1,
+#                 "name": "Ruby",
+#                 "rule_type": "regular",
+#                 "eligible_approvers": [
+#                     {
+#                         "id": 4,
+#                         "name": "John Doe",
+#                         "username": "jdoe",
+#                         "state": "active",
+#                         "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                         "web_url": "http://localhost/jdoe"
+#                     }
+#                 ],
+#                 "approvals_required": 2,
+#                 "users": [
+#                     {
+#                         "id": 4,
+#                         "name": "John Doe",
+#                         "username": "jdoe",
+#                         "state": "active",
+#                         "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                         "web_url": "http://localhost/jdoe"
+#                     }
+#                 ],
+#                 "groups": [],
+#                 "contains_hidden_groups": False,
+#                 "approved_by": [
+#                     {
+#                         "id": 4,
+#                         "name": "John Doe",
+#                         "username": "jdoe",
+#                         "state": "active",
+#                         "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                         "web_url": "http://localhost/jdoe"
+#                     }
+#                 ],
+#                 "source_rule": None,
+#                 "approved": True,
+#                 "overridden": False
+#             }
+#         ]
+#     }
+#     # Get merge request level rules
+#     example_data = [
+#         {
+#             "id": 1,
+#             "name": "security",
+#             "rule_type": "regular",
+#             "eligible_approvers": [
+#                 {
+#                     "id": 5,
+#                     "name": "John Doe",
+#                     "username": "jdoe",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/jdoe"
+#                 },
+#                 {
+#                     "id": 50,
+#                     "name": "Group Member 1",
+#                     "username": "group_member_1",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/group_member_1"
+#                 }
+#             ],
+#             "approvals_required": 3,
+#             "source_rule": None,
+#             "users": [
+#                 {
+#                     "id": 5,
+#                     "name": "John Doe",
+#                     "username": "jdoe",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/jdoe"
+#                 }
+#             ],
+#             "groups": [
+#                 {
+#                     "id": 5,
+#                     "name": "group1",
+#                     "path": "group1",
+#                     "description": "",
+#                     "visibility": "public",
+#                     "lfs_enabled": False,
+#                     "avatar_url": None,
+#                     "web_url": "http://localhost/groups/group1",
+#                     "request_access_enabled": False,
+#                     "full_name": "group1",
+#                     "full_path": "group1",
+#                     "parent_id": None,
+#                     "ldap_cn": None,
+#                     "ldap_access": None
+#                 }
+#             ],
+#             "contains_hidden_groups": False,
+#             "overridden": False
+#         }
+#     ]
+#
+#
+#     # Get a single merge request level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 5,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 3,
+#         "source_rule": None,
+#         "users": [
+#             {
+#                 "id": 5,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "contains_hidden_groups": False,
+#         "overridden": False
+#     }
+#     # Create merge request level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 1,
+#         "source_rule": None,
+#         "users": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "contains_hidden_groups": False,
+#         "overridden": False
+#     }
+#     # Approve merge request
+#     example_data = {
+#         "id": 5,
+#         "iid": 5,
+#         "project_id": 1,
+#         "title": "Approvals API",
+#         "description": "Test",
+#         "state": "opened",
+#         "created_at": "2016-06-08T00:19:52.638Z",
+#         "updated_at": "2016-06-09T21:32:14.105Z",
+#         "merge_status": "can_be_merged",
+#         "approvals_required": 2,
+#         "approvals_left": 0,
+#         "approved_by": [
+#             {
+#                 "user": {
+#                     "name": "Administrator",
+#                     "username": "root",
+#                     "id": 1,
+#                     "state": "active",
+#                     "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#                     "web_url": "http://localhost:3000/root"
+#                 }
+#             },
+#             {
+#                 "user": {
+#                     "name": "Nico Cartwright",
+#                     "username": "ryley",
+#                     "id": 2,
+#                     "state": "active",
+#                     "avatar_url": "http://www.gravatar.com/avatar/cf7ad14b34162a76d593e3affca2adca?s=80\u0026d=identicon",
+#                     "web_url": "http://localhost:3000/ryley"
+#                 }
+#             }
+#         ]
+#     }
+
+# @pytest.mark.skipif(
+#     sys.platform in ["darwin"] or skip,
+#     reason=reason,
+# )
+# def test_protected_branch_responses():
+#     # Get group-level approval rules
+#     example_data = [
+#         {
+#             "id": 2,
+#             "name": "rule1",
+#             "rule_type": "any_approver",
+#             "eligible_approvers": [],
+#             "approvals_required": 3,
+#             "users": [],
+#             "groups": [],
+#             "contains_hidden_groups": False,
+#             "protected_branches": [],
+#             "applies_to_all_protected_branches": True
+#         },
+#         {
+#             "id": 3,
+#             "name": "rule2",
+#             "rule_type": "code_owner",
+#             "eligible_approvers": [],
+#             "approvals_required": 2,
+#             "users": [],
+#             "groups": [],
+#             "contains_hidden_groups": False,
+#             "protected_branches": [],
+#             "applies_to_all_protected_branches": True
+#         }
+#     ]
+#     # Create group-level approval rules
+#     example_data = {
+#         "id": 5,
+#         "name": "security",
+#         "rule_type": "any_approver",
+#         "eligible_approvers": [],
+#         "approvals_required": 2,
+#         "users": [],
+#         "groups": [],
+#         "contains_hidden_groups": False,
+#         "protected_branches": [
+#             {
+#                 "id": 5,
+#                 "name": "master",
+#                 "push_access_levels": [
+#                     {
+#                         "id": 5,
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers",
+#                         "deploy_key_id": None,
+#                         "user_id": None,
+#                         "group_id": None
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "id": 5,
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers",
+#                         "user_id": None,
+#                         "group_id": None
+#                     }
+#                 ],
+#                 "allow_force_push": False,
+#                 "unprotect_access_levels": [],
+#                 "code_owner_approval_required": False,
+#                 "inherited": False
+#             }
+#         ],
+#         "applies_to_all_protected_branches": True
+#     }
+#
+#
+#     # Update group-level approval rules
+#     example_data = {
+#         "id": 5,
+#         "name": "security2",
+#         "rule_type": "any_approver",
+#         "eligible_approvers": [],
+#         "approvals_required": 1,
+#         "users": [],
+#         "groups": [],
+#         "contains_hidden_groups": False,
+#         "protected_branches": [
+#             {
+#                 "id": 5,
+#                 "name": "master",
+#                 "push_access_levels": [
+#                     {
+#                         "id": 5,
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers",
+#                         "deploy_key_id": None,
+#                         "user_id": None,
+#                         "group_id": None
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "id": 5,
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers",
+#                         "user_id": None,
+#                         "group_id": None
+#                     }
+#                 ],
+#                 "allow_force_push": False,
+#                 "unprotect_access_levels": [],
+#                 "code_owner_approval_required": False,
+#                 "inherited": False
+#             }
+#         ],
+#         "applies_to_all_protected_branches": True
+#     }
+#
+#     # Change configuration
+#     example_data = {
+#                        "approvals_before_merge": 2, // Use Approval Rules instead
+#     "reset_approvals_on_push": True,
+#     "selective_code_owner_removals": False,
+#     "disable_overriding_approvers_per_merge_request": False,
+#     "merge_requests_author_approval": False,
+#     "merge_requests_disable_committers_approval": False,
+#     "require_password_to_approve": True
+#     }
+#
+#     # Project-level MR approvals
+#     example_data = {
+#                        "approvers": [], // Deprecated in GitLab 12.3, always returns empty
+#     "approver_groups": [], // Deprecated in GitLab 12.3, always returns empty
+#     "approvals_before_merge": 2, // Deprecated in GitLab 12.3, use Approval Rules instead
+#     "reset_approvals_on_push": True,
+#     "selective_code_owner_removals": False,
+#     "disable_overriding_approvers_per_merge_request": False,
+#     "merge_requests_author_approval": True,
+#     "merge_requests_disable_committers_approval": False,
+#     "require_password_to_approve": True
+#     }
+#
+#     # Get project-level rules
+#     example_data = [
+#         {
+#             "id": 1,
+#             "name": "security",
+#             "rule_type": "regular",
+#             "eligible_approvers": [
+#                 {
+#                     "id": 5,
+#                     "name": "John Doe",
+#                     "username": "jdoe",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/jdoe"
+#                 },
+#                 {
+#                     "id": 50,
+#                     "name": "Group Member 1",
+#                     "username": "group_member_1",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/group_member_1"
+#                 }
+#             ],
+#             "approvals_required": 3,
+#             "users": [
+#                 {
+#                     "id": 5,
+#                     "name": "John Doe",
+#                     "username": "jdoe",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/jdoe"
+#                 }
+#             ],
+#             "groups": [
+#                 {
+#                     "id": 5,
+#                     "name": "group1",
+#                     "path": "group1",
+#                     "description": "",
+#                     "visibility": "public",
+#                     "lfs_enabled": False,
+#                     "avatar_url": None,
+#                     "web_url": "http://localhost/groups/group1",
+#                     "request_access_enabled": False,
+#                     "full_name": "group1",
+#                     "full_path": "group1",
+#                     "parent_id": None,
+#                     "ldap_cn": None,
+#                     "ldap_access": None
+#                 }
+#             ],
+#             "applies_to_all_protected_branches": False,
+#             "protected_branches": [
+#                 {
+#                     "id": 1,
+#                     "name": "main",
+#                     "push_access_levels": [
+#                         {
+#                             "access_level": 30,
+#                             "access_level_description": "Developers + Maintainers"
+#                         }
+#                     ],
+#                     "merge_access_levels": [
+#                         {
+#                             "access_level": 30,
+#                             "access_level_description": "Developers + Maintainers"
+#                         }
+#                     ],
+#                     "unprotect_access_levels": [
+#                         {
+#                             "access_level": 40,
+#                             "access_level_description": "Maintainers"
+#                         }
+#                     ],
+#                     "code_owner_approval_required": "false"
+#                 }
+#             ],
+#             "contains_hidden_groups": False
+#         }
+#     ]
+#
+#
+#     # Get a single project-level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 5,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 3,
+#         "users": [
+#             {
+#                 "id": 5,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "applies_to_all_protected_branches": False,
+#         "protected_branches": [
+#             {
+#                 "id": 1,
+#                 "name": "main",
+#                 "push_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "unprotect_access_levels": [
+#                     {
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers"
+#                     }
+#                 ],
+#                 "code_owner_approval_required": "false"
+#             }
+#         ],
+#         "contains_hidden_groups": False
+#     }
+#     # Create project-level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 1,
+#         "users": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "applies_to_all_protected_branches": False,
+#         "protected_branches": [
+#             {
+#                 "id": 1,
+#                 "name": "main",
+#                 "push_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "unprotect_access_levels": [
+#                     {
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers"
+#                     }
+#                 ],
+#                 "code_owner_approval_required": "false"
+#             }
+#         ],
+#         "contains_hidden_groups": False
+#     }
+#
+#
+#     # Update Project level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 1,
+#         "users": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "applies_to_all_protected_branches": False,
+#         "protected_branches": [
+#             {
+#                 "id": 1,
+#                 "name": "main",
+#                 "push_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "merge_access_levels": [
+#                     {
+#                         "access_level": 30,
+#                         "access_level_description": "Developers + Maintainers"
+#                     }
+#                 ],
+#                 "unprotect_access_levels": [
+#                     {
+#                         "access_level": 40,
+#                         "access_level_description": "Maintainers"
+#                     }
+#                 ],
+#                 "code_owner_approval_required": "false"
+#             }
+#         ],
+#         "contains_hidden_groups": False
+#     }
+#     # Merge request-level MR approvals
+#     example_data = {
+#         "id": 5,
+#         "iid": 5,
+#         "project_id": 1,
+#         "title": "Approvals API",
+#         "description": "Test",
+#         "state": "opened",
+#         "created_at": "2016-06-08T00:19:52.638Z",
+#         "updated_at": "2016-06-08T21:20:42.470Z",
+#         "merge_status": "cannot_be_merged",
+#         "approvals_required": 2,
+#         "approvals_left": 1,
+#         "approved_by": [
+#             {
+#                 "user": {
+#                     "name": "Administrator",
+#                     "username": "root",
+#                     "id": 1,
+#                     "state": "active",
+#                     "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#                     "web_url": "http://localhost:3000/root"
+#                 }
+#             }
+#         ]
+#     }
+#     # Get the approval state of merge requests
+#     example_data = {
+#         "approval_rules_overwritten": True,
+#         "rules": [
+#             {
+#                 "id": 1,
+#                 "name": "Ruby",
+#                 "rule_type": "regular",
+#                 "eligible_approvers": [
+#                     {
+#                         "id": 4,
+#                         "name": "John Doe",
+#                         "username": "jdoe",
+#                         "state": "active",
+#                         "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                         "web_url": "http://localhost/jdoe"
+#                     }
+#                 ],
+#                 "approvals_required": 2,
+#                 "users": [
+#                     {
+#                         "id": 4,
+#                         "name": "John Doe",
+#                         "username": "jdoe",
+#                         "state": "active",
+#                         "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                         "web_url": "http://localhost/jdoe"
+#                     }
+#                 ],
+#                 "groups": [],
+#                 "contains_hidden_groups": False,
+#                 "approved_by": [
+#                     {
+#                         "id": 4,
+#                         "name": "John Doe",
+#                         "username": "jdoe",
+#                         "state": "active",
+#                         "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                         "web_url": "http://localhost/jdoe"
+#                     }
+#                 ],
+#                 "source_rule": None,
+#                 "approved": True,
+#                 "overridden": False
+#             }
+#         ]
+#     }
+#     # Get merge request level rules
+#     example_data = [
+#         {
+#             "id": 1,
+#             "name": "security",
+#             "rule_type": "regular",
+#             "eligible_approvers": [
+#                 {
+#                     "id": 5,
+#                     "name": "John Doe",
+#                     "username": "jdoe",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/jdoe"
+#                 },
+#                 {
+#                     "id": 50,
+#                     "name": "Group Member 1",
+#                     "username": "group_member_1",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/group_member_1"
+#                 }
+#             ],
+#             "approvals_required": 3,
+#             "source_rule": None,
+#             "users": [
+#                 {
+#                     "id": 5,
+#                     "name": "John Doe",
+#                     "username": "jdoe",
+#                     "state": "active",
+#                     "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                     "web_url": "http://localhost/jdoe"
+#                 }
+#             ],
+#             "groups": [
+#                 {
+#                     "id": 5,
+#                     "name": "group1",
+#                     "path": "group1",
+#                     "description": "",
+#                     "visibility": "public",
+#                     "lfs_enabled": False,
+#                     "avatar_url": None,
+#                     "web_url": "http://localhost/groups/group1",
+#                     "request_access_enabled": False,
+#                     "full_name": "group1",
+#                     "full_path": "group1",
+#                     "parent_id": None,
+#                     "ldap_cn": None,
+#                     "ldap_access": None
+#                 }
+#             ],
+#             "contains_hidden_groups": False,
+#             "overridden": False
+#         }
+#     ]
+#
+#
+#     # Get a single merge request level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 5,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 3,
+#         "source_rule": None,
+#         "users": [
+#             {
+#                 "id": 5,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "contains_hidden_groups": False,
+#         "overridden": False
+#     }
+#     # Create merge request level rule
+#     example_data = {
+#         "id": 1,
+#         "name": "security",
+#         "rule_type": "regular",
+#         "eligible_approvers": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             },
+#             {
+#                 "id": 50,
+#                 "name": "Group Member 1",
+#                 "username": "group_member_1",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/group_member_1"
+#             }
+#         ],
+#         "approvals_required": 1,
+#         "source_rule": None,
+#         "users": [
+#             {
+#                 "id": 2,
+#                 "name": "John Doe",
+#                 "username": "jdoe",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/0?s=80&d=identicon",
+#                 "web_url": "http://localhost/jdoe"
+#             }
+#         ],
+#         "groups": [
+#             {
+#                 "id": 5,
+#                 "name": "group1",
+#                 "path": "group1",
+#                 "description": "",
+#                 "visibility": "public",
+#                 "lfs_enabled": False,
+#                 "avatar_url": None,
+#                 "web_url": "http://localhost/groups/group1",
+#                 "request_access_enabled": False,
+#                 "full_name": "group1",
+#                 "full_path": "group1",
+#                 "parent_id": None,
+#                 "ldap_cn": None,
+#                 "ldap_access": None
+#             }
+#         ],
+#         "contains_hidden_groups": False,
+#         "overridden": False
+#     }
+#     # Approve merge request
+#     example_data = {
+#         "id": 5,
+#         "iid": 5,
+#         "project_id": 1,
+#         "title": "Approvals API",
+#         "description": "Test",
+#         "state": "opened",
+#         "created_at": "2016-06-08T00:19:52.638Z",
+#         "updated_at": "2016-06-09T21:32:14.105Z",
+#         "merge_status": "can_be_merged",
+#         "approvals_required": 2,
+#         "approvals_left": 0,
+#         "approved_by": [
+#             {
+#                 "user": {
+#                     "name": "Administrator",
+#                     "username": "root",
+#                     "id": 1,
+#                     "state": "active",
+#                     "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#                     "web_url": "http://localhost:3000/root"
+#                 }
+#             },
+#             {
+#                 "user": {
+#                     "name": "Nico Cartwright",
+#                     "username": "ryley",
+#                     "id": 2,
+#                     "state": "active",
+#                     "avatar_url": "http://www.gravatar.com/avatar/cf7ad14b34162a76d593e3affca2adca?s=80\u0026d=identicon",
+#                     "web_url": "http://localhost:3000/ryley"
+#                 }
+#             }
+#         ]
+#     }
+#
+# @pytest.mark.skipif(
+#     sys.platform in ["darwin"] or skip,
+#     reason=reason,
+# )
+# def test_package_responses():
+# List packages
+#     example_data = [
+#         {
+#             "id": 1,
+#             "name": "com/mycompany/my-app",
+#             "version": "1.0-SNAPSHOT",
+#             "package_type": "maven",
+#             "created_at": "2019-11-27T03:37:38.711Z"
+#         },
+#         {
+#             "id": 2,
+#             "name": "@foo/bar",
+#             "version": "1.0.3",
+#             "package_type": "npm",
+#             "created_at": "2019-11-27T03:37:38.711Z"
+#         },
+#         {
+#             "id": 3,
+#             "name": "Hello/0.1@mycompany/stable",
+#             "conan_package_name": "Hello",
+#             "version": "0.1",
+#             "package_type": "conan",
+#             "_links": {
+#                 "web_path": "/foo/bar/-/packages/3",
+#                 "delete_api_path": "https://gitlab.example.com/api/v4/projects/1/packages/3"
+#             },
+#             "created_at": "2029-12-16T20:33:34.316Z",
+#             "tags": []
+#         }
+#     ]
+#
+#     # Package for a group
+#     example_data = [
+#         {
+#             "id": 1,
+#             "name": "com/mycompany/my-app",
+#             "version": "1.0-SNAPSHOT",
+#             "package_type": "maven",
+#             "_links": {
+#                 "web_path": "/namespace1/project1/-/packages/1",
+#                 "delete_api_path": "/namespace1/project1/-/packages/1"
+#             },
+#             "created_at": "2019-11-27T03:37:38.711Z",
+#             "pipelines": [
+#                 {
+#                     "id": 123,
+#                     "status": "pending",
+#                     "ref": "new-pipeline",
+#                     "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#                     "web_url": "https://example.com/foo/bar/pipelines/47",
+#                     "created_at": "2016-08-11T11:28:34.085Z",
+#                     "updated_at": "2016-08-11T11:32:35.169Z",
+#                     "user": {
+#                         "name": "Administrator",
+#                         "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon"
+#                     }
+#                 }
+#             ]
+#         },
+#         {
+#             "id": 2,
+#             "name": "@foo/bar",
+#             "version": "1.0.3",
+#             "package_type": "npm",
+#             "_links": {
+#                 "web_path": "/namespace1/project1/-/packages/1",
+#                 "delete_api_path": "/namespace1/project1/-/packages/1"
+#             },
+#             "created_at": "2019-11-27T03:37:38.711Z",
+#             "pipelines": [
+#                 {
+#                     "id": 123,
+#                     "status": "pending",
+#                     "ref": "new-pipeline",
+#                     "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#                     "web_url": "https://example.com/foo/bar/pipelines/47",
+#                     "created_at": "2016-08-11T11:28:34.085Z",
+#                     "updated_at": "2016-08-11T11:32:35.169Z",
+#                     "user": {
+#                         "name": "Administrator",
+#                         "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon"
+#                     }
+#                 }
+#             ]
+#         }
+#     ]
+#
+#     # Get a project package
+#     example_data = {
+#         "id": 1,
+#         "name": "com/mycompany/my-app",
+#         "version": "1.0-SNAPSHOT",
+#         "package_type": "maven",
+#         "_links": {
+#             "web_path": "/namespace1/project1/-/packages/1",
+#             "delete_api_path": "/namespace1/project1/-/packages/1"
+#         },
+#         "created_at": "2019-11-27T03:37:38.711Z",
+#         "last_downloaded_at": "2022-09-07T07:51:50.504Z",
+#         "pipelines": [
+#             {
+#                 "id": 123,
+#                 "status": "pending",
+#                 "ref": "new-pipeline",
+#                 "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#                 "web_url": "https://example.com/foo/bar/pipelines/47",
+#                 "created_at": "2016-08-11T11:28:34.085Z",
+#                 "updated_at": "2016-08-11T11:32:35.169Z",
+#                 "user": {
+#                     "name": "Administrator",
+#                     "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon"
+#                 }
+#             }
+#         ],
+#         "versions": [
+#             {
+#                 "id":2,
+#                 "version":"2.0-SNAPSHOT",
+#                 "created_at":"2020-04-28T04:42:11.573Z",
+#                 "pipelines": [
+#                     {
+#                         "id": 234,
+#                         "status": "pending",
+#                         "ref": "new-pipeline",
+#                         "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#                         "web_url": "https://example.com/foo/bar/pipelines/58",
+#                         "created_at": "2016-08-11T11:28:34.085Z",
+#                         "updated_at": "2016-08-11T11:32:35.169Z",
+#                         "user": {
+#                             "name": "Administrator",
+#                             "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon"
+#                         }
+#                     }
+#                 ]
+#             }
+#         ]
+#     }
+#
+#     # List package files
+#     example_data = [
+#         {
+#             "id": 25,
+#             "package_id": 4,
+#             "created_at": "2018-11-07T15:25:52.199Z",
+#             "file_name": "my-app-1.5-20181107.152550-1.jar",
+#             "size": 2421,
+#             "file_md5": "58e6a45a629910c6ff99145a688971ac",
+#             "file_sha1": "ebd193463d3915d7e22219f52740056dfd26cbfe",
+#             "file_sha256": "a903393463d3915d7e22219f52740056dfd26cbfeff321b",
+#             "pipelines": [
+#                 {
+#                     "id": 123,
+#                     "status": "pending",
+#                     "ref": "new-pipeline",
+#                     "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+#                     "web_url": "https://example.com/foo/bar/pipelines/47",
+#                     "created_at": "2016-08-11T11:28:34.085Z",
+#                     "updated_at": "2016-08-11T11:32:35.169Z",
+#                     "user": {
+#                         "name": "Administrator",
+#                         "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon"
+#                     }
+#                 }
+#             ]
+#         },
+#         {
+#             "id": 26,
+#             "package_id": 4,
+#             "created_at": "2018-11-07T15:25:56.776Z",
+#             "file_name": "my-app-1.5-20181107.152550-1.pom",
+#             "size": 1122,
+#             "file_md5": "d90f11d851e17c5513586b4a7e98f1b2",
+#             "file_sha1": "9608d068fe88aff85781811a42f32d97feb440b5",
+#             "file_sha256": "2987d068fe88aff85781811a42f32d97feb4f092a399"
+#         },
+#         {
+#             "id": 27,
+#             "package_id": 4,
+#             "created_at": "2018-11-07T15:26:00.556Z",
+#             "file_name": "maven-metadata.xml",
+#             "size": 767,
+#             "file_md5": "6dfd0cce1203145a927fef5e3a1c650c",
+#             "file_sha1": "d25932de56052d320a8ac156f745ece73f6a8cd2",
+#             "file_sha256": "ac849d002e56052d320a8ac156f745ece73f6a8cd2f3e82"
+#         }
+#     ]
+#
+#     # List package pipelines
+#     example_data = [
+#         {
+#             "id": 1,
+#             "iid": 1,
+#             "project_id": 9,
+#             "sha": "2b6127f6bb6f475c4e81afcc2251e3f941e554f9",
+#             "ref": "mytag",
+#             "status": "failed",
+#             "source": "push",
+#             "created_at": "2023-02-01T12:19:21.895Z",
+#             "updated_at": "2023-02-01T14:00:05.922Z",
+#             "web_url": "http://gdk.test:3001/feature-testing/composer-repository/-/pipelines/1",
+#             "user": {
+#                 "id": 1,
+#                 "username": "root",
+#                 "name": "Administrator",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#                 "web_url": "http://gdk.test:3001/root"
+#             }
+#         },
+#         {
+#             "id": 2,
+#             "iid": 2,
+#             "project_id": 9,
+#             "sha": "e564015ac6cb3d8617647802c875b27d392f72a6",
+#             "ref": "main",
+#             "status": "canceled",
+#             "source": "push",
+#             "created_at": "2023-02-01T12:23:23.694Z",
+#             "updated_at": "2023-02-01T12:26:28.635Z",
+#             "web_url": "http://gdk.test:3001/feature-testing/composer-repository/-/pipelines/2",
+#             "user": {
+#                 "id": 1,
+#                 "username": "root",
+#                 "name": "Administrator",
+#                 "state": "active",
+#                 "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#                 "web_url": "http://gdk.test:3001/root"
+#             }
+#         }
+#     ]
+# @pytest.mark.skipif(
+#     sys.platform in ["darwin"] or skip,
+#     reason=reason,
+# )
+# def test_release_responses():
+#     # List Releases
+#     example_data = [
+#         {
+#             "tag_name":"v0.2",
+#             "description":"## CHANGELOG\r\n\r\n- Escape label and milestone titles to prevent XSS in GLFM autocomplete. !2740\r\n- Prevent private snippets from being embeddable.\r\n- Add subresources removal to member destroy service.",
+#             "name":"Awesome app v0.2 beta",
+#             "created_at":"2019-01-03T01:56:19.539Z",
+#             "released_at":"2019-01-03T01:56:19.539Z",
+#             "author":{
+#                 "id":1,
+#                 "name":"Administrator",
+#                 "username":"root",
+#                 "state":"active",
+#                 "avatar_url":"https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#                 "web_url":"https://gitlab.example.com/root"
+#             },
+#             "commit":{
+#                 "id":"079e90101242458910cccd35eab0e211dfc359c0",
+#                 "short_id":"079e9010",
+#                 "title":"Update README.md",
+#                 "created_at":"2019-01-03T01:55:38.000Z",
+#                 "parent_ids":[
+#                     "f8d3d94cbd347e924aa7b715845e439d00e80ca4"
+#                 ],
+#                 "message":"Update README.md",
+#                 "author_name":"Administrator",
+#                 "author_email":"admin@example.com",
+#                 "authored_date":"2019-01-03T01:55:38.000Z",
+#                 "committer_name":"Administrator",
+#                 "committer_email":"admin@example.com",
+#                 "committed_date":"2019-01-03T01:55:38.000Z"
+#             },
+#             "milestones": [
+#                 {
+#                     "id":51,
+#                     "iid":1,
+#                     "project_id":24,
+#                     "title":"v1.0-rc",
+#                     "description":"Voluptate fugiat possimus quis quod aliquam expedita.",
+#                     "state":"closed",
+#                     "created_at":"2019-07-12T19:45:44.256Z",
+#                     "updated_at":"2019-07-12T19:45:44.256Z",
+#                     "due_date":"2019-08-16",
+#                     "start_date":"2019-07-30",
+#                     "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/1",
+#                     "issue_stats": {
+#                         "total": 98,
+#                         "closed": 76
+#                     }
+#                 },
+#                 {
+#                     "id":52,
+#                     "iid":2,
+#                     "project_id":24,
+#                     "title":"v1.0",
+#                     "description":"Voluptate fugiat possimus quis quod aliquam expedita.",
+#                     "state":"closed",
+#                     "created_at":"2019-07-16T14:00:12.256Z",
+#                     "updated_at":"2019-07-16T14:00:12.256Z",
+#                     "due_date":"2019-08-16",
+#                     "start_date":"2019-07-30",
+#                     "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/2",
+#                     "issue_stats": {
+#                         "total": 24,
+#                         "closed": 21
+#                     }
+#                 }
+#             ],
+#             "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+#             "tag_path":"/root/awesome-app/-/tags/v0.11.1",
+#             "assets":{
+#                 "count":6,
+#                 "sources":[
+#                     {
+#                         "format":"zip",
+#                         "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.2/awesome-app-v0.2.zip"
+#                     },
+#                     {
+#                         "format":"tar.gz",
+#                         "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.2/awesome-app-v0.2.tar.gz"
+#                     },
+#                     {
+#                         "format":"tar.bz2",
+#                         "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.2/awesome-app-v0.2.tar.bz2"
+#                     },
+#                     {
+#                         "format":"tar",
+#                         "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.2/awesome-app-v0.2.tar"
+#                     }
+#                 ],
+#                 "links":[
+#                     {
+#                         "id":2,
+#                         "name":"awesome-v0.2.msi",
+#                         "url":"http://192.168.10.15:3000/msi",
+#                         "link_type":"other"
+#                     },
+#                     {
+#                         "id":1,
+#                         "name":"awesome-v0.2.dmg",
+#                         "url":"http://192.168.10.15:3000",
+#                         "link_type":"other"
+#                     }
+#                 ],
+#                 "evidence_file_path":"https://gitlab.example.com/root/awesome-app/-/releases/v0.2/evidence.json"
+#             },
+#             "evidences":[
+#                 {
+#                     "sha": "760d6cdfb0879c3ffedec13af470e0f71cf52c6cde4d",
+#                     "filepath": "https://gitlab.example.com/root/awesome-app/-/releases/v0.2/evidence.json",
+#                     "collected_at": "2019-01-03T01:56:19.539Z"
+#                 }
+#             ]
+#         },
+#         {
+#             "tag_name":"v0.1",
+#             "description":"## CHANGELOG\r\n\r\n-Remove limit of 100 when searching repository code. !8671\r\n- Show error message when attempting to reopen an MR and there is an open MR for the same branch. !16447 (Akos Gyimesi)\r\n- Fix a bug where internal email pattern wasn't respected. !22516",
+#             "name":"Awesome app v0.1 alpha",
+#             "created_at":"2019-01-03T01:55:18.203Z",
+#             "released_at":"2019-01-03T01:55:18.203Z",
+#             "author":{
+#                 "id":1,
+#                 "name":"Administrator",
+#                 "username":"root",
+#                 "state":"active",
+#                 "avatar_url":"https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#                 "web_url":"https://gitlab.example.com/root"
+#             },
+#             "commit":{
+#                 "id":"f8d3d94cbd347e924aa7b715845e439d00e80ca4",
+#                 "short_id":"f8d3d94c",
+#                 "title":"Initial commit",
+#                 "created_at":"2019-01-03T01:53:28.000Z",
+#                 "parent_ids":[
+#
+#                 ],
+#                 "message":"Initial commit",
+#                 "author_name":"Administrator",
+#                 "author_email":"admin@example.com",
+#                 "authored_date":"2019-01-03T01:53:28.000Z",
+#                 "committer_name":"Administrator",
+#                 "committer_email":"admin@example.com",
+#                 "committed_date":"2019-01-03T01:53:28.000Z"
+#             },
+#             "assets":{
+#                 "count":4,
+#                 "sources":[
+#                     {
+#                         "format":"zip",
+#                         "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.zip"
+#                     },
+#                     {
+#                         "format":"tar.gz",
+#                         "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar.gz"
+#                     },
+#                     {
+#                         "format":"tar.bz2",
+#                         "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar.bz2"
+#                     },
+#                     {
+#                         "format":"tar",
+#                         "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar"
+#                     }
+#                 ],
+#                 "links":[
+#
+#                 ],
+#                 "evidence_file_path":"https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json"
+#             },
+#             "evidences":[
+#                 {
+#                     "sha": "c3ffedec13af470e760d6cdfb08790f71cf52c6cde4d",
+#                     "filepath": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json",
+#                     "collected_at": "2019-01-03T01:55:18.203Z"
+#                 }
+#             ],
+#             "_links": {
+#                 "closed_issues_url": "https://gitlab.example.com/root/awesome-app/-/issues?release_tag=v0.1&scope=all&state=closed",
+#                 "closed_merge_requests_url": "https://gitlab.example.com/root/awesome-app/-/merge_requests?release_tag=v0.1&scope=all&state=closed",
+#                 "edit_url": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1/edit",
+#                 "merged_merge_requests_url": "https://gitlab.example.com/root/awesome-app/-/merge_requests?release_tag=v0.1&scope=all&state=merged",
+#                 "opened_issues_url": "https://gitlab.example.com/root/awesome-app/-/issues?release_tag=v0.1&scope=all&state=opened",
+#                 "opened_merge_requests_url": "https://gitlab.example.com/root/awesome-app/-/merge_requests?release_tag=v0.1&scope=all&state=opened",
+#                 "self": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1"
+#             }
+#         }
+#     ]
+#
+#
+#     # Get a Release by a tag name
+#     example_data = {
+#         "tag_name":"v0.1",
+#         "description":"## CHANGELOG\r\n\r\n- Remove limit of 100 when searching repository code. !8671\r\n- Show error message when attempting to reopen an MR and there is an open MR for the same branch. !16447 (Akos Gyimesi)\r\n- Fix a bug where internal email pattern wasn't respected. !22516",
+#         "name":"Awesome app v0.1 alpha",
+#         "created_at":"2019-01-03T01:55:18.203Z",
+#         "released_at":"2019-01-03T01:55:18.203Z",
+#         "author":{
+#             "id":1,
+#             "name":"Administrator",
+#             "username":"root",
+#             "state":"active",
+#             "avatar_url":"https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#             "web_url":"https://gitlab.example.com/root"
+#         },
+#         "commit":{
+#             "id":"f8d3d94cbd347e924aa7b715845e439d00e80ca4",
+#             "short_id":"f8d3d94c",
+#             "title":"Initial commit",
+#             "created_at":"2019-01-03T01:53:28.000Z",
+#             "parent_ids":[
+#
+#             ],
+#             "message":"Initial commit",
+#             "author_name":"Administrator",
+#             "author_email":"admin@example.com",
+#             "authored_date":"2019-01-03T01:53:28.000Z",
+#             "committer_name":"Administrator",
+#             "committer_email":"admin@example.com",
+#             "committed_date":"2019-01-03T01:53:28.000Z"
+#         },
+#         "milestones": [
+#             {
+#                 "id":51,
+#                 "iid":1,
+#                 "project_id":24,
+#                 "title":"v1.0-rc",
+#                 "description":"Voluptate fugiat possimus quis quod aliquam expedita.",
+#                 "state":"closed",
+#                 "created_at":"2019-07-12T19:45:44.256Z",
+#                 "updated_at":"2019-07-12T19:45:44.256Z",
+#                 "due_date":"2019-08-16",
+#                 "start_date":"2019-07-30",
+#                 "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/1",
+#                 "issue_stats": {
+#                     "total": 98,
+#                     "closed": 76
+#                 }
+#             },
+#             {
+#                 "id":52,
+#                 "iid":2,
+#                 "project_id":24,
+#                 "title":"v1.0",
+#                 "description":"Voluptate fugiat possimus quis quod aliquam expedita.",
+#                 "state":"closed",
+#                 "created_at":"2019-07-16T14:00:12.256Z",
+#                 "updated_at":"2019-07-16T14:00:12.256Z",
+#                 "due_date":"2019-08-16",
+#                 "start_date":"2019-07-30",
+#                 "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/2",
+#                 "issue_stats": {
+#                     "total": 24,
+#                     "closed": 21
+#                 }
+#             }
+#         ],
+#         "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+#         "tag_path":"/root/awesome-app/-/tags/v0.11.1",
+#         "assets":{
+#             "count":5,
+#             "sources":[
+#                 {
+#                     "format":"zip",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.zip"
+#                 },
+#                 {
+#                     "format":"tar.gz",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar.gz"
+#                 },
+#                 {
+#                     "format":"tar.bz2",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar.bz2"
+#                 },
+#                 {
+#                     "format":"tar",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar"
+#                 }
+#             ],
+#             "links":[
+#                 {
+#                     "id":3,
+#                     "name":"hoge",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/tags/v0.11.1/binaries/linux-amd64",
+#                     "link_type":"other"
+#                 }
+#             ]
+#         },
+#         "evidences":[
+#             {
+#                 "sha": "760d6cdfb0879c3ffedec13af470e0f71cf52c6cde4d",
+#                 "filepath": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json",
+#                 "collected_at": "2019-07-16T14:00:12.256Z"
+#             },
+#             "_links": {
+#         "closed_issues_url": "https://gitlab.example.com/root/awesome-app/-/issues?release_tag=v0.1&scope=all&state=closed",
+#         "closed_merge_requests_url": "https://gitlab.example.com/root/awesome-app/-/merge_requests?release_tag=v0.1&scope=all&state=closed",
+#         "edit_url": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1/edit",
+#         "merged_merge_requests_url": "https://gitlab.example.com/root/awesome-app/-/merge_requests?release_tag=v0.1&scope=all&state=merged",
+#         "opened_issues_url": "https://gitlab.example.com/root/awesome-app/-/issues?release_tag=v0.1&scope=all&state=opened",
+#         "opened_merge_requests_url": "https://gitlab.example.com/root/awesome-app/-/merge_requests?release_tag=v0.1&scope=all&state=opened",
+#         "self": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1"
+#     }
+#     ]
+#     }
+#
+#     # Create a release
+#     example_data = {
+#         "tag_name":"v0.3",
+#         "description":"Super nice release",
+#         "name":"New release",
+#         "created_at":"2019-01-03T02:22:45.118Z",
+#         "released_at":"2019-01-03T02:22:45.118Z",
+#         "author":{
+#             "id":1,
+#             "name":"Administrator",
+#             "username":"root",
+#             "state":"active",
+#             "avatar_url":"https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#             "web_url":"https://gitlab.example.com/root"
+#         },
+#         "commit":{
+#             "id":"079e90101242458910cccd35eab0e211dfc359c0",
+#             "short_id":"079e9010",
+#             "title":"Update README.md",
+#             "created_at":"2019-01-03T01:55:38.000Z",
+#             "parent_ids":[
+#                 "f8d3d94cbd347e924aa7b715845e439d00e80ca4"
+#             ],
+#             "message":"Update README.md",
+#             "author_name":"Administrator",
+#             "author_email":"admin@example.com",
+#             "authored_date":"2019-01-03T01:55:38.000Z",
+#             "committer_name":"Administrator",
+#             "committer_email":"admin@example.com",
+#             "committed_date":"2019-01-03T01:55:38.000Z"
+#         },
+#         "milestones": [
+#             {
+#                 "id":51,
+#                 "iid":1,
+#                 "project_id":24,
+#                 "title":"v1.0-rc",
+#                 "description":"Voluptate fugiat possimus quis quod aliquam expedita.",
+#                 "state":"closed",
+#                 "created_at":"2019-07-12T19:45:44.256Z",
+#                 "updated_at":"2019-07-12T19:45:44.256Z",
+#                 "due_date":"2019-08-16",
+#                 "start_date":"2019-07-30",
+#                 "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/1",
+#                 "issue_stats": {
+#                     "total": 99,
+#                     "closed": 76
+#                 }
+#             },
+#             {
+#                 "id":52,
+#                 "iid":2,
+#                 "project_id":24,
+#                 "title":"v1.0",
+#                 "description":"Voluptate fugiat possimus quis quod aliquam expedita.",
+#                 "state":"closed",
+#                 "created_at":"2019-07-16T14:00:12.256Z",
+#                 "updated_at":"2019-07-16T14:00:12.256Z",
+#                 "due_date":"2019-08-16",
+#                 "start_date":"2019-07-30",
+#                 "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/2",
+#                 "issue_stats": {
+#                     "total": 24,
+#                     "closed": 21
+#                 }
+#             }
+#         ],
+#         "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+#         "tag_path":"/root/awesome-app/-/tags/v0.11.1",
+#         "evidence_sha":"760d6cdfb0879c3ffedec13af470e0f71cf52c6cde4d",
+#         "assets":{
+#             "count":5,
+#             "sources":[
+#                 {
+#                     "format":"zip",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.3/awesome-app-v0.3.zip"
+#                 },
+#                 {
+#                     "format":"tar.gz",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.3/awesome-app-v0.3.tar.gz"
+#                 },
+#                 {
+#                     "format":"tar.bz2",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.3/awesome-app-v0.3.tar.bz2"
+#                 },
+#                 {
+#                     "format":"tar",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.3/awesome-app-v0.3.tar"
+#                 }
+#             ],
+#             "links":[
+#                 {
+#                     "id":3,
+#                     "name":"hoge",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/tags/v0.11.1/binaries/linux-amd64",
+#                     "link_type":"other"
+#                 }
+#             ],
+#             "evidence_file_path":"https://gitlab.example.com/root/awesome-app/-/releases/v0.3/evidence.json"
+#         }
+#     }
+#
+#     # Update a release
+#     example_data = {
+#         "tag_name":"v0.1",
+#         "description":"## CHANGELOG\r\n\r\n- Remove limit of 100 when searching repository code. !8671\r\n- Show error message when attempting to reopen an MR and there is an open MR for the same branch. !16447 (Akos Gyimesi)\r\n- Fix a bug where internal email pattern wasn't respected. !22516",
+#         "name":"new name",
+#         "created_at":"2019-01-03T01:55:18.203Z",
+#         "released_at":"2019-01-03T01:55:18.203Z",
+#         "author":{
+#             "id":1,
+#             "name":"Administrator",
+#             "username":"root",
+#             "state":"active",
+#             "avatar_url":"https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#             "web_url":"https://gitlab.example.com/root"
+#         },
+#         "commit":{
+#             "id":"f8d3d94cbd347e924aa7b715845e439d00e80ca4",
+#             "short_id":"f8d3d94c",
+#             "title":"Initial commit",
+#             "created_at":"2019-01-03T01:53:28.000Z",
+#             "parent_ids":[
+#
+#             ],
+#             "message":"Initial commit",
+#             "author_name":"Administrator",
+#             "author_email":"admin@example.com",
+#             "authored_date":"2019-01-03T01:53:28.000Z",
+#             "committer_name":"Administrator",
+#             "committer_email":"admin@example.com",
+#             "committed_date":"2019-01-03T01:53:28.000Z"
+#         },
+#         "milestones": [
+#             {
+#                 "id":53,
+#                 "iid":3,
+#                 "project_id":24,
+#                 "title":"v1.2",
+#                 "description":"Voluptate fugiat possimus quis quod aliquam expedita.",
+#                 "state":"active",
+#                 "created_at":"2019-09-01T13:00:00.256Z",
+#                 "updated_at":"2019-09-01T13:00:00.256Z",
+#                 "due_date":"2019-09-20",
+#                 "start_date":"2019-09-05",
+#                 "web_url":"https://gitlab.example.com/root/awesome-app/-/milestones/3",
+#                 "issue_stats": {
+#                     "opened": 11,
+#                     "closed": 78
+#                 }
+#             }
+#         ],
+#         "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+#         "tag_path":"/root/awesome-app/-/tags/v0.11.1",
+#         "evidence_sha":"760d6cdfb0879c3ffedec13af470e0f71cf52c6cde4d",
+#         "assets":{
+#             "count":4,
+#             "sources":[
+#                 {
+#                     "format":"zip",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.zip"
+#                 },
+#                 {
+#                     "format":"tar.gz",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar.gz"
+#                 },
+#                 {
+#                     "format":"tar.bz2",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar.bz2"
+#                 },
+#                 {
+#                     "format":"tar",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar"
+#                 }
+#             ],
+#             "links":[
+#
+#             ],
+#             "evidence_file_path":"https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json"
+#         }
+#     }
+#
+#     # Delete a Release
+#     example_data = {
+#         "tag_name":"v0.1",
+#         "description":"## CHANGELOG\r\n\r\n- Remove limit of 100 when searching repository code. !8671\r\n- Show error message when attempting to reopen an MR and there is an open MR for the same branch. !16447 (Akos Gyimesi)\r\n- Fix a bug where internal email pattern wasn't respected. !22516",
+#         "name":"new name",
+#         "created_at":"2019-01-03T01:55:18.203Z",
+#         "released_at":"2019-01-03T01:55:18.203Z",
+#         "author":{
+#             "id":1,
+#             "name":"Administrator",
+#             "username":"root",
+#             "state":"active",
+#             "avatar_url":"https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80\u0026d=identicon",
+#             "web_url":"https://gitlab.example.com/root"
+#         },
+#         "commit":{
+#             "id":"f8d3d94cbd347e924aa7b715845e439d00e80ca4",
+#             "short_id":"f8d3d94c",
+#             "title":"Initial commit",
+#             "created_at":"2019-01-03T01:53:28.000Z",
+#             "parent_ids":[
+#
+#             ],
+#             "message":"Initial commit",
+#             "author_name":"Administrator",
+#             "author_email":"admin@example.com",
+#             "authored_date":"2019-01-03T01:53:28.000Z",
+#             "committer_name":"Administrator",
+#             "committer_email":"admin@example.com",
+#             "committed_date":"2019-01-03T01:53:28.000Z"
+#         },
+#         "commit_path":"/root/awesome-app/commit/588440f66559714280628a4f9799f0c4eb880a4a",
+#         "tag_path":"/root/awesome-app/-/tags/v0.11.1",
+#         "evidence_sha":"760d6cdfb0879c3ffedec13af470e0f71cf52c6cde4d",
+#         "assets":{
+#             "count":4,
+#             "sources":[
+#                 {
+#                     "format":"zip",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.zip"
+#                 },
+#                 {
+#                     "format":"tar.gz",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar.gz"
+#                 },
+#                 {
+#                     "format":"tar.bz2",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar.bz2"
+#                 },
+#                 {
+#                     "format":"tar",
+#                     "url":"https://gitlab.example.com/root/awesome-app/-/archive/v0.1/awesome-app-v0.1.tar"
+#                 }
+#             ],
+#             "links":[
+#
+#             ],
+#             "evidence_file_path":"https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json"
+#         }
+#     }
+
+# @pytest.mark.skipif(
+#     sys.platform in ["darwin"] or skip,
+#     reason=reason,
+# )
+# def test_runner_responses():
+#     # List owned runners
+#     example_data = [
+#         {
+#             "active": true,
+#             "paused": false,
+#             "description": "test-1-20150125",
+#             "id": 6,
+#             "ip_address": "",
+#             "is_shared": false,
+#             "runner_type": "project_type",
+#             "name": null,
+#             "online": true,
+#             "status": "online"
+#         },
+#         {
+#             "active": true,
+#             "paused": false,
+#             "description": "test-2-20150125",
+#             "id": 8,
+#             "ip_address": "",
+#             "is_shared": false,
+#             "runner_type": "group_type",
+#             "name": null,
+#             "online": false,
+#             "status": "offline"
+#         }
+#     ]
+#
+#     # List all runners
+#     example_data = [
+#         {
+#             "active": true,
+#             "paused": false,
+#             "description": "shared-runner-1",
+#             "id": 1,
+#             "ip_address": "",
+#             "is_shared": true,
+#             "runner_type": "instance_type",
+#             "name": null,
+#             "online": true,
+#             "status": "online"
+#         },
+#         {
+#             "active": true,
+#             "paused": false,
+#             "description": "shared-runner-2",
+#             "id": 3,
+#             "ip_address": "",
+#             "is_shared": true,
+#             "runner_type": "instance_type",
+#             "name": null,
+#             "online": false,
+#             "status": "offline"
+#         },
+#         {
+#             "active": true,
+#             "paused": false,
+#             "description": "test-1-20150125",
+#             "id": 6,
+#             "ip_address": "",
+#             "is_shared": false,
+#             "runner_type": "project_type",
+#             "name": null,
+#             "online": true,
+#             "status": "paused"
+#         },
+#         {
+#             "active": true,
+#             "paused": false,
+#             "description": "test-2-20150125",
+#             "id": 8,
+#             "ip_address": "",
+#             "is_shared": false,
+#             "runner_type": "group_type",
+#             "name": null,
+#             "online": false,
+#             "status": "offline"
+#         }
+#     ]
+#
+#     # Get runner details
+#     example_data = {
+#         "active": true,
+#         "paused": false,
+#         "architecture": null,
+#         "description": "test-1-20150125",
+#         "id": 6,
+#         "ip_address": "",
+#         "is_shared": false,
+#         "runner_type": "project_type",
+#         "contacted_at": "2016-01-25T16:39:48.066Z",
+#         "maintenance_note": null,
+#         "name": null,
+#         "online": true,
+#         "status": "online",
+#         "platform": null,
+#         "projects": [
+#             {
+#                 "id": 1,
+#                 "name": "GitLab Community Edition",
+#                 "name_with_namespace": "GitLab.org / GitLab Community Edition",
+#                 "path": "gitlab-foss",
+#                 "path_with_namespace": "gitlab-org/gitlab-foss"
+#             }
+#         ],
+#         "revision": null,
+#         "tag_list": [
+#             "ruby",
+#             "mysql"
+#         ],
+#         "version": null,
+#         "access_level": "ref_protected",
+#         "maximum_timeout": 3600
+#     }
+#
+#
+#     # List jobs processed by a runner
+#     example_data = [
+#         {
+#             "id": 2,
+#             "status": "running",
+#             "stage": "test",
+#             "name": "test",
+#             "ref": "main",
+#             "tag": false,
+#             "coverage": null,
+#             "created_at": "2017-11-16T08:50:29.000Z",
+#             "started_at": "2017-11-16T08:51:29.000Z",
+#             "finished_at": "2017-11-16T08:53:29.000Z",
+#             "duration": 120,
+#             "queued_duration": 2,
+#             "user": {
+#                 "id": 1,
+#                 "name": "John Doe2",
+#                 "username": "user2",
+#                 "state": "active",
+#                 "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
+#                 "web_url": "http://localhost/user2",
+#                 "created_at": "2017-11-16T18:38:46.000Z",
+#                 "bio": null,
+#                 "location": null,
+#                 "public_email": "",
+#                 "skype": "",
+#                 "linkedin": "",
+#                 "twitter": "",
+#                 "website_url": "",
+#                 "organization": null
+#             },
+#             "commit": {
+#                 "id": "97de212e80737a608d939f648d959671fb0a0142",
+#                 "short_id": "97de212e",
+#                 "title": "Update configuration\r",
+#                 "created_at": "2017-11-16T08:50:28.000Z",
+#                 "parent_ids": [
+#                     "1b12f15a11fc6e62177bef08f47bc7b5ce50b141",
+#                     "498214de67004b1da3d820901307bed2a68a8ef6"
+#                 ],
+#                 "message": "See merge request !123",
+#                 "author_name": "John Doe2",
+#                 "author_email": "user2@example.org",
+#                 "authored_date": "2017-11-16T08:50:27.000Z",
+#                 "committer_name": "John Doe2",
+#                 "committer_email": "user2@example.org",
+#                 "committed_date": "2017-11-16T08:50:27.000Z"
+#             },
+#             "pipeline": {
+#                 "id": 2,
+#                 "sha": "97de212e80737a608d939f648d959671fb0a0142",
+#                 "ref": "main",
+#                 "status": "running"
+#             },
+#             "project": {
+#                 "id": 1,
+#                 "description": null,
+#                 "name": "project1",
+#                 "name_with_namespace": "John Doe2 / project1",
+#                 "path": "project1",
+#                 "path_with_namespace": "namespace1/project1",
+#                 "created_at": "2017-11-16T18:38:46.620Z"
+#             }
+#         }
+#     ]
+#
+#     # List project’s runners
+#     example_data = [
+#         {
+#             "active": true,
+#             "paused": false,
+#             "description": "test-2-20150125",
+#             "id": 8,
+#             "ip_address": "",
+#             "is_shared": false,
+#             "runner_type": "project_type",
+#             "name": null,
+#             "online": false,
+#             "status": "offline"
+#         },
+#         {
+#             "active": true,
+#             "paused": false,
+#             "description": "development_runner",
+#             "id": 5,
+#             "ip_address": "",
+#             "is_shared": true,
+#             "runner_type": "instance_type",
+#             "name": null,
+#             "online": true,
+#             "status": "online"
+#         }
+#     ]
+#
+#
+#     # Enable runner for project
+#     example_data = {
+#         "active": true,
+#         "description": "test-2016-02-01",
+#         "id": 9,
+#         "ip_address": "",
+#         "is_shared": false,
+#         "runner_type": "project_type",
+#         "name": null,
+#         "online": true,
+#         "status": "online"
+#     }
+#
+#
+#     # Create an instance runner
+#     example_data = {
+#         "id": 12345,
+#         "token": "6337ff461c94fd3fa32ba3b1ff4125",
+#         "token_expires_at": "2021-09-27T21:05:03.203Z"
+#     }
+#
+#     # Verify authentication for a registered runner
+#     example_data = {
+#         "id": 12345,
+#         "token": "glrt-6337ff461c94fd3fa32ba3b1ff4125",
+#         "token_expires_at": "2021-09-27T21:05:03.203Z"
+#     }
+#     # Reset runner’s authentication token by using the runner ID
+#     example_data = {
+#         "token": "6337ff461c94fd3fa32ba3b1ff4125",
+#         "token_expires_at": "2021-09-27T21:05:03.203Z"
+#     }
+#
+#     # Reset runner’s authentication token by using the current token
+#     example_data = {
+#         "token": "6337ff461c94fd3fa32ba3b1ff4125",
+#         "token_expires_at": "2021-09-27T21:05:03.203Z"
+#     }
 
 
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
 )
-def test_pipeline_response():
+def test_wiki_responses():
+    # List wiki pages
     example_data = [
         {
-            "id": 47,
-            "iid": 12,
-            "project_id": 1,
-            "status": "pending",
-            "source": "push",
-            "ref": "new-pipeline",
-            "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-            "name": "Build pipeline",
-            "web_url": "https://example.com/foo/bar/pipelines/47",
-            "created_at": "2016-08-11T11:28:34.085Z",
-            "updated_at": "2016-08-11T11:32:35.169Z",
+            "content": "Here is an instruction how to deploy this project.",
+            "format": "markdown",
+            "slug": "deploy",
+            "title": "deploy",
+            "encoding": "UTF-8",
         },
         {
-            "id": 48,
-            "iid": 13,
-            "project_id": 1,
-            "status": "pending",
-            "source": "web",
-            "ref": "new-pipeline",
-            "sha": "eb94b618fb5865b26e80fdd8ae531b7a63ad851a",
-            "name": "Build pipeline",
-            "web_url": "https://example.com/foo/bar/pipelines/48",
-            "created_at": "2016-08-12T10:06:04.561Z",
-            "updated_at": "2016-08-12T10:09:56.223Z",
+            "content": "Our development process is described here.",
+            "format": "markdown",
+            "slug": "development",
+            "title": "development",
+            "encoding": "UTF-8",
+        },
+        {
+            "content": "*  [Deploy](deploy)\n*  [Development](development)",
+            "format": "markdown",
+            "slug": "home",
+            "title": "home",
+            "encoding": "UTF-8",
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data.base_type == "WikiPages"
 
+    # Get a wiki page
     example_data = {
-        "id": 46,
-        "iid": 11,
-        "project_id": 1,
-        "name": "Build pipeline",
-        "status": "success",
-        "ref": "main",
-        "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-        "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-        "tag": False,
-        "yaml_errors": None,
-        "user": {
-            "name": "Administrator",
-            "username": "root",
-            "id": 1,
-            "state": "active",
-            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
-            "web_url": "http://localhost:3000/root",
-        },
-        "created_at": "2016-08-11T11:28:34.085Z",
-        "updated_at": "2016-08-11T11:32:35.169Z",
-        "started_at": None,
-        "finished_at": "2016-08-11T11:32:35.145Z",
-        "committed_at": None,
-        "duration": 123.65,
-        "queued_duration": 0.010,
-        "coverage": "30.0",
-        "web_url": "https://example.com/foo/bar/pipelines/46",
+        "content": "home page",
+        "format": "markdown",
+        "slug": "home",
+        "title": "home",
+        "encoding": "UTF-8",
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipeline"
+    assert response.data.base_type == "WikiPage"
 
+    # Create a new wiki page
+    example_data = {
+        "content": "Hello world",
+        "format": "markdown",
+        "slug": "Hello",
+        "title": "Hello",
+        "encoding": "UTF-8",
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "WikiPage"
+
+    # Upload an attachment to the wiki repository
+    example_data = {
+        "file_name": "dk.png",
+        "file_path": "uploads/6a061c4cf9f1c28cb22c384b4b8d4e3c/dk.png",
+        "branch": "main",
+        "link": {
+            "url": "uploads/6a061c4cf9f1c28cb22c384b4b8d4e3c/dk.png",
+            "markdown": "![dk](uploads/6a061c4cf9f1c28cb22c384b4b8d4e3c/dk.png)",
+        },
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "WikiPage"
+
+    # List wiki pages
     example_data = [
-        {"key": "RUN_NIGHTLY_BUILD", "variable_type": "env_var", "value": "true"},
-        {"key": "foo", "value": "bar"},
+        {
+            "content": "Here is an instruction how to deploy this project.",
+            "format": "markdown",
+            "slug": "deploy",
+            "title": "deploy",
+            "encoding": "UTF-8",
+        },
+        {
+            "content": "Our development process is described here.",
+            "format": "markdown",
+            "slug": "development",
+            "title": "development",
+            "encoding": "UTF-8",
+        },
+        {
+            "content": "*  [Deploy](deploy)\n*  [Development](development)",
+            "format": "markdown",
+            "slug": "home",
+            "title": "home",
+            "encoding": "UTF-8",
+        },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "PipelineVariables"
-
-    example_data = {
-        "total_time": 5,
-        "total_count": 1,
-        "success_count": 1,
-        "failed_count": 0,
-        "skipped_count": 0,
-        "error_count": 0,
-        "test_suites": [
-            {
-                "name": "Secure",
-                "total_time": 5,
-                "total_count": 1,
-                "success_count": 1,
-                "failed_count": 0,
-                "skipped_count": 0,
-                "error_count": 0,
-                "test_cases": [
-                    {
-                        "status": "success",
-                        "name": "Security Reports can create an auto-remediation MR",
-                        "classname": "vulnerability_management_spec",
-                        "execution_time": 5,
-                        "system_output": None,
-                        "stack_trace": None,
-                    }
-                ],
-            }
-        ],
-    }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipeline"
-    {
-        "total": {
-            "time": 1904,
-            "count": 3363,
-            "success": 3351,
-            "failed": 0,
-            "skipped": 12,
-            "error": 0,
-            "suite_error": None,
-        },
-        "test_suites": [
-            {
-                "name": "test",
-                "total_time": 1904,
-                "total_count": 3363,
-                "success_count": 3351,
-                "failed_count": 0,
-                "skipped_count": 12,
-                "error_count": 0,
-                "build_ids": [66004],
-                "suite_error": None,
-            }
-        ],
-    }
-
-    response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
-    example_data = {
-        "total": {
-            "time": 1904,
-            "count": 3363,
-            "success": 3351,
-            "failed": 0,
-            "skipped": 12,
-            "error": 0,
-            "suite_error": None,
-        },
-        "test_suites": [
-            {
-                "name": "test",
-                "total_time": 1904,
-                "total_count": 3363,
-                "success_count": 3351,
-                "failed_count": 0,
-                "skipped_count": 12,
-                "error_count": 0,
-                "build_ids": [66004],
-                "suite_error": None,
-            }
-        ],
-    }
-
-    response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
-    example_data = {
-        "id": 287,
-        "iid": 144,
-        "project_id": 21,
-        "name": "Build pipeline",
-        "sha": "50f0acb76a40e34a4ff304f7347dcc6587da8a14",
-        "ref": "main",
-        "status": "success",
-        "source": "push",
-        "created_at": "2022-09-21T01:05:07.200Z",
-        "updated_at": "2022-09-21T01:05:50.185Z",
-        "web_url": "http://127.0.0.1:3000/test-group/test-project/-/pipelines/287",
-        "before_sha": "8a24fb3c5877a6d0b611ca41fc86edc174593e2b",
-        "tag": False,
-        "yaml_errors": None,
-        "user": {
-            "id": 1,
-            "username": "root",
-            "name": "Administrator",
-            "state": "active",
-            "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
-            "web_url": "http://127.0.0.1:3000/root",
-        },
-        "started_at": "2022-09-21T01:05:14.197Z",
-        "finished_at": "2022-09-21T01:05:50.175Z",
-        "committed_at": None,
-        "duration": 34,
-        "queued_duration": 6,
-        "coverage": None,
-        "detailed_status": {
-            "icon": "status_success",
-            "text": "passed",
-            "label": "passed",
-            "group": "success",
-            "tooltip": "passed",
-            "has_details": False,
-            "details_path": "/test-group/test-project/-/pipelines/287",
-            "illustration": None,
-            "favicon": "/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2.png",
-        },
-    }
-
-    response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
-    example_data = {
-        "id": 61,
-        "iid": 21,
-        "project_id": 1,
-        "sha": "384c444e840a515b23f21915ee5766b87068a70d",
-        "ref": "main",
-        "status": "pending",
-        "before_sha": "0000000000000000000000000000000000000000",
-        "tag": False,
-        "yaml_errors": None,
-        "user": {
-            "name": "Administrator",
-            "username": "root",
-            "id": 1,
-            "state": "active",
-            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
-            "web_url": "http://localhost:3000/root",
-        },
-        "created_at": "2016-11-04T09:36:13.747Z",
-        "updated_at": "2016-11-04T09:36:13.977Z",
-        "started_at": None,
-        "finished_at": None,
-        "committed_at": None,
-        "duration": None,
-        "queued_duration": 0.010,
-        "coverage": None,
-        "web_url": "https://example.com/foo/bar/pipelines/61",
-    }
-
-    response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
-    example_data = {
-        "id": 46,
-        "iid": 11,
-        "project_id": 1,
-        "status": "pending",
-        "ref": "main",
-        "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-        "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-        "tag": False,
-        "yaml_errors": None,
-        "user": {
-            "name": "Administrator",
-            "username": "root",
-            "id": 1,
-            "state": "active",
-            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
-            "web_url": "http://localhost:3000/root",
-        },
-        "created_at": "2016-08-11T11:28:34.085Z",
-        "updated_at": "2016-08-11T11:32:35.169Z",
-        "started_at": None,
-        "finished_at": "2016-08-11T11:32:35.145Z",
-        "committed_at": None,
-        "duration": None,
-        "queued_duration": 0.010,
-        "coverage": None,
-        "web_url": "https://example.com/foo/bar/pipelines/46",
-    }
-
-    response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
-    example_data = {
-        "id": 46,
-        "iid": 11,
-        "project_id": 1,
-        "status": "canceled",
-        "ref": "main",
-        "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-        "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-        "tag": False,
-        "yaml_errors": None,
-        "user": {
-            "name": "Administrator",
-            "username": "root",
-            "id": 1,
-            "state": "active",
-            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
-            "web_url": "http://localhost:3000/root",
-        },
-        "created_at": "2016-08-11T11:28:34.085Z",
-        "updated_at": "2016-08-11T11:32:35.169Z",
-        "started_at": None,
-        "finished_at": "2016-08-11T11:32:35.145Z",
-        "committed_at": None,
-        "duration": None,
-        "queued_duration": 0.010,
-        "coverage": None,
-        "web_url": "https://example.com/foo/bar/pipelines/46",
-    }
-
-    response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
-    example_data = {
-        "id": 46,
-        "iid": 11,
-        "project_id": 1,
-        "status": "running",
-        "ref": "main",
-        "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-        "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-        "tag": False,
-        "yaml_errors": None,
-        "user": {
-            "name": "Administrator",
-            "username": "root",
-            "id": 1,
-            "state": "active",
-            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
-            "web_url": "http://localhost:3000/root",
-        },
-        "created_at": "2016-08-11T11:28:34.085Z",
-        "updated_at": "2016-08-11T11:32:35.169Z",
-        "started_at": None,
-        "finished_at": "2016-08-11T11:32:35.145Z",
-        "committed_at": None,
-        "duration": None,
-        "queued_duration": 0.010,
-        "coverage": None,
-        "web_url": "https://example.com/foo/bar/pipelines/46",
-        "name": "Some new pipeline name",
-    }
+    assert response.data.base_type == "WikiPage"
 
 
 if __name__ == "__main__":
@@ -3848,3 +8310,12 @@ if __name__ == "__main__":
     test_deploy_token_response()
     test_merge_request_response()
     # test_issues_response()
+    # test_group_responses()
+    # test_jobs_responses()
+    # test_member_responses()
+    # test_approval_rule_responses()
+    # test_protected_branch_responses()
+    # test_package_responses()
+    # test_release_responses()
+    # test_runner_responses()
+    test_wiki_responses()
