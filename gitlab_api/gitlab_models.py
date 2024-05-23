@@ -4353,34 +4353,6 @@ class ArtifactsFile(BaseModel):
     size: Optional[int] = Field(default=None, description="Size of the artifacts file.")
 
 
-class Runner(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="Runner")
-    id: Optional[int] = Field(default=None, description="ID of the runner.")
-    description: Optional[str] = Field(
-        default=None, description="Description of the runner."
-    )
-    ip_address: Optional[str] = Field(
-        default=None, description="IP address of the runner."
-    )
-    active: Optional[bool] = Field(
-        default=None, description="Indicates if the runner is active."
-    )
-    paused: Optional[bool] = Field(
-        default=None, description="Indicates if the runner is paused."
-    )
-    is_shared: Optional[bool] = Field(
-        default=None, description="Indicates if the runner is shared."
-    )
-    runner_type: Optional[str] = Field(default=None, description="Type of the runner.")
-    name: Optional[str] = Field(default=None, description="Name of the runner.")
-    online: Optional[bool] = Field(
-        default=None, description="Indicates if the runner is online."
-    )
-    status: Optional[str] = Field(default=None, description="Status of the runner.")
-
-
 class RunnerManager(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
@@ -4414,90 +4386,6 @@ class RunnerManager(BaseModel):
     status: Optional[str] = Field(
         default=None, description="Status of the runner manager."
     )
-
-
-class Job(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="Job")
-    commit: Optional[CommitModel] = Field(
-        default=None, description="Details of the commit associated with the job."
-    )
-    coverage: Optional[float] = Field(
-        default=None, description="Code coverage percentage."
-    )
-    archived: Optional[bool] = Field(
-        default=None, description="Indicates if the job is archived."
-    )
-    allow_failure: Optional[bool] = Field(
-        default=None, description="Indicates if the job is allowed to fail."
-    )
-    created_at: Optional[datetime] = Field(
-        default=None, description="Timestamp when the job was created."
-    )
-    started_at: Optional[datetime] = Field(
-        default=None, description="Timestamp when the job was started."
-    )
-    finished_at: Optional[datetime] = Field(
-        default=None, description="Timestamp when the job was finished."
-    )
-    erased_at: Optional[datetime] = Field(
-        default=None, description="Timestamp when the job was erased."
-    )
-    duration: Optional[float] = Field(
-        default=None, description="Duration of the job in seconds."
-    )
-    queued_duration: Optional[float] = Field(
-        default=None, description="Time the job spent queued before starting."
-    )
-    artifacts_file: Optional[ArtifactsFile] = Field(
-        default=None, description="Details of the artifacts file produced by the job."
-    )
-    artifacts: Optional[List[Artifact]] = Field(
-        default=None, description="List of artifacts produced by the job."
-    )
-    artifacts_expire_at: Optional[datetime] = Field(
-        default=None, description="Timestamp when the artifacts expire."
-    )
-    tag_list: Optional[List[str]] = Field(
-        default=None, description="List of tags associated with the job."
-    )
-    id: Optional[int] = Field(default=None, description="ID of the job.")
-    name: Optional[str] = Field(default=None, description="Name of the job.")
-    pipeline: Optional[PipelineModel] = Field(
-        default=None, description="Details of the pipeline associated with the job."
-    )
-    ref: Optional[str] = Field(default=None, description="Reference of the job.")
-    runner: Optional[RunnerModel] = Field(
-        default=None, description="Details of the runner that executed the job."
-    )
-    runner_manager: Optional[RunnerManager] = Field(
-        default=None, description="Details of the runner manager."
-    )
-    stage: Optional[str] = Field(default=None, description="Stage of the job.")
-    status: Optional[str] = Field(default=None, description="Status of the job.")
-    failure_reason: Optional[str] = Field(
-        default=None, description="Reason for the job failure."
-    )
-    tag: Optional[bool] = Field(
-        default=None, description="Indicates if the job is tagged."
-    )
-    web_url: Optional[str] = Field(
-        default=None, description="URL to view the job on the web."
-    )
-    project: Optional[ProjectModel] = Field(
-        default=None, description="Details of the project associated with the job."
-    )
-    user: Optional[UserModel] = Field(
-        default=None, description="Details of the user who created the job."
-    )
-
-
-class Jobs(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="Jobs")
-    jobs: List[Job] = Field(default=None, description="List of jobs")
 
 
 class Project(BaseModel):
@@ -4850,6 +4738,138 @@ class Projects(BaseModel):
     projects: List[Project] = Field(default=None, description="List of projects")
 
 
+class Runner(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Runner")
+    id: Optional[int] = Field(default=None, description="ID of the runner.")
+    description: Optional[str] = Field(
+        default=None, description="Description of the runner."
+    )
+    ip_address: Optional[str] = Field(
+        default=None, description="IP address of the runner."
+    )
+    active: Optional[bool] = Field(
+        default=None, description="Indicates if the runner is active."
+    )
+    paused: Optional[bool] = Field(
+        default=None, description="Indicates if the runner is paused."
+    )
+    is_shared: Optional[bool] = Field(
+        default=None, description="Indicates if the runner is shared."
+    )
+    runner_type: Optional[str] = Field(default=None, description="Type of the runner.")
+    name: Optional[str] = Field(default=None, description="Name of the runner.")
+    online: Optional[bool] = Field(
+        default=None, description="Indicates if the runner is online."
+    )
+    status: Optional[str] = Field(default=None, description="Status of the runner.")
+    contacted_at: Optional[datetime] = Field(
+        None, description="Last contacted date and time"
+    )
+    architecture: Optional[str] = Field(None, description="Architecture of the runner")
+    platform: Optional[str] = Field(None, description="Platform of the runner")
+    revision: Optional[str] = Field(None, description="Revision of the runner")
+    version: Optional[str] = Field(None, description="Version of the runner")
+    access_level: Optional[str] = Field(None, description="Access level of the runner")
+    maximum_timeout: Optional[int] = Field(
+        None, description="Maximum timeout for the runner"
+    )
+    maintenance_note: Optional[str] = Field(
+        None, description="Maintenance note for the runner"
+    )
+    projects: Optional[List[Project]] = Field(
+        None, description="List of projects associated with the runner"
+    )
+    tag_list: Optional[List[str]] = Field(
+        None, description="List of tags associated with the runner"
+    )
+
+
+class Job(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Job")
+    commit: Optional[CommitModel] = Field(
+        default=None, description="Details of the commit associated with the job."
+    )
+    coverage: Optional[float] = Field(
+        default=None, description="Code coverage percentage."
+    )
+    archived: Optional[bool] = Field(
+        default=None, description="Indicates if the job is archived."
+    )
+    allow_failure: Optional[bool] = Field(
+        default=None, description="Indicates if the job is allowed to fail."
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the job was created."
+    )
+    started_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the job was started."
+    )
+    finished_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the job was finished."
+    )
+    erased_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the job was erased."
+    )
+    duration: Optional[float] = Field(
+        default=None, description="Duration of the job in seconds."
+    )
+    queued_duration: Optional[float] = Field(
+        default=None, description="Time the job spent queued before starting."
+    )
+    artifacts_file: Optional[ArtifactsFile] = Field(
+        default=None, description="Details of the artifacts file produced by the job."
+    )
+    artifacts: Optional[List[Artifact]] = Field(
+        default=None, description="List of artifacts produced by the job."
+    )
+    artifacts_expire_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the artifacts expire."
+    )
+    tag_list: Optional[List[str]] = Field(
+        default=None, description="List of tags associated with the job."
+    )
+    id: Optional[int] = Field(default=None, description="ID of the job.")
+    name: Optional[str] = Field(default=None, description="Name of the job.")
+    pipeline: Optional[PipelineModel] = Field(
+        default=None, description="Details of the pipeline associated with the job."
+    )
+    ref: Optional[str] = Field(default=None, description="Reference of the job.")
+    runner: Optional[RunnerModel] = Field(
+        default=None, description="Details of the runner that executed the job."
+    )
+    runner_manager: Optional[RunnerManager] = Field(
+        default=None, description="Details of the runner manager."
+    )
+    stage: Optional[str] = Field(default=None, description="Stage of the job.")
+    status: Optional[str] = Field(default=None, description="Status of the job.")
+    failure_reason: Optional[str] = Field(
+        default=None, description="Reason for the job failure."
+    )
+    tag: Optional[bool] = Field(
+        default=None, description="Indicates if the job is tagged."
+    )
+    web_url: Optional[str] = Field(
+        default=None, description="URL to view the job on the web."
+    )
+    project: Optional[Project] = Field(
+        default=None, description="Details of the project associated with the job."
+    )
+    user: Optional[UserModel] = Field(
+        default=None, description="Details of the user who created the job."
+    )
+
+
+class Jobs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Jobs")
+    jobs: List[Job] = Field(default=None, description="List of jobs")
+
+
 class Group(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
@@ -5128,12 +5148,22 @@ class ReleaseLinks(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="ReleaseLinks")
-    closed_issues_url: Optional[str] = Field(None, description="URL to the list of closed issues")
-    closed_merge_requests_url: Optional[str] = Field(None, description="URL to the list of closed merge requests")
+    closed_issues_url: Optional[str] = Field(
+        None, description="URL to the list of closed issues"
+    )
+    closed_merge_requests_url: Optional[str] = Field(
+        None, description="URL to the list of closed merge requests"
+    )
     edit_url: Optional[str] = Field(None, description="URL to edit the release")
-    merged_merge_requests_url: Optional[str] = Field(None, description="URL to the list of merged merge requests")
-    opened_issues_url: Optional[str] = Field(None, description="URL to the list of opened issues")
-    opened_merge_requests_url: Optional[str] = Field(None, description="URL to the list of opened merge requests")
+    merged_merge_requests_url: Optional[str] = Field(
+        None, description="URL to the list of merged merge requests"
+    )
+    opened_issues_url: Optional[str] = Field(
+        None, description="URL to the list of opened issues"
+    )
+    opened_merge_requests_url: Optional[str] = Field(
+        None, description="URL to the list of opened merge requests"
+    )
     self: Optional[str] = Field(None, description="Self-referencing URL")
 
 
@@ -5176,6 +5206,65 @@ class Release(BaseModel):
     )
 
 
+class Token(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Token")
+    id: Optional[int] = Field(None, description="Token ID")
+    token: Optional[str] = Field(None, description="Authentication token")
+    token_expires_at: Optional[datetime] = Field(
+        None, description="Expiration date and time of the token"
+    )
+
+
+class WikiPage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="WikiPage")
+    content: Optional[str] = Field(None, description="Content of the wiki page")
+    format: Optional[str] = Field(
+        None, description="Format of the wiki page content (e.g., markdown, rdoc)"
+    )
+    slug: Optional[str] = Field(
+        None, description="Slug (URL-friendly identifier) of the wiki page"
+    )
+    title: Optional[str] = Field(None, description="Title of the wiki page")
+    encoding: Optional[str] = Field(
+        None, description="Encoding of the wiki page content (e.g., UTF-8)"
+    )
+
+
+class WikiPages(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="WikiPages")
+    wiki_pages: List[WikiPage] = Field(default=None, description="List of wiki pages")
+
+
+class WikiAttachmentLink(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="WikiAttachmentLink")
+    url: Optional[str] = Field(None, description="URL of the uploaded attachment")
+    markdown: Optional[str] = Field(
+        None, description="Markdown to embed the uploaded attachment"
+    )
+
+
+class WikiAttachment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="WikiAttachment")
+    file_name: Optional[str] = Field(None, description="Name of the uploaded file")
+    file_path: Optional[str] = Field(None, description="Path where the file is stored")
+    branch: Optional[str] = Field(
+        None, description="Branch where the attachment is uploaded"
+    )
+    link: Optional[WikiAttachmentLink] = Field(
+        None, description="Link information for the uploaded attachment"
+    )
+
+
 class Response(BaseModel):
     model_config = ConfigDict(extra="forbid")
     base_type: str = Field(default="Response")
@@ -5214,6 +5303,10 @@ class Response(BaseModel):
             Projects,
             Project,
             TimeStats,
+            Token,
+            WikiPage,
+            WikiPages,
+            WikiAttachment,
         ]
     ] = Field(default=None, description="Data")
     status_code: Union[str, int] = Field(
@@ -5242,6 +5335,9 @@ class Response(BaseModel):
             "AccessLevel": AccessLevel,
             "Project": Project,
             "TimeStats": TimeStats,
+            "Token": Token,
+            "WikiPage": WikiPage,
+            "WikiAttachment": WikiAttachment,
         }
         temp_value = None
         if isinstance(value, list):
@@ -5318,6 +5414,12 @@ class Response(BaseModel):
                     print(f"\n\n\n Issues Validation Success: {value}")
                 except Exception as e:
                     print(f"\n\n\n Issues Validation Failed: {value}\nError: {e}")
+                try:
+                    wiki_pages = [WikiPage(**item) for item in value]
+                    temp_value = WikiPages(wiki_pages=wiki_pages)
+                    print(f"\n\n\n WikiPages Validation Success: {value}")
+                except Exception as e:
+                    print(f"\n\n\n WikiPages Validation Failed: {value}\nError: {e}")
         elif isinstance(value, dict):
             for model_name, model in single_models.items():
                 try:
