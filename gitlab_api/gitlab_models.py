@@ -3136,7 +3136,7 @@ class User(BaseModel):
     namespace_id: Optional[int] = Field(
         default=None, description="The namespace ID of the user."
     )
-    created_by: Optional[int, CreatedBy] = Field(
+    created_by: Optional[Union[int, CreatedBy]] = Field(
         default=None, description="The ID of the user who created this user."
     )
     email_reset_offered_at: Optional[datetime] = Field(
@@ -3524,8 +3524,8 @@ class Package(BaseModel):
     conan_package_name: Optional[str] = Field(
         default=None, description="Conan package name if applicable"
     )
-    _links: Optional[PackageLink] = Field(
-        default=None, description="Links related to the package"
+    links: Optional[PackageLink] = Field(
+        default=None, alias="_links", description="Links related to the package"
     )
     pipelines: Optional[List[Pipeline]] = Field(
         default=None, description="List of pipelines associated with the package"
@@ -4197,12 +4197,18 @@ class Issue(BaseModel):
 
 
 class GroupAccess(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="GroupAccess")
     access_level: Optional[int] = Field(
         default=None, description="Access level for a group"
     )
 
 
 class DefaultBranchProtectionDefaults(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="DefaultBranchProtectionDefaults")
     allowed_to_push: Optional[List[GroupAccess]] = Field(
         default=None, description="List of groups allowed to push"
     )

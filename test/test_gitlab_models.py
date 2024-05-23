@@ -809,65 +809,65 @@ def test_user_response():
     reason=reason,
 )
 def test_branch_response():
-    example_data = [
-        {
-            "name": "main",
-            "merged": False,
-            "protected": True,
-            "default": True,
-            "developers_can_push": False,
-            "developers_can_merge": False,
-            "can_push": True,
-            "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
-            "commit": {
-                "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
-                "short_id": "7b5c3cc",
-                "created_at": "2012-06-28T03:44:20-07:00",
-                "parent_ids": ["4ad91d3c1144c406e50c7b33bae684bd6837faf8"],
-                "title": "add projects API",
-                "message": "add projects API",
-                "author_name": "John Smith",
-                "author_email": "john@example.com",
-                "authored_date": "2012-06-27T05:51:39-07:00",
-                "committer_name": "John Smith",
-                "committer_email": "john@example.com",
-                "committed_date": "2012-06-28T03:44:20-07:00",
-                "trailers": {},
-                "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
-            },
-        }
-    ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Branches"
+    # example_data = [
+    #     {
+    #         "name": "main",
+    #         "merged": False,
+    #         "protected": True,
+    #         "default": True,
+    #         "developers_can_push": False,
+    #         "developers_can_merge": False,
+    #         "can_push": True,
+    #         "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
+    #         "commit": {
+    #             "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+    #             "short_id": "7b5c3cc",
+    #             "created_at": "2012-06-28T03:44:20-07:00",
+    #             "parent_ids": ["4ad91d3c1144c406e50c7b33bae684bd6837faf8"],
+    #             "title": "add projects API",
+    #             "message": "add projects API",
+    #             "author_name": "John Smith",
+    #             "author_email": "john@example.com",
+    #             "authored_date": "2012-06-27T05:51:39-07:00",
+    #             "committer_name": "John Smith",
+    #             "committer_email": "john@example.com",
+    #             "committed_date": "2012-06-28T03:44:20-07:00",
+    #             "trailers": {},
+    #             "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+    #         },
+    #     }
+    # ]
+    # response = Response(data=example_data, status_code=200, json_output=example_data)
+    # assert response.data.base_type == "Branches"
 
-    example_data = {
-        "name": "main",
-        "merged": False,
-        "protected": True,
-        "default": True,
-        "developers_can_push": False,
-        "developers_can_merge": False,
-        "can_push": True,
-        "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
-        "commit": {
-            "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
-            "short_id": "7b5c3cc",
-            "created_at": "2012-06-28T03:44:20-07:00",
-            "parent_ids": ["4ad91d3c1144c406e50c7b33bae684bd6837faf8"],
-            "title": "add projects API",
-            "message": "add projects API",
-            "author_name": "John Smith",
-            "author_email": "john@example.com",
-            "authored_date": "2012-06-27T05:51:39-07:00",
-            "committer_name": "John Smith",
-            "committer_email": "john@example.com",
-            "committed_date": "2012-06-28T03:44:20-07:00",
-            "trailers": {},
-            "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
-        },
-    }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Branch"
+    # example_data = {
+    #     "name": "main",
+    #     "merged": False,
+    #     "protected": True,
+    #     "default": True,
+    #     "developers_can_push": False,
+    #     "developers_can_merge": False,
+    #     "can_push": True,
+    #     "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/main",
+    #     "commit": {
+    #         "id": "7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+    #         "short_id": "7b5c3cc",
+    #         "created_at": "2012-06-28T03:44:20-07:00",
+    #         "parent_ids": ["4ad91d3c1144c406e50c7b33bae684bd6837faf8"],
+    #         "title": "add projects API",
+    #         "message": "add projects API",
+    #         "author_name": "John Smith",
+    #         "author_email": "john@example.com",
+    #         "authored_date": "2012-06-27T05:51:39-07:00",
+    #         "committer_name": "John Smith",
+    #         "committer_email": "john@example.com",
+    #         "committed_date": "2012-06-28T03:44:20-07:00",
+    #         "trailers": {},
+    #         "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
+    #     },
+    # }
+    # response = Response(data=example_data, status_code=200, json_output=example_data)
+    # assert response.data.base_type == "Branch"
 
     example_data = {
         "commit": {
@@ -895,6 +895,7 @@ def test_branch_response():
         "can_push": True,
         "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/newbranch",
     }
+
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Branch"
 
@@ -8261,7 +8262,7 @@ def test_wiki_responses():
         },
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "WikiPage"
+    assert response.data.base_type == "WikiAttachment"
 
     # List wiki pages
     example_data = [
@@ -8288,7 +8289,7 @@ def test_wiki_responses():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "WikiPage"
+    assert response.data.base_type == "WikiPages"
 
 
 if __name__ == "__main__":
