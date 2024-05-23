@@ -2807,6 +2807,8 @@ class WikiModel(BaseModel):
             data["title"] = values.get("title")
         if "format" in values:
             data["format"] = values.get("format")
+        if "file" in values:
+            data["file"] = f'@{values.get("file")}'
 
         data = {k: v for k, v in data.items() if v is not None}
 
@@ -3197,9 +3199,7 @@ class Diff(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Diff")
-    id: Optional[int] = Field(
-        default=None, description="The ID of the Diff"
-    )
+    id: Optional[int] = Field(default=None, description="The ID of the Diff")
     merge_request_id: Optional[int] = Field(
         default=None, description="The merge request ID"
     )
@@ -3215,9 +3215,7 @@ class Diff(BaseModel):
     created_at: Optional[datetime] = Field(
         default=None, description="Creation date of the note"
     )
-    state: Optional[str] = Field(
-        default=None, description="The state of the Diff"
-    )
+    state: Optional[str] = Field(default=None, description="The state of the Diff")
     real_size: Optional[str] = Field(
         default=None, description="The real size of the Diff"
     )
@@ -3273,17 +3271,84 @@ class CommitStats(BaseModel):
     )
 
 
+class DetailedStatus(BaseModel):
+    icon: Optional[str] = Field(None, description="The icon representing the status.")
+    text: Optional[str] = Field(None, description="The text describing the status.")
+    label: Optional[str] = Field(None, description="The label of the status.")
+    group: Optional[str] = Field(
+        None, description="The group to which this status belongs."
+    )
+    tooltip: Optional[str] = Field(None, description="The tooltip text for the status.")
+    has_details: Optional[bool] = Field(
+        None, description="Indicates if the status has details."
+    )
+    details_path: Optional[str] = Field(
+        None, description="The path to the details of the status."
+    )
+    illustration: Optional[Any] = Field(
+        None, description="The illustration object related to the status."
+    )
+    favicon: Optional[str] = Field(
+        None, description="The URL to the favicon representing the status."
+    )
+
+
 class Pipeline(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Pipeline")
     id: Optional[int] = Field(default=None, description="ID of the pipeline")
+    iid: Optional[int] = Field(None, description="The internal ID of the pipeline.")
     ref: Optional[str] = Field(
         default=None, description="Reference name of the pipeline"
     )
     sha: Optional[str] = Field(default=None, description="SHA of the pipeline")
     status: Optional[str] = Field(default=None, description="Status of the pipeline")
     web_url: Optional[str] = Field(default=None, description="URL for the pipeline")
+    project_id: Optional[int] = Field(
+        None, description="The ID of the project associated with the pipeline."
+    )
+    before_sha: Optional[str] = Field(
+        None, description="The commit SHA before the current one."
+    )
+    tag: Optional[bool] = Field(
+        None, description="Indicates if the pipeline is for a tag."
+    )
+    yaml_errors: Optional[str] = Field(
+        None, description="Errors encountered in the pipeline YAML configuration."
+    )
+    user: Optional[User] = Field(
+        None, description="The user who triggered the pipeline."
+    )
+    created_at: Optional[str] = Field(
+        None, description="Timestamp when the pipeline was created."
+    )
+    updated_at: Optional[str] = Field(
+        None, description="Timestamp when the pipeline was last updated."
+    )
+    started_at: Optional[str] = Field(
+        None, description="Timestamp when the pipeline started."
+    )
+    finished_at: Optional[str] = Field(
+        None, description="Timestamp when the pipeline finished."
+    )
+    committed_at: Optional[str] = Field(
+        None, description="Timestamp when the pipeline was committed."
+    )
+    duration: Optional[float] = Field(
+        None, description="The duration of the pipeline in seconds."
+    )
+    queued_duration: Optional[float] = Field(
+        None, description="The duration the pipeline spent in the queue."
+    )
+    coverage: Optional[str] = Field(None, description="The code coverage percentage.")
+    name: Optional[str] = Field(None, description="The name of the pipeline.")
+    source: Optional[str] = Field(
+        None, description="The source of the pipeline (e.g., push, web)."
+    )
+    detailed_status: Optional[DetailedStatus] = Field(
+        None, description="The detailed status of the pipeline."
+    )
 
 
 class Pipelines(BaseModel):
@@ -3869,6 +3934,95 @@ class Issues(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="Issues")
     issues: List[Issue] = Field(default=None, description="List of issues")
+
+
+class PipelineVariable(BaseModel):
+    key: Optional[str] = Field(None, description="The key of the variable.")
+    variable_type: Optional[str] = Field(
+        None, description="The type of the variable (e.g., env_var)."
+    )
+    value: Optional[str] = Field(None, description="The value of the variable.")
+
+
+class TestCase(BaseModel):
+    status: Optional[str] = Field(
+        None, description="The status of the test case (e.g., success, failed)."
+    )
+    name: Optional[str] = Field(None, description="The name of the test case.")
+    classname: Optional[str] = Field(
+        None, description="The class name of the test case."
+    )
+    execution_time: Optional[float] = Field(
+        None, description="The execution time of the test case in seconds."
+    )
+    system_output: Optional[str] = Field(
+        None, description="The system output of the test case."
+    )
+    stack_trace: Optional[str] = Field(
+        None, description="The stack trace of the test case if it failed."
+    )
+
+
+class TestSuite(BaseModel):
+    name: Optional[str] = Field(None, description="The name of the test suite.")
+    total_time: Optional[float] = Field(
+        None, description="The total time of the test suite in seconds."
+    )
+    total_count: Optional[int] = Field(
+        None, description="The total number of test cases in the suite."
+    )
+    success_count: Optional[int] = Field(
+        None, description="The number of successful test cases."
+    )
+    failed_count: Optional[int] = Field(
+        None, description="The number of failed test cases."
+    )
+    skipped_count: Optional[int] = Field(
+        None, description="The number of skipped test cases."
+    )
+    error_count: Optional[int] = Field(
+        None, description="The number of test cases with errors."
+    )
+    test_cases: Optional[List[TestCase]] = Field(
+        None, description="A list of test cases in the suite."
+    )
+    build_ids: Optional[List[int]] = Field(
+        None, description="A list of build IDs related to the test suite."
+    )
+    suite_error: Optional[str] = Field(
+        None, description="Errors encountered in the test suite."
+    )
+
+
+class TestReportTotal(BaseModel):
+    time: Optional[int] = Field(
+        None, description="The total time for all test cases in seconds."
+    )
+    count: Optional[int] = Field(None, description="The total number of test cases.")
+    success: Optional[int] = Field(
+        None, description="The total number of successful test cases."
+    )
+    failed: Optional[int] = Field(
+        None, description="The total number of failed test cases."
+    )
+    skipped: Optional[int] = Field(
+        None, description="The total number of skipped test cases."
+    )
+    error: Optional[int] = Field(
+        None, description="The total number of test cases with errors."
+    )
+    suite_error: Optional[str] = Field(
+        None, description="Errors encountered in the test suite."
+    )
+
+
+class TestReport(BaseModel):
+    total: Optional[TestReportTotal] = Field(
+        None, description="Summary of the test report."
+    )
+    test_suites: Optional[List[TestSuite]] = Field(
+        None, description="A list of test suites in the report."
+    )
 
 
 class Project(BaseModel):

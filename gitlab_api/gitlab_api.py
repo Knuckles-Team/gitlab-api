@@ -357,7 +357,7 @@ class Api(object):
                 url=f"{self.url}/projects/{commit.project_id}"
                 f"/repository/commits/{commit.commit_hash}/cherry_pick",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -384,7 +384,7 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}" f"/repository/commits",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -412,7 +412,7 @@ class Api(object):
                 url=f"{self.url}/projects/{commit.project_id}"
                 f"/repository/commits/{commit.commit_hash}/revert",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -494,7 +494,7 @@ class Api(object):
                 url=f"{self.url}/projects/{commit.project_id}"
                 f"/repository/commits/{commit.commit_hash}/comments",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -578,7 +578,7 @@ class Api(object):
                 url=f"{self.url}/projects/{commit.project_id}"
                 f"/statuses/{commit.commit_hash}/",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -1288,7 +1288,7 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/play",
                 headers=self.headers,
-                data=json.dumps(job.data, indent=2),
+                json=job.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -1417,7 +1417,7 @@ class Api(object):
                 url=f"{self.url}/projects"
                 f"/{merge_request.project_id}/merge_requests",
                 headers=self.headers,
-                data=json.dumps(merge_request.data, indent=2),
+                json=merge_request.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -1601,7 +1601,7 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/projects/{merge_rule.project_id}/approval_rules",
                 headers=self.headers,
-                data=json.dumps(merge_rule.data, indent=2),
+                json=merge_rule.data,
                 verify=self.verify,
             )
 
@@ -1630,7 +1630,7 @@ class Api(object):
                 url=f"{self.url}/projects/{merge_rule.project_id}"
                 f"/approval_rules/{merge_rule.approval_rule_id}",
                 headers=self.headers,
-                data=json.dumps(merge_rule.data, indent=2),
+                json=merge_rule.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -1658,7 +1658,7 @@ class Api(object):
                 url=f"{self.url}/projects/{merge_rule.project_id}"
                 f"/approval_rules/{merge_rule.approval_rule_id}",
                 headers=self.headers,
-                data=json.dumps(merge_rule.data, indent=2),
+                json=merge_rule.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -2012,7 +2012,7 @@ class Api(object):
                 url=f"{self.url}/projects/{pipeline.project_id}"
                 f"/pipeline{pipeline.api_parameters}",
                 headers=self.headers,
-                data=json.dumps(pipeline.variables, indent=2),
+                json=pipeline.variables,
                 verify=self.verify,
             )
         else:
@@ -2426,7 +2426,7 @@ class Api(object):
                 url=f"{self.url}/projects/{protected_branch.project_id}"
                 f"/protected_branches{protected_branch.api_parameters}",
                 headers=self.headers,
-                data=json.dumps(protected_branch.data, indent=2),
+                json=protected_branch.data,
                 verify=self.verify,
             )
         else:
@@ -2706,7 +2706,7 @@ class Api(object):
         try:
             response = self._session.post(
                 url=f"{self.url}" f"/projects/{release.project_id}/releases",
-                data=json.dumps(release.data, indent=2),
+                json=release.data,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2762,7 +2762,7 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}"
                 f"/projects/{release.project_id}/releases/{release.tag_name}",
-                data=json.dumps(release.data, indent=2),
+                json=release.data,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2878,7 +2878,7 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -2908,7 +2908,7 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -2998,7 +2998,7 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}/projects" f"/{runner.project_id}/runners",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -3088,7 +3088,7 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}/runners",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -3125,7 +3125,7 @@ class Api(object):
                 response = self._session.delete(
                     url=f"{self.url}/runners",
                     headers=self.headers,
-                    data=json.dumps(runner.data, indent=2),
+                    json=runner.data,
                     verify=self.verify,
                 )
             except ValidationError as e:
@@ -3157,7 +3157,7 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/runners/verify",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -3273,7 +3273,7 @@ class Api(object):
                 url=f"{self.url}/runners/{runner.runner_id}"
                 f"/reset_authentication_token",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -3436,7 +3436,7 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis",
                 headers=self.headers,
                 verify=self.verify,
-                data=json.dumps(wiki.data, indent=2),
+                json=wiki.data,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3466,7 +3466,7 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}",
                 headers=self.headers,
                 verify=self.verify,
-                data=json.dumps(wiki.data, indent=2),
+                json=wiki.data,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3522,12 +3522,6 @@ class Api(object):
         wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.file is None or wiki.branch is None:
             raise MissingParameterError
-        data = {}
-        if wiki.file:
-            if not isinstance(wiki.file, str):
-                raise ParameterError
-            data["file"] = f"@{wiki.file}"
-        data = json.dumps(data, indent=4)
         headers = self.headers
         headers["Content-Type"] = "multipart/form-data"
         try:
@@ -3535,7 +3529,7 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/attachments",
                 headers=headers,
                 verify=self.verify,
-                data=json.dumps(data, indent=2),
+                json=wiki.data,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")

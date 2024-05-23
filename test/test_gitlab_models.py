@@ -3501,6 +3501,334 @@ def test_merge_request_response():
 #     }
 
 
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
+def test_pipeline_response():
+    example_data = [
+        {
+            "id": 47,
+            "iid": 12,
+            "project_id": 1,
+            "status": "pending",
+            "source": "push",
+            "ref": "new-pipeline",
+            "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+            "name": "Build pipeline",
+            "web_url": "https://example.com/foo/bar/pipelines/47",
+            "created_at": "2016-08-11T11:28:34.085Z",
+            "updated_at": "2016-08-11T11:32:35.169Z",
+        },
+        {
+            "id": 48,
+            "iid": 13,
+            "project_id": 1,
+            "status": "pending",
+            "source": "web",
+            "ref": "new-pipeline",
+            "sha": "eb94b618fb5865b26e80fdd8ae531b7a63ad851a",
+            "name": "Build pipeline",
+            "web_url": "https://example.com/foo/bar/pipelines/48",
+            "created_at": "2016-08-12T10:06:04.561Z",
+            "updated_at": "2016-08-12T10:09:56.223Z",
+        },
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipelines"
+
+    example_data = {
+        "id": 46,
+        "iid": 11,
+        "project_id": 1,
+        "name": "Build pipeline",
+        "status": "success",
+        "ref": "main",
+        "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "tag": False,
+        "yaml_errors": None,
+        "user": {
+            "name": "Administrator",
+            "username": "root",
+            "id": 1,
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+            "web_url": "http://localhost:3000/root",
+        },
+        "created_at": "2016-08-11T11:28:34.085Z",
+        "updated_at": "2016-08-11T11:32:35.169Z",
+        "started_at": None,
+        "finished_at": "2016-08-11T11:32:35.145Z",
+        "committed_at": None,
+        "duration": 123.65,
+        "queued_duration": 0.010,
+        "coverage": "30.0",
+        "web_url": "https://example.com/foo/bar/pipelines/46",
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipeline"
+
+    example_data = [
+        {"key": "RUN_NIGHTLY_BUILD", "variable_type": "env_var", "value": "true"},
+        {"key": "foo", "value": "bar"},
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "PipelineVariables"
+
+    example_data = {
+        "total_time": 5,
+        "total_count": 1,
+        "success_count": 1,
+        "failed_count": 0,
+        "skipped_count": 0,
+        "error_count": 0,
+        "test_suites": [
+            {
+                "name": "Secure",
+                "total_time": 5,
+                "total_count": 1,
+                "success_count": 1,
+                "failed_count": 0,
+                "skipped_count": 0,
+                "error_count": 0,
+                "test_cases": [
+                    {
+                        "status": "success",
+                        "name": "Security Reports can create an auto-remediation MR",
+                        "classname": "vulnerability_management_spec",
+                        "execution_time": 5,
+                        "system_output": None,
+                        "stack_trace": None,
+                    }
+                ],
+            }
+        ],
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipeline"
+    {
+        "total": {
+            "time": 1904,
+            "count": 3363,
+            "success": 3351,
+            "failed": 0,
+            "skipped": 12,
+            "error": 0,
+            "suite_error": None,
+        },
+        "test_suites": [
+            {
+                "name": "test",
+                "total_time": 1904,
+                "total_count": 3363,
+                "success_count": 3351,
+                "failed_count": 0,
+                "skipped_count": 12,
+                "error_count": 0,
+                "build_ids": [66004],
+                "suite_error": None,
+            }
+        ],
+    }
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipelines"
+    example_data = {
+        "total": {
+            "time": 1904,
+            "count": 3363,
+            "success": 3351,
+            "failed": 0,
+            "skipped": 12,
+            "error": 0,
+            "suite_error": None,
+        },
+        "test_suites": [
+            {
+                "name": "test",
+                "total_time": 1904,
+                "total_count": 3363,
+                "success_count": 3351,
+                "failed_count": 0,
+                "skipped_count": 12,
+                "error_count": 0,
+                "build_ids": [66004],
+                "suite_error": None,
+            }
+        ],
+    }
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipelines"
+    example_data = {
+        "id": 287,
+        "iid": 144,
+        "project_id": 21,
+        "name": "Build pipeline",
+        "sha": "50f0acb76a40e34a4ff304f7347dcc6587da8a14",
+        "ref": "main",
+        "status": "success",
+        "source": "push",
+        "created_at": "2022-09-21T01:05:07.200Z",
+        "updated_at": "2022-09-21T01:05:50.185Z",
+        "web_url": "http://127.0.0.1:3000/test-group/test-project/-/pipelines/287",
+        "before_sha": "8a24fb3c5877a6d0b611ca41fc86edc174593e2b",
+        "tag": False,
+        "yaml_errors": None,
+        "user": {
+            "id": 1,
+            "username": "root",
+            "name": "Administrator",
+            "state": "active",
+            "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+            "web_url": "http://127.0.0.1:3000/root",
+        },
+        "started_at": "2022-09-21T01:05:14.197Z",
+        "finished_at": "2022-09-21T01:05:50.175Z",
+        "committed_at": None,
+        "duration": 34,
+        "queued_duration": 6,
+        "coverage": None,
+        "detailed_status": {
+            "icon": "status_success",
+            "text": "passed",
+            "label": "passed",
+            "group": "success",
+            "tooltip": "passed",
+            "has_details": False,
+            "details_path": "/test-group/test-project/-/pipelines/287",
+            "illustration": None,
+            "favicon": "/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2.png",
+        },
+    }
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipelines"
+    example_data = {
+        "id": 61,
+        "iid": 21,
+        "project_id": 1,
+        "sha": "384c444e840a515b23f21915ee5766b87068a70d",
+        "ref": "main",
+        "status": "pending",
+        "before_sha": "0000000000000000000000000000000000000000",
+        "tag": False,
+        "yaml_errors": None,
+        "user": {
+            "name": "Administrator",
+            "username": "root",
+            "id": 1,
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+            "web_url": "http://localhost:3000/root",
+        },
+        "created_at": "2016-11-04T09:36:13.747Z",
+        "updated_at": "2016-11-04T09:36:13.977Z",
+        "started_at": None,
+        "finished_at": None,
+        "committed_at": None,
+        "duration": None,
+        "queued_duration": 0.010,
+        "coverage": None,
+        "web_url": "https://example.com/foo/bar/pipelines/61",
+    }
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipelines"
+    example_data = {
+        "id": 46,
+        "iid": 11,
+        "project_id": 1,
+        "status": "pending",
+        "ref": "main",
+        "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "tag": False,
+        "yaml_errors": None,
+        "user": {
+            "name": "Administrator",
+            "username": "root",
+            "id": 1,
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+            "web_url": "http://localhost:3000/root",
+        },
+        "created_at": "2016-08-11T11:28:34.085Z",
+        "updated_at": "2016-08-11T11:32:35.169Z",
+        "started_at": None,
+        "finished_at": "2016-08-11T11:32:35.145Z",
+        "committed_at": None,
+        "duration": None,
+        "queued_duration": 0.010,
+        "coverage": None,
+        "web_url": "https://example.com/foo/bar/pipelines/46",
+    }
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipelines"
+    example_data = {
+        "id": 46,
+        "iid": 11,
+        "project_id": 1,
+        "status": "canceled",
+        "ref": "main",
+        "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "tag": False,
+        "yaml_errors": None,
+        "user": {
+            "name": "Administrator",
+            "username": "root",
+            "id": 1,
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+            "web_url": "http://localhost:3000/root",
+        },
+        "created_at": "2016-08-11T11:28:34.085Z",
+        "updated_at": "2016-08-11T11:32:35.169Z",
+        "started_at": None,
+        "finished_at": "2016-08-11T11:32:35.145Z",
+        "committed_at": None,
+        "duration": None,
+        "queued_duration": 0.010,
+        "coverage": None,
+        "web_url": "https://example.com/foo/bar/pipelines/46",
+    }
+
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipelines"
+    example_data = {
+        "id": 46,
+        "iid": 11,
+        "project_id": 1,
+        "status": "running",
+        "ref": "main",
+        "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "tag": False,
+        "yaml_errors": None,
+        "user": {
+            "name": "Administrator",
+            "username": "root",
+            "id": 1,
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+            "web_url": "http://localhost:3000/root",
+        },
+        "created_at": "2016-08-11T11:28:34.085Z",
+        "updated_at": "2016-08-11T11:32:35.169Z",
+        "started_at": None,
+        "finished_at": "2016-08-11T11:32:35.145Z",
+        "committed_at": None,
+        "duration": None,
+        "queued_duration": 0.010,
+        "coverage": None,
+        "web_url": "https://example.com/foo/bar/pipelines/46",
+        "name": "Some new pipeline name",
+    }
+
+
 if __name__ == "__main__":
     test_branch_model()
     test_commit_model()
@@ -3519,4 +3847,4 @@ if __name__ == "__main__":
     test_commit_response()
     test_deploy_token_response()
     test_merge_request_response()
-    #test_issues_response()
+    # test_issues_response()
