@@ -1558,7 +1558,7 @@ class ProjectModel(BaseModel):
     - analytics_access_level (str): Access level for analytics.
     - approvals_before_merge (int): Number of approvals required before merge.
     - auto_cancel_pending_pipelines (str): Auto-cancel pending pipelines.
-    - ... (other attributes)
+    - default=None (other attributes)
 
     Methods:
     - build_api_parameters(values): Build API parameters.
@@ -2983,6 +2983,22 @@ class Configuration(BaseModel):
         default=None, description="Whether a password is required to approve"
     )
 
+class Iteration(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Iteration")
+    id: Optional[int] = Field(default=None)
+    iid: Optional[int] = Field(default=None)
+    sequence: Optional[int] = Field(default=None)
+    group_id: Optional[int] = Field(default=None)
+    title: Optional[str] = Field(default=None)
+    description: Optional[str] = Field(default=None)
+    state: Optional[int] = Field(default=None)
+    created_at: Optional[datetime] = Field(default=None)
+    updated_at: Optional[datetime] = Field(default=None)
+    start_date: Optional[str] = Field(default=None)
+    due_date: Optional[str] = Field(default=None)
+    web_url: Optional[str] = Field(default=None)
 
 class Identity(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -3362,19 +3378,7 @@ class Diffs(BaseModel):
     diffs: List[Diff] = Field(default=None, description="List of diffs")
 
 
-class CommitStats(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="CommitStats")
-    additions: Optional[int] = Field(
-        default=None, description="Number of additions in the commit"
-    )
-    deletions: Optional[int] = Field(
-        default=None, description="Number of deletions in the commit"
-    )
-    total: Optional[int] = Field(
-        default=None, description="Total number of changes in the commit"
-    )
+
 
 
 class DetailedStatus(BaseModel):
@@ -3555,6 +3559,19 @@ class Package(BaseModel):
         default=None, description="SHA-256 checksum of the package file"
     )
 
+class CommitStats(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="CommitStats")
+    additions: Optional[int] = Field(
+        default=None, description="Number of additions in the commit"
+    )
+    deletions: Optional[int] = Field(
+        default=None, description="Number of deletions in the commit"
+    )
+    total: Optional[int] = Field(
+        default=None, description="Total number of changes in the commit"
+    )
 
 class CommitSignature(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -3675,7 +3692,7 @@ class Commit(BaseModel):
     author_name: Optional[str] = Field(
         default=None, description="The name of the commit author."
     )
-    author_email: Optional[EmailStr] = Field(
+    author_email: Optional[str] = Field(
         default=None, description="The email of the commit author."
     )
     authored_date: Optional[datetime] = Field(
@@ -4138,6 +4155,7 @@ class Issue(BaseModel):
     user_notes_count: Optional[int] = Field(
         default=None, description="Number of user notes on the issue."
     )
+    iteration: Optional[Iteration] = Field(default=None, description="Iteration of issue.")
     due_date: Optional[str] = Field(default=None, description="Due date for the issue.")
     imported: Optional[bool] = Field(
         default=None,
@@ -4194,6 +4212,8 @@ class Issue(BaseModel):
     service_desk_reply_to: Optional[str] = Field(
         default=None, description="Service desk email for replies related to the issue."
     )
+    blocking_issues_count: Optional[int] = Field(default=None, description="Blocking issue count.")
+
 
 
 class GroupAccess(BaseModel):
@@ -4796,7 +4816,7 @@ class Job(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Job")
-    commit: Optional[CommitModel] = Field(
+    commit: Optional[Commit] = Field(
         default=None, description="Details of the commit associated with the job."
     )
     coverage: Optional[float] = Field(
@@ -4840,11 +4860,11 @@ class Job(BaseModel):
     )
     id: Optional[int] = Field(default=None, description="ID of the job.")
     name: Optional[str] = Field(default=None, description="Name of the job.")
-    pipeline: Optional[PipelineModel] = Field(
+    pipeline: Optional[Pipeline] = Field(
         default=None, description="Details of the pipeline associated with the job."
     )
     ref: Optional[str] = Field(default=None, description="Reference of the job.")
-    runner: Optional[RunnerModel] = Field(
+    runner: Optional[Runner] = Field(
         default=None, description="Details of the runner that executed the job."
     )
     runner_manager: Optional[RunnerManager] = Field(
@@ -4864,7 +4884,7 @@ class Job(BaseModel):
     project: Optional[Project] = Field(
         default=None, description="Details of the project associated with the job."
     )
-    user: Optional[UserModel] = Field(
+    user: Optional[User] = Field(
         default=None, description="Details of the user who created the job."
     )
 
@@ -5222,6 +5242,22 @@ class Token(BaseModel):
         None, description="Expiration date and time of the token"
     )
 
+class ToDo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ToDo")
+    id: int = Field(default=None, description="To-do identifier")
+    project: Project = Field(default=None, description="Project associated with the to-do")
+    author: User = Field(default=None, description="Author of the to-do")
+    action_name: str = Field(default=None, description="Action taken in the to-do")
+    target_type: str = Field(default=None, description="Type of target referenced in the to-do")
+    target: Issue = Field(default=None, description="Target issue for the to-do")
+    target_url: HttpUrl = Field(default=None, description="URL pointing to the target of the to-do")
+    body: str = Field(default=None, description="Body text of the to-do")
+    state: str = Field(default=None, description="State of the to-do")
+    created_at: datetime = Field(default=None, description="Timestamp when the to-do was created")
+
+
 
 class WikiPage(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -5294,6 +5330,7 @@ class Response(BaseModel):
             Release,
             Issues,
             Issue,
+            ToDo,
             MergeRequests,
             MergeRequest,
             MergeApprovals,
@@ -5333,6 +5370,7 @@ class Response(BaseModel):
             "Diff": Diff,
             "Comment": Comment,
             "Issue": Issue,
+            "ToDo": ToDo,
             "Release": Release,
             "MergeRequest": MergeRequest,
             "DeployToken": DeployToken,
@@ -5346,6 +5384,7 @@ class Response(BaseModel):
             "WikiAttachment": WikiAttachment,
         }
         temp_value = None
+        print(f"\n\n\nDATA FIELD: {value}")
         if isinstance(value, list):
             print(f"\n\nScanning {value}")
             if all(isinstance(item, Dict) for item in value):
@@ -5428,6 +5467,7 @@ class Response(BaseModel):
                     print(f"\n\n\n WikiPages Validation Failed: {value}\nError: {e}")
         elif isinstance(value, dict):
             for model_name, model in single_models.items():
+                print(f"VALIDATING FOR: {model_name} - DATA: {value}")
                 try:
                     temp_value = model(**value)
                     print(f"\n\n\n {model_name} Model Validation Success: {value}")
