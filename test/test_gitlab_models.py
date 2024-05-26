@@ -2608,7 +2608,7 @@ def test_issues_response():
                 "web_url": "https://gitlab.example.com/eileen.lowe",
                 "name": "Alexandra Bashirian",
                 "avatar_url": None,
-                "username": "eileen.lowe"
+                "username": "eileen.lowe",
             },
             "milestone": {
                 "project_id": 1,
@@ -2619,24 +2619,26 @@ def test_issues_response():
                 "created_at": "2016-01-04T15:31:39.996Z",
                 "title": "v4.0",
                 "id": 17,
-                "updated_at": "2016-01-04T15:31:39.996Z"
+                "updated_at": "2016-01-04T15:31:39.996Z",
             },
             "project_id": 1,
-            "assignees": [{
-                "state": "active",
-                "id": 1,
-                "name": "Administrator",
-                "web_url": "https://gitlab.example.com/root",
-                "avatar_url": None,
-                "username": "root"
-            }],
+            "assignees": [
+                {
+                    "state": "active",
+                    "id": 1,
+                    "name": "Administrator",
+                    "web_url": "https://gitlab.example.com/root",
+                    "avatar_url": None,
+                    "username": "root",
+                }
+            ],
             "assignee": {
                 "state": "active",
                 "id": 1,
                 "name": "Administrator",
                 "web_url": "https://gitlab.example.com/root",
                 "avatar_url": None,
-                "username": "root"
+                "username": "root",
             },
             "type": "ISSUE",
             "updated_at": "2016-01-04T15:31:51.081Z",
@@ -2659,13 +2661,13 @@ def test_issues_response():
             "references": {
                 "short": "#6",
                 "relative": "my-group/my-project#6",
-                "full": "my-group/my-project#6"
+                "full": "my-group/my-project#6",
             },
             "time_stats": {
                 "time_estimate": 0,
                 "total_time_spent": 0,
                 "human_time_estimate": None,
-                "human_total_time_spent": None
+                "human_total_time_spent": None,
             },
             "has_tasks": True,
             "task_status": "10 of 15 tasks completed",
@@ -2678,12 +2680,9 @@ def test_issues_response():
                 "notes": "http://gitlab.example.com/api/v4/projects/1/issues/76/notes",
                 "award_emoji": "http://gitlab.example.com/api/v4/projects/1/issues/76/award_emoji",
                 "project": "http://gitlab.example.com/api/v4/projects/1",
-                "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+                "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75",
             },
-            "task_completion_status": {
-                "count": 0,
-                "completed_count": 0
-            }
+            "task_completion_status": {"count": 0, "completed_count": 0},
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
@@ -2694,7 +2693,6 @@ def test_issues_response():
             "state": "opened",
             "description": "Ratione dolores corrupti mollitia soluta quia.",
             "weight": None,
-
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
@@ -2709,7 +2707,7 @@ def test_issues_response():
             "iid": 5,
             "title": "My epic epic",
             "url": "/groups/h5bp/-/epics/5",
-            "group_id": 8
+            "group_id": 8,
         },
         "iteration": {
             "id": 90,
@@ -2723,15 +2721,13 @@ def test_issues_response():
             "updated_at": "2022-03-14T05:21:11.929Z",
             "start_date": "2022-03-08",
             "due_date": "2022-03-14",
-            "web_url": "https://gitlab.com/groups/my-group/-/iterations/90"
+            "web_url": "https://gitlab.com/groups/my-group/-/iterations/90",
         },
         "state": "opened",
         "health_status": "on_track",
-
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
-
 
     example_data = [
         {
@@ -2745,7 +2741,7 @@ def test_issues_response():
                 "id": 11,
                 "title": "v3.0",
                 "created_at": "2016-01-04T15:31:39.788Z",
-                "updated_at": "2016-01-04T15:31:39.788Z"
+                "updated_at": "2016-01-04T15:31:39.788Z",
             },
             "author": {
                 "state": "active",
@@ -2753,26 +2749,28 @@ def test_issues_response():
                 "avatar_url": None,
                 "username": "root",
                 "id": 1,
-                "name": "Administrator"
+                "name": "Administrator",
             },
             "description": "Omnis vero earum sunt corporis dolor et placeat.",
             "state": "closed",
             "iid": 1,
-            "assignees": [{
-                "avatar_url": None,
-                "web_url": "https://gitlab.example.com/lennie",
-                "state": "active",
-                "username": "lennie",
-                "id": 9,
-                "name": "Dr. Luella Kovacek"
-            }],
+            "assignees": [
+                {
+                    "avatar_url": None,
+                    "web_url": "https://gitlab.example.com/lennie",
+                    "state": "active",
+                    "username": "lennie",
+                    "id": 9,
+                    "name": "Dr. Luella Kovacek",
+                }
+            ],
             "assignee": {
                 "avatar_url": None,
                 "web_url": "https://gitlab.example.com/lennie",
                 "state": "active",
                 "username": "lennie",
                 "id": 9,
-                "name": "Dr. Luella Kovacek"
+                "name": "Dr. Luella Kovacek",
             },
             "type": "ISSUE",
             "labels": ["foo", "bar"],
@@ -2793,13 +2791,13 @@ def test_issues_response():
             "references": {
                 "short": "#1",
                 "relative": "my-project#1",
-                "full": "my-group/my-project#1"
+                "full": "my-group/my-project#1",
             },
             "time_stats": {
                 "time_estimate": 0,
                 "total_time_spent": 0,
                 "human_time_estimate": None,
-                "human_total_time_spent": None
+                "human_total_time_spent": None,
             },
             "has_tasks": True,
             "task_status": "10 of 15 tasks completed",
@@ -2812,12 +2810,9 @@ def test_issues_response():
                 "notes": "http://gitlab.example.com/api/v4/projects/4/issues/41/notes",
                 "award_emoji": "http://gitlab.example.com/api/v4/projects/4/issues/41/award_emoji",
                 "project": "http://gitlab.example.com/api/v4/projects/4",
-                "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+                "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75",
             },
-            "task_completion_status": {
-                "count": 0,
-                "completed_count": 0
-            },
+            "task_completion_status": {"count": 0, "completed_count": 0},
             "weight": None,
             "epic_iid": 5,
             "epic": {
@@ -2825,7 +2820,7 @@ def test_issues_response():
                 "iid": 5,
                 "title": "My epic epic",
                 "url": "/groups/h5bp/-/epics/5",
-                "group_id": 8
+                "group_id": 8,
             },
             "health_status": "at_risk",
         }
@@ -2845,7 +2840,7 @@ def test_issues_response():
                 "id": 11,
                 "title": "v3.0",
                 "created_at": "2016-01-04T15:31:39.788Z",
-                "updated_at": "2016-01-04T15:31:39.788Z"
+                "updated_at": "2016-01-04T15:31:39.788Z",
             },
             "author": {
                 "state": "active",
@@ -2853,26 +2848,28 @@ def test_issues_response():
                 "avatar_url": None,
                 "username": "root",
                 "id": 1,
-                "name": "Administrator"
+                "name": "Administrator",
             },
             "description": "Omnis vero earum sunt corporis dolor et placeat.",
             "state": "closed",
             "iid": 1,
-            "assignees": [{
-                "avatar_url": None,
-                "web_url": "https://gitlab.example.com/lennie",
-                "state": "active",
-                "username": "lennie",
-                "id": 9,
-                "name": "Dr. Luella Kovacek"
-            }],
+            "assignees": [
+                {
+                    "avatar_url": None,
+                    "web_url": "https://gitlab.example.com/lennie",
+                    "state": "active",
+                    "username": "lennie",
+                    "id": 9,
+                    "name": "Dr. Luella Kovacek",
+                }
+            ],
             "assignee": {
                 "avatar_url": None,
                 "web_url": "https://gitlab.example.com/lennie",
                 "state": "active",
                 "username": "lennie",
                 "id": 9,
-                "name": "Dr. Luella Kovacek"
+                "name": "Dr. Luella Kovacek",
             },
             "type": "ISSUE",
             "labels": ["foo", "bar"],
@@ -2890,7 +2887,7 @@ def test_issues_response():
                 "avatar_url": None,
                 "username": "root",
                 "id": 1,
-                "name": "Administrator"
+                "name": "Administrator",
             },
             "user_notes_count": 1,
             "due_date": "2016-07-22",
@@ -2900,13 +2897,13 @@ def test_issues_response():
             "references": {
                 "short": "#1",
                 "relative": "#1",
-                "full": "my-group/my-project#1"
+                "full": "my-group/my-project#1",
             },
             "time_stats": {
                 "time_estimate": 0,
                 "total_time_spent": 0,
                 "human_time_estimate": None,
-                "human_total_time_spent": None
+                "human_total_time_spent": None,
             },
             "has_tasks": True,
             "task_status": "10 of 15 tasks completed",
@@ -2919,12 +2916,9 @@ def test_issues_response():
                 "notes": "http://gitlab.example.com/api/v4/projects/4/issues/41/notes",
                 "award_emoji": "http://gitlab.example.com/api/v4/projects/4/issues/41/award_emoji",
                 "project": "http://gitlab.example.com/api/v4/projects/4",
-                "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+                "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75",
             },
-            "task_completion_status": {
-                "count": 0,
-                "completed_count": 0
-            },
+            "task_completion_status": {"count": 0, "completed_count": 0},
             "weight": None,
             "epic_iid": 5,
             "epic": {
@@ -2932,7 +2926,7 @@ def test_issues_response():
                 "iid": 5,
                 "title": "My epic epic",
                 "url": "/groups/h5bp/-/epics/5",
-                "group_id": 8
+                "group_id": 8,
             },
             "health_status": "at_risk",
         }
@@ -2952,7 +2946,7 @@ def test_issues_response():
             "title": "v3.0",
             "created_at": "2016-01-04T15:31:39.788Z",
             "updated_at": "2016-01-04T15:31:39.788Z",
-            "closed_at": "2016-01-05T15:31:46.176Z"
+            "closed_at": "2016-01-05T15:31:46.176Z",
         },
         "author": {
             "state": "active",
@@ -2960,7 +2954,7 @@ def test_issues_response():
             "avatar_url": None,
             "username": "root",
             "id": 1,
-            "name": "Administrator"
+            "name": "Administrator",
         },
         "description": "Omnis vero earum sunt corporis dolor et placeat.",
         "state": "closed",
@@ -2972,7 +2966,7 @@ def test_issues_response():
                 "state": "active",
                 "username": "lennie",
                 "id": 9,
-                "name": "Dr. Luella Kovacek"
+                "name": "Dr. Luella Kovacek",
             }
         ],
         "assignee": {
@@ -2981,7 +2975,7 @@ def test_issues_response():
             "state": "active",
             "username": "lennie",
             "id": 9,
-            "name": "Dr. Luella Kovacek"
+            "name": "Dr. Luella Kovacek",
         },
         "type": "ISSUE",
         "labels": [],
@@ -3002,22 +2996,19 @@ def test_issues_response():
         "references": {
             "short": "#1",
             "relative": "#1",
-            "full": "my-group/my-project#1"
+            "full": "my-group/my-project#1",
         },
         "time_stats": {
             "time_estimate": 0,
             "total_time_spent": 0,
             "human_time_estimate": None,
-            "human_total_time_spent": None
+            "human_total_time_spent": None,
         },
         "confidential": False,
         "discussion_locked": False,
         "issue_type": "issue",
         "severity": "UNKNOWN",
-        "task_completion_status": {
-            "count": 0,
-            "completed_count": 0
-        },
+        "task_completion_status": {"count": 0, "completed_count": 0},
         "weight": None,
         "has_tasks": False,
         "_links": {
@@ -3025,10 +3016,10 @@ def test_issues_response():
             "notes": "http://gitlab.example:3000/api/v4/projects/1/issues/1/notes",
             "award_emoji": "http://gitlab.example:3000/api/v4/projects/1/issues/1/award_emoji",
             "project": "http://gitlab.example:3000/api/v4/projects/1",
-            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75",
         },
         "moved_to_id": None,
-        "service_desk_reply_to": "service.desk@gitlab.com"
+        "service_desk_reply_to": "service.desk@gitlab.com",
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
@@ -3043,9 +3034,7 @@ def test_issues_response():
         "assignees": [],
         "assignee": None,
         "type": "ISSUE",
-        "labels": [
-            "bug"
-        ],
+        "labels": ["bug"],
         "upvotes": 4,
         "downvotes": 0,
         "merge_requests_count": 0,
@@ -3055,7 +3044,7 @@ def test_issues_response():
             "state": "active",
             "web_url": "https://gitlab.example.com/eileen.lowe",
             "id": 18,
-            "username": "eileen.lowe"
+            "username": "eileen.lowe",
         },
         "description": None,
         "updated_at": "2016-01-07T12:44:33.959Z",
@@ -3069,13 +3058,13 @@ def test_issues_response():
         "references": {
             "short": "#14",
             "relative": "#14",
-            "full": "my-group/my-project#14"
+            "full": "my-group/my-project#14",
         },
         "time_stats": {
             "time_estimate": 0,
             "total_time_spent": 0,
             "human_time_estimate": None,
-            "human_total_time_spent": None
+            "human_total_time_spent": None,
         },
         "confidential": False,
         "discussion_locked": False,
@@ -3086,12 +3075,9 @@ def test_issues_response():
             "notes": "http://gitlab.example.com/api/v4/projects/1/issues/2/notes",
             "award_emoji": "http://gitlab.example.com/api/v4/projects/1/issues/2/award_emoji",
             "project": "http://gitlab.example.com/api/v4/projects/1",
-            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75",
         },
-        "task_completion_status": {
-            "count": 0,
-            "completed_count": 0
-        }
+        "task_completion_status": {"count": 0, "completed_count": 0},
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
@@ -3112,21 +3098,23 @@ def test_issues_response():
         "downvotes": 0,
         "merge_requests_count": 0,
         "milestone": None,
-        "assignees": [{
-            "name": "Miss Monserrate Beier",
-            "username": "axel.block",
-            "id": 12,
-            "state": "active",
-            "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/axel.block"
-        }],
+        "assignees": [
+            {
+                "name": "Miss Monserrate Beier",
+                "username": "axel.block",
+                "id": 12,
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                "web_url": "https://gitlab.example.com/axel.block",
+            }
+        ],
         "assignee": {
             "name": "Miss Monserrate Beier",
             "username": "axel.block",
             "id": 12,
             "state": "active",
             "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/axel.block"
+            "web_url": "https://gitlab.example.com/axel.block",
         },
         "type": "ISSUE",
         "author": {
@@ -3135,7 +3123,7 @@ def test_issues_response():
             "id": 10,
             "state": "active",
             "avatar_url": "http://www.gravatar.com/avatar/7a190fecbaa68212a4b68aeb6e3acd10?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/solon.cremin"
+            "web_url": "https://gitlab.example.com/solon.cremin",
         },
         "due_date": None,
         "imported": False,
@@ -3144,13 +3132,13 @@ def test_issues_response():
         "references": {
             "short": "#11",
             "relative": "#11",
-            "full": "my-group/my-project#11"
+            "full": "my-group/my-project#11",
         },
         "time_stats": {
             "time_estimate": 0,
             "total_time_spent": 0,
             "human_time_estimate": None,
-            "human_total_time_spent": None
+            "human_total_time_spent": None,
         },
         "confidential": False,
         "discussion_locked": False,
@@ -3161,12 +3149,9 @@ def test_issues_response():
             "notes": "http://gitlab.example.com/api/v4/projects/1/issues/2/notes",
             "award_emoji": "http://gitlab.example.com/api/v4/projects/1/issues/2/award_emoji",
             "project": "http://gitlab.example.com/api/v4/projects/1",
-            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75",
         },
-        "task_completion_status": {
-            "count": 0,
-            "completed_count": 0
-        }
+        "task_completion_status": {"count": 0, "completed_count": 0},
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
@@ -3182,9 +3167,7 @@ def test_issues_response():
         "updated_at": "2021-09-14T22:24:11.696Z",
         "closed_at": None,
         "closed_by": None,
-        "labels": [
-
-        ],
+        "labels": [],
         "milestone": None,
         "assignees": [
             {
@@ -3193,7 +3176,7 @@ def test_issues_response():
                 "username": "john",
                 "state": "active",
                 "avatar_url": "https://www.gravatar.com/avatar/10fc7f102be8de7657fb4d80898bbfe3?s=80\u0026d=identicon",
-                "web_url": "https://gitlab.example.com/john"
+                "web_url": "https://gitlab.example.com/john",
             }
         ],
         "author": {
@@ -3202,7 +3185,7 @@ def test_issues_response():
             "username": "john",
             "state": "active",
             "avatar_url": "https://www.gravatar.com/avatar/10fc7f102be8de7657fb4d80898bbfe3?s=80\u0026d=identicon",
-            "web_url": "https://gitlab.example.com/john"
+            "web_url": "https://gitlab.example.com/john",
         },
         "type": "ISSUE",
         "assignee": {
@@ -3211,7 +3194,7 @@ def test_issues_response():
             "username": "john",
             "state": "active",
             "avatar_url": "https://www.gravatar.com/avatar/10fc7f102be8de7657fb4d80898bbfe3?s=80\u0026d=identicon",
-            "web_url": "https://gitlab.example.com/john"
+            "web_url": "https://gitlab.example.com/john",
         },
         "user_notes_count": 1,
         "merge_requests_count": 0,
@@ -3229,12 +3212,9 @@ def test_issues_response():
             "time_estimate": 0,
             "total_time_spent": 0,
             "human_time_estimate": None,
-            "human_total_time_spent": None
+            "human_total_time_spent": None,
         },
-        "task_completion_status": {
-            "count": 0,
-            "completed_count": 0
-        },
+        "task_completion_status": {"count": 0, "completed_count": 0},
         "blocking_issues_count": 0,
         "has_tasks": False,
         "_links": {
@@ -3242,16 +3222,16 @@ def test_issues_response():
             "notes": "https://gitlab.example.com/api/v4/projects/143/issues/1/notes",
             "award_emoji": "https://gitlab.example.com/api/v4/projects/143/issues/1/award_emoji",
             "project": "https://gitlab.example.com/api/v4/projects/143",
-            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75",
         },
         "references": {
             "short": "#1",
             "relative": "#1",
-            "full": "namespace1/project2#1"
+            "full": "namespace1/project2#1",
         },
         "subscribed": True,
         "moved_to_id": None,
-        "service_desk_reply_to": None
+        "service_desk_reply_to": None,
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
@@ -3272,21 +3252,23 @@ def test_issues_response():
         "downvotes": 0,
         "merge_requests_count": 0,
         "milestone": None,
-        "assignees": [{
-            "name": "Miss Monserrate Beier",
-            "username": "axel.block",
-            "id": 12,
-            "state": "active",
-            "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/axel.block"
-        }],
+        "assignees": [
+            {
+                "name": "Miss Monserrate Beier",
+                "username": "axel.block",
+                "id": 12,
+                "state": "active",
+                "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
+                "web_url": "https://gitlab.example.com/axel.block",
+            }
+        ],
         "assignee": {
             "name": "Miss Monserrate Beier",
             "username": "axel.block",
             "id": 12,
             "state": "active",
             "avatar_url": "http://www.gravatar.com/avatar/46f6f7dc858ada7be1853f7fb96e81da?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/axel.block"
+            "web_url": "https://gitlab.example.com/axel.block",
         },
         "type": "ISSUE",
         "author": {
@@ -3295,20 +3277,20 @@ def test_issues_response():
             "id": 10,
             "state": "active",
             "avatar_url": "http://www.gravatar.com/avatar/7a190fecbaa68212a4b68aeb6e3acd10?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/solon.cremin"
+            "web_url": "https://gitlab.example.com/solon.cremin",
         },
         "due_date": None,
         "web_url": "http://gitlab.example.com/my-group/my-project/issues/11",
         "references": {
             "short": "#11",
             "relative": "#11",
-            "full": "my-group/my-project#11"
+            "full": "my-group/my-project#11",
         },
         "time_stats": {
             "time_estimate": 0,
             "total_time_spent": 0,
             "human_time_estimate": None,
-            "human_total_time_spent": None
+            "human_total_time_spent": None,
         },
         "confidential": False,
         "discussion_locked": False,
@@ -3319,12 +3301,9 @@ def test_issues_response():
             "notes": "http://gitlab.example.com/api/v4/projects/1/issues/2/notes",
             "award_emoji": "http://gitlab.example.com/api/v4/projects/1/issues/2/award_emoji",
             "project": "http://gitlab.example.com/api/v4/projects/1",
-            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75"
+            "closed_as_duplicate_of": "http://gitlab.example.com/api/v4/projects/1/issues/75",
         },
-        "task_completion_status": {
-            "count": 0,
-            "completed_count": 0
-        }
+        "task_completion_status": {"count": 0, "completed_count": 0},
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
@@ -3349,7 +3328,7 @@ def test_issues_response():
             "id": 21,
             "state": "active",
             "avatar_url": "http://www.gravatar.com/avatar/3e6f06a86cf27fa8b56f3f74f7615987?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/keyon"
+            "web_url": "https://gitlab.example.com/keyon",
         },
         "type": "ISSUE",
         "closed_at": None,
@@ -3360,7 +3339,7 @@ def test_issues_response():
             "id": 11,
             "state": "active",
             "avatar_url": "http://www.gravatar.com/avatar/5224fd70153710e92fb8bcf79ac29d67?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/orville"
+            "web_url": "https://gitlab.example.com/orville",
         },
         "subscribed": False,
         "due_date": None,
@@ -3368,16 +3347,13 @@ def test_issues_response():
         "references": {
             "short": "#12",
             "relative": "#12",
-            "full": "my-group/my-project#12"
+            "full": "my-group/my-project#12",
         },
         "confidential": False,
         "discussion_locked": False,
         "issue_type": "issue",
         "severity": "UNKNOWN",
-        "task_completion_status": {
-            "count": 0,
-            "completed_count": 0
-        }
+        "task_completion_status": {"count": 0, "completed_count": 0},
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
@@ -3389,7 +3365,7 @@ def test_issues_response():
             "name": "GitLab CI/CD",
             "name_with_namespace": "GitLab Org / GitLab CI/CD",
             "path": "gitlab-ci",
-            "path_with_namespace": "gitlab-org/gitlab-ci"
+            "path_with_namespace": "gitlab-org/gitlab-ci",
         },
         "author": {
             "name": "Administrator",
@@ -3397,7 +3373,7 @@ def test_issues_response():
             "id": 1,
             "state": "active",
             "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/root"
+            "web_url": "https://gitlab.example.com/root",
         },
         "action_name": "marked",
         "target_type": "Issue",
@@ -3420,23 +3396,25 @@ def test_issues_response():
                 "state": "closed",
                 "created_at": "2016-06-17T07:47:33.832Z",
                 "updated_at": "2016-06-17T07:47:33.832Z",
-                "due_date": None
+                "due_date": None,
             },
-            "assignees": [{
-                "name": "Jarret O'Keefe",
-                "username": "francisca",
-                "id": 14,
-                "state": "active",
-                "avatar_url": "http://www.gravatar.com/avatar/a7fa515d53450023c83d62986d0658a8?s=80&d=identicon",
-                "web_url": "https://gitlab.example.com/francisca"
-            }],
+            "assignees": [
+                {
+                    "name": "Jarret O'Keefe",
+                    "username": "francisca",
+                    "id": 14,
+                    "state": "active",
+                    "avatar_url": "http://www.gravatar.com/avatar/a7fa515d53450023c83d62986d0658a8?s=80&d=identicon",
+                    "web_url": "https://gitlab.example.com/francisca",
+                }
+            ],
             "assignee": {
                 "name": "Jarret O'Keefe",
                 "username": "francisca",
                 "id": 14,
                 "state": "active",
                 "avatar_url": "http://www.gravatar.com/avatar/a7fa515d53450023c83d62986d0658a8?s=80&d=identicon",
-                "web_url": "https://gitlab.example.com/francisca"
+                "web_url": "https://gitlab.example.com/francisca",
             },
             "type": "ISSUE",
             "author": {
@@ -3445,7 +3423,7 @@ def test_issues_response():
                 "id": 12,
                 "state": "active",
                 "avatar_url": "http://www.gravatar.com/avatar/a0d477b3ea21970ce6ffcbb817b0b435?s=80&d=identicon",
-                "web_url": "https://gitlab.example.com/craig_rutherford"
+                "web_url": "https://gitlab.example.com/craig_rutherford",
             },
             "subscribed": True,
             "user_notes_count": 7,
@@ -3457,21 +3435,18 @@ def test_issues_response():
             "references": {
                 "short": "#10",
                 "relative": "#10",
-                "full": "my-group/my-project#10"
+                "full": "my-group/my-project#10",
             },
             "confidential": False,
             "discussion_locked": False,
             "issue_type": "issue",
             "severity": "UNKNOWN",
-            "task_completion_status": {
-                "count": 0,
-                "completed_count": 0
-            }
+            "task_completion_status": {"count": 0, "completed_count": 0},
         },
         "target_url": "https://gitlab.example.com/gitlab-org/gitlab-ci/issues/10",
         "body": "Vel voluptas atque dicta mollitia adipisci qui at.",
         "state": "pending",
-        "created_at": "2016-07-01T11:09:13.992Z"
+        "created_at": "2016-07-01T11:09:13.992Z",
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ToDo"
@@ -3487,7 +3462,7 @@ def test_issues_response():
             "username": "eileen.lowe",
             "state": "active",
             "avatar_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
-            "web_url": "https://gitlab.example.com/eileen.lowe"
+            "web_url": "https://gitlab.example.com/eileen.lowe",
         },
         "created_at": "2020-12-03T12:27:17.844Z",
         "updated_at": "2020-12-03T12:27:17.844Z",
@@ -3497,9 +3472,7 @@ def test_issues_response():
         "resolvable": False,
         "confidential": False,
         "noteable_iid": 33,
-        "commands_changes": {
-            "promote_to_epic": True
-        }
+        "commands_changes": {"promote_to_epic": True},
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Comment"
@@ -3508,7 +3481,7 @@ def test_issues_response():
         "human_time_estimate": "3h 30m",
         "human_total_time_spent": None,
         "time_estimate": 12600,
-        "total_time_spent": 0
+        "total_time_spent": 0,
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "TimeStats"
@@ -3517,7 +3490,7 @@ def test_issues_response():
         "human_time_estimate": None,
         "human_total_time_spent": None,
         "time_estimate": 0,
-        "total_time_spent": 0
+        "total_time_spent": 0,
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "TimeStats"
@@ -3528,68 +3501,68 @@ def test_issues_response():
     reason=reason,
 )
 def test_pipeline_response():
-    # example_data = [
-    #     {
-    #         "id": 47,
-    #         "iid": 12,
-    #         "project_id": 1,
-    #         "status": "pending",
-    #         "source": "push",
-    #         "ref": "new-pipeline",
-    #         "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-    #         "name": "Build pipeline",
-    #         "web_url": "https://example.com/foo/bar/pipelines/47",
-    #         "created_at": "2016-08-11T11:28:34.085Z",
-    #         "updated_at": "2016-08-11T11:32:35.169Z",
-    #     },
-    #     {
-    #         "id": 48,
-    #         "iid": 13,
-    #         "project_id": 1,
-    #         "status": "pending",
-    #         "source": "web",
-    #         "ref": "new-pipeline",
-    #         "sha": "eb94b618fb5865b26e80fdd8ae531b7a63ad851a",
-    #         "name": "Build pipeline",
-    #         "web_url": "https://example.com/foo/bar/pipelines/48",
-    #         "created_at": "2016-08-12T10:06:04.561Z",
-    #         "updated_at": "2016-08-12T10:09:56.223Z",
-    #     },
-    # ]
-    # response = Response(data=example_data, status_code=200, json_output=example_data)
-    # assert response.data.base_type == "Pipelines"
-    #
-    # example_data = {
-    #     "id": 46,
-    #     "iid": 11,
-    #     "project_id": 1,
-    #     "name": "Build pipeline",
-    #     "status": "success",
-    #     "ref": "main",
-    #     "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-    #     "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
-    #     "tag": False,
-    #     "yaml_errors": None,
-    #     "user": {
-    #         "name": "Administrator",
-    #         "username": "root",
-    #         "id": 1,
-    #         "state": "active",
-    #         "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
-    #         "web_url": "http://localhost:3000/root",
-    #     },
-    #     "created_at": "2016-08-11T11:28:34.085Z",
-    #     "updated_at": "2016-08-11T11:32:35.169Z",
-    #     "started_at": None,
-    #     "finished_at": "2016-08-11T11:32:35.145Z",
-    #     "committed_at": None,
-    #     "duration": 123.65,
-    #     "queued_duration": 0.010,
-    #     "coverage": "30.0",
-    #     "web_url": "https://example.com/foo/bar/pipelines/46",
-    # }
-    # response = Response(data=example_data, status_code=200, json_output=example_data)
-    # assert response.data.base_type == "Pipeline"
+    example_data = [
+        {
+            "id": 47,
+            "iid": 12,
+            "project_id": 1,
+            "status": "pending",
+            "source": "push",
+            "ref": "new-pipeline",
+            "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+            "name": "Build pipeline",
+            "web_url": "https://example.com/foo/bar/pipelines/47",
+            "created_at": "2016-08-11T11:28:34.085Z",
+            "updated_at": "2016-08-11T11:32:35.169Z",
+        },
+        {
+            "id": 48,
+            "iid": 13,
+            "project_id": 1,
+            "status": "pending",
+            "source": "web",
+            "ref": "new-pipeline",
+            "sha": "eb94b618fb5865b26e80fdd8ae531b7a63ad851a",
+            "name": "Build pipeline",
+            "web_url": "https://example.com/foo/bar/pipelines/48",
+            "created_at": "2016-08-12T10:06:04.561Z",
+            "updated_at": "2016-08-12T10:09:56.223Z",
+        },
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipelines"
+
+    example_data = {
+        "id": 46,
+        "iid": 11,
+        "project_id": 1,
+        "name": "Build pipeline",
+        "status": "success",
+        "ref": "main",
+        "sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "before_sha": "a91957a858320c0e17f3a0eca7cfacbff50ea29a",
+        "tag": False,
+        "yaml_errors": None,
+        "user": {
+            "name": "Administrator",
+            "username": "root",
+            "id": 1,
+            "state": "active",
+            "avatar_url": "http://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=80&d=identicon",
+            "web_url": "http://localhost:3000/root",
+        },
+        "created_at": "2016-08-11T11:28:34.085Z",
+        "updated_at": "2016-08-11T11:32:35.169Z",
+        "started_at": None,
+        "finished_at": "2016-08-11T11:32:35.145Z",
+        "committed_at": None,
+        "duration": 123.65,
+        "queued_duration": 0.010,
+        "coverage": "30.0",
+        "web_url": "https://example.com/foo/bar/pipelines/46",
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipeline"
 
     example_data = [
         {"key": "RUN_NIGHTLY_BUILD", "variable_type": "env_var", "value": "true"},
@@ -3628,7 +3601,8 @@ def test_pipeline_response():
         ],
     }
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipeline"
+    assert response.data.base_type == "TestReport"
+
     example_data = {
         "total": {
             "time": 1904,
@@ -3653,9 +3627,9 @@ def test_pipeline_response():
             }
         ],
     }
-
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data.base_type == "TestReport"
+
     example_data = {
         "total": {
             "time": 1904,
@@ -3680,9 +3654,9 @@ def test_pipeline_response():
             }
         ],
     }
-
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data.base_type == "TestReport"
+
     example_data = {
         "id": 287,
         "iid": 144,
@@ -3724,9 +3698,9 @@ def test_pipeline_response():
             "favicon": "/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2.png",
         },
     }
-
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data.base_type == "Pipeline"
+
     example_data = {
         "id": 61,
         "iid": 21,
@@ -3755,9 +3729,9 @@ def test_pipeline_response():
         "coverage": None,
         "web_url": "https://example.com/foo/bar/pipelines/61",
     }
-
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data.base_type == "Pipeline"
+
     example_data = {
         "id": 46,
         "iid": 11,
@@ -3786,9 +3760,9 @@ def test_pipeline_response():
         "coverage": None,
         "web_url": "https://example.com/foo/bar/pipelines/46",
     }
-
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data.base_type == "Pipeline"
+
     example_data = {
         "id": 46,
         "iid": 11,
@@ -3817,9 +3791,9 @@ def test_pipeline_response():
         "coverage": None,
         "web_url": "https://example.com/foo/bar/pipelines/46",
     }
-
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data.base_type == "Pipeline"
+
     example_data = {
         "id": 46,
         "iid": 11,
@@ -3849,774 +3823,760 @@ def test_pipeline_response():
         "web_url": "https://example.com/foo/bar/pipelines/46",
         "name": "Some new pipeline name",
     }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Pipeline"
 
-# @pytest.mark.skipif(
-#     sys.platform in ["darwin"] or skip,
-#     reason=reason,
-#     )
-# test_group_responses():
-# example_data = [
-#     {
-#         "id": 1,
-#         "name": "Foobar Group",
-#         "path": "foo-bar",
-#         "description": "An interesting group",
-#         "visibility": "public",
-#         "share_with_group_lock": False,
-#         "require_two_factor_authentication": False,
-#         "two_factor_grace_period": 48,
-#         "project_creation_level": "developer",
-#         "auto_devops_enabled": None,
-#         "subgroup_creation_level": "owner",
-#         "emails_disabled": None,
-#         "emails_enabled": None,
-#         "mentions_disabled": None,
-#         "lfs_enabled": True,
-#         "default_branch": None,
-#         "default_branch_protection": 2,
-#         "default_branch_protection_defaults": {
-#             "allowed_to_push": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ],
-#             "allow_force_push": False,
-#             "allowed_to_merge": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ]
-#         },
-#         "avatar_url": "http://localhost:3000/uploads/group/avatar/1/foo.jpg",
-#         "web_url": "http://localhost:3000/groups/foo-bar",
-#         "request_access_enabled": False,
-#         "repository_storage": "default",
-#         "full_name": "Foobar Group",
-#         "full_path": "foo-bar",
-#         "file_template_project_id": 1,
-#         "parent_id": None,
-#         "created_at": "2020-01-15T12:36:29.590Z",
-#         "ip_restriction_ranges": None
-#     }
-# ]
-#
-# example_data = [
-#     {
-#         "id": 1,
-#         "name": "Foobar Group",
-#         "path": "foo-bar",
-#         "description": "An interesting group",
-#         "visibility": "public",
-#         "share_with_group_lock": False,
-#         "require_two_factor_authentication": False,
-#         "two_factor_grace_period": 48,
-#         "project_creation_level": "developer",
-#         "auto_devops_enabled": None,
-#         "subgroup_creation_level": "owner",
-#         "emails_disabled": None,
-#         "emails_enabled": None,
-#         "mentions_disabled": None,
-#         "lfs_enabled": True,
-#         "default_branch": None,
-#         "default_branch_protection": 2,
-#         "default_branch_protection_defaults": {
-#             "allowed_to_push": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ],
-#             "allow_force_push": False,
-#             "allowed_to_merge": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ]
-#         },
-#         "avatar_url": "http://localhost:3000/uploads/group/avatar/1/foo.jpg",
-#         "web_url": "http://localhost:3000/groups/foo-bar",
-#         "request_access_enabled": False,
-#         "repository_storage": "default",
-#         "full_name": "Foobar Group",
-#         "full_path": "foo-bar",
-#         "file_template_project_id": 1,
-#         "parent_id": None,
-#         "created_at": "2020-01-15T12:36:29.590Z",
-#         "statistics": {
-#             "storage_size": 363,
-#             "repository_size": 33,
-#             "wiki_size": 100,
-#             "lfs_objects_size": 123,
-#             "job_artifacts_size": 57,
-#             "pipeline_artifacts_size": 0,
-#             "packages_size": 0,
-#             "snippets_size": 50,
-#             "uploads_size": 0
-#         },
-#         "wiki_access_level": "private",
-#         "duo_features_enabled": True,
-#         "lock_duo_features_enabled": False,
-#     }
-# ]
-#
-# example_data = [
-#     {
-#         "id": 1,
-#         "name": "Foobar Group",
-#         "path": "foo-bar",
-#         "description": "An interesting group",
-#         "visibility": "public",
-#         "share_with_group_lock": False,
-#         "require_two_factor_authentication": False,
-#         "two_factor_grace_period": 48,
-#         "project_creation_level": "developer",
-#         "auto_devops_enabled": None,
-#         "subgroup_creation_level": "owner",
-#         "emails_disabled": None,
-#         "emails_enabled": None,
-#         "mentions_disabled": None,
-#         "lfs_enabled": True,
-#         "default_branch": None,
-#         "default_branch_protection": 2,
-#         "default_branch_protection_defaults": {
-#             "allowed_to_push": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ],
-#             "allow_force_push": False,
-#             "allowed_to_merge": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ]
-#         },
-#         "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/foo.jpg",
-#         "web_url": "http://gitlab.example.com/groups/foo-bar",
-#         "request_access_enabled": False,
-#         "repository_storage": "default",
-#         "full_name": "Foobar Group",
-#         "full_path": "foo-bar",
-#         "file_template_project_id": 1,
-#         "parent_id": 123,
-#         "created_at": "2020-01-15T12:36:29.590Z"
-#     }
-# ]
-#
-# example_data = [
-#     {
-#         "id": 2,
-#         "name": "Bar Group",
-#         "path": "bar",
-#         "description": "A subgroup of Foo Group",
-#         "visibility": "public",
-#         "share_with_group_lock": False,
-#         "require_two_factor_authentication": False,
-#         "two_factor_grace_period": 48,
-#         "project_creation_level": "developer",
-#         "auto_devops_enabled": None,
-#         "subgroup_creation_level": "owner",
-#         "emails_disabled": None,
-#         "emails_enabled": None,
-#         "mentions_disabled": None,
-#         "lfs_enabled": True,
-#         "default_branch": None,
-#         "default_branch_protection": 2,
-#         "default_branch_protection_defaults": {
-#             "allowed_to_push": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ],
-#             "allow_force_push": False,
-#             "allowed_to_merge": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ]
-#         },
-#         "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/bar.jpg",
-#         "web_url": "http://gitlab.example.com/groups/foo/bar",
-#         "request_access_enabled": False,
-#         "full_name": "Bar Group",
-#         "full_path": "foo/bar",
-#         "file_template_project_id": 1,
-#         "parent_id": 123,
-#         "created_at": "2020-01-15T12:36:29.590Z"
-#     },
-#     {
-#         "id": 3,
-#         "name": "Baz Group",
-#         "path": "baz",
-#         "description": "A subgroup of Bar Group",
-#         "visibility": "public",
-#         "share_with_group_lock": False,
-#         "require_two_factor_authentication": False,
-#         "two_factor_grace_period": 48,
-#         "project_creation_level": "developer",
-#         "auto_devops_enabled": None,
-#         "subgroup_creation_level": "owner",
-#         "emails_disabled": None,
-#         "emails_enabled": None,
-#         "mentions_disabled": None,
-#         "lfs_enabled": True,
-#         "default_branch": None,
-#         "default_branch_protection": 2,
-#         "default_branch_protection_defaults": {
-#             "allowed_to_push": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ],
-#             "allow_force_push": False,
-#             "allowed_to_merge": [
-#                 {
-#                     "access_level": 40
-#                 }
-#             ]
-#         },
-#         "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/baz.jpg",
-#         "web_url": "http://gitlab.example.com/groups/foo/bar/baz",
-#         "request_access_enabled": False,
-#         "full_name": "Baz Group",
-#         "full_path": "foo/bar/baz",
-#         "file_template_project_id": 1,
-#         "parent_id": 123,
-#         "created_at": "2020-01-15T12:36:29.590Z"
-#     }
-# ]
-#
-# # List groups
-# example_data = [
-#     {
-#         "id": 9,
-#         "description": "foo",
-#         "default_branch": "main",
-#         "tag_list": [], //deprecated, use `topics` instead
-#     "topics": [],
-# "archived": False,
-# "visibility": "internal",
-# "ssh_url_to_repo": "git@gitlab.example.com/html5-boilerplate.git",
-# "http_url_to_repo": "http://gitlab.example.com/h5bp/html5-boilerplate.git",
-# "web_url": "http://gitlab.example.com/h5bp/html5-boilerplate",
-# "name": "Html5 Boilerplate",
-# "name_with_namespace": "Experimental / Html5 Boilerplate",
-# "path": "html5-boilerplate",
-# "path_with_namespace": "h5bp/html5-boilerplate",
-# "issues_enabled": True,
-# "merge_requests_enabled": True,
-# "wiki_enabled": True,
-# "jobs_enabled": True,
-# "snippets_enabled": True,
-# "created_at": "2016-04-05T21:40:50.169Z",
-# "last_activity_at": "2016-04-06T16:52:08.432Z",
-# "shared_runners_enabled": True,
-# "creator_id": 1,
-# "namespace": {
-#     "id": 5,
-#     "name": "Experimental",
-#     "path": "h5bp",
-#     "kind": "group"
-# },
-# "avatar_url": None,
-# "star_count": 1,
-# "forks_count": 0,
-# "open_issues_count": 3,
-# "public_jobs": True,
-# "shared_with_groups": [],
-# "request_access_enabled": False
-# }
-# ]
-#
-# # Groups shared projects
-# example_data = [
-#     {
-#         "id":8,
-#         "description":"Shared project for Html5 Boilerplate",
-#         "name":"Html5 Boilerplate",
-#         "name_with_namespace":"H5bp / Html5 Boilerplate",
-#         "path":"html5-boilerplate",
-#         "path_with_namespace":"h5bp/html5-boilerplate",
-#         "created_at":"2020-04-27T06:13:22.642Z",
-#         "default_branch":"main",
-#         "tag_list":[], //deprecated, use `topics` instead
-#     "topics":[],
-# "ssh_url_to_repo":"ssh://git@gitlab.com/h5bp/html5-boilerplate.git",
-# "http_url_to_repo":"https://gitlab.com/h5bp/html5-boilerplate.git",
-# "web_url":"https://gitlab.com/h5bp/html5-boilerplate",
-# "readme_url":"https://gitlab.com/h5bp/html5-boilerplate/-/blob/main/README.md",
-# "avatar_url":null,
-# "star_count":0,
-# "forks_count":4,
-# "last_activity_at":"2020-04-27T06:13:22.642Z",
-# "namespace":{
-#     "id":28,
-#     "name":"H5bp",
-#     "path":"h5bp",
-#     "kind":"group",
-#     "full_path":"h5bp",
-#     "parent_id":null,
-#     "avatar_url":null,
-#     "web_url":"https://gitlab.com/groups/h5bp"
-# },
-# "_links":{
-#     "self":"https://gitlab.com/api/v4/projects/8",
-#     "issues":"https://gitlab.com/api/v4/projects/8/issues",
-#     "merge_requests":"https://gitlab.com/api/v4/projects/8/merge_requests",
-#     "repo_branches":"https://gitlab.com/api/v4/projects/8/repository/branches",
-#     "labels":"https://gitlab.com/api/v4/projects/8/labels",
-#     "events":"https://gitlab.com/api/v4/projects/8/events",
-#     "members":"https://gitlab.com/api/v4/projects/8/members"
-# },
-# "empty_repo":false,
-# "archived":false,
-# "visibility":"public",
-# "resolve_outdated_diff_discussions":false,
-# "container_registry_enabled":true,
-# "container_expiration_policy":{
-#     "cadence":"7d",
-#     "enabled":true,
-#     "keep_n":null,
-#     "older_than":null,
-#     "name_regex":null,
-#     "name_regex_keep":null,
-#     "next_run_at":"2020-05-04T06:13:22.654Z"
-# },
-# "issues_enabled":true,
-# "merge_requests_enabled":true,
-# "wiki_enabled":true,
-# "jobs_enabled":true,
-# "snippets_enabled":true,
-# "can_create_merge_request_in":true,
-# "issues_access_level":"enabled",
-# "repository_access_level":"enabled",
-# "merge_requests_access_level":"enabled",
-# "forking_access_level":"enabled",
-# "wiki_access_level":"enabled",
-# "builds_access_level":"enabled",
-# "snippets_access_level":"enabled",
-# "pages_access_level":"enabled",
-# "security_and_compliance_access_level":"enabled",
-# "emails_disabled":null,
-# "emails_enabled": None,
-# "shared_runners_enabled":true,
-# "lfs_enabled":true,
-# "creator_id":1,
-# "import_status":"failed",
-# "open_issues_count":10,
-# "ci_default_git_depth":50,
-# "ci_forward_deployment_enabled":true,
-# "ci_forward_deployment_rollback_allowed": True,
-# "ci_allow_fork_pipelines_to_run_in_parent_project":true,
-# "public_jobs":true,
-# "build_timeout":3600,
-# "auto_cancel_pending_pipelines":"enabled",
-# "ci_config_path":null,
-# "shared_with_groups":[
-#     {
-#         "group_id":24,
-#         "group_name":"Commit451",
-#         "group_full_path":"Commit451",
-#         "group_access_level":30,
-#         "expires_at":null
-#     }
-# ],
-# "only_allow_merge_if_pipeline_succeeds":false,
-# "request_access_enabled":true,
-# "only_allow_merge_if_all_discussions_are_resolved":false,
-# "remove_source_branch_after_merge":true,
-# "printing_merge_request_link_enabled":true,
-# "merge_method":"merge",
-# "suggestion_commit_message":null,
-# "auto_devops_enabled":true,
-# "auto_devops_deploy_strategy":"continuous",
-# "autoclose_referenced_issues":true,
-# "repository_storage":"default"
-# }
-# ]
-#
-# # Details of a group
-# example_data = {
-#     "id": 4,
-#     "name": "Twitter",
-#     "path": "twitter",
-#     "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
-#     "visibility": "public",
-#     "avatar_url": None,
-#     "web_url": "https://gitlab.example.com/groups/twitter",
-#     "request_access_enabled": False,
-#     "repository_storage": "default",
-#     "full_name": "Twitter",
-#     "full_path": "twitter",
-#     "runners_token": "ba324ca7b1c77fc20bb9",
-#     "file_template_project_id": 1,
-#     "parent_id": None,
-#     "enabled_git_access_protocol": "all",
-#     "created_at": "2020-01-15T12:36:29.590Z",
-#     "shared_with_groups": [
-#         {
-#             "group_id": 28,
-#             "group_name": "H5bp",
-#             "group_full_path": "h5bp",
-#             "group_access_level": 20,
-#             "expires_at": None
-#         }
-#     ],
-#     "prevent_sharing_groups_outside_hierarchy": False,
-#     "projects": [ // Deprecated and will be removed in API v5
-#         {
-#             "id": 7,
-#             "description": "Voluptas veniam qui et beatae voluptas doloremque explicabo facilis.",
-#             "default_branch": "main",
-#             "tag_list": [], //deprecated, use `topics` instead
-#         "topics": [],
-# "archived": False,
-# "visibility": "public",
-# "ssh_url_to_repo": "git@gitlab.example.com:twitter/typeahead-js.git",
-# "http_url_to_repo": "https://gitlab.example.com/twitter/typeahead-js.git",
-# "web_url": "https://gitlab.example.com/twitter/typeahead-js",
-# "name": "Typeahead.Js",
-# "name_with_namespace": "Twitter / Typeahead.Js",
-# "path": "typeahead-js",
-# "path_with_namespace": "twitter/typeahead-js",
-# "issues_enabled": True,
-# "merge_requests_enabled": True,
-# "wiki_enabled": True,
-# "jobs_enabled": True,
-# "snippets_enabled": False,
-# "container_registry_enabled": True,
-# "created_at": "2016-06-17T07:47:25.578Z",
-# "last_activity_at": "2016-06-17T07:47:25.881Z",
-# "shared_runners_enabled": True,
-# "creator_id": 1,
-# "namespace": {
-#     "id": 4,
-#     "name": "Twitter",
-#     "path": "twitter",
-#     "kind": "group"
-# },
-# "avatar_url": None,
-# "star_count": 0,
-# "forks_count": 0,
-# "open_issues_count": 3,
-# "public_jobs": True,
-# "shared_with_groups": [],
-# "request_access_enabled": False
-# },
-# {
-#     "id": 6,
-#     "description": "Aspernatur omnis repudiandae qui voluptatibus eaque.",
-#     "default_branch": "main",
-#     "tag_list": [], //deprecated, use `topics` instead
-# "topics": [],
-# "archived": False,
-# "visibility": "internal",
-# "ssh_url_to_repo": "git@gitlab.example.com:twitter/flight.git",
-# "http_url_to_repo": "https://gitlab.example.com/twitter/flight.git",
-# "web_url": "https://gitlab.example.com/twitter/flight",
-# "name": "Flight",
-# "name_with_namespace": "Twitter / Flight",
-# "path": "flight",
-# "path_with_namespace": "twitter/flight",
-# "issues_enabled": True,
-# "merge_requests_enabled": True,
-# "wiki_enabled": True,
-# "jobs_enabled": True,
-# "snippets_enabled": False,
-# "container_registry_enabled": True,
-# "created_at": "2016-06-17T07:47:24.661Z",
-# "last_activity_at": "2016-06-17T07:47:24.838Z",
-# "shared_runners_enabled": True,
-# "creator_id": 1,
-# "namespace": {
-#     "id": 4,
-#     "name": "Twitter",
-#     "path": "twitter",
-#     "kind": "group"
-# },
-# "avatar_url": None,
-# "star_count": 0,
-# "forks_count": 0,
-# "open_issues_count": 8,
-# "public_jobs": True,
-# "shared_with_groups": [],
-# "request_access_enabled": False
-# }
-# ],
-# "shared_projects": [ // Deprecated and will be removed in API v5
-# {
-#     "id": 8,
-#     "description": "Velit eveniet provident fugiat saepe eligendi autem.",
-#     "default_branch": "main",
-#     "tag_list": [], //deprecated, use `topics` instead
-# "topics": [],
-# "archived": False,
-# "visibility": "private",
-# "ssh_url_to_repo": "git@gitlab.example.com:h5bp/html5-boilerplate.git",
-# "http_url_to_repo": "https://gitlab.example.com/h5bp/html5-boilerplate.git",
-# "web_url": "https://gitlab.example.com/h5bp/html5-boilerplate",
-# "name": "Html5 Boilerplate",
-# "name_with_namespace": "H5bp / Html5 Boilerplate",
-# "path": "html5-boilerplate",
-# "path_with_namespace": "h5bp/html5-boilerplate",
-# "issues_enabled": True,
-# "merge_requests_enabled": True,
-# "wiki_enabled": True,
-# "jobs_enabled": True,
-# "snippets_enabled": False,
-# "container_registry_enabled": True,
-# "created_at": "2016-06-17T07:47:27.089Z",
-# "last_activity_at": "2016-06-17T07:47:27.310Z",
-# "shared_runners_enabled": True,
-# "creator_id": 1,
-# "namespace": {
-#     "id": 5,
-#     "name": "H5bp",
-#     "path": "h5bp",
-#     "kind": "group"
-# },
-# "avatar_url": None,
-# "star_count": 0,
-# "forks_count": 0,
-# "open_issues_count": 4,
-# "public_jobs": True,
-# "shared_with_groups": [
-#     {
-#         "group_id": 4,
-#         "group_name": "Twitter",
-#         "group_full_path": "twitter",
-#         "group_access_level": 30,
-#         "expires_at": None
-#     },
-#     {
-#         "group_id": 3,
-#         "group_name": "Gitlab Org",
-#         "group_full_path": "gitlab-org",
-#         "group_access_level": 10,
-#         "expires_at": "2018-08-14"
-#     }
-# ]
-# }
-# ],
-# "ip_restriction_ranges": None,
-# "math_rendering_limits_enabled": True,
-# "lock_math_rendering_limits_enabled": False
-# }
-#
-# # Details of a group
-# example_data = {
-#     "id": 4,
-#     "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
-#     "shared_runners_minutes_limit": 133,
-#     "extra_shared_runners_minutes_limit": 133,
-#     "marked_for_deletion_on": "2020-04-03",
-#     "membership_lock": False,
-#     "wiki_access_level": "disabled",
-#     "duo_features_enabled": True,
-#     "lock_duo_features_enabled": False,
-#     ...
-# }
-#
-# # Details of a group
-# example_data = {
-#     "id": 4,
-#     "name": "Twitter",
-#     "path": "twitter",
-#     "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
-#     "visibility": "public",
-#     "avatar_url": None,
-#     "web_url": "https://gitlab.example.com/groups/twitter",
-#     "request_access_enabled": False,
-#     "repository_storage": "default",
-#     "full_name": "Twitter",
-#     "full_path": "twitter",
-#     "file_template_project_id": 1,
-#     "parent_id": None
-# }
-#
-# # Get groups to which a user can transfer a group
-# example_data = [
-#     {
-#         "id": 27,
-#         "web_url": "https://gitlab.example.com/groups/gitlab",
-#         "name": "GitLab",
-#         "avatar_url": None,
-#         "full_name": "GitLab",
-#         "full_path": "GitLab"
-#     },
-#     {
-#         "id": 31,
-#         "web_url": "https://gitlab.example.com/groups/foobar",
-#         "name": "FooBar",
-#         "avatar_url": None,
-#         "full_name": "FooBar",
-#         "full_path": "FooBar"
-#     }
-# ]
-#
-# # Update group
-# example_data = {
-#     "id": 5,
-#     "name": "Experimental",
-#     "path": "h5bp",
-#     "description": "foo",
-#     "visibility": "internal",
-#     "avatar_url": None,
-#     "web_url": "http://gitlab.example.com/groups/h5bp",
-#     "request_access_enabled": False,
-#     "repository_storage": "default",
-#     "full_name": "Foobar Group",
-#     "full_path": "h5bp",
-#     "file_template_project_id": 1,
-#     "parent_id": None,
-#     "enabled_git_access_protocol": "all",
-#     "created_at": "2020-01-15T12:36:29.590Z",
-#     "prevent_sharing_groups_outside_hierarchy": False,
-#     "projects": [ // Deprecated and will be removed in API v5
-#         {
-#             "id": 9,
-#             "description": "foo",
-#             "default_branch": "main",
-#             "tag_list": [], //deprecated, use `topics` instead
-#         "topics": [],
-# "public": False,
-# "archived": False,
-# "visibility": "internal",
-# "ssh_url_to_repo": "git@gitlab.example.com/html5-boilerplate.git",
-# "http_url_to_repo": "http://gitlab.example.com/h5bp/html5-boilerplate.git",
-# "web_url": "http://gitlab.example.com/h5bp/html5-boilerplate",
-# "name": "Html5 Boilerplate",
-# "name_with_namespace": "Experimental / Html5 Boilerplate",
-# "path": "html5-boilerplate",
-# "path_with_namespace": "h5bp/html5-boilerplate",
-# "issues_enabled": True,
-# "merge_requests_enabled": True,
-# "wiki_enabled": True,
-# "jobs_enabled": True,
-# "snippets_enabled": True,
-# "created_at": "2016-04-05T21:40:50.169Z",
-# "last_activity_at": "2016-04-06T16:52:08.432Z",
-# "shared_runners_enabled": True,
-# "creator_id": 1,
-# "namespace": {
-#     "id": 5,
-#     "name": "Experimental",
-#     "path": "h5bp",
-#     "kind": "group"
-# },
-# "avatar_url": None,
-# "star_count": 1,
-# "forks_count": 0,
-# "open_issues_count": 3,
-# "public_jobs": True,
-# "shared_with_groups": [],
-# "request_access_enabled": False
-# }
-# ],
-# "ip_restriction_ranges": None,
-# "math_rendering_limits_enabled": True,
-# "lock_math_rendering_limits_enabled": False
-# }
-#
-# # Search for a group
-# example_data = [
-#     {
-#         "id": 1,
-#         "name": "Foobar Group",
-#         "path": "foo-bar",
-#         "description": "An interesting group"
-#     }
-# ]
-#
-# # List provisioned users
-# example_data = [
-#     {
-#         "id": 66,
-#         "username": "user22",
-#         "name": "John Doe22",
-#         "state": "active",
-#         "avatar_url": "https://www.gravatar.com/avatar/xxx?s=80&d=identicon",
-#         "web_url": "http://my.gitlab.com/user22",
-#         "created_at": "2021-09-10T12:48:22.381Z",
-#         "bio": "",
-#         "location": None,
-#         "public_email": "",
-#         "skype": "",
-#         "linkedin": "",
-#         "twitter": "",
-#         "website_url": "",
-#         "organization": None,
-#         "job_title": "",
-#         "pronouns": None,
-#         "bot": False,
-#         "work_information": None,
-#         "followers": 0,
-#         "following": 0,
-#         "local_time": None,
-#         "last_sign_in_at": None,
-#         "confirmed_at": "2021-09-10T12:48:22.330Z",
-#         "last_activity_on": None,
-#         "email": "user22@example.org",
-#         "theme_id": 1,
-#         "color_scheme_id": 1,
-#         "projects_limit": 100000,
-#         "current_sign_in_at": None,
-#         "identities": [ ],
-#         "can_create_group": True,
-#         "can_create_project": True,
-#         "two_factor_enabled": False,
-#         "external": False,
-#         "private_profile": False,
-#         "commit_email": "user22@example.org",
-#         "shared_runners_minutes_limit": None,
-#         "extra_shared_runners_minutes_limit": None
-#     }
-# ]
-#
-# # List group users
-# example_data = [
-#     {
-#         "id": 66,
-#         "username": "user22",
-#         "name": "John Doe22",
-#         "state": "active",
-#         "avatar_url": "https://www.gravatar.com/avatar/xxx?s=80&d=identicon",
-#         "web_url": "http://my.gitlab.com/user22",
-#         "created_at": "2021-09-10T12:48:22.381Z",
-#         "bio": "",
-#         "location": None,
-#         "public_email": "",
-#         "skype": "",
-#         "linkedin": "",
-#         "twitter": "",
-#         "website_url": "",
-#         "organization": None,
-#         "job_title": "",
-#         "pronouns": None,
-#         "bot": False,
-#         "work_information": None,
-#         "followers": 0,
-#         "following": 0,
-#         "local_time": None,
-#         "last_sign_in_at": None,
-#         "confirmed_at": "2021-09-10T12:48:22.330Z",
-#         "last_activity_on": None,
-#         "email": "user22@example.org",
-#         "theme_id": 1,
-#         "color_scheme_id": 1,
-#         "projects_limit": 100000,
-#         "current_sign_in_at": None,
-#         "identities": [ ],
-#         "can_create_group": True,
-#         "can_create_project": True,
-#         "two_factor_enabled": False,
-#         "external": False,
-#         "private_profile": False,
-#         "commit_email": "user22@example.org",
-#         "shared_runners_minutes_limit": None,
-#         "extra_shared_runners_minutes_limit": None
-#     }
-# ]
-#
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
+def test_group_responses():
+    # example_data = [
+    #     {
+    #         "id": 1,
+    #         "name": "Foobar Group",
+    #         "path": "foo-bar",
+    #         "description": "An interesting group",
+    #         "visibility": "public",
+    #         "share_with_group_lock": False,
+    #         "require_two_factor_authentication": False,
+    #         "two_factor_grace_period": 48,
+    #         "project_creation_level": "developer",
+    #         "auto_devops_enabled": None,
+    #         "subgroup_creation_level": "owner",
+    #         "emails_disabled": None,
+    #         "emails_enabled": None,
+    #         "mentions_disabled": None,
+    #         "lfs_enabled": True,
+    #         "default_branch": None,
+    #         "default_branch_protection": 2,
+    #         "default_branch_protection_defaults": {
+    #             "allowed_to_push": [{"access_level": 40}],
+    #             "allow_force_push": False,
+    #             "allowed_to_merge": [{"access_level": 40}],
+    #         },
+    #         "avatar_url": "http://localhost:3000/uploads/group/avatar/1/foo.jpg",
+    #         "web_url": "http://localhost:3000/groups/foo-bar",
+    #         "request_access_enabled": False,
+    #         "repository_storage": "default",
+    #         "full_name": "Foobar Group",
+    #         "full_path": "foo-bar",
+    #         "file_template_project_id": 1,
+    #         "parent_id": None,
+    #         "created_at": "2020-01-15T12:36:29.590Z",
+    #         "ip_restriction_ranges": None,
+    #     }
+    # ]
+    # response = Response(data=example_data, status_code=200, json_output=example_data)
+    # assert response.data.base_type == "Groups"
+    #
+    # example_data = [
+    #     {
+    #         "id": 1,
+    #         "name": "Foobar Group",
+    #         "path": "foo-bar",
+    #         "description": "An interesting group",
+    #         "visibility": "public",
+    #         "share_with_group_lock": False,
+    #         "require_two_factor_authentication": False,
+    #         "two_factor_grace_period": 48,
+    #         "project_creation_level": "developer",
+    #         "auto_devops_enabled": None,
+    #         "subgroup_creation_level": "owner",
+    #         "emails_disabled": None,
+    #         "emails_enabled": None,
+    #         "mentions_disabled": None,
+    #         "lfs_enabled": True,
+    #         "default_branch": None,
+    #         "default_branch_protection": 2,
+    #         "default_branch_protection_defaults": {
+    #             "allowed_to_push": [{"access_level": 40}],
+    #             "allow_force_push": False,
+    #             "allowed_to_merge": [{"access_level": 40}],
+    #         },
+    #         "avatar_url": "http://localhost:3000/uploads/group/avatar/1/foo.jpg",
+    #         "web_url": "http://localhost:3000/groups/foo-bar",
+    #         "request_access_enabled": False,
+    #         "repository_storage": "default",
+    #         "full_name": "Foobar Group",
+    #         "full_path": "foo-bar",
+    #         "file_template_project_id": 1,
+    #         "parent_id": None,
+    #         "created_at": "2020-01-15T12:36:29.590Z",
+    #         "statistics": {
+    #             "storage_size": 363,
+    #             "repository_size": 33,
+    #             "wiki_size": 100,
+    #             "lfs_objects_size": 123,
+    #             "job_artifacts_size": 57,
+    #             "pipeline_artifacts_size": 0,
+    #             "packages_size": 0,
+    #             "snippets_size": 50,
+    #             "uploads_size": 0,
+    #         },
+    #         "wiki_access_level": "private",
+    #         "duo_features_enabled": True,
+    #         "lock_duo_features_enabled": False,
+    #     }
+    # ]
+    # response = Response(data=example_data, status_code=200, json_output=example_data)
+    # assert response.data.base_type == "Groups"
+    #
+    # example_data = [
+    #     {
+    #         "id": 1,
+    #         "name": "Foobar Group",
+    #         "path": "foo-bar",
+    #         "description": "An interesting group",
+    #         "visibility": "public",
+    #         "share_with_group_lock": False,
+    #         "require_two_factor_authentication": False,
+    #         "two_factor_grace_period": 48,
+    #         "project_creation_level": "developer",
+    #         "auto_devops_enabled": None,
+    #         "subgroup_creation_level": "owner",
+    #         "emails_disabled": None,
+    #         "emails_enabled": None,
+    #         "mentions_disabled": None,
+    #         "lfs_enabled": True,
+    #         "default_branch": None,
+    #         "default_branch_protection": 2,
+    #         "default_branch_protection_defaults": {
+    #             "allowed_to_push": [{"access_level": 40}],
+    #             "allow_force_push": False,
+    #             "allowed_to_merge": [{"access_level": 40}],
+    #         },
+    #         "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/foo.jpg",
+    #         "web_url": "http://gitlab.example.com/groups/foo-bar",
+    #         "request_access_enabled": False,
+    #         "repository_storage": "default",
+    #         "full_name": "Foobar Group",
+    #         "full_path": "foo-bar",
+    #         "file_template_project_id": 1,
+    #         "parent_id": 123,
+    #         "created_at": "2020-01-15T12:36:29.590Z",
+    #     }
+    # ]
+    # response = Response(data=example_data, status_code=200, json_output=example_data)
+    # assert response.data.base_type == "Groups"
+    #
+    # example_data = [
+    #     {
+    #         "id": 2,
+    #         "name": "Bar Group",
+    #         "path": "bar",
+    #         "description": "A subgroup of Foo Group",
+    #         "visibility": "public",
+    #         "share_with_group_lock": False,
+    #         "require_two_factor_authentication": False,
+    #         "two_factor_grace_period": 48,
+    #         "project_creation_level": "developer",
+    #         "auto_devops_enabled": None,
+    #         "subgroup_creation_level": "owner",
+    #         "emails_disabled": None,
+    #         "emails_enabled": None,
+    #         "mentions_disabled": None,
+    #         "lfs_enabled": True,
+    #         "default_branch": None,
+    #         "default_branch_protection": 2,
+    #         "default_branch_protection_defaults": {
+    #             "allowed_to_push": [{"access_level": 40}],
+    #             "allow_force_push": False,
+    #             "allowed_to_merge": [{"access_level": 40}],
+    #         },
+    #         "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/bar.jpg",
+    #         "web_url": "http://gitlab.example.com/groups/foo/bar",
+    #         "request_access_enabled": False,
+    #         "full_name": "Bar Group",
+    #         "full_path": "foo/bar",
+    #         "file_template_project_id": 1,
+    #         "parent_id": 123,
+    #         "created_at": "2020-01-15T12:36:29.590Z",
+    #     },
+    #     {
+    #         "id": 3,
+    #         "name": "Baz Group",
+    #         "path": "baz",
+    #         "description": "A subgroup of Bar Group",
+    #         "visibility": "public",
+    #         "share_with_group_lock": False,
+    #         "require_two_factor_authentication": False,
+    #         "two_factor_grace_period": 48,
+    #         "project_creation_level": "developer",
+    #         "auto_devops_enabled": None,
+    #         "subgroup_creation_level": "owner",
+    #         "emails_disabled": None,
+    #         "emails_enabled": None,
+    #         "mentions_disabled": None,
+    #         "lfs_enabled": True,
+    #         "default_branch": None,
+    #         "default_branch_protection": 2,
+    #         "default_branch_protection_defaults": {
+    #             "allowed_to_push": [{"access_level": 40}],
+    #             "allow_force_push": False,
+    #             "allowed_to_merge": [{"access_level": 40}],
+    #         },
+    #         "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/baz.jpg",
+    #         "web_url": "http://gitlab.example.com/groups/foo/bar/baz",
+    #         "request_access_enabled": False,
+    #         "full_name": "Baz Group",
+    #         "full_path": "foo/bar/baz",
+    #         "file_template_project_id": 1,
+    #         "parent_id": 123,
+    #         "created_at": "2020-01-15T12:36:29.590Z",
+    #     },
+    # ]
+    # response = Response(data=example_data, status_code=200, json_output=example_data)
+    # assert response.data.base_type == "Groups"
+    #
+    # # List groups
+    # example_data = [
+    #     {
+    #         "id": 9,
+    #         "description": "foo",
+    #         "default_branch": "main",
+    #         "tag_list": [],
+    #         "topics": [],
+    #         "archived": False,
+    #         "visibility": "internal",
+    #         "ssh_url_to_repo": "git@gitlab.example.com/html5-boilerplate.git",
+    #         "http_url_to_repo": "http://gitlab.example.com/h5bp/html5-boilerplate.git",
+    #         "web_url": "http://gitlab.example.com/h5bp/html5-boilerplate",
+    #         "name": "Html5 Boilerplate",
+    #         "name_with_namespace": "Experimental / Html5 Boilerplate",
+    #         "path": "html5-boilerplate",
+    #         "path_with_namespace": "h5bp/html5-boilerplate",
+    #         "issues_enabled": True,
+    #         "merge_requests_enabled": True,
+    #         "wiki_enabled": True,
+    #         "jobs_enabled": True,
+    #         "snippets_enabled": True,
+    #         "created_at": "2016-04-05T21:40:50.169Z",
+    #         "last_activity_at": "2016-04-06T16:52:08.432Z",
+    #         "shared_runners_enabled": True,
+    #         "creator_id": 1,
+    #         "namespace": {
+    #             "id": 5,
+    #             "name": "Experimental",
+    #             "path": "h5bp",
+    #             "kind": "group",
+    #         },
+    #         "avatar_url": None,
+    #         "star_count": 1,
+    #         "forks_count": 0,
+    #         "open_issues_count": 3,
+    #         "public_jobs": True,
+    #         "shared_with_groups": [],
+    #         "request_access_enabled": False,
+    #     }
+    # ]
+    # response = Response(data=example_data, status_code=200, json_output=example_data)
+    # assert response.data.base_type == "Projects"
+    #
+    # # Groups shared projects
+    # example_data = [
+    #     {
+    #         "id": 8,
+    #         "description": "Shared project for Html5 Boilerplate",
+    #         "name": "Html5 Boilerplate",
+    #         "name_with_namespace": "H5bp / Html5 Boilerplate",
+    #         "path": "html5-boilerplate",
+    #         "path_with_namespace": "h5bp/html5-boilerplate",
+    #         "created_at": "2020-04-27T06:13:22.642Z",
+    #         "default_branch": "main",
+    #         "tag_list": [],
+    #         "topics": [],
+    #         "ssh_url_to_repo": "ssh://git@gitlab.com/h5bp/html5-boilerplate.git",
+    #         "http_url_to_repo": "https://gitlab.com/h5bp/html5-boilerplate.git",
+    #         "web_url": "https://gitlab.com/h5bp/html5-boilerplate",
+    #         "readme_url": "https://gitlab.com/h5bp/html5-boilerplate/-/blob/main/README.md",
+    #         "avatar_url": None,
+    #         "star_count": 0,
+    #         "forks_count": 4,
+    #         "last_activity_at": "2020-04-27T06:13:22.642Z",
+    #         "namespace": {
+    #             "id": 28,
+    #             "name": "H5bp",
+    #             "path": "h5bp",
+    #             "kind": "group",
+    #             "full_path": "h5bp",
+    #             "parent_id": None,
+    #             "avatar_url": None,
+    #             "web_url": "https://gitlab.com/groups/h5bp",
+    #         },
+    #         "_links": {
+    #             "self": "https://gitlab.com/api/v4/projects/8",
+    #             "issues": "https://gitlab.com/api/v4/projects/8/issues",
+    #             "merge_requests": "https://gitlab.com/api/v4/projects/8/merge_requests",
+    #             "repo_branches": "https://gitlab.com/api/v4/projects/8/repository/branches",
+    #             "labels": "https://gitlab.com/api/v4/projects/8/labels",
+    #             "events": "https://gitlab.com/api/v4/projects/8/events",
+    #             "members": "https://gitlab.com/api/v4/projects/8/members",
+    #         },
+    #         "empty_repo": False,
+    #         "archived": False,
+    #         "visibility": "public",
+    #         "resolve_outdated_diff_discussions": False,
+    #         "container_registry_enabled": True,
+    #         "container_expiration_policy": {
+    #             "cadence": "7d",
+    #             "enabled": True,
+    #             "keep_n": None,
+    #             "older_than": None,
+    #             "name_regex": None,
+    #             "name_regex_keep": None,
+    #             "next_run_at": "2020-05-04T06:13:22.654Z",
+    #         },
+    #         "issues_enabled": True,
+    #         "merge_requests_enabled": True,
+    #         "wiki_enabled": True,
+    #         "jobs_enabled": True,
+    #         "snippets_enabled": True,
+    #         "can_create_merge_request_in": True,
+    #         "issues_access_level": "enabled",
+    #         "repository_access_level": "enabled",
+    #         "merge_requests_access_level": "enabled",
+    #         "forking_access_level": "enabled",
+    #         "wiki_access_level": "enabled",
+    #         "builds_access_level": "enabled",
+    #         "snippets_access_level": "enabled",
+    #         "pages_access_level": "enabled",
+    #         "security_and_compliance_access_level": "enabled",
+    #         "emails_disabled": None,
+    #         "emails_enabled": None,
+    #         "shared_runners_enabled": True,
+    #         "lfs_enabled": True,
+    #         "creator_id": 1,
+    #         "import_status": "failed",
+    #         "open_issues_count": 10,
+    #         "ci_default_git_depth": 50,
+    #         "ci_forward_deployment_enabled": True,
+    #         "ci_forward_deployment_rollback_allowed": True,
+    #         "ci_allow_fork_pipelines_to_run_in_parent_project": True,
+    #         "public_jobs": True,
+    #         "build_timeout": 3600,
+    #         "auto_cancel_pending_pipelines": "enabled",
+    #         "ci_config_path": None,
+    #         "shared_with_groups": [
+    #             {
+    #                 "group_id": 24,
+    #                 "group_name": "Commit451",
+    #                 "group_full_path": "Commit451",
+    #                 "group_access_level": 30,
+    #                 "expires_at": None,
+    #             }
+    #         ],
+    #         "only_allow_merge_if_pipeline_succeeds": False,
+    #         "request_access_enabled": True,
+    #         "only_allow_merge_if_all_discussions_are_resolved": False,
+    #         "remove_source_branch_after_merge": True,
+    #         "printing_merge_request_link_enabled": True,
+    #         "merge_method": "merge",
+    #         "suggestion_commit_message": None,
+    #         "auto_devops_enabled": True,
+    #         "auto_devops_deploy_strategy": "continuous",
+    #         "autoclose_referenced_issues": True,
+    #         "repository_storage": "default",
+    #     }
+    # ]
+    # response = Response(data=example_data, status_code=200, json_output=example_data)
+    # assert response.data.base_type == "Projects"
+    #
+    # # Details of a group
+    # example_data = {
+    #     "id": 4,
+    #     "name": "Twitter",
+    #     "path": "twitter",
+    #     "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
+    #     "visibility": "public",
+    #     "avatar_url": None,
+    #     "web_url": "https://gitlab.example.com/groups/twitter",
+    #     "request_access_enabled": False,
+    #     "repository_storage": "default",
+    #     "full_name": "Twitter",
+    #     "full_path": "twitter",
+    #     "runners_token": "ba324ca7b1c77fc20bb9",
+    #     "file_template_project_id": 1,
+    #     "parent_id": None,
+    #     "enabled_git_access_protocol": "all",
+    #     "created_at": "2020-01-15T12:36:29.590Z",
+    #     "shared_with_groups": [
+    #         {
+    #             "group_id": 28,
+    #             "group_name": "H5bp",
+    #             "group_full_path": "h5bp",
+    #             "group_access_level": 20,
+    #             "expires_at": None,
+    #         }
+    #     ],
+    #     "prevent_sharing_groups_outside_hierarchy": False,
+    #     "projects": [
+    #         {
+    #             "id": 7,
+    #             "description": "Voluptas veniam qui et beatae voluptas doloremque explicabo facilis.",
+    #             "default_branch": "main",
+    #             "tag_list": [],
+    #             "topics": [],
+    #             "archived": False,
+    #             "visibility": "public",
+    #             "ssh_url_to_repo": "git@gitlab.example.com:twitter/typeahead-js.git",
+    #             "http_url_to_repo": "https://gitlab.example.com/twitter/typeahead-js.git",
+    #             "web_url": "https://gitlab.example.com/twitter/typeahead-js",
+    #             "name": "Typeahead.Js",
+    #             "name_with_namespace": "Twitter / Typeahead.Js",
+    #             "path": "typeahead-js",
+    #             "path_with_namespace": "twitter/typeahead-js",
+    #             "issues_enabled": True,
+    #             "merge_requests_enabled": True,
+    #             "wiki_enabled": True,
+    #             "jobs_enabled": True,
+    #             "snippets_enabled": False,
+    #             "container_registry_enabled": True,
+    #             "created_at": "2016-06-17T07:47:25.578Z",
+    #             "last_activity_at": "2016-06-17T07:47:25.881Z",
+    #             "shared_runners_enabled": True,
+    #             "creator_id": 1,
+    #             "namespace": {
+    #                 "id": 4,
+    #                 "name": "Twitter",
+    #                 "path": "twitter",
+    #                 "kind": "group",
+    #             },
+    #             "avatar_url": None,
+    #             "star_count": 0,
+    #             "forks_count": 0,
+    #             "open_issues_count": 3,
+    #             "public_jobs": True,
+    #             "shared_with_groups": [],
+    #             "request_access_enabled": False,
+    #         },
+    #         {
+    #             "id": 6,
+    #             "description": "Aspernatur omnis repudiandae qui voluptatibus eaque.",
+    #             "default_branch": "main",
+    #             "tag_list": [],
+    #             "topics": [],
+    #             "archived": False,
+    #             "visibility": "internal",
+    #             "ssh_url_to_repo": "git@gitlab.example.com:twitter/flight.git",
+    #             "http_url_to_repo": "https://gitlab.example.com/twitter/flight.git",
+    #             "web_url": "https://gitlab.example.com/twitter/flight",
+    #             "name": "Flight",
+    #             "name_with_namespace": "Twitter / Flight",
+    #             "path": "flight",
+    #             "path_with_namespace": "twitter/flight",
+    #             "issues_enabled": True,
+    #             "merge_requests_enabled": True,
+    #             "wiki_enabled": True,
+    #             "jobs_enabled": True,
+    #             "snippets_enabled": False,
+    #             "container_registry_enabled": True,
+    #             "created_at": "2016-06-17T07:47:24.661Z",
+    #             "last_activity_at": "2016-06-17T07:47:24.838Z",
+    #             "shared_runners_enabled": True,
+    #             "creator_id": 1,
+    #             "namespace": {
+    #                 "id": 4,
+    #                 "name": "Twitter",
+    #                 "path": "twitter",
+    #                 "kind": "group",
+    #             },
+    #             "avatar_url": None,
+    #             "star_count": 0,
+    #             "forks_count": 0,
+    #             "open_issues_count": 8,
+    #             "public_jobs": True,
+    #             "shared_with_groups": [],
+    #             "request_access_enabled": False,
+    #         },
+    #     ],
+    #     "shared_projects": [
+    #         {
+    #             "id": 8,
+    #             "description": "Velit eveniet provident fugiat saepe eligendi autem.",
+    #             "default_branch": "main",
+    #             "tag_list": [],
+    #             "topics": [],
+    #             "archived": False,
+    #             "visibility": "private",
+    #             "ssh_url_to_repo": "git@gitlab.example.com:h5bp/html5-boilerplate.git",
+    #             "http_url_to_repo": "https://gitlab.example.com/h5bp/html5-boilerplate.git",
+    #             "web_url": "https://gitlab.example.com/h5bp/html5-boilerplate",
+    #             "name": "Html5 Boilerplate",
+    #             "name_with_namespace": "H5bp / Html5 Boilerplate",
+    #             "path": "html5-boilerplate",
+    #             "path_with_namespace": "h5bp/html5-boilerplate",
+    #             "issues_enabled": True,
+    #             "merge_requests_enabled": True,
+    #             "wiki_enabled": True,
+    #             "jobs_enabled": True,
+    #             "snippets_enabled": False,
+    #             "container_registry_enabled": True,
+    #             "created_at": "2016-06-17T07:47:27.089Z",
+    #             "last_activity_at": "2016-06-17T07:47:27.310Z",
+    #             "shared_runners_enabled": True,
+    #             "creator_id": 1,
+    #             "namespace": {"id": 5, "name": "H5bp", "path": "h5bp", "kind": "group"},
+    #             "avatar_url": None,
+    #             "star_count": 0,
+    #             "forks_count": 0,
+    #             "open_issues_count": 4,
+    #             "public_jobs": True,
+    #             "shared_with_groups": [
+    #                 {
+    #                     "group_id": 4,
+    #                     "group_name": "Twitter",
+    #                     "group_full_path": "twitter",
+    #                     "group_access_level": 30,
+    #                     "expires_at": None,
+    #                 },
+    #                 {
+    #                     "group_id": 3,
+    #                     "group_name": "Gitlab Org",
+    #                     "group_full_path": "gitlab-org",
+    #                     "group_access_level": 10,
+    #                     "expires_at": "2018-08-14",
+    #                 },
+    #             ],
+    #         }
+    #     ],
+    #     "ip_restriction_ranges": None,
+    #     "math_rendering_limits_enabled": True,
+    #     "lock_math_rendering_limits_enabled": False,
+    # }
+    # response = Response(data=example_data, status_code=200, json_output=example_data)
+    # assert response.data.base_type == "Group"
+
+    # Details of a group
+    example_data = {
+        "id": 4,
+        "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
+        "shared_runners_minutes_limit": 133,
+        "extra_shared_runners_minutes_limit": 133,
+        "marked_for_deletion_on": "2020-04-03",
+        "membership_lock": False,
+        "wiki_access_level": "disabled",
+        "duo_features_enabled": True,
+        "lock_duo_features_enabled": False,
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Groups"
+
+    # Details of a group
+    example_data = {
+        "id": 4,
+        "name": "Twitter",
+        "path": "twitter",
+        "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
+        "visibility": "public",
+        "avatar_url": None,
+        "web_url": "https://gitlab.example.com/groups/twitter",
+        "request_access_enabled": False,
+        "repository_storage": "default",
+        "full_name": "Twitter",
+        "full_path": "twitter",
+        "file_template_project_id": 1,
+        "parent_id": None,
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Groups"
+
+    # Get groups to which a user can transfer a group
+    example_data = [
+        {
+            "id": 27,
+            "web_url": "https://gitlab.example.com/groups/gitlab",
+            "name": "GitLab",
+            "avatar_url": None,
+            "full_name": "GitLab",
+            "full_path": "GitLab",
+        },
+        {
+            "id": 31,
+            "web_url": "https://gitlab.example.com/groups/foobar",
+            "name": "FooBar",
+            "avatar_url": None,
+            "full_name": "FooBar",
+            "full_path": "FooBar",
+        },
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Groups"
+
+    # Update group
+    example_data = {
+        "id": 5,
+        "name": "Experimental",
+        "path": "h5bp",
+        "description": "foo",
+        "visibility": "internal",
+        "avatar_url": None,
+        "web_url": "http://gitlab.example.com/groups/h5bp",
+        "request_access_enabled": False,
+        "repository_storage": "default",
+        "full_name": "Foobar Group",
+        "full_path": "h5bp",
+        "file_template_project_id": 1,
+        "parent_id": None,
+        "enabled_git_access_protocol": "all",
+        "created_at": "2020-01-15T12:36:29.590Z",
+        "prevent_sharing_groups_outside_hierarchy": False,
+        "projects": [
+            {
+                "id": 9,
+                "description": "foo",
+                "default_branch": "main",
+                "tag_list": [],
+                "topics": [],
+                "public": False,
+                "archived": False,
+                "visibility": "internal",
+                "ssh_url_to_repo": "git@gitlab.example.com/html5-boilerplate.git",
+                "http_url_to_repo": "http://gitlab.example.com/h5bp/html5-boilerplate.git",
+                "web_url": "http://gitlab.example.com/h5bp/html5-boilerplate",
+                "name": "Html5 Boilerplate",
+                "name_with_namespace": "Experimental / Html5 Boilerplate",
+                "path": "html5-boilerplate",
+                "path_with_namespace": "h5bp/html5-boilerplate",
+                "issues_enabled": True,
+                "merge_requests_enabled": True,
+                "wiki_enabled": True,
+                "jobs_enabled": True,
+                "snippets_enabled": True,
+                "created_at": "2016-04-05T21:40:50.169Z",
+                "last_activity_at": "2016-04-06T16:52:08.432Z",
+                "shared_runners_enabled": True,
+                "creator_id": 1,
+                "namespace": {
+                    "id": 5,
+                    "name": "Experimental",
+                    "path": "h5bp",
+                    "kind": "group",
+                },
+                "avatar_url": None,
+                "star_count": 1,
+                "forks_count": 0,
+                "open_issues_count": 3,
+                "public_jobs": True,
+                "shared_with_groups": [],
+                "request_access_enabled": False,
+            }
+        ],
+        "ip_restriction_ranges": None,
+        "math_rendering_limits_enabled": True,
+        "lock_math_rendering_limits_enabled": False,
+    }
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Groups"
+
+    # Search for a group
+    example_data = [
+        {
+            "id": 1,
+            "name": "Foobar Group",
+            "path": "foo-bar",
+            "description": "An interesting group",
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Groups"
+
+    # List provisioned users
+    example_data = [
+        {
+            "id": 66,
+            "username": "user22",
+            "name": "John Doe22",
+            "state": "active",
+            "avatar_url": "https://www.gravatar.com/avatar/xxx?s=80&d=identicon",
+            "web_url": "http://my.gitlab.com/user22",
+            "created_at": "2021-09-10T12:48:22.381Z",
+            "bio": "",
+            "location": None,
+            "public_email": "",
+            "skype": "",
+            "linkedin": "",
+            "twitter": "",
+            "website_url": "",
+            "organization": None,
+            "job_title": "",
+            "pronouns": None,
+            "bot": False,
+            "work_information": None,
+            "followers": 0,
+            "following": 0,
+            "local_time": None,
+            "last_sign_in_at": None,
+            "confirmed_at": "2021-09-10T12:48:22.330Z",
+            "last_activity_on": None,
+            "email": "user22@example.org",
+            "theme_id": 1,
+            "color_scheme_id": 1,
+            "projects_limit": 100000,
+            "current_sign_in_at": None,
+            "identities": [],
+            "can_create_group": True,
+            "can_create_project": True,
+            "two_factor_enabled": False,
+            "external": False,
+            "private_profile": False,
+            "commit_email": "user22@example.org",
+            "shared_runners_minutes_limit": None,
+            "extra_shared_runners_minutes_limit": None,
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Groups"
+
+    # List group users
+    example_data = [
+        {
+            "id": 66,
+            "username": "user22",
+            "name": "John Doe22",
+            "state": "active",
+            "avatar_url": "https://www.gravatar.com/avatar/xxx?s=80&d=identicon",
+            "web_url": "http://my.gitlab.com/user22",
+            "created_at": "2021-09-10T12:48:22.381Z",
+            "bio": "",
+            "location": None,
+            "public_email": "",
+            "skype": "",
+            "linkedin": "",
+            "twitter": "",
+            "website_url": "",
+            "organization": None,
+            "job_title": "",
+            "pronouns": None,
+            "bot": False,
+            "work_information": None,
+            "followers": 0,
+            "following": 0,
+            "local_time": None,
+            "last_sign_in_at": None,
+            "confirmed_at": "2021-09-10T12:48:22.330Z",
+            "last_activity_on": None,
+            "email": "user22@example.org",
+            "theme_id": 1,
+            "color_scheme_id": 1,
+            "projects_limit": 100000,
+            "current_sign_in_at": None,
+            "identities": [],
+            "can_create_group": True,
+            "can_create_project": True,
+            "two_factor_enabled": False,
+            "external": False,
+            "private_profile": False,
+            "commit_email": "user22@example.org",
+            "shared_runners_minutes_limit": None,
+            "extra_shared_runners_minutes_limit": None,
+        }
+    ]
+    response = Response(data=example_data, status_code=200, json_output=example_data)
+    assert response.data.base_type == "Groups"
+
+
 # # Create Service Account User
 # example_data = {
 #     "id": 57,
@@ -4628,12 +4588,12 @@ def test_pipeline_response():
 # example_data = {
 #     "id":6,
 #     "name":"service_accounts_token",
-#     "revoked":false,
+#     "revoked": False,
 #     "created_at":"2023-06-13T07:47:13.900Z",
 #     "scopes":["api"],
 #     "user_id":71,
-#     "last_used_at":null,
-#     "active":true,
+#     "last_used_at": None,
+#     "active": True,
 #     "expires_at":"2024-06-12",
 #     "token":"<token_value>"
 # }
@@ -4642,12 +4602,12 @@ def test_pipeline_response():
 # example_data = {
 #     "id":7,
 #     "name":"service_accounts_token",
-#     "revoked":false,
+#     "revoked": False,
 #     "created_at":"2023-06-13T07:54:49.962Z",
 #     "scopes":["api"],
 #     "user_id":71,
-#     "last_used_at":null,
-#     "active":true,
+#     "last_used_at": None,
+#     "active": True,
 #     "expires_at":"2023-06-20",
 #     "token":"<token_value>"
 # }
@@ -7973,27 +7933,27 @@ def test_pipeline_response():
 #     # List owned runners
 #     example_data = [
 #         {
-#             "active": true,
-#             "paused": false,
+#             "active": True,
+#             "paused": False,
 #             "description": "test-1-20150125",
 #             "id": 6,
 #             "ip_address": "",
-#             "is_shared": false,
+#             "is_shared": False,
 #             "runner_type": "project_type",
-#             "name": null,
-#             "online": true,
+#             "name": None,
+#             "online": True,
 #             "status": "online"
 #         },
 #         {
-#             "active": true,
-#             "paused": false,
+#             "active": True,
+#             "paused": False,
 #             "description": "test-2-20150125",
 #             "id": 8,
 #             "ip_address": "",
-#             "is_shared": false,
+#             "is_shared": False,
 #             "runner_type": "group_type",
-#             "name": null,
-#             "online": false,
+#             "name": None,
+#             "online": False,
 #             "status": "offline"
 #         }
 #     ]
@@ -8001,71 +7961,71 @@ def test_pipeline_response():
 #     # List all runners
 #     example_data = [
 #         {
-#             "active": true,
-#             "paused": false,
+#             "active": True,
+#             "paused": False,
 #             "description": "shared-runner-1",
 #             "id": 1,
 #             "ip_address": "",
-#             "is_shared": true,
+#             "is_shared": True,
 #             "runner_type": "instance_type",
-#             "name": null,
-#             "online": true,
+#             "name": None,
+#             "online": True,
 #             "status": "online"
 #         },
 #         {
-#             "active": true,
-#             "paused": false,
+#             "active": True,
+#             "paused": False,
 #             "description": "shared-runner-2",
 #             "id": 3,
 #             "ip_address": "",
-#             "is_shared": true,
+#             "is_shared": True,
 #             "runner_type": "instance_type",
-#             "name": null,
-#             "online": false,
+#             "name": None,
+#             "online": False,
 #             "status": "offline"
 #         },
 #         {
-#             "active": true,
-#             "paused": false,
+#             "active": True,
+#             "paused": False,
 #             "description": "test-1-20150125",
 #             "id": 6,
 #             "ip_address": "",
-#             "is_shared": false,
+#             "is_shared": False,
 #             "runner_type": "project_type",
-#             "name": null,
-#             "online": true,
+#             "name": None,
+#             "online": True,
 #             "status": "paused"
 #         },
 #         {
-#             "active": true,
-#             "paused": false,
+#             "active": True,
+#             "paused": False,
 #             "description": "test-2-20150125",
 #             "id": 8,
 #             "ip_address": "",
-#             "is_shared": false,
+#             "is_shared": False,
 #             "runner_type": "group_type",
-#             "name": null,
-#             "online": false,
+#             "name": None,
+#             "online": False,
 #             "status": "offline"
 #         }
 #     ]
 #
 #     # Get runner details
 #     example_data = {
-#         "active": true,
-#         "paused": false,
-#         "architecture": null,
+#         "active": True,
+#         "paused": False,
+#         "architecture": None,
 #         "description": "test-1-20150125",
 #         "id": 6,
 #         "ip_address": "",
-#         "is_shared": false,
+#         "is_shared": False,
 #         "runner_type": "project_type",
 #         "contacted_at": "2016-01-25T16:39:48.066Z",
-#         "maintenance_note": null,
-#         "name": null,
-#         "online": true,
+#         "maintenance_note": None,
+#         "name": None,
+#         "online": True,
 #         "status": "online",
-#         "platform": null,
+#         "platform": None,
 #         "projects": [
 #             {
 #                 "id": 1,
@@ -8075,12 +8035,12 @@ def test_pipeline_response():
 #                 "path_with_namespace": "gitlab-org/gitlab-foss"
 #             }
 #         ],
-#         "revision": null,
+#         "revision": None,
 #         "tag_list": [
 #             "ruby",
 #             "mysql"
 #         ],
-#         "version": null,
+#         "version": None,
 #         "access_level": "ref_protected",
 #         "maximum_timeout": 3600
 #     }
@@ -8094,8 +8054,8 @@ def test_pipeline_response():
 #             "stage": "test",
 #             "name": "test",
 #             "ref": "main",
-#             "tag": false,
-#             "coverage": null,
+#             "tag": False,
+#             "coverage": None,
 #             "created_at": "2017-11-16T08:50:29.000Z",
 #             "started_at": "2017-11-16T08:51:29.000Z",
 #             "finished_at": "2017-11-16T08:53:29.000Z",
@@ -8109,14 +8069,14 @@ def test_pipeline_response():
 #                 "avatar_url": "http://www.gravatar.com/avatar/c922747a93b40d1ea88262bf1aebee62?s=80&d=identicon",
 #                 "web_url": "http://localhost/user2",
 #                 "created_at": "2017-11-16T18:38:46.000Z",
-#                 "bio": null,
-#                 "location": null,
+#                 "bio": None,
+#                 "location": None,
 #                 "public_email": "",
 #                 "skype": "",
 #                 "linkedin": "",
 #                 "twitter": "",
 #                 "website_url": "",
-#                 "organization": null
+#                 "organization": None
 #             },
 #             "commit": {
 #                 "id": "97de212e80737a608d939f648d959671fb0a0142",
@@ -8143,7 +8103,7 @@ def test_pipeline_response():
 #             },
 #             "project": {
 #                 "id": 1,
-#                 "description": null,
+#                 "description": None,
 #                 "name": "project1",
 #                 "name_with_namespace": "John Doe2 / project1",
 #                 "path": "project1",
@@ -8156,27 +8116,27 @@ def test_pipeline_response():
 #     # List project’s runners
 #     example_data = [
 #         {
-#             "active": true,
-#             "paused": false,
+#             "active": True,
+#             "paused": False,
 #             "description": "test-2-20150125",
 #             "id": 8,
 #             "ip_address": "",
-#             "is_shared": false,
+#             "is_shared": False,
 #             "runner_type": "project_type",
-#             "name": null,
-#             "online": false,
+#             "name": None,
+#             "online": False,
 #             "status": "offline"
 #         },
 #         {
-#             "active": true,
-#             "paused": false,
+#             "active": True,
+#             "paused": False,
 #             "description": "development_runner",
 #             "id": 5,
 #             "ip_address": "",
-#             "is_shared": true,
+#             "is_shared": True,
 #             "runner_type": "instance_type",
-#             "name": null,
-#             "online": true,
+#             "name": None,
+#             "online": True,
 #             "status": "online"
 #         }
 #     ]
@@ -8184,14 +8144,14 @@ def test_pipeline_response():
 #
 #     # Enable runner for project
 #     example_data = {
-#         "active": true,
+#         "active": True,
 #         "description": "test-2016-02-01",
 #         "id": 9,
 #         "ip_address": "",
-#         "is_shared": false,
+#         "is_shared": False,
 #         "runner_type": "project_type",
-#         "name": null,
-#         "online": true,
+#         "name": None,
+#         "online": True,
 #         "status": "online"
 #     }
 #

@@ -2983,6 +2983,7 @@ class Configuration(BaseModel):
         default=None, description="Whether a password is required to approve"
     )
 
+
 class Iteration(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
@@ -2999,6 +3000,7 @@ class Iteration(BaseModel):
     start_date: Optional[str] = Field(default=None)
     due_date: Optional[str] = Field(default=None)
     web_url: Optional[str] = Field(default=None)
+
 
 class Identity(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -3378,9 +3380,6 @@ class Diffs(BaseModel):
     diffs: List[Diff] = Field(default=None, description="List of diffs")
 
 
-
-
-
 class DetailedStatus(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
@@ -3559,6 +3558,7 @@ class Package(BaseModel):
         default=None, description="SHA-256 checksum of the package file"
     )
 
+
 class CommitStats(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
@@ -3572,6 +3572,7 @@ class CommitStats(BaseModel):
     total: Optional[int] = Field(
         default=None, description="Total number of changes in the commit"
     )
+
 
 class CommitSignature(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -4155,7 +4156,9 @@ class Issue(BaseModel):
     user_notes_count: Optional[int] = Field(
         default=None, description="Number of user notes on the issue."
     )
-    iteration: Optional[Iteration] = Field(default=None, description="Iteration of issue.")
+    iteration: Optional[Iteration] = Field(
+        default=None, description="Iteration of issue."
+    )
     due_date: Optional[str] = Field(default=None, description="Due date for the issue.")
     imported: Optional[bool] = Field(
         default=None,
@@ -4212,8 +4215,9 @@ class Issue(BaseModel):
     service_desk_reply_to: Optional[str] = Field(
         default=None, description="Service desk email for replies related to the issue."
     )
-    blocking_issues_count: Optional[int] = Field(default=None, description="Blocking issue count.")
-
+    blocking_issues_count: Optional[int] = Field(
+        default=None, description="Blocking issue count."
+    )
 
 
 class GroupAccess(BaseModel):
@@ -4256,6 +4260,15 @@ class PipelineVariable(BaseModel):
         default=None, description="The type of the variable (e.g., env_var)."
     )
     value: Optional[str] = Field(default=None, description="The value of the variable.")
+
+
+class PipelineVariables(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="PipelineVariables")
+    pipeline_variables: List[PipelineVariable] = Field(
+        default=None, description="List of pipeline variables"
+    )
 
 
 class TestCase(BaseModel):
@@ -4346,10 +4359,28 @@ class TestReport(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="TestReport")
     total: Optional[TestReportTotal] = Field(
-        default=None, description="Summary of the test report."
+        default=None, description="Total count in test report."
     )
     test_suites: Optional[List[TestSuite]] = Field(
         default=None, description="A list of test suites in the report."
+    )
+    total_time: Optional[int] = Field(
+        default=None, description="Total time of test report"
+    )
+    total_count: Optional[int] = Field(
+        default=None, description="Total count of test report"
+    )
+    success_count: Optional[int] = Field(
+        default=None, description="Success count of test report"
+    )
+    failed_count: Optional[int] = Field(
+        default=None, description="Failed count of test report"
+    )
+    skipped_count: Optional[int] = Field(
+        default=None, description="Skipped count of test report"
+    )
+    error_count: Optional[int] = Field(
+        default=None, description="Error count of test report"
     )
 
 
@@ -4991,8 +5022,20 @@ class Group(BaseModel):
     prevent_sharing_groups_outside_hierarchy: Optional[bool] = Field(
         default=None, description="Prevent sharing groups outside hierarchy"
     )
-    projects: Optional[List[Dict[str, Any]]] = Field(
+    projects: Optional[Union[List[Project], List[Dict[str, Any]]]] = Field(
         default=None, description="Projects within the group"
+    )
+    shared_projects: Optional[Union[List[Project], List[Dict[str, Any]]]] = Field(
+        default=None, description="Projects within the group"
+    )
+    ip_restriction_ranges: Optional[Any] = Field(
+        default=None, description="IP Restriction Ranges"
+    )
+    math_rendering_limits_enabled: Optional[bool] = Field(
+        default=None, description="Math rendering limits enabled"
+    )
+    lock_math_rendering_limits_enabled: Optional[bool] = Field(
+        default=None, description="Math rendering limits locked"
     )
 
 
@@ -5242,21 +5285,29 @@ class Token(BaseModel):
         None, description="Expiration date and time of the token"
     )
 
+
 class ToDo(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="ToDo")
     id: int = Field(default=None, description="To-do identifier")
-    project: Project = Field(default=None, description="Project associated with the to-do")
+    project: Project = Field(
+        default=None, description="Project associated with the to-do"
+    )
     author: User = Field(default=None, description="Author of the to-do")
     action_name: str = Field(default=None, description="Action taken in the to-do")
-    target_type: str = Field(default=None, description="Type of target referenced in the to-do")
+    target_type: str = Field(
+        default=None, description="Type of target referenced in the to-do"
+    )
     target: Issue = Field(default=None, description="Target issue for the to-do")
-    target_url: HttpUrl = Field(default=None, description="URL pointing to the target of the to-do")
+    target_url: HttpUrl = Field(
+        default=None, description="URL pointing to the target of the to-do"
+    )
     body: str = Field(default=None, description="Body text of the to-do")
     state: str = Field(default=None, description="State of the to-do")
-    created_at: datetime = Field(default=None, description="Timestamp when the to-do was created")
-
+    created_at: datetime = Field(
+        default=None, description="Timestamp when the to-do was created"
+    )
 
 
 class WikiPage(BaseModel):
@@ -5331,12 +5382,15 @@ class Response(BaseModel):
             Issues,
             Issue,
             ToDo,
+            TestReport,
             MergeRequests,
             MergeRequest,
             MergeApprovals,
             ApprovalRule,
             Jobs,
             Job,
+            PipelineVariable,
+            PipelineVariables,
             Membership,
             DeployTokens,
             DeployToken,
@@ -5366,16 +5420,19 @@ class Response(BaseModel):
             "Branch": Branch,
             "Pipeline": Pipeline,
             "Commit": Commit,
+            "PipelineVariable": PipelineVariable,
             "CommitSignature": CommitSignature,
             "Diff": Diff,
             "Comment": Comment,
             "Issue": Issue,
             "ToDo": ToDo,
+            "TestReport": TestReport,
             "Release": Release,
             "MergeRequest": MergeRequest,
             "DeployToken": DeployToken,
             "User": User,
             "Group": Group,
+            "Job": Job,
             "AccessLevel": AccessLevel,
             "Project": Project,
             "TimeStats": TimeStats,
@@ -5447,6 +5504,16 @@ class Response(BaseModel):
                     print(f"\n\n\n Groups Validation Success: {value}")
                 except Exception as e:
                     print(f"\n\n\n Groups Validation Failed: {value}\nError: {e}")
+                try:
+                    pipeline_variables = [PipelineVariable(**item) for item in value]
+                    temp_value = PipelineVariables(
+                        pipeline_variables=pipeline_variables
+                    )
+                    print(f"\n\n\n PipelineVariable Validation Success: {value}")
+                except Exception as e:
+                    print(
+                        f"\n\n\n PipelineVariable Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     projects = [Project(**item) for item in value]
                     temp_value = Projects(projects=projects)
