@@ -1,3 +1,8 @@
+#!/usr/bin/python
+# coding: utf-8
+import logging
+import re
+
 from typing import Union, List, Dict, Optional, Any
 from pydantic import (
     BaseModel,
@@ -8,7 +13,6 @@ from pydantic import (
     HttpUrl,
     EmailStr,
 )
-import re
 from datetime import datetime
 
 try:
@@ -28,6 +32,9 @@ except ModuleNotFoundError:
         MissingParameterError,
     )
 
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 ########################################################################################################################
 #                                               Input Models                                                           #
@@ -131,7 +138,7 @@ class CommitModel(BaseModel):
     reference: Optional[str] = None
     name: Optional[str] = None
     context: Optional[str] = None
-    target_url: Optional[str] = None
+    target_url: Optional[Union[HttpUrl, str]] = None
     description: Optional[str] = None
     coverage: Optional[Union[float, str]] = None
     pipeline_id: Optional[Union[int, str]] = None
@@ -1602,7 +1609,7 @@ class ProjectModel(BaseModel):
     expires_at: Optional[str] = None
     forking_access_level: Optional[str] = None
     group_access: Optional[int] = None
-    import_url: Optional[str] = None
+    import_url: Optional[Union[HttpUrl, str]] = None
     issues_access_level: Optional[str] = None
     issues_template: Optional[str] = None
     keep_latest_artifact: Optional[bool] = None
@@ -2898,7 +2905,7 @@ class Milestone(BaseModel):
     start_date: Optional[str] = Field(
         default=None, description="Start date for the milestone"
     )
-    web_url: Optional[str] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="URL to the milestone in GitLab"
     )
     closed_at: Optional[datetime] = Field(
@@ -3060,7 +3067,7 @@ class Iteration(BaseModel):
     updated_at: Optional[datetime] = Field(default=None)
     start_date: Optional[str] = Field(default=None)
     due_date: Optional[str] = Field(default=None)
-    web_url: Optional[str] = Field(default=None)
+    web_url: Optional[Union[HttpUrl, str]] = Field(default=None)
 
 
 class Identity(BaseModel):
@@ -3104,10 +3111,10 @@ class CreatedBy(BaseModel):
     state: Optional[str] = Field(
         default=None, description="State of the user who created the member"
     )
-    avatar_url: Optional[str] = Field(
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="Avatar URL of the user who created the member"
     )
-    web_url: Optional[str] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="Web URL of the user who created the member"
     )
 
@@ -3131,10 +3138,10 @@ class User(BaseModel):
     locked: Optional[bool] = Field(
         default=None, description="Indicates if the user is locked."
     )
-    avatar_url: Optional[str] = Field(
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The URL of the user's avatar."
     )
-    web_url: Optional[str] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The URL of the user's web profile."
     )
     created_at: Optional[datetime] = Field(
@@ -3157,7 +3164,7 @@ class User(BaseModel):
     discord: Optional[str] = Field(
         default=None, description="The Discord ID of the user."
     )
-    website_url: Optional[str] = Field(
+    website_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The website URL of the user."
     )
     organization: Optional[str] = Field(
@@ -3293,10 +3300,10 @@ class Namespace(BaseModel):
     parent_id: Optional[int] = Field(
         default=None, description="The parent ID of the namespace, if any."
     )
-    avatar_url: Optional[str] = Field(
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The avatar URL of the namespace."
     )
-    web_url: Optional[str] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The web URL of the namespace."
     )
 
@@ -3519,7 +3526,7 @@ class Pipeline(BaseModel):
     )
     sha: Optional[str] = Field(default=None, description="SHA of the pipeline")
     status: Optional[str] = Field(default=None, description="Status of the pipeline")
-    web_url: Optional[str] = Field(default=None, description="URL for the pipeline")
+    web_url: Optional[Union[HttpUrl, str]] = Field(default=None, description="URL for the pipeline")
     project_id: Optional[int] = Field(
         default=None, description="The ID of the project associated with the pipeline."
     )
@@ -3811,7 +3818,7 @@ class Commit(BaseModel):
         default=None, description="The date the commit was committed."
     )
     name: Optional[str] = Field(default=None, description="The name of the commit.")
-    web_url: Optional[HttpUrl] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The web URL for the commit."
     )
     trailers: Optional[Dict[str, Any]] = Field(
@@ -3842,7 +3849,7 @@ class Commit(BaseModel):
     allow_failure: Optional[bool] = Field(
         default=None, description="Flag allows for failure"
     )
-    target_url: Optional[HttpUrl] = Field(
+    target_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The target url for the commit."
     )
     ref: Optional[str] = Field(default=None, description="The ref of the commit.")
@@ -3868,7 +3875,7 @@ class Membership(BaseModel):
     source_full_name: Optional[str] = Field(
         default=None, description="Full name of the source"
     )
-    source_members_url: Optional[HttpUrl] = Field(
+    source_members_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="URL of the source members"
     )
     created_at: Optional[datetime] = Field(
@@ -3934,19 +3941,19 @@ class Project(BaseModel):
     topics: Optional[List[str]] = Field(
         default=None, description="The topics of the project."
     )
-    ssh_url_to_repo: Optional[str] = Field(
+    ssh_url_to_repo: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The SSH URL to the repository."
     )
-    http_url_to_repo: Optional[str] = Field(
+    http_url_to_repo: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The HTTP URL to the repository."
     )
-    web_url: Optional[str] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The web URL to the project."
     )
-    readme_url: Optional[str] = Field(
+    readme_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The URL to the README file."
     )
-    avatar_url: Optional[str] = Field(
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The avatar URL of the project."
     )
     forks_count: Optional[int] = Field(default=None, description="The number of forks.")
@@ -4009,7 +4016,7 @@ class Project(BaseModel):
     creator_id: Optional[int] = Field(
         default=None, description="The ID of the creator."
     )
-    import_url: Optional[str] = Field(default=None, description="The import URL.")
+    import_url: Optional[Union[HttpUrl, str]] = Field(default=None, description="The import URL.")
     import_type: Optional[str] = Field(default=None, description="The import type.")
     import_status: Optional[str] = Field(default=None, description="The import status.")
     import_error: Optional[str] = Field(default=None, description="The import error.")
@@ -4374,7 +4381,7 @@ class Job(BaseModel):
     tag: Optional[bool] = Field(
         default=None, description="Indicates if the job is tagged."
     )
-    web_url: Optional[str] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="URL to view the job on the web."
     )
     project: Optional[Project] = Field(
@@ -4471,10 +4478,10 @@ class Group(BaseModel):
     default_branch_protection_defaults: Optional[DefaultBranchProtectionDefaults] = (
         Field(default=None, description="Default branch protection settings")
     )
-    avatar_url: Optional[str] = Field(
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="URL of the group's avatar"
     )
-    web_url: Optional[str] = Field(default=None, description="Web URL of the group")
+    web_url: Optional[Union[HttpUrl, str]] = Field(default=None, description="Web URL of the group")
     request_access_enabled: Optional[bool] = Field(
         default=None, description="Whether request access is enabled"
     )
@@ -4557,7 +4564,7 @@ class Webhook(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="Webhook")
     id: int = Field(default=None, description="Unique identifier for the webhook")
-    url: HttpUrl = Field(default=None, description="The URL the webhook should target")
+    url: Union[HttpUrl, str] = Field(default=None, description="The URL the webhook should target")
     name: str = Field(default=None, description="Name of the webhook")
     description: str = Field(default=None, description="Description of the webhook")
     group_id: int = Field(
@@ -4676,7 +4683,7 @@ class Branch(BaseModel):
     can_push: Optional[bool] = Field(
         default=None, description="Whether the user can push to the branch."
     )
-    web_url: Optional[HttpUrl] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The web URL for the branch."
     )
     commit: Optional[Commit] = Field(
@@ -4855,7 +4862,7 @@ class MergeRequest(BaseModel):
     allow_maintainer_to_push: Optional[bool] = Field(
         default=None, description="Whether the maintainer can push"
     )
-    web_url: Optional[str] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="Web URL of the merge request"
     )
     references: Optional[References] = Field(
@@ -5004,7 +5011,7 @@ class Epic(BaseModel):
         default=None, description="Internal ID of the epic within the project."
     )
     title: Optional[str] = Field(default=None, description="Title of the epic.")
-    url: Optional[str] = Field(default=None, description="URL to the epic.")
+    url: Optional[Union[HttpUrl, str]] = Field(default=None, description="URL to the epic.")
     group_id: Optional[int] = Field(
         default=None, description="Group ID to which the epic belongs."
     )
@@ -5083,7 +5090,7 @@ class Issue(BaseModel):
     imported_from: Optional[str] = Field(
         default=None, description="Source from which the issue was imported."
     )
-    web_url: Optional[str] = Field(
+    web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="Web URL to view the issue."
     )
     references: Optional[References] = Field(
@@ -5417,7 +5424,7 @@ class Source(BaseModel):
     format: Optional[str] = Field(
         default=None, description="Format of the source file (e.g., zip, tar.gz)"
     )
-    url: Optional[str] = Field(
+    url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="URL to download the source file"
     )
 
@@ -5428,7 +5435,7 @@ class Link(BaseModel):
     base_type: str = Field(default="Link")
     id: Optional[int] = Field(default=None, description="Link ID")
     name: Optional[str] = Field(default=None, description="Name of the link")
-    url: Optional[str] = Field(default=None, description="URL of the link")
+    url: Optional[Union[HttpUrl, str]] = Field(default=None, description="URL of the link")
     link_type: Optional[str] = Field(
         default=None, description="Type of the link (e.g., other)"
     )
@@ -5469,20 +5476,20 @@ class ReleaseLinks(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="ReleaseLinks")
-    closed_issues_url: Optional[str] = Field(
+    closed_issues_url: Optional[Union[HttpUrl, str]] = Field(
         None, description="URL to the list of closed issues"
     )
-    closed_merge_requests_url: Optional[str] = Field(
+    closed_merge_requests_url: Optional[Union[HttpUrl, str]] = Field(
         None, description="URL to the list of closed merge requests"
     )
-    edit_url: Optional[str] = Field(None, description="URL to edit the release")
-    merged_merge_requests_url: Optional[str] = Field(
+    edit_url: Optional[Union[HttpUrl, str]] = Field(None, description="URL to edit the release")
+    merged_merge_requests_url: Optional[Union[HttpUrl, str]] = Field(
         None, description="URL to the list of merged merge requests"
     )
-    opened_issues_url: Optional[str] = Field(
+    opened_issues_url: Optional[Union[HttpUrl, str]] = Field(
         None, description="URL to the list of opened issues"
     )
-    opened_merge_requests_url: Optional[str] = Field(
+    opened_merge_requests_url: Optional[Union[HttpUrl, str]] = Field(
         None, description="URL to the list of opened merge requests"
     )
     self: Optional[str] = Field(None, description="Self-referencing URL")
@@ -5560,7 +5567,7 @@ class ToDo(BaseModel):
         default=None, description="Type of target referenced in the to-do"
     )
     target: Issue = Field(default=None, description="Target issue for the to-do")
-    target_url: HttpUrl = Field(
+    target_url: Union[HttpUrl, str] = Field(
         default=None, description="URL pointing to the target of the to-do"
     )
     body: str = Field(default=None, description="Body text of the to-do")
@@ -5598,7 +5605,7 @@ class WikiAttachmentLink(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="WikiAttachmentLink")
-    url: Optional[str] = Field(None, description="URL of the uploaded attachment")
+    url: Optional[Union[HttpUrl, str]] = Field(None, description="URL of the uploaded attachment")
     markdown: Optional[str] = Field(
         None, description="Markdown to embed the uploaded attachment"
     )
@@ -5768,143 +5775,169 @@ class Response(BaseModel):
             "Runner": Runner,
         }
         temp_value = None
-        print(f"\n\n\nDATA FIELD: {value}")
         if isinstance(value, list):
-            print(f"\n\nScanning {value}")
             if all(isinstance(item, Dict) for item in value):
                 try:
                     branches = [Branch(**item) for item in value]
                     temp_value = Branches(branches=branches)
-                    print(f"\n\n\n Branches Validation Success: {value}")
+                    logging.info(f"Branches Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Branches Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Branches Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     commits = [Commit(**item) for item in value]
-                    print(f"Commits Try: {commits}")
                     temp_value = Commits(commits=commits)
-                    print(f"\n\n\n Commits Validation Success: {value}")
+                    logging.info(f"Commits Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Commits Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Commits Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     pipelines = [Pipeline(**item) for item in value]
                     temp_value = Pipelines(pipelines=pipelines)
-                    print(f"\n\n\n Pipelines Validation Success: {value}")
+                    logging.info(f"Pipelines Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Pipelines Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Pipelines Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     merge_requests = [MergeRequest(**item) for item in value]
                     temp_value = MergeRequests(merge_requests=merge_requests)
-                    print(f"\n\n\n Merge Requests Validation Success: {value}")
+                    logging.info(f"Merge Requests Validation Success: {value}")
                 except Exception as e:
-                    print(
+                    logging.warning(
                         f"\n\n\n Merge Requests Validation Failed: {value}\nError: {e}"
                     )
                 try:
                     releases = [Release(**item) for item in value]
                     temp_value = Releases(releases=releases)
-                    print(f"\n\n\n Releases Validation Success: {value}")
+                    logging.info(f"Releases Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Releases Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Releases Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     diffs = [Diff(**item) for item in value]
                     temp_value = Diffs(diffs=diffs)
-                    print(f"\n\n\n Diffs Validation Success: {value}")
+                    logging.info(f"Diffs Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Diffs Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Diffs Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     comments = [Comment(**item) for item in value]
                     temp_value = Comments(comments=comments)
-                    print(f"\n\n\n Comments Validation Success: {value}")
+                    logging.info(f"Comments Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Comments Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Comments Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     deploy_tokens = [DeployToken(**item) for item in value]
                     temp_value = DeployTokens(deploy_tokens=deploy_tokens)
-                    print(f"\n\n\n Deploy Tokens Validation Success: {value}")
+                    logging.info(f"Deploy Tokens Validation Success: {value}")
                 except Exception as e:
-                    print(
+                    logging.warning(
                         f"\n\n\n Deploy Tokens Validation Failed: {value}\nError: {e}"
                     )
                 try:
                     users = [User(**item) for item in value]
                     temp_value = Users(users=users)
-                    print(f"\n\n\n Users Validation Success: {value}")
+                    logging.info(f"Users Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Users Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Users Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     memberships = [Membership(**item) for item in value]
                     temp_value = Memberships(memberships=memberships)
-                    print(f"\n\n\n Memberships Success: {value}")
+                    logging.info(f"Memberships Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Memberships Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Memberships Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     groups = [Group(**item) for item in value]
                     temp_value = Groups(groups=groups)
-                    print(f"\n\n\n Groups Validation Success: {value}")
+                    logging.info(f"Groups Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Groups Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Groups Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     pipeline_variables = [PipelineVariable(**item) for item in value]
                     temp_value = PipelineVariables(
                         pipeline_variables=pipeline_variables
                     )
-                    print(f"\n\n\n PipelineVariable Validation Success: {value}")
+                    logging.info(f"PipelineVariable Validation Success: {value}")
                 except Exception as e:
-                    print(
+                    logging.warning(
                         f"\n\n\n PipelineVariable Validation Failed: {value}\nError: {e}"
                     )
                 try:
                     projects = [Project(**item) for item in value]
                     temp_value = Projects(projects=projects)
-                    print(f"\n\n\n Projects Validation Success: {value}")
+                    logging.info(f"Projects Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Projects Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Projects Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     issues = [Issue(**item) for item in value]
                     temp_value = Issues(issues=issues)
-                    print(f"\n\n\n Issues Validation Success: {value}")
+                    logging.info(f"Issues Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Issues Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Issues Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     wiki_pages = [WikiPage(**item) for item in value]
                     temp_value = WikiPages(wiki_pages=wiki_pages)
-                    print(f"\n\n\n WikiPages Validation Success: {value}")
+                    logging.info(f"WikiPages Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n WikiPages Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n WikiPages Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     approval_rules = [ApprovalRule(**item) for item in value]
                     temp_value = ApprovalRules(approval_rules=approval_rules)
-                    print(f"\n\n\n ApprovalRules Validation Success: {value}")
+                    logging.info(f"ApprovalRules Validation Success: {value}")
                 except Exception as e:
-                    print(
+                    logging.warning(
                         f"\n\n\n ApprovalRules Validation Failed: {value}\nError: {e}"
                     )
                 try:
                     jobs = [Job(**item) for item in value]
                     temp_value = Jobs(jobs=jobs)
-                    print(f"\n\n\n Jobs Validation Success: {value}")
+                    logging.info(f"Jobs Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Jobs Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Jobs Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     packages = [Package(**item) for item in value]
                     temp_value = Packages(packages=packages)
-                    print(f"\n\n\n Packages Validation Success: {value}")
+                    logging.info(f"Packages Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Packages Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Packages Validation Failed: {value}\nError: {e}"
+                    )
                 try:
                     runners = [Runner(**item) for item in value]
                     temp_value = Runners(runners=runners)
-                    print(f"\n\n\n Runners Validation Success: {value}")
+                    logging.info(f"Runners Validation Success: {value}")
                 except Exception as e:
-                    print(f"\n\n\n Runners Validation Failed: {value}\nError: {e}")
+                    logging.warning(
+                        f"\n\n\n Runners Validation Failed: {value}\nError: {e}"
+                    )
         elif isinstance(value, dict):
             for model_name, model in single_models.items():
-                print(f"VALIDATING FOR: {model_name} - DATA: {value}")
                 try:
                     temp_value = model(**value)
-                    print(f"\n\n\n {model_name} Model Validation Success: {value}")
+                    logging.info(f"{model_name} Model Validation Success: {value}")
                 except Exception as e:
-                    print(
+                    logging.warning(
                         f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
                     )
 
