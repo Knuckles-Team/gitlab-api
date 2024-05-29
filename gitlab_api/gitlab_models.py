@@ -1,6 +1,19 @@
-from typing import Union, List, Dict, Optional
-from pydantic import BaseModel, field_validator, model_validator
+#!/usr/bin/python
+# coding: utf-8
+import logging
 import re
+
+from typing import Union, List, Dict, Optional, Any
+from pydantic import (
+    BaseModel,
+    Field,
+    ConfigDict,
+    field_validator,
+    model_validator,
+    HttpUrl,
+    EmailStr,
+)
+from datetime import datetime
 
 try:
     from gitlab_api.decorators import require_auth
@@ -19,6 +32,14 @@ except ModuleNotFoundError:
         MissingParameterError,
     )
 
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+########################################################################################################################
+#                                               Input Models                                                           #
+########################################################################################################################
+
 
 class BranchModel(BaseModel):
     """
@@ -30,7 +51,7 @@ class BranchModel(BaseModel):
         reference (str, optional): Reference information for the branch.
         api_parameters (str): Additional API parameters for the group.
 
-    Notes:
+    Comments:
         This model includes a validator `validate_required_parameters` to ensure that the `project_id` field is
         provided when either `branch` or `reference` is specified.
     """
@@ -117,7 +138,7 @@ class CommitModel(BaseModel):
     reference: Optional[str] = None
     name: Optional[str] = None
     context: Optional[str] = None
-    target_url: Optional[str] = None
+    target_url: Optional[Union[HttpUrl, str]] = None
     description: Optional[str] = None
     coverage: Optional[Union[float, str]] = None
     pipeline_id: Optional[Union[int, str]] = None
@@ -125,7 +146,7 @@ class CommitModel(BaseModel):
     start_branch: Optional[str] = None
     start_sha: Optional[str] = None
     start_project: Optional[Union[int, str]] = None
-    author_email: Optional[str] = None
+    author_email: Optional[EmailStr] = None
     author_name: Optional[str] = None
     stats: Optional[bool] = None
     force: Optional[bool] = None
@@ -362,7 +383,8 @@ class CommitModel(BaseModel):
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
         return values
 
 
@@ -1001,7 +1023,8 @@ class MergeRequestModel(BaseModel):
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
         return values
 
     @field_validator("scope")
@@ -1343,7 +1366,8 @@ class MergeRequestRuleModel(BaseModel):
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
         return values
 
 
@@ -1541,7 +1565,7 @@ class ProjectModel(BaseModel):
     - analytics_access_level (str): Access level for analytics.
     - approvals_before_merge (int): Number of approvals required before merge.
     - auto_cancel_pending_pipelines (str): Auto-cancel pending pipelines.
-    - ... (other attributes)
+    - default=None (other attributes)
 
     Methods:
     - build_api_parameters(values): Build API parameters.
@@ -1585,7 +1609,7 @@ class ProjectModel(BaseModel):
     expires_at: Optional[str] = None
     forking_access_level: Optional[str] = None
     group_access: Optional[int] = None
-    import_url: Optional[str] = None
+    import_url: Optional[Union[HttpUrl, str]] = None
     issues_access_level: Optional[str] = None
     issues_template: Optional[str] = None
     keep_latest_artifact: Optional[bool] = None
@@ -1873,7 +1897,8 @@ class ProjectModel(BaseModel):
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
 
         return values
 
@@ -2109,7 +2134,8 @@ class ProtectedBranchModel(BaseModel):
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
         return values
 
     @field_validator("allow_force_push", "code_owner_approval_required")
@@ -2272,7 +2298,8 @@ class ReleaseModel(BaseModel):
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
 
         return values
 
@@ -2464,7 +2491,8 @@ class RunnerModel(BaseModel):
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
 
         return values
 
@@ -2786,10 +2814,13 @@ class WikiModel(BaseModel):
             data["title"] = values.get("title")
         if "format" in values:
             data["format"] = values.get("format")
+        if "file" in values:
+            data["file"] = f'@{values.get("file")}'
 
         data = {k: v for k, v in data.items() if v is not None}
 
-        values["data"] = data
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
 
         return values
 
@@ -2827,4 +2858,3104 @@ class WikiModel(BaseModel):
         """
         if not isinstance(value, (int, str)):
             raise ValueError("Project ID must be an integer or a string")
+        return value
+
+
+########################################################################################################################
+#                                              Output Models                                                           #
+########################################################################################################################
+class IssueStats(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="IssueStats")
+    total: Optional[int] = Field(default=None, description="Total number of issues")
+    closed: Optional[int] = Field(default=None, description="Number of closed issues")
+    opened: Optional[int] = Field(default=None, description="Number of opened issues")
+
+
+class Milestone(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Milestone")
+    id: Optional[int] = Field(
+        default=None, description="Unique identifier for the milestone"
+    )
+    iid: Optional[int] = Field(
+        default=None, description="Internal ID for the milestone"
+    )
+    project_id: Optional[int] = Field(
+        default=None, description="ID of the project the milestone belongs to"
+    )
+    title: Optional[str] = Field(default=None, description="Title of the milestone")
+    description: Optional[str] = Field(
+        default=None, description="Description of the milestone"
+    )
+    state: Optional[str] = Field(
+        default=None, description="State of the milestone (e.g., active, closed)"
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the milestone was created"
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the milestone was last updated"
+    )
+    due_date: Optional[str] = Field(
+        default=None, description="Due date for the milestone"
+    )
+    start_date: Optional[str] = Field(
+        default=None, description="Start date for the milestone"
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL to the milestone in GitLab"
+    )
+    closed_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the milestone was closed."
+    )
+    issue_stats: Optional[IssueStats] = Field(
+        default=None, description="Statistics of issues related to the milestone"
+    )
+
+
+class TimeStats(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="TimeStats")
+    time_estimate: Optional[int] = Field(
+        default=None,
+        description="Estimated time to complete the merge request (in seconds)",
+    )
+    total_time_spent: Optional[int] = Field(
+        default=None, description="Total time spent on the merge request (in seconds)"
+    )
+    human_time_estimate: Optional[str] = Field(
+        default=None,
+        description="Human-readable estimated time to complete the merge request",
+    )
+    human_total_time_spent: Optional[str] = Field(
+        default=None, description="Human-readable total time spent on the merge request"
+    )
+
+
+class TaskCompletionStatus(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="TaskCompletionStatus")
+    count: Optional[int] = Field(
+        default=None, description="Total number of tasks in the merge request"
+    )
+    completed_count: Optional[int] = Field(
+        default=None, description="Number of completed tasks in the merge request"
+    )
+
+
+class References(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="References")
+    short: Optional[str] = Field(
+        default=None, description="Short reference of the merge request"
+    )
+    relative: Optional[str] = Field(
+        default=None, description="Relative reference of the merge request"
+    )
+    full: Optional[str] = Field(
+        default=None, description="Full reference of the merge request"
+    )
+
+
+class Artifact(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Artifact")
+    file_type: Optional[str] = Field(
+        default=None, description="Type of the artifact file."
+    )
+    size: Optional[int] = Field(default=None, description="Size of the artifact file.")
+    filename: Optional[str] = Field(
+        default=None, description="Filename of the artifact file."
+    )
+    file_format: Optional[str] = Field(
+        default=None, description="Format of the artifact file."
+    )
+
+
+class ArtifactsFile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ArtifactsFile")
+    filename: Optional[str] = Field(
+        default=None, description="Filename of the artifacts file."
+    )
+    size: Optional[int] = Field(default=None, description="Size of the artifacts file.")
+
+
+class RunnerManager(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="RunnerManager")
+    id: Optional[int] = Field(default=None, description="ID of the runner manager.")
+    system_id: Optional[str] = Field(
+        default=None, description="System ID of the runner manager."
+    )
+    version: Optional[str] = Field(
+        default=None, description="Version of the runner manager."
+    )
+    revision: Optional[str] = Field(
+        default=None, description="Revision of the runner manager."
+    )
+    platform: Optional[str] = Field(
+        default=None, description="Platform of the runner manager."
+    )
+    architecture: Optional[str] = Field(
+        default=None, description="Architecture of the runner manager."
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the runner manager was created."
+    )
+    contacted_at: Optional[datetime] = Field(
+        default=None,
+        description="Timestamp when the runner manager was last contacted.",
+    )
+    ip_address: Optional[str] = Field(
+        default=None, description="IP address of the runner manager."
+    )
+    status: Optional[str] = Field(
+        default=None, description="Status of the runner manager."
+    )
+
+
+class Configuration(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Configuration")
+    approvals_before_merge: Optional[int] = Field(
+        default=None, description="Number of approvals required before merge"
+    )
+    reset_approvals_on_push: Optional[bool] = Field(
+        default=None, description="Whether approvals reset on new push"
+    )
+    selective_code_owner_removals: Optional[bool] = Field(
+        default=None, description="Whether selective code owner removals are allowed"
+    )
+    disable_overriding_approvers_per_merge_request: Optional[bool] = Field(
+        default=None,
+        description="Whether overriding approvers per merge request is disabled",
+    )
+    merge_requests_author_approval: Optional[bool] = Field(
+        default=None, description="Whether authors can approve their own merge requests"
+    )
+    merge_requests_disable_committers_approval: Optional[bool] = Field(
+        default=None, description="Whether committers are disabled from approving"
+    )
+    require_password_to_approve: Optional[bool] = Field(
+        default=None, description="Whether a password is required to approve"
+    )
+
+
+class Iteration(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Iteration")
+    id: Optional[int] = Field(default=None)
+    iid: Optional[int] = Field(default=None)
+    sequence: Optional[int] = Field(default=None)
+    group_id: Optional[int] = Field(default=None)
+    title: Optional[str] = Field(default=None)
+    description: Optional[str] = Field(default=None)
+    state: Optional[int] = Field(default=None)
+    created_at: Optional[datetime] = Field(default=None)
+    updated_at: Optional[datetime] = Field(default=None)
+    start_date: Optional[str] = Field(default=None)
+    due_date: Optional[str] = Field(default=None)
+    web_url: Optional[Union[HttpUrl, str]] = Field(default=None)
+
+
+class Identity(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Identity")
+    provider: Optional[str] = Field(default=None, description="The external provider.")
+    extern_uid: Optional[str] = Field(
+        default=None, description="The external authentication provider UID."
+    )
+
+
+class GroupSamlIdentity(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="GroupSamlIdentity")
+    extern_uid: Optional[str] = Field(
+        default=None, description="External UID of the SAML identity"
+    )
+    provider: Optional[str] = Field(
+        default=None, description="Provider of the SAML identity"
+    )
+    saml_provider_id: Optional[int] = Field(
+        default=None, description="ID of the SAML provider"
+    )
+
+
+class CreatedBy(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="CreatedBy")
+    id: Optional[int] = Field(
+        default=None, description="ID of the user who created the member"
+    )
+    username: Optional[str] = Field(
+        default=None, description="Username of the user who created the member"
+    )
+    name: Optional[str] = Field(
+        default=None, description="Name of the user who created the member"
+    )
+    state: Optional[str] = Field(
+        default=None, description="State of the user who created the member"
+    )
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="Avatar URL of the user who created the member"
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="Web URL of the user who created the member"
+    )
+
+
+class User(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="User")
+    id: Optional[int] = Field(default=None, description="The unique ID of the user.")
+    username: Optional[str] = Field(
+        default=None, description="The username of the user."
+    )
+    user: Optional[str] = Field(default=None, description="The user.")
+    email: Optional[EmailStr] = Field(
+        default=None, description="The email of the user."
+    )
+    name: Optional[str] = Field(default=None, description="The name of the user.")
+    state: Optional[str] = Field(
+        default=None, description="The state of the user (e.g., active, blocked)."
+    )
+    locked: Optional[bool] = Field(
+        default=None, description="Indicates if the user is locked."
+    )
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The URL of the user's avatar."
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The URL of the user's web profile."
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="The creation date of the user."
+    )
+    is_admin: Optional[bool] = Field(
+        default=None, description="Indicates if the user is an administrator."
+    )
+    bio: Optional[str] = Field(default=None, description="The bio of the user.")
+    location: Optional[str] = Field(
+        default=None, description="The location of the user."
+    )
+    skype: Optional[str] = Field(default=None, description="The Skype ID of the user.")
+    linkedin: Optional[str] = Field(
+        default=None, description="The LinkedIn ID of the user."
+    )
+    twitter: Optional[str] = Field(
+        default=None, description="The Twitter handle of the user."
+    )
+    discord: Optional[str] = Field(
+        default=None, description="The Discord ID of the user."
+    )
+    website_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The website URL of the user."
+    )
+    organization: Optional[str] = Field(
+        default=None, description="The organization the user belongs to."
+    )
+    job_title: Optional[str] = Field(
+        default=None, description="The job title of the user."
+    )
+    last_sign_in_at: Optional[datetime] = Field(
+        default=None, description="The last sign-in date of the user."
+    )
+    confirmed_at: Optional[datetime] = Field(
+        default=None, description="The date the user was confirmed."
+    )
+    theme_id: Optional[int] = Field(
+        default=None, description="The theme ID of the user's profile."
+    )
+    last_activity_on: Optional[datetime] = Field(
+        default=None, description="The last activity date of the user."
+    )
+    color_scheme_id: Optional[int] = Field(
+        default=None, description="The color scheme ID of the user's profile."
+    )
+    projects_limit: Optional[int] = Field(
+        default=None, description="The project limit for the user."
+    )
+    current_sign_in_at: Optional[datetime] = Field(
+        default=None, description="The current sign-in date of the user."
+    )
+    note: Optional[str] = Field(default=None, description="A note about the user.")
+    identities: Optional[List[Identity]] = Field(
+        default=None,
+        description="List of external identities associated with the user.",
+    )
+    can_create_group: Optional[bool] = Field(
+        default=None, description="Indicates if the user can create groups."
+    )
+    can_create_project: Optional[bool] = Field(
+        default=None, description="Indicates if the user can create projects."
+    )
+    two_factor_enabled: Optional[bool] = Field(
+        default=None, description="Indicates if two-factor authentication is enabled."
+    )
+    external: Optional[bool] = Field(
+        default=None, description="Indicates if the user is external."
+    )
+    private_profile: Optional[bool] = Field(
+        default=None, description="Indicates if the user's profile is private."
+    )
+    current_sign_in_ip: Optional[str] = Field(
+        default=None, description="The current sign-in IP of the user."
+    )
+    last_sign_in_ip: Optional[str] = Field(
+        default=None, description="The last sign-in IP of the user."
+    )
+    namespace_id: Optional[int] = Field(
+        default=None, description="The namespace ID of the user."
+    )
+    created_by: Optional[Union[int, CreatedBy]] = Field(
+        default=None, description="The ID of the user who created this user."
+    )
+    email_reset_offered_at: Optional[datetime] = Field(
+        default=None, description="The date when an email reset was offered."
+    )
+    expires_at: Optional[datetime] = Field(
+        default=None, description="Timestamp of when the member's access expires"
+    )
+    access_level: Optional[int] = Field(
+        default=None, description="Access level of the member"
+    )
+    group_saml_identity: Optional[GroupSamlIdentity] = Field(
+        default=None, description="SAML identity details of the member"
+    )
+    approved: Optional[bool] = Field(
+        default=None, description="Approval status of the pending member"
+    )
+    invited: Optional[bool] = Field(
+        default=None, description="Invitation status of the pending member"
+    )
+    public_email: Optional[str] = Field(
+        None, description="Public email address of the user"
+    )
+    pronouns: Optional[str] = Field(None, description="Pronouns of the user")
+    bot: Optional[bool] = Field(
+        default=None, description="Indicates if the user is a bot"
+    )
+    work_information: Optional[str] = Field(
+        None, description="Work information of the user"
+    )
+    followers: Optional[int] = Field(
+        default=None, description="Number of followers the user has"
+    )
+    following: Optional[int] = Field(
+        default=None, description="Number of people the user is following"
+    )
+    local_time: Optional[str] = Field(None, description="Local time of the user")
+    commit_email: Optional[str] = Field(
+        default=None, description="Commit email address of the user"
+    )
+    shared_runners_minutes_limit: Optional[int] = Field(
+        None, description="Shared runners minutes limit for the user"
+    )
+    extra_shared_runners_minutes_limit: Optional[int] = Field(
+        None, description="Extra shared runners minutes limit"
+    )
+    membership_type: Optional[str] = Field(None, description="Membership type")
+    removable: Optional[bool] = Field(
+        default=None, description="Whether or not the members are removable"
+    )
+    last_login_at: Optional[datetime] = Field(
+        default=None, description="The last login-in date of the user."
+    )
+
+
+class Users(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Users")
+    users: List[User] = Field(default=None, description="All the users")
+
+
+class Namespace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Namespace")
+    id: Optional[int] = Field(default=None, description="The ID of the namespace.")
+    name: Optional[str] = Field(default=None, description="The name of the namespace.")
+    path: Optional[str] = Field(default=None, description="The path of the namespace.")
+    kind: Optional[str] = Field(default=None, description="The kind of the namespace.")
+    full_path: Optional[str] = Field(
+        default=None, description="The full path of the namespace."
+    )
+    parent_id: Optional[int] = Field(
+        default=None, description="The parent ID of the namespace, if any."
+    )
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The avatar URL of the namespace."
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The web URL of the namespace."
+    )
+
+
+class ContainerExpirationPolicy(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ContainerExpirationPolicy")
+    cadence: Optional[str] = Field(
+        default=None, description="The cadence of the expiration policy."
+    )
+    enabled: Optional[bool] = Field(
+        default=None, description="Whether the expiration policy is enabled."
+    )
+    keep_n: Optional[int] = Field(default=None, description="Number of items to keep.")
+    older_than: Optional[str] = Field(
+        default=None, description="Items older than this will be removed."
+    )
+    name_regex: Optional[str] = Field(default=None, description="Regex to match names.")
+    name_regex_keep: Optional[str] = Field(
+        default=None, description="Regex to match names to keep."
+    )
+    next_run_at: Optional[datetime] = Field(
+        default=None, description="The next run time of the policy."
+    )
+
+
+class Permissions(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Permissions")
+    project_access: Optional[Dict] = Field(
+        default=None, description="Project access level and notification settings."
+    )
+    group_access: Optional[Dict] = Field(
+        default=None, description="Group access level and notification settings."
+    )
+
+
+class Statistics(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Statistics")
+    commit_count: Optional[int] = Field(
+        default=None, description="The number of commits in the project."
+    )
+    storage_size: Optional[int] = Field(
+        default=None, description="The total storage size of the project."
+    )
+    repository_size: Optional[int] = Field(
+        default=None, description="The size of the repository."
+    )
+    wiki_size: Optional[int] = Field(default=None, description="The size of the wiki.")
+    lfs_objects_size: Optional[int] = Field(
+        default=None, description="The size of LFS objects."
+    )
+    job_artifacts_size: Optional[int] = Field(
+        default=None, description="The size of job artifacts."
+    )
+    pipeline_artifacts_size: Optional[int] = Field(
+        default=None, description="The size of pipeline artifacts."
+    )
+    packages_size: Optional[int] = Field(
+        default=None, description="The size of packages."
+    )
+    snippets_size: Optional[int] = Field(
+        default=None, description="The size of snippets."
+    )
+    uploads_size: Optional[int] = Field(
+        default=None, description="The size of uploads."
+    )
+
+
+class Links(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Links")
+    self: Optional[str] = Field(default=None, description="URL to the project itself.")
+    issues: Optional[str] = Field(
+        default=None, description="URL to the project's issues."
+    )
+    merge_requests: Optional[str] = Field(
+        default=None, description="URL to the project's merge requests."
+    )
+    repo_branches: Optional[str] = Field(
+        default=None, description="URL to the project's repository branches."
+    )
+    labels: Optional[str] = Field(
+        default=None, description="URL to the project's labels."
+    )
+    events: Optional[str] = Field(
+        default=None, description="URL to the project's events."
+    )
+    members: Optional[str] = Field(
+        default=None, description="URL to the project's members."
+    )
+    cluster_agents: Optional[str] = Field(
+        default=None, description="URL to the project's cluster agents."
+    )
+    self_link: Optional[str] = Field(
+        default=None, alias="self", description="API URL to the issue itself."
+    )
+    notes: Optional[str] = Field(
+        default=None, description="API URL to the notes of the issue."
+    )
+    award_emoji: Optional[str] = Field(
+        default=None, description="API URL to the award emojis of the issue."
+    )
+    project: Optional[str] = Field(
+        default=None, description="API URL to the project of the issue."
+    )
+    closed_as_duplicate_of: Optional[str] = Field(
+        default=None,
+        description="API URL to the issue this one was closed as duplicate of.",
+    )
+
+
+class Diff(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Diff")
+    id: Optional[int] = Field(default=None, description="The ID of the Diff")
+    merge_request_id: Optional[int] = Field(
+        default=None, description="The merge request ID"
+    )
+    head_commit_sha: Optional[str] = Field(
+        default=None, description="The head commit sha"
+    )
+    base_commit_sha: Optional[str] = Field(
+        default=None, description="The base commit sha"
+    )
+    start_commit_sha: Optional[str] = Field(
+        default=None, description="The start commit sha"
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="Creation date of the note"
+    )
+    state: Optional[str] = Field(default=None, description="The state of the Diff")
+    real_size: Optional[str] = Field(
+        default=None, description="The real size of the Diff"
+    )
+    patch_id_sha: Optional[str] = Field(
+        default=None, description="The patch ID of the sha"
+    )
+    diff: Optional[str] = Field(default=None, description="The diff of the commit")
+    new_path: Optional[str] = Field(
+        default=None, description="The new path of the file"
+    )
+    old_path: Optional[str] = Field(
+        default=None, description="The old path of the file"
+    )
+    a_mode: Optional[str] = Field(
+        default=None, description="The file mode for the old file"
+    )
+    b_mode: Optional[str] = Field(
+        default=None, description="The file mode for the new file"
+    )
+    new_file: Optional[bool] = Field(
+        default=None, description="Whether this is a new file"
+    )
+    renamed_file: Optional[bool] = Field(
+        default=None, description="Whether this file was renamed"
+    )
+    deleted_file: Optional[bool] = Field(
+        default=None, description="Whether this file was deleted"
+    )
+    generated_file: Optional[bool] = Field(
+        default=None, description="Whether this file was generated"
+    )
+
+
+class Diffs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Diffs")
+    diffs: List[Diff] = Field(default=None, description="List of diffs")
+
+
+class DetailedStatus(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="DetailedStatus")
+    icon: Optional[str] = Field(
+        default=None, description="The icon representing the status."
+    )
+    text: Optional[str] = Field(
+        default=None, description="The text describing the status."
+    )
+    label: Optional[str] = Field(default=None, description="The label of the status.")
+    group: Optional[str] = Field(
+        default=None, description="The group to which this status belongs."
+    )
+    tooltip: Optional[str] = Field(
+        default=None, description="The tooltip text for the status."
+    )
+    has_details: Optional[bool] = Field(
+        default=None, description="Indicates if the status has details."
+    )
+    details_path: Optional[str] = Field(
+        default=None, description="The path to the details of the status."
+    )
+    illustration: Optional[Any] = Field(
+        default=None, description="The illustration object related to the status."
+    )
+    favicon: Optional[str] = Field(
+        default=None, description="The URL to the favicon representing the status."
+    )
+
+
+class Pipeline(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Pipeline")
+    id: Optional[int] = Field(default=None, description="ID of the pipeline")
+    iid: Optional[int] = Field(
+        default=None, description="The internal ID of the pipeline."
+    )
+    ref: Optional[str] = Field(
+        default=None, description="Reference name of the pipeline"
+    )
+    sha: Optional[str] = Field(default=None, description="SHA of the pipeline")
+    status: Optional[str] = Field(default=None, description="Status of the pipeline")
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL for the pipeline"
+    )
+    project_id: Optional[int] = Field(
+        default=None, description="The ID of the project associated with the pipeline."
+    )
+    before_sha: Optional[str] = Field(
+        default=None, description="The commit SHA before the current one."
+    )
+    tag: Optional[bool] = Field(
+        default=None, description="Indicates if the pipeline is for a tag."
+    )
+    yaml_errors: Optional[str] = Field(
+        default=None,
+        description="Errors encountered in the pipeline YAML configuration.",
+    )
+    user: Optional[User] = Field(
+        default=None, description="The user who triggered the pipeline."
+    )
+    created_at: Optional[str] = Field(
+        default=None, description="Timestamp when the pipeline was created."
+    )
+    updated_at: Optional[str] = Field(
+        default=None, description="Timestamp when the pipeline was last updated."
+    )
+    started_at: Optional[str] = Field(
+        default=None, description="Timestamp when the pipeline started."
+    )
+    finished_at: Optional[str] = Field(
+        default=None, description="Timestamp when the pipeline finished."
+    )
+    committed_at: Optional[str] = Field(
+        default=None, description="Timestamp when the pipeline was committed."
+    )
+    duration: Optional[float] = Field(
+        default=None, description="The duration of the pipeline in seconds."
+    )
+    queued_duration: Optional[float] = Field(
+        default=None, description="The duration the pipeline spent in the queue."
+    )
+    coverage: Optional[str] = Field(
+        default=None, description="The code coverage percentage."
+    )
+    name: Optional[str] = Field(default=None, description="The name of the pipeline.")
+    source: Optional[str] = Field(
+        default=None, description="The source of the pipeline (e.g., push, web)."
+    )
+    detailed_status: Optional[DetailedStatus] = Field(
+        default=None, description="The detailed status of the pipeline."
+    )
+
+
+class Pipelines(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Pipelines")
+    pipelines: List[Pipeline] = Field(default=None, description="List of pipelines")
+
+
+class PackageLink(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="PackageLink")
+    web_path: Optional[str] = Field(
+        default=None, description="Web path to access the package"
+    )
+    delete_api_path: Optional[str] = Field(
+        default=None, description="API path to delete the package"
+    )
+
+
+class PackageVersion(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="PackageVersion")
+    id: Optional[int] = Field(default=None, description="Version ID of the package")
+    version: Optional[str] = Field(default=None, description="Version of the package")
+    created_at: Optional[datetime] = Field(
+        default=None, description="Creation date and time of the package version"
+    )
+    pipelines: Optional[List[Pipeline]] = Field(
+        default=None,
+        description="List of pipelines associated with the package version",
+    )
+
+
+class Package(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Package")
+    id: Optional[int] = Field(default=None, description="Package ID")
+    name: Optional[str] = Field(default=None, description="Name of the package")
+    version: Optional[str] = Field(default=None, description="Version of the package")
+    package_type: Optional[str] = Field(
+        default=None, description="Type of the package (e.g., maven, npm, conan)"
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="Creation date and time of the package"
+    )
+    last_downloaded_at: Optional[datetime] = Field(
+        default=None, description="Last downloaded date and time of the package"
+    )
+    conan_package_name: Optional[str] = Field(
+        default=None, description="Conan package name if applicable"
+    )
+    links: Optional[PackageLink] = Field(
+        default=None, alias="_links", description="Links related to the package"
+    )
+    pipelines: Optional[List[Pipeline]] = Field(
+        default=None, description="List of pipelines associated with the package"
+    )
+    tags: Optional[List[str]] = Field(
+        default=None, description="List of tags associated with the package"
+    )
+    versions: Optional[List[PackageVersion]] = Field(
+        default=None, description="List of different versions of the package"
+    )
+    package_id: Optional[int] = Field(
+        default=None, description="ID of the package this file belongs to"
+    )
+    file_name: Optional[str] = Field(
+        default=None, description="Name of the package file"
+    )
+    size: Optional[int] = Field(
+        default=None, description="Size of the package file in bytes"
+    )
+    file_md5: Optional[str] = Field(
+        default=None, description="MD5 checksum of the package file"
+    )
+    file_sha1: Optional[str] = Field(
+        default=None, description="SHA-1 checksum of the package file"
+    )
+    file_sha256: Optional[str] = Field(
+        default=None, description="SHA-256 checksum of the package file"
+    )
+
+
+class Packages(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Packages")
+    packages: List[Package] = Field(default=None, description="List of packages")
+
+
+class CommitStats(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="CommitStats")
+    additions: Optional[int] = Field(
+        default=None, description="Number of additions in the commit"
+    )
+    deletions: Optional[int] = Field(
+        default=None, description="Number of deletions in the commit"
+    )
+    total: Optional[int] = Field(
+        default=None, description="Total number of changes in the commit"
+    )
+
+
+class CommitSignature(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="CommitSignature")
+    signature_type: Optional[str] = Field(
+        default=None, description="Type of the signature"
+    )
+    verification_status: Optional[str] = Field(
+        default=None, description="Verification status of the signature"
+    )
+    commit_source: Optional[str] = Field(
+        default=None, description="Source of the commit"
+    )
+    gpg_key_id: Optional[int] = Field(default=None, description="ID of the GPG key")
+    gpg_key_primary_keyid: Optional[str] = Field(
+        default=None, description="Primary key ID of the GPG key"
+    )
+    gpg_key_user_name: Optional[str] = Field(
+        default=None, description="User name of the GPG key owner"
+    )
+    gpg_key_user_email: Optional[str] = Field(
+        default=None, description="User email of the GPG key owner"
+    )
+    gpg_key_subkey_id: Optional[str] = Field(
+        default=None, description="Subkey ID of the GPG key"
+    )
+    key: Optional[Dict[str, Any]] = Field(default=None, description="SSH key details")
+    x509_certificate: Optional[Dict[str, Any]] = Field(
+        default=None, description="X509 certificate details"
+    )
+    message: Optional[str] = Field(
+        default=None, description="The message from the signature response."
+    )
+
+
+class Comment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Comment")
+    id: Optional[int] = Field(default=None, description="ID of the note")
+    type: Optional[str] = Field(default=None, description="Type of the note")
+    body: Optional[str] = Field(default=None, description="Body content of the note")
+    note: Optional[str] = Field(default=None, description="Content of the note")
+    attachment: Optional[Any] = Field(
+        default=None, description="Attachment associated with the note"
+    )
+    author: Optional[User] = Field(default=None, description="Author of the note")
+    created_at: Optional[datetime] = Field(
+        default=None, description="Creation date of the note"
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None, description="Last update date of the note"
+    )
+    system: Optional[bool] = Field(
+        default=None, description="Whether the note is a system note"
+    )
+    noteable_id: Optional[int] = Field(
+        default=None, description="ID of the noteable entity"
+    )
+    noteable_type: Optional[str] = Field(
+        default=None, description="Type of the noteable entity"
+    )
+    resolvable: Optional[bool] = Field(
+        default=None, description="Whether the note is resolvable"
+    )
+    confidential: Optional[bool] = Field(
+        default=None, description="Whether the note is confidential"
+    )
+    noteable_iid: Optional[int] = Field(
+        default=None, description="IID of the noteable entity"
+    )
+    commands_changes: Optional[Dict[str, Any]] = Field(
+        default=None, description="Command changes associated with the note"
+    )
+    line_type: Optional[str] = Field(default=None, description="Line type")
+    path: Optional[str] = Field(default=None, description="Path")
+    line: Optional[int] = Field(default=None, description="Line in note")
+
+
+class Comments(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Comments")
+    comments: List[Comment] = Field(default=None, description="List of comments")
+
+
+class Commit(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Commit")
+    id: Optional[Union[str, int]] = Field(default=None, description="The commit ID.")
+    short_id: Optional[str] = Field(
+        default=None, description="A shortened version of the commit ID."
+    )
+    started_at: Optional[datetime] = Field(
+        default=None, description="The start date of the commit."
+    )
+    finished_at: Optional[datetime] = Field(
+        default=None, description="The finished date of the commit."
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="The creation date of the commit."
+    )
+    parent_ids: Optional[List[str]] = Field(
+        default=None, description="A list of parent commit IDs."
+    )
+    title: Optional[str] = Field(default=None, description="The title of the commit.")
+    description: Optional[str] = Field(
+        default=None, description="The commit description."
+    )
+    message: Optional[str] = Field(
+        default=None, description="The name of the commit author."
+    )
+    author: Optional[User] = Field(
+        default=None, description="The author of the commit."
+    )
+    author_name: Optional[str] = Field(
+        default=None, description="The name of the commit author."
+    )
+    author_email: Optional[str] = Field(
+        default=None, description="The email of the commit author."
+    )
+    authored_date: Optional[datetime] = Field(
+        default=None, description="The date the commit was authored."
+    )
+    committer_name: Optional[str] = Field(
+        default=None, description="The name of the committer."
+    )
+    committer_email: Optional[EmailStr] = Field(
+        default=None, description="The email of the committer."
+    )
+    committed_date: Optional[datetime] = Field(
+        default=None, description="The date the commit was committed."
+    )
+    name: Optional[str] = Field(default=None, description="The name of the commit.")
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The web URL for the commit."
+    )
+    trailers: Optional[Dict[str, Any]] = Field(
+        default=None, description="Trailers of the commit"
+    )
+    extended_trailers: Optional[Dict[str, List[str]]] = Field(
+        default=None, description="Extended trailers of the commit"
+    )
+    stats: Optional[CommitStats] = Field(
+        default=None, description="Statistics of the commit"
+    )
+    status: Optional[str] = Field(default=None, description="Status of the commit")
+    last_pipeline: Optional[Pipeline] = Field(
+        default=None, description="Last pipeline associated with the commit"
+    )
+    signature: Optional[CommitSignature] = Field(
+        default=None, description="Signature associated with the commit"
+    )
+    sha: Optional[str] = Field(default=None, description="SHA signature")
+    count: Optional[int] = Field(default=None, description="Commit count")
+    dry_run: Optional[str] = Field(default=None, description="Dry run status")
+    individual_note: Optional[bool] = Field(
+        default=None, description="Flag that this was a discussion"
+    )
+    notes: Optional[List[Comment]] = Field(
+        default=None, description="Discussion on commit"
+    )
+    allow_failure: Optional[bool] = Field(
+        default=None, description="Flag allows for failure"
+    )
+    target_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The target url for the commit."
+    )
+    ref: Optional[str] = Field(default=None, description="The ref of the commit.")
+    error_code: Optional[str] = Field(default=None, description="Error codes")
+    coverage: Optional[float] = Field(default=None, description="Coverage of commit")
+
+
+class Commits(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Commits")
+    commits: List[Commit] = Field(default=None, description="List of commits")
+
+
+class Membership(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Membership")
+    id: Optional[int] = Field(default=None, description="ID of the membership")
+    source_id: Optional[int] = Field(
+        default=None, description="Source ID of the membership"
+    )
+    source_full_name: Optional[str] = Field(
+        default=None, description="Full name of the source"
+    )
+    source_members_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL of the source members"
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="Timestamp of when the membership was created"
+    )
+    expires_at: Optional[datetime] = Field(
+        default=None, description="Timestamp of when the membership expires"
+    )
+    access_level: Optional[dict] = Field(
+        default=None, description="Access level details of the membership"
+    )
+
+
+class Memberships(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Memberships")
+    memberships: List[Membership] = Field(
+        default=None, description="List of memberships"
+    )
+
+
+class ApprovedByUser(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ApprovedByUser")
+    user: User = Field(
+        default=None, description="User who has approved the merge request"
+    )
+
+
+class Project(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Project")
+    id: Optional[int] = Field(default=None, description="The ID of the project.")
+    description: Optional[str] = Field(
+        default=None, description="The description of the project."
+    )
+    description_html: Optional[str] = Field(
+        default=None, description="The HTML description of the project."
+    )
+    name: Optional[str] = Field(default=None, description="The name of the project.")
+    name_with_namespace: Optional[str] = Field(
+        default=None, description="The name with namespace of the project."
+    )
+    path: Optional[str] = Field(default=None, description="The path of the project.")
+    path_with_namespace: Optional[str] = Field(
+        default=None, description="The path with namespace of the project."
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="The creation time of the project."
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None, description="The last update time of the project."
+    )
+    default_branch: Optional[str] = Field(
+        default=None, description="The default branch of the project."
+    )
+    tag_list: Optional[List[str]] = Field(
+        default=None, description="Deprecated. Use `topics` instead."
+    )
+    topics: Optional[List[str]] = Field(
+        default=None, description="The topics of the project."
+    )
+    ssh_url_to_repo: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The SSH URL to the repository."
+    )
+    http_url_to_repo: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The HTTP URL to the repository."
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The web URL to the project."
+    )
+    readme_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The URL to the README file."
+    )
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The avatar URL of the project."
+    )
+    forks_count: Optional[int] = Field(default=None, description="The number of forks.")
+    star_count: Optional[int] = Field(default=None, description="The number of stars.")
+    last_activity_at: Optional[datetime] = Field(
+        default=None, description="The time of the last activity."
+    )
+    namespace: Optional[Namespace] = Field(
+        default=None, description="The namespace of the project."
+    )
+    container_registry_image_prefix: Optional[str] = Field(
+        default=None, description="The container registry image prefix."
+    )
+    additional_links: Optional[Links] = Field(
+        default=None, alias="_links", description="Related links."
+    )
+    packages_enabled: Optional[bool] = Field(
+        default=None, description="Whether packages are enabled."
+    )
+    empty_repo: Optional[bool] = Field(
+        default=None, description="Whether the repository is empty."
+    )
+    archived: Optional[bool] = Field(
+        default=None, description="Whether the project is archived."
+    )
+    visibility: Optional[str] = Field(
+        default=None, description="The visibility of the project."
+    )
+    resolve_outdated_diff_discussions: Optional[bool] = Field(
+        default=None, description="Whether outdated diff discussions are resolved."
+    )
+    container_expiration_policy: Optional[ContainerExpirationPolicy] = Field(
+        default=None, description="The container expiration policy."
+    )
+    issues_enabled: Optional[bool] = Field(
+        default=None, description="Whether issues are enabled."
+    )
+    merge_requests_enabled: Optional[bool] = Field(
+        default=None, description="Whether merge requests are enabled."
+    )
+    wiki_enabled: Optional[bool] = Field(
+        default=None, description="Whether the wiki is enabled."
+    )
+    jobs_enabled: Optional[bool] = Field(
+        default=None, description="Whether jobs are enabled."
+    )
+    snippets_enabled: Optional[bool] = Field(
+        default=None, description="Whether snippets are enabled."
+    )
+    container_registry_enabled: Optional[bool] = Field(
+        default=None,
+        description="Deprecated. Use `container_registry_access_level` instead.",
+    )
+    container_registry_access_level: Optional[str] = Field(
+        default=None, description="The access level for the container registry."
+    )
+    security_and_compliance_access_level: Optional[str] = Field(
+        default=None, description="The access level for security and compliance."
+    )
+    creator_id: Optional[int] = Field(
+        default=None, description="The ID of the creator."
+    )
+    import_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The import URL."
+    )
+    import_type: Optional[str] = Field(default=None, description="The import type.")
+    import_status: Optional[str] = Field(default=None, description="The import status.")
+    import_error: Optional[str] = Field(default=None, description="The import error.")
+    shared_runners_enabled: Optional[bool] = Field(
+        default=None, description="Whether shared runners are enabled."
+    )
+    group_runners_enabled: Optional[bool] = Field(
+        default=None, description="Whether group runners are enabled."
+    )
+    lfs_enabled: Optional[bool] = Field(
+        default=None, description="Whether LFS is enabled."
+    )
+    ci_default_git_depth: Optional[int] = Field(
+        default=None, description="The default git depth for CI."
+    )
+    ci_forward_deployment_enabled: Optional[bool] = Field(
+        default=None, description="Whether forward deployment is enabled for CI."
+    )
+    ci_forward_deployment_rollback_allowed: Optional[bool] = Field(
+        default=None,
+        description="Whether rollback is allowed for CI forward deployment.",
+    )
+    ci_allow_fork_pipelines_to_run_in_parent_project: Optional[bool] = Field(
+        default=None,
+        description="Whether fork pipelines can run in the parent project.",
+    )
+    ci_separated_caches: Optional[bool] = Field(
+        default=None, description="Whether CI caches are separated."
+    )
+    ci_restrict_pipeline_cancellation_role: Optional[str] = Field(
+        default=None, description="The role that can cancel pipelines."
+    )
+    public_jobs: Optional[bool] = Field(
+        default=None, description="Whether jobs are public."
+    )
+    shared_with_groups: Optional[List] = Field(
+        default=None, description="Groups the project is shared with."
+    )
+    only_allow_merge_if_pipeline_succeeds: Optional[bool] = Field(
+        default=None,
+        description="Whether merging is only allowed if the pipeline succeeds.",
+    )
+    allow_merge_on_skipped_pipeline: Optional[bool] = Field(
+        default=None, description="Whether merging is allowed on skipped pipelines."
+    )
+    restrict_user_defined_variables: Optional[bool] = Field(
+        default=None, description="Whether user-defined variables are restricted."
+    )
+    only_allow_merge_if_all_discussions_are_resolved: Optional[bool] = Field(
+        default=None,
+        description="Whether merging is only allowed if all discussions are resolved.",
+    )
+    remove_source_branch_after_merge: Optional[bool] = Field(
+        default=None, description="Whether the source branch is removed after merging."
+    )
+    request_access_enabled: Optional[bool] = Field(
+        default=None, description="Whether requesting access is enabled."
+    )
+    merge_method: Optional[str] = Field(
+        default=None, description="The method used for merging."
+    )
+    squash_option: Optional[str] = Field(default=None, description="The squash option.")
+    enforce_auth_checks_on_uploads: Optional[bool] = Field(
+        default=None, description="Whether auth checks are enforced on uploads."
+    )
+    suggestion_commit_message: Optional[str] = Field(
+        default=None, description="The suggestion commit message."
+    )
+    compliance_frameworks: Optional[List[str]] = Field(
+        default=None, description="The compliance frameworks."
+    )
+    issues_template: Optional[str] = Field(
+        default=None, description="The issues template."
+    )
+    merge_requests_template: Optional[str] = Field(
+        default=None, description="The merge requests template."
+    )
+    packages_relocation_enabled: Optional[bool] = Field(
+        default=None, description="Whether package relocation is enabled."
+    )
+    requirements_enabled: Optional[bool] = Field(
+        default=None, description="The requirements feature enabled status."
+    )
+    build_git_strategy: Optional[str] = Field(
+        default=None, description="The build git strategy."
+    )
+    build_timeout: Optional[int] = Field(default=None, description="The build timeout.")
+    auto_cancel_pending_pipelines: Optional[str] = Field(
+        default=None, description="The auto-cancel pending pipelines setting."
+    )
+    build_coverage_regex: Optional[str] = Field(
+        default=None, description="The build coverage regex."
+    )
+    ci_config_path: Optional[str] = Field(
+        default=None, description="The CI config path."
+    )
+    shared_runners_minutes_limit: Optional[int] = Field(
+        default=None, description="The shared runners minutes limit."
+    )
+    extra_shared_runners_minutes_limit: Optional[int] = Field(
+        default=None, description="The extra shared runners minutes limit."
+    )
+    printing_merge_request_link_enabled: Optional[bool] = Field(
+        default=None, description="Whether printing the merge request link is enabled."
+    )
+    merge_trains_enabled: Optional[bool] = Field(
+        default=None, description="Whether merge trains are enabled."
+    )
+    has_open_issues: Optional[bool] = Field(
+        default=None, description="Whether the project has open issues."
+    )
+    approvals_before_merge: Optional[int] = Field(
+        default=None, description="Number of approvals required before merging."
+    )
+    mirror: Optional[bool] = Field(
+        default=None, description="Whether the project is a mirror."
+    )
+    mirror_user_id: Optional[int] = Field(
+        default=None, description="The ID of the mirror user."
+    )
+    mirror_trigger_builds: Optional[bool] = Field(
+        default=None, description="Whether mirror builds are triggered."
+    )
+    only_mirror_protected_branches: Optional[bool] = Field(
+        default=None, description="Whether only protected branches are mirrored."
+    )
+    mirror_overwrites_diverged_branches: Optional[bool] = Field(
+        default=None, description="Whether diverged branches are overwritten."
+    )
+    permissions: Optional[Permissions] = Field(
+        default=None, description="The permissions settings."
+    )
+    statistics: Optional[Statistics] = Field(
+        default=None, description="The project statistics."
+    )
+    links: Optional[Links] = Field(default=None, description="Related links.")
+    service_desk_enabled: Optional[bool] = Field(
+        default=None, description="Service Desk Enabled"
+    )
+    can_create_merge_request_in: Optional[bool] = Field(
+        default=None, description="Can create merge request in"
+    )
+    repository_access_level: Optional[str] = Field(
+        default=None, description="Repository access level"
+    )
+    merge_requests_access_level: Optional[str] = Field(
+        default=None, description="Merge request access level"
+    )
+    issues_access_level: Optional[str] = Field(
+        default=None, description="Issue access level"
+    )
+    forking_access_level: Optional[str] = Field(
+        default=None, description="Forking access level"
+    )
+    wiki_access_level: Optional[str] = Field(
+        default=None, description="Wiki access level"
+    )
+    builds_access_level: Optional[str] = Field(
+        default=None, description="Build access level"
+    )
+    snippets_access_level: Optional[str] = Field(
+        default=None, description="Snippet access level"
+    )
+    pages_access_level: Optional[str] = Field(
+        default=None, description="Page access level"
+    )
+    analytics_access_level: Optional[str] = Field(
+        default=None, description="Analytics access level"
+    )
+    emails_disabled: Optional[str] = Field(default=None, description="Emails disabled")
+    emails_enabled: Optional[str] = Field(default=None, description="Emails enabled")
+    open_issues_count: Optional[int] = Field(
+        default=None, description="Open issues in project"
+    )
+    ci_job_token_scope_enabled: Optional[bool] = Field(
+        default=None, description="CI Job Token scope enabled"
+    )
+    merge_commit_template: Optional[str] = Field(
+        default=None, description="Merge commit template"
+    )
+    squash_commit_template: Optional[str] = Field(
+        default=None, description="Squash commit template"
+    )
+    issue_branch_template: Optional[str] = Field(
+        default=None, description="Squash commit template"
+    )
+    auto_devops_enabled: Optional[bool] = Field(
+        default=None, description="Autodevops enabled"
+    )
+    auto_devops_deploy_strategy: Optional[str] = Field(
+        default=None, description="Autodevops deploy strategy"
+    )
+    autoclose_referenced_issues: Optional[bool] = Field(
+        default=None, description="Autoclose referenced issues"
+    )
+    keep_latest_artifact: Optional[bool] = Field(
+        default=None, description="Keep latest artifact"
+    )
+    runner_token_expiration_interval: Optional[bool] = Field(
+        default=None, description="Runner token expiration interval"
+    )
+    external_authorization_classification_label: Optional[str] = Field(
+        default=None, description="External authorization classification label"
+    )
+    requirements_access_level: Optional[str] = Field(
+        default=None, description="Requirements access level"
+    )
+    security_and_compliance_enabled: Optional[bool] = Field(
+        default=None, description="Security compliance enabled"
+    )
+    warn_about_potentially_unwanted_characters: Optional[bool] = Field(
+        default=None, description="Warna bout potentially unwanted characters."
+    )
+    owner: Optional[User] = Field(default=None, description="Owner user")
+    runners_token: Optional[str] = Field(default=None, description="Runners token")
+    repository_storage: Optional[str] = Field(
+        default=None, description="Repository storage enabled"
+    )
+    service_desk_address: Optional[str] = Field(
+        default=None, description="Service desk address"
+    )
+    marked_for_deletion_at: Optional[str] = Field(
+        default=None, description="Marked for deletion at"
+    )
+    marked_for_deletion_on: Optional[str] = Field(
+        default=None, description="Marked for deletion on"
+    )
+    operations_access_level: Optional[str] = Field(
+        default=None, description="Access level of operations"
+    )
+    ci_dockerfile: Optional[str] = Field(default=None, description="Dockerfile for CI")
+    groups: Optional[List[Dict[str, int]]] = Field(
+        default=None, description="List of groups"
+    )
+
+
+class Projects(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Projects")
+    projects: List[Project] = Field(default=None, description="List of projects")
+
+
+class Runner(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Runner")
+    id: Optional[int] = Field(default=None, description="ID of the runner.")
+    description: Optional[str] = Field(
+        default=None, description="Description of the runner."
+    )
+    ip_address: Optional[str] = Field(
+        default=None, description="IP address of the runner."
+    )
+    active: Optional[bool] = Field(
+        default=None, description="Indicates if the runner is active."
+    )
+    paused: Optional[bool] = Field(
+        default=None, description="Indicates if the runner is paused."
+    )
+    is_shared: Optional[bool] = Field(
+        default=None, description="Indicates if the runner is shared."
+    )
+    runner_type: Optional[str] = Field(default=None, description="Type of the runner.")
+    name: Optional[str] = Field(default=None, description="Name of the runner.")
+    online: Optional[bool] = Field(
+        default=None, description="Indicates if the runner is online."
+    )
+    status: Optional[str] = Field(default=None, description="Status of the runner.")
+    contacted_at: Optional[datetime] = Field(
+        None, description="Last contacted date and time"
+    )
+    architecture: Optional[str] = Field(None, description="Architecture of the runner")
+    platform: Optional[str] = Field(None, description="Platform of the runner")
+    revision: Optional[str] = Field(None, description="Revision of the runner")
+    version: Optional[str] = Field(None, description="Version of the runner")
+    access_level: Optional[str] = Field(None, description="Access level of the runner")
+    maximum_timeout: Optional[int] = Field(
+        None, description="Maximum timeout for the runner"
+    )
+    maintenance_note: Optional[str] = Field(
+        None, description="Maintenance note for the runner"
+    )
+    projects: Optional[List[Project]] = Field(
+        None, description="List of projects associated with the runner"
+    )
+    tag_list: Optional[List[str]] = Field(
+        None, description="List of tags associated with the runner"
+    )
+
+
+class Runners(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Runners")
+    runners: List[Runner] = Field(default=None, description="List of runners")
+
+
+class Job(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Job")
+    commit: Optional[Commit] = Field(
+        default=None, description="Details of the commit associated with the job."
+    )
+    coverage: Optional[float] = Field(
+        default=None, description="Code coverage percentage."
+    )
+    archived: Optional[bool] = Field(
+        default=None, description="Indicates if the job is archived."
+    )
+    allow_failure: Optional[bool] = Field(
+        default=None, description="Indicates if the job is allowed to fail."
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the job was created."
+    )
+    started_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the job was started."
+    )
+    finished_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the job was finished."
+    )
+    erased_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the job was erased."
+    )
+    duration: Optional[float] = Field(
+        default=None, description="Duration of the job in seconds."
+    )
+    queued_duration: Optional[float] = Field(
+        default=None, description="Time the job spent queued before starting."
+    )
+    artifacts_file: Optional[ArtifactsFile] = Field(
+        default=None, description="Details of the artifacts file produced by the job."
+    )
+    artifacts: Optional[List[Artifact]] = Field(
+        default=None, description="List of artifacts produced by the job."
+    )
+    artifacts_expire_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the artifacts expire."
+    )
+    tag_list: Optional[List[str]] = Field(
+        default=None, description="List of tags associated with the job."
+    )
+    id: Optional[int] = Field(default=None, description="ID of the job.")
+    name: Optional[str] = Field(default=None, description="Name of the job.")
+    pipeline: Optional[Pipeline] = Field(
+        default=None, description="Details of the pipeline associated with the job."
+    )
+    ref: Optional[str] = Field(default=None, description="Reference of the job.")
+    runner: Optional[Runner] = Field(
+        default=None, description="Details of the runner that executed the job."
+    )
+    runner_manager: Optional[RunnerManager] = Field(
+        default=None, description="Details of the runner manager."
+    )
+    stage: Optional[str] = Field(default=None, description="Stage of the job.")
+    status: Optional[str] = Field(default=None, description="Status of the job.")
+    failure_reason: Optional[str] = Field(
+        default=None, description="Reason for the job failure."
+    )
+    tag: Optional[bool] = Field(
+        default=None, description="Indicates if the job is tagged."
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL to view the job on the web."
+    )
+    project: Optional[Project] = Field(
+        default=None, description="Details of the project associated with the job."
+    )
+    user: Optional[User] = Field(
+        default=None, description="Details of the user who created the job."
+    )
+    downstream_pipeline: Optional[Pipeline] = Field(
+        default=None, description="Downstream pipeline."
+    )
+
+
+class Jobs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Jobs")
+    jobs: List[Job] = Field(default=None, description="List of jobs")
+
+
+class GroupAccess(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="GroupAccess")
+    access_level: Optional[int] = Field(
+        default=None, description="Access level for a group"
+    )
+
+
+class DefaultBranchProtectionDefaults(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="DefaultBranchProtectionDefaults")
+    allowed_to_push: Optional[List[GroupAccess]] = Field(
+        default=None, description="List of groups allowed to push"
+    )
+    allow_force_push: Optional[bool] = Field(
+        default=None, description="Whether force push is allowed"
+    )
+    allowed_to_merge: Optional[List[GroupAccess]] = Field(
+        default=None, description="List of groups allowed to merge"
+    )
+
+
+class Group(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Group")
+    id: Optional[int] = Field(default=None, description="The ID of the group")
+    name: Optional[str] = Field(default=None, description="The name of the group")
+    path: Optional[str] = Field(default=None, description="The path of the group")
+    description: Optional[str] = Field(
+        default=None, description="The description of the group"
+    )
+    visibility: Optional[str] = Field(
+        default=None, description="The visibility level of the group"
+    )
+    share_with_group_lock: Optional[bool] = Field(
+        default=None, description="Lock sharing with other groups"
+    )
+    require_two_factor_authentication: Optional[bool] = Field(
+        default=None, description="Whether 2FA is required"
+    )
+    two_factor_grace_period: Optional[int] = Field(
+        default=None, description="Grace period for 2FA enforcement"
+    )
+    project_creation_level: Optional[str] = Field(
+        default=None, description="Level required to create projects"
+    )
+    auto_devops_enabled: Optional[bool] = Field(
+        default=None, description="Whether Auto DevOps is enabled"
+    )
+    subgroup_creation_level: Optional[str] = Field(
+        default=None, description="Level required to create subgroups"
+    )
+    emails_disabled: Optional[bool] = Field(
+        default=None, description="Whether emails are disabled"
+    )
+    emails_enabled: Optional[bool] = Field(
+        default=None, description="Whether emails are enabled"
+    )
+    mentions_disabled: Optional[bool] = Field(
+        default=None, description="Whether mentions are disabled"
+    )
+    lfs_enabled: Optional[bool] = Field(
+        default=None, description="Whether Git LFS is enabled"
+    )
+    default_branch: Optional[str] = Field(
+        default=None, description="The default branch of the group"
+    )
+    default_branch_protection: Optional[int] = Field(
+        default=None, description="Protection level of the default branch"
+    )
+    default_branch_protection_defaults: Optional[DefaultBranchProtectionDefaults] = (
+        Field(default=None, description="Default branch protection settings")
+    )
+    avatar_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL of the group's avatar"
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="Web URL of the group"
+    )
+    request_access_enabled: Optional[bool] = Field(
+        default=None, description="Whether request access is enabled"
+    )
+    repository_storage: Optional[str] = Field(
+        default=None, description="Repository storage type"
+    )
+    full_name: Optional[str] = Field(default=None, description="Full name of the group")
+    full_path: Optional[str] = Field(default=None, description="Full path of the group")
+    file_template_project_id: Optional[int] = Field(
+        default=None, description="ID of the file template project"
+    )
+    parent_id: Optional[int] = Field(default=None, description="Parent ID of the group")
+    created_at: Optional[str] = Field(
+        default=None, description="Creation timestamp of the group"
+    )
+    statistics: Optional[Statistics] = Field(
+        default=None, description="Statistics of the group"
+    )
+    wiki_access_level: Optional[str] = Field(
+        default=None, description="Access level of the wiki"
+    )
+    duo_features_enabled: Optional[bool] = Field(
+        default=None, description="Whether Duo features are enabled"
+    )
+    lock_duo_features_enabled: Optional[bool] = Field(
+        default=None, description="Whether Duo features are locked"
+    )
+    runners_token: Optional[str] = Field(
+        default=None, description="Runners token for the group"
+    )
+    enabled_git_access_protocol: Optional[str] = Field(
+        default=None, description="Enabled Git access protocol"
+    )
+    shared_with_groups: Optional[List[Dict[str, Any]]] = Field(
+        default=None, description="Groups shared with this group"
+    )
+    prevent_sharing_groups_outside_hierarchy: Optional[bool] = Field(
+        default=None, description="Prevent sharing groups outside hierarchy"
+    )
+    projects: Optional[Union[List[Project], List[Dict[str, Any]]]] = Field(
+        default=None, description="Projects within the group"
+    )
+    shared_projects: Optional[Union[List[Project], List[Dict[str, Any]]]] = Field(
+        default=None, description="Projects within the group"
+    )
+    ip_restriction_ranges: Optional[Any] = Field(
+        default=None, description="IP Restriction Ranges"
+    )
+    math_rendering_limits_enabled: Optional[bool] = Field(
+        default=None, description="Math rendering limits enabled"
+    )
+    lock_math_rendering_limits_enabled: Optional[bool] = Field(
+        default=None, description="Math rendering limits locked"
+    )
+    shared_runners_minutes_limit: Optional[int] = Field(
+        default=None, description="Shared runners limit in minutes"
+    )
+    extra_shared_runners_minutes_limit: Optional[int] = Field(
+        default=None, description="Extra shared runners limit in minutes"
+    )
+    marked_for_deletion_on: Optional[str] = Field(
+        default=None, description="Marked for deletion on."
+    )
+    membership_lock: Optional[bool] = Field(
+        default=None, description="Membership locked"
+    )
+    ldap_cn: Optional[Any] = Field(default=None, description="LDAP CN information")
+    ldap_access: Optional[Any] = Field(default=None, description="LDAP Access")
+
+
+class Groups(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Groups")
+    groups: List[Group] = Field(default=None, description="List of groups")
+
+
+class Webhook(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Webhook")
+    id: int = Field(default=None, description="Unique identifier for the webhook")
+    url: Union[HttpUrl, str] = Field(
+        default=None, description="The URL the webhook should target"
+    )
+    name: str = Field(default=None, description="Name of the webhook")
+    description: str = Field(default=None, description="Description of the webhook")
+    group_id: int = Field(
+        default=None, description="Group ID to which the webhook belongs"
+    )
+    push_events: bool = Field(
+        default=None, description="Whether push events trigger the webhook"
+    )
+    push_events_branch_filter: str = Field(
+        default="", description="Branch filter for push events"
+    )
+    issues_events: bool = Field(
+        default=None, description="Whether issues events trigger the webhook"
+    )
+    confidential_issues_events: bool = Field(
+        default=None,
+        description="Whether confidential issues events trigger the webhook",
+    )
+    merge_requests_events: bool = Field(
+        default=None, description="Whether merge requests events trigger the webhook"
+    )
+    tag_push_events: bool = Field(
+        default=None, description="Whether tag push events trigger the webhook"
+    )
+    note_events: bool = Field(
+        default=None, description="Whether note events trigger the webhook"
+    )
+    confidential_note_events: bool = Field(
+        default=None, description="Whether confidential note events trigger the webhook"
+    )
+    job_events: bool = Field(
+        default=None, description="Whether job events trigger the webhook"
+    )
+    pipeline_events: bool = Field(
+        default=None, description="Whether pipeline events trigger the webhook"
+    )
+    wiki_page_events: bool = Field(
+        default=None, description="Whether wiki page events trigger the webhook"
+    )
+    deployment_events: bool = Field(
+        default=None, description="Whether deployment events trigger the webhook"
+    )
+    releases_events: bool = Field(
+        default=None, description="Whether releases events trigger the webhook"
+    )
+    subgroup_events: bool = Field(
+        default=None, description="Whether subgroup events trigger the webhook"
+    )
+    member_events: bool = Field(
+        default=None, description="Whether member events trigger the webhook"
+    )
+    enable_ssl_verification: bool = Field(
+        default=None, description="Whether SSL verification is enabled for the webhook"
+    )
+    repository_update_events: bool = Field(
+        default=False,
+        description="Whether repository update events trigger the webhook",
+    )
+    alert_status: Optional[str] = Field(
+        default=None, description="Status of the webhook, e.g., 'executable'"
+    )
+    disabled_until: Optional[datetime] = Field(
+        default=None, description="Timestamp until which the webhook is disabled"
+    )
+    url_variables: List[str] = Field(
+        default_factory=list, description="List of URL variables for the webhook"
+    )
+    created_at: datetime = Field(
+        default=None, description="Creation timestamp of the webhook"
+    )
+    resource_access_token_events: bool = Field(
+        default=None,
+        description="Whether resource access token events trigger the webhook",
+    )
+    custom_webhook_template: str = Field(
+        default=None, description="Custom webhook template JSON"
+    )
+
+
+class AccessLevel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="AccessLevel")
+    id: Optional[int] = Field(default=None, description="Access level ID")
+    access_level: Optional[int] = Field(
+        default=None, description="Numeric access level"
+    )
+    access_level_description: Optional[str] = Field(
+        default=None, description="Description of the access level"
+    )
+    deploy_key_id: Optional[int] = Field(default=None, description="Deploy key ID")
+    user_id: Optional[int] = Field(default=None, description="User ID")
+    group_id: Optional[int] = Field(default=None, description="Group ID")
+
+
+class Branch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Branch")
+    name: Optional[str] = Field(default=None, description="The name of the branch.")
+    merged: Optional[bool] = Field(
+        default=None, description="Whether the branch is merged."
+    )
+    protected: Optional[bool] = Field(
+        default=None, description="Whether the branch is protected."
+    )
+    default: Optional[bool] = Field(
+        default=None, description="Whether the branch is the default branch."
+    )
+    developers_can_push: Optional[bool] = Field(
+        default=None, description="Whether developers can push to the branch."
+    )
+    developers_can_merge: Optional[bool] = Field(
+        default=None, description="Whether developers can merge the branch."
+    )
+    can_push: Optional[bool] = Field(
+        default=None, description="Whether the user can push to the branch."
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The web URL for the branch."
+    )
+    commit: Optional[Commit] = Field(
+        default=None, description="The commit associated with the branch."
+    )
+    id: Optional[int] = Field(default=None, description="Branch ID")
+    push_access_levels: Optional[List[AccessLevel]] = Field(
+        default=None, description="Push access levels for the branch"
+    )
+    merge_access_levels: Optional[List[AccessLevel]] = Field(
+        default=None, description="Merge access levels for the branch"
+    )
+    unprotect_access_levels: Optional[List[AccessLevel]] = Field(
+        default=None, description="Unprotect access levels for the branch"
+    )
+    allow_force_push: Optional[bool] = Field(
+        default=None, description="Whether force pushing is allowed"
+    )
+    code_owner_approval_required: Optional[bool] = Field(
+        default=None, description="Whether code owner approval is required"
+    )
+    inherited: Optional[bool] = Field(
+        default=None, description="Whether the branch is inherited"
+    )
+
+
+class Branches(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Branches")
+    branches: List[Branch] = Field(default=None, description="List of branches")
+
+
+class ApprovalRule(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ApprovalRule")
+    id: Optional[int] = Field(default=None, description="Approval rule ID")
+    name: Optional[str] = Field(default=None, description="Approval rule name")
+    rule_type: Optional[str] = Field(
+        default=None, description="Type of the approval rule"
+    )
+    eligible_approvers: Optional[List[User]] = Field(
+        default=None, description="List of eligible approvers"
+    )
+    approvals_required: Optional[int] = Field(
+        default=None, description="Number of required approvals"
+    )
+    users: Optional[List[User]] = Field(
+        default=None, description="List of associated users"
+    )
+    groups: Optional[List[Group]] = Field(
+        default=None, description="List of associated groups"
+    )
+    contains_hidden_groups: Optional[bool] = Field(
+        default=None, description="Whether the rule contains hidden groups"
+    )
+    protected_branches: Optional[List[Branch]] = Field(
+        default=None, description="List of protected branches the rule applies to"
+    )
+    applies_to_all_protected_branches: Optional[bool] = Field(
+        default=None, description="Whether the rule applies to all protected branches"
+    )
+    source_rule: Optional[str] = Field(
+        default=None, description="Source rule for merge request rules"
+    )
+    approved: Optional[bool] = Field(
+        default=None, description="Whether the rule is approved"
+    )
+    overridden: Optional[bool] = Field(
+        default=None, description="Whether the rule is overridden"
+    )
+    approved_by: Optional[List[User]] = Field(
+        default=None, description="List of users who approved"
+    )
+
+
+class ApprovalRules(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ApprovalRules")
+    approval_rules: List[ApprovalRule] = Field(
+        default=None, description="List of approval rules"
+    )
+
+
+class MergeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="MergeRequest")
+    id: Optional[int] = Field(default=None, description="ID of the merge request")
+    iid: Optional[int] = Field(
+        default=None, description="Internal ID of the merge request"
+    )
+    project_id: Optional[int] = Field(
+        default=None, description="ID of the project the merge request belongs to"
+    )
+    title: Optional[str] = Field(default=None, description="Title of the merge request")
+    description: Optional[str] = Field(
+        default=None, description="Description of the merge request"
+    )
+    state: Optional[str] = Field(default=None, description="State of the merge request")
+    created_at: Optional[datetime] = Field(
+        default=None, description="Creation date of the merge request"
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None, description="Last update date of the merge request"
+    )
+    target_branch: Optional[str] = Field(
+        default=None, description="Target branch of the merge request"
+    )
+    source_branch: Optional[str] = Field(
+        default=None, description="Source branch of the merge request"
+    )
+    upvotes: Optional[int] = Field(
+        default=None, description="Number of upvotes the merge request has received"
+    )
+    downvotes: Optional[int] = Field(
+        default=None, description="Number of downvotes the merge request has received"
+    )
+    author: Optional[User] = Field(
+        default=None, description="Author of the merge request"
+    )
+    assignee: Optional[User] = Field(
+        default=None, description="Assignee of the merge request"
+    )
+    source_project_id: Optional[int] = Field(
+        default=None, description="ID of the source project"
+    )
+    target_project_id: Optional[int] = Field(
+        default=None, description="ID of the target project"
+    )
+    labels: Optional[List[str]] = Field(
+        default=None, description="List of labels assigned to the merge request"
+    )
+    work_in_progress: Optional[bool] = Field(
+        default=None, description="Whether the merge request is a work in progress"
+    )
+    milestone: Optional[Milestone] = Field(
+        default=None, description="Milestone associated with the merge request"
+    )
+    merge_when_pipeline_succeeds: Optional[bool] = Field(
+        default=None, description="Whether to merge when the pipeline succeeds"
+    )
+    merge_status: Optional[str] = Field(
+        default=None, description="Merge status of the merge request"
+    )
+    sha: Optional[str] = Field(default=None, description="SHA of the merge request")
+    merge_commit_sha: Optional[str] = Field(
+        default=None, description="Merge commit SHA of the merge request"
+    )
+    draft: Optional[bool] = Field(
+        default=None, description="Draft state of merge request"
+    )
+    squash_commit_sha: Optional[str] = Field(
+        default=None, description="Squash commit SHA of the merge request"
+    )
+    squash_on_merge: Optional[bool] = Field(
+        default=None, description="Squash commits on merge"
+    )
+    user_notes_count: Optional[int] = Field(
+        default=None, description="Number of user notes on the merge request"
+    )
+    discussion_locked: Optional[bool] = Field(
+        default=None, description="Whether the discussion is locked"
+    )
+    should_remove_source_branch: Optional[bool] = Field(
+        default=None, description="Whether the source branch should be removed"
+    )
+    force_remove_source_branch: Optional[bool] = Field(
+        default=None, description="Whether to force remove the source branch"
+    )
+    allow_collaboration: Optional[bool] = Field(
+        default=None, description="Whether collaboration is allowed"
+    )
+    allow_maintainer_to_push: Optional[bool] = Field(
+        default=None, description="Whether the maintainer can push"
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="Web URL of the merge request"
+    )
+    references: Optional[References] = Field(
+        default=None, description="References associated with the merge request"
+    )
+    reference: Optional[str] = Field(
+        default=None, description="Reference associated with the merge request"
+    )
+    time_stats: Optional[TimeStats] = Field(
+        default=None, description="Time statistics for the merge request"
+    )
+    squash: Optional[bool] = Field(
+        default=None, description="Whether the merge request should be squashed"
+    )
+    task_completion_status: Optional[TaskCompletionStatus] = Field(
+        default=None, description="Task completion status for the merge request"
+    )
+    has_conflicts: Optional[bool] = Field(
+        default=None, description="Whether the merge request has conflicts"
+    )
+    blocking_discussions_resolved: Optional[bool] = Field(
+        default=None, description="Whether blocking discussions are resolved"
+    )
+    changes: Optional[List[Diff]] = Field(
+        default=None, description="List of changes (diffs) in the merge request"
+    )
+    merged_by: Optional[User] = Field(
+        default=None, description="Merger of the merge request"
+    )
+    merged_at: Optional[datetime] = Field(
+        default=None, description="Date when the merge request was merged"
+    )
+    closed_by: Optional[User] = Field(
+        default=None, description="User who closed the merge request"
+    )
+    closed_at: Optional[datetime] = Field(
+        default=None, description="Date when the merge request was closed"
+    )
+    latest_build_started_at: Optional[datetime] = Field(
+        default=None, description="Start date of the latest build"
+    )
+    latest_build_finished_at: Optional[datetime] = Field(
+        default=None, description="Finish date of the latest build"
+    )
+    first_deployed_to_production_at: Optional[datetime] = Field(
+        default=None, description="Date when first deployed to production"
+    )
+    pipeline: Optional[Pipeline] = Field(
+        default=None, description="Pipeline associated with the merge request"
+    )
+    head_pipeline: Optional[Pipeline] = Field(
+        default=None, description="Head pipeline associated with the merge request"
+    )
+    diff_refs: Optional[Dict[str, Any]] = Field(
+        default=None, description="Diff references associated with the merge request"
+    )
+    user: Optional[Dict[str, Any]] = Field(
+        default=None, description="User-specific information"
+    )
+    changes_count: Optional[str] = Field(
+        default=None, description="Count of changes in the merge request"
+    )
+    rebase_in_progress: Optional[bool] = Field(
+        default=None, description="Whether a rebase is in progress"
+    )
+    approvals_before_merge: Optional[int] = Field(
+        default=None, description="Number of approvals required before merging"
+    )
+    tag_list: Optional[List[str]] = Field(
+        default=None, description="List of tags associated with the merge request"
+    )
+    reviewer: Optional[List[User]] = Field(
+        default=None, description="List of reviewers for the merge request"
+    )
+    review: Optional[Dict[str, Any]] = Field(
+        default=None, description="Review information associated with the merge request"
+    )
+    imported: Optional[bool] = Field(
+        default=None, description="Indicates if the merge request was imported"
+    )
+    imported_from: Optional[str] = Field(
+        default=None, description="Source from where the merge request was imported"
+    )
+    merge_user: Optional[User] = Field(
+        default=None,
+        description="User who merged the merge request (use instead of merged_by)",
+    )
+    prepared_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the merge request was prepared"
+    )
+    assignees: Optional[List[User]] = Field(
+        default=None, description="List of users assigned to the merge request"
+    )
+    reviewers: Optional[List[User]] = Field(
+        default=None, description="List of users reviewing the merge request"
+    )
+    detailed_merge_status: Optional[str] = Field(
+        default=None, description="Detailed status of the merge request mergeability"
+    )
+    subscribed: Optional[bool] = Field(
+        default=None, description="Subscribed to Merge Request"
+    )
+    overflow: Optional[bool] = Field(
+        default=None, description="Indicates if overflow is enabled"
+    )
+    diverged_commits_count: Optional[int] = Field(
+        default=None, description="Diverged commit count"
+    )
+    merge_error: Optional[Union[str, Any]] = Field(
+        default=None, description="Merge errors"
+    )
+    approvals_required: Optional[int] = Field(
+        default=None, description="Number of approvals required"
+    )
+    approvals_left: Optional[int] = Field(
+        default=None, description="Number of approvals left"
+    )
+    approved_by: Optional[List[ApprovedByUser]] = Field(
+        default=None, description="List of users who approved"
+    )
+    approval_rules_overwritten: Optional[bool] = Field(
+        default=None, description="Allow override of approval rules"
+    )
+    rules: Optional[List[ApprovalRule]] = Field(
+        default=None, description="List of merge request rules"
+    )
+
+
+class MergeRequests(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="MergeRequests")
+    merge_requests: List[MergeRequest] = Field(
+        default=None, description="List of merge requests"
+    )
+
+
+class Epic(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Epic")
+    id: Optional[int] = Field(
+        default=None, description="Unique identifier for the epic."
+    )
+    iid: Optional[int] = Field(
+        default=None, description="Internal ID of the epic within the project."
+    )
+    title: Optional[str] = Field(default=None, description="Title of the epic.")
+    url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL to the epic."
+    )
+    group_id: Optional[int] = Field(
+        default=None, description="Group ID to which the epic belongs."
+    )
+
+
+class Issue(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Issue")
+    state: Optional[str] = Field(
+        default=None, description="State of the issue, e.g., opened or closed."
+    )
+    description: Optional[str] = Field(
+        default=None, description="Description of the issue."
+    )
+    author: Optional[User] = Field(default=None, description="Author of the issue.")
+    milestone: Optional[Milestone] = Field(
+        default=None, description="Milestone associated with the issue."
+    )
+    project_id: Optional[int] = Field(
+        default=None, description="Unique identifier for the project."
+    )
+    assignees: Optional[List[User]] = Field(
+        default=None, description="List of assignees for the issue."
+    )
+    assignee: Optional[User] = Field(default=None, description="Assignee of the issue.")
+    type: Optional[str] = Field(default=None, description="Type of the issue.")
+    updated_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the issue was last updated."
+    )
+    closed_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the issue was closed."
+    )
+    closed_by: Optional[User] = Field(
+        default=None, description="User who closed the issue."
+    )
+    changes_count: Optional[str] = Field(
+        default=None, description="Count of changes in the issue"
+    )
+    id: Optional[int] = Field(
+        default=None, description="Unique identifier for the issue."
+    )
+    title: Optional[str] = Field(default=None, description="Title of the issue.")
+    created_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the issue was created."
+    )
+    moved_to_id: Optional[int] = Field(
+        default=None, description="ID of the issue to which this issue was moved."
+    )
+    iid: Optional[int] = Field(
+        default=None, description="Internal ID of the issue within the project."
+    )
+    labels: Optional[List[str]] = Field(
+        default=None, description="Labels associated with the issue."
+    )
+    upvotes: Optional[int] = Field(
+        default=None, description="Number of upvotes the issue has received."
+    )
+    downvotes: Optional[int] = Field(
+        default=None, description="Number of downvotes the issue has received."
+    )
+    merge_requests_count: Optional[int] = Field(
+        default=None, description="Number of merge requests related to the issue."
+    )
+    user_notes_count: Optional[int] = Field(
+        default=None, description="Number of user notes on the issue."
+    )
+    iteration: Optional[Iteration] = Field(
+        default=None, description="Iteration of issue."
+    )
+    due_date: Optional[str] = Field(default=None, description="Due date for the issue.")
+    imported: Optional[bool] = Field(
+        default=None,
+        description="Indicates if the issue was imported from another system.",
+    )
+    imported_from: Optional[str] = Field(
+        default=None, description="Source from which the issue was imported."
+    )
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="Web URL to view the issue."
+    )
+    references: Optional[References] = Field(
+        default=None, description="References of the issue."
+    )
+    time_stats: Optional[TimeStats] = Field(
+        default=None, description="Time statistics for the issue."
+    )
+    has_tasks: Optional[bool] = Field(
+        default=None, description="Indicates if the issue has tasks."
+    )
+    task_status: Optional[str] = Field(
+        default=None, description="Status of the tasks in the issue."
+    )
+    confidential: Optional[bool] = Field(
+        default=None, description="Indicates if the issue is confidential."
+    )
+    discussion_locked: Optional[bool] = Field(
+        default=None, description="Indicates if discussion on the issue is locked."
+    )
+    issue_type: Optional[str] = Field(default=None, description="Type of the issue.")
+    severity: Optional[str] = Field(
+        default=None, description="Severity level of the issue."
+    )
+    links: Optional[Links] = Field(
+        default=None, alias="_links", description="Links related to the issue."
+    )
+    task_completion_status: Optional[TaskCompletionStatus] = Field(
+        default=None, description="Completion status of tasks in the issue."
+    )
+    weight: Optional[int] = Field(default=None, description="Weight of the issue.")
+    epic_iid: Optional[int] = Field(
+        default=None, description="Deprecated, use `iid` of the `epic` attribute."
+    )
+    epic: Optional[Epic] = Field(
+        default=None, description="Epic to which the issue belongs."
+    )
+    health_status: Optional[str] = Field(
+        default=None,
+        description="Health status of the issue, e.g., on track or at risk.",
+    )
+    subscribed: Optional[bool] = Field(
+        default=None, description="Indicates if the user is subscribed to the issue."
+    )
+    service_desk_reply_to: Optional[str] = Field(
+        default=None, description="Service desk email for replies related to the issue."
+    )
+    blocking_issues_count: Optional[int] = Field(
+        default=None, description="Blocking issue count."
+    )
+
+
+class Issues(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Issues")
+    issues: List[Issue] = Field(default=None, description="List of issues")
+
+
+class PipelineVariable(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="PipelineVariable")
+    key: Optional[str] = Field(default=None, description="The key of the variable.")
+    variable_type: Optional[str] = Field(
+        default=None, description="The type of the variable (e.g., env_var)."
+    )
+    value: Optional[str] = Field(default=None, description="The value of the variable.")
+
+
+class PipelineVariables(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="PipelineVariables")
+    pipeline_variables: List[PipelineVariable] = Field(
+        default=None, description="List of pipeline variables"
+    )
+
+
+class TestCase(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="TestCase")
+    status: Optional[str] = Field(
+        default=None, description="The status of the test case (e.g., success, failed)."
+    )
+    name: Optional[str] = Field(default=None, description="The name of the test case.")
+    classname: Optional[str] = Field(
+        default=None, description="The class name of the test case."
+    )
+    execution_time: Optional[float] = Field(
+        default=None, description="The execution time of the test case in seconds."
+    )
+    system_output: Optional[str] = Field(
+        default=None, description="The system output of the test case."
+    )
+    stack_trace: Optional[str] = Field(
+        default=None, description="The stack trace of the test case if it failed."
+    )
+
+
+class TestSuite(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="TestSuite")
+    name: Optional[str] = Field(default=None, description="The name of the test suite.")
+    total_time: Optional[float] = Field(
+        default=None, description="The total time of the test suite in seconds."
+    )
+    total_count: Optional[int] = Field(
+        default=None, description="The total number of test cases in the suite."
+    )
+    success_count: Optional[int] = Field(
+        default=None, description="The number of successful test cases."
+    )
+    failed_count: Optional[int] = Field(
+        default=None, description="The number of failed test cases."
+    )
+    skipped_count: Optional[int] = Field(
+        default=None, description="The number of skipped test cases."
+    )
+    error_count: Optional[int] = Field(
+        default=None, description="The number of test cases with errors."
+    )
+    test_cases: Optional[List[TestCase]] = Field(
+        default=None, description="A list of test cases in the suite."
+    )
+    build_ids: Optional[List[int]] = Field(
+        default=None, description="A list of build IDs related to the test suite."
+    )
+    suite_error: Optional[str] = Field(
+        default=None, description="Errors encountered in the test suite."
+    )
+
+
+class TestReportTotal(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="TestReportTotal")
+    time: Optional[int] = Field(
+        default=None, description="The total time for all test cases in seconds."
+    )
+    count: Optional[int] = Field(
+        default=None, description="The total number of test cases."
+    )
+    success: Optional[int] = Field(
+        default=None, description="The total number of successful test cases."
+    )
+    failed: Optional[int] = Field(
+        default=None, description="The total number of failed test cases."
+    )
+    skipped: Optional[int] = Field(
+        default=None, description="The total number of skipped test cases."
+    )
+    error: Optional[int] = Field(
+        default=None, description="The total number of test cases with errors."
+    )
+    suite_error: Optional[str] = Field(
+        default=None, description="Errors encountered in the test suite."
+    )
+
+
+class TestReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="TestReport")
+    total: Optional[TestReportTotal] = Field(
+        default=None, description="Total count in test report."
+    )
+    test_suites: Optional[List[TestSuite]] = Field(
+        default=None, description="A list of test suites in the report."
+    )
+    total_time: Optional[int] = Field(
+        default=None, description="Total time of test report"
+    )
+    total_count: Optional[int] = Field(
+        default=None, description="Total count of test report"
+    )
+    success_count: Optional[int] = Field(
+        default=None, description="Success count of test report"
+    )
+    failed_count: Optional[int] = Field(
+        default=None, description="Failed count of test report"
+    )
+    skipped_count: Optional[int] = Field(
+        default=None, description="Skipped count of test report"
+    )
+    error_count: Optional[int] = Field(
+        default=None, description="Error count of test report"
+    )
+
+
+class MergeApprovals(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="MergeApprovals")
+    approvers: Optional[List[User]] = Field(
+        default=None, description="List of approvers"
+    )
+    approver_groups: Optional[List[Group]] = Field(
+        default=None, description="List of approver groups"
+    )
+    approvals_before_merge: Optional[int] = Field(
+        default=None, description="Number of approvals required before merge"
+    )
+    reset_approvals_on_push: Optional[bool] = Field(
+        default=None, description="Whether approvals reset on new push"
+    )
+    selective_code_owner_removals: Optional[bool] = Field(
+        default=None, description="Whether selective code owner removals are allowed"
+    )
+    disable_overriding_approvers_per_merge_request: Optional[bool] = Field(
+        default=None,
+        description="Whether overriding approvers per merge request is disabled",
+    )
+    merge_requests_author_approval: Optional[bool] = Field(
+        default=None, description="Whether authors can approve their own merge requests"
+    )
+    merge_requests_disable_committers_approval: Optional[bool] = Field(
+        default=None, description="Whether committers are disabled from approving"
+    )
+    require_password_to_approve: Optional[bool] = Field(
+        default=None, description="Whether a password is required to approve"
+    )
+
+
+class DeployToken(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="DeployToken")
+    id: Optional[int] = Field(
+        default=None, description="Unique identifier for the deploy token"
+    )
+    user_id: Optional[int] = Field(default=None, description="User ID.")
+    name: Optional[str] = Field(default=None, description="Name of the deploy token")
+    username: Optional[str] = Field(
+        default=None, description="Username associated with the deploy token"
+    )
+    expires_at: Optional[datetime] = Field(
+        default=None, description="Expiration date of the deploy token"
+    )
+    token: Optional[str] = Field(
+        default=None, description="The actual deploy token string"
+    )
+    revoked: Optional[bool] = Field(
+        default=None, description="Indicates whether the token has been revoked"
+    )
+    expired: Optional[bool] = Field(
+        default=None, description="Indicates whether the token has expired"
+    )
+    scopes: Optional[List[str]] = Field(
+        default=None, description="List of scopes assigned to the deploy token"
+    )
+    active: Optional[bool] = Field(default=None, description="Active token")
+    last_used_at: Optional[Any] = Field(default=None, description="Last used at")
+    created_at: Optional[datetime] = Field(
+        default=None, description="Creation date and time of the token"
+    )
+
+
+class DeployTokens(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="DeployTokens")
+    deploy_tokens: List[DeployToken] = Field(
+        default=None, description="List of deploy tokens"
+    )
+
+
+class Rule(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Rule")
+    id: int = Field(default=None, description="Unique identifier for the rule")
+    created_at: datetime = Field(
+        default=None, description="Timestamp when the rule was created"
+    )
+    commit_committer_check: bool = Field(
+        default=False, description="Check for committer compliance"
+    )
+    commit_committer_name_check: bool = Field(
+        default=False, description="Check for committer's name compliance"
+    )
+    reject_unsigned_commits: bool = Field(
+        default=False, description="Flag to reject unsigned commits"
+    )
+    commit_message_regex: Optional[str] = Field(
+        default=None, description="Regex for validating commit messages"
+    )
+    commit_message_negative_regex: Optional[str] = Field(
+        default=None, description="Negative regex for commit messages"
+    )
+    branch_name_regex: Optional[str] = Field(
+        default=None, description="Regex for validating branch names"
+    )
+    deny_delete_tag: bool = Field(
+        default=False, description="Flag to deny deletion of tags"
+    )
+    member_check: bool = Field(default=False, description="Check for valid membership")
+    prevent_secrets: bool = Field(
+        default=False, description="Flag to prevent secrets in commits"
+    )
+    author_email_regex: Optional[str] = Field(
+        default=None, description="Regex for author's email validation"
+    )
+    file_name_regex: Optional[str] = Field(
+        default=None, description="Regex for file name validation"
+    )
+    max_file_size: Optional[int] = Field(
+        default=None, description="Maximum file size allowed in MB"
+    )
+
+
+class AccessControl(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="AccessControl")
+    name: str = Field(default=None, description="Name of the access group")
+    access_level: Optional[int] = Field(
+        default=None, description="Access level as an integer"
+    )
+    member_role_id: Optional[int] = Field(
+        default=None, description="Role ID for the member in the group"
+    )
+
+
+class Source(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Source")
+    format: Optional[str] = Field(
+        default=None, description="Format of the source file (e.g., zip, tar.gz)"
+    )
+    url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL to download the source file"
+    )
+
+
+class Link(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Link")
+    id: Optional[int] = Field(default=None, description="Link ID")
+    name: Optional[str] = Field(default=None, description="Name of the link")
+    url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL of the link"
+    )
+    link_type: Optional[str] = Field(
+        default=None, description="Type of the link (e.g., other)"
+    )
+
+
+class Assets(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Assets")
+    count: Optional[int] = Field(default=None, description="Total count of assets")
+    sources: Optional[List[Source]] = Field(
+        default=None, description="List of source files"
+    )
+    links: Optional[List[Link]] = Field(
+        default=None, description="List of additional links"
+    )
+    evidence_file_path: Optional[str] = Field(
+        default=None, description="URL to the evidence file"
+    )
+
+
+class Evidence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Evidence")
+    sha: Optional[str] = Field(
+        default=None, description="SHA checksum of the evidence file"
+    )
+    filepath: Optional[str] = Field(
+        default=None, description="Filepath of the evidence file"
+    )
+    collected_at: Optional[datetime] = Field(
+        default=None, description="Timestamp when the evidence was collected"
+    )
+
+
+class ReleaseLinks(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ReleaseLinks")
+    closed_issues_url: Optional[Union[HttpUrl, str]] = Field(
+        None, description="URL to the list of closed issues"
+    )
+    closed_merge_requests_url: Optional[Union[HttpUrl, str]] = Field(
+        None, description="URL to the list of closed merge requests"
+    )
+    edit_url: Optional[Union[HttpUrl, str]] = Field(
+        None, description="URL to edit the release"
+    )
+    merged_merge_requests_url: Optional[Union[HttpUrl, str]] = Field(
+        None, description="URL to the list of merged merge requests"
+    )
+    opened_issues_url: Optional[Union[HttpUrl, str]] = Field(
+        None, description="URL to the list of opened issues"
+    )
+    opened_merge_requests_url: Optional[Union[HttpUrl, str]] = Field(
+        None, description="URL to the list of opened merge requests"
+    )
+    self: Optional[str] = Field(None, description="Self-referencing URL")
+
+
+class Release(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Release")
+    tag_name: Optional[str] = Field(default=None, description="Tag name of the release")
+    description: Optional[str] = Field(
+        default=None, description="Description of the release"
+    )
+    name: Optional[str] = Field(default=None, description="Name of the release")
+    created_at: Optional[datetime] = Field(
+        default=None, description="Creation date and time of the release"
+    )
+    released_at: Optional[datetime] = Field(
+        default=None, description="Release date and time"
+    )
+    author: Optional[User] = Field(default=None, description="Author of the release")
+    commit: Optional[Commit] = Field(
+        default=None, description="Commit associated with the release"
+    )
+    milestones: Optional[List[Milestone]] = Field(
+        default=None, description="List of milestones related to the release"
+    )
+    commit_path: Optional[str] = Field(
+        default=None, description="Path to the commit associated with the release"
+    )
+    tag_path: Optional[str] = Field(
+        default=None, description="Path to the tag associated with the release"
+    )
+    assets: Optional[Assets] = Field(
+        default=None, description="Assets related to the release"
+    )
+    evidences: Optional[List[Evidence]] = Field(
+        default=None, description="List of evidences related to the release"
+    )
+    links: Optional[ReleaseLinks] = Field(
+        default=None, alias="_links", description="Links related to the release"
+    )
+    evidence_sha: Optional[str] = Field(default=None, description="Evidence hash")
+
+
+class Releases(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Releases")
+    releases: List[Release] = Field(default=None, description="List of releases")
+
+
+class Token(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Token")
+    id: Optional[int] = Field(None, description="Token ID")
+    token: Optional[str] = Field(None, description="Authentication token")
+    token_expires_at: Optional[datetime] = Field(
+        None, description="Expiration date and time of the token"
+    )
+
+
+class ToDo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ToDo")
+    id: int = Field(default=None, description="To-do identifier")
+    project: Project = Field(
+        default=None, description="Project associated with the to-do"
+    )
+    author: User = Field(default=None, description="Author of the to-do")
+    action_name: str = Field(default=None, description="Action taken in the to-do")
+    target_type: str = Field(
+        default=None, description="Type of target referenced in the to-do"
+    )
+    target: Issue = Field(default=None, description="Target issue for the to-do")
+    target_url: Union[HttpUrl, str] = Field(
+        default=None, description="URL pointing to the target of the to-do"
+    )
+    body: str = Field(default=None, description="Body text of the to-do")
+    state: str = Field(default=None, description="State of the to-do")
+    created_at: datetime = Field(
+        default=None, description="Timestamp when the to-do was created"
+    )
+
+
+class WikiPage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="WikiPage")
+    content: Optional[str] = Field(None, description="Content of the wiki page")
+    format: Optional[str] = Field(
+        None, description="Format of the wiki page content (e.g., markdown, rdoc)"
+    )
+    slug: Optional[str] = Field(
+        None, description="Slug (URL-friendly identifier) of the wiki page"
+    )
+    title: Optional[str] = Field(None, description="Title of the wiki page")
+    encoding: Optional[str] = Field(
+        None, description="Encoding of the wiki page content (e.g., UTF-8)"
+    )
+
+
+class WikiPages(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="WikiPages")
+    wiki_pages: List[WikiPage] = Field(default=None, description="List of wiki pages")
+
+
+class WikiAttachmentLink(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="WikiAttachmentLink")
+    url: Optional[Union[HttpUrl, str]] = Field(
+        None, description="URL of the uploaded attachment"
+    )
+    markdown: Optional[str] = Field(
+        None, description="Markdown to embed the uploaded attachment"
+    )
+
+
+class WikiAttachment(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="WikiAttachment")
+    file_name: Optional[str] = Field(None, description="Name of the uploaded file")
+    file_path: Optional[str] = Field(None, description="Path where the file is stored")
+    branch: Optional[str] = Field(
+        None, description="Branch where the attachment is uploaded"
+    )
+    link: Optional[WikiAttachmentLink] = Field(
+        None, description="Link information for the uploaded attachment"
+    )
+
+
+class ProjectConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ProjectConfig")
+    id: int = Field(default=None, description="Project identifier")
+    description: Optional[str] = Field(None, description="Description of the project")
+    name: str = Field(default=None, description="Name of the project")
+    name_with_namespace: str = Field(
+        default=None, description="Full project name with namespace"
+    )
+    path: str = Field(default=None, description="Path of the project")
+    path_with_namespace: str = Field(
+        default=None, description="Full path of the project including namespace"
+    )
+    created_at: datetime = Field(
+        default=None, description="Creation timestamp of the project"
+    )
+
+
+class Agent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Agent")
+    id: int = Field(default=None, description="Agent identifier")
+    config_project: ProjectConfig = Field(
+        default=None, description="Configuration project associated with the agent"
+    )
+
+
+class Agents(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Agents")
+    allowed_agents: List[Agent] = Field(
+        default=None, description="List of allowed agents"
+    )
+    job: Job = Field(default=None, description="Job associated with the agents")
+    pipeline: Pipeline = Field(
+        default=None, description="Pipeline associated with the agents"
+    )
+    project: Project = Field(
+        default=None, description="Project associated with the agents"
+    )
+    user: User = Field(default=None, description="User associated with the agents")
+
+
+class Response(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    base_type: str = Field(default="Response")
+    data: Optional[
+        Union[
+            List,
+            Dict,
+            Agents,
+            Agent,
+            Branches,
+            Branch,
+            Pipelines,
+            Pipeline,
+            Commits,
+            Commit,
+            PipelineVariable,
+            PipelineVariables,
+            CommitSignature,
+            Diffs,
+            Diff,
+            Comments,
+            Comment,
+            Users,
+            User,
+            Memberships,
+            Membership,
+            Releases,
+            Release,
+            Issues,
+            Issue,
+            ToDo,
+            TestReport,
+            MergeRequests,
+            MergeRequest,
+            MergeApprovals,
+            ApprovalRules,
+            ApprovalRule,
+            Runners,
+            Runner,
+            Jobs,
+            Job,
+            Packages,
+            Package,
+            DeployTokens,
+            DeployToken,
+            AccessLevel,
+            AccessControl,
+            Rule,
+            Groups,
+            Group,
+            Projects,
+            Project,
+            TimeStats,
+            Token,
+            WikiPage,
+            WikiPages,
+            WikiAttachment,
+            Webhook,
+        ]
+    ] = Field(default=None, description="Data")
+    status_code: Union[str, int] = Field(
+        default=None, description="Response status code"
+    )
+    json_output: Optional[Union[List, Dict]] = Field(
+        default=None, description="Response JSON data"
+    )
+    raw_output: Optional[bytes] = Field(default=None, description="Response Raw bytes")
+
+    @field_validator("data")
+    def determine_model_type(cls, value):
+        single_models = {
+            "Agents": Agents,
+            "Branch": Branch,
+            "Pipeline": Pipeline,
+            "Commit": Commit,
+            "PipelineVariable": PipelineVariable,
+            "CommitSignature": CommitSignature,
+            "Diff": Diff,
+            "Comment": Comment,
+            "Issue": Issue,
+            "ToDo": ToDo,
+            "TestReport": TestReport,
+            "MergeRequest": MergeRequest,
+            "MergeApprovals": MergeApprovals,
+            "Release": Release,
+            "User": User,
+            "Membership": Membership,
+            "DeployToken": DeployToken,
+            "Group": Group,
+            "Job": Job,
+            "Package": Package,
+            "AccessLevel": AccessLevel,
+            "AccessControl": AccessControl,
+            "Rule": Rule,
+            "Project": Project,
+            "TimeStats": TimeStats,
+            "Token": Token,
+            "WikiPage": WikiPage,
+            "WikiAttachment": WikiAttachment,
+            "Webhook": Webhook,
+            "ApprovalRule": ApprovalRule,
+            "Runner": Runner,
+        }
+        temp_value = None
+        if isinstance(value, list):
+            if all(isinstance(item, Dict) for item in value):
+                try:
+                    branches = [Branch(**item) for item in value]
+                    temp_value = Branches(branches=branches)
+                    logging.info(f"Branches Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Branches Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    commits = [Commit(**item) for item in value]
+                    temp_value = Commits(commits=commits)
+                    logging.info(f"Commits Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Commits Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    pipelines = [Pipeline(**item) for item in value]
+                    temp_value = Pipelines(pipelines=pipelines)
+                    logging.info(f"Pipelines Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Pipelines Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    merge_requests = [MergeRequest(**item) for item in value]
+                    temp_value = MergeRequests(merge_requests=merge_requests)
+                    logging.info(f"Merge Requests Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Merge Requests Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    releases = [Release(**item) for item in value]
+                    temp_value = Releases(releases=releases)
+                    logging.info(f"Releases Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Releases Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    diffs = [Diff(**item) for item in value]
+                    temp_value = Diffs(diffs=diffs)
+                    logging.info(f"Diffs Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Diffs Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    comments = [Comment(**item) for item in value]
+                    temp_value = Comments(comments=comments)
+                    logging.info(f"Comments Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Comments Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    deploy_tokens = [DeployToken(**item) for item in value]
+                    temp_value = DeployTokens(deploy_tokens=deploy_tokens)
+                    logging.info(f"Deploy Tokens Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Deploy Tokens Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    users = [User(**item) for item in value]
+                    temp_value = Users(users=users)
+                    logging.info(f"Users Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Users Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    memberships = [Membership(**item) for item in value]
+                    temp_value = Memberships(memberships=memberships)
+                    logging.info(f"Memberships Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Memberships Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    groups = [Group(**item) for item in value]
+                    temp_value = Groups(groups=groups)
+                    logging.info(f"Groups Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Groups Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    pipeline_variables = [PipelineVariable(**item) for item in value]
+                    temp_value = PipelineVariables(
+                        pipeline_variables=pipeline_variables
+                    )
+                    logging.info(f"PipelineVariable Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n PipelineVariable Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    projects = [Project(**item) for item in value]
+                    temp_value = Projects(projects=projects)
+                    logging.info(f"Projects Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Projects Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    issues = [Issue(**item) for item in value]
+                    temp_value = Issues(issues=issues)
+                    logging.info(f"Issues Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Issues Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    wiki_pages = [WikiPage(**item) for item in value]
+                    temp_value = WikiPages(wiki_pages=wiki_pages)
+                    logging.info(f"WikiPages Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n WikiPages Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    approval_rules = [ApprovalRule(**item) for item in value]
+                    temp_value = ApprovalRules(approval_rules=approval_rules)
+                    logging.info(f"ApprovalRules Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n ApprovalRules Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    jobs = [Job(**item) for item in value]
+                    temp_value = Jobs(jobs=jobs)
+                    logging.info(f"Jobs Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Jobs Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    packages = [Package(**item) for item in value]
+                    temp_value = Packages(packages=packages)
+                    logging.info(f"Packages Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Packages Validation Failed: {value}\nError: {e}"
+                    )
+                try:
+                    runners = [Runner(**item) for item in value]
+                    temp_value = Runners(runners=runners)
+                    logging.info(f"Runners Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n Runners Validation Failed: {value}\nError: {e}"
+                    )
+        elif isinstance(value, dict):
+            for model_name, model in single_models.items():
+                try:
+                    temp_value = model(**value)
+                    logging.info(f"{model_name} Model Validation Success: {value}")
+                except Exception as e:
+                    logging.warning(
+                        f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
+                    )
+
+        value = temp_value
         return value

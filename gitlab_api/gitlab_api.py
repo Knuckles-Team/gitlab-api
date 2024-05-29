@@ -6,7 +6,7 @@ import requests
 from requests import Response
 import urllib3
 from base64 import b64encode
-from typing import List, Dict
+from typing import Union
 from pydantic import ValidationError
 
 try:
@@ -65,6 +65,10 @@ except ModuleNotFoundError:
         ParameterError,
         MissingParameterError,
     )
+try:
+    from gitlab_api.utils import process_response
+except ModuleNotFoundError:
+    from utils import process_response
 
 
 class Api(object):
@@ -118,7 +122,7 @@ class Api(object):
     #                                                 Branches API                                                     #
     ####################################################################################################################
     @require_auth
-    def get_branches(self, **kwargs) -> Response:
+    def get_branches(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Retrieve information about branches in a project.
 
@@ -141,10 +145,11 @@ class Api(object):
 
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_branch(self, **kwargs) -> Response:
+    def get_branch(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Retrieve information about a specific branch in a project.
 
@@ -166,10 +171,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def create_branch(self, **kwargs) -> Response:
+    def create_branch(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Create a new branch in a project.
 
@@ -191,10 +197,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_branch(self, **kwargs) -> Response:
+    def delete_branch(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Delete a specific branch in a project.
 
@@ -217,10 +224,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_merged_branches(self, **kwargs) -> Response:
+    def delete_merged_branches(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Delete merged branches in a project.
 
@@ -243,13 +251,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                 Commits API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_commits(self, **kwargs) -> Response:
+    def get_commits(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get commits.
 
@@ -271,10 +280,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_commit(self, **kwargs) -> Response:
+    def get_commit(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get a specific commit.
 
@@ -297,10 +307,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_commit_references(self, **kwargs) -> Response:
+    def get_commit_references(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get references of a commit.
 
@@ -323,10 +334,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def cherry_pick_commit(self, **kwargs) -> Response:
+    def cherry_pick_commit(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Cherry-pick a commit into a new branch.
 
@@ -345,15 +357,16 @@ class Api(object):
                 url=f"{self.url}/projects/{commit.project_id}"
                 f"/repository/commits/{commit.commit_hash}/cherry_pick",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def create_commit(self, **kwargs) -> Response:
+    def create_commit(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Create a new commit.
 
@@ -371,15 +384,16 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}" f"/repository/commits",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def revert_commit(self, **kwargs) -> Response:
+    def revert_commit(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Revert a commit.
 
@@ -398,15 +412,16 @@ class Api(object):
                 url=f"{self.url}/projects/{commit.project_id}"
                 f"/repository/commits/{commit.commit_hash}/revert",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_commit_diff(self, **kwargs) -> Response:
+    def get_commit_diff(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get the diff of a commit.
 
@@ -429,10 +444,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_commit_comments(self, **kwargs) -> Response:
+    def get_commit_comments(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get comments on a commit.
 
@@ -455,10 +471,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def create_commit_comment(self, **kwargs) -> Response:
+    def create_commit_comment(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Create a comment on a commit.
 
@@ -477,15 +494,16 @@ class Api(object):
                 url=f"{self.url}/projects/{commit.project_id}"
                 f"/repository/commits/{commit.commit_hash}/comments",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_commit_discussions(self, **kwargs) -> Response:
+    def get_commit_discussions(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get discussions on a commit.
 
@@ -508,10 +526,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_commit_statuses(self, **kwargs) -> Response:
+    def get_commit_statuses(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get statuses of a commit.
 
@@ -534,10 +553,13 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def post_build_status_to_commit(self, **kwargs) -> Response:
+    def post_build_status_to_commit(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Post build status to a commit.
 
@@ -556,15 +578,16 @@ class Api(object):
                 url=f"{self.url}/projects/{commit.project_id}"
                 f"/statuses/{commit.commit_hash}/",
                 headers=self.headers,
-                data=json.dumps(commit.data, indent=2),
+                json=commit.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_commit_merge_requests(self, **kwargs) -> Response:
+    def get_commit_merge_requests(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get merge requests associated with a commit.
 
@@ -587,10 +610,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_commit_gpg_signature(self, **kwargs) -> Response:
+    def get_commit_gpg_signature(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get GPG signature of a commit.
 
@@ -613,13 +637,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                Deploy Tokens API                                                 #
     ####################################################################################################################
     @require_auth
-    def get_deploy_tokens(self) -> Response:
+    def get_deploy_tokens(self) -> Union[Response, requests.Response]:
         """
         Get all deploy tokens.
 
@@ -638,10 +663,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_deploy_tokens(self, **kwargs) -> Response:
+    def get_project_deploy_tokens(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get deploy tokens for a specific project.
 
@@ -663,10 +689,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_deploy_token(self, **kwargs) -> Response:
+    def get_project_deploy_token(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get a specific deploy token for a project.
 
@@ -688,10 +715,13 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def create_project_deploy_token(self, **kwargs) -> Response:
+    def create_project_deploy_token(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Create a deploy token for a project.
 
@@ -721,10 +751,13 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_project_deploy_token(self, **kwargs) -> Response:
+    def delete_project_deploy_token(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Delete a deploy token for a project.
 
@@ -749,10 +782,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_group_deploy_tokens(self, **kwargs) -> Response:
+    def get_group_deploy_tokens(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get deploy tokens for a specific group.
 
@@ -777,10 +811,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_group_deploy_token(self, **kwargs) -> Response:
+    def get_group_deploy_token(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get a specific deploy token for a group.
 
@@ -806,10 +841,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def create_group_deploy_token(self, **kwargs) -> Response:
+    def create_group_deploy_token(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Create a deploy token for a group.
 
@@ -839,10 +875,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_group_deploy_token(self, **kwargs) -> Response:
+    def delete_group_deploy_token(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Delete a deploy token for a group.
 
@@ -867,13 +904,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                Groups API                                                        #
     ####################################################################################################################
     @require_auth
-    def get_groups(self, **kwargs) -> Response:
+    def get_groups(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get a list of groups.
 
@@ -895,10 +933,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_group(self, **kwargs) -> Response:
+    def get_group(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get details of a specific group.
 
@@ -923,10 +962,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_group_subgroups(self, **kwargs) -> Response:
+    def get_group_subgroups(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get subgroups of a specific group.
 
@@ -951,10 +991,13 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_group_descendant_groups(self, **kwargs) -> Response:
+    def get_group_descendant_groups(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get descendant groups of a specific group.
 
@@ -979,10 +1022,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_group_projects(self, **kwargs) -> Response:
+    def get_group_projects(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get projects associated with a specific group.
 
@@ -1009,10 +1053,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_group_merge_requests(self, **kwargs) -> Response:
+    def get_group_merge_requests(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get merge requests associated with a specific group.
 
@@ -1039,13 +1084,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                Jobs API                                                          #
     ####################################################################################################################
     @require_auth
-    def get_project_jobs(self, **kwargs) -> Response:
+    def get_project_jobs(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get jobs associated with a specific project.
 
@@ -1070,10 +1116,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_job(self, **kwargs) -> Response:
+    def get_project_job(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get details of a specific job within a project.
 
@@ -1099,10 +1146,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_job_log(self, **kwargs) -> Response:
+    def get_project_job_log(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get the log of a specific job within a project.
 
@@ -1127,10 +1175,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def cancel_project_job(self, **kwargs) -> Response:
+    def cancel_project_job(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Cancel a specific job within a project.
 
@@ -1155,10 +1204,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def retry_project_job(self, **kwargs) -> Response:
+    def retry_project_job(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Retry a specific job within a project.
 
@@ -1183,10 +1233,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def erase_project_job(self, **kwargs) -> Response:
+    def erase_project_job(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Erase a specific job within a project.
 
@@ -1211,10 +1262,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def run_project_job(self, **kwargs) -> Response:
+    def run_project_job(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Run a specific job within a project.
 
@@ -1236,15 +1288,16 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/play",
                 headers=self.headers,
-                data=json.dumps(job.data, indent=2),
+                json=job.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_pipeline_jobs(self, **kwargs) -> Response:
+    def get_pipeline_jobs(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get jobs associated with a specific pipeline within a project.
 
@@ -1269,13 +1322,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                               Members API                                                        #
     ####################################################################################################################
     @require_auth
-    def get_group_members(self, **kwargs) -> Response:
+    def get_group_members(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get members of a specific group.
 
@@ -1300,10 +1354,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_members(self, **kwargs) -> Response:
+    def get_project_members(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get members of a specific project.
 
@@ -1328,13 +1383,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                            Merge Request API                                                     #
     ####################################################################################################################
     @require_auth
-    def create_merge_request(self, **kwargs) -> Response:
+    def create_merge_request(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Create a new merge request.
 
@@ -1361,15 +1417,16 @@ class Api(object):
                 url=f"{self.url}/projects"
                 f"/{merge_request.project_id}/merge_requests",
                 headers=self.headers,
-                data=json.dumps(merge_request.data, indent=2),
+                json=merge_request.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_merge_requests(self, **kwargs) -> Response:
+    def get_merge_requests(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get a list of merge requests.
 
@@ -1406,10 +1463,13 @@ class Api(object):
                 response = response + response_page
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_merge_requests(self, **kwargs) -> Response:
+    def get_project_merge_requests(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get merge requests for a specific project.
 
@@ -1433,10 +1493,11 @@ class Api(object):
 
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_merge_request(self, **kwargs) -> Response:
+    def get_project_merge_request(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get details of a specific merge request in a project.
 
@@ -1462,13 +1523,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                            Merge Rules API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_project_level_rules(self, **kwargs) -> Response:
+    def get_project_level_rules(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get project-level merge request approval rules.
 
@@ -1490,10 +1552,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_level_rule(self, **kwargs) -> Response:
+    def get_project_level_rule(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get details of a specific project-level merge request approval rule.
 
@@ -1516,10 +1579,11 @@ class Api(object):
 
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def create_project_level_rule(self, **kwargs) -> Response:
+    def create_project_level_rule(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Create a new project-level merge request approval rule.
 
@@ -1537,16 +1601,17 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/projects/{merge_rule.project_id}/approval_rules",
                 headers=self.headers,
-                data=json.dumps(merge_rule.data, indent=2),
+                json=merge_rule.data,
                 verify=self.verify,
             )
 
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def update_project_level_rule(self, **kwargs) -> Response:
+    def update_project_level_rule(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Update an existing project-level merge request approval rule.
 
@@ -1565,15 +1630,16 @@ class Api(object):
                 url=f"{self.url}/projects/{merge_rule.project_id}"
                 f"/approval_rules/{merge_rule.approval_rule_id}",
                 headers=self.headers,
-                data=json.dumps(merge_rule.data, indent=2),
+                json=merge_rule.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_project_level_rule(self, **kwargs) -> Response:
+    def delete_project_level_rule(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Delete a project-level merge request approval rule.
 
@@ -1592,15 +1658,18 @@ class Api(object):
                 url=f"{self.url}/projects/{merge_rule.project_id}"
                 f"/approval_rules/{merge_rule.approval_rule_id}",
                 headers=self.headers,
-                data=json.dumps(merge_rule.data, indent=2),
+                json=merge_rule.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def merge_request_level_approvals(self, **kwargs) -> Response:
+    def merge_request_level_approvals(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get approvals for a specific merge request.
 
@@ -1619,16 +1688,20 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approvals",
+                url=f"{self.url}/projects/{merge_rule.project_id}/merge_requests/"
+                f"{merge_rule.merge_request_iid}/approvals",
                 headers=self.headers,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_approval_state_merge_requests(self, **kwargs) -> Response:
+    def get_approval_state_merge_requests(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get the approval state of merge requests for a specific project.
 
@@ -1654,10 +1727,13 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_merge_request_level_rules(self, **kwargs) -> Response:
+    def get_merge_request_level_rules(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get merge request-level approval rules for a specific project and merge request.
 
@@ -1683,10 +1759,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def approve_merge_request(self, **kwargs) -> Response:
+    def approve_merge_request(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Approve a specific merge request.
 
@@ -1712,10 +1789,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def unapprove_merge_request(self, **kwargs) -> Response:
+    def unapprove_merge_request(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Unapprove a specific merge request.
 
@@ -1741,12 +1819,13 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                               Packages API                                                       #
     ####################################################################################################################
-    def get_repository_packages(self, **kwargs) -> Response:
+    def get_repository_packages(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about repository packages for a specific project.
 
@@ -1771,9 +1850,12 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
-    def publish_repository_package(self, **kwargs) -> Response:
+    def publish_repository_package(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Publish a repository package for a specific project.
 
@@ -1805,9 +1887,12 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
-    def download_repository_package(self, **kwargs) -> Response:
+    def download_repository_package(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Download a repository package for a specific project.
 
@@ -1839,13 +1924,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                Pipeline API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_pipelines(self, **kwargs) -> Response:
+    def get_pipelines(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about pipelines for a specific project.
 
@@ -1870,10 +1956,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_pipeline(self, **kwargs) -> Response:
+    def get_pipeline(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about a specific pipeline in a project.
 
@@ -1899,10 +1986,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def run_pipeline(self, **kwargs) -> Response:
+    def run_pipeline(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Run a pipeline for a specific project.
 
@@ -1924,7 +2012,7 @@ class Api(object):
                 url=f"{self.url}/projects/{pipeline.project_id}"
                 f"/pipeline{pipeline.api_parameters}",
                 headers=self.headers,
-                data=json.dumps(pipeline.variables, indent=2),
+                json=pipeline.variables,
                 verify=self.verify,
             )
         else:
@@ -1934,13 +2022,14 @@ class Api(object):
                 headers=self.headers,
                 verify=self.verify,
             )
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                Projects API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_projects(self, **kwargs) -> Response:
+    def get_projects(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about projects.
 
@@ -1971,10 +2060,11 @@ class Api(object):
             )
             response_page = json.loads(response_page.text.replace("'", '"'))
             response = response + response_page
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project(self, **kwargs) -> Response:
+    def get_project(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about a specific project.
 
@@ -1997,10 +2087,13 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_nested_projects_by_group(self, **kwargs) -> List[Dict]:
+    def get_nested_projects_by_group(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get information about nested projects within a group.
 
@@ -2043,7 +2136,7 @@ class Api(object):
         return projects
 
     @require_auth
-    def get_project_contributors(self, **kwargs) -> Response:
+    def get_project_contributors(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about contributors to a project.
 
@@ -2065,10 +2158,11 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_statistics(self, **kwargs) -> Response:
+    def get_project_statistics(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get statistics for a specific project.
 
@@ -2090,10 +2184,11 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def edit_project(self, **kwargs) -> Response:
+    def edit_project(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Edit a specific project.
 
@@ -2116,10 +2211,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_groups(self, **kwargs) -> Response:
+    def get_project_groups(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get groups associated with a specific project.
 
@@ -2141,10 +2237,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def archive_project(self, **kwargs) -> Response:
+    def archive_project(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Archive a specific project.
 
@@ -2166,10 +2263,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def unarchive_project(self, **kwargs) -> Response:
+    def unarchive_project(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Unarchive a specific project.
 
@@ -2191,10 +2289,11 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_project(self, **kwargs) -> Response:
+    def delete_project(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Delete a specific project.
 
@@ -2216,10 +2315,11 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def share_project(self, **kwargs) -> Response:
+    def share_project(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Share a specific project with a group.
 
@@ -2246,13 +2346,14 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                       Protected Branches API                                                     #
     ####################################################################################################################
     @require_auth
-    def get_protected_branches(self, **kwargs) -> Response:
+    def get_protected_branches(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about protected branches in a project.
 
@@ -2273,10 +2374,11 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_protected_branch(self, **kwargs) -> Response:
+    def get_protected_branch(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about a specific protected branch in a project.
 
@@ -2298,10 +2400,11 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def protect_branch(self, **kwargs) -> Response:
+    def protect_branch(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Protect a specific branch in a project.
 
@@ -2323,7 +2426,7 @@ class Api(object):
                 url=f"{self.url}/projects/{protected_branch.project_id}"
                 f"/protected_branches{protected_branch.api_parameters}",
                 headers=self.headers,
-                data=json.dumps(protected_branch.data, indent=2),
+                json=protected_branch.data,
                 verify=self.verify,
             )
         else:
@@ -2333,10 +2436,11 @@ class Api(object):
                 headers=self.headers,
                 verify=self.verify,
             )
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def unprotect_branch(self, **kwargs) -> Response:
+    def unprotect_branch(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Unprotect a specific branch in a project.
 
@@ -2355,10 +2459,13 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def require_code_owner_approvals_single_branch(self, **kwargs) -> Response:
+    def require_code_owner_approvals_single_branch(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Require code owner approvals for a specific branch in a project.
 
@@ -2380,13 +2487,14 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                Release API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_releases(self, **kwargs) -> Response:
+    def get_releases(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about releases in a project.
 
@@ -2408,10 +2516,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_latest_release(self, **kwargs) -> Response:
+    def get_latest_release(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about the latest release in a project.
 
@@ -2435,10 +2544,13 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_latest_release_evidence(self, **kwargs) -> Response:
+    def get_latest_release_evidence(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get evidence for the latest release in a project.
 
@@ -2462,10 +2574,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_latest_release_asset(self, **kwargs) -> Response:
+    def get_latest_release_asset(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get the asset for the latest release in a project.
 
@@ -2489,10 +2602,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_group_releases(self, **kwargs) -> Response:
+    def get_group_releases(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about releases in a group.
 
@@ -2515,10 +2629,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def download_release_asset(self, **kwargs) -> Response:
+    def download_release_asset(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Download a release asset from a group's release.
 
@@ -2543,10 +2658,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_release_by_tag(self, **kwargs) -> Response:
+    def get_release_by_tag(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about a release by its tag in a project.
 
@@ -2569,10 +2685,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def create_release(self, **kwargs) -> Response:
+    def create_release(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Create a new release in a project.
 
@@ -2589,16 +2706,17 @@ class Api(object):
         try:
             response = self._session.post(
                 url=f"{self.url}" f"/projects/{release.project_id}/releases",
-                data=json.dumps(release.data, indent=2),
+                json=release.data,
                 headers=self.headers,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def create_release_evidence(self, **kwargs) -> Response:
+    def create_release_evidence(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Create evidence for a release in a project.
 
@@ -2622,10 +2740,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def update_release(self, **kwargs) -> Response:
+    def update_release(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Update information about a release in a project.
 
@@ -2643,16 +2762,17 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}"
                 f"/projects/{release.project_id}/releases/{release.tag_name}",
-                data=json.dumps(release.data, indent=2),
+                json=release.data,
                 headers=self.headers,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_release(self, **kwargs) -> Response:
+    def delete_release(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Delete a release in a project.
 
@@ -2675,13 +2795,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                Runners API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_runners(self, **kwargs) -> Response:
+    def get_runners(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about runners.
 
@@ -2703,10 +2824,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_runner(self, **kwargs) -> Response:
+    def get_runner(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about a specific runner.
 
@@ -2731,10 +2853,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def update_runner_details(self, **kwargs) -> Response:
+    def update_runner_details(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Update details for a specific runner.
 
@@ -2755,15 +2878,16 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def pause_runner(self, **kwargs) -> Response:
+    def pause_runner(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Pause or unpause a specific runner.
 
@@ -2784,15 +2908,16 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_runner_jobs(self, **kwargs) -> Response:
+    def get_runner_jobs(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get jobs for a specific runner.
 
@@ -2817,10 +2942,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_project_runners(self, **kwargs) -> Response:
+    def get_project_runners(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about runners in a project.
 
@@ -2846,10 +2972,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def enable_project_runner(self, **kwargs) -> Response:
+    def enable_project_runner(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Enable or disable a runner in a project.
 
@@ -2871,15 +2998,16 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}/projects" f"/{runner.project_id}/runners",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_project_runner(self, **kwargs) -> Response:
+    def delete_project_runner(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Delete a runner from a project.
 
@@ -2905,10 +3033,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_group_runners(self, **kwargs) -> Response:
+    def get_group_runners(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about runners in a group.
 
@@ -2934,10 +3063,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def register_new_runner(self, **kwargs) -> Response:
+    def register_new_runner(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Register a new runner.
 
@@ -2958,15 +3088,16 @@ class Api(object):
             response = self._session.put(
                 url=f"{self.url}/runners",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_runner(self, **kwargs) -> Response:
+    def delete_runner(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Delete a runner.
 
@@ -2994,15 +3125,18 @@ class Api(object):
                 response = self._session.delete(
                     url=f"{self.url}/runners",
                     headers=self.headers,
-                    data=json.dumps(runner.data, indent=2),
+                    json=runner.data,
                     verify=self.verify,
                 )
             except ValidationError as e:
                 raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def verify_runner_authentication(self, **kwargs) -> Response:
+    def verify_runner_authentication(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Verify runner authentication.
 
@@ -3023,15 +3157,16 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/runners/verify",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def reset_gitlab_runner_token(self) -> Response:
+    def reset_gitlab_runner_token(self) -> Union[Response, requests.Response]:
         """
         Reset GitLab runner registration token.
 
@@ -3049,10 +3184,13 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def reset_project_runner_token(self, **kwargs) -> Response:
+    def reset_project_runner_token(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Reset registration token for a project's runner.
 
@@ -3079,10 +3217,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def reset_group_runner_token(self, **kwargs) -> Response:
+    def reset_group_runner_token(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Reset registration token for a group's runner.
 
@@ -3108,10 +3247,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def reset_token(self, **kwargs) -> Response:
+    def reset_token(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Reset authentication token for a runner.
 
@@ -3133,18 +3273,19 @@ class Api(object):
                 url=f"{self.url}/runners/{runner.runner_id}"
                 f"/reset_authentication_token",
                 headers=self.headers,
-                data=json.dumps(runner.data, indent=2),
+                json=runner.data,
                 verify=self.verify,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                Users API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_users(self, **kwargs) -> Response:
+    def get_users(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about users.
 
@@ -3177,10 +3318,11 @@ class Api(object):
             )
             response_page = json.loads(response_page.text.replace("'", '"'))
             response = response + response_page
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_user(self, **kwargs) -> Response:
+    def get_user(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about a specific user.
 
@@ -3205,13 +3347,14 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     ####################################################################################################################
     #                                                 Wiki API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_wiki_list(self, **kwargs) -> Response:
+    def get_wiki_list(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get a list of wiki pages for a project.
 
@@ -3237,10 +3380,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def get_wiki_page(self, **kwargs) -> Response:
+    def get_wiki_page(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get information about a specific wiki page.
 
@@ -3266,10 +3410,11 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def create_wiki_page(self, **kwargs) -> Response:
+    def create_wiki_page(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Create a new wiki page for a project.
 
@@ -3291,14 +3436,15 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis",
                 headers=self.headers,
                 verify=self.verify,
-                data=json.dumps(wiki.data, indent=2),
+                json=wiki.data,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def update_wiki_page(self, **kwargs) -> Response:
+    def update_wiki_page(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Update an existing wiki page for a project.
 
@@ -3320,14 +3466,15 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}",
                 headers=self.headers,
                 verify=self.verify,
-                data=json.dumps(wiki.data, indent=2),
+                json=wiki.data,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def delete_wiki_page(self, **kwargs) -> Response:
+    def delete_wiki_page(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Delete a wiki page for a project.
 
@@ -3352,10 +3499,13 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
-    def upload_wiki_page_attachment(self, **kwargs) -> Response:
+    def upload_wiki_page_attachment(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Upload an attachment to a wiki page for a project.
 
@@ -3372,12 +3522,6 @@ class Api(object):
         wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.file is None or wiki.branch is None:
             raise MissingParameterError
-        data = {}
-        if wiki.file:
-            if not isinstance(wiki.file, str):
-                raise ParameterError
-            data["file"] = f"@{wiki.file}"
-        data = json.dumps(data, indent=4)
         headers = self.headers
         headers["Content-Type"] = "multipart/form-data"
         try:
@@ -3385,8 +3529,9 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/attachments",
                 headers=headers,
                 verify=self.verify,
-                data=json.dumps(data, indent=2),
+                json=wiki.data,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
