@@ -3526,7 +3526,9 @@ class Pipeline(BaseModel):
     )
     sha: Optional[str] = Field(default=None, description="SHA of the pipeline")
     status: Optional[str] = Field(default=None, description="Status of the pipeline")
-    web_url: Optional[Union[HttpUrl, str]] = Field(default=None, description="URL for the pipeline")
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL for the pipeline"
+    )
     project_id: Optional[int] = Field(
         default=None, description="The ID of the project associated with the pipeline."
     )
@@ -4016,7 +4018,9 @@ class Project(BaseModel):
     creator_id: Optional[int] = Field(
         default=None, description="The ID of the creator."
     )
-    import_url: Optional[Union[HttpUrl, str]] = Field(default=None, description="The import URL.")
+    import_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="The import URL."
+    )
     import_type: Optional[str] = Field(default=None, description="The import type.")
     import_status: Optional[str] = Field(default=None, description="The import status.")
     import_error: Optional[str] = Field(default=None, description="The import error.")
@@ -4481,7 +4485,9 @@ class Group(BaseModel):
     avatar_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="URL of the group's avatar"
     )
-    web_url: Optional[Union[HttpUrl, str]] = Field(default=None, description="Web URL of the group")
+    web_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="Web URL of the group"
+    )
     request_access_enabled: Optional[bool] = Field(
         default=None, description="Whether request access is enabled"
     )
@@ -4564,7 +4570,9 @@ class Webhook(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="Webhook")
     id: int = Field(default=None, description="Unique identifier for the webhook")
-    url: Union[HttpUrl, str] = Field(default=None, description="The URL the webhook should target")
+    url: Union[HttpUrl, str] = Field(
+        default=None, description="The URL the webhook should target"
+    )
     name: str = Field(default=None, description="Name of the webhook")
     description: str = Field(default=None, description="Description of the webhook")
     group_id: int = Field(
@@ -5011,7 +5019,9 @@ class Epic(BaseModel):
         default=None, description="Internal ID of the epic within the project."
     )
     title: Optional[str] = Field(default=None, description="Title of the epic.")
-    url: Optional[Union[HttpUrl, str]] = Field(default=None, description="URL to the epic.")
+    url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL to the epic."
+    )
     group_id: Optional[int] = Field(
         default=None, description="Group ID to which the epic belongs."
     )
@@ -5435,7 +5445,9 @@ class Link(BaseModel):
     base_type: str = Field(default="Link")
     id: Optional[int] = Field(default=None, description="Link ID")
     name: Optional[str] = Field(default=None, description="Name of the link")
-    url: Optional[Union[HttpUrl, str]] = Field(default=None, description="URL of the link")
+    url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL of the link"
+    )
     link_type: Optional[str] = Field(
         default=None, description="Type of the link (e.g., other)"
     )
@@ -5482,7 +5494,9 @@ class ReleaseLinks(BaseModel):
     closed_merge_requests_url: Optional[Union[HttpUrl, str]] = Field(
         None, description="URL to the list of closed merge requests"
     )
-    edit_url: Optional[Union[HttpUrl, str]] = Field(None, description="URL to edit the release")
+    edit_url: Optional[Union[HttpUrl, str]] = Field(
+        None, description="URL to edit the release"
+    )
     merged_merge_requests_url: Optional[Union[HttpUrl, str]] = Field(
         None, description="URL to the list of merged merge requests"
     )
@@ -5605,7 +5619,9 @@ class WikiAttachmentLink(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="WikiAttachmentLink")
-    url: Optional[Union[HttpUrl, str]] = Field(None, description="URL of the uploaded attachment")
+    url: Optional[Union[HttpUrl, str]] = Field(
+        None, description="URL of the uploaded attachment"
+    )
     markdown: Optional[str] = Field(
         None, description="Markdown to embed the uploaded attachment"
     )
