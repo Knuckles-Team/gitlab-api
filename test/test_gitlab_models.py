@@ -268,6 +268,7 @@ def test_project_response_1():
             "allow_pipeline_trigger_approve_deployment": True,
             "mr_default_target_self": True,
             "forked_from_project": {},
+            "message": "failure",
             "container_expiration_policy": {
                 "cadence": "1month",
                 "enabled": True,
