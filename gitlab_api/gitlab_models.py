@@ -5832,6 +5832,7 @@ class Response(BaseModel):
         default=None, description="Response JSON data"
     )
     raw_output: Optional[bytes] = Field(default=None, description="Response Raw bytes")
+    message: Optional[str] = Field(default=None, description="Any error messages")
 
     @field_validator("data")
     def determine_model_type(cls, value):
