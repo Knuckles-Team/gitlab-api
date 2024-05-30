@@ -2116,7 +2116,7 @@ class Api(object):
             raise MissingParameterError
         response = self.get_group(group_id=project.group_id)
         groups = self.get_group_subgroups(group_id=project.group_id)
-        groups.data.append(response.data)
+        groups.data.groups.append(response.data)
         for group in groups.data:
             response = self.get_total_projects_in_group(group_id=project.group_id, per_page=project.per_page)
             total_pages = int(response.headers["X-Total-Pages"])
