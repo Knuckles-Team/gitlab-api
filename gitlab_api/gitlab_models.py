@@ -4127,6 +4127,18 @@ class Project(BaseModel):
     request_access_enabled: Optional[bool] = Field(
         default=None, description="Whether requesting access is enabled."
     )
+    merge_pipelines_enabled: Optional[bool] = Field(
+        default=None, description="Merge pipelines enabled."
+    )
+    merge_trains_skip_train_allowed: Optional[bool] = Field(
+        default=None, description="Merge trains skip trains enabled."
+    )
+    allow_pipeline_trigger_approve_deployment: Optional[bool] = Field(
+        default=None, description="Allow pipeline to trigger deployment."
+    )
+    repository_object_format: Optional[str] = Field(
+        default=None, description="Repository object format"
+    )
     merge_method: Optional[str] = Field(
         default=None, description="The method used for merging."
     )

@@ -262,6 +262,10 @@ def test_project_response_1():
             "archived": False,
             "visibility": "public",
             "resolve_outdated_diff_discussions": False,
+            "repository_object_format": "test",
+            "merge_pipelines_enabled": True,
+            "merge_trains_skip_train_allowed": True,
+            "allow_pipeline_trigger_approve_deployment": True,
             "container_expiration_policy": {
                 "cadence": "1month",
                 "enabled": True,
