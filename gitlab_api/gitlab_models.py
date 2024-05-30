@@ -4633,6 +4633,7 @@ class Group(BaseModel):
     )
     ldap_cn: Optional[Any] = Field(default=None, description="LDAP CN information")
     ldap_access: Optional[Any] = Field(default=None, description="LDAP Access")
+    prevent_forking_outside_group: Optional[bool] = Field(default=None, description="Forking disabled outside group")
 
 
 class Groups(BaseModel):
