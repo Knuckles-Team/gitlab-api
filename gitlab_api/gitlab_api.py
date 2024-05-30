@@ -2116,6 +2116,8 @@ class Api(object):
             raise MissingParameterError
         response = self.get_group(group_id=project.group_id)
         groups = self.get_group_subgroups(group_id=project.group_id)
+        print(f"GROUPS: {groups}")
+        print(f"RESPONSE: {response}")
         groups.data.append(response.data)
         for group in groups.data:
             print(f"GROUP: {group}")
