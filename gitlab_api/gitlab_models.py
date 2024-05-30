@@ -33,7 +33,7 @@ except ModuleNotFoundError:
     )
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 ########################################################################################################################
@@ -532,7 +532,12 @@ class GroupModel(BaseModel):
         Raises:
         - ParameterError: If the parameter is not a positive integer.
         """
-        if not isinstance(v, int) or v <= 0:
+        if isinstance(v, str):
+            try:
+                v = int(v)
+            except Exception as e:
+                raise e
+        if not isinstance(v, int) or v < 0:
             raise ParameterError
         return v
 
@@ -639,7 +644,12 @@ class JobModel(BaseModel):
         Raises:
         - ParameterError: If the parameter is not a positive integer.
         """
-        if not isinstance(v, int) or v <= 0:
+        if isinstance(v, str):
+            try:
+                v = int(v)
+            except Exception as e:
+                raise e
+        if not isinstance(v, int) or v < 0:
             raise ParameterError
         return v
 
@@ -772,7 +782,12 @@ class MembersModel(BaseModel):
         Raises:
         - ParameterError: If the parameter is not a positive integer.
         """
-        if not isinstance(v, int) or v <= 0:
+        if isinstance(v, str):
+            try:
+                v = int(v)
+            except Exception as e:
+                raise e
+        if not isinstance(v, int) or v < 0:
             raise ParameterError
         return v
 
@@ -1203,7 +1218,12 @@ class MergeRequestModel(BaseModel):
         Raises:
         - ParameterError: If 'v' is not a valid positive integer.
         """
-        if not isinstance(v, int) or v <= 0:
+        if isinstance(v, str):
+            try:
+                v = int(v)
+            except Exception as e:
+                raise e
+        if not isinstance(v, int) or v < 0:
             raise ParameterError
         return v
 
@@ -3990,6 +4010,31 @@ class Project(BaseModel):
     container_expiration_policy: Optional[ContainerExpirationPolicy] = Field(
         default=None, description="The container expiration policy."
     )
+    releases_access_level: Optional[str] = Field(
+        default=None, description="Release access level"
+    )
+    environments_access_level: Optional[str] = Field(
+        default=None, description="Environments access level"
+    )
+    feature_flags_access_level: Optional[str] = Field(
+        default=None, description="Feature flags access level"
+    )
+    infrastructure_access_level: Optional[str] = Field(
+        default=None, description="Infrastructure access level"
+    )
+    monitor_access_level: Optional[str] = Field(
+        default=None, description="Monitor access level"
+    )
+    machine_learning_model_experiments_access_level: Optional[str] = Field(
+        default=None,
+        alias="model_experiments_access_level",
+        description="Model Experiments access level",
+    )
+    machine_learning_model_registry_access_level: Optional[str] = Field(
+        default=None,
+        alias="model_registry_access_level",
+        description="Model registry access level",
+    )
     issues_enabled: Optional[bool] = Field(
         default=None, description="Whether issues are enabled."
     )
@@ -4063,11 +4108,14 @@ class Project(BaseModel):
         default=None,
         description="Whether merging is only allowed if the pipeline succeeds.",
     )
-    allow_merge_on_skipped_pipeline: Optional[bool] = Field(
+    allow_merge_on_skipped_pipeline: Optional[Union[bool, str]] = Field(
         default=None, description="Whether merging is allowed on skipped pipelines."
     )
     restrict_user_defined_variables: Optional[bool] = Field(
         default=None, description="Whether user-defined variables are restricted."
+    )
+    code_suggestions: Optional[bool] = Field(
+        default=None, description="Enable code suggestions"
     )
     only_allow_merge_if_all_discussions_are_resolved: Optional[bool] = Field(
         default=None,
@@ -4190,8 +4238,8 @@ class Project(BaseModel):
     analytics_access_level: Optional[str] = Field(
         default=None, description="Analytics access level"
     )
-    emails_disabled: Optional[str] = Field(default=None, description="Emails disabled")
-    emails_enabled: Optional[str] = Field(default=None, description="Emails enabled")
+    emails_disabled: Optional[bool] = Field(default=None, description="Emails disabled")
+    emails_enabled: Optional[bool] = Field(default=None, description="Emails enabled")
     open_issues_count: Optional[int] = Field(
         default=None, description="Open issues in project"
     )
@@ -4435,6 +4483,9 @@ class Group(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="Group")
     id: Optional[int] = Field(default=None, description="The ID of the group")
+    organization_id: Optional[int] = Field(
+        default=None, description="The Organization ID of the group"
+    )
     name: Optional[str] = Field(default=None, description="The name of the group")
     path: Optional[str] = Field(default=None, description="The path of the group")
     description: Optional[str] = Field(
@@ -4442,6 +4493,9 @@ class Group(BaseModel):
     )
     visibility: Optional[str] = Field(
         default=None, description="The visibility level of the group"
+    )
+    shared_runners_setting: Optional[str] = Field(
+        default=None, description="Share runner setting"
     )
     share_with_group_lock: Optional[bool] = Field(
         default=None, description="Lock sharing with other groups"
@@ -4527,10 +4581,10 @@ class Group(BaseModel):
     prevent_sharing_groups_outside_hierarchy: Optional[bool] = Field(
         default=None, description="Prevent sharing groups outside hierarchy"
     )
-    projects: Optional[Union[List[Project], List[Dict[str, Any]]]] = Field(
+    projects: Optional[Union[List[Project], List]] = Field(
         default=None, description="Projects within the group"
     )
-    shared_projects: Optional[Union[List[Project], List[Dict[str, Any]]]] = Field(
+    shared_projects: Optional[Union[List[Project], List]] = Field(
         default=None, description="Projects within the group"
     )
     ip_restriction_ranges: Optional[Any] = Field(
@@ -5750,6 +5804,7 @@ class Response(BaseModel):
     status_code: Union[str, int] = Field(
         default=None, description="Response status code"
     )
+    headers: Dict = Field(default=None, description="Headers of payload")
     json_output: Optional[Union[List, Dict]] = Field(
         default=None, description="Response JSON data"
     )
@@ -5895,10 +5950,12 @@ class Response(BaseModel):
                     projects = [Project(**item) for item in value]
                     temp_value = Projects(projects=projects)
                     logging.info(f"Projects Validation Success: {value}")
+                    print(f"Projects Validation Success: {value}")
                 except Exception as e:
                     logging.warning(
                         f"\n\n\n Projects Validation Failed: {value}\nError: {e}"
                     )
+                    print(f"\n\n\n Projects Validation Failed: {value}\nError: {e}")
                 try:
                     issues = [Issue(**item) for item in value]
                     temp_value = Issues(issues=issues)

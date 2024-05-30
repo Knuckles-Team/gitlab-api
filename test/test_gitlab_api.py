@@ -1,6 +1,5 @@
 import os
 import sys
-from typing import List
 
 import pytest
 from conftest import reason
@@ -18,7 +17,7 @@ else:
 reason = "do not run on MacOS or windows OR dependency is not installed OR " + reason
 
 # gitlab url
-gitlab_url = "http://gitlab.arpa/api/v4/"
+gitlab_url = "http://gitlab.arpa/api/v4"
 # get token from env vars
 token = os.environ.get("GITLAB_TOKEN", default="NA")
 # create client
@@ -31,9 +30,9 @@ client = gitlab_api.Api(url=gitlab_url, token=token, verify=False)
 )
 def test_get_nested_projects():
     # Get nested projects
-    group_id = 2
+    group_id = 6
     projects = client.get_nested_projects_by_group(group_id=group_id)
-    assert isinstance(projects, List)
+    assert projects.data.base_type == "Projects"
 
 
 @pytest.mark.skipif(
@@ -74,7 +73,7 @@ def test_get_project_rules():
 
 
 if __name__ == "__main__":
-    # test_get_nested_projects()
-    # test_create_branch()
-    # test_create_project_rule()
+    test_get_nested_projects()
+    test_create_branch()
+    test_create_project_rule()
     test_get_project_rules()

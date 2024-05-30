@@ -3,7 +3,6 @@
 
 import json
 import requests
-from requests import Response
 import urllib3
 from base64 import b64encode
 from typing import Union
@@ -27,6 +26,7 @@ try:
         RunnerModel,
         UserModel,
         WikiModel,
+        Response,
     )
 except ModuleNotFoundError:
     from gitlab_models import (
@@ -46,6 +46,7 @@ except ModuleNotFoundError:
         RunnerModel,
         UserModel,
         WikiModel,
+        Response,
     )
 try:
     from gitlab_api.decorators import require_auth
@@ -112,10 +113,13 @@ class Api(object):
         )
 
         if response.status_code == 403:
+            print(f"Unauthorized Error: {response.content}")
             raise UnauthorizedError
         elif response.status_code == 401:
+            print(f"Authentication Error: {response.content}")
             raise AuthError
         elif response.status_code == 404:
+            print(f"Parameter Error: {response.content}")
             raise ParameterError
 
     ####################################################################################################################
@@ -274,7 +278,7 @@ class Api(object):
         commit = CommitModel(**kwargs)
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}" f"/repository/commits",
+                url=f"{self.url}/projects/{commit.project_id}/repository/commits",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -382,7 +386,7 @@ class Api(object):
         commit = CommitModel(**kwargs)
         try:
             response = self._session.post(
-                url=f"{self.url}/projects/{commit.project_id}" f"/repository/commits",
+                url=f"{self.url}/projects/{commit.project_id}/repository/commits",
                 headers=self.headers,
                 json=commit.data,
                 verify=self.verify,
@@ -746,7 +750,7 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens",
                 headers=self.headers,
-                data=deploy_token.model_dump_json(),
+                json=deploy_token.model_dump(),
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -870,7 +874,7 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens",
                 headers=self.headers,
-                data=deploy_token.model_dump_json(),
+                json=deploy_token.model_dump,
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -927,7 +931,7 @@ class Api(object):
         group = GroupModel(**kwargs)
         try:
             response = self._session.get(
-                url=f"{self.url}" f"/groups{group.api_parameters}",
+                url=f"{self.url}/groups{group.api_parameters}",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -956,7 +960,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}" f"/groups/{group.group_id}",
+                url=f"{self.url}/groups/{group.group_id}",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -985,7 +989,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}" f"/groups/{group.group_id}" f"/subgroups",
+                url=f"{self.url}/groups/{group.group_id}/subgroups",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1016,7 +1020,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}" f"/groups/{group.group_id}" f"/descendant_groups",
+                url=f"{self.url}/groups/{group.group_id}/descendant_groups",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2111,29 +2115,49 @@ class Api(object):
         if project.group_id is None:
             raise MissingParameterError
         projects = []
-        groups = [self.get_group(group_id=project.group_id).json()]
-        groups = groups + self.get_group_subgroups(group_id=project.group_id).json()
+        parent_group = self.get_group(group_id=project.group_id)
+        sub_groups = self.get_group_subgroups(group_id=project.group_id)
+        groups = [parent_group]
+        if isinstance(sub_groups, Response):
+            groups = groups + sub_groups
         for group in groups:
-            response = self._session.get(
-                url=f"{self.url}"
-                f'/groups/{group["id"]}'
-                f"/projects?per_page={project.per_page}&x-total-pages",
-                headers=self.headers,
-                verify=self.verify,
-            )
+            response = self.get_total_projects_in_group(group_id=project.group_id)
             total_pages = int(response.headers["X-Total-Pages"])
-            if project.max_pages == 0 or project.max_pages > total_pages:
+            if (
+                not project.max_pages
+                or project.max_pages == 0
+                or project.max_pages > total_pages
+            ):
                 project.max_pages = total_pages
             for page in range(0, project.max_pages):
-                group_projects = self._session.get(
-                    url=f'{self.url}/groups/{group["id"]}/'
-                    f"projects?per_page={project.per_page}&page={page}",
-                    headers=self.headers,
-                    verify=self.verify,
+                group_projects = self.get_group_projects(
+                    group_id=group["id"], per_page=project.per_page, page=page
                 )
-                group_projects = json.loads(group_projects.text)
                 projects = projects + group_projects
-        return projects
+        response = Response(
+            data=projects,
+            status_code=200,
+        )
+        return response
+
+    @require_auth
+    def get_total_projects_in_group(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        per_page = 100
+        if project.per_page:
+            per_page = project.per_page
+        if project.group_id is None:
+            raise MissingParameterError
+        response = self._session.get(
+            url=f"{self.url}"
+            f"/groups/{project.group_id}"
+            f"/projects?per_page={per_page}&x-total-pages",
+            headers=self.headers,
+            verify=self.verify,
+        )
+        return response
 
     @require_auth
     def get_project_contributors(self, **kwargs) -> Union[Response, requests.Response]:
@@ -2154,7 +2178,7 @@ class Api(object):
         if project.project_id is None:
             raise MissingParameterError
         response = self._session.get(
-            url=f"{self.url}" f"/projects/{project.project_id}/repository/contributors",
+            url=f"{self.url}/projects/{project.project_id}/repository/contributors",
             headers=self.headers,
             verify=self.verify,
         )
@@ -2180,7 +2204,7 @@ class Api(object):
         if project.project_id is None:
             raise MissingParameterError
         response = self._session.get(
-            url=f"{self.url}" f"/projects/{project.project_id}?statistics=true",
+            url=f"{self.url}/projects/{project.project_id}?statistics=true",
             headers=self.headers,
             verify=self.verify,
         )
@@ -2205,7 +2229,7 @@ class Api(object):
         try:
             response = self._session.put(
                 url=f"{self.url}/projects/{project.project_id}",
-                data=project.dict(),
+                json=project.model_dump(),
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2510,7 +2534,7 @@ class Api(object):
         release = ReleaseModel(**kwargs)
         try:
             response = self._session.get(
-                url=f"{self.url}" f"/projects/{release.project_id}/releases",
+                url=f"{self.url}/projects/{release.project_id}/releases",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2705,7 +2729,7 @@ class Api(object):
         release = ReleaseModel(**kwargs)
         try:
             response = self._session.post(
-                url=f"{self.url}" f"/projects/{release.project_id}/releases",
+                url=f"{self.url}/projects/{release.project_id}/releases",
                 json=release.data,
                 headers=self.headers,
                 verify=self.verify,
@@ -2818,7 +2842,7 @@ class Api(object):
         runner = RunnerModel(**kwargs)
         try:
             response = self._session.get(
-                url=f"{self.url}" f"/runners{runner.api_parameters}",
+                url=f"{self.url}/runners{runner.api_parameters}",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2847,7 +2871,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}" f"/runners/{runner.runner_id}",
+                url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2936,7 +2960,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.put(
-                url=f"{self.url}/runners" f"/{runner.runner_id}/jobs",
+                url=f"{self.url}/runners/{runner.runner_id}/jobs",
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2996,7 +3020,7 @@ class Api(object):
 
         try:
             response = self._session.put(
-                url=f"{self.url}/projects" f"/{runner.project_id}/runners",
+                url=f"{self.url}/projects/{runner.project_id}/runners",
                 headers=self.headers,
                 json=runner.data,
                 verify=self.verify,
@@ -3178,7 +3202,7 @@ class Api(object):
         """
         try:
             response = self._session.post(
-                url=f"{self.url}/runners" f"/reset_registration_token",
+                url=f"{self.url}/runners/reset_registration_token",
                 headers=self.headers,
                 verify=self.verify,
             )

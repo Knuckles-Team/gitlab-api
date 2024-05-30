@@ -25,6 +25,7 @@ def process_response(response: requests.Response) -> Union[Response, requests.Re
         logging.error(f"Response Error: {response_error}")
     status_code = response.status_code
     raw_output = response.content
+    headers = response.headers
     try:
         response = response.json()
     except Exception as response_error:
@@ -35,6 +36,7 @@ def process_response(response: requests.Response) -> Union[Response, requests.Re
             status_code=status_code,
             raw_output=raw_output,
             json_output=response,
+            headers=headers,
         )
     except Exception as response_error:
         logging.error(f"Response Model Application Error: {response_error}")
