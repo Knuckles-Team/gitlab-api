@@ -32,7 +32,7 @@ def process_response(response: requests.Response) -> Union[Response, requests.Re
         logging.error(f"JSON Conversion Error: {response_error}")
     try:
         response = Response(
-            **response,
+            data=response,
             status_code=status_code,
             raw_output=raw_output,
             json_output=response,

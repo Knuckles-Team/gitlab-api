@@ -3596,7 +3596,6 @@ class Pipeline(BaseModel):
     detailed_status: Optional[DetailedStatus] = Field(
         default=None, description="The detailed status of the pipeline."
     )
-    message: Optional[str] = Field(default=None, description="Any error messages")
 
 
 class Pipelines(BaseModel):
@@ -3682,7 +3681,6 @@ class Package(BaseModel):
     file_sha256: Optional[str] = Field(
         default=None, description="SHA-256 checksum of the package file"
     )
-    message: Optional[str] = Field(default=None, description="Any error messages")
 
 
 class Packages(BaseModel):
@@ -4103,7 +4101,6 @@ class Project(BaseModel):
     forked_from_project: Optional[Dict] = Field(
         default=None, description="The project from where this project was forked from."
     )
-    message: Optional[str] = Field(default=None, description="Any error messages")
     mr_default_target_self: Optional[bool] = Field(
         default=None,
         description="Merge Request default target self.",
@@ -4579,7 +4576,6 @@ class Group(BaseModel):
     created_at: Optional[str] = Field(
         default=None, description="Creation timestamp of the group"
     )
-    message: Optional[str] = Field(default=None, description="Any error messages")
     statistics: Optional[Statistics] = Field(
         default=None, description="Statistics of the group"
     )
@@ -4633,7 +4629,9 @@ class Group(BaseModel):
     )
     ldap_cn: Optional[Any] = Field(default=None, description="LDAP CN information")
     ldap_access: Optional[Any] = Field(default=None, description="LDAP Access")
-    prevent_forking_outside_group: Optional[bool] = Field(default=None, description="Forking disabled outside group")
+    prevent_forking_outside_group: Optional[bool] = Field(
+        default=None, description="Forking disabled outside group"
+    )
 
 
 class Groups(BaseModel):
