@@ -2114,12 +2114,11 @@ class Api(object):
         project = ProjectModel(**kwargs)
         if project.group_id is None:
             raise MissingParameterError
-        projects = []
-        parent_group = self.get_group(group_id=project.group_id)
+        response = self.get_group(group_id=project.group_id)
         sub_groups = self.get_group_subgroups(group_id=project.group_id)
-        groups = [parent_group.data]
+        groups = [response.data]
         if isinstance(sub_groups, Response):
-            groups = groups + sub_groups.data.groups
+            groups = groups + sub_groups.data
         for group in groups:
             response = self.get_total_projects_in_group(group_id=project.group_id)
             total_pages = int(response.headers["X-Total-Pages"])
@@ -2130,14 +2129,15 @@ class Api(object):
             ):
                 project.max_pages = total_pages
             for page in range(0, project.max_pages):
-                group_projects = self.get_group_projects(
-                    group_id=group["id"], per_page=project.per_page, page=page
-                )
-                projects = projects + group_projects.data.projects
-        response = Response(
-            data=projects,
-            status_code=200,
-        )
+                if page == 0:
+                    response = self.get_group_projects(
+                        group_id=group.id, per_page=project.per_page, page=page
+                    )
+                else:
+                    projects = self.get_group_projects(
+                        group_id=group.id, per_page=project.per_page, page=page
+                    )
+                    response.data.projects.extend(projects.data.projects)
         return response
 
     @require_auth

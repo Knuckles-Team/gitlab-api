@@ -5839,9 +5839,9 @@ class Response(BaseModel):
             "Agents": Agents,
             "Branch": Branch,
             "Pipeline": Pipeline,
+            "CommitSignature": CommitSignature,
             "Commit": Commit,
             "PipelineVariable": PipelineVariable,
-            "CommitSignature": CommitSignature,
             "Diff": Diff,
             "Comment": Comment,
             "Issue": Issue,
@@ -5850,9 +5850,9 @@ class Response(BaseModel):
             "MergeRequest": MergeRequest,
             "MergeApprovals": MergeApprovals,
             "Release": Release,
+            "DeployToken": DeployToken,
             "User": User,
             "Membership": Membership,
-            "DeployToken": DeployToken,
             "Group": Group,
             "Job": Job,
             "Package": Package,
@@ -5870,172 +5870,175 @@ class Response(BaseModel):
         }
         temp_value = None
         if isinstance(value, list):
-            if all(isinstance(item, Dict) for item in value):
-                try:
-                    branches = [Branch(**item) for item in value]
-                    temp_value = Branches(branches=branches)
-                    logging.info(f"Branches Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Branches Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    commits = [Commit(**item) for item in value]
-                    temp_value = Commits(commits=commits)
-                    logging.info(f"Commits Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Commits Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    pipelines = [Pipeline(**item) for item in value]
-                    temp_value = Pipelines(pipelines=pipelines)
-                    logging.info(f"Pipelines Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Pipelines Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    merge_requests = [MergeRequest(**item) for item in value]
-                    temp_value = MergeRequests(merge_requests=merge_requests)
-                    logging.info(f"Merge Requests Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Merge Requests Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    releases = [Release(**item) for item in value]
-                    temp_value = Releases(releases=releases)
-                    logging.info(f"Releases Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Releases Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    diffs = [Diff(**item) for item in value]
-                    temp_value = Diffs(diffs=diffs)
-                    logging.info(f"Diffs Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Diffs Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    comments = [Comment(**item) for item in value]
-                    temp_value = Comments(comments=comments)
-                    logging.info(f"Comments Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Comments Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    deploy_tokens = [DeployToken(**item) for item in value]
-                    temp_value = DeployTokens(deploy_tokens=deploy_tokens)
-                    logging.info(f"Deploy Tokens Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Deploy Tokens Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    users = [User(**item) for item in value]
-                    temp_value = Users(users=users)
-                    logging.info(f"Users Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Users Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    memberships = [Membership(**item) for item in value]
-                    temp_value = Memberships(memberships=memberships)
-                    logging.info(f"Memberships Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Memberships Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    groups = [Group(**item) for item in value]
-                    temp_value = Groups(groups=groups)
-                    logging.info(f"Groups Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Groups Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    pipeline_variables = [PipelineVariable(**item) for item in value]
-                    temp_value = PipelineVariables(
-                        pipeline_variables=pipeline_variables
-                    )
-                    logging.info(f"PipelineVariable Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n PipelineVariable Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    projects = [Project(**item) for item in value]
-                    temp_value = Projects(projects=projects)
-                    logging.info(f"Projects Validation Success: {value}")
-                    print(f"Projects Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Projects Validation Failed: {value}\nError: {e}"
-                    )
-                    print(f"\n\n\n Projects Validation Failed: {value}\nError: {e}")
-                try:
-                    issues = [Issue(**item) for item in value]
-                    temp_value = Issues(issues=issues)
-                    logging.info(f"Issues Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Issues Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    wiki_pages = [WikiPage(**item) for item in value]
-                    temp_value = WikiPages(wiki_pages=wiki_pages)
-                    logging.info(f"WikiPages Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n WikiPages Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    approval_rules = [ApprovalRule(**item) for item in value]
-                    temp_value = ApprovalRules(approval_rules=approval_rules)
-                    logging.info(f"ApprovalRules Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n ApprovalRules Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    jobs = [Job(**item) for item in value]
-                    temp_value = Jobs(jobs=jobs)
-                    logging.info(f"Jobs Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Jobs Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    packages = [Package(**item) for item in value]
-                    temp_value = Packages(packages=packages)
-                    logging.info(f"Packages Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Packages Validation Failed: {value}\nError: {e}"
-                    )
-                try:
-                    runners = [Runner(**item) for item in value]
-                    temp_value = Runners(runners=runners)
-                    logging.info(f"Runners Validation Success: {value}")
-                except Exception as e:
-                    logging.warning(
-                        f"\n\n\n Runners Validation Failed: {value}\nError: {e}"
-                    )
+            if len(value) > 0:
+                if all(isinstance(item, Dict) for item in value):
+                    try:
+                        branches = [Branch(**item) for item in value]
+                        temp_value = Branches(branches=branches)
+                        logging.info(f"Branches Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Branches Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        commits = [Commit(**item) for item in value]
+                        temp_value = Commits(commits=commits)
+                        logging.info(f"Commits Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Commits Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        pipelines = [Pipeline(**item) for item in value]
+                        temp_value = Pipelines(pipelines=pipelines)
+                        logging.info(f"Pipelines Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Pipelines Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        merge_requests = [MergeRequest(**item) for item in value]
+                        temp_value = MergeRequests(merge_requests=merge_requests)
+                        logging.info(f"Merge Requests Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Merge Requests Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        releases = [Release(**item) for item in value]
+                        temp_value = Releases(releases=releases)
+                        logging.info(f"Releases Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Releases Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        diffs = [Diff(**item) for item in value]
+                        temp_value = Diffs(diffs=diffs)
+                        logging.info(f"Diffs Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Diffs Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        comments = [Comment(**item) for item in value]
+                        temp_value = Comments(comments=comments)
+                        logging.info(f"Comments Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Comments Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        deploy_tokens = [DeployToken(**item) for item in value]
+                        temp_value = DeployTokens(deploy_tokens=deploy_tokens)
+                        logging.info(f"Deploy Tokens Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Deploy Tokens Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        users = [User(**item) for item in value]
+                        temp_value = Users(users=users)
+                        logging.info(f"Users Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Users Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        memberships = [Membership(**item) for item in value]
+                        temp_value = Memberships(memberships=memberships)
+                        logging.info(f"Memberships Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Memberships Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        groups = [Group(**item) for item in value]
+                        temp_value = Groups(groups=groups)
+                        logging.info(f"Groups Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Groups Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        pipeline_variables = [
+                            PipelineVariable(**item) for item in value
+                        ]
+                        temp_value = PipelineVariables(
+                            pipeline_variables=pipeline_variables
+                        )
+                        logging.info(f"PipelineVariable Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n PipelineVariable Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        projects = [Project(**item) for item in value]
+                        temp_value = Projects(projects=projects)
+                        logging.info(f"Projects Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Projects Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        issues = [Issue(**item) for item in value]
+                        temp_value = Issues(issues=issues)
+                        logging.info(f"Issues Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Issues Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        wiki_pages = [WikiPage(**item) for item in value]
+                        temp_value = WikiPages(wiki_pages=wiki_pages)
+                        logging.info(f"WikiPages Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n WikiPages Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        approval_rules = [ApprovalRule(**item) for item in value]
+                        temp_value = ApprovalRules(approval_rules=approval_rules)
+                        logging.info(f"ApprovalRules Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n ApprovalRules Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        jobs = [Job(**item) for item in value]
+                        temp_value = Jobs(jobs=jobs)
+                        logging.info(f"Jobs Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Jobs Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        packages = [Package(**item) for item in value]
+                        temp_value = Packages(packages=packages)
+                        logging.info(f"Packages Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Packages Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        runners = [Runner(**item) for item in value]
+                        temp_value = Runners(runners=runners)
+                        logging.info(f"Runners Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Runners Validation Failed: {value}\nError: {e}"
+                        )
+            else:
+                return value
+            value = temp_value
         elif isinstance(value, dict):
             for model_name, model in single_models.items():
                 try:
                     temp_value = model(**value)
                     logging.info(f"{model_name} Model Validation Success: {value}")
+                    value = temp_value
                 except Exception as e:
                     logging.warning(
                         f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
                     )
-
-        value = temp_value
         return value
