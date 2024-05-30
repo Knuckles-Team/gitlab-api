@@ -4098,6 +4098,13 @@ class Project(BaseModel):
     ci_restrict_pipeline_cancellation_role: Optional[str] = Field(
         default=None, description="The role that can cancel pipelines."
     )
+    forked_from_project: Optional[Dict] = Field(
+        default=None, description="The project from where this project was forked from."
+    )
+    mr_default_target_self: Optional[bool] = Field(
+        default=None,
+        description="Merge Request default target self.",
+    )
     public_jobs: Optional[bool] = Field(
         default=None, description="Whether jobs are public."
     )
