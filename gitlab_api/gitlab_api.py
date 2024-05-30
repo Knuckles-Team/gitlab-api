@@ -2119,7 +2119,7 @@ class Api(object):
         sub_groups = self.get_group_subgroups(group_id=project.group_id)
         groups = [parent_group.data]
         if isinstance(sub_groups, Response):
-            groups = groups + sub_groups.data
+            groups = groups + sub_groups.data.groups
         for group in groups:
             response = self.get_total_projects_in_group(group_id=project.group_id)
             total_pages = int(response.headers["X-Total-Pages"])
@@ -2133,7 +2133,7 @@ class Api(object):
                 group_projects = self.get_group_projects(
                     group_id=group["id"], per_page=project.per_page, page=page
                 )
-                projects = projects + group_projects.data
+                projects = projects + group_projects.data.projects
         response = Response(
             data=projects,
             status_code=200,
