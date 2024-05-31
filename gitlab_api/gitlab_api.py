@@ -2138,7 +2138,11 @@ class Api(object):
                 projects = self.get_group_projects(
                     group_id=group.id, per_page=project.per_page, page=page
                 )
-                if hasattr(projects.data, "projects") and projects.data.projects is not None and len(projects.data.projects) > 0:
+                if (
+                    hasattr(projects.data, "projects")
+                    and projects.data.projects is not None
+                    and len(projects.data.projects) > 0
+                ):
                     all_projects.extend(projects.data.projects)
             group_counter = group_counter + 1
         projects_model = Projects(projects=all_projects)

@@ -13670,6 +13670,33 @@ def test_wiki_response_5():
     assert response.data.base_type == "WikiPages"
 
 
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
+def test_contributor_response_1():
+    example_data = [
+        {
+            "name": "Example User",
+            "email": "example@example.com",
+            "commits": 117,
+            "additions": 0,
+            "deletions": 0,
+        },
+        {
+            "name": "Sample User",
+            "email": "sample@example.com",
+            "commits": 33,
+            "additions": 0,
+            "deletions": 0,
+        },
+    ]
+    response = Response(
+        data=example_data, status_code=200, headers={}, json_output=example_data
+    )
+    assert response.data.base_type == "Contributors"
+
+
 if __name__ == "__main__":
     test_branch_model()
     test_commit_model()
@@ -13844,3 +13871,4 @@ if __name__ == "__main__":
     test_wiki_response_3()
     test_wiki_response_4()
     test_wiki_response_5()
+    test_contributor_response_1()

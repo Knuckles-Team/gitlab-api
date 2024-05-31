@@ -3690,6 +3690,30 @@ class Packages(BaseModel):
     packages: List[Package] = Field(default=None, description="List of packages")
 
 
+class Contributor(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="CommitStats")
+    name: str = Field(default=None, description="The name of the contributor.")
+    email: EmailStr = Field(default=None, description="The email of the contributor.")
+    commits: int = Field(default=None, description="Number of commits from contributor")
+    additions: int = Field(
+        default=None, description="Number of additions from contributor"
+    )
+    deletions: int = Field(
+        default=None, description="Number of deletions from contributor"
+    )
+
+
+class Contributors(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Contributors")
+    contributors: List[Contributor] = Field(
+        default=None, description="List of contributors"
+    )
+
+
 class CommitStats(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
@@ -5779,6 +5803,8 @@ class Response(BaseModel):
             Branch,
             Pipelines,
             Pipeline,
+            Contributors,
+            Contributor,
             Commits,
             Commit,
             PipelineVariable,
@@ -5843,6 +5869,7 @@ class Response(BaseModel):
             "Branch": Branch,
             "Pipeline": Pipeline,
             "CommitSignature": CommitSignature,
+            "Contributor": Contributor,
             "Commit": Commit,
             "PipelineVariable": PipelineVariable,
             "Diff": Diff,
@@ -5882,6 +5909,14 @@ class Response(BaseModel):
                     except Exception as e:
                         logging.warning(
                             f"\n\n\n Branches Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        contributors = [Contributor(**item) for item in value]
+                        temp_value = Contributors(contributors=contributors)
+                        logging.info(f"Contributors Validation Success: {value}")
+                    except Exception as e:
+                        logging.warning(
+                            f"\n\n\n Contributors Validation Failed: {value}\nError: {e}"
                         )
                     try:
                         commits = [Commit(**item) for item in value]
