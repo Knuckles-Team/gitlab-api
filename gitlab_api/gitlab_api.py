@@ -27,6 +27,7 @@ try:
         UserModel,
         WikiModel,
         Response,
+        Projects,
     )
 except ModuleNotFoundError:
     from gitlab_models import (
@@ -2113,18 +2114,20 @@ class Api(object):
         """
         project = ProjectModel(**kwargs)
         all_groups = []
+        all_projects = []
         if project.group_id is None:
             raise MissingParameterError
         response = self.get_group(group_id=project.group_id)
         all_groups.append(response.data)
-        groups = self.get_group_subgroups(group_id=project.group_id)
+        groups = self.get_group_descendant_groups(group_id=project.group_id)
         if hasattr(groups.data, "groups") and groups.data.groups is not None:
             all_groups.extend(groups.data.groups)
+        group_counter = 0
         for group in all_groups:
-            response = self.get_total_projects_in_group(
+            pages_response = self.get_total_projects_in_group(
                 group_id=project.group_id, per_page=project.per_page
             )
-            total_pages = int(response.headers["X-Total-Pages"])
+            total_pages = int(pages_response.headers["X-Total-Pages"])
             if (
                 not project.max_pages
                 or project.max_pages == 0
@@ -2132,15 +2135,14 @@ class Api(object):
             ):
                 project.max_pages = total_pages
             for page in range(0, project.max_pages):
-                if page == 0:
-                    response = self.get_group_projects(
-                        group_id=group.id, per_page=project.per_page, page=page
-                    )
-                else:
-                    projects = self.get_group_projects(
-                        group_id=group.id, per_page=project.per_page, page=page
-                    )
-                    response.data.projects.extend(projects.data.projects)
+                projects = self.get_group_projects(
+                    group_id=group.id, per_page=project.per_page, page=page
+                )
+                if hasattr(projects.data, "projects") and projects.data.projects is not None and len(projects.data.projects) > 0:
+                    all_projects.extend(projects.data.projects)
+            group_counter = group_counter + 1
+        projects_model = Projects(projects=all_projects)
+        response = Response(data=projects_model, status_code=200)
         return response
 
     @require_auth
