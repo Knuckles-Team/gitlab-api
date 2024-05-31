@@ -2112,13 +2112,18 @@ class Api(object):
         - ParameterError: If invalid parameters are provided.
         """
         project = ProjectModel(**kwargs)
+        all_groups = []
         if project.group_id is None:
             raise MissingParameterError
         response = self.get_group(group_id=project.group_id)
+        all_groups.append(response.data)
         groups = self.get_group_subgroups(group_id=project.group_id)
-        groups.data.groups.append(response.data)
-        for group in groups.data.groups:
-            response = self.get_total_projects_in_group(group_id=project.group_id, per_page=project.per_page)
+        if hasattr(groups.data, "groups") and groups.data.groups is not None:
+            all_groups.extend(groups.data.groups)
+        for group in all_groups:
+            response = self.get_total_projects_in_group(
+                group_id=project.group_id, per_page=project.per_page
+            )
             total_pages = int(response.headers["X-Total-Pages"])
             if (
                 not project.max_pages

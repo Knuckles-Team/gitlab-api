@@ -4322,6 +4322,9 @@ class Project(BaseModel):
     groups: Optional[List[Dict[str, int]]] = Field(
         default=None, description="List of groups"
     )
+    public: Optional[bool] = Field(
+        default=None, description="Whether project is allowed to be public."
+    )
 
 
 class Projects(BaseModel):
@@ -4600,10 +4603,10 @@ class Group(BaseModel):
     prevent_sharing_groups_outside_hierarchy: Optional[bool] = Field(
         default=None, description="Prevent sharing groups outside hierarchy"
     )
-    projects: Optional[Union[List[Project], List]] = Field(
+    projects: Optional[Union[List[Project]]] = Field(
         default=None, description="Projects within the group"
     )
-    shared_projects: Optional[Union[List[Project], List]] = Field(
+    shared_projects: Optional[Union[List[Project]]] = Field(
         default=None, description="Projects within the group"
     )
     ip_restriction_ranges: Optional[Any] = Field(
