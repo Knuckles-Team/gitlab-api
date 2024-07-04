@@ -196,7 +196,8 @@ class Api(object):
         branch = BranchModel(**kwargs)
         try:
             response = self._session.post(
-                url=f"{self.url}/projects/{branch.project_id}/repository/branches{branch.api_parameters}",
+                url=f"{self.url}/projects/{branch.project_id}/repository/branches",
+                params=branch.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -932,7 +933,8 @@ class Api(object):
         group = GroupModel(**kwargs)
         try:
             response = self._session.get(
-                url=f"{self.url}/groups{group.api_parameters}",
+                url=f"{self.url}/groups",
+                params=group.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1050,9 +1052,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}"
-                f"/groups/{group.group_id}"
-                f"/projects{group.api_parameters}",
+                url=f"{self.url}/groups/{group.group_id}/projects",
+                params=group.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1081,9 +1082,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}"
-                f"/groups/{group.group_id}"
-                f"/merge_requests{group.api_parameters}",
+                url=f"{self.url}/groups/{group.group_id}/merge_requests",
+                params=group.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1115,7 +1115,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{job.project_id}/jobs{job.api_parameters}",
+                url=f"{self.url}/projects/{job.project_id}/jobs",
+                params=job.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1321,7 +1322,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{job.project_id}/pipelines/{job.pipeline_id}/jobs{job.api_parameters}",
+                url=f"{self.url}/projects/{job.project_id}/pipelines/{job.pipeline_id}/jobs",
+                params=job.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1353,7 +1355,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/groups/{members.group_id}/members{members.api_parameters}",
+                url=f"{self.url}/groups/{members.group_id}/members",
+                params=members.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1382,7 +1385,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{members.project_id}/members{members.api_parameters}",
+                url=f"{self.url}/projects/{members.project_id}/members",
+                params=members.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1457,10 +1461,11 @@ class Api(object):
             response = []
             if merge_request.max_pages == 0 or merge_request.max_pages > total_pages:
                 merge_request.max_pages = total_pages
+            merge_request.model_post_init(merge_request)
             for page in range(0, merge_request.max_pages):
                 response_page = self._session.get(
-                    url=f"{self.url}/merge_requests"
-                    f"{merge_request.api_parameters}&per_page={merge_request.per_page}&page={page}",
+                    url=f"{self.url}/merge_requests",
+                    params=merge_request.api_parameters,
                     headers=self.headers,
                     verify=self.verify,
                 )
@@ -1885,8 +1890,8 @@ class Api(object):
         try:
             response = self._session.put(
                 url=f"{self.url}/projects/{package.project_id}"
-                f"/packages/generic/{package.package_name}/{package.package_version}"
-                f"/{package.file_name}{package.api_parameters}",
+                f"/packages/generic/{package.package_name}/{package.package_version}/{package.file_name}",
+                params=package.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -1955,7 +1960,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{pipeline.project_id}/pipelines{pipeline.api_parameters}",
+                url=f"{self.url}/projects/{pipeline.project_id}/pipelines",
+                params=pipeline.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2014,16 +2020,16 @@ class Api(object):
             raise MissingParameterError
         if pipeline.variables:
             response = self._session.post(
-                url=f"{self.url}/projects/{pipeline.project_id}"
-                f"/pipeline{pipeline.api_parameters}",
+                url=f"{self.url}/projects/{pipeline.project_id}/pipeline",
+                params=pipeline.api_parameters,
                 headers=self.headers,
                 json=pipeline.variables,
                 verify=self.verify,
             )
         else:
             response = self._session.post(
-                url=f"{self.url}/projects/{pipeline.project_id}"
-                f"/pipeline{pipeline.api_parameters}",
+                url=f"{self.url}/projects/{pipeline.project_id}/pipeline",
+                params=pipeline.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2374,8 +2380,8 @@ class Api(object):
         ):
             raise MissingParameterError
         response = self._session.post(
-            url=f"{self.url}/projects/{project.project_id}"
-            f"/share{project.api_parameters}",
+            url=f"{self.url}/projects/{project.project_id}/share",
+            params=project.api_parameters,
             headers=self.headers,
             verify=self.verify,
         )
@@ -2456,16 +2462,16 @@ class Api(object):
 
         if protected_branch.data:
             response = self._session.post(
-                url=f"{self.url}/projects/{protected_branch.project_id}"
-                f"/protected_branches{protected_branch.api_parameters}",
+                url=f"{self.url}/projects/{protected_branch.project_id}/protected_branches",
+                params=protected_branch.api_parameters,
                 headers=self.headers,
                 json=protected_branch.data,
                 verify=self.verify,
             )
         else:
             response = self._session.post(
-                url=f"{self.url}/projects/{protected_branch.project_id}"
-                f"/protected_branches{protected_branch.api_parameters}",
+                url=f"{self.url}/projects/{protected_branch.project_id}/protected_branches",
+                params=protected_branch.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2655,8 +2661,8 @@ class Api(object):
         release = ReleaseModel(**kwargs)
         try:
             response = self._session.get(
-                url=f"{self.url}"
-                f"/groups/{release.group_id}/releases{release.api_parameters}",
+                url=f"{self.url}/groups/{release.group_id}/releases",
+                params=release.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2851,7 +2857,8 @@ class Api(object):
         runner = RunnerModel(**kwargs)
         try:
             response = self._session.get(
-                url=f"{self.url}/runners{runner.api_parameters}",
+                url=f"{self.url}/runners",
+                params=runner.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -2998,8 +3005,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{runner.project_id}"
-                f"/runners{runner.api_parameters}",
+                url=f"{self.url}/projects/{runner.project_id}/runners",
+                params=runner.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -3089,8 +3096,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/groups/{runner.group_id}"
-                f"/runners{runner.api_parameters}",
+                url=f"{self.url}/groups/{runner.group_id}/runners",
+                params=runner.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -3344,8 +3351,11 @@ class Api(object):
         if user.max_pages == 0 or user.max_pages > total_pages:
             user.max_pages = total_pages
         for page in range(0, user.max_pages):
+            user.page = page
+            user.model_post_init(user)
             response_page = self._session.get(
-                url=f"{self.url}/users{user.api_parameters}&page={page}",
+                url=f"{self.url}/users",
+                params=user.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -3374,7 +3384,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/users{user.api_parameters}",
+                url=f"{self.url}/users",
+                params=user.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -3406,8 +3417,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{wiki.project_id}"
-                f"/wikis{wiki.api_parameters}",
+                url=f"{self.url}/projects/{wiki.project_id}/wikis",
+                params=wiki.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
@@ -3436,8 +3447,8 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{wiki.project_id}"
-                f"/wikis/{wiki.slug}{wiki.api_parameters}",
+                url=f"{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}",
+                params=wiki.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )

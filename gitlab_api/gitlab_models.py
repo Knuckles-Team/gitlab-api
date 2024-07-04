@@ -59,33 +59,17 @@ class BranchModel(BaseModel):
     project_id: Union[int, str]
     branch: Optional[str] = None
     reference: Optional[str] = None
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
-    @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def model_post_init(self, __context):
         """
-        Build API parameters for the job.
-
-        Args:
-        - values: Dictionary of all values.
-
-        Returns:
-        - str: The constructed API parameters.
-
-        Note:
-        Constructs API parameters based on provided values.
+        Build the API parameters
         """
-
-        filters = []
-        if "branch" in values:
-            filters.append(f'branch={values["branch"]}')
-        if "reference" in values:
-            filters.append(f'ref={values["reference"]}')
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-        return values
+        self.api_parameters = {}
+        if self.branch:
+            self.api_parameters["branch"] = self.branch
+        if self.reference:
+            self.api_parameters["ref"] = self.reference
 
 
 class CommitModel(BaseModel):
@@ -516,7 +500,7 @@ class GroupModel(BaseModel):
     per_page: Optional[int] = 100
     page: Optional[int] = 1
     argument: Optional[str] = "state=opened"
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
     @field_validator("per_page", "page")
     def validate_positive_integer(cls, v):
@@ -577,30 +561,15 @@ class GroupModel(BaseModel):
             raise MissingParameterError
         return v
 
-    @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def model_post_init(self, __context):
         """
-        Build API parameters for the group.
-
-        Args:
-        - values: Dictionary of all values.
-
-        Returns:
-        - str: The constructed API parameters.
-
-        Note:
-        Constructs API parameters based on provided values.
+        Build the API parameters
         """
-        filters = []
-        if "page" in values:
-            filters.append(f'page={values["page"]}')
-        if "per_page" in values:
-            filters.append(f'per_page={values["per_page"]}')
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-        return values
+        self.api_parameters = {}
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
 
 
 class JobModel(BaseModel):
@@ -628,7 +597,7 @@ class JobModel(BaseModel):
     page: Optional[int] = 1
     include_retried: Optional[bool] = None
     job_variable_attributes: Optional[Dict] = None
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
     @field_validator("per_page", "page")
     def validate_positive_integer(cls, v):
@@ -719,32 +688,17 @@ class JobModel(BaseModel):
             raise ParameterError
         return v
 
-    @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def model_post_init(self, __context):
         """
-        Build API parameters for the job.
-
-        Args:
-        - values: Dictionary of all values.
-
-        Returns:
-        - str: The constructed API parameters.
-
-        Note:
-        Constructs API parameters based on provided values.
+        Build the API parameters
         """
-        filters = []
-        if "page" in values:
-            filters.append(f'page={values["page"]}')
-        if "per_page" in values:
-            filters.append(f'per_page={values["per_page"]}')
-        if "scope" in values:
-            filters.append(f'scope[]={values["scope"]}')
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-        return values
+        self.api_parameters = {}
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+        if self.scope:
+            self.api_parameters["scope[]"] = self.scope
 
 
 class MembersModel(BaseModel):
@@ -766,7 +720,7 @@ class MembersModel(BaseModel):
     project_id: Optional[Union[int, str]] = None
     per_page: Optional[int] = 100
     page: Optional[int] = 1
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
     @field_validator("per_page", "page")
     def validate_positive_integer(cls, v):
@@ -791,30 +745,15 @@ class MembersModel(BaseModel):
             raise ParameterError
         return v
 
-    @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def model_post_init(self, __context):
         """
-        Build API parameters for members.
-
-        Args:
-        - values: Dictionary of all values.
-
-        Returns:
-        - str: The constructed API parameters.
-
-        Note:
-        Constructs API parameters based on provided values.
+        Build the API parameters
         """
-        filters = []
-        if "page" in values:
-            filters.append(f'page={values["page"]}')
-        if "per_page" in values:
-            filters.append(f'per_page={values["per_page"]}')
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-        return values
+        self.api_parameters = {}
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
 
 
 class MergeRequestModel(BaseModel):
@@ -917,11 +856,77 @@ class MergeRequestModel(BaseModel):
     target_project_id: Optional[Union[int, str]] = None
     max_pages: Optional[int] = 0
     per_page: Optional[int] = 100
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = None
 
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.approved_by_ids:
+            self.api_parameters["approved_by_ids"] = self.approved_by_ids
+        if self.approver_ids:
+            self.api_parameters["approver_ids"] = self.approver_ids
+        if self.assignee_id:
+            self.api_parameters["assignee_id"] = self.assignee_id
+        if self.author_id:
+            self.api_parameters["author_id"] = self.author_id
+        if self.author_username:
+            self.api_parameters["author_username"] = self.author_username
+        if self.created_after:
+            self.api_parameters["created_after"] = self.created_after
+        if self.deployed_after:
+            self.api_parameters["deployed_after"] = self.deployed_after
+        if self.deployed_before:
+            self.api_parameters["deployed_before"] = self.deployed_before
+        if self.environment:
+            self.api_parameters["environment"] = self.environment
+        if self.search_in:
+            self.api_parameters["search_in"] = self.search_in
+        if self.labels:
+            self.api_parameters["labels"] = self.labels
+        if self.milestone:
+            self.api_parameters["milestone"] = self.milestone
+        if self.my_reaction_emoji:
+            self.api_parameters["my_reaction_emoji"] = self.my_reaction_emoji
+        if self.search_exclude:
+            self.api_parameters["search_exclude"] = self.search_exclude
+        if self.order_by:
+            self.api_parameters["order_by"] = self.order_by
+        if self.reviewer_id:
+            self.api_parameters["reviewer_id"] = self.reviewer_id
+        if self.reviewer_username:
+            self.api_parameters["reviewer_username"] = self.reviewer_username
+        if self.scope:
+            self.api_parameters["scope"] = self.scope
+        if self.search:
+            self.api_parameters["search"] = self.search
+        if self.source_branch:
+            self.api_parameters["source_branch"] = self.source_branch
+        if self.state:
+            self.api_parameters["state"] = self.state
+        if self.target_branch:
+            self.api_parameters["target_branch"] = self.target_branch
+        if self.updated_after:
+            self.api_parameters["updated_after"] = self.updated_after
+        if self.updated_before:
+            self.api_parameters["updated_before"] = self.updated_before
+        if self.view:
+            self.api_parameters["view"] = self.view
+        if self.with_labels_details:
+            self.api_parameters["with_labels_details"] = self.with_labels_details
+        if self.with_merge_status_recheck:
+            self.api_parameters["with_merge_status_recheck"] = self.with_merge_status_recheck
+        if self.wip:
+            self.api_parameters["wip"] = self.wip
+        if self.with_merge_status_recheck:
+            self.api_parameters["with_merge_status_recheck"] = self.with_merge_status_recheck
+        if self.with_merge_status_recheck:
+            self.api_parameters["with_merge_status_recheck"] = self.with_merge_status_recheck
+
     @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def build_data(cls, values):
         """
         Build API parameters for the merge request.
 
@@ -934,77 +939,6 @@ class MergeRequestModel(BaseModel):
         Note:
         Constructs API parameters based on provided values.
         """
-        filters = []
-        if "approved_by_ids" in values:
-            filters.append(f'approved_by_ids={values["approved_by_ids"]}')
-        if "approver_ids" in values:
-            filters.append(f'approver_ids={values["approver_ids"]}')
-        if "assignee_id" in values:
-            filters.append(f'assignee_id={values["assignee_id"]}')
-        if "author_id" in values:
-            filters.append(f'author_id={values["author_id"]}')
-        if "author_username" in values:
-            filters.append(f'author_username={values["author_username"]}')
-        if "created_after" in values:
-            filters.append(f'created_after={values["created_after"]}')
-        if "deployed_after" in values:
-            filters.append(f'deployed_after={values["deployed_after"]}')
-        if "deployed_before" in values:
-            filters.append(f'deployed_before={values["deployed_before"]}')
-        if "environment" in values:
-            filters.append(f'environment={values["environment"]}')
-        if "search_in" in values:
-            filters.append(f'search_in={values["search_in"]}')
-        if "labels" in values:
-            filters.append(f'labels={values["labels"]}')
-        if "milestone" in values:
-            filters.append(f'milestone={values["milestone"]}')
-        if "my_reaction_emoji" in values:
-            filters.append(f'my_reaction_emoji={values["my_reaction_emoji"]}')
-        if "search_exclude" in values:
-            filters.append(f'search_exclude={values["search_exclude"]}')
-        if "order_by" in values:
-            filters.append(f'order_by={values["order_by"]}')
-        if "reviewer_id" in values:
-            filters.append(f'reviewer_id={values["reviewer_id"]}')
-        if "reviewer_username" in values:
-            filters.append(f'reviewer_username={values["reviewer_username"]}')
-        if "scope" in values:
-            filters.append(f'scope={values["scope"]}')
-        if "search" in values:
-            filters.append(f'search={values["search"]}')
-        if "source_branch" in values:
-            filters.append(f'source_branch={values["source_branch"]}')
-        if "state" in values:
-            filters.append(f'state={values["state"]}')
-        if "target_branch" in values:
-            filters.append(f'target_branch={values["target_branch"]}')
-        if "updated_after" in values:
-            filters.append(f'updated_after={values["updated_after"]}')
-        if "updated_before" in values:
-            filters.append(f'updated_before={values["updated_before"]}')
-        if "view" in values:
-            filters.append(f'view={values["view"]}')
-        if "with_labels_details" in values:
-            filters.append(f'with_labels_details={values["with_labels_details"]}')
-        if "with_merge_status_recheck" in values:
-            filters.append(
-                f'with_merge_status_recheck={values["with_merge_status_recheck"]}'
-            )
-        if "wip" in values:
-            filters.append(f'wip={values["wip"]}')
-        if "with_merge_status_recheck" in values:
-            filters.append(
-                f'with_merge_status_recheck={values["with_merge_status_recheck"]}'
-            )
-        if "with_merge_status_recheck" in values:
-            filters.append(
-                f'with_merge_status_recheck={values["with_merge_status_recheck"]}'
-            )
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-
         data = {}
 
         if "source_branch" in values:
@@ -1407,7 +1341,6 @@ class PackageModel(BaseModel):
     - api_parameters (str): Additional API parameters.
 
     Methods:
-    - build_api_parameters(values): Build API parameters.
     - validate_file_name(value): Validate the 'file_name' field.
     - validate_status(value): Validate the 'status' field.
     - validate_select(value): Validate the 'select' field.
@@ -1423,34 +1356,19 @@ class PackageModel(BaseModel):
     file_name: Optional[str] = None
     status: Optional[str] = None
     select: Optional[str] = None
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
-    @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def model_post_init(self, __context):
         """
-        Build API parameters.
-
-        Args:
-        - values: Dictionary of values.
-
-        Returns:
-        - The constructed API parameters string.
-
-        Raises:
-        - None.
+        Build the API parameters
         """
-        filters = []
-        if "status" in values:
-            filters.append(f'status={values["status"]}')
-        if "per_page" in values:
-            filters.append(f'per_page={values["per_page"]}')
-        if "reference" in values:
-            filters.append(f'ref={values["reference"]}')
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-        return values
+        self.api_parameters = {}
+        if self.status:
+            self.api_parameters["status"] = self.status
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+        if self.reference:
+            self.api_parameters["ref"] = self.reference
 
     @field_validator("file_name", "package_name")
     def validate_file_name(cls, value):
@@ -1527,9 +1445,6 @@ class PipelineModel(BaseModel):
     - variables (Dict): Variables associated with the pipeline.
     - api_parameters (str): Additional API parameters.
 
-    Methods:
-    - build_api_parameters(values): Build API parameters.
-
     Examples:
     - Example 1: How to use this Pydantic model.
     - Example 2: Another example of usage.
@@ -1538,37 +1453,23 @@ class PipelineModel(BaseModel):
     project_id: Union[int, str] = None
     per_page: Optional[int] = 100
     page: Optional[int] = 1
+    status: Optional[str] = Field(description="Status", default=None)
     pipeline_id: Optional[Union[int, str]] = None
     reference: Optional[str] = None
     variables: Optional[Dict] = None
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
-    @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def model_post_init(self, __context):
         """
-        Build API parameters.
-
-        Args:
-        - values: Dictionary of values.
-
-        Returns:
-        - The constructed API parameters string.
-
-        Raises:
-        - None.
+        Build the API parameters
         """
-        filters = []
-        if "page" in values:
-            filters.append(f'page={values["page"]}')
-        if "per_page" in values:
-            filters.append(f'per_page={values["per_page"]}')
-        if "reference" in values:
-            filters.append(f'ref={values["reference"]}')
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-        return values
+        self.api_parameters = {}
+        if self.status:
+            self.api_parameters["status"] = self.status
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+        if self.reference:
+            self.api_parameters["ref"] = self.reference
 
 
 class ProjectModel(BaseModel):
@@ -1588,7 +1489,6 @@ class ProjectModel(BaseModel):
     - default=None (other attributes)
 
     Methods:
-    - build_api_parameters(values): Build API parameters.
     - validate_access_level(value): Validate access level values.
     - validate_boolean(value): Validate boolean values.
     - validate_positive_integer(value): Validate positive integer values.
@@ -1677,11 +1577,23 @@ class ProjectModel(BaseModel):
     topics: Optional[List[str]] = None
     visibility: Optional[str] = None
     wiki_access_level: Optional[str] = None
-    api_parameters: Optional[str] = None
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = None
 
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.group_id:
+            self.api_parameters["group_id"] = self.group_id
+        if self.group_access:
+            self.api_parameters["group_access"] = self.group_access
+        if self.expires_at:
+            self.api_parameters["expires_at"] = self.expires_at
+
     @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def build_data(cls, values):
         """
         Build API parameters.
 
@@ -1694,19 +1606,6 @@ class ProjectModel(BaseModel):
         Raises:
         - None.
         """
-        filters = []
-
-        if "group_id" in values:
-            filters.append(f'group_id={values["group_id"]}')
-        if "group_access" in values:
-            filters.append(f'group_access={values["group_access"]}')
-        if "expires_at" in values:
-            filters.append(f'expires_at={values["expires_at"]}')
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-
         data = {}
 
         if "allow_merge_on_skipped_pipeline" in values:
@@ -2084,7 +1983,6 @@ class ProtectedBranchModel(BaseModel):
     - data (Dict): Dictionary containing additional data.
 
     Methods:
-    - build_api_parameters(values): Build API parameters.
     - validate_project_id(value): Validate project ID for non-None.
     - validate_project_id_type(value): Validate project ID for type (int or str).
     - construct_data_dict(values): Construct data dictionary.
@@ -2104,11 +2002,25 @@ class ProtectedBranchModel(BaseModel):
     allowed_to_merge: Optional[List[Dict]] = None
     allowed_to_unprotect: Optional[List[Dict]] = None
     code_owner_approval_required: Optional[bool] = None
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = None
 
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.branch:
+            self.api_parameters["name"] = self.branch
+        if self.push_access_level:
+            self.api_parameters["push_access_level"] = self.push_access_level
+        if self.merge_access_level:
+            self.api_parameters["merge_access_level"] = self.merge_access_level
+        if self.unprotect_access_level:
+            self.api_parameters["unprotect_access_level"] = self.unprotect_access_level
+
     @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def build_data(cls, values):
         """
         Build API parameters.
 
@@ -2121,21 +2033,6 @@ class ProtectedBranchModel(BaseModel):
         Raises:
         - None.
         """
-
-        filters = []
-        if "branch" in values:
-            filters.append(f'name={values["branch"]}')
-        if "push_access_level" in values:
-            filters.append(f'push_access_level={values["push_access_level"]}')
-        if "merge_access_level" in values:
-            filters.append(f'merge_access_level={values["merge_access_level"]}')
-        if "unprotect_access_level" in values:
-            filters.append(f'unprotect_access_level={values["unprotect_access_level"]}')
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-
         data = {}
 
         if "allow_force_push" in values:
@@ -2237,7 +2134,6 @@ class ReleaseModel(BaseModel):
     - data (Dict): Dictionary containing additional data.
 
     Methods:
-    - build_api_parameters(values): Build API parameters.
     - validate_order_by(value): Validate order_by attribute.
     - validate_sort(value): Validate sort attribute.
     - validate_project_id(value): Validate project ID for non-None.
@@ -2263,11 +2159,19 @@ class ReleaseModel(BaseModel):
     name: Optional[List[str]] = None
     milestones: Optional[str] = None
     released_at: Optional[str] = None
-    api_parameters: Optional[str] = None
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = None
 
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.simple:
+            self.api_parameters["simple"] = self.simple
+
     @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def build_data(cls, values):
         """
         Build API parameters.
 
@@ -2280,15 +2184,6 @@ class ReleaseModel(BaseModel):
         Raises:
         - None.
         """
-        filters = []
-
-        if "simple" in values:
-            filters.append(f'simple={values["simple"]}'.lower())
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-
         data = {}
 
         if "description" in values:
@@ -2424,7 +2319,6 @@ class RunnerModel(BaseModel):
     - data (Dict): Dictionary containing additional data.
 
     Methods:
-    - build_api_parameters(values): Build API parameters.
     - validate_runner_type(value): Validate runner_type attribute.
     - validate_status(value): Validate status attribute.
     - construct_data_dict(values): Construct data dictionary.
@@ -2451,11 +2345,25 @@ class RunnerModel(BaseModel):
     runner_type: Optional[str] = None
     status: Optional[str] = None
     all_runners: Optional[bool] = False
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = None
 
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.tag_list:
+            self.api_parameters["tag_list"] = self.tag_list
+        if self.runner_type:
+            self.api_parameters["runner_type"] = self.runner_type
+        if self.status:
+            self.api_parameters["status"] = self.status
+        if self.paused:
+            self.api_parameters["paused"] = self.paused
+
     @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def build_data(cls, values):
         """
         Build API parameters.
 
@@ -2468,22 +2376,6 @@ class RunnerModel(BaseModel):
         Raises:
         - None.
         """
-        filters = []
-        if "tag_list" in values:
-            filters.append(f'tag_list={values["tag_list"].lower()}')
-        if "runner_type" in values:
-            filters.append(f'runner_type={values["runner_type"].lower()}')
-        if "status" in values:
-            filters.append(f'status={values["status"].lower()}')
-        if "paused" in values:
-            filters.append(f'paused={values["paused"].lower()}')
-        if "all_runners" in values:
-            filters = ["/all"]
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-
         data = {}
 
         if "description" in values:
@@ -2593,7 +2485,6 @@ class UserModel(BaseModel):
     - api_parameters (str): Constructed API parameters string.
 
     Methods:
-    - build_api_parameters(values): Build API parameters.
     - validate_order_by(value): Validate order_by attribute.
     - validate_sort(value): Validate sort attribute.
     - validate_two_factor(value): Validate two_factor attribute.
@@ -2626,79 +2517,57 @@ class UserModel(BaseModel):
     per_page: Optional[int] = 100
     sudo: Optional[bool] = False
     user_id: Optional[Union[str, int]] = None
-    api_parameters: Optional[str] = ""
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
-    @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def model_post_init(self, __context):
         """
-        Build API parameters.
-
-        Args:
-        - values: Dictionary of values.
-
-        Returns:
-        - The constructed API parameters string.
-
-        Raises:
-        - None.
+        Build the API parameters
         """
-
-        filters = []
-
-        if "username" in values:
-            filters.append(f'username={values["username"]}'.lower())
-        if "active" in values:
-            filters.append(f'active={values["active"]}'.lower())
-        if "blocked" in values:
-            filters.append(f'blocked={values["blocked"]}'.lower())
-        if "external" in values:
-            filters.append(f'external={values["external"]}'.lower())
-        if "exclude_internal" in values:
-            filters.append(f'exclude_internal={values["exclude_internal"]}'.lower())
-        if "exclude_external" in values:
-            filters.append(f'exclude_external={values["exclude_external"]}'.lower())
-        if "without_project_bots" in values:
-            filters.append(
-                f'without_project_bots={values["without_project_bots"]}'.lower()
-            )
-        if "order_by" in values:
-            filters.append(f'order_by={values["order_by"]}'.lower())
-        if "sort" in values:
-            filters.append(f'sort={values["sort"]}'.lower())
-        if "two_factor" in values:
-            filters.append(f'two_factor={values["two_factor"]}'.lower())
-        if "without_projects" in values:
-            filters.append(f'without_projects={values["without_projects"]}'.lower())
-        if "admins" in values:
-            filters.append(f'admins={values["admins"]}'.lower())
-        if "saml_provider_id" in values:
-            filters.append(f'saml_provider_id={values["saml_provider_id"]}'.lower())
-        if "extern_uid" in values:
-            filters.append(f'extern_uid={values["extern_uid"]}'.lower())
-        if "provider" in values:
-            filters.append(f'provider={values["provider"]}'.lower())
-        if "created_before" in values:
-            filters.append(f'created_before={values["created_before"]}'.lower())
-        if "created_after" in values:
-            filters.append(f'created_after={values["created_after"]}'.lower())
-        if "with_custom_attributes" in values:
-            filters.append(
-                f'with_custom_attributes={values["with_custom_attributes"]}'.lower()
-            )
-        if "sudo" in values:
-            filters.append(f'sudo={values["user_id"]}'.lower())
-        if "user_id" in values:
-            filters.append(f'user_id={values["user_id"]}'.lower())
-        if "page" in values:
-            filters.append(f'page={values["page"]}'.lower())
-        if "per_page" in values:
-            filters.append(f'per_page={values["per_page"]}'.lower())
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-
-        return values
+        self.api_parameters = {}
+        if self.username:
+            self.api_parameters["username"] = self.username
+        if self.username:
+            self.api_parameters["username"] = self.username
+        if self.blocked:
+            self.api_parameters["blocked"] = self.blocked
+        if self.external:
+            self.api_parameters["external"] = self.external
+        if self.exclude_internal:
+            self.api_parameters["exclude_internal"] = self.exclude_internal
+        if self.exclude_external:
+            self.api_parameters["exclude_external"] = self.exclude_external
+        if self.without_project_bots:
+            self.api_parameters["without_project_bots"] = self.without_project_bots
+        if self.order_by:
+            self.api_parameters["order_by"] = self.order_by
+        if self.sort:
+            self.api_parameters["sort"] = self.sort
+        if self.two_factor:
+            self.api_parameters["two_factor"] = self.two_factor
+        if self.without_projects:
+            self.api_parameters["without_projects"] = self.without_projects
+        if self.admins:
+            self.api_parameters["admins"] = self.admins
+        if self.saml_provider_id:
+            self.api_parameters["saml_provider_id"] = self.saml_provider_id
+        if self.extern_uid:
+            self.api_parameters["extern_uid"] = self.extern_uid
+        if self.provider:
+            self.api_parameters["provider"] = self.provider
+        if self.created_before:
+            self.api_parameters["created_before"] = self.created_before
+        if self.created_after:
+            self.api_parameters["created_after"] = self.created_after
+        if self.with_custom_attributes:
+            self.api_parameters["with_custom_attributes"] = self.with_custom_attributes
+        if self.sudo:
+            self.api_parameters["sudo"] = self.user_id
+        if self.user_id:
+            self.api_parameters["user_id"] = self.user_id
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
 
     @field_validator("order_by")
     def validate_order_by(cls, value):
@@ -2776,7 +2645,6 @@ class WikiModel(BaseModel):
     - data (Dict): Dictionary containing additional data.
 
     Methods:
-    - build_api_parameters(values): Build API parameters.
     - validate_project_id(value): Validate project_id attribute.
     - validate_project_id_type(value): Validate project_id type.
     - construct_data_dict(values): Construct data dictionary.
@@ -2792,13 +2660,27 @@ class WikiModel(BaseModel):
     title: Optional[str] = None
     format_type: Optional[str] = None
     with_content: Optional[bool] = None
+    render_html: Optional[bool] = None
     file: Optional[str] = None
     branch: Optional[str] = None
-    api_parameters: Optional[str] = ""
+    version: Optional[str] = None
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = None
 
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.with_content:
+            self.api_parameters["with_content"] = self.with_content
+        if self.render_html:
+            self.api_parameters["render_html"] = self.render_html
+        if self.version:
+            self.api_parameters["version"] = self.version
+
     @model_validator(mode="before")
-    def build_api_parameters(cls, values):
+    def build_data(cls, values):
         """
         Build API parameters.
 
@@ -2811,21 +2693,6 @@ class WikiModel(BaseModel):
         Raises:
         - None.
         """
-        filters = []
-
-        if "with_content" in values:
-            filters.append(f'with_content={values["with_content"]}'.lower())
-
-        if "render_html" in values:
-            filters.append(f'render_html={values["render_html"]}'.lower())
-
-        if "version" in values:
-            filters.append(f'version={values["version"]}'.lower())
-
-        if filters:
-            api_parameters = "?" + "&".join(filters)
-            values["api_parameters"] = api_parameters
-
         data = {}
 
         if "content" in values:

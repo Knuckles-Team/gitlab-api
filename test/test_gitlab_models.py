@@ -50,7 +50,7 @@ def test_branch_model():
     reference = "main"
     branch = BranchModel(project_id=project_id, branch=branch_name, reference=reference)
     assert branch.project_id == project_id
-    assert branch.api_parameters == "?branch=test_branch&ref=main"
+    assert branch.api_parameters == {'branch': 'test_branch', 'ref': 'main'}
 
 
 @pytest.mark.skipif(
@@ -112,7 +112,7 @@ def test_pipeline_model():
     project_id = 1234
     pipeline = PipelineModel(project_id=project_id, per_page=100, reference="test")
     assert project_id == pipeline.project_id
-    assert pipeline.api_parameters == "?per_page=100&ref=test"
+    assert pipeline.api_parameters == {'per_page': 100, 'ref': 'test'}
 
 
 @pytest.mark.skipif(
@@ -129,7 +129,7 @@ def test_project_model():
     project = ProjectModel(project_id=project_id, group_id=group_id)
     assert project_id == project.project_id
     assert group_id == project.group_id
-    assert project.api_parameters == "?group_id=1234"
+    assert project.api_parameters == {'group_id': 1234}
 
 
 @pytest.mark.skipif(
@@ -140,7 +140,7 @@ def test_group_model():
     group_id = 6
     group = GroupModel(group_id=group_id, per_page=100, page=0)
     assert group_id == group.group_id
-    assert group.api_parameters == "?page=0&per_page=100"
+    assert group.api_parameters == {'per_page': 100}
 
 
 @pytest.mark.skipif(
@@ -172,7 +172,7 @@ def test_release_model():
     project_id = 5679
     release = ReleaseModel(project_id=project_id, simple=True)
     assert project_id == release.project_id
-    assert release.api_parameters == "?simple=true"
+    assert release.api_parameters == {'simple': True}
 
 
 @pytest.mark.skipif(
@@ -183,7 +183,7 @@ def test_runner_model():
     project_id = 5679
     runner = RunnerModel(project_id=project_id, active=True, status="Online")
     assert project_id == runner.project_id
-    assert runner.api_parameters == "?status=online"
+    assert runner.api_parameters == {'status': 'online'}
 
 
 @pytest.mark.skipif(
@@ -195,7 +195,7 @@ def test_user_model():
     user = UserModel(username=username, active=True)
     assert user.username == username
     assert user.active == True
-    assert user.api_parameters == "?username=test_user&active=true"
+    assert user.api_parameters == {'page': 1, 'per_page': 100, 'username': 'test_user'}
 
 
 @pytest.mark.skipif(
@@ -206,7 +206,7 @@ def test_wiki_model():
     project_id = 5679
     wiki = WikiModel(project_id=project_id, with_content=True)
     assert project_id == wiki.project_id
-    assert wiki.api_parameters == "?with_content=true"
+    assert wiki.api_parameters == {'with_content': True}
 
 
 @pytest.mark.skipif(
@@ -6222,7 +6222,7 @@ def test_merge_request_response_7():
                 "new_path": "VERSION",
                 "a_mode": "100644",
                 "b_mode": "100644",
-                "diff": "@@ -1 +1 @@\ -1.9.7\ +1.9.8",
+                "diff": "@@ -1 +1 @@ -1.9.7 +1.9.8",
                 "new_file": False,
                 "renamed_file": False,
                 "deleted_file": False,
@@ -6246,7 +6246,7 @@ def test_merge_request_response_8():
             "new_path": "README",
             "a_mode": "100644",
             "b_mode": "100644",
-            "diff": "@@ -1 +1 @@\ -Title\ +README",
+            "diff": "@@ -1 +1 @@ -Title +README",
             "new_file": False,
             "renamed_file": False,
             "deleted_file": False,
@@ -6257,7 +6257,7 @@ def test_merge_request_response_8():
             "new_path": "VERSION",
             "a_mode": "100644",
             "b_mode": "100644",
-            "diff": "@@\ -1.9.7\ +1.9.8",
+            "diff": "@@ -1.9.7 +1.9.8",
             "new_file": False,
             "renamed_file": False,
             "deleted_file": False,
