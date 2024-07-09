@@ -9,7 +9,6 @@ logging.basicConfig(
 from sqlalchemy import Column, String, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship, backref, declarative_base
 from sqlalchemy import Integer, Boolean
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import (
     Float,
@@ -373,6 +372,7 @@ class Source(Base):
     base_type = Column(String, default="Source")
     format = Column(String, nullable=True)
     url = Column(String, nullable=True)
+    assets_id = Column(Integer, ForeignKey("assets.id"))
 
 
 # Link Model
@@ -562,7 +562,7 @@ class Agents(Base):
 class Release(Base):
     __tablename__ = "releases"
 
-    id = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
     base_type = Column(String, default="Release")
     tag_name = Column(String, nullable=True)
     description = Column(String, nullable=True)
@@ -574,10 +574,10 @@ class Release(Base):
     evidence_sha = Column(String, nullable=True)
 
     # Relationships (optional)
-    author_id = Column(String, ForeignKey("users.id"), nullable=True)
-    commit_id = Column(String, ForeignKey("commits.id"), nullable=True)
-    assets_id = Column(String, ForeignKey("assets.id"), nullable=True)
-    links_id = Column(String, ForeignKey("release_links.id"), nullable=True)
+    author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    commit_id = Column(Integer, ForeignKey("commits.id"), nullable=True)
+    assets_id = Column(Integer, ForeignKey("assets.id"), nullable=True)
+    links_id = Column(Integer, ForeignKey("release_links.id"), nullable=True)
 
     author = (
         relationship("User", backref=backref("releases"), foreign_keys=[author_id])
@@ -1567,7 +1567,7 @@ class Comment(Base):
 class Commit(Base):
     __tablename__ = "commits"
 
-    id = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
     base_type = Column(String, default="Commit")
     short_id = Column(String, nullable=True)
     started_at = Column(DateTime, nullable=True)
