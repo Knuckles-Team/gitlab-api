@@ -917,13 +917,19 @@ class MergeRequestModel(BaseModel):
         if self.with_labels_details:
             self.api_parameters["with_labels_details"] = self.with_labels_details
         if self.with_merge_status_recheck:
-            self.api_parameters["with_merge_status_recheck"] = self.with_merge_status_recheck
+            self.api_parameters["with_merge_status_recheck"] = (
+                self.with_merge_status_recheck
+            )
         if self.wip:
             self.api_parameters["wip"] = self.wip
         if self.with_merge_status_recheck:
-            self.api_parameters["with_merge_status_recheck"] = self.with_merge_status_recheck
+            self.api_parameters["with_merge_status_recheck"] = (
+                self.with_merge_status_recheck
+            )
         if self.with_merge_status_recheck:
-            self.api_parameters["with_merge_status_recheck"] = self.with_merge_status_recheck
+            self.api_parameters["with_merge_status_recheck"] = (
+                self.with_merge_status_recheck
+            )
 
     @model_validator(mode="before")
     def build_data(cls, values):

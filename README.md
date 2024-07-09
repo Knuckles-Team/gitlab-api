@@ -22,14 +22,11 @@
 
 *Version: 0.15.37*
 
-GitLab API Python Wrapper
+Pythonic GitLab API Library
 
-Includes a large portion of useful API calls to GitLab
+Includes a large portion of useful API calls to GitLab and SQLAlchemy Models to handle loading API calls directly to a database!
 
 This repository is actively maintained - Contributions are welcome!
-
-AI Skill Ready (**PEP8** Documented) - Assimilate the following package into your agent and begin using it!
-
 
 ### API Calls:
 - Branches
@@ -76,6 +73,32 @@ response = client.get_runners(runner_type='instance_type', all_runners=True)
 print(f"Runners: {response}")
 ```
 
+```python
+#!/usr/bin/python
+# coding: utf-8
+import gitlab_api
+from gitlab_api import Branch
+
+
+token = "<GITLAB_TOKEN/PERSONAL_TOKEN>"
+gitlab_url = "<GITLAB_URL>"
+client = gitlab_api.Api(url=gitlab_url, token=token)
+
+users = client.get_users()
+print(users)
+
+created_merge_request = client.create_merge_request(project_id=123, source_branch="development",
+                                                    target_branch="production",title="Merge Request Title")
+print(f"Merge Request Title: {created_merge_request.data.title}\nDescription: {created_merge_request.data.description}")
+users = client.get_users()
+print(f"First user's email: {users.data[0].email}")
+
+print(f"Projects: {client.get_projects()}")
+
+response = client.get_runners(runner_type='instance_type', all_runners=True)
+print(f"Runners: {response}")
+```
+
 </details>
 
 <details>
@@ -99,6 +122,7 @@ pre-commit run --all-files
 
 pytest
 ```bash
+python -m pip install -r test-requirements.txt
 pytest ./test/test_gitlab_models.py
 ```
 </details>
