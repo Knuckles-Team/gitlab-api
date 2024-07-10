@@ -280,6 +280,7 @@ release_evidences = (
     if "Evidence" in globals()
     else None
 )
+
 merge_approval_approvers = (
     Table(
         "merge_approval_approvers",
@@ -319,7 +320,7 @@ class DeployToken(Base):
 
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="DeployToken")
-    user_id = Column(Integer, nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     name = Column(String, nullable=True)
     username = Column(String, nullable=True)
     expires_at = Column(DateTime, nullable=True)
@@ -330,6 +331,8 @@ class DeployToken(Base):
     active = Column(Boolean, nullable=True)
     last_used_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=True)
+
+    user = relationship("User", backref=backref("deploy_tokens"))
 
 
 # Rule Model
@@ -361,7 +364,9 @@ class AccessControl(Base):
     base_type = Column(String, default="AccessControl")
     name = Column(String, nullable=True)
     access_level = Column(Integer, nullable=True)
-    member_role_id = Column(Integer, nullable=True)
+    member_role_id = Column(Integer, ForeignKey("member_roles.id"), nullable=True)
+
+    member_role = relationship("MemberRole", backref=backref("access_controls"))
 
 
 # Source Model
@@ -374,6 +379,8 @@ class Source(Base):
     url = Column(String, nullable=True)
     assets_id = Column(Integer, ForeignKey("assets.id"))
 
+    assets = relationship("Assets", backref=backref("sources"))
+
 
 # Link Model
 class Link(Base):
@@ -384,6 +391,9 @@ class Link(Base):
     name = Column(String, nullable=True)
     url = Column(String, nullable=True)
     link_type = Column(String, nullable=True)
+    assets_id = Column(Integer, ForeignKey("assets.id"))
+
+    assets = relationship("Assets", backref=backref("link"))
 
 
 # Assets Model
@@ -393,8 +403,6 @@ class Assets(Base):
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="Assets")
     count = Column(Integer, nullable=True)
-    sources = relationship("Source", backref=backref("assets"))
-    links = relationship("Link", backref=backref("assets"))
     evidence_file_path = Column(String, nullable=True)
 
 
@@ -450,19 +458,9 @@ class ToDo(Base):
     state = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=True)
 
-    project = (
-        relationship("Project", backref=backref("todos"))
-        if "Project" in globals()
-        else None
-    )
-    author = (
-        relationship("User", backref=backref("todos")) if "User" in globals() else None
-    )
-    target = (
-        relationship("Issue", backref=backref("todos"))
-        if "Issue" in globals()
-        else None
-    )
+    project = relationship("Project", backref=backref("todos"))
+    author = relationship("User", backref=backref("todos"))
+    target = relationship("Issue", backref=backref("todos"))
 
 
 # WikiPage Model
@@ -509,11 +507,7 @@ class WikiAttachment(Base):
     branch = Column(String, nullable=True)
     link_id = Column(Integer, ForeignKey("wiki_attachment_links.id"), nullable=True)
 
-    link = (
-        relationship("WikiAttachmentLink", backref=backref("wiki_attachment"))
-        if "WikiAttachmentLink" in globals()
-        else None
-    )
+    link = relationship("WikiAttachmentLink", backref=backref("wiki_attachments"))
 
 
 # Agent Model
@@ -524,11 +518,7 @@ class Agent(Base):
     base_type = Column(String, default="Agent")
     config_project_id = Column(Integer, ForeignKey("project_configs.id"), nullable=True)
 
-    config_project = (
-        relationship("ProjectConfig", backref=backref("agents"))
-        if "ProjectConfig" in globals()
-        else None
-    )
+    config_project = relationship("ProjectConfig", backref=backref("agent"))
 
 
 # Agents Model
@@ -537,28 +527,18 @@ class Agents(Base):
 
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="Agents")
-    allowed_agents = relationship("Agent", backref=backref("agents"))
     job_id = Column(Integer, ForeignKey("jobs.id"), nullable=True)
     pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    job = relationship("Job", backref=backref("agents")) if "Job" in globals() else None
-    pipeline = (
-        relationship("Pipeline", backref=backref("agents"))
-        if "Pipeline" in globals()
-        else None
-    )
-    project = (
-        relationship("Project", backref=backref("agents"))
-        if "Project" in globals()
-        else None
-    )
-    user = (
-        relationship("User", backref=backref("agents")) if "User" in globals() else None
-    )
+    job = relationship("Job", backref=backref("agents"))
+    pipeline = relationship("Pipeline", backref=backref("agents"))
+    project = relationship("Project", backref=backref("agents"))
+    user = relationship("User", backref=backref("agents"))
 
 
+# Release Model
 class Release(Base):
     __tablename__ = "releases"
 
@@ -579,41 +559,21 @@ class Release(Base):
     assets_id = Column(Integer, ForeignKey("assets.id"), nullable=True)
     links_id = Column(Integer, ForeignKey("release_links.id"), nullable=True)
 
-    author = (
-        relationship("User", backref=backref("releases"), foreign_keys=[author_id])
-        if "User" in globals()
-        else None
+    author = relationship("User", backref=backref("releases"), foreign_keys=[author_id])
+    commit = relationship(
+        "Commit", backref=backref("releases"), foreign_keys=[commit_id]
     )
-    commit = (
-        relationship("Commit", backref=backref("releases"), foreign_keys=[commit_id])
-        if "Commit" in globals()
-        else None
+    milestones = relationship(
+        "Milestone", secondary="release_milestones", backref=backref("releases")
     )
-    milestones = (
-        relationship(
-            "Milestone", secondary="release_milestones", backref=backref("releases")
-        )
-        if "Milestone" in globals()
-        else None
+    evidences = relationship(
+        "Evidence", secondary="release_evidences", backref=backref("releases")
     )
-    evidences = (
-        relationship(
-            "Evidence", secondary="release_evidences", backref=backref("releases")
-        )
-        if "Evidence" in globals()
-        else None
+    assets = relationship(
+        "Assets", backref=backref("release"), foreign_keys=[assets_id]
     )
-    assets = (
-        relationship("Assets", backref=backref("release"), foreign_keys=[assets_id])
-        if "Assets" in globals()
-        else None
-    )
-    links = (
-        relationship(
-            "ReleaseLinks", backref=backref("release"), foreign_keys=[links_id]
-        )
-        if "ReleaseLinks" in globals()
-        else None
+    links = relationship(
+        "ReleaseLinks", backref=backref("release"), foreign_keys=[links_id]
     )
 
 
@@ -636,37 +596,22 @@ class Branch(Base):
     inherited = Column(Boolean, nullable=True)
 
     commit_id = Column(Integer, ForeignKey("commits.id"), nullable=True)
-    commit = (
-        relationship("Commit", backref=backref("branches"))
-        if "Commit" in globals()
-        else None
+    commit = relationship("Commit", backref=backref("branches"))
+
+    push_access_levels = relationship(
+        "AccessLevel",
+        secondary="branch_push_access_levels",
+        backref=backref("branches"),
     )
-    push_access_levels = (
-        relationship(
-            "AccessLevel",
-            secondary="branch_push_access_levels",
-            backref=backref("branches"),
-        )
-        if "AccessLevel" in globals()
-        else None
+    merge_access_levels = relationship(
+        "AccessLevel",
+        secondary="branch_merge_access_levels",
+        backref=backref("branches"),
     )
-    merge_access_levels = (
-        relationship(
-            "AccessLevel",
-            secondary="branch_merge_access_levels",
-            backref=backref("branches"),
-        )
-        if "AccessLevel" in globals()
-        else None
-    )
-    unprotect_access_levels = (
-        relationship(
-            "AccessLevel",
-            secondary="branch_unprotect_access_levels",
-            backref=backref("branches"),
-        )
-        if "AccessLevel" in globals()
-        else None
+    unprotect_access_levels = relationship(
+        "AccessLevel",
+        secondary="branch_unprotect_access_levels",
+        backref=backref("branches"),
     )
 
 
@@ -685,50 +630,30 @@ class ApprovalRule(Base):
     approved = Column(Boolean, nullable=True)
     overridden = Column(Boolean, nullable=True)
 
-    eligible_approvers = (
-        relationship(
-            "User",
-            secondary="approval_rule_eligible_approvers",
-            backref=backref("approval_rules"),
-        )
-        if "User" in globals()
-        else None
+    eligible_approvers = relationship(
+        "User",
+        secondary="approval_rule_eligible_approvers",
+        backref=backref("approval_rules"),
     )
-    users = (
-        relationship(
-            "User",
-            secondary="approval_rule_users",
-            backref=backref("approval_rules_users"),
-        )
-        if "User" in globals()
-        else None
+    users = relationship(
+        "User",
+        secondary="approval_rule_users",
+        backref=backref("approval_rules_users"),
     )
-    groups = (
-        relationship(
-            "Group",
-            secondary="approval_rule_groups",
-            backref=backref("approval_rules_groups"),
-        )
-        if "Group" in globals()
-        else None
+    groups = relationship(
+        "Group",
+        secondary="approval_rule_groups",
+        backref=backref("approval_rules_groups"),
     )
-    protected_branches = (
-        relationship(
-            "Branch",
-            secondary="approval_rule_protected_branches",
-            backref=backref("approval_rules_branches"),
-        )
-        if "Branch" in globals()
-        else None
+    protected_branches = relationship(
+        "Branch",
+        secondary="approval_rule_protected_branches",
+        backref=backref("approval_rules_branches"),
     )
-    approved_by = (
-        relationship(
-            "User",
-            secondary="approval_rule_approved_by",
-            backref=backref("approval_rules_approved_by"),
-        )
-        if "User" in globals()
-        else None
+    approved_by = relationship(
+        "User",
+        secondary="approval_rule_approved_by",
+        backref=backref("approval_rules_approved_by"),
     )
 
 
@@ -739,7 +664,7 @@ class MergeRequest(Base):
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="MergeRequest")
     iid = Column(Integer, nullable=True)
-    project_id = Column(Integer, nullable=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     title = Column(String, nullable=True)
     description = Column(String, nullable=True)
     state = Column(String, nullable=True)
@@ -749,8 +674,8 @@ class MergeRequest(Base):
     source_branch = Column(String, nullable=True)
     upvotes = Column(Integer, nullable=True)
     downvotes = Column(Integer, nullable=True)
-    source_project_id = Column(Integer, nullable=True)
-    target_project_id = Column(Integer, nullable=True)
+    source_project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    target_project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     work_in_progress = Column(Boolean, nullable=True)
     merge_when_pipeline_succeeds = Column(Boolean, nullable=True)
     merge_status = Column(String, nullable=True)
@@ -794,116 +719,49 @@ class MergeRequest(Base):
     pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
     head_pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
 
-    author = (
-        relationship(
-            "User", foreign_keys=[author_id], backref=backref("authored_merge_requests")
-        )
-        if "User" in globals()
-        else None
+    author = relationship(
+        "User", foreign_keys=[author_id], backref=backref("authored_merge_requests")
     )
-    assignee = (
-        relationship(
-            "User",
-            foreign_keys=[assignee_id],
-            backref=backref("assigned_merge_requests"),
-        )
-        if "User" in globals()
-        else None
+    assignee = relationship(
+        "User", foreign_keys=[assignee_id], backref=backref("assigned_merge_requests")
     )
-    milestone = (
-        relationship("Milestone", backref=backref("merge_requests"))
-        if "Milestone" in globals()
-        else None
+    milestone = relationship("Milestone", backref=backref("merge_requests"))
+    merged_by = relationship(
+        "User", foreign_keys=[merged_by_id], backref=backref("merged_merge_requests")
     )
-    merged_by = (
-        relationship(
-            "User",
-            foreign_keys=[merged_by_id],
-            backref=backref("merged_merge_requests"),
-        )
-        if "User" in globals()
-        else None
+    closed_by = relationship(
+        "User", foreign_keys=[closed_by_id], backref=backref("closed_merge_requests")
     )
-    closed_by = (
-        relationship(
-            "User",
-            foreign_keys=[closed_by_id],
-            backref=backref("closed_merge_requests"),
-        )
-        if "User" in globals()
-        else None
+    pipeline = relationship(
+        "Pipeline", foreign_keys=[pipeline_id], backref=backref("merge_requests")
     )
-    pipeline = (
-        relationship(
-            "Pipeline", foreign_keys=[pipeline_id], backref=backref("merge_requests")
-        )
-        if "Pipeline" in globals()
-        else None
-    )
-    head_pipeline = (
-        relationship(
-            "Pipeline",
-            foreign_keys=[head_pipeline_id],
-            backref=backref("head_merge_requests"),
-        )
-        if "Pipeline" in globals()
-        else None
+    head_pipeline = relationship(
+        "Pipeline",
+        foreign_keys=[head_pipeline_id],
+        backref=backref("head_merge_requests"),
     )
 
-    labels = (
-        relationship(
-            "Label", secondary="merge_request_labels", backref=backref("merge_requests")
-        )
-        if "Label" in globals()
-        else None
+    labels = relationship(
+        "Label", secondary="merge_request_labels", backref=backref("merge_requests")
     )
     references_id = Column(Integer, ForeignKey("references.id"), nullable=True)
-    references = (
-        relationship("References", backref=backref("merge_requests"))
-        if "References" in globals()
-        else None
-    )
+    references = relationship("References", backref=backref("merge_requests"))
     time_stats_id = Column(Integer, ForeignKey("time_stats.id"), nullable=True)
-    time_stats = (
-        relationship("TimeStats", backref=backref("merge_requests"))
-        if "TimeStats" in globals()
-        else None
-    )
+    time_stats = relationship("TimeStats", backref=backref("merge_requests"))
     task_completion_status_id = Column(
         Integer, ForeignKey("task_completion_status.id"), nullable=True
     )
-    task_completion_status = (
-        relationship("TaskCompletionStatus", backref=backref("merge_requests"))
-        if "TaskCompletionStatus" in globals()
-        else None
+    task_completion_status = relationship(
+        "TaskCompletionStatus", backref=backref("merge_requests")
     )
-    changes = (
-        relationship("Diff", backref=backref("merge_requests"))
-        if "Diff" in globals()
-        else None
+    changes = relationship("Diff", backref=backref("merge_requests"))
+    reviewers = relationship(
+        "User",
+        secondary="merge_request_reviewers",
+        backref=backref("reviewed_merge_requests"),
     )
-    reviewers = (
-        relationship(
-            "User",
-            secondary="merge_request_reviewers",
-            backref=backref("reviewed_merge_requests"),
-        )
-        if "User" in globals()
-        else None
-    )
-    approved_by = (
-        relationship("ApprovedByUser", backref=backref("merge_requests"))
-        if "ApprovedByUser" in globals()
-        else None
-    )
-    rules = (
-        relationship("ApprovalRule", backref=backref("merge_requests"))
-        if "ApprovalRule" in globals()
-        else None
-    )
-
-
-# MergeRequests Model
+    approved_by = relationship("ApprovedByUser", backref=backref("merge_requests"))
+    rules = relationship("ApprovalRule", backref=backref("merge_requests"))
 
 
 # GroupAccess Model
@@ -923,23 +781,15 @@ class DefaultBranchProtectionDefaults(Base):
     base_type = Column(String, default="DefaultBranchProtectionDefaults")
     allow_force_push = Column(Boolean, nullable=True)
 
-    allowed_to_push = (
-        relationship(
-            "GroupAccess",
-            secondary="default_branch_protection_push_access",
-            backref=backref("push_defaults"),
-        )
-        if "GroupAccess" in globals()
-        else None
+    allowed_to_push = relationship(
+        "GroupAccess",
+        secondary="default_branch_protection_push_access",
+        backref=backref("push_defaults"),
     )
-    allowed_to_merge = (
-        relationship(
-            "GroupAccess",
-            secondary="default_branch_protection_merge_access",
-            backref=backref("merge_defaults"),
-        )
-        if "GroupAccess" in globals()
-        else None
+    allowed_to_merge = relationship(
+        "GroupAccess",
+        secondary="default_branch_protection_merge_access",
+        backref=backref("merge_defaults"),
     )
 
 
@@ -974,7 +824,7 @@ class Group(Base):
     full_name = Column(String, nullable=True)
     full_path = Column(String, nullable=True)
     file_template_project_id = Column(Integer, nullable=True)
-    parent_id = Column(Integer, nullable=True)
+    parent_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
     created_at = Column(DateTime, nullable=True)
     wiki_access_level = Column(String, nullable=True)
     duo_features_enabled = Column(Boolean, nullable=True)
@@ -996,27 +846,14 @@ class Group(Base):
     default_branch_protection_defaults_id = Column(
         Integer, ForeignKey("default_branch_protection_defaults.id"), nullable=True
     )
-    default_branch_protection_defaults = (
-        relationship("DefaultBranchProtectionDefaults", backref=backref("groups"))
-        if "DefaultBranchProtectionDefaults" in globals()
-        else None
+    default_branch_protection_defaults = relationship(
+        "DefaultBranchProtectionDefaults", backref=backref("groups")
     )
     statistics_id = Column(Integer, ForeignKey("statistics.id"), nullable=True)
-    statistics = (
-        relationship("Statistics", backref=backref("groups"))
-        if "Statistics" in globals()
-        else None
-    )
-    projects = (
-        relationship("Project", backref=backref("group_projects"))
-        if "Project" in globals()
-        else None
-    )
-    shared_projects = (
-        relationship("Project", backref=backref("shared_group_projects"))
-        if "Project" in globals()
-        else None
-    )
+    statistics = relationship("Statistics", backref=backref("groups"))
+    projects = relationship("Project", backref=backref("group_projects"))
+    shared_projects = relationship("Project", backref=backref("shared_group_projects"))
+    parent = relationship("Group", remote_side=[id])
 
 
 # Webhook Model
@@ -1028,7 +865,7 @@ class Webhook(Base):
     url = Column(String, nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    group_id = Column(Integer, nullable=False)
+    group_id = Column(Integer, ForeignKey("groups.id"), nullable=False)
     push_events = Column(Boolean, nullable=False)
     push_events_branch_filter = Column(String, nullable=True)
     issues_events = Column(Boolean, nullable=False)
@@ -1053,6 +890,8 @@ class Webhook(Base):
     resource_access_token_events = Column(Boolean, nullable=False)
     custom_webhook_template = Column(String, nullable=True)
 
+    group = relationship("Group", backref=backref("webhooks"))
+
 
 # AccessLevel Model
 class AccessLevel(Base):
@@ -1062,9 +901,13 @@ class AccessLevel(Base):
     base_type = Column(String, default="AccessLevel")
     access_level = Column(Integer, nullable=True)
     access_level_description = Column(String, nullable=True)
-    deploy_key_id = Column(Integer, nullable=True)
-    user_id = Column(Integer, nullable=True)
-    group_id = Column(Integer, nullable=True)
+    deploy_key_id = Column(Integer, ForeignKey("deploy_keys.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
+
+    deploy_key = relationship("DeployKey", backref=backref("access_levels"))
+    user = relationship("User", backref=backref("access_levels"))
+    group = relationship("Group", backref=backref("access_levels"))
 
 
 class ApprovedByUser(Base):
@@ -1074,11 +917,7 @@ class ApprovedByUser(Base):
     base_type = Column(String, default="ApprovedByUser")
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    user = (
-        relationship("User", backref=backref("approved_by_users"))
-        if "User" in globals()
-        else None
-    )
+    user = relationship("User", backref=backref("approved_by_users"))
 
 
 # Project Model
@@ -1127,7 +966,7 @@ class Project(Base):
     container_registry_enabled = Column(Boolean, nullable=True)
     container_registry_access_level = Column(String, nullable=True)
     security_and_compliance_access_level = Column(String, nullable=True)
-    creator_id = Column(Integer, nullable=True)
+    creator_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     import_url = Column(String, nullable=True)
     import_type = Column(String, nullable=True)
     import_status = Column(String, nullable=True)
@@ -1217,51 +1056,31 @@ class Project(Base):
     public = Column(Boolean, nullable=True)
 
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    owner = (
-        relationship("User", backref=backref("owned_projects"))
-        if "User" in globals()
-        else None
-    )
+    owner = relationship("User", backref=backref("owned_projects"))
+
     namespace_id = Column(Integer, ForeignKey("namespaces.id"), nullable=True)
-    namespace = (
-        relationship("Namespace", backref=backref("projects"))
-        if "Namespace" in globals()
-        else None
-    )
+    namespace = relationship("Namespace", backref=backref("projects"))
+
     container_expiration_policy_id = Column(
         Integer, ForeignKey("container_expiration_policies.id"), nullable=True
     )
-    container_expiration_policy = (
-        relationship("ContainerExpirationPolicy", backref=backref("projects"))
-        if "ContainerExpirationPolicy" in globals()
-        else None
+    container_expiration_policy = relationship(
+        "ContainerExpirationPolicy", backref=backref("projects")
     )
+
     statistics_id = Column(Integer, ForeignKey("statistics.id"), nullable=True)
-    statistics = (
-        relationship("Statistics", backref=backref("projects"))
-        if "Statistics" in globals()
-        else None
-    )
+    statistics = relationship("Statistics", backref=backref("projects"))
+
     links_id = Column(Integer, ForeignKey("links.id"), nullable=True)
-    links = (
-        relationship("Links", backref=backref("projects"))
-        if "Links" in globals()
-        else None
-    )
+    links = relationship("Links", backref=backref("projects"))
+
     permissions_id = Column(Integer, ForeignKey("permissions.id"), nullable=True)
-    permissions = (
-        relationship("Permissions", backref=backref("projects"))
-        if "Permissions" in globals()
-        else None
-    )
-    shared_with_groups = (
-        relationship(
-            "Group",
-            secondary="project_shared_with_groups",
-            backref=backref("shared_projects"),
-        )
-        if "Group" in globals()
-        else None
+    permissions = relationship("Permissions", backref=backref("projects"))
+
+    shared_with_groups = relationship(
+        "Group",
+        secondary="project_shared_with_groups",
+        backref=backref("shared_projects"),
     )
 
 
@@ -1290,10 +1109,8 @@ class Runner(Base):
     maintenance_note = Column(String, nullable=True)
     tag_list = Column(JSON, nullable=True)
 
-    projects = (
-        relationship("Project", secondary="runner_projects", backref=backref("runners"))
-        if "Project" in globals()
-        else None
+    projects = relationship(
+        "Project", secondary="runner_projects", backref=backref("runners")
     )
 
 
@@ -1323,60 +1140,34 @@ class Job(Base):
     web_url = Column(String, nullable=True)
 
     commit_id = Column(Integer, ForeignKey("commits.id"), nullable=True)
-    commit = (
-        relationship("Commit", backref=backref("jobs"))
-        if "Commit" in globals()
-        else None
-    )
+    commit = relationship("Commit", backref=backref("jobs"))
+
     pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
-    pipeline = (
-        relationship("Pipeline", backref=backref("jobs"))
-        if "Pipeline" in globals()
-        else None
-    )
+    pipeline = relationship("Pipeline", backref=backref("jobs"))
+
     runner_id = Column(Integer, ForeignKey("runners.id"), nullable=True)
-    runner = (
-        relationship("Runner", backref=backref("jobs"))
-        if "Runner" in globals()
-        else None
-    )
+    runner = relationship("Runner", backref=backref("jobs"))
+
     runner_manager_id = Column(Integer, ForeignKey("runner_managers.id"), nullable=True)
-    runner_manager = (
-        relationship("RunnerManager", backref=backref("jobs"))
-        if "RunnerManager" in globals()
-        else None
-    )
+    runner_manager = relationship("RunnerManager", backref=backref("jobs"))
+
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
-    project = (
-        relationship("Project", backref=backref("jobs"))
-        if "Project" in globals()
-        else None
-    )
+    project = relationship("Project", backref=backref("jobs"))
+
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    user = (
-        relationship("User", backref=backref("jobs")) if "User" in globals() else None
-    )
+    user = relationship("User", backref=backref("jobs"))
+
     downstream_pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
-    downstream_pipeline = (
-        relationship(
-            "Pipeline",
-            foreign_keys=[downstream_pipeline_id],
-            backref=backref("jobs_downstream"),
-        )
-        if "Pipeline" in globals()
-        else None
+    downstream_pipeline = relationship(
+        "Pipeline",
+        foreign_keys=[downstream_pipeline_id],
+        backref=backref("jobs_downstream"),
     )
+
     artifacts_file_id = Column(Integer, ForeignKey("artifacts_files.id"), nullable=True)
-    artifacts_file = (
-        relationship("ArtifactsFile", backref=backref("jobs"))
-        if "ArtifactsFile" in globals()
-        else None
-    )
-    artifacts = (
-        relationship("Artifact", backref=backref("jobs"))
-        if "Artifact" in globals()
-        else None
-    )
+    artifacts_file = relationship("ArtifactsFile", backref=backref("jobs"))
+
+    artifacts = relationship("Artifact", backref=backref("jobs"))
 
 
 # Pipeline Model
@@ -1406,19 +1197,12 @@ class Pipeline(Base):
     source = Column(String, nullable=True)
 
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    user = (
-        relationship("User", backref=backref("pipelines"))
-        if "User" in globals()
-        else None
-    )
+    user = relationship("User", backref=backref("pipelines"))
+
     detailed_status_id = Column(
         Integer, ForeignKey("detailed_status.id"), nullable=True
     )
-    detailed_status = (
-        relationship("DetailedStatus", backref=backref("pipelines"))
-        if "DetailedStatus" in globals()
-        else None
-    )
+    detailed_status = relationship("DetailedStatus", backref=backref("pipelines"))
 
 
 # PackageLink Model
@@ -1440,14 +1224,10 @@ class PackageVersion(Base):
     version = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=True)
 
-    pipelines = (
-        relationship(
-            "Pipeline",
-            secondary="package_version_pipelines",
-            backref=backref("package_versions"),
-        )
-        if "Pipeline" in globals()
-        else None
+    pipelines = relationship(
+        "Pipeline",
+        secondary="package_version_pipelines",
+        backref=backref("package_versions"),
     )
 
 
@@ -1470,23 +1250,12 @@ class Package(Base):
     file_sha256 = Column(String, nullable=True)
 
     links_id = Column(Integer, ForeignKey("package_links.id"), nullable=True)
-    links = (
-        relationship("PackageLink", backref=backref("packages"))
-        if "PackageLink" in globals()
-        else None
+    links = relationship("PackageLink", backref=backref("packages"))
+
+    pipelines = relationship(
+        "Pipeline", secondary="package_pipelines", backref=backref("packages")
     )
-    pipelines = (
-        relationship(
-            "Pipeline", secondary="package_pipelines", backref=backref("packages")
-        )
-        if "Pipeline" in globals()
-        else None
-    )
-    versions = (
-        relationship("PackageVersion", backref=backref("packages"))
-        if "PackageVersion" in globals()
-        else None
-    )
+    versions = relationship("PackageVersion", backref=backref("packages"))
 
 
 # Contributor Model
@@ -1522,7 +1291,7 @@ class CommitSignature(Base):
     signature_type = Column(String, nullable=True)
     verification_status = Column(String, nullable=True)
     commit_source = Column(String, nullable=True)
-    gpg_key_id = Column(Integer, nullable=True)
+    gpg_key_id = Column(Integer, ForeignKey("gpg_keys.id"), nullable=True)
     gpg_key_primary_keyid = Column(String, nullable=True)
     gpg_key_user_name = Column(String, nullable=True)
     gpg_key_user_email = Column(String, nullable=True)
@@ -1530,6 +1299,8 @@ class CommitSignature(Base):
     key = Column(JSON, nullable=True)
     x509_certificate = Column(JSON, nullable=True)
     message = Column(String, nullable=True)
+
+    gpg_key = relationship("GPGKey", backref=backref("commit_signatures"))
 
 
 # Comment Model
@@ -1556,11 +1327,7 @@ class Comment(Base):
     line = Column(Integer, nullable=True)
 
     author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    author = (
-        relationship("User", backref=backref("comments"))
-        if "User" in globals()
-        else None
-    )
+    author = relationship("User", backref=backref("comments"))
 
 
 # Commit Model
@@ -1599,34 +1366,18 @@ class Commit(Base):
     coverage = Column(Float, nullable=True)
 
     author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    author = (
-        relationship("User", backref=backref("commits"))
-        if "User" in globals()
-        else None
-    )
+    author = relationship("User", backref=backref("commits"))
+
     stats_id = Column(Integer, ForeignKey("commit_stats.id"), nullable=True)
-    stats = (
-        relationship("CommitStats", backref=backref("commits"))
-        if "CommitStats" in globals()
-        else None
-    )
+    stats = relationship("CommitStats", backref=backref("commits"))
+
     last_pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
-    last_pipeline = (
-        relationship("Pipeline", backref=backref("commits"))
-        if "Pipeline" in globals()
-        else None
-    )
+    last_pipeline = relationship("Pipeline", backref=backref("commits"))
+
     signature_id = Column(Integer, ForeignKey("commit_signatures.id"), nullable=True)
-    signature = (
-        relationship("CommitSignature", backref=backref("commits"))
-        if "CommitSignature" in globals()
-        else None
-    )
-    notes = (
-        relationship("Comment", backref=backref("commit_comments"))
-        if "Comment" in globals()
-        else None
-    )
+    signature = relationship("CommitSignature", backref=backref("commits"))
+
+    notes = relationship("Comment", backref=backref("commit_comments"))
 
 
 # Membership Model
@@ -1651,7 +1402,7 @@ class Issue(Base):
     base_type = Column(String, default="Issue")
     state = Column(String, nullable=True)
     description = Column(String, nullable=True)
-    project_id = Column(Integer, nullable=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
     type = Column(String, nullable=True)
     updated_at = Column(DateTime, nullable=True)
     closed_at = Column(DateTime, nullable=True)
@@ -1689,38 +1440,16 @@ class Issue(Base):
     iteration_id = Column(Integer, ForeignKey("iterations.id"), nullable=True)
     epic_id = Column(Integer, ForeignKey("epics.id"), nullable=True)
 
-    author = (
-        relationship("User", backref=backref("authored_issues"))
-        if "User" in globals()
-        else None
+    author = relationship("User", backref=backref("authored_issues"))
+    milestone = relationship("Milestone", backref=backref("issues"))
+    assignee = relationship(
+        "User", foreign_keys=[assignee_id], backref=backref("assigned_issues")
     )
-    milestone = (
-        relationship("Milestone", backref=backref("issues"))
-        if "Milestone" in globals()
-        else None
+    closed_by = relationship(
+        "User", foreign_keys=[closed_by_id], backref=backref("closed_issues")
     )
-    assignee = (
-        relationship(
-            "User", foreign_keys=[assignee_id], backref=backref("assigned_issues")
-        )
-        if "User" in globals()
-        else None
-    )
-    closed_by = (
-        relationship(
-            "User", foreign_keys=[closed_by_id], backref=backref("closed_issues")
-        )
-        if "User" in globals()
-        else None
-    )
-    iteration = (
-        relationship("Iteration", backref=backref("issues"))
-        if "Iteration" in globals()
-        else None
-    )
-    epic = (
-        relationship("Epic", backref=backref("issues")) if "Epic" in globals() else None
-    )
+    iteration = relationship("Iteration", backref=backref("issues"))
+    epic = relationship("Epic", backref=backref("issues"))
 
 
 class IssueStats(Base):
@@ -1752,11 +1481,7 @@ class Milestone(Base):
     closed_at = Column(DateTime, nullable=True)
 
     issue_stats_id = Column(Integer, ForeignKey("issue_stats.id"), nullable=True)
-    issue_stats = (
-        relationship("IssueStats", backref=backref("milestones"))
-        if "IssueStats" in globals()
-        else None
-    )
+    issue_stats = relationship("IssueStats", backref=backref("milestones"))
 
 
 # TimeStats Model
@@ -1864,6 +1589,8 @@ class Iteration(Base):
     due_date = Column(String, nullable=True)
     web_url = Column(String, nullable=True)
 
+    group = relationship("Group", backref=backref("iterations"))
+
 
 # Identity Model
 class Identity(Base):
@@ -1873,6 +1600,9 @@ class Identity(Base):
     base_type = Column(String, default="Identity")
     provider = Column(String, nullable=True)
     extern_uid = Column(String, nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    user = relationship("User", backref=backref("identities"))
 
 
 # GroupSamlIdentity Model
@@ -1883,7 +1613,13 @@ class GroupSamlIdentity(Base):
     base_type = Column(String, default="GroupSamlIdentity")
     extern_uid = Column(String, nullable=True)
     provider = Column(String, nullable=True)
-    saml_provider_id = Column(Integer, nullable=True)
+    saml_provider_id = Column(Integer, ForeignKey("saml_providers.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    saml_provider = relationship(
+        "SamlProvider", backref=backref("group_saml_identities")
+    )
+    user = relationship("User", backref=backref("group_saml_identities"))
 
 
 # CreatedBy Model
@@ -1897,6 +1633,9 @@ class CreatedBy(Base):
     state = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
     web_url = Column(String, nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    user = relationship("User", backref=backref("created_by"))
 
 
 # User Model
@@ -1906,7 +1645,6 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="User")
     username = Column(String, nullable=True)
-    user = Column(String, nullable=True)
     email = Column(String, nullable=True)
     name = Column(String, nullable=True)
     state = Column(String, nullable=True)
@@ -1939,7 +1677,6 @@ class User(Base):
     private_profile = Column(Boolean, nullable=True)
     current_sign_in_ip = Column(String, nullable=True)
     last_sign_in_ip = Column(String, nullable=True)
-    namespace_id = Column(Integer, ForeignKey("namespaces.id"), nullable=True)
     email_reset_offered_at = Column(DateTime, nullable=True)
     expires_at = Column(DateTime, nullable=True)
     access_level = Column(Integer, nullable=True)
@@ -1959,25 +1696,16 @@ class User(Base):
     removable = Column(Boolean, nullable=True)
     last_login_at = Column(DateTime, nullable=True)
 
-    identities = (
-        relationship("Identity", backref=backref("users"))
-        if "Identity" in globals()
-        else None
-    )
     created_by_id = Column(Integer, ForeignKey("created_by.id"), nullable=True)
-    created_by = (
-        relationship("CreatedBy", backref=backref("users"))
-        if "CreatedBy" in globals()
-        else None
-    )
+    created_by = relationship("CreatedBy", backref=backref("users"))
+
     group_saml_identity_id = Column(
         Integer, ForeignKey("group_saml_identities.id"), nullable=True
     )
-    group_saml_identity = (
-        relationship("GroupSamlIdentity", backref=backref("users"))
-        if "GroupSamlIdentity" in globals()
-        else None
-    )
+    group_saml_identity = relationship("GroupSamlIdentity", backref=backref("users"))
+
+    namespace_id = Column(Integer, ForeignKey("namespaces.id"), nullable=True)
+    namespace = relationship("Namespace", backref=backref("users"))
 
 
 # Namespace Model
@@ -1993,6 +1721,8 @@ class Namespace(Base):
     parent_id = Column(Integer, ForeignKey("namespaces.id"), nullable=True)
     avatar_url = Column(String, nullable=True)
     web_url = Column(String, nullable=True)
+
+    parent = relationship("Namespace", remote_side=[id])
 
 
 # ContainerExpirationPolicy Model
@@ -2082,6 +1812,8 @@ class Diff(Base):
     deleted_file = Column(Boolean, nullable=True)
     generated_file = Column(Boolean, nullable=True)
 
+    merge_request = relationship("MergeRequest", backref=backref("diffs"))
+
 
 class MergeApprovals(Base):
     __tablename__ = "merge_approvals"
@@ -2168,7 +1900,9 @@ class Epic(Base):
     iid = Column(Integer, nullable=True)
     title = Column(String, nullable=True)
     url = Column(String, nullable=True)
-    group_id = Column(Integer, nullable=True)
+    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
+
+    group = relationship("Group", backref=backref("epics"))
 
 
 # TestCase Model
