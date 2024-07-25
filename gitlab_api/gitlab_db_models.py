@@ -15,11 +15,11 @@ from sqlalchemy import (
     JSON,
 )
 
-Base = declarative_base()
+BaseDBModel = declarative_base()
 
 
 # Evidence Model
-class Evidence(Base):
+class EvidenceDBModel(BaseDBModel):
     __tablename__ = "evidences"
 
     id = Column(Integer, primary_key=True)
@@ -30,7 +30,7 @@ class Evidence(Base):
 
 
 # IssueStats Model
-class IssueStats(Base):
+class IssueStatsDBModel(BaseDBModel):
     __tablename__ = "issue_stats"
 
     id = Column(Integer, primary_key=True)
@@ -41,7 +41,7 @@ class IssueStats(Base):
 
 
 # Milestone Model
-class Milestone(Base):
+class MilestoneDBModel(BaseDBModel):
     __tablename__ = "milestones"
 
     id = Column(Integer, primary_key=True)
@@ -68,7 +68,7 @@ class Milestone(Base):
         nullable=True,
     )
     issue_stats = relationship(
-        argument="IssueStats",
+        argument="IssueStatsDBModel",
         foreign_keys=[issue_stats_id],
         backref=backref("milestones"),
     )
@@ -79,14 +79,14 @@ class Milestone(Base):
         nullable=True,
     )
     releases = relationship(
-        argument="Release",
+        argument="ReleaseDBModel",
         foreign_keys=[release_id],
         backref=backref("milestone_associations"),
     )
 
 
 # DeployToken Model
-class DeployToken(Base):
+class DeployTokenDBModel(BaseDBModel):
     __tablename__ = "deploy_tokens"
 
     id = Column(Integer, primary_key=True)
@@ -108,12 +108,12 @@ class DeployToken(Base):
         nullable=True,
     )
     user = relationship(
-        argument="User", foreign_keys=[user_id], backref=backref("deploy_tokens")
+        argument="UserDBModel", foreign_keys=[user_id], backref=backref("deploy_tokens")
     )
 
 
 # Rule Model
-class Rule(Base):
+class RuleDBModel(BaseDBModel):
     __tablename__ = "rules"
 
     id = Column(Integer, primary_key=True)
@@ -134,7 +134,7 @@ class Rule(Base):
 
 
 # AccessControl Model
-class AccessControl(Base):
+class AccessControlDBModel(BaseDBModel):
     __tablename__ = "access_controls"
 
     id = Column(Integer, primary_key=True)
@@ -145,7 +145,7 @@ class AccessControl(Base):
 
 
 # Source Model
-class Source(Base):
+class SourceDBModel(BaseDBModel):
     __tablename__ = "sources"
 
     id = Column(Integer, primary_key=True)
@@ -155,12 +155,12 @@ class Source(Base):
 
     assets_id = Column(Integer, ForeignKey(column="assets.id", name="fk_source_assets"))
     assets = relationship(
-        argument="Assets", foreign_keys=[assets_id], backref=backref("sources")
+        argument="AssetsDBModel", foreign_keys=[assets_id], backref=backref("sources")
     )
 
 
 # Link Model
-class Link(Base):
+class LinkDBModel(BaseDBModel):
     __tablename__ = "link"
 
     id = Column(Integer, primary_key=True)
@@ -171,12 +171,12 @@ class Link(Base):
 
     assets_id = Column(Integer, ForeignKey(column="assets.id", name="fk_link_assets"))
     assets = relationship(
-        argument="Assets", foreign_keys=[assets_id], backref=backref("link")
+        argument="AssetsDBModel", foreign_keys=[assets_id], backref=backref("link")
     )
 
 
 # Assets Model
-class Assets(Base):
+class AssetsDBModel(BaseDBModel):
     __tablename__ = "assets"
 
     id = Column(Integer, primary_key=True)
@@ -186,7 +186,7 @@ class Assets(Base):
 
 
 # ReleaseLinks Model
-class ReleaseLinks(Base):
+class ReleaseLinksDBModel(BaseDBModel):
     __tablename__ = "release_links"
 
     id = Column(Integer, primary_key=True)
@@ -204,12 +204,14 @@ class ReleaseLinks(Base):
         nullable=True,
     )
     release_link_releases = relationship(
-        argument="Release", foreign_keys=[releases_id], backref=backref("release_links")
+        argument="ReleaseDBModel",
+        foreign_keys=[releases_id],
+        backref=backref("release_links"),
     )
 
 
 # Token Model
-class Token(Base):
+class TokenDBModel(BaseDBModel):
     __tablename__ = "tokens"
 
     id = Column(Integer, primary_key=True)
@@ -219,7 +221,7 @@ class Token(Base):
 
 
 # ToDo Model
-class ToDo(Base):
+class ToDoDBModel(BaseDBModel):
     __tablename__ = "todos"
 
     id = Column(Integer, primary_key=True)
@@ -235,26 +237,32 @@ class ToDo(Base):
         Integer, ForeignKey(column="projects.id", name="fk_todo_project"), nullable=True
     )
     project = relationship(
-        argument="Project", foreign_keys=[project_id], backref=backref("todos_project")
+        argument="ProjectDBModel",
+        foreign_keys=[project_id],
+        backref=backref("todos_project"),
     )
 
     author_id = Column(
         Integer, ForeignKey(column="users.id", name="fk_todo_author"), nullable=True
     )
     author = relationship(
-        argument="User", foreign_keys=[author_id], backref=backref("todos_author")
+        argument="UserDBModel",
+        foreign_keys=[author_id],
+        backref=backref("todos_author"),
     )
 
     target_id = Column(
         Integer, ForeignKey(column="issues.id", name="fk_todo_target"), nullable=True
     )
     target = relationship(
-        argument="Issue", foreign_keys=[target_id], backref=backref("todos_target")
+        argument="IssueDBModel",
+        foreign_keys=[target_id],
+        backref=backref("todos_target"),
     )
 
 
 # WikiPage Model
-class WikiPage(Base):
+class WikiPageDBModel(BaseDBModel):
     __tablename__ = "wiki_pages"
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="WikiPage")
@@ -266,7 +274,7 @@ class WikiPage(Base):
 
 
 # WikiAttachmentLink Model
-class WikiAttachmentLink(Base):
+class WikiAttachmentLinkDBModel(BaseDBModel):
     __tablename__ = "wiki_attachment_links"
 
     id = Column(Integer, primary_key=True)
@@ -276,7 +284,7 @@ class WikiAttachmentLink(Base):
 
 
 # PipelineVariable Model
-class PipelineVariable(Base):
+class PipelineVariableDBModel(BaseDBModel):
     __tablename__ = "pipeline_variables"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -287,7 +295,7 @@ class PipelineVariable(Base):
 
 
 # WikiAttachment Model
-class WikiAttachment(Base):
+class WikiAttachmentDBModel(BaseDBModel):
     __tablename__ = "wiki_attachments"
 
     id = Column(Integer, primary_key=True)
@@ -302,14 +310,14 @@ class WikiAttachment(Base):
         nullable=True,
     )
     link = relationship(
-        argument="WikiAttachmentLink",
+        argument="WikiAttachmentLinkDBModel",
         foreign_keys=[link_id],
         backref=backref("wiki_attachments"),
     )
 
 
 # Agent Model
-class Agent(Base):
+class AgentDBModel(BaseDBModel):
     __tablename__ = "agent"
 
     id = Column(Integer, primary_key=True)
@@ -321,14 +329,14 @@ class Agent(Base):
         nullable=True,
     )
     config_project = relationship(
-        argument="ProjectConfig",
+        argument="ProjectConfigDBModel",
         foreign_keys=[config_project_id],
         backref=backref("agent"),
     )
 
 
 # Agents Model
-class Agents(Base):
+class AgentsDBModel(BaseDBModel):
     __tablename__ = "agents"
 
     id = Column(Integer, primary_key=True)
@@ -337,7 +345,9 @@ class Agents(Base):
     job_id = Column(
         Integer, ForeignKey(column="jobs.id", name="fk_agents_jobs"), nullable=True
     )
-    job = relationship(argument="Job", foreign_keys=[job_id], backref=backref("agents"))
+    job = relationship(
+        argument="JobDBModel", foreign_keys=[job_id], backref=backref("agents")
+    )
 
     pipeline_id = Column(
         Integer,
@@ -345,7 +355,9 @@ class Agents(Base):
         nullable=True,
     )
     pipeline = relationship(
-        argument="Pipeline", foreign_keys=[pipeline_id], backref=backref("agents")
+        argument="PipelineDBModel",
+        foreign_keys=[pipeline_id],
+        backref=backref("agents"),
     )
 
     project_id = Column(
@@ -354,19 +366,19 @@ class Agents(Base):
         nullable=True,
     )
     project = relationship(
-        argument="Project", foreign_keys=[project_id], backref=backref("agents")
+        argument="ProjectDBModel", foreign_keys=[project_id], backref=backref("agents")
     )
 
     user_id = Column(
         Integer, ForeignKey(column="users.id", name="fk_agents_users"), nullable=True
     )
     user = relationship(
-        argument="User", foreign_keys=[user_id], backref=backref("agents")
+        argument="UserDBModel", foreign_keys=[user_id], backref=backref("agents")
     )
 
 
 # Release Model
-class Release(Base):
+class ReleaseDBModel(BaseDBModel):
     __tablename__ = "releases"
 
     id = Column(Integer, primary_key=True)
@@ -386,7 +398,7 @@ class Release(Base):
         Integer, ForeignKey(column="users.id", name="fk_release_author"), nullable=True
     )
     author = relationship(
-        argument="User", backref=backref("releases"), foreign_keys=[author_id]
+        argument="UserDBModel", backref=backref("releases"), foreign_keys=[author_id]
     )
 
     commit_id = Column(
@@ -395,7 +407,7 @@ class Release(Base):
         nullable=True,
     )
     commit = relationship(
-        argument="Commit", backref=backref("releases"), foreign_keys=[commit_id]
+        argument="CommitDBModel", backref=backref("releases"), foreign_keys=[commit_id]
     )
     milestones_id = Column(
         Integer,
@@ -403,8 +415,7 @@ class Release(Base):
         nullable=True,
     )
     milestones = relationship(
-        argument="Milestone",
-        # secondary="release_milestones",
+        argument="MilestoneDBModel",
         foreign_keys=[milestones_id],
         backref=backref("release_associations"),
     )
@@ -415,8 +426,7 @@ class Release(Base):
         nullable=True,
     )
     evidences = relationship(
-        argument="Evidence",
-        # secondary="release_evidences",
+        argument="EvidenceDBModel",
         foreign_keys=[evidences_id],
         backref=backref("release_evidences"),
     )
@@ -425,7 +435,7 @@ class Release(Base):
         Integer, ForeignKey(column="assets.id", name="fk_release_assets"), nullable=True
     )
     assets = relationship(
-        argument="Assets", backref=backref("release"), foreign_keys=[assets_id]
+        argument="AssetsDBModel", backref=backref("release"), foreign_keys=[assets_id]
     )
 
     links_id = Column(
@@ -434,12 +444,14 @@ class Release(Base):
         nullable=True,
     )
     links = relationship(
-        argument="ReleaseLinks", backref=backref("release"), foreign_keys=[links_id]
+        argument="ReleaseLinksDBModel",
+        backref=backref("release"),
+        foreign_keys=[links_id],
     )
 
 
 # AccessLevel Model
-class AccessLevel(Base):
+class AccessLevelDBModel(BaseDBModel):
     __tablename__ = "access_levels"
 
     id = Column(Integer, primary_key=True)
@@ -454,7 +466,7 @@ class AccessLevel(Base):
         nullable=True,
     )
     user = relationship(
-        argument="User", foreign_keys=[user_id], backref=backref("access_levels")
+        argument="UserDBModel", foreign_keys=[user_id], backref=backref("access_levels")
     )
 
     group_id = Column(
@@ -463,12 +475,14 @@ class AccessLevel(Base):
         nullable=True,
     )
     group = relationship(
-        argument="Group", foreign_keys=[group_id], backref=backref("access_levels")
+        argument="GroupDBModel",
+        foreign_keys=[group_id],
+        backref=backref("access_levels"),
     )
 
 
 # Branch Model
-class Branch(Base):
+class BranchDBModel(BaseDBModel):
     __tablename__ = "branches"
 
     id = Column(Integer, primary_key=True)
@@ -490,7 +504,7 @@ class Branch(Base):
         ForeignKey(column="commits.id", name="fk_branch_commits"),
         nullable=True,
     )
-    commit = relationship(argument="Commit", backref=backref("branches_commit"))
+    commit = relationship(argument="CommitDBModel", backref=backref("branches_commit"))
 
     push_access_levels_id = Column(
         Integer,
@@ -498,8 +512,7 @@ class Branch(Base):
         nullable=True,
     )
     push_access_levels = relationship(
-        argument="AccessLevel",
-        # secondary="branch_push_access_levels",
+        argument="AccessLevelDBModel",
         foreign_keys=[push_access_levels_id],
         backref=backref("branches_push_access_levels"),
     )
@@ -510,8 +523,7 @@ class Branch(Base):
         nullable=True,
     )
     merge_access_levels = relationship(
-        argument="AccessLevel",
-        # secondary="branch_merge_access_levels",
+        argument="AccessLevelDBModel",
         foreign_keys=[merge_access_levels_id],
         backref=backref("branches_merge_access_levels"),
     )
@@ -522,15 +534,14 @@ class Branch(Base):
         nullable=True,
     )
     unprotect_access_levels = relationship(
-        argument="AccessLevel",
-        # secondary="branch_unprotect_access_levels",
+        argument="AccessLevelDBModel",
         foreign_keys=[unprotect_access_levels_id],
         backref=backref("branches_unprotect_access_levels"),
     )
 
 
 # Label Model
-class Label(Base):
+class LabelDBModel(BaseDBModel):
     __tablename__ = "labels"
 
     id = Column(Integer, primary_key=True, autoincrement=False)
@@ -548,7 +559,7 @@ class Label(Base):
 
 
 # ApprovalRule Model
-class ApprovalRule(Base):
+class ApprovalRuleDBModel(BaseDBModel):
     __tablename__ = "approval_rules"
 
     id = Column(Integer, primary_key=True)
@@ -568,8 +579,7 @@ class ApprovalRule(Base):
         nullable=True,
     )
     eligible_approvers = relationship(
-        argument="User",
-        # secondary="approval_rule_eligible_approvers",
+        argument="UserDBModel",
         foreign_keys=[eligible_approvers_id],
         backref=backref("approval_rules"),
     )
@@ -580,8 +590,7 @@ class ApprovalRule(Base):
         nullable=True,
     )
     users = relationship(
-        argument="User",
-        # secondary="approval_rule_users",
+        argument="UserDBModel",
         foreign_keys=[users_id],
         backref=backref("approval_rules_users"),
     )
@@ -592,8 +601,7 @@ class ApprovalRule(Base):
         nullable=True,
     )
     groups = relationship(
-        argument="Group",
-        # secondary="approval_rule_groups",
+        argument="GroupDBModel",
         foreign_keys=[groups_id],
         backref=backref("approval_rules_groups"),
     )
@@ -604,8 +612,7 @@ class ApprovalRule(Base):
         nullable=True,
     )
     protected_branches = relationship(
-        argument="Branch",
-        # secondary="approval_rule_protected_branches",
+        argument="BranchDBModel",
         foreign_keys=[protected_branches_id],
         backref=backref("approval_rules_branches"),
     )
@@ -616,15 +623,14 @@ class ApprovalRule(Base):
         nullable=True,
     )
     approved_by = relationship(
-        argument="ApprovedBy",
-        # secondary="approval_rule_approved_by",
+        argument="ApprovedByDBModel",
         foreign_keys=[approved_by_id],
         backref=backref("approval_rules_approved_by"),
     )
 
 
 # MergeRequest Model
-class MergeRequest(Base):
+class MergeRequestDBModel(BaseDBModel):
     __tablename__ = "merge_requests"
 
     id = Column(Integer, primary_key=True)
@@ -690,7 +696,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     author = relationship(
-        argument="User",
+        argument="UserDBModel",
         foreign_keys=[author_id],
         backref=backref("authored_merge_requests"),
     )
@@ -701,7 +707,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     assignee = relationship(
-        argument="User",
+        argument="UserDBModel",
         foreign_keys=[assignee_id],
         backref=backref("assigned_merge_requests"),
     )
@@ -712,7 +718,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     milestone = relationship(
-        argument="Milestone",
+        argument="MilestoneDBModel",
         foreign_keys=[milestone_id],
         backref=backref("merge_requests"),
     )
@@ -723,7 +729,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     merged_by = relationship(
-        argument="User",
+        argument="UserDBModel",
         foreign_keys=[merged_by_id],
         backref=backref("merged_merge_requests"),
     )
@@ -734,7 +740,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     closed_by = relationship(
-        argument="User",
+        argument="UserDBModel",
         foreign_keys=[closed_by_id],
         backref=backref("closed_merge_requests"),
     )
@@ -745,7 +751,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     pipeline = relationship(
-        argument="Pipeline",
+        argument="PipelineDBModel",
         foreign_keys=[pipeline_id],
         backref=backref("merge_requests_pipeline"),
     )
@@ -756,7 +762,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     head_pipeline = relationship(
-        argument="Pipeline",
+        argument="PipelineDBModel",
         foreign_keys=[head_pipeline_id],
         backref=backref("head_merge_requests"),
     )
@@ -767,7 +773,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     projects = relationship(
-        argument="Project",
+        argument="ProjectDBModel",
         foreign_keys=[project_id],
         backref=backref("project_merge_requests"),
     )
@@ -778,8 +784,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     labels = relationship(
-        argument="Label",
-        # secondary="merge_request_labels",
+        argument="LabelDBModel",
         foreign_keys=[labels_id],
         backref=backref("merge_requests_labels"),
     )
@@ -790,7 +795,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     references = relationship(
-        argument="References",
+        argument="ReferencesDBModel",
         foreign_keys=[references_id],
         backref=backref("merge_requests"),
     )
@@ -802,7 +807,7 @@ class MergeRequest(Base):
     )
 
     time_stats = relationship(
-        argument="TimeStats",
+        argument="TimeStatsDBModel",
         foreign_keys=[time_stats_id],
         backref=backref("merge_requests"),
     )
@@ -816,7 +821,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     task_completion_status = relationship(
-        argument="TaskCompletionStatus",
+        argument="TaskCompletionStatusDBModel",
         foreign_keys=[task_completion_status_id],
         backref=backref("merge_requests"),
     )
@@ -827,7 +832,9 @@ class MergeRequest(Base):
         nullable=True,
     )
     changes = relationship(
-        argument="Diff", foreign_keys=[change_id], backref=backref("merge_requests")
+        argument="DiffDBModel",
+        foreign_keys=[change_id],
+        backref=backref("merge_requests"),
     )
 
     reviewers_id = Column(
@@ -836,8 +843,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     reviewers = relationship(
-        argument="User",
-        # secondary="merge_request_reviewers",
+        argument="UserDBModel",
         foreign_keys=[reviewers_id],
         backref=backref("reviewed_merge_requests"),
     )
@@ -848,7 +854,7 @@ class MergeRequest(Base):
         nullable=True,
     )
     approved_by = relationship(
-        argument="ApprovedBy",
+        argument="ApprovedByDBModel",
         foreign_keys=[approved_by_id],
         backref=backref("approved_users_merge_request"),
     )
@@ -859,14 +865,14 @@ class MergeRequest(Base):
         nullable=True,
     )
     approval_rules = relationship(
-        argument="ApprovalRule",
+        argument="ApprovalRuleDBModel",
         foreign_keys=[approval_rules_id],
         backref=backref("approval_rules_merge_request"),
     )
 
 
 # GroupAccess Model
-class GroupAccess(Base):
+class GroupAccessDBModel(BaseDBModel):
     __tablename__ = "group_accesses"
 
     id = Column(Integer, primary_key=True)
@@ -875,7 +881,7 @@ class GroupAccess(Base):
 
 
 # DefaultBranchProtectionDefaults Model
-class DefaultBranchProtectionDefaults(Base):
+class DefaultBranchProtectionDefaultsDBModel(BaseDBModel):
     __tablename__ = "default_branch_protection_defaults"
 
     id = Column(Integer, primary_key=True)
@@ -887,8 +893,7 @@ class DefaultBranchProtectionDefaults(Base):
         nullable=True,
     )
     allowed_to_push = relationship(
-        argument="GroupAccess",
-        # secondary="default_branch_protection_push_access",
+        argument="GroupAccessDBModel",
         foreign_keys=[allowed_to_push_id],
         backref=backref("push_defaults"),
     )
@@ -898,15 +903,14 @@ class DefaultBranchProtectionDefaults(Base):
         nullable=True,
     )
     allowed_to_merge = relationship(
-        argument="GroupAccess",
-        # secondary="default_branch_protection_merge_access",
+        argument="GroupAccessDBModel",
         foreign_keys=[allowed_to_merge_id],
         backref=backref("merge_defaults"),
     )
 
 
 # Group Model
-class Group(Base):
+class GroupDBModel(BaseDBModel):
     __tablename__ = "groups"
 
     id = Column(Integer, primary_key=True)
@@ -963,7 +967,7 @@ class Group(Base):
         nullable=True,
     )
     default_branch_protection_defaults = relationship(
-        argument="DefaultBranchProtectionDefaults",
+        argument="DefaultBranchProtectionDefaultsDBModel",
         foreign_keys=[default_branch_protection_defaults_id],
         backref=backref("groups"),
     )
@@ -973,7 +977,9 @@ class Group(Base):
         nullable=True,
     )
     statistics = relationship(
-        argument="Statistics", foreign_keys=[statistics_id], backref=backref("groups")
+        argument="StatisticsDBModel",
+        foreign_keys=[statistics_id],
+        backref=backref("groups"),
     )
     projects_id = Column(
         Integer,
@@ -981,7 +987,7 @@ class Group(Base):
         nullable=True,
     )
     projects = relationship(
-        argument="Project",
+        argument="ProjectDBModel",
         foreign_keys=[projects_id],
         backref=backref("group_projects"),
     )
@@ -991,8 +997,7 @@ class Group(Base):
         nullable=True,
     )
     shared_projects = relationship(
-        argument="Project",
-        # secondary="project_shared_with_groups",
+        argument="ProjectDBModel",
         foreign_keys=[shared_projects_id],
         backref=backref("shared_group_projects"),
     )
@@ -1000,11 +1005,13 @@ class Group(Base):
     parent_id = Column(
         Integer, ForeignKey(column="groups.id", name="fk_"), nullable=True
     )
-    parent = relationship(argument="Group", foreign_keys=[parent_id], remote_side=[id])
+    parent = relationship(
+        argument="GroupDBModel", foreign_keys=[parent_id], remote_side=[id]
+    )
 
 
 # Webhook Model
-class Webhook(Base):
+class WebhookDBModel(BaseDBModel):
     __tablename__ = "webhooks"
 
     id = Column(Integer, primary_key=True)
@@ -1040,11 +1047,11 @@ class Webhook(Base):
         Integer, ForeignKey(column="groups.id", name="fk_webhook_group"), nullable=False
     )
     group = relationship(
-        argument="Group", foreign_keys=[group_id], backref=backref("webhooks")
+        argument="GroupDBModel", foreign_keys=[group_id], backref=backref("webhooks")
     )
 
 
-class ApprovedBy(Base):
+class ApprovedByDBModel(BaseDBModel):
     __tablename__ = "approved_by"
 
     id = Column(Integer, primary_key=True)
@@ -1056,12 +1063,14 @@ class ApprovedBy(Base):
         nullable=True,
     )
     user = relationship(
-        argument="User", foreign_keys=[user_id], backref=backref("approved_by_users")
+        argument="UserDBModel",
+        foreign_keys=[user_id],
+        backref=backref("approved_by_users"),
     )
 
 
 # Project Model
-class Project(Base):
+class ProjectDBModel(BaseDBModel):
     __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True)
@@ -1198,14 +1207,18 @@ class Project(Base):
         Integer, ForeignKey(column="users.id", name="fk_owner"), nullable=True
     )
     owner = relationship(
-        argument="User", foreign_keys=[owner_id], backref=backref("owned_projects")
+        argument="UserDBModel",
+        foreign_keys=[owner_id],
+        backref=backref("owned_projects"),
     )
 
     creator_id = Column(
         Integer, ForeignKey(column="users.id", name="fk_creator"), nullable=True
     )
     creator = relationship(
-        argument="User", foreign_keys=[creator_id], backref=backref("created_projects")
+        argument="UserDBModel",
+        foreign_keys=[creator_id],
+        backref=backref("created_projects"),
     )
 
     namespace_id = Column(
@@ -1214,7 +1227,9 @@ class Project(Base):
         nullable=True,
     )
     namespace = relationship(
-        argument="Namespace", foreign_keys=[namespace_id], backref=backref("projects")
+        argument="NamespaceDBModel",
+        foreign_keys=[namespace_id],
+        backref=backref("projects"),
     )
 
     container_expiration_policy_id = Column(
@@ -1226,7 +1241,7 @@ class Project(Base):
         nullable=True,
     )
     container_expiration_policy = relationship(
-        argument="ContainerExpirationPolicy",
+        argument="ContainerExpirationPolicyDBModel",
         foreign_keys=[container_expiration_policy_id],
         backref=backref("projects"),
     )
@@ -1237,7 +1252,7 @@ class Project(Base):
         nullable=True,
     )
     statistics = relationship(
-        argument="Statistics",
+        argument="StatisticsDBModel",
         foreign_keys=[statistics_id],
         backref=backref("projects_statistics"),
     )
@@ -1246,7 +1261,9 @@ class Project(Base):
         Integer, ForeignKey(column="links.id", name="fk_project_links"), nullable=True
     )
     links = relationship(
-        argument="Links", foreign_keys=[links_id], backref=backref("projects_links")
+        argument="LinksDBModel",
+        foreign_keys=[links_id],
+        backref=backref("projects_links"),
     )
 
     permissions_id = Column(
@@ -1255,7 +1272,7 @@ class Project(Base):
         nullable=True,
     )
     permissions = relationship(
-        argument="Permissions",
+        argument="PermissionsDBModel",
         foreign_keys=[permissions_id],
         backref=backref("projects"),
     )
@@ -1266,15 +1283,14 @@ class Project(Base):
         nullable=True,
     )
     shared_with_groups = relationship(
-        argument="Group",
-        # secondary="project_shared_with_groups",
+        argument="GroupDBModel",
         foreign_keys=[shared_with_groups_id],
         backref=backref("shared_projects_with_group"),
     )
 
 
 # Runner Model
-class Runner(Base):
+class RunnerDBModel(BaseDBModel):
     __tablename__ = "runners"
 
     id = Column(Integer, primary_key=True)
@@ -1304,15 +1320,14 @@ class Runner(Base):
         nullable=True,
     )
     projects = relationship(
-        argument="Project",
-        # secondary="runner_projects",
+        argument="ProjectDBModel",
         foreign_keys=[projects_id],
         backref=backref("runners"),
     )
 
 
 # Job Model
-class Job(Base):
+class JobDBModel(BaseDBModel):
     __tablename__ = "jobs"
 
     id = Column(Integer, primary_key=True)
@@ -1340,7 +1355,9 @@ class Job(Base):
         Integer, ForeignKey(column="commits.id", name="fk_job_commit"), nullable=True
     )
     commit = relationship(
-        argument="Commit", foreign_keys=[commit_id], backref=backref("jobs_commits")
+        argument="CommitDBModel",
+        foreign_keys=[commit_id],
+        backref=backref("jobs_commits"),
     )
 
     pipeline_id = Column(
@@ -1349,7 +1366,7 @@ class Job(Base):
         nullable=True,
     )
     pipeline = relationship(
-        argument="Pipeline",
+        argument="PipelineDBModel",
         foreign_keys=[pipeline_id],
         backref=backref("jobs_pipeline"),
     )
@@ -1357,7 +1374,7 @@ class Job(Base):
     runner_id = Column(
         Integer, ForeignKey(column="runners.id", name="fk_job_runner"), nullable=True
     )
-    runner = relationship(argument="Runner", backref=backref("jobs_runner"))
+    runner = relationship(argument="RunnerDBModel", backref=backref("jobs_runner"))
 
     runner_manager_id = Column(
         Integer,
@@ -1365,7 +1382,7 @@ class Job(Base):
         nullable=True,
     )
     runner_manager = relationship(
-        argument="RunnerManager",
+        argument="RunnerManagerDBModel",
         foreign_keys=[runner_manager_id],
         backref=backref("jobs_runner_manager"),
     )
@@ -1373,13 +1390,13 @@ class Job(Base):
     project_id = Column(
         Integer, ForeignKey(column="projects.id", name="fk_job_project"), nullable=True
     )
-    project = relationship(argument="Project", backref=backref("jobs_projects"))
+    project = relationship(argument="ProjectDBModel", backref=backref("jobs_projects"))
 
     user_id = Column(
         Integer, ForeignKey(column="users.id", name="fk_job_user"), nullable=True
     )
     user = relationship(
-        argument="User", foreign_keys=[user_id], backref=backref("jobs_users")
+        argument="UserDBModel", foreign_keys=[user_id], backref=backref("jobs_users")
     )
 
     downstream_pipeline_id = Column(
@@ -1388,7 +1405,7 @@ class Job(Base):
         nullable=True,
     )
     downstream_pipeline = relationship(
-        argument="Pipeline",
+        argument="PipelineDBModel",
         foreign_keys=[downstream_pipeline_id],
         backref=backref("jobs_downstream"),
     )
@@ -1399,7 +1416,7 @@ class Job(Base):
         nullable=True,
     )
     artifacts_file = relationship(
-        argument="ArtifactsFile", backref=backref("jobs_artifact_file")
+        argument="ArtifactsFileDBModel", backref=backref("jobs_artifact_file")
     )
 
     artifacts_id = Column(
@@ -1407,11 +1424,13 @@ class Job(Base):
         ForeignKey(column="artifacts.id", name="fk_job_artifacts"),
         nullable=True,
     )
-    artifacts = relationship(argument="Artifact", backref=backref("jobs_artifacts"))
+    artifacts = relationship(
+        argument="ArtifactDBModel", backref=backref("jobs_artifacts")
+    )
 
 
 # Pipeline Model
-class Pipeline(Base):
+class PipelineDBModel(BaseDBModel):
     __tablename__ = "pipelines"
 
     id = Column(Integer, primary_key=True)
@@ -1444,7 +1463,9 @@ class Pipeline(Base):
         Integer, ForeignKey(column="users.id", name="fk_pipeline_user"), nullable=True
     )
     user = relationship(
-        argument="User", foreign_keys=[user_id], backref=backref("pipelines_user")
+        argument="UserDBModel",
+        foreign_keys=[user_id],
+        backref=backref("pipelines_user"),
     )
 
     detailed_status_id = Column(
@@ -1453,7 +1474,7 @@ class Pipeline(Base):
         nullable=True,
     )
     detailed_status = relationship(
-        argument="DetailedStatus",
+        argument="DetailedStatusDBModel",
         foreign_keys=[detailed_status_id],
         backref=backref("pipelines_status"),
     )
@@ -1462,12 +1483,12 @@ class Pipeline(Base):
         Integer, ForeignKey(column="jobs.id", name="fk_pipeline_job"), nullable=True
     )
     jobs = relationship(
-        argument="Job", foreign_keys=[job_id], backref=backref("pipeline_jobs")
+        argument="JobDBModel", foreign_keys=[job_id], backref=backref("pipeline_jobs")
     )
 
 
 # PackageLink Model
-class PackageLink(Base):
+class PackageLinkDBModel(BaseDBModel):
     __tablename__ = "package_links"
 
     id = Column(Integer, primary_key=True)
@@ -1477,7 +1498,7 @@ class PackageLink(Base):
 
 
 # PackageVersion Model
-class PackageVersion(Base):
+class PackageVersionDBModel(BaseDBModel):
     __tablename__ = "package_versions"
 
     id = Column(Integer, primary_key=True)
@@ -1491,7 +1512,7 @@ class PackageVersion(Base):
         nullable=True,
     )
     pipelines = relationship(
-        argument="Pipeline",
+        argument="PipelineDBModel",
         foreign_keys=[pipeline_id],
         backref=backref("pipeline_package_versions"),
     )
@@ -1501,14 +1522,14 @@ class PackageVersion(Base):
         nullable=True,
     )
     packages = relationship(
-        argument="Package",
+        argument="PackageDBModel",
         foreign_keys=[package_id],
         backref=backref("package_versions_package"),
     )
 
 
 # Package Model
-class Package(Base):
+class PackageDBModel(BaseDBModel):
     __tablename__ = "packages"
 
     id = Column(Integer, primary_key=True)
@@ -1531,7 +1552,7 @@ class Package(Base):
         nullable=True,
     )
     links = relationship(
-        argument="PackageLink",
+        argument="PackageLinkDBModel",
         foreign_keys=[links_id],
         backref=backref("packages_links"),
     )
@@ -1542,7 +1563,9 @@ class Package(Base):
         nullable=True,
     )
     pipelines = relationship(
-        argument="Pipeline", foreign_keys=[pipeline_id], backref=backref("packages")
+        argument="PipelineDBModel",
+        foreign_keys=[pipeline_id],
+        backref=backref("packages"),
     )
     versions_id = Column(
         Integer,
@@ -1550,14 +1573,14 @@ class Package(Base):
         nullable=True,
     )
     package_versions = relationship(
-        argument="PackageVersion",
+        argument="PackageVersionDBModel",
         foreign_keys=[versions_id],
         backref=backref("packages_versions"),
     )
 
 
 # Contributor Model
-class Contributor(Base):
+class ContributorDBModel(BaseDBModel):
     __tablename__ = "contributors"
 
     id = Column(Integer, primary_key=True)
@@ -1570,7 +1593,7 @@ class Contributor(Base):
 
 
 # CommitStats Model
-class CommitStats(Base):
+class CommitStatsDBModel(BaseDBModel):
     __tablename__ = "commit_stats"
 
     id = Column(Integer, primary_key=True)
@@ -1581,7 +1604,7 @@ class CommitStats(Base):
 
 
 # CommitSignature Model
-class CommitSignature(Base):
+class CommitSignatureDBModel(BaseDBModel):
     __tablename__ = "commit_signatures"
 
     id = Column(Integer, primary_key=True)
@@ -1600,7 +1623,7 @@ class CommitSignature(Base):
 
 
 # Comment Model
-class Comment(Base):
+class CommentDBModel(BaseDBModel):
     __tablename__ = "comments"
 
     id = Column(Integer, primary_key=True)
@@ -1626,7 +1649,7 @@ class Comment(Base):
         Integer, ForeignKey(column="users.id", name="fk_comment_author"), nullable=True
     )
     author = relationship(
-        argument="User", foreign_keys=[author_id], backref=backref("comments")
+        argument="UserDBModel", foreign_keys=[author_id], backref=backref("comments")
     )
 
     commits_id = Column(
@@ -1635,12 +1658,14 @@ class Comment(Base):
         nullable=True,
     )
     commits = relationship(
-        argument="Commit", foreign_keys=[commits_id], backref=backref("commit_comments")
+        argument="CommitDBModel",
+        foreign_keys=[commits_id],
+        backref=backref("commit_comments"),
     )
 
 
 # Commit Model
-class Commit(Base):
+class CommitDBModel(BaseDBModel):
     __tablename__ = "commits"
 
     id = Column(Integer, primary_key=True)
@@ -1678,7 +1703,9 @@ class Commit(Base):
         Integer, ForeignKey(column="users.id", name="fk_commit_author"), nullable=True
     )
     author = relationship(
-        argument="User", foreign_keys=[author_id], backref=backref("commits_author")
+        argument="UserDBModel",
+        foreign_keys=[author_id],
+        backref=backref("commits_author"),
     )
 
     stats_id = Column(
@@ -1687,7 +1714,7 @@ class Commit(Base):
         nullable=True,
     )
     stats = relationship(
-        argument="CommitStats",
+        argument="CommitStatsDBModel",
         foreign_keys=[stats_id],
         backref=backref("commits_stats"),
     )
@@ -1698,7 +1725,7 @@ class Commit(Base):
         nullable=True,
     )
     last_pipeline = relationship(
-        argument="Pipeline",
+        argument="PipelineDBModel",
         foreign_keys=[last_pipeline_id],
         backref=backref("commits_last_pipeline"),
     )
@@ -1709,7 +1736,7 @@ class Commit(Base):
         nullable=True,
     )
     commit_signatures = relationship(
-        argument="CommitSignature",
+        argument="CommitSignatureDBModel",
         foreign_keys=[commit_signatures_id],
         backref=backref("commits_signatures"),
     )
@@ -1718,12 +1745,14 @@ class Commit(Base):
         Integer, ForeignKey(column="comments.id", name="fk_commit_notes"), nullable=True
     )
     notes = relationship(
-        argument="Comment", foreign_keys=[notes_id], backref=backref("commit_notes")
+        argument="CommentDBModel",
+        foreign_keys=[notes_id],
+        backref=backref("commit_notes"),
     )
 
 
 # Membership Model
-class Membership(Base):
+class MembershipDBModel(BaseDBModel):
     __tablename__ = "memberships"
 
     id = Column(Integer, primary_key=True)
@@ -1737,7 +1766,7 @@ class Membership(Base):
 
 
 # Issue Model
-class Issue(Base):
+class IssueDBModel(BaseDBModel):
     __tablename__ = "issues"
 
     id = Column(Integer, primary_key=True)
@@ -1781,7 +1810,9 @@ class Issue(Base):
         Integer, ForeignKey(column="users.id"), nullable=True, name="fk_issue_author"
     )
     author = relationship(
-        argument="User", foreign_keys=[author_id], backref=backref("authored_issues")
+        argument="UserDBModel",
+        foreign_keys=[author_id],
+        backref=backref("authored_issues"),
     )
 
     milestone_id = Column(
@@ -1790,14 +1821,18 @@ class Issue(Base):
         nullable=True,
     )
     milestone = relationship(
-        argument="Milestone", foreign_keys=[milestone_id], backref=backref("issues")
+        argument="MilestoneDBModel",
+        foreign_keys=[milestone_id],
+        backref=backref("issues"),
     )
 
     assignee_id = Column(
         Integer, ForeignKey(column="users.id", name="fk_issue_assignee"), nullable=True
     )
     assignee = relationship(
-        argument="User", foreign_keys=[assignee_id], backref=backref("assigned_issues")
+        argument="UserDBModel",
+        foreign_keys=[assignee_id],
+        backref=backref("assigned_issues"),
     )
 
     closed_by_id = Column(
@@ -1812,14 +1847,16 @@ class Issue(Base):
         Integer, ForeignKey(column="epics.id", name="fk_issue_epic"), nullable=True
     )
     closed_by = relationship(
-        argument="User", foreign_keys=[closed_by_id], backref=backref("closed_issues")
+        argument="UserDBModel",
+        foreign_keys=[closed_by_id],
+        backref=backref("closed_issues"),
     )
-    iteration = relationship(argument="Iteration", backref=backref("issues"))
-    epic = relationship(argument="Epic", backref=backref("issues"))
+    iteration = relationship(argument="IterationDBModel", backref=backref("issues"))
+    epic = relationship(argument="EpicDBModel", backref=backref("issues"))
 
 
 # TimeStats Model
-class TimeStats(Base):
+class TimeStatsDBModel(BaseDBModel):
     __tablename__ = "time_stats"
 
     id = Column(Integer, primary_key=True)
@@ -1831,7 +1868,7 @@ class TimeStats(Base):
 
 
 # TaskCompletionStatus Model
-class TaskCompletionStatus(Base):
+class TaskCompletionStatusDBModel(BaseDBModel):
     __tablename__ = "task_completion_status"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -1841,7 +1878,7 @@ class TaskCompletionStatus(Base):
 
 
 # References Model
-class References(Base):
+class ReferencesDBModel(BaseDBModel):
     __tablename__ = "references"
 
     id = Column(Integer, primary_key=True)
@@ -1852,7 +1889,7 @@ class References(Base):
 
 
 # Artifact Model
-class Artifact(Base):
+class ArtifactDBModel(BaseDBModel):
     __tablename__ = "artifacts"
 
     id = Column(Integer, primary_key=True)
@@ -1864,7 +1901,7 @@ class Artifact(Base):
 
 
 # ArtifactsFile Model
-class ArtifactsFile(Base):
+class ArtifactsFileDBModel(BaseDBModel):
     __tablename__ = "artifacts_files"
 
     id = Column(Integer, primary_key=True)
@@ -1874,7 +1911,7 @@ class ArtifactsFile(Base):
 
 
 # RunnerManager Model
-class RunnerManager(Base):
+class RunnerManagerDBModel(BaseDBModel):
     __tablename__ = "runner_managers"
 
     id = Column(Integer, primary_key=True)
@@ -1891,7 +1928,7 @@ class RunnerManager(Base):
 
 
 # Configuration Model
-class Configuration(Base):
+class ConfigurationDBModel(BaseDBModel):
     __tablename__ = "configurations"
 
     id = Column(Integer, primary_key=True)
@@ -1906,7 +1943,7 @@ class Configuration(Base):
 
 
 # Iteration Model
-class Iteration(Base):
+class IterationDBModel(BaseDBModel):
     __tablename__ = "iterations"
 
     id = Column(Integer, primary_key=True)
@@ -1928,12 +1965,12 @@ class Iteration(Base):
         nullable=True,
     )
     group = relationship(
-        argument="Group", foreign_keys=[group_id], backref=backref("iterations")
+        argument="GroupDBModel", foreign_keys=[group_id], backref=backref("iterations")
     )
 
 
 # Identity Model
-class Identity(Base):
+class IdentityDBModel(BaseDBModel):
     __tablename__ = "identities"
 
     id = Column(Integer, primary_key=True)
@@ -1945,12 +1982,12 @@ class Identity(Base):
         Integer, ForeignKey(column="users.id", name="fk_identity_user"), nullable=True
     )
     user = relationship(
-        argument="User", foreign_keys=[user_id], backref=backref("identities")
+        argument="UserDBModel", foreign_keys=[user_id], backref=backref("identities")
     )
 
 
 # GroupSamlIdentity Model
-class GroupSamlIdentity(Base):
+class GroupSamlIdentityDBModel(BaseDBModel):
     __tablename__ = "group_saml_identities"
 
     id = Column(Integer, primary_key=True)
@@ -1965,14 +2002,14 @@ class GroupSamlIdentity(Base):
         nullable=True,
     )
     user = relationship(
-        argument="User",
+        argument="UserDBModel",
         foreign_keys=[user_id],
         backref=backref("group_saml_identities_user"),
     )
 
 
 # CreatedBy Model
-class CreatedBy(Base):
+class CreatedByDBModel(BaseDBModel):
     __tablename__ = "created_by"
 
     id = Column(Integer, primary_key=True)
@@ -1989,12 +2026,14 @@ class CreatedBy(Base):
     )
 
     user = relationship(
-        argument="User", foreign_keys=[user_id], backref=backref("created_by_user")
+        argument="UserDBModel",
+        foreign_keys=[user_id],
+        backref=backref("created_by_user"),
     )
 
 
 # User Model
-class User(Base):
+class UserDBModel(BaseDBModel):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
@@ -2057,7 +2096,9 @@ class User(Base):
         nullable=True,
     )
     created_by = relationship(
-        argument="CreatedBy", foreign_keys=[created_by_id], backref=backref("users")
+        argument="CreatedByDBModel",
+        foreign_keys=[created_by_id],
+        backref=backref("users"),
     )
 
     group_saml_identity_id = Column(
@@ -2068,7 +2109,7 @@ class User(Base):
         nullable=True,
     )
     group_saml_identity = relationship(
-        argument="GroupSamlIdentity",
+        argument="GroupSamlIdentityDBModel",
         foreign_keys=[group_saml_identity_id],
         backref=backref("users"),
     )
@@ -2079,12 +2120,14 @@ class User(Base):
         nullable=True,
     )
     namespace = relationship(
-        argument="Namespace", foreign_keys=[namespace_id], backref=backref("users")
+        argument="NamespaceDBModel",
+        foreign_keys=[namespace_id],
+        backref=backref("users"),
     )
 
 
 # Namespace Model
-class Namespace(Base):
+class NamespaceDBModel(BaseDBModel):
     __tablename__ = "namespaces"
 
     id = Column(
@@ -2106,19 +2149,19 @@ class Namespace(Base):
         nullable=True,
     )
     parent = relationship(
-        argument="Namespace", foreign_keys=[parent_id], remote_side=[id]
+        argument="NamespaceDBModel", foreign_keys=[parent_id], remote_side=[id]
     )
 
     user_id = Column(
         Integer, ForeignKey(column="users.id", name="fk_namespace_user"), nullable=True
     )
     user = relationship(
-        argument="User", foreign_keys=[user_id], backref=backref("namespaces")
+        argument="UserDBModel", foreign_keys=[user_id], backref=backref("namespaces")
     )
 
 
 # ContainerExpirationPolicy Model
-class ContainerExpirationPolicy(Base):
+class ContainerExpirationPolicyDBModel(BaseDBModel):
     __tablename__ = "container_expiration_policies"
 
     id = Column(Integer, primary_key=True)
@@ -2133,7 +2176,7 @@ class ContainerExpirationPolicy(Base):
 
 
 # Permissions Model
-class Permissions(Base):
+class PermissionsDBModel(BaseDBModel):
     __tablename__ = "permissions"
 
     id = Column(Integer, primary_key=True)
@@ -2143,7 +2186,7 @@ class Permissions(Base):
 
 
 # Statistics Model
-class Statistics(Base):
+class StatisticsDBModel(BaseDBModel):
     __tablename__ = "statistics"
 
     id = Column(Integer, primary_key=True)
@@ -2161,7 +2204,7 @@ class Statistics(Base):
 
 
 # Links Model
-class Links(Base):
+class LinksDBModel(BaseDBModel):
     __tablename__ = "links"
 
     id = Column(Integer, primary_key=True)
@@ -2184,14 +2227,14 @@ class Links(Base):
         nullable=True,
     )
     projects = relationship(
-        argument="Project",
+        argument="ProjectDBModel",
         foreign_keys=[projects_id],
         backref=backref("links_projects"),
     )
 
 
 # Diff Model
-class Diff(Base):
+class DiffDBModel(BaseDBModel):
     __tablename__ = "diffs"
 
     id = Column(Integer, primary_key=True)
@@ -2219,13 +2262,13 @@ class Diff(Base):
         nullable=True,
     )
     merge_request = relationship(
-        argument="MergeRequest",
+        argument="MergeRequestDBModel",
         foreign_keys=[merge_request_id],
         backref=backref("diffs"),
     )
 
 
-class MergeApprovals(Base):
+class MergeApprovalsDBModel(BaseDBModel):
     __tablename__ = "merge_approvals"
 
     id = Column(Integer, primary_key=True)
@@ -2244,8 +2287,7 @@ class MergeApprovals(Base):
         nullable=True,
     )
     approvers = relationship(
-        argument="User",
-        # secondary="merge_approval_approvers",
+        argument="UserDBModel",
         foreign_keys=[approvers_id],
         backref=backref("merge_approvals"),
     )
@@ -2256,15 +2298,14 @@ class MergeApprovals(Base):
         nullable=True,
     )
     approver_groups = relationship(
-        argument="Group",
-        # secondary="merge_approval_approver_groups",
+        argument="GroupDBModel",
         foreign_keys=[approver_groups_id],
         backref=backref("merge_approvals"),
     )
 
 
 # DetailedStatus Model
-class DetailedStatus(Base):
+class DetailedStatusDBModel(BaseDBModel):
     __tablename__ = "detailed_status"
 
     id = Column(Integer, primary_key=True)
@@ -2280,7 +2321,8 @@ class DetailedStatus(Base):
     favicon = Column(String, nullable=True)
 
 
-class TestReport(Base):
+# pytest: ignore these classes
+class TestReportDBModel(BaseDBModel):
     __tablename__ = "test_reports"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -2298,7 +2340,7 @@ class TestReport(Base):
         nullable=True,
     )
     total = relationship(
-        argument="TestReportTotal",
+        argument="TestReportTotalDBModel",
         foreign_keys=[total_id],
         backref=backref("test_reports"),
     )
@@ -2309,14 +2351,13 @@ class TestReport(Base):
         nullable=True,
     )
     test_suites = relationship(
-        argument="TestSuite",
-        # secondary="test_report_test_suites",
+        argument="TestSuiteDBModel",
         foreign_keys=[test_suites_id],
         backref=backref("test_reports"),
     )
 
 
-class ProjectConfig(Base):
+class ProjectConfigDBModel(BaseDBModel):
     __tablename__ = "project_configs"
 
     id = Column(Integer, primary_key=True)
@@ -2330,7 +2371,7 @@ class ProjectConfig(Base):
 
 
 # Epic Model
-class Epic(Base):
+class EpicDBModel(BaseDBModel):
     __tablename__ = "epics"
 
     id = Column(Integer, primary_key=True)
@@ -2343,12 +2384,12 @@ class Epic(Base):
         Integer, ForeignKey(column="groups.id", name="fk_epic_group"), nullable=True
     )
     groups = relationship(
-        argument="Group", foreign_keys=[group_id], backref=backref("epics")
+        argument="GroupDBModel", foreign_keys=[group_id], backref=backref("epics")
     )
 
 
 # TestCase Model
-class TestCase(Base):
+class TestCaseDBModel(BaseDBModel):
     __tablename__ = "test_cases"
 
     id = Column(Integer, primary_key=True)
@@ -2362,7 +2403,7 @@ class TestCase(Base):
 
 
 # TestSuite Model
-class TestSuite(Base):
+class TestSuiteDBModel(BaseDBModel):
     __tablename__ = "test_suites"
 
     id = Column(Integer, primary_key=True)
@@ -2382,14 +2423,14 @@ class TestSuite(Base):
         nullable=True,
     )
     test_cases = relationship(
-        argument="TestCase",
+        argument="TestCaseDBModel",
         foreign_keys=[test_cases_id],
         backref=backref("test_suites"),
     )
 
 
 # TestReportTotal Model
-class TestReportTotal(Base):
+class TestReportTotalDBModel(BaseDBModel):
     __tablename__ = "test_report_totals"
 
     id = Column(Integer, primary_key=True)

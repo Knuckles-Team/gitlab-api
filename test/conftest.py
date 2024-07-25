@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from gitlab_api.gitlab_db_models import (
-    Base,
+    BaseDBModel,
 )  # replace 'your_module' with the actual module name
 
 skip_openai = False
@@ -37,9 +37,9 @@ def engine():
 
 @pytest.fixture(scope="session")
 def tables(engine):
-    Base.metadata.create_all(engine)
+    BaseDBModel.metadata.create_all(engine)
     yield
-    Base.metadata.drop_all(engine)
+    BaseDBModel.metadata.drop_all(engine)
 
 
 @pytest.fixture(scope="function")
