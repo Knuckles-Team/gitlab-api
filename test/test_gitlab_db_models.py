@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 from gitlab_api.gitlab_db_models import (
@@ -26,7 +28,6 @@ from gitlab_api.gitlab_db_models import (
     Webhook,
     AccessLevel,
     ApprovedBy,
-    Project,
     Runner,
     Job,
     Pipeline,
@@ -36,6 +37,7 @@ from gitlab_api.gitlab_db_models import (
     References,
     RunnerManager,
     Permissions,
+    ProjectConfig,
     Links,
     DetailedStatus,
     Contributor,
@@ -66,6 +68,55 @@ from gitlab_api.gitlab_db_models import (
 @pytest.mark.parametrize(
     "model, kwargs",
     [
+        # Create the referenced records first
+        (
+            ProjectConfig,
+            {
+                "id": 1,  # Ensure this ID matches the foreign key
+                "name": "project_config_1",
+                "name_with_namespace": "namespace1/project_config_1",
+                "path": "path1",
+                "path_with_namespace": "namespace1/path1",
+                "created_at": datetime.now(),
+            },
+        ),
+        (Job, {"id": 1, "name": "job_1", "status": "status_1"}),
+        (User, {"id": 1, "username": "user_1", "email": "user@example.com"}),
+        (MergeRequest, {"id": 1, "iid": 1, "title": "title_1", "state": "state_1"}),
+        (Group, {"id": 1, "name": "group_1", "path": "group_path"}),
+        (Pipeline, {"id": 1, "iid": 1, "status": "status_1"}),
+        # Create dependent records after the referenced records
+        (Agent, {"config_project_id": 1}),
+        (Agents, {"job_id": 1, "pipeline_id": 1}),
+        (ApprovedBy, {"user_id": 1}),
+        (Diff, {"merge_request_id": 1, "diff": "diff content"}),
+        (
+            Webhook,
+            {
+                "url": "http://example.com",
+                "name": "webhook_1",
+                "group_id": 1,
+                "description": "Webhook description",
+                "push_events": True,
+                "issues_events": True,
+                "merge_requests_events": True,
+                "confidential_issues_events": True,
+                "tag_push_events": True,
+                "note_events": True,
+                "confidential_note_events": True,
+                "job_events": True,
+                "pipeline_events": True,
+                "wiki_page_events": True,
+                "deployment_events": True,
+                "releases_events": True,
+                "subgroup_events": True,
+                "member_events": True,
+                "enable_ssl_verification": True,
+                "repository_update_events": True,
+                "resource_access_token_events": True,
+                "created_at": datetime(year=2023, month=1, day=1, hour=0, minute=0),
+            },
+        ),
         (DeployToken, {"name": "deploy_token_1", "username": "username_1"}),
         (Rule, {"commit_committer_check": True, "commit_committer_name_check": False}),
         (AccessControl, {"name": "access_control_1", "access_level": 10}),
@@ -74,27 +125,26 @@ from gitlab_api.gitlab_db_models import (
         (Assets, {"count": 10}),
         (Evidence, {"sha": "abc123", "filepath": "/path/to/file"}),
         (ReleaseLinks, {"closed_issues_url": "http://example.com/issues"}),
-        (Token, {"token": "token_1", "token_expires_at": "2023-01-01T00:00:00Z"}),
+        (
+            Token,
+            {
+                "token": "token_1",
+                "token_expires_at": datetime(
+                    year=2023, month=1, day=1, hour=0, minute=0
+                ),
+            },
+        ),
         (ToDo, {"action_name": "action_1", "state": "state_1"}),
         (WikiPage, {"content": "content_1", "format": "format_1"}),
         (WikiAttachmentLink, {"url": "http://example.com"}),
         (WikiAttachment, {"file_name": "file_1", "file_path": "/path/to/file"}),
-        (Agent, {"config_project_id": 1}),
-        (Agents, {"job_id": 1, "pipeline_id": 1}),
         (Release, {"tag_name": "tag_1", "description": "description_1"}),
         (Branch, {"name": "branch_1", "merged": True}),
         (ApprovalRule, {"name": "rule_1", "approvals_required": 2}),
-        (MergeRequest, {"iid": 1, "title": "title_1", "state": "state_1"}),
         (GroupAccess, {"access_level": 30}),
         (DefaultBranchProtectionDefaults, {"allow_force_push": True}),
-        (Group, {"name": "group_1", "path": "group_path"}),
-        (Webhook, {"url": "http://example.com", "name": "webhook_1", "group_id": 1}),
         (AccessLevel, {"access_level": 40}),
-        (ApprovedBy, {"user_id": 1}),
-        (Project, {"name": "project_1", "description": "description_1"}),
         (Runner, {"description": "runner_1", "ip_address": "127.0.0.1"}),
-        (Job, {"name": "job_1", "status": "status_1"}),
-        (Pipeline, {"iid": 1, "status": "status_1"}),
         (PackageLink, {"web_path": "/path/to/package"}),
         (PackageVersion, {"version": "1.0.0"}),
         (Package, {"name": "package_1", "version": "1.0.0"}),
@@ -102,7 +152,7 @@ from gitlab_api.gitlab_db_models import (
         (CommitStats, {"additions": 10, "deletions": 5}),
         (CommitSignature, {"signature_type": "gpg", "verification_status": "verified"}),
         (Comment, {"body": "comment_1", "note": "note_1"}),
-        (Commit, {"id": "abc123", "message": "commit message"}),
+        (Commit, {"id": 123, "message": "commit message"}),
         (Membership, {"source_id": 1, "access_level": {}}),
         (IssueStats, {"total": 10, "closed": 5}),
         (Milestone, {"title": "milestone_1", "state": "active"}),
@@ -123,8 +173,7 @@ from gitlab_api.gitlab_db_models import (
         (Identity, {"provider": "gitlab", "extern_uid": "user123"}),
         (GroupSamlIdentity, {"extern_uid": "saml123", "provider": "saml"}),
         (CreatedBy, {"username": "creator_user", "name": "Creator Name"}),
-        (User, {"username": "user_1", "email": "user@example.com"}),
-        (Namespace, {"name": "namespace_1", "path": "namespace_path"}),
+        (Namespace, {"id": 1, "name": "namespace_1", "path": "namespace_path"}),
         (ContainerExpirationPolicy, {"cadence": "1d", "enabled": True}),
         (
             Permissions,
@@ -141,7 +190,6 @@ from gitlab_api.gitlab_db_models import (
                 "issues": "http://example.com/issues",
             },
         ),
-        (Diff, {"merge_request_id": 1, "diff": "diff content"}),
         (
             DetailedStatus,
             {"icon": "icon.png", "text": "status text", "label": "status label"},

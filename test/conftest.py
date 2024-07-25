@@ -30,7 +30,9 @@ def pytest_configure(config):
 @pytest.fixture(scope="session")
 def engine():
     # return create_engine("sqlite:///:memory:")  # In-memory SQLite database for testing
-    return create_engine("postgresql+psycopg://postgres:postgres@localhost/postgres")
+    return create_engine(
+        "postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
+    )
 
 
 @pytest.fixture(scope="session")
@@ -50,5 +52,7 @@ def session(engine, tables):
     yield Session
 
     Session.remove()
-    transaction.rollback()
+    transaction.commit()
+    # This doesn't work for postgres
+    # transaction.rollback()
     connection.close()
