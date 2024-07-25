@@ -6,7 +6,7 @@ logging.basicConfig(
     level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-from sqlalchemy import Column, String, DateTime, ForeignKey, Table, Text
+from sqlalchemy import Column, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship, backref, declarative_base
 from sqlalchemy import Integer, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -16,6 +16,7 @@ from sqlalchemy import (
 )
 
 Base = declarative_base()
+
 
 # Evidence Model
 class Evidence(Base):
@@ -46,7 +47,11 @@ class Milestone(Base):
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="Milestone")
     iid = Column(Integer, nullable=True)
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    project_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_milestone_project_id"),
+        nullable=True,
+    )
     title = Column(String, nullable=True)
     description = Column(String, nullable=True)
     state = Column(String, nullable=True)
@@ -57,44 +62,27 @@ class Milestone(Base):
     web_url = Column(String, nullable=True)
     closed_at = Column(DateTime, nullable=True)
 
-    issue_stats_id = Column(Integer, ForeignKey("issue_stats.id"), nullable=True)
+    issue_stats_id = Column(
+        Integer,
+        ForeignKey(column="issue_stats.id", name="fk_milestone_issue_stats"),
+        nullable=True,
+    )
     issue_stats = relationship(
-        "IssueStats", foreign_keys=[issue_stats_id], backref=backref("milestones")
+        argument="IssueStats",
+        foreign_keys=[issue_stats_id],
+        backref=backref("milestones"),
     )
 
     release_id = Column(
         Integer,
-        ForeignKey("releases.id", name="fk_release_milestone_id"),
+        ForeignKey(column="releases.id", name="fk_milestone_release"),
         nullable=True,
     )
     releases = relationship(
-        "Release", foreign_keys=[release_id], backref=backref("milestone_associations")
+        argument="Release",
+        foreign_keys=[release_id],
+        backref=backref("milestone_associations"),
     )
-
-
-release_milestones = (
-    Table(
-        "release_milestones",
-        Base.metadata,
-        Column("release_id", Integer, ForeignKey("releases.id"), primary_key=True),
-        Column("milestone_id", Integer, ForeignKey("milestones.id"), primary_key=True),
-        extend_existing=True,
-    )
-    if "Milestone" in globals()
-    else None
-)
-
-release_evidences = (
-    Table(
-        "release_evidences",
-        Base.metadata,
-        Column("release_id", Integer, ForeignKey("releases.id"), primary_key=True),
-        Column("evidence_id", Integer, ForeignKey("evidences.id"), primary_key=True),
-        extend_existing=True,
-    )
-    if "Evidence" in globals()
-    else None
-)
 
 
 # DeployToken Model
@@ -114,9 +102,13 @@ class DeployToken(Base):
     last_used_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_deploy_token_user"),
+        nullable=True,
+    )
     user = relationship(
-        "User", foreign_keys=[user_id], backref=backref("deploy_tokens")
+        argument="User", foreign_keys=[user_id], backref=backref("deploy_tokens")
     )
 
 
@@ -161,9 +153,9 @@ class Source(Base):
     format = Column(String, nullable=True)
     url = Column(String, nullable=True)
 
-    assets_id = Column(Integer, ForeignKey("assets.id"))
+    assets_id = Column(Integer, ForeignKey(column="assets.id", name="fk_source_assets"))
     assets = relationship(
-        "Assets", foreign_keys=[assets_id], backref=backref("sources")
+        argument="Assets", foreign_keys=[assets_id], backref=backref("sources")
     )
 
 
@@ -177,8 +169,10 @@ class Link(Base):
     url = Column(String, nullable=True)
     link_type = Column(String, nullable=True)
 
-    assets_id = Column(Integer, ForeignKey("assets.id"))
-    assets = relationship("Assets", foreign_keys=[assets_id], backref=backref("link"))
+    assets_id = Column(Integer, ForeignKey(column="assets.id", name="fk_link_assets"))
+    assets = relationship(
+        argument="Assets", foreign_keys=[assets_id], backref=backref("link")
+    )
 
 
 # Assets Model
@@ -204,6 +198,14 @@ class ReleaseLinks(Base):
     opened_issues_url = Column(String, nullable=True)
     opened_merge_requests_url = Column(String, nullable=True)
     self_url = Column(String, nullable=True)
+    releases_id = Column(
+        Integer,
+        ForeignKey(column="releases.id", name="fk_release_links_releases"),
+        nullable=True,
+    )
+    release_link_releases = relationship(
+        argument="Release", foreign_keys=[releases_id], backref=backref("release_links")
+    )
 
 
 # Token Model
@@ -229,19 +231,25 @@ class ToDo(Base):
     state = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=True)
 
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    project_id = Column(
+        Integer, ForeignKey(column="projects.id", name="fk_todo_project"), nullable=True
+    )
     project = relationship(
-        "Project", foreign_keys=[project_id], backref=backref("todos_project")
+        argument="Project", foreign_keys=[project_id], backref=backref("todos_project")
     )
 
-    author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    author_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_todo_author"), nullable=True
+    )
     author = relationship(
-        "User", foreign_keys=[author_id], backref=backref("todos_author")
+        argument="User", foreign_keys=[author_id], backref=backref("todos_author")
     )
 
-    target_id = Column(Integer, ForeignKey("issues.id"), nullable=True)
+    target_id = Column(
+        Integer, ForeignKey(column="issues.id", name="fk_todo_target"), nullable=True
+    )
     target = relationship(
-        "Issue", foreign_keys=[target_id], backref=backref("todos_target")
+        argument="Issue", foreign_keys=[target_id], backref=backref("todos_target")
     )
 
 
@@ -288,9 +296,13 @@ class WikiAttachment(Base):
     file_path = Column(String, nullable=True)
     branch = Column(String, nullable=True)
 
-    link_id = Column(Integer, ForeignKey("wiki_attachment_links.id"), nullable=True)
+    link_id = Column(
+        Integer,
+        ForeignKey(column="wiki_attachment_links.id", name="fk_wiki_attachment_links"),
+        nullable=True,
+    )
     link = relationship(
-        "WikiAttachmentLink",
+        argument="WikiAttachmentLink",
         foreign_keys=[link_id],
         backref=backref("wiki_attachments"),
     )
@@ -303,9 +315,15 @@ class Agent(Base):
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="Agent")
 
-    config_project_id = Column(Integer, ForeignKey("project_configs.id"), nullable=True)
+    config_project_id = Column(
+        Integer,
+        ForeignKey(column="project_configs.id", name="fk_agent_project_configs"),
+        nullable=True,
+    )
     config_project = relationship(
-        "ProjectConfig", foreign_keys=[config_project_id], backref=backref("agent")
+        argument="ProjectConfig",
+        foreign_keys=[config_project_id],
+        backref=backref("agent"),
     )
 
 
@@ -316,21 +334,35 @@ class Agents(Base):
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="Agents")
 
-    job_id = Column(Integer, ForeignKey("jobs.id"), nullable=True)
-    job = relationship("Job", foreign_keys=[job_id], backref=backref("agents"))
+    job_id = Column(
+        Integer, ForeignKey(column="jobs.id", name="fk_agents_jobs"), nullable=True
+    )
+    job = relationship(argument="Job", foreign_keys=[job_id], backref=backref("agents"))
 
-    pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
+    pipeline_id = Column(
+        Integer,
+        ForeignKey(column="pipelines.id", name="fk_agents_pipelines"),
+        nullable=True,
+    )
     pipeline = relationship(
-        "Pipeline", foreign_keys=[pipeline_id], backref=backref("agents")
+        argument="Pipeline", foreign_keys=[pipeline_id], backref=backref("agents")
     )
 
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    project_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_agents_projects"),
+        nullable=True,
+    )
     project = relationship(
-        "Project", foreign_keys=[project_id], backref=backref("agents")
+        argument="Project", foreign_keys=[project_id], backref=backref("agents")
     )
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    user = relationship("User", foreign_keys=[user_id], backref=backref("agents"))
+    user_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_agents_users"), nullable=True
+    )
+    user = relationship(
+        argument="User", foreign_keys=[user_id], backref=backref("agents")
+    )
 
 
 # Release Model
@@ -350,37 +382,59 @@ class Release(Base):
 
     # Relationships (optional)
 
-    author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    author = relationship("User", backref=backref("releases"), foreign_keys=[author_id])
-
-    commit_id = Column(Integer, ForeignKey("commits.id"), nullable=True)
-    commit = relationship(
-        "Commit", backref=backref("releases"), foreign_keys=[commit_id]
+    author_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_release_author"), nullable=True
     )
-    milestones_id = Column(Integer, ForeignKey("milestones.id"), nullable=True)
+    author = relationship(
+        argument="User", backref=backref("releases"), foreign_keys=[author_id]
+    )
+
+    commit_id = Column(
+        Integer,
+        ForeignKey(column="commits.id", name="fk_release_commits"),
+        nullable=True,
+    )
+    commit = relationship(
+        argument="Commit", backref=backref("releases"), foreign_keys=[commit_id]
+    )
+    milestones_id = Column(
+        Integer,
+        ForeignKey(column="milestones.id", name="fk_release_milestones"),
+        nullable=True,
+    )
     milestones = relationship(
-        "Milestone",
+        argument="Milestone",
         # secondary="release_milestones",
         foreign_keys=[milestones_id],
         backref=backref("release_associations"),
     )
 
-    evidences_id = Column(Integer, ForeignKey("evidences.id"), nullable=True)
+    evidences_id = Column(
+        Integer,
+        ForeignKey(column="evidences.id", name="fk_release_evidences"),
+        nullable=True,
+    )
     evidences = relationship(
-        "Evidence",
+        argument="Evidence",
         # secondary="release_evidences",
         foreign_keys=[evidences_id],
         backref=backref("release_evidences"),
     )
 
-    assets_id = Column(Integer, ForeignKey("assets.id"), nullable=True)
+    assets_id = Column(
+        Integer, ForeignKey(column="assets.id", name="fk_release_assets"), nullable=True
+    )
     assets = relationship(
-        "Assets", backref=backref("release"), foreign_keys=[assets_id]
+        argument="Assets", backref=backref("release"), foreign_keys=[assets_id]
     )
 
-    links_id = Column(Integer, ForeignKey("release_links.id"), nullable=True)
+    links_id = Column(
+        Integer,
+        ForeignKey(column="release_links.id", name="fk_release_links"),
+        nullable=True,
+    )
     links = relationship(
-        "ReleaseLinks", backref=backref("release"), foreign_keys=[links_id]
+        argument="ReleaseLinks", backref=backref("release"), foreign_keys=[links_id]
     )
 
 
@@ -394,14 +448,22 @@ class AccessLevel(Base):
     access_level_description = Column(String, nullable=True)
     deploy_key_id = Column(Integer, nullable=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_access_level_users"),
+        nullable=True,
+    )
     user = relationship(
-        "User", foreign_keys=[user_id], backref=backref("access_levels")
+        argument="User", foreign_keys=[user_id], backref=backref("access_levels")
     )
 
-    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
+    group_id = Column(
+        Integer,
+        ForeignKey(column="groups.id", name="fk_access_level_groups"),
+        nullable=True,
+    )
     group = relationship(
-        "Group", foreign_keys=[group_id], backref=backref("access_levels")
+        argument="Group", foreign_keys=[group_id], backref=backref("access_levels")
     )
 
 
@@ -423,34 +485,44 @@ class Branch(Base):
     code_owner_approval_required = Column(Boolean, nullable=True)
     inherited = Column(Boolean, nullable=True)
 
-    commit_id = Column(Integer, ForeignKey("commits.id"), nullable=True)
-    commit = relationship("Commit", backref=backref("branches_commit"))
+    commit_id = Column(
+        Integer,
+        ForeignKey(column="commits.id", name="fk_branch_commits"),
+        nullable=True,
+    )
+    commit = relationship(argument="Commit", backref=backref("branches_commit"))
 
     push_access_levels_id = Column(
-        Integer, ForeignKey("access_levels.id"), nullable=True
+        Integer,
+        ForeignKey(column="access_levels.id", name="fk_branch_push_access_levels"),
+        nullable=True,
     )
     push_access_levels = relationship(
-        "AccessLevel",
+        argument="AccessLevel",
         # secondary="branch_push_access_levels",
         foreign_keys=[push_access_levels_id],
         backref=backref("branches_push_access_levels"),
     )
 
     merge_access_levels_id = Column(
-        Integer, ForeignKey("access_levels.id"), nullable=True
+        Integer,
+        ForeignKey(column="access_levels.id", name="fk_branch_merge_access_levels"),
+        nullable=True,
     )
     merge_access_levels = relationship(
-        "AccessLevel",
+        argument="AccessLevel",
         # secondary="branch_merge_access_levels",
         foreign_keys=[merge_access_levels_id],
         backref=backref("branches_merge_access_levels"),
     )
 
     unprotect_access_levels_id = Column(
-        Integer, ForeignKey("access_levels.id"), nullable=True
+        Integer,
+        ForeignKey(column="access_levels.id", name="fk_branch_unprotect_access_levels"),
+        nullable=True,
     )
     unprotect_access_levels = relationship(
-        "AccessLevel",
+        argument="AccessLevel",
         # secondary="branch_unprotect_access_levels",
         foreign_keys=[unprotect_access_levels_id],
         backref=backref("branches_unprotect_access_levels"),
@@ -492,11 +564,11 @@ class ApprovalRule(Base):
 
     eligible_approvers_id = Column(
         Integer,
-        ForeignKey("users.id", name="fk_eligible_approvers_rules"),
+        ForeignKey(column="users.id", name="fk_eligible_approvers_rules"),
         nullable=True,
     )
     eligible_approvers = relationship(
-        "User",
+        argument="User",
         # secondary="approval_rule_eligible_approvers",
         foreign_keys=[eligible_approvers_id],
         backref=backref("approval_rules"),
@@ -504,11 +576,11 @@ class ApprovalRule(Base):
 
     users_id = Column(
         Integer,
-        ForeignKey("users.id", name="fk_users_rules"),
+        ForeignKey(column="users.id", name="fk_users_rules"),
         nullable=True,
     )
     users = relationship(
-        "User",
+        argument="User",
         # secondary="approval_rule_users",
         foreign_keys=[users_id],
         backref=backref("approval_rules_users"),
@@ -516,11 +588,11 @@ class ApprovalRule(Base):
 
     groups_id = Column(
         Integer,
-        ForeignKey("groups.id", name="fk_groups_rules"),
+        ForeignKey(column="groups.id", name="fk_groups_rules"),
         nullable=True,
     )
     groups = relationship(
-        "Group",
+        argument="Group",
         # secondary="approval_rule_groups",
         foreign_keys=[groups_id],
         backref=backref("approval_rules_groups"),
@@ -528,11 +600,11 @@ class ApprovalRule(Base):
 
     protected_branches_id = Column(
         Integer,
-        ForeignKey("branches.id", name="fk_protected_branches_rules"),
+        ForeignKey(column="branches.id", name="fk_protected_branches_rules"),
         nullable=True,
     )
     protected_branches = relationship(
-        "Branch",
+        argument="Branch",
         # secondary="approval_rule_protected_branches",
         foreign_keys=[protected_branches_id],
         backref=backref("approval_rules_branches"),
@@ -540,11 +612,11 @@ class ApprovalRule(Base):
 
     approved_by_id = Column(
         Integer,
-        ForeignKey("approved_by.id", name="fk_approval_rule_user_by_id"),
+        ForeignKey(column="approved_by.id", name="fk_approval_rule_user_by_id"),
         nullable=True,
     )
     approved_by = relationship(
-        "ApprovedBy",
+        argument="ApprovedBy",
         # secondary="approval_rule_approved_by",
         foreign_keys=[approved_by_id],
         backref=backref("approval_rules_approved_by"),
@@ -567,8 +639,16 @@ class MergeRequest(Base):
     source_branch = Column(String, nullable=True)
     upvotes = Column(Integer, nullable=True)
     downvotes = Column(Integer, nullable=True)
-    source_project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
-    target_project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    source_project_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_merge_request_source_project"),
+        nullable=True,
+    )
+    target_project_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_merge_request_target_project"),
+        nullable=True,
+    )
     work_in_progress = Column(Boolean, nullable=True)
     merge_when_pipeline_succeeds = Column(Boolean, nullable=True)
     merge_status = Column(String, nullable=True)
@@ -604,96 +684,159 @@ class MergeRequest(Base):
     approvals_left = Column(Integer, nullable=True)
     approval_rules_overwritten = Column(Boolean, nullable=True)
 
-    author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    author_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_merge_request_author"),
+        nullable=True,
+    )
     author = relationship(
-        "User", foreign_keys=[author_id], backref=backref("authored_merge_requests")
+        argument="User",
+        foreign_keys=[author_id],
+        backref=backref("authored_merge_requests"),
     )
 
-    assignee_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    assignee_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_merge_request_assignee"),
+        nullable=True,
+    )
     assignee = relationship(
-        "User", foreign_keys=[assignee_id], backref=backref("assigned_merge_requests")
+        argument="User",
+        foreign_keys=[assignee_id],
+        backref=backref("assigned_merge_requests"),
     )
 
-    milestone_id = Column(Integer, ForeignKey("milestones.id"), nullable=True)
+    milestone_id = Column(
+        Integer,
+        ForeignKey(column="milestones.id", name="fk_merge_request_milestone"),
+        nullable=True,
+    )
     milestone = relationship(
-        "Milestone", foreign_keys=[milestone_id], backref=backref("merge_requests")
+        argument="Milestone",
+        foreign_keys=[milestone_id],
+        backref=backref("merge_requests"),
     )
 
-    merged_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    merged_by_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_merge_request_merged_by"),
+        nullable=True,
+    )
     merged_by = relationship(
-        "User", foreign_keys=[merged_by_id], backref=backref("merged_merge_requests")
+        argument="User",
+        foreign_keys=[merged_by_id],
+        backref=backref("merged_merge_requests"),
     )
 
-    closed_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    closed_by_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_merge_request_close_by"),
+        nullable=True,
+    )
     closed_by = relationship(
-        "User", foreign_keys=[closed_by_id], backref=backref("closed_merge_requests")
+        argument="User",
+        foreign_keys=[closed_by_id],
+        backref=backref("closed_merge_requests"),
     )
 
-    pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
+    pipeline_id = Column(
+        Integer,
+        ForeignKey(column="pipelines.id", name="fk_merge_request_pipeline"),
+        nullable=True,
+    )
     pipeline = relationship(
-        "Pipeline",
+        argument="Pipeline",
         foreign_keys=[pipeline_id],
         backref=backref("merge_requests_pipeline"),
     )
 
-    head_pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
+    head_pipeline_id = Column(
+        Integer,
+        ForeignKey(column="pipelines.id", name="fk_merge_request_head_pipeline"),
+        nullable=True,
+    )
     head_pipeline = relationship(
-        "Pipeline",
+        argument="Pipeline",
         foreign_keys=[head_pipeline_id],
         backref=backref("head_merge_requests"),
     )
 
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    project_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_merge_request_project"),
+        nullable=True,
+    )
     projects = relationship(
-        "Project",
+        argument="Project",
         foreign_keys=[project_id],
         backref=backref("project_merge_requests"),
     )
 
-    labels_id = Column(Integer, ForeignKey("labels.id"), nullable=True)
+    labels_id = Column(
+        Integer,
+        ForeignKey(column="labels.id", name="fk_merge_request_labels"),
+        nullable=True,
+    )
     labels = relationship(
-        "Label",
+        argument="Label",
         # secondary="merge_request_labels",
         foreign_keys=[labels_id],
         backref=backref("merge_requests_labels"),
     )
 
-    references_id = Column(Integer, ForeignKey("references.id"), nullable=True)
+    references_id = Column(
+        Integer,
+        ForeignKey(column="references.id", name="fk_merge_request_references"),
+        nullable=True,
+    )
     references = relationship(
-        "References", foreign_keys=[references_id], backref=backref("merge_requests")
+        argument="References",
+        foreign_keys=[references_id],
+        backref=backref("merge_requests"),
     )
 
-    time_stats_id = Column(Integer, ForeignKey("time_stats.id"), nullable=True)
+    time_stats_id = Column(
+        Integer,
+        ForeignKey(column="time_stats.id", name="fk_merge_request_time_stats"),
+        nullable=True,
+    )
 
     time_stats = relationship(
-        "TimeStats", foreign_keys=[time_stats_id], backref=backref("merge_requests")
+        argument="TimeStats",
+        foreign_keys=[time_stats_id],
+        backref=backref("merge_requests"),
     )
 
     task_completion_status_id = Column(
-        Integer, ForeignKey("task_completion_status.id"), nullable=True
+        Integer,
+        ForeignKey(
+            column="task_completion_status.id",
+            name="fk_merge_request_task_completion_status",
+        ),
+        nullable=True,
     )
     task_completion_status = relationship(
-        "TaskCompletionStatus",
+        argument="TaskCompletionStatus",
         foreign_keys=[task_completion_status_id],
         backref=backref("merge_requests"),
     )
 
     change_id = Column(
         Integer,
-        ForeignKey("diffs.id", name="fk_merge_request_diff"),
+        ForeignKey(column="diffs.id", name="fk_merge_request_change"),
         nullable=True,
     )
     changes = relationship(
-        "Diff", foreign_keys=[change_id], backref=backref("merge_requests")
+        argument="Diff", foreign_keys=[change_id], backref=backref("merge_requests")
     )
 
     reviewers_id = Column(
         Integer,
-        ForeignKey("users.id", name="fk_user_approved_by_id"),
+        ForeignKey(column="users.id", name="fk_merge_request_reviewers"),
         nullable=True,
     )
     reviewers = relationship(
-        "User",
+        argument="User",
         # secondary="merge_request_reviewers",
         foreign_keys=[reviewers_id],
         backref=backref("reviewed_merge_requests"),
@@ -701,21 +844,23 @@ class MergeRequest(Base):
 
     approved_by_id = Column(
         Integer,
-        ForeignKey("approved_by.id", name="fk_user_approved_by_id"),
+        ForeignKey(column="approved_by.id", name="fk_merge_request_user_approved_by"),
         nullable=True,
     )
     approved_by = relationship(
-        "ApprovedBy",
+        argument="ApprovedBy",
         foreign_keys=[approved_by_id],
         backref=backref("approved_users_merge_request"),
     )
 
-    rule_id = Column(
-        Integer, ForeignKey("approval_rules.id", name="fk_rule_id"), nullable=True
+    approval_rules_id = Column(
+        Integer,
+        ForeignKey(column="approval_rules.id", name="fk_merge_request_approval_rules"),
+        nullable=True,
     )
-    rules = relationship(
-        "ApprovalRule",
-        foreign_keys=[rule_id],
+    approval_rules = relationship(
+        argument="ApprovalRule",
+        foreign_keys=[approval_rules_id],
         backref=backref("approval_rules_merge_request"),
     )
 
@@ -738,22 +883,22 @@ class DefaultBranchProtectionDefaults(Base):
     allow_force_push = Column(Boolean, nullable=True)
     allowed_to_push_id = Column(
         Integer,
-        ForeignKey("group_accesses.id", name="fk_default_rules_allow_push"),
+        ForeignKey(column="group_accesses.id", name="fk_default_rules_allow_push"),
         nullable=True,
     )
     allowed_to_push = relationship(
-        "GroupAccess",
+        argument="GroupAccess",
         # secondary="default_branch_protection_push_access",
         foreign_keys=[allowed_to_push_id],
         backref=backref("push_defaults"),
     )
     allowed_to_merge_id = Column(
         Integer,
-        ForeignKey("group_accesses.id", name="fk_default_rules_allow_merge"),
+        ForeignKey(column="group_accesses.id", name="fk_default_rules_allow_merge"),
         nullable=True,
     )
     allowed_to_merge = relationship(
-        "GroupAccess",
+        argument="GroupAccess",
         # secondary="default_branch_protection_merge_access",
         foreign_keys=[allowed_to_merge_id],
         backref=backref("merge_defaults"),
@@ -810,31 +955,52 @@ class Group(Base):
     prevent_forking_outside_group = Column(Boolean, nullable=True)
 
     default_branch_protection_defaults_id = Column(
-        Integer, ForeignKey("default_branch_protection_defaults.id"), nullable=True
+        Integer,
+        ForeignKey(
+            column="default_branch_protection_defaults.id",
+            name="fk_group_default_branch_protection_defaults",
+        ),
+        nullable=True,
     )
     default_branch_protection_defaults = relationship(
-        "DefaultBranchProtectionDefaults",
+        argument="DefaultBranchProtectionDefaults",
         foreign_keys=[default_branch_protection_defaults_id],
         backref=backref("groups"),
     )
-    statistics_id = Column(Integer, ForeignKey("statistics.id"), nullable=True)
+    statistics_id = Column(
+        Integer,
+        ForeignKey(column="statistics.id", name="fk_group_statistics"),
+        nullable=True,
+    )
     statistics = relationship(
-        "Statistics", foreign_keys=[statistics_id], backref=backref("groups")
+        argument="Statistics", foreign_keys=[statistics_id], backref=backref("groups")
     )
-    projects_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    projects_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_group_projects"),
+        nullable=True,
+    )
     projects = relationship(
-        "Project", foreign_keys=[projects_id], backref=backref("group_projects")
+        argument="Project",
+        foreign_keys=[projects_id],
+        backref=backref("group_projects"),
     )
-    shared_projects_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    shared_projects_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_group_shared_projects"),
+        nullable=True,
+    )
     shared_projects = relationship(
-        "Project",
+        argument="Project",
         # secondary="project_shared_with_groups",
         foreign_keys=[shared_projects_id],
         backref=backref("shared_group_projects"),
     )
 
-    parent_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
-    parent = relationship("Group", foreign_keys=[parent_id], remote_side=[id])
+    parent_id = Column(
+        Integer, ForeignKey(column="groups.id", name="fk_"), nullable=True
+    )
+    parent = relationship(argument="Group", foreign_keys=[parent_id], remote_side=[id])
 
 
 # Webhook Model
@@ -870,8 +1036,12 @@ class Webhook(Base):
     resource_access_token_events = Column(Boolean, nullable=False)
     custom_webhook_template = Column(String, nullable=True)
 
-    group_id = Column(Integer, ForeignKey("groups.id"), nullable=False)
-    group = relationship("Group", foreign_keys=[group_id], backref=backref("webhooks"))
+    group_id = Column(
+        Integer, ForeignKey(column="groups.id", name="fk_webhook_group"), nullable=False
+    )
+    group = relationship(
+        argument="Group", foreign_keys=[group_id], backref=backref("webhooks")
+    )
 
 
 class ApprovedBy(Base):
@@ -880,9 +1050,13 @@ class ApprovedBy(Base):
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="ApprovedBy")
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_approved_by_user"),
+        nullable=True,
+    )
     user = relationship(
-        "User", foreign_keys=[user_id], backref=backref("approved_by_users")
+        argument="User", foreign_keys=[user_id], backref=backref("approved_by_users")
     )
 
 
@@ -1020,46 +1194,79 @@ class Project(Base):
     ci_dockerfile = Column(String, nullable=True)
     public = Column(Boolean, nullable=True)
 
-    owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    owner_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_owner"), nullable=True
+    )
     owner = relationship(
-        "User", foreign_keys=[owner_id], backref=backref("owned_projects")
+        argument="User", foreign_keys=[owner_id], backref=backref("owned_projects")
     )
 
-    creator_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    creator_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_creator"), nullable=True
+    )
     creator = relationship(
-        "User", foreign_keys=[creator_id], backref=backref("created_projects")
+        argument="User", foreign_keys=[creator_id], backref=backref("created_projects")
     )
 
-    namespace_id = Column(Integer, ForeignKey("namespaces.id"), nullable=True)
+    namespace_id = Column(
+        Integer,
+        ForeignKey(column="namespaces.id", name="fk_project_namespace"),
+        nullable=True,
+    )
     namespace = relationship(
-        "Namespace", foreign_keys=[namespace_id], backref=backref("projects")
+        argument="Namespace", foreign_keys=[namespace_id], backref=backref("projects")
     )
 
     container_expiration_policy_id = Column(
-        Integer, ForeignKey("container_expiration_policies.id"), nullable=True
+        Integer,
+        ForeignKey(
+            column="container_expiration_policies.id",
+            name="fk_project_container_expiration_policy",
+        ),
+        nullable=True,
     )
     container_expiration_policy = relationship(
-        "ContainerExpirationPolicy",
+        argument="ContainerExpirationPolicy",
         foreign_keys=[container_expiration_policy_id],
         backref=backref("projects"),
     )
 
-    statistics_id = Column(Integer, ForeignKey("statistics.id"), nullable=True)
+    statistics_id = Column(
+        Integer,
+        ForeignKey(column="statistics.id", name="fk_project_statistics"),
+        nullable=True,
+    )
     statistics = relationship(
-        "Statistics", foreign_keys=[statistics_id], backref=backref("projects")
+        argument="Statistics",
+        foreign_keys=[statistics_id],
+        backref=backref("projects_statistics"),
     )
 
-    links_id = Column(Integer, ForeignKey("links.id"), nullable=True)
-    links = relationship("Links", foreign_keys=[links_id], backref=backref("projects"))
+    links_id = Column(
+        Integer, ForeignKey(column="links.id", name="fk_project_links"), nullable=True
+    )
+    links = relationship(
+        argument="Links", foreign_keys=[links_id], backref=backref("projects_links")
+    )
 
-    permissions_id = Column(Integer, ForeignKey("permissions.id"), nullable=True)
+    permissions_id = Column(
+        Integer,
+        ForeignKey(column="permissions.id", name="fk_project_permissions"),
+        nullable=True,
+    )
     permissions = relationship(
-        "Permissions", foreign_keys=[permissions_id], backref=backref("projects")
+        argument="Permissions",
+        foreign_keys=[permissions_id],
+        backref=backref("projects"),
     )
 
-    shared_with_groups_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
+    shared_with_groups_id = Column(
+        Integer,
+        ForeignKey(column="groups.id", name="fk_project_shared_with_groups"),
+        nullable=True,
+    )
     shared_with_groups = relationship(
-        "Group",
+        argument="Group",
         # secondary="project_shared_with_groups",
         foreign_keys=[shared_with_groups_id],
         backref=backref("shared_projects_with_group"),
@@ -1091,9 +1298,13 @@ class Runner(Base):
     maintenance_note = Column(String, nullable=True)
     tag_list = Column(JSON, nullable=True)
 
-    projects_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    projects_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_runner_project"),
+        nullable=True,
+    )
     projects = relationship(
-        "Project",
+        argument="Project",
         # secondary="runner_projects",
         foreign_keys=[projects_id],
         backref=backref("runners"),
@@ -1125,46 +1336,78 @@ class Job(Base):
     tag = Column(Boolean, nullable=True)
     web_url = Column(String, nullable=True)
 
-    commit_id = Column(Integer, ForeignKey("commits.id"), nullable=True)
+    commit_id = Column(
+        Integer, ForeignKey(column="commits.id", name="fk_job_commit"), nullable=True
+    )
     commit = relationship(
-        "Commit", foreign_keys=[commit_id], backref=backref("jobs_commits")
+        argument="Commit", foreign_keys=[commit_id], backref=backref("jobs_commits")
     )
 
-    pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
+    pipeline_id = Column(
+        Integer,
+        ForeignKey(column="pipelines.id", name="fk_job_pipeline"),
+        nullable=True,
+    )
     pipeline = relationship(
-        "Pipeline", foreign_keys=[pipeline_id], backref=backref("jobs_pipeline")
+        argument="Pipeline",
+        foreign_keys=[pipeline_id],
+        backref=backref("jobs_pipeline"),
     )
 
-    runner_id = Column(Integer, ForeignKey("runners.id"), nullable=True)
-    runner = relationship("Runner", backref=backref("jobs_runner"))
+    runner_id = Column(
+        Integer, ForeignKey(column="runners.id", name="fk_job_runner"), nullable=True
+    )
+    runner = relationship(argument="Runner", backref=backref("jobs_runner"))
 
-    runner_manager_id = Column(Integer, ForeignKey("runner_managers.id"), nullable=True)
+    runner_manager_id = Column(
+        Integer,
+        ForeignKey(column="runner_managers.id", name="fk_job_runner_manager"),
+        nullable=True,
+    )
     runner_manager = relationship(
-        "RunnerManager",
+        argument="RunnerManager",
         foreign_keys=[runner_manager_id],
         backref=backref("jobs_runner_manager"),
     )
 
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
-    project = relationship("Project", backref=backref("jobs_projects"))
+    project_id = Column(
+        Integer, ForeignKey(column="projects.id", name="fk_job_project"), nullable=True
+    )
+    project = relationship(argument="Project", backref=backref("jobs_projects"))
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    user = relationship("User", foreign_keys=[user_id], backref=backref("jobs_users"))
+    user_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_job_user"), nullable=True
+    )
+    user = relationship(
+        argument="User", foreign_keys=[user_id], backref=backref("jobs_users")
+    )
 
-    downstream_pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
+    downstream_pipeline_id = Column(
+        Integer,
+        ForeignKey(column="pipelines.id", name="fk_job_downstream_pipeline"),
+        nullable=True,
+    )
     downstream_pipeline = relationship(
-        "Pipeline",
+        argument="Pipeline",
         foreign_keys=[downstream_pipeline_id],
         backref=backref("jobs_downstream"),
     )
 
-    artifacts_file_id = Column(Integer, ForeignKey("artifacts_files.id"), nullable=True)
+    artifacts_file_id = Column(
+        Integer,
+        ForeignKey(column="artifacts_files.id", name="fk_job_artifacts_file"),
+        nullable=True,
+    )
     artifacts_file = relationship(
-        "ArtifactsFile", backref=backref("jobs_artifact_file")
+        argument="ArtifactsFile", backref=backref("jobs_artifact_file")
     )
 
-    artifacts_id = Column(Integer, ForeignKey("artifacts.id"), nullable=True)
-    artifacts = relationship("Artifact", backref=backref("jobs_artifacts"))
+    artifacts_id = Column(
+        Integer,
+        ForeignKey(column="artifacts.id", name="fk_job_artifacts"),
+        nullable=True,
+    )
+    artifacts = relationship(argument="Artifact", backref=backref("jobs_artifacts"))
 
 
 # Pipeline Model
@@ -1178,7 +1421,11 @@ class Pipeline(Base):
     sha = Column(String, nullable=True)
     status = Column(String, nullable=True)
     web_url = Column(String, nullable=True)
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    project_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_pipeline_project"),
+        nullable=True,
+    )
     before_sha = Column(String, nullable=True)
     tag = Column(Boolean, nullable=True)
     yaml_errors = Column(String, nullable=True)
@@ -1193,22 +1440,30 @@ class Pipeline(Base):
     name = Column(String, nullable=True)
     source = Column(String, nullable=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    user_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_pipeline_user"), nullable=True
+    )
     user = relationship(
-        "User", foreign_keys=[user_id], backref=backref("pipelines_user")
+        argument="User", foreign_keys=[user_id], backref=backref("pipelines_user")
     )
 
     detailed_status_id = Column(
-        Integer, ForeignKey("detailed_status.id"), nullable=True
+        Integer,
+        ForeignKey(column="detailed_status.id", name="fk_pipeline_detailed_status"),
+        nullable=True,
     )
     detailed_status = relationship(
-        "DetailedStatus",
+        argument="DetailedStatus",
         foreign_keys=[detailed_status_id],
         backref=backref("pipelines_status"),
     )
 
-    job_id = Column(Integer, ForeignKey("jobs.id"), nullable=True)
-    jobs = relationship("Job", foreign_keys=[job_id], backref=backref("pipeline_jobs"))
+    job_id = Column(
+        Integer, ForeignKey(column="jobs.id", name="fk_pipeline_job"), nullable=True
+    )
+    jobs = relationship(
+        argument="Job", foreign_keys=[job_id], backref=backref("pipeline_jobs")
+    )
 
 
 # PackageLink Model
@@ -1230,15 +1485,23 @@ class PackageVersion(Base):
     version = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=True)
 
-    pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
+    pipeline_id = Column(
+        Integer,
+        ForeignKey(column="pipelines.id", name="fk_package_version_pipeline"),
+        nullable=True,
+    )
     pipelines = relationship(
-        "Pipeline",
+        argument="Pipeline",
         foreign_keys=[pipeline_id],
         backref=backref("pipeline_package_versions"),
     )
-    package_id = Column(Integer, ForeignKey("packages.id"), nullable=True)
+    package_id = Column(
+        Integer,
+        ForeignKey(column="packages.id", name="fk_package_version_package"),
+        nullable=True,
+    )
     packages = relationship(
-        "Package",
+        argument="Package",
         foreign_keys=[package_id],
         backref=backref("package_versions_package"),
     )
@@ -1262,18 +1525,32 @@ class Package(Base):
     file_sha1 = Column(String, nullable=True)
     file_sha256 = Column(String, nullable=True)
 
-    links_id = Column(Integer, ForeignKey("package_links.id"), nullable=True)
+    links_id = Column(
+        Integer,
+        ForeignKey(column="package_links.id", name="fk_package_links"),
+        nullable=True,
+    )
     links = relationship(
-        "PackageLink", foreign_keys=[links_id], backref=backref("packages_links")
+        argument="PackageLink",
+        foreign_keys=[links_id],
+        backref=backref("packages_links"),
     )
 
-    pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
-    pipelines = relationship(
-        "Pipeline", foreign_keys=[pipeline_id], backref=backref("packages")
+    pipeline_id = Column(
+        Integer,
+        ForeignKey(column="pipelines.id", name="fk_package_pipeline"),
+        nullable=True,
     )
-    versions_id = Column(Integer, ForeignKey("package_versions.id"), nullable=True)
+    pipelines = relationship(
+        argument="Pipeline", foreign_keys=[pipeline_id], backref=backref("packages")
+    )
+    versions_id = Column(
+        Integer,
+        ForeignKey(column="package_versions.id", name="fk_package_version"),
+        nullable=True,
+    )
     package_versions = relationship(
-        "PackageVersion",
+        argument="PackageVersion",
         foreign_keys=[versions_id],
         backref=backref("packages_versions"),
     )
@@ -1345,12 +1622,20 @@ class Comment(Base):
     path = Column(String, nullable=True)
     line = Column(Integer, nullable=True)
 
-    author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    author = relationship("User", foreign_keys=[author_id], backref=backref("comments"))
+    author_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_comment_author"), nullable=True
+    )
+    author = relationship(
+        argument="User", foreign_keys=[author_id], backref=backref("comments")
+    )
 
-    commits_id = Column(Integer, ForeignKey("commits.id"), nullable=True)
+    commits_id = Column(
+        Integer,
+        ForeignKey(column="commits.id", name="fk_comment_commit"),
+        nullable=True,
+    )
     commits = relationship(
-        "Commit", foreign_keys=[commits_id], backref=backref("commit_comments")
+        argument="Commit", foreign_keys=[commits_id], backref=backref("commit_comments")
     )
 
 
@@ -1389,33 +1674,51 @@ class Commit(Base):
     error_code = Column(String, nullable=True)
     coverage = Column(Float, nullable=True)
 
-    author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    author_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_commit_author"), nullable=True
+    )
     author = relationship(
-        "User", foreign_keys=[author_id], backref=backref("commits_author")
+        argument="User", foreign_keys=[author_id], backref=backref("commits_author")
     )
 
-    stats_id = Column(Integer, ForeignKey("commit_stats.id"), nullable=True)
+    stats_id = Column(
+        Integer,
+        ForeignKey(column="commit_stats.id", name="fk_commit_stats"),
+        nullable=True,
+    )
     stats = relationship(
-        "CommitStats", foreign_keys=[stats_id], backref=backref("commits_stats")
+        argument="CommitStats",
+        foreign_keys=[stats_id],
+        backref=backref("commits_stats"),
     )
 
-    last_pipeline_id = Column(Integer, ForeignKey("pipelines.id"), nullable=True)
+    last_pipeline_id = Column(
+        Integer,
+        ForeignKey(column="pipelines.id", name="fk_commit_last_pipeline"),
+        nullable=True,
+    )
     last_pipeline = relationship(
-        "Pipeline",
+        argument="Pipeline",
         foreign_keys=[last_pipeline_id],
         backref=backref("commits_last_pipeline"),
     )
 
-    signature_id = Column(Integer, ForeignKey("commit_signatures.id"), nullable=True)
-    signature = relationship(
-        "CommitSignature",
-        foreign_keys=[signature_id],
+    commit_signatures_id = Column(
+        Integer,
+        ForeignKey(column="commit_signatures.id", name="fk_commit_signatures"),
+        nullable=True,
+    )
+    commit_signatures = relationship(
+        argument="CommitSignature",
+        foreign_keys=[commit_signatures_id],
         backref=backref("commits_signatures"),
     )
 
-    notes_id = Column(Integer, ForeignKey("comments.id"), nullable=True)
+    notes_id = Column(
+        Integer, ForeignKey(column="comments.id", name="fk_commit_notes"), nullable=True
+    )
     notes = relationship(
-        "Comment", foreign_keys=[notes_id], backref=backref("commit_notes")
+        argument="Comment", foreign_keys=[notes_id], backref=backref("commit_notes")
     )
 
 
@@ -1441,7 +1744,9 @@ class Issue(Base):
     base_type = Column(String, default="Issue")
     state = Column(String, nullable=True)
     description = Column(String, nullable=True)
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    project_id = Column(
+        Integer, ForeignKey(column="projects.id", name="fk_project"), nullable=True
+    )
     type = Column(String, nullable=True)
     updated_at = Column(DateTime, nullable=True)
     closed_at = Column(DateTime, nullable=True)
@@ -1472,29 +1777,45 @@ class Issue(Base):
     service_desk_reply_to = Column(String, nullable=True)
     blocking_issues_count = Column(Integer, nullable=True)
 
-    author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    author_id = Column(
+        Integer, ForeignKey(column="users.id"), nullable=True, name="fk_issue_author"
+    )
     author = relationship(
-        "User", foreign_keys=[author_id], backref=backref("authored_issues")
+        argument="User", foreign_keys=[author_id], backref=backref("authored_issues")
     )
 
-    milestone_id = Column(Integer, ForeignKey("milestones.id"), nullable=True)
+    milestone_id = Column(
+        Integer,
+        ForeignKey(column="milestones.id", name="fk_issue_milestone"),
+        nullable=True,
+    )
     milestone = relationship(
-        "Milestone", foreign_keys=[milestone_id], backref=backref("issues")
+        argument="Milestone", foreign_keys=[milestone_id], backref=backref("issues")
     )
 
-    assignee_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    assignee_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_issue_assignee"), nullable=True
+    )
     assignee = relationship(
-        "User", foreign_keys=[assignee_id], backref=backref("assigned_issues")
+        argument="User", foreign_keys=[assignee_id], backref=backref("assigned_issues")
     )
 
-    closed_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    iteration_id = Column(Integer, ForeignKey("iterations.id"), nullable=True)
-    epic_id = Column(Integer, ForeignKey("epics.id"), nullable=True)
-    closed_by = relationship(
-        "User", foreign_keys=[closed_by_id], backref=backref("closed_issues")
+    closed_by_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_issue_closed_by"), nullable=True
     )
-    iteration = relationship("Iteration", backref=backref("issues"))
-    epic = relationship("Epic", backref=backref("issues"))
+    iteration_id = Column(
+        Integer,
+        ForeignKey(column="iterations.id", name="fk_issue_iteration"),
+        nullable=True,
+    )
+    epic_id = Column(
+        Integer, ForeignKey(column="epics.id", name="fk_issue_epic"), nullable=True
+    )
+    closed_by = relationship(
+        argument="User", foreign_keys=[closed_by_id], backref=backref("closed_issues")
+    )
+    iteration = relationship(argument="Iteration", backref=backref("issues"))
+    epic = relationship(argument="Epic", backref=backref("issues"))
 
 
 # TimeStats Model
@@ -1601,9 +1922,13 @@ class Iteration(Base):
     due_date = Column(String, nullable=True)
     web_url = Column(String, nullable=True)
 
-    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
+    group_id = Column(
+        Integer,
+        ForeignKey(column="groups.id", name="fk_iteration_group"),
+        nullable=True,
+    )
     group = relationship(
-        "Group", foreign_keys=[group_id], backref=backref("iterations")
+        argument="Group", foreign_keys=[group_id], backref=backref("iterations")
     )
 
 
@@ -1616,8 +1941,12 @@ class Identity(Base):
     provider = Column(String, nullable=True)
     extern_uid = Column(String, nullable=True)
 
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    user = relationship("User", foreign_keys=[user_id], backref=backref("identities"))
+    user_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_identity_user"), nullable=True
+    )
+    user = relationship(
+        argument="User", foreign_keys=[user_id], backref=backref("identities")
+    )
 
 
 # GroupSamlIdentity Model
@@ -1632,11 +1961,13 @@ class GroupSamlIdentity(Base):
 
     user_id = Column(
         Integer,
-        ForeignKey("users.id", name="fk_group_saml_identity_user_id"),
+        ForeignKey(column="users.id", name="fk_group_saml_identity_user_id"),
         nullable=True,
     )
     user = relationship(
-        "User", foreign_keys=[user_id], backref=backref("group_saml_identities_user")
+        argument="User",
+        foreign_keys=[user_id],
+        backref=backref("group_saml_identities_user"),
     )
 
 
@@ -1652,11 +1983,13 @@ class CreatedBy(Base):
     avatar_url = Column(String, nullable=True)
     web_url = Column(String, nullable=True)
     user_id = Column(
-        Integer, ForeignKey("users.id", name="fk_created_by_user_id"), nullable=True
+        Integer,
+        ForeignKey(column="users.id", name="fk_created_by_user_id"),
+        nullable=True,
     )
 
     user = relationship(
-        "User", foreign_keys=[user_id], backref=backref("created_by_user")
+        argument="User", foreign_keys=[user_id], backref=backref("created_by_user")
     )
 
 
@@ -1720,29 +2053,33 @@ class User(Base):
 
     created_by_id = Column(
         Integer,
-        ForeignKey("created_by.id", name="fk_user_created_by_id"),
+        ForeignKey(column="created_by.id", name="fk_user_created_by_id"),
         nullable=True,
     )
     created_by = relationship(
-        "CreatedBy", foreign_keys=[created_by_id], backref=backref("users")
+        argument="CreatedBy", foreign_keys=[created_by_id], backref=backref("users")
     )
 
     group_saml_identity_id = Column(
         Integer,
-        ForeignKey("group_saml_identities.id", name="fk_user_group_saml_identity_id"),
+        ForeignKey(
+            column="group_saml_identities.id", name="fk_user_group_saml_identity_id"
+        ),
         nullable=True,
     )
     group_saml_identity = relationship(
-        "GroupSamlIdentity",
+        argument="GroupSamlIdentity",
         foreign_keys=[group_saml_identity_id],
         backref=backref("users"),
     )
 
     namespace_id = Column(
-        Integer, ForeignKey("namespaces.id", name="fk_user_namespace_id"), nullable=True
+        Integer,
+        ForeignKey(column="namespaces.id", name="fk_user_namespace_id"),
+        nullable=True,
     )
     namespace = relationship(
-        "Namespace", foreign_keys=[namespace_id], backref=backref("users")
+        argument="Namespace", foreign_keys=[namespace_id], backref=backref("users")
     )
 
 
@@ -1751,7 +2088,9 @@ class Namespace(Base):
     __tablename__ = "namespaces"
 
     id = Column(
-        Integer, ForeignKey("namespaces.id", name="fk_namespace_id"), primary_key=True
+        Integer,
+        ForeignKey(column="namespaces.id", name="fk_namespace_id"),
+        primary_key=True,
     )
     base_type = Column(String, default="Namespace")
     name = Column(String, nullable=True)
@@ -1763,15 +2102,19 @@ class Namespace(Base):
 
     parent_id = Column(
         Integer,
-        ForeignKey("namespaces.id", name="fk_namespace_parent_id"),
+        ForeignKey(column="namespaces.id", name="fk_namespace_parent"),
         nullable=True,
     )
-    parent = relationship("Namespace", foreign_keys=[parent_id], remote_side=[id])
+    parent = relationship(
+        argument="Namespace", foreign_keys=[parent_id], remote_side=[id]
+    )
 
     user_id = Column(
-        Integer, ForeignKey("users.id", name="fk_namespace_user_id"), nullable=True
+        Integer, ForeignKey(column="users.id", name="fk_namespace_user"), nullable=True
     )
-    user = relationship("User", foreign_keys=[user_id], backref=backref("namespaces"))
+    user = relationship(
+        argument="User", foreign_keys=[user_id], backref=backref("namespaces")
+    )
 
 
 # ContainerExpirationPolicy Model
@@ -1835,6 +2178,16 @@ class Links(Base):
     award_emoji = Column(String, nullable=True)
     project = Column(String, nullable=True)
     closed_as_duplicate_of = Column(String, nullable=True)
+    projects_id = Column(
+        Integer,
+        ForeignKey(column="projects.id", name="fk_links_projects"),
+        nullable=True,
+    )
+    projects = relationship(
+        argument="Project",
+        foreign_keys=[projects_id],
+        backref=backref("links_projects"),
+    )
 
 
 # Diff Model
@@ -1860,9 +2213,15 @@ class Diff(Base):
     deleted_file = Column(Boolean, nullable=True)
     generated_file = Column(Boolean, nullable=True)
 
-    merge_request_id = Column(Integer, ForeignKey("merge_requests.id"), nullable=True)
+    merge_request_id = Column(
+        Integer,
+        ForeignKey(column="merge_requests.id", name="fk_diff_merge_request"),
+        nullable=True,
+    )
     merge_request = relationship(
-        "MergeRequest", foreign_keys=[merge_request_id], backref=backref("diffs")
+        argument="MergeRequest",
+        foreign_keys=[merge_request_id],
+        backref=backref("diffs"),
     )
 
 
@@ -1879,17 +2238,25 @@ class MergeApprovals(Base):
     merge_requests_disable_committers_approval = Column(Boolean, nullable=True)
     require_password_to_approve = Column(Boolean, nullable=True)
 
-    approvers_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    approvers_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_merge_approvals_approvers"),
+        nullable=True,
+    )
     approvers = relationship(
-        "User",
+        argument="User",
         # secondary="merge_approval_approvers",
         foreign_keys=[approvers_id],
         backref=backref("merge_approvals"),
     )
 
-    approver_groups_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
+    approver_groups_id = Column(
+        Integer,
+        ForeignKey(column="groups.id", name="fk_merge_approvals_approver_groups"),
+        nullable=True,
+    )
     approver_groups = relationship(
-        "Group",
+        argument="Group",
         # secondary="merge_approval_approver_groups",
         foreign_keys=[approver_groups_id],
         backref=backref("merge_approvals"),
@@ -1925,14 +2292,24 @@ class TestReport(Base):
     skipped_count = Column(Integer, nullable=True)
     error_count = Column(Integer, nullable=True)
 
-    total_id = Column(Integer, ForeignKey("test_report_totals.id"), nullable=True)
+    total_id = Column(
+        Integer,
+        ForeignKey(column="test_report_totals.id", name="fk_test_report_total"),
+        nullable=True,
+    )
     total = relationship(
-        "TestReportTotal", foreign_keys=[total_id], backref=backref("test_reports")
+        argument="TestReportTotal",
+        foreign_keys=[total_id],
+        backref=backref("test_reports"),
     )
 
-    test_suites_id = Column(Integer, ForeignKey("test_suites.id"), nullable=True)
+    test_suites_id = Column(
+        Integer,
+        ForeignKey(column="test_suites.id", name="fk_test_report_test_suite"),
+        nullable=True,
+    )
     test_suites = relationship(
-        "TestSuite",
+        argument="TestSuite",
         # secondary="test_report_test_suites",
         foreign_keys=[test_suites_id],
         backref=backref("test_reports"),
@@ -1962,8 +2339,12 @@ class Epic(Base):
     title = Column(String, nullable=True)
     url = Column(String, nullable=True)
 
-    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
-    groups = relationship("Group", foreign_keys=[group_id], backref=backref("epics"))
+    group_id = Column(
+        Integer, ForeignKey(column="groups.id", name="fk_epic_group"), nullable=True
+    )
+    groups = relationship(
+        argument="Group", foreign_keys=[group_id], backref=backref("epics")
+    )
 
 
 # TestCase Model
@@ -1995,9 +2376,15 @@ class TestSuite(Base):
     error_count = Column(Integer, nullable=True)
     suite_error = Column(String, nullable=True)
 
-    test_cases_id = Column(Integer, ForeignKey("test_cases.id"), nullable=True)
+    test_cases_id = Column(
+        Integer,
+        ForeignKey(column="test_cases.id", name="fk_test_suite_test_cases"),
+        nullable=True,
+    )
     test_cases = relationship(
-        "TestCase", foreign_keys=[test_cases_id], backref=backref("test_suites")
+        argument="TestCase",
+        foreign_keys=[test_cases_id],
+        backref=backref("test_suites"),
     )
 
 
