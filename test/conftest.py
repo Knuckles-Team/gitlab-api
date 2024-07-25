@@ -29,7 +29,7 @@ def pytest_configure(config):
 
 @pytest.fixture(scope="session")
 def engine():
-    # return create_engine("sqlite:///:memory:")  # In-memory SQLite database for testing
+    # Use test environment postgres db
     return create_engine(
         "postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
     )
