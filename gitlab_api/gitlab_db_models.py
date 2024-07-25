@@ -695,7 +695,7 @@ class ApprovalRule(Base):
 
     eligible_approvers_id = Column(
         Integer,
-        ForeignKey("protected_branches.id", name="fk_eligible_approvers_rules"),
+        ForeignKey("users.id", name="fk_eligible_approvers_rules"),
         nullable=True,
     )
     eligible_approvers = relationship(
@@ -707,7 +707,7 @@ class ApprovalRule(Base):
 
     users_id = Column(
         Integer,
-        ForeignKey("protected_branches.id", name="fk_users_rules"),
+        ForeignKey("users.id", name="fk_users_rules"),
         nullable=True,
     )
     users = relationship(
@@ -719,7 +719,7 @@ class ApprovalRule(Base):
 
     groups_id = Column(
         Integer,
-        ForeignKey("protected_branches.id", name="fk_groups_rules"),
+        ForeignKey("groups.id", name="fk_groups_rules"),
         nullable=True,
     )
     groups = relationship(
@@ -731,7 +731,7 @@ class ApprovalRule(Base):
 
     protected_branches_id = Column(
         Integer,
-        ForeignKey("protected_branches.id", name="fk_protected_branches_rules"),
+        ForeignKey("branches.id", name="fk_protected_branches_rules"),
         nullable=True,
     )
     protected_branches = relationship(
@@ -883,7 +883,7 @@ class MergeRequest(Base):
 
     change_id = Column(
         Integer,
-        ForeignKey("diff.id", name="fk_merge_request_diff"),
+        ForeignKey("diffs.id", name="fk_merge_request_diff"),
         nullable=True,
     )
     changes = relationship(
