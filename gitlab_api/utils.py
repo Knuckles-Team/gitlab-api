@@ -58,6 +58,8 @@ def parse_pydantic_schema(schema):
     parsed_schema = dict(schema)
     for key, value in parsed_schema.items():
         try:
+            if value is None:
+                continue
             if isinstance(value, list) and len(value):
                 if is_pydantic(value[0]):
                     parsed_schema[key] = [
