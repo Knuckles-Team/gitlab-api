@@ -173,7 +173,9 @@ class LinkDBModel(BaseDBModel):
     url = Column(String, nullable=True)
     link_type = Column(String, nullable=True)
 
-    assets_id = Column(Integer, ForeignKey(column="assets.id", name="fk_link_assets"), nullable=True)
+    assets_id = Column(
+        Integer, ForeignKey(column="assets.id", name="fk_link_assets"), nullable=True
+    )
     assets = relationship(
         argument="AssetsDBModel", foreign_keys=[assets_id], backref=backref("link")
     )
@@ -187,12 +189,16 @@ class AssetsDBModel(BaseDBModel):
     base_type = Column(String, default="Assets")
     count = Column(Integer, nullable=True)
     sources_id = Column(
-        Integer, ForeignKey(column="sources.id", name="fk_assets_sources"), nullable=True
+        Integer,
+        ForeignKey(column="sources.id", name="fk_assets_sources"),
+        nullable=True,
     )
     sources = relationship(
         argument="SourcesDBModel", foreign_keys=[sources_id], backref=backref("sources")
     )
-    links_id = Column(Integer, ForeignKey(column="links.id", name="fk_assets_links"), nullable=True)
+    links_id = Column(
+        Integer, ForeignKey(column="links.id", name="fk_assets_links"), nullable=True
+    )
     links = relationship(
         argument="LinksDBModel", foreign_keys=[links_id], backref=backref("links")
     )

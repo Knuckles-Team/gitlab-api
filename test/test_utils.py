@@ -864,7 +864,15 @@ def merge_request_fixture():
         pipeline=None,
         head_pipeline=None,
         diff_refs=None,
-        user=None,
+        user={
+            "base_type": "User",
+            "id": 2202,
+            "username": "test",
+            "user": None,
+            "email": None,
+            "state": "active",
+            "last_login_at": None,
+        },
         changes_count="1",
         rebase_in_progress=False,
         approvals_before_merge=2,
@@ -1229,7 +1237,7 @@ def agent_fixture():
 def test_parse_pydantic_schema(fixture, request):
     pydantic_model = request.getfixturevalue(fixture)
     try:
-        parsed_schema = parse_pydantic_schema(pydantic_model.dict())
+        parsed_schema = parse_pydantic_schema(pydantic_model.model_dump())
         logger.debug(f"parsed_schema for {fixture}:\n{parsed_schema}\n")
         sqlalchemy_model = pydantic_model.Meta.orm_model(**parsed_schema)
         sqlalchemy_model_dict = {k: v for k, v in sqlalchemy_model.__dict__.items()}
