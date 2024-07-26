@@ -51,27 +51,26 @@ def is_pydantic(obj: object):
 
 def parse_pydantic_schema(schema):
     """
-    Iterates through pydantic schema and parses nested schemas
+    Iterates through pydantic schema and parses all nested (to all nested layers) schemas
     to a dictionary containing SQLAlchemy models.
     Only works if nested schemas have specified the Meta.orm_model.
     """
+    def recursive_parse(value):
+        if isinstance(value, list) and len(value):
+            if is_pydantic(value[0]):
+                return [value[0].Meta.orm_model(**recursive_parse(item.model_dump())) for item in value]
+        elif is_pydantic(value):
+            value_dict = value.dict()
+            for key, nested_value in value_dict.items():
+                if isinstance(nested_value, (list, dict)) or is_pydantic(nested_value):
+                    value_dict[key] = recursive_parse(nested_value)
+            return value.Meta.orm_model(**value_dict)
+        return value
+
     parsed_schema = schema.model_dump()
     print(f"\nPARSED SCHEMA: {parsed_schema}\n")
     for key, value in parsed_schema.items():
-        try:
-            if isinstance(value, list) and len(value):
-                if is_pydantic(value[0]):
-                    parsed_schema[key] = [
-                        schema.Meta.orm_model(**schema.dict()) for schema in value
-                    ]
-            else:
-                if is_pydantic(value) and hasattr(value, "dict"):
-                    value_dict = value.dict()
-                    if value_dict is not None:
-                        print(f"\nParsed SCHEMA KEY: {parsed_schema[key]}\n\nVALUE DICT for ORM MODEL: {value_dict}\n")
-                        parsed_schema[key] = value.Meta.orm_model(**value_dict)
-        except AttributeError:
-            raise AttributeError(
-                "Found nested Pydantic model but Meta.orm_model was not specified."
-            )
+        print(f"\nParsed SCHEMA KEY: {parsed_schema[key]}\n\nVALUE DICT for ORM MODEL: {value}\n")
+        parsed_schema[key] = recursive_parse(value)
+
     return parsed_schema
