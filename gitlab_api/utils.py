@@ -66,6 +66,7 @@ def parse_pydantic_schema(schema):
             else:
                 if is_pydantic(value) and hasattr(value, "dict"):
                     value_dict = value.dict()
+                    print(f"VALUE DICT for ORM MODEL: {value_dict}")
                     if value_dict is not None:
                         parsed_schema[key] = value.Meta.orm_model(**value_dict)
         except AttributeError:

@@ -154,7 +154,7 @@ class SourcesDBModel(BaseDBModel):
     url = Column(String, nullable=True)
 
     assets_id = Column(
-        Integer, ForeignKey(column="assets.id", name="fk_sources_assets")
+        Integer, ForeignKey(column="assets.id", name="fk_sources_assets"), nullable=True
     )
     assets = relationship(
         argument="AssetsDBModel",
@@ -173,7 +173,7 @@ class LinkDBModel(BaseDBModel):
     url = Column(String, nullable=True)
     link_type = Column(String, nullable=True)
 
-    assets_id = Column(Integer, ForeignKey(column="assets.id", name="fk_link_assets"))
+    assets_id = Column(Integer, ForeignKey(column="assets.id", name="fk_link_assets"), nullable=True)
     assets = relationship(
         argument="AssetsDBModel", foreign_keys=[assets_id], backref=backref("link")
     )
@@ -187,12 +187,12 @@ class AssetsDBModel(BaseDBModel):
     base_type = Column(String, default="Assets")
     count = Column(Integer, nullable=True)
     sources_id = Column(
-        Integer, ForeignKey(column="sources.id", name="fk_assets_sources")
+        Integer, ForeignKey(column="sources.id", name="fk_assets_sources"), nullable=True
     )
     sources = relationship(
         argument="SourcesDBModel", foreign_keys=[sources_id], backref=backref("sources")
     )
-    links_id = Column(Integer, ForeignKey(column="links.id", name="fk_assets_links"))
+    links_id = Column(Integer, ForeignKey(column="links.id", name="fk_assets_links"), nullable=True)
     links = relationship(
         argument="LinksDBModel", foreign_keys=[links_id], backref=backref("links")
     )
@@ -567,9 +567,9 @@ class LabelDBModel(BaseDBModel):
     open_issues_count = Column(Integer, nullable=False, default=0)
     closed_issues_count = Column(Integer, nullable=False, default=0)
     open_merge_requests_count = Column(Integer, nullable=False, default=0)
-    subscribed = Column(Boolean, nullable=False, default=False)
+    subscribed = Column(Boolean, nullable=True, default=False)
     priority = Column(Integer, nullable=True)
-    is_project_label = Column(Boolean, nullable=False, default=True)
+    is_project_label = Column(Boolean, nullable=True, default=True)
 
 
 # ApprovalRule Model
