@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 
 import pytest
 from sqlalchemy.orm import sessionmaker
@@ -19,16 +20,10 @@ from gitlab_api.gitlab_models import (
     WikiAttachment,
     ProjectConfig,
     Agent,
-    Agents,
     Release,
     Branch,
     ApprovalRule,
     MergeRequest,
-    GroupAccess,
-    DefaultBranchProtectionDefaults,
-    Group,
-    Webhook,
-    AccessLevel,
     ApprovedBy,
     Project,
     Runner,
@@ -41,7 +36,6 @@ from gitlab_api.gitlab_models import (
     CommitStats,
     CommitSignature,
     Comment,
-    Commit,
     Membership,
     IssueStats,
     Milestone,
@@ -64,92 +58,31 @@ from gitlab_api.gitlab_models import (
     Links,
     Diff,
     DetailedStatus,
-)
-from gitlab_api.gitlab_db_models import (
-    BaseDBModel,
-    DeployTokenDBModel,
-    RuleDBModel,
-    AccessControlDBModel,
-    SourceDBModel,
-    LinkDBModel,
-    AssetsDBModel,
-    EvidenceDBModel,
-    ReleaseLinksDBModel,
-    TokenDBModel,
-    ToDoDBModel,
-    WikiPageDBModel,
-    WikiAttachmentLinkDBModel,
-    WikiAttachmentDBModel,
-    AgentDBModel,
-    AgentsDBModel,
-    ReleaseDBModel,
-    BranchDBModel,
-    ApprovalRuleDBModel,
-    MergeRequestDBModel,
-    MergeApprovalsDBModel,
-    TestCaseDBModel,
-    TestSuiteDBModel,
-    TestReportDBModel,
-    TestReportTotalDBModel,
-    GroupAccessDBModel,
-    DefaultBranchProtectionDefaultsDBModel,
-    GroupDBModel,
-    WebhookDBModel,
-    AccessLevelDBModel,
-    ApprovedByDBModel,
-    ProjectDBModel,
-    RunnerDBModel,
-    EpicDBModel,
-    IssueDBModel,
-    JobDBModel,
-    PipelineDBModel,
-    PipelineVariableDBModel,
-    PackageLinkDBModel,
-    PackageVersionDBModel,
-    PackageDBModel,
-    ProjectConfigDBModel,
-    ContributorDBModel,
-    CommitStatsDBModel,
-    CommitSignatureDBModel,
-    CommentDBModel,
-    CommitDBModel,
-    MembershipDBModel,
-    IssueStatsDBModel,
-    MilestoneDBModel,
-    TimeStatsDBModel,
-    TaskCompletionStatusDBModel,
-    ReferencesDBModel,
-    ArtifactDBModel,
-    ArtifactsFileDBModel,
-    RunnerManagerDBModel,
-    ConfigurationDBModel,
-    IterationDBModel,
-    IdentityDBModel,
-    GroupSamlIdentityDBModel,
-    CreatedByDBModel,
-    UserDBModel,
-    NamespaceDBModel,
-    ContainerExpirationPolicyDBModel,
-    PermissionsDBModel,
-    StatisticsDBModel,
-    LinksDBModel,
-    DiffDBModel,
-    DetailedStatusDBModel,
+    Issue,
+    PipelineVariable,
+    TestCase,
+    Epic,
+    TestSuite,
+    TestReport,
+    TestReportTotal,
+    MergeApprovals,
 )
 from gitlab_api.utils import parse_pydantic_schema
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 # Create an in-memory SQLite database for testing
-engine = create_engine('sqlite:///:memory:')
+engine = create_engine("sqlite:///:memory:")
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
 @pytest.fixture
 def issue_stats_fixture():
-    return IssueStats(
-        base_type="IssueStats",
-        total=10,
-        closed=5,
-        opened=5
-    )
+    return IssueStats(base_type="IssueStats", total=10, closed=5, opened=5)
+
 
 @pytest.fixture
 def milestone_fixture():
@@ -167,8 +100,9 @@ def milestone_fixture():
         start_date="2023-01-01",
         web_url="http://example.com",
         closed_at=None,
-        issue_stats=None
+        issue_stats=None,
     )
+
 
 @pytest.fixture
 def time_stats_fixture():
@@ -177,16 +111,16 @@ def time_stats_fixture():
         time_estimate=3600,
         total_time_spent=1800,
         human_time_estimate="1h",
-        human_total_time_spent="30m"
+        human_total_time_spent="30m",
     )
+
 
 @pytest.fixture
 def task_completion_status_fixture():
     return TaskCompletionStatus(
-        base_type="TaskCompletionStatus",
-        count=10,
-        completed_count=5
+        base_type="TaskCompletionStatus", count=10, completed_count=5
     )
+
 
 @pytest.fixture
 def references_fixture():
@@ -194,8 +128,9 @@ def references_fixture():
         base_type="References",
         short="short_ref",
         relative="relative_ref",
-        full="full_ref"
+        full="full_ref",
     )
+
 
 @pytest.fixture
 def artifact_fixture():
@@ -204,16 +139,14 @@ def artifact_fixture():
         file_type="artifact",
         size=1024,
         filename="artifact.txt",
-        file_format="txt"
+        file_format="txt",
     )
+
 
 @pytest.fixture
 def artifacts_file_fixture():
-    return ArtifactsFile(
-        base_type="ArtifactsFile",
-        filename="artifacts.zip",
-        size=2048
-    )
+    return ArtifactsFile(base_type="ArtifactsFile", filename="artifacts.zip", size=2048)
+
 
 @pytest.fixture
 def runner_manager_fixture():
@@ -228,8 +161,9 @@ def runner_manager_fixture():
         created_at=datetime(2023, 1, 1, 0, 0),
         contacted_at=datetime(2023, 1, 2, 0, 0),
         ip_address="127.0.0.1",
-        status="active"
+        status="active",
     )
+
 
 @pytest.fixture
 def configuration_fixture():
@@ -241,8 +175,9 @@ def configuration_fixture():
         disable_overriding_approvers_per_merge_request=False,
         merge_requests_author_approval=True,
         merge_requests_disable_committers_approval=False,
-        require_password_to_approve=False
+        require_password_to_approve=False,
     )
+
 
 @pytest.fixture
 def iteration_fixture():
@@ -259,16 +194,14 @@ def iteration_fixture():
         updated_at=datetime(2023, 1, 2, 0, 0),
         start_date="2023-01-01",
         due_date="2023-02-01",
-        web_url="http://example.com"
+        web_url="http://example.com",
     )
+
 
 @pytest.fixture
 def identity_fixture():
-    return Identity(
-        base_type="Identity",
-        provider="provider",
-        extern_uid="extern_uid"
-    )
+    return Identity(base_type="Identity", provider="provider", extern_uid="extern_uid")
+
 
 @pytest.fixture
 def group_saml_identity_fixture():
@@ -276,8 +209,9 @@ def group_saml_identity_fixture():
         base_type="GroupSamlIdentity",
         extern_uid="extern_uid",
         provider="provider",
-        saml_provider_id=1
+        saml_provider_id=1,
     )
+
 
 @pytest.fixture
 def created_by_fixture():
@@ -288,8 +222,9 @@ def created_by_fixture():
         name="Creator Name",
         state="active",
         avatar_url="http://example.com/avatar",
-        web_url="http://example.com"
+        web_url="http://example.com",
     )
+
 
 @pytest.fixture
 def user_fixture():
@@ -351,8 +286,9 @@ def user_fixture():
         extra_shared_runners_minutes_limit=100,
         membership_type="member",
         removable=True,
-        last_login_at=datetime(2023, 1, 1, 0, 0)
+        last_login_at=datetime(2023, 1, 1, 0, 0),
     )
+
 
 @pytest.fixture
 def namespace_fixture():
@@ -365,8 +301,9 @@ def namespace_fixture():
         full_path="full/namespace_path",
         parent_id=None,
         avatar_url="http://example.com/avatar",
-        web_url="http://example.com"
+        web_url="http://example.com",
     )
+
 
 @pytest.fixture
 def container_expiration_policy_fixture():
@@ -378,16 +315,18 @@ def container_expiration_policy_fixture():
         older_than="1w",
         name_regex=".*",
         name_regex_keep=".*",
-        next_run_at=datetime(2023, 1, 1, 0, 0)
+        next_run_at=datetime(2023, 1, 1, 0, 0),
     )
+
 
 @pytest.fixture
 def permissions_fixture():
     return Permissions(
         base_type="Permissions",
         project_access={"access_level": 40, "notification_level": 3},
-        group_access={"access_level": 50, "notification_level": 2}
+        group_access={"access_level": 50, "notification_level": 2},
     )
+
 
 @pytest.fixture
 def statistics_fixture():
@@ -402,8 +341,9 @@ def statistics_fixture():
         pipeline_artifacts_size=64,
         packages_size=32,
         snippets_size=16,
-        uploads_size=8
+        uploads_size=8,
     )
+
 
 @pytest.fixture
 def links_fixture():
@@ -421,8 +361,9 @@ def links_fixture():
         notes="http://example.com/notes",
         award_emoji="http://example.com/award_emoji",
         project="http://example.com/project",
-        closed_as_duplicate_of="http://example.com/closed_as_duplicate_of"
+        closed_as_duplicate_of="http://example.com/closed_as_duplicate_of",
     )
+
 
 @pytest.fixture
 def diff_fixture():
@@ -445,8 +386,9 @@ def diff_fixture():
         new_file=True,
         renamed_file=False,
         deleted_file=False,
-        generated_file=False
+        generated_file=False,
     )
+
 
 @pytest.fixture
 def detailed_status_fixture():
@@ -460,8 +402,9 @@ def detailed_status_fixture():
         has_details=True,
         details_path="http://example.com/details_path",
         illustration=None,
-        favicon="http://example.com/favicon"
+        favicon="http://example.com/favicon",
     )
+
 
 @pytest.fixture
 def pipeline_fixture():
@@ -488,16 +431,18 @@ def pipeline_fixture():
         coverage="85.5%",
         name="pipeline_name",
         source="push",
-        detailed_status=None
+        detailed_status=None,
     )
+
 
 @pytest.fixture
 def package_link_fixture():
     return PackageLink(
         base_type="PackageLink",
         web_path="http://example.com/web_path",
-        delete_api_path="http://example.com/delete_api_path"
+        delete_api_path="http://example.com/delete_api_path",
     )
+
 
 @pytest.fixture
 def package_version_fixture():
@@ -506,8 +451,9 @@ def package_version_fixture():
         id=1,
         version="1.0.0",
         created_at=datetime(2023, 1, 1, 0, 0),
-        pipelines=None
+        pipelines=None,
     )
+
 
 @pytest.fixture
 def package_fixture():
@@ -529,8 +475,9 @@ def package_fixture():
         size=1024,
         file_md5="md5hash",
         file_sha1="sha1hash",
-        file_sha256="sha256hash"
+        file_sha256="sha256hash",
     )
+
 
 @pytest.fixture
 def contributor_fixture():
@@ -540,17 +487,14 @@ def contributor_fixture():
         email="contributor@example.com",
         commits=10,
         additions=100,
-        deletions=50
+        deletions=50,
     )
+
 
 @pytest.fixture
 def commit_stats_fixture():
-    return CommitStats(
-        base_type="CommitStats",
-        additions=100,
-        deletions=50,
-        total=150
-    )
+    return CommitStats(base_type="CommitStats", additions=100, deletions=50, total=150)
+
 
 @pytest.fixture
 def commit_signature_fixture():
@@ -566,8 +510,9 @@ def commit_signature_fixture():
         gpg_key_subkey_id="subkey_id",
         key={"type": "ssh", "key": "ssh-rsa AAAAB3Nza..."},
         x509_certificate={"issuer": "CA", "subject": "User"},
-        message="Signature message"
+        message="Signature message",
     )
+
 
 @pytest.fixture
 def comment_fixture():
@@ -590,8 +535,9 @@ def comment_fixture():
         commands_changes={},
         line_type="new",
         path="file/path",
-        line=10
+        line=10,
     )
+
 
 @pytest.fixture
 def membership_fixture():
@@ -603,15 +549,14 @@ def membership_fixture():
         source_members_url="http://example.com/members",
         created_at=datetime(2023, 1, 1, 0, 0),
         expires_at=datetime(2023, 1, 2, 0, 0),
-        access_level={"access_level": 40, "notification_level": 3}
+        access_level={"access_level": 40, "notification_level": 3},
     )
+
 
 @pytest.fixture
 def approved_by_fixture():
-    return ApprovedBy(
-        base_type="ApprovedBy",
-        user=None
-    )
+    return ApprovedBy(base_type="ApprovedBy", user=None)
+
 
 @pytest.fixture
 def project_fixture():
@@ -754,8 +699,9 @@ def project_fixture():
         operations_access_level="enabled",
         ci_dockerfile="Dockerfile",
         groups=[],
-        public=True
+        public=True,
     )
+
 
 @pytest.fixture
 def runner_fixture():
@@ -780,8 +726,9 @@ def runner_fixture():
         maximum_timeout=3600,
         maintenance_note="Maintenance note",
         projects=None,
-        tag_list=["tag1", "tag2"]
+        tag_list=["tag1", "tag2"],
     )
+
 
 @pytest.fixture
 def job_fixture():
@@ -814,8 +761,9 @@ def job_fixture():
         web_url="http://example.com",
         project=None,
         user=None,
-        downstream_pipeline=None
+        downstream_pipeline=None,
     )
+
 
 @pytest.fixture
 def branch_fixture():
@@ -836,8 +784,9 @@ def branch_fixture():
         unprotect_access_levels=[],
         allow_force_push=False,
         code_owner_approval_required=True,
-        inherited=False
+        inherited=False,
     )
+
 
 @pytest.fixture
 def approval_rule_fixture():
@@ -856,8 +805,9 @@ def approval_rule_fixture():
         source_rule="source_rule",
         approved=False,
         overridden=False,
-        approved_by=[]
+        approved_by=[],
     )
+
 
 @pytest.fixture
 def merge_request_fixture():
@@ -936,8 +886,9 @@ def merge_request_fixture():
         approvals_left=1,
         approved_by=[],
         approval_rules_overwritten=False,
-        rules=[]
+        rules=[],
     )
+
 
 @pytest.fixture
 def epic_fixture():
@@ -947,8 +898,9 @@ def epic_fixture():
         iid=101,
         title="Epic Title",
         url="http://example.com",
-        group_id=1
+        group_id=1,
     )
+
 
 @pytest.fixture
 def issue_fixture():
@@ -997,8 +949,9 @@ def issue_fixture():
         health_status="on_track",
         subscribed=True,
         service_desk_reply_to="service_desk@example.com",
-        blocking_issues_count=0
+        blocking_issues_count=0,
     )
+
 
 @pytest.fixture
 def pipeline_variable_fixture():
@@ -1006,8 +959,9 @@ def pipeline_variable_fixture():
         base_type="PipelineVariable",
         key="VARIABLE_KEY",
         variable_type="env_var",
-        value="value"
+        value="value",
     )
+
 
 @pytest.fixture
 def test_case_fixture():
@@ -1018,8 +972,9 @@ def test_case_fixture():
         classname="TestCaseClass",
         execution_time=1.23,
         system_output="System output",
-        stack_trace="Stack trace"
+        stack_trace="Stack trace",
     )
+
 
 @pytest.fixture
 def test_suite_fixture():
@@ -1034,8 +989,9 @@ def test_suite_fixture():
         error_count=0,
         test_cases=[],
         build_ids=[],
-        suite_error=None
+        suite_error=None,
     )
+
 
 @pytest.fixture
 def test_report_total_fixture():
@@ -1047,8 +1003,9 @@ def test_report_total_fixture():
         failed=1,
         skipped=0,
         error=0,
-        suite_error=None
+        suite_error=None,
     )
+
 
 @pytest.fixture
 def test_report_fixture():
@@ -1062,16 +1019,17 @@ def test_report_fixture():
         skipped_count=0,
         error_count=0,
         suites=[],
-        total=None
+        total=None,
     )
+
 
 @pytest.fixture
 def merge_approvals_fixture():
     return MergeApprovals(
         base_type="MergeApprovals",
-        rules=[],
-        approved_by=[]
+        reset_approvals_on_push=True,
     )
+
 
 @pytest.fixture
 def deploy_token_fixture():
@@ -1083,41 +1041,36 @@ def deploy_token_fixture():
         token="token",
         scopes=["read_repository"],
         expires_at="2023-12-31",
-        revoked=False
+        revoked=False,
     )
+
 
 @pytest.fixture
 def rule_fixture():
     return Rule(
         base_type="Rule",
-        id=1,
-        name="Rule",
-        rule_type="regular",
-        approvals_required=2,
-        eligible_approvers=[]
+        commit_message_regex="Rule",
+        file_name_regex="FilesRule",
+        branch_name_regex="Rule",
     )
+
 
 @pytest.fixture
 def access_control_fixture():
     return AccessControl(
         base_type="AccessControl",
-        access_level="maintainer",
-        user=None,
-        group=None
+        access_level=40,
     )
+
 
 @pytest.fixture
 def source_fixture():
     return Source(
         base_type="Source",
-        id=1,
-        name="Source",
-        description="Source description",
-        project_id=1,
-        user=None,
-        created_at=datetime(2023, 1, 1, 0, 0),
-        updated_at=datetime(2023, 1, 2, 0, 0)
+        format="zip",
+        url="Source.com",
     )
+
 
 @pytest.fixture
 def link_fixture():
@@ -1126,127 +1079,104 @@ def link_fixture():
         id=1,
         name="Link",
         url="http://example.com",
-        external=False,
-        link_type="other"
+        link_type="other",
     )
+
 
 @pytest.fixture
 def assets_fixture():
     return Assets(
         base_type="Assets",
-        count=10,
-        markdown="Markdown content",
-        name="Assets",
-        version="1.0.0"
+        count=0,
+        evidence_file_path="Markdown/content",
     )
+
 
 @pytest.fixture
 def evidence_fixture():
     return Evidence(
         base_type="Evidence",
-        id=1,
         sha="sha256",
-        url="http://example.com",
         collected_at="2023-01-01T00:00:00Z",
-        pipeline_id=1
     )
+
 
 @pytest.fixture
 def release_links_fixture():
     return ReleaseLinks(
         base_type="ReleaseLinks",
-        web_url="http://example.com",
-        artifacts=["artifact1", "artifact2"],
-        merge_requests=["mr1", "mr2"]
+        closed_issues_url="http://example.com",
+        closed_merge_requests_url="http://example.com",
+        edit_url="http://example.com",
+        merged_merge_requests_url="http://example.com",
+        opened_issues_url="http://example.com",
+        opened_merge_requests_url="http://example.com",
     )
+
 
 @pytest.fixture
 def release_fixture():
     return Release(
         base_type="Release",
-        id=1,
         description="Release description",
         name="Release Name",
-        tag_name="v1.0.0",
         created_at="2023-01-01T00:00:00Z",
         released_at="2023-01-01T01:00:00Z",
-        author=None,
-        commit=None,
-        milestones=[],
-        description_html="Description HTML",
-        assets=None,
-        evidences=[],
-        upcoming_release=False,
-        title="Release Title",
-        notes="Release notes",
-        links=None
     )
+
 
 @pytest.fixture
 def token_fixture():
     return Token(
         base_type="Token",
         id=1,
-        description="Token description",
         token="token",
-        active=True,
-        created_at="2023-01-01T00:00:00Z",
-        updated_at="2023-01-02T00:00:00Z"
+        token_expires_at="2023-01-01T00:00:00Z",
     )
+
 
 @pytest.fixture
 def todo_fixture():
     return ToDo(
         base_type="ToDo",
-        id=1,
-        project=None,
-        author=None,
         action_name="action",
-        target=None,
         target_type="issue",
         body="ToDo body",
         created_at="2023-01-01T00:00:00Z",
-        updated_at="2023-01-02T00:00:00Z",
         state="pending",
-        target_url="http://example.com",
-        target_id=1,
-        target_iid=101,
-        group_id=1
+        id=1,
     )
+
 
 @pytest.fixture
 def wiki_page_fixture():
     return WikiPage(
         base_type="WikiPage",
-        id=1,
         title="Wiki Page Title",
         content="Wiki page content",
         format="markdown",
         slug="wiki-page-slug",
-        created_at="2023-01-01T00:00:00Z",
-        updated_at="2023-01-02T00:00:00Z",
-        parent_id=None,
-        parent_slug=None,
-        parent_title=None
     )
+
 
 @pytest.fixture
 def wiki_attachment_link_fixture():
     return WikiAttachmentLink(
         base_type="WikiAttachmentLink",
-        filename="attachment.txt",
-        markdown="![attachment](http://example.com/attachment.txt)"
+        url="attachment.com",
+        markdown="![attachment](http://example.com/attachment.txt)",
     )
+
 
 @pytest.fixture
 def wiki_attachment_fixture():
     return WikiAttachment(
         base_type="WikiAttachment",
         file_name="attachment.txt",
+        file_path="text/plain",
         branch="attachment.txt",
-        content_type="text/plain",
-        link="http://example.com/attachment.txt",
     )
+
 
 @pytest.fixture
 def project_config_fixture():
@@ -1260,6 +1190,7 @@ def project_config_fixture():
         path_with_namespace="config_key",
     )
 
+
 @pytest.fixture
 def agent_fixture():
     return Agent(
@@ -1269,34 +1200,42 @@ def agent_fixture():
 
 
 # Test function to validate the conversion for each model
-@pytest.mark.parametrize("fixture", [
-    "evidence_fixture",
-    "issue_stats_fixture",
-    "milestone_fixture",
-    "deploy_token_fixture",
-    "rule_fixture",
-    "merge_approvals_fixture",
-    "deploy_token_fixture",
-    "rule_fixture",
-    "access_control_fixture",
-    "source_fixture",
-    "link_fixture",
-    "assets_fixture",
-    "release_links_fixture",
-    "release_fixture",
-    "token_fixture",
-    "todo_fixture",
-    "wiki_page_fixture",
-    "wiki_attachment_link_fixture",
-    "wiki_attachment_fixture",
-    "project_config_fixture",
-    "agent_fixture"
-])
+@pytest.mark.parametrize(
+    "fixture",
+    [
+        "evidence_fixture",
+        "issue_stats_fixture",
+        "milestone_fixture",
+        "deploy_token_fixture",
+        "rule_fixture",
+        "merge_approvals_fixture",
+        "deploy_token_fixture",
+        "rule_fixture",
+        "access_control_fixture",
+        "source_fixture",
+        "link_fixture",
+        "assets_fixture",
+        "release_links_fixture",
+        "release_fixture",
+        "token_fixture",
+        "todo_fixture",
+        "wiki_page_fixture",
+        "wiki_attachment_link_fixture",
+        "wiki_attachment_fixture",
+        "project_config_fixture",
+        "agent_fixture",
+    ],
+)
 def test_parse_pydantic_schema(fixture, request):
     pydantic_model = request.getfixturevalue(fixture)
     try:
         parsed_schema = parse_pydantic_schema(pydantic_model.dict())
+        logger.debug(f"parsed_schema for {fixture}:\n{parsed_schema}\n")
         sqlalchemy_model = pydantic_model.Meta.orm_model(**parsed_schema)
-        assert isinstance(sqlalchemy_model, pydantic_model.Meta.orm_model)
+        sqlalchemy_model_dict = {k: v for k, v in sqlalchemy_model.__dict__.items()}
+        sqlalchemy_model_dict.pop("_sa_instance_state", None)
+        logger.debug(f"sqlalchemy_model_dict for {fixture}:\n{sqlalchemy_model_dict}\n")
+
+        assert sqlalchemy_model_dict == parsed_schema
     except Exception as e:
         pytest.fail(f"Conversion failed for {fixture}: {e}")

@@ -145,17 +145,21 @@ class AccessControlDBModel(BaseDBModel):
 
 
 # Source Model
-class SourceDBModel(BaseDBModel):
+class SourcesDBModel(BaseDBModel):
     __tablename__ = "sources"
 
     id = Column(Integer, primary_key=True)
-    base_type = Column(String, default="Source")
+    base_type = Column(String, default="Sources")
     format = Column(String, nullable=True)
     url = Column(String, nullable=True)
 
-    assets_id = Column(Integer, ForeignKey(column="assets.id", name="fk_source_assets"))
+    assets_id = Column(
+        Integer, ForeignKey(column="assets.id", name="fk_sources_assets")
+    )
     assets = relationship(
-        argument="AssetsDBModel", foreign_keys=[assets_id], backref=backref("sources")
+        argument="AssetsDBModel",
+        foreign_keys=[assets_id],
+        backref=backref("sources_assets"),
     )
 
 
@@ -182,6 +186,16 @@ class AssetsDBModel(BaseDBModel):
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="Assets")
     count = Column(Integer, nullable=True)
+    sources_id = Column(
+        Integer, ForeignKey(column="sources.id", name="fk_assets_sources")
+    )
+    sources = relationship(
+        argument="SourcesDBModel", foreign_keys=[sources_id], backref=backref("sources")
+    )
+    links_id = Column(Integer, ForeignKey(column="links.id", name="fk_assets_links"))
+    links = relationship(
+        argument="LinksDBModel", foreign_keys=[links_id], backref=backref("links")
+    )
     evidence_file_path = Column(String, nullable=True)
 
 
@@ -197,7 +211,7 @@ class ReleaseLinksDBModel(BaseDBModel):
     merged_merge_requests_url = Column(String, nullable=True)
     opened_issues_url = Column(String, nullable=True)
     opened_merge_requests_url = Column(String, nullable=True)
-    self_url = Column(String, nullable=True)
+    self_link = Column(String, nullable=True)
     releases_id = Column(
         Integer,
         ForeignKey(column="releases.id", name="fk_release_links_releases"),

@@ -36,7 +36,7 @@ from gitlab_api.gitlab_db_models import (
     DeployTokenDBModel,
     RuleDBModel,
     AccessControlDBModel,
-    SourceDBModel,
+    SourcesDBModel,
     LinkDBModel,
     AssetsDBModel,
     EvidenceDBModel,
@@ -3403,7 +3403,9 @@ class Links(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Links")
-    self: Optional[str] = Field(default=None, description="URL to the project itself.")
+    self_link: Optional[str] = Field(
+        default=None, alias="self", description="URL to the project itself."
+    )
     issues: Optional[str] = Field(
         default=None, description="URL to the project's issues."
     )
@@ -5639,7 +5641,7 @@ class AccessControl(BaseModel):
 
 class Source(BaseModel):
     class Meta:
-        orm_model = SourceDBModel
+        orm_model = SourcesDBModel
 
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
@@ -5731,7 +5733,9 @@ class ReleaseLinks(BaseModel):
     opened_merge_requests_url: Optional[Union[HttpUrl, str]] = Field(
         None, description="URL to the list of opened merge requests"
     )
-    self: Optional[str] = Field(None, description="Self-referencing URL")
+    self_link: Optional[str] = Field(
+        None, alias="self", description="Self-referencing URL"
+    )
 
 
 class Release(BaseModel):
