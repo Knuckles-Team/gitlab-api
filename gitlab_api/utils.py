@@ -55,7 +55,8 @@ def parse_pydantic_schema(schema):
     to a dictionary containing SQLAlchemy models.
     Only works if nested schemas have specified the Meta.orm_model.
     """
-    parsed_schema = dict(schema)
+    parsed_schema = schema.model_dump()
+    print(f"\nPARSED SCHEMA: {parsed_schema}\n")
     for key, value in parsed_schema.items():
         try:
             if isinstance(value, list) and len(value):
@@ -67,7 +68,7 @@ def parse_pydantic_schema(schema):
                 if is_pydantic(value) and hasattr(value, "dict"):
                     value_dict = value.dict()
                     if value_dict is not None:
-                        print(f"Parsed SCHEMA KEY: {parsed_schema[key]}\nVALUE DICT for ORM MODEL: {value_dict}")
+                        print(f"\nParsed SCHEMA KEY: {parsed_schema[key]}\n\nVALUE DICT for ORM MODEL: {value_dict}\n")
                         parsed_schema[key] = value.Meta.orm_model(**value_dict)
         except AttributeError:
             raise AttributeError(

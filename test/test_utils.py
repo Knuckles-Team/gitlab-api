@@ -1237,7 +1237,7 @@ def agent_fixture():
 def test_parse_pydantic_schema(fixture, request):
     pydantic_model = request.getfixturevalue(fixture)
     try:
-        parsed_schema = parse_pydantic_schema(pydantic_model.model_dump())
+        parsed_schema = parse_pydantic_schema(pydantic_model)
         logger.debug(f"parsed_schema for {fixture}:\n{parsed_schema}\n")
         sqlalchemy_model = pydantic_model.Meta.orm_model(**parsed_schema)
         sqlalchemy_model_dict = {k: v for k, v in sqlalchemy_model.__dict__.items()}
