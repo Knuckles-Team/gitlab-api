@@ -2052,6 +2052,7 @@ class UserDBModel(BaseDBModel):
 
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="User")
+    user = Column(String, nullable=True)
     username = Column(String, nullable=True)
     email = Column(String, nullable=True)
     name = Column(String, nullable=True)
