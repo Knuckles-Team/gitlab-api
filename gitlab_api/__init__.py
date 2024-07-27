@@ -150,7 +150,7 @@ from gitlab_api.gitlab_db_models import (
     DiffDBModel,
     DetailedStatusDBModel,
 )
-from gitlab_api.utils import parse_pydantic_schema
+from gitlab_api.utils import pydantic_to_sqlalchemy
 
 """
 GitLab API
@@ -163,7 +163,7 @@ __author__ = __author__
 __credits__ = __credits__
 
 __all__ = [
-    "parse_pydantic_schema",
+    "pydantic_to_sqlalchemy",
     "Api",
     "BranchModel",
     "CommitModel",

@@ -44,33 +44,20 @@ def process_response(response: requests.Response) -> Union[Response, requests.Re
     return response
 
 
-def is_pydantic(obj: object):
-    """Checks whether an object is pydantic."""
-    return type(obj).__class__.__name__ == "ModelMetaclass"
-
-
-def parse_pydantic_schema(schema):
-    """
-    Iterates through pydantic schema and parses all nested (to all nested layers) schemas
-    to a dictionary containing SQLAlchemy models.
-    Only works if nested schemas have specified the Meta.orm_model.
-    """
-    def recursive_parse(value):
-        if isinstance(value, list) and len(value):
-            if is_pydantic(value[0]):
-                return [value[0].Meta.orm_model(**recursive_parse(item.model_dump())) for item in value]
-        elif is_pydantic(value):
-            value_dict = value.dict()
-            for key, nested_value in value_dict.items():
-                if isinstance(nested_value, (list, dict)) or is_pydantic(nested_value):
-                    value_dict[key] = recursive_parse(nested_value)
-            return value.Meta.orm_model(**value_dict)
-        return value
-
-    parsed_schema = schema.model_dump()
-    print(f"\nPARSED SCHEMA: {parsed_schema}\n")
-    for key, value in parsed_schema.items():
-        print(f"\nParsed SCHEMA KEY: {parsed_schema[key]}\n\nVALUE DICT for ORM MODEL: {value}\n")
-        parsed_schema[key] = recursive_parse(value)
-
-    return parsed_schema
+def pydantic_to_sqlalchemy(pydantic_model):
+    sqlalchemy_model = pydantic_model.Meta.orm_model
+    sqlalchemy_instance = sqlalchemy_model()
+    for key, value in pydantic_model.model_dump(exclude_unset=True).items():
+        if isinstance(value, list):
+            related_instances = [
+                pydantic_to_sqlalchemy(item) if hasattr(item, 'Meta') and hasattr(item.Meta, 'orm_model') else item
+                for item in value
+            ]
+            setattr(sqlalchemy_instance, key, related_instances)
+        elif isinstance(value, dict):
+            related_sqlalchemy_model = getattr(sqlalchemy_model, key).property.mapper.class_
+            related_instance = pydantic_to_sqlalchemy(related_sqlalchemy_model(**value))
+            setattr(sqlalchemy_instance, key, related_instance)
+        else:
+            setattr(sqlalchemy_instance, key, value)
+    return sqlalchemy_instance

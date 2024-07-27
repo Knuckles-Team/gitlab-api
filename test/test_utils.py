@@ -67,7 +67,7 @@ from gitlab_api.gitlab_models import (
     TestReportTotal,
     MergeApprovals,
 )
-from gitlab_api.utils import parse_pydantic_schema
+from gitlab_api.utils import pydantic_to_sqlalchemy
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -94,13 +94,14 @@ def milestone_fixture():
         title="Milestone Title",
         description="Milestone Description",
         state="active",
-        created_at=datetime(2023, 1, 1, 0, 0),
-        updated_at=datetime(2023, 1, 2, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        updated_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        closed_at=datetime(2023, 1, 3, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         due_date="2023-02-01",
         start_date="2023-01-01",
         web_url="http://example.com",
-        closed_at=None,
-        issue_stats=None,
+        #issue_stats={"total":10, "closed":5, "opened":5},
+        #issue_stats=IssueStats(total=10, closed=5, opened=5),
     )
 
 
@@ -158,8 +159,8 @@ def runner_manager_fixture():
         revision="rev1",
         platform="linux",
         architecture="x86_64",
-        created_at=datetime(2023, 1, 1, 0, 0),
-        contacted_at=datetime(2023, 1, 2, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        contacted_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         ip_address="127.0.0.1",
         status="active",
     )
@@ -190,8 +191,8 @@ def iteration_fixture():
         title="Iteration Title",
         description="Iteration Description",
         state=1,
-        created_at=datetime(2023, 1, 1, 0, 0),
-        updated_at=datetime(2023, 1, 2, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        updated_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         start_date="2023-01-01",
         due_date="2023-02-01",
         web_url="http://example.com",
@@ -239,7 +240,7 @@ def user_fixture():
         locked=False,
         avatar_url="http://example.com/avatar",
         web_url="http://example.com",
-        created_at=datetime(2023, 1, 1, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         is_admin=False,
         bio="User bio",
         location="User location",
@@ -250,13 +251,13 @@ def user_fixture():
         website_url="http://example.com",
         organization="User organization",
         job_title="User job title",
-        last_sign_in_at=datetime(2023, 1, 1, 0, 0),
-        confirmed_at=datetime(2023, 1, 1, 0, 0),
+        last_sign_in_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        confirmed_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         theme_id=1,
-        last_activity_on=datetime(2023, 1, 1, 0, 0),
+        last_activity_on=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         color_scheme_id=1,
         projects_limit=10,
-        current_sign_in_at=datetime(2023, 1, 1, 0, 0),
+        current_sign_in_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         note="User note",
         identities=[],
         can_create_group=True,
@@ -268,8 +269,8 @@ def user_fixture():
         last_sign_in_ip="127.0.0.1",
         namespace_id=1,
         created_by=1,
-        email_reset_offered_at=datetime(2023, 1, 1, 0, 0),
-        expires_at=datetime(2023, 1, 1, 0, 0),
+        email_reset_offered_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        expires_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         access_level=10,
         group_saml_identity=None,
         approved=False,
@@ -286,7 +287,7 @@ def user_fixture():
         extra_shared_runners_minutes_limit=100,
         membership_type="member",
         removable=True,
-        last_login_at=datetime(2023, 1, 1, 0, 0),
+        last_login_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
     )
 
 
@@ -315,7 +316,7 @@ def container_expiration_policy_fixture():
         older_than="1w",
         name_regex=".*",
         name_regex_keep=".*",
-        next_run_at=datetime(2023, 1, 1, 0, 0),
+        next_run_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
     )
 
 
@@ -374,7 +375,7 @@ def diff_fixture():
         head_commit_sha="abc123",
         base_commit_sha="def456",
         start_commit_sha="ghi789",
-        created_at=datetime(2023, 1, 1, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         state="active",
         real_size="large",
         patch_id_sha="jkl012",
@@ -450,7 +451,7 @@ def package_version_fixture():
         base_type="PackageVersion",
         id=1,
         version="1.0.0",
-        created_at=datetime(2023, 1, 1, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         pipelines=None,
     )
 
@@ -463,8 +464,8 @@ def package_fixture():
         name="package_name",
         version="1.0.0",
         package_type="npm",
-        created_at=datetime(2023, 1, 1, 0, 0),
-        last_downloaded_at=datetime(2023, 1, 2, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        last_downloaded_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         conan_package_name="conan_package",
         links=None,
         pipelines=None,
@@ -524,8 +525,8 @@ def comment_fixture():
         note="Note content",
         attachment=None,
         author=None,
-        created_at=datetime(2023, 1, 1, 0, 0),
-        updated_at=datetime(2023, 1, 2, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        updated_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         system=False,
         noteable_id=1,
         noteable_type="Issue",
@@ -547,8 +548,8 @@ def membership_fixture():
         source_id=1,
         source_full_name="Source Full Name",
         source_members_url="http://example.com/members",
-        created_at=datetime(2023, 1, 1, 0, 0),
-        expires_at=datetime(2023, 1, 2, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        expires_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         access_level={"access_level": 40, "notification_level": 3},
     )
 
@@ -569,8 +570,8 @@ def project_fixture():
         name_with_namespace="Namespace / Project Name",
         path="project_path",
         path_with_namespace="namespace/project_path",
-        created_at=datetime(2023, 1, 1, 0, 0),
-        updated_at=datetime(2023, 1, 2, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        updated_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         default_branch="main",
         tag_list=["tag1", "tag2"],
         topics=["topic1", "topic2"],
@@ -581,7 +582,7 @@ def project_fixture():
         avatar_url="http://example.com/avatar",
         forks_count=10,
         star_count=20,
-        last_activity_at=datetime(2023, 1, 1, 0, 0),
+        last_activity_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         namespace=None,
         container_registry_image_prefix="registry.example.com/namespace/project_path",
         additional_links=None,
@@ -717,7 +718,7 @@ def runner_fixture():
         name="Runner name",
         online=True,
         status="online",
-        contacted_at=datetime(2023, 1, 1, 0, 0),
+        contacted_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         architecture="x86_64",
         platform="linux",
         revision="1.0.0",
@@ -738,15 +739,15 @@ def job_fixture():
         coverage=85.5,
         archived=False,
         allow_failure=True,
-        created_at=datetime(2023, 1, 1, 0, 0),
-        started_at=datetime(2023, 1, 1, 1, 0),
-        finished_at=datetime(2023, 1, 1, 2, 0),
-        erased_at=datetime(2023, 1, 1, 3, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        started_at=datetime(2023, 1, 1, 1, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        finished_at=datetime(2023, 1, 1, 2, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        erased_at=datetime(2023, 1, 1, 3, 0).strftime('%Y-%m-%d %H:%M:%S'),
         duration=3600,
         queued_duration=600,
         artifacts_file=None,
         artifacts=[],
-        artifacts_expire_at=datetime(2023, 1, 2, 0, 0),
+        artifacts_expire_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         tag_list=["tag1", "tag2"],
         id=1,
         name="Job name",
@@ -819,8 +820,8 @@ def merge_request_fixture():
         title="Merge Request Title",
         description="Merge Request Description",
         state="opened",
-        created_at=datetime(2023, 1, 1, 0, 0),
-        updated_at=datetime(2023, 1, 2, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
+        updated_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         target_branch="main",
         source_branch="feature_branch",
         upvotes=10,
@@ -922,13 +923,13 @@ def issue_fixture():
         assignees=[],
         assignee=None,
         type="issue",
-        updated_at=datetime(2023, 1, 2, 0, 0),
+        updated_at=datetime(2023, 1, 2, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         closed_at=None,
         closed_by=None,
         changes_count="1",
         id=1,
         title="Issue title",
-        created_at=datetime(2023, 1, 1, 0, 0),
+        created_at=datetime(2023, 1, 1, 0, 0).strftime('%Y-%m-%d %H:%M:%S'),
         moved_to_id=None,
         iid=101,
         labels=["label1", "label2"],
@@ -1217,7 +1218,6 @@ def agent_fixture():
         "deploy_token_fixture",
         "rule_fixture",
         "merge_approvals_fixture",
-        "deploy_token_fixture",
         "rule_fixture",
         "access_control_fixture",
         "source_fixture",
@@ -1237,13 +1237,13 @@ def agent_fixture():
 def test_parse_pydantic_schema(fixture, request):
     pydantic_model = request.getfixturevalue(fixture)
     try:
-        parsed_schema = parse_pydantic_schema(pydantic_model)
-        logger.debug(f"parsed_schema for {fixture}:\n{parsed_schema}\n")
-        sqlalchemy_model = pydantic_model.Meta.orm_model(**parsed_schema)
+        sqlalchemy_model = pydantic_to_sqlalchemy(pydantic_model)
+        pydantic_model_dict = {k: v for k, v in pydantic_model.model_dump().items() if v is not None}
+        logger.debug(f"sqlalchemy_model for {fixture}:\n{sqlalchemy_model}\n")
         sqlalchemy_model_dict = {k: v for k, v in sqlalchemy_model.__dict__.items()}
         sqlalchemy_model_dict.pop("_sa_instance_state", None)
         logger.debug(f"sqlalchemy_model_dict for {fixture}:\n{sqlalchemy_model_dict}\n")
 
-        assert sqlalchemy_model_dict == parsed_schema
+        assert sqlalchemy_model_dict == pydantic_model_dict
     except Exception as e:
         pytest.fail(f"Conversion failed for {fixture}: {e}")

@@ -4795,7 +4795,7 @@ class Webhook(BaseModel):
         default=None, description="Whether SSL verification is enabled for the webhook"
     )
     repository_update_events: bool = Field(
-        default=False,
+        default=None,
         description="Whether repository update events trigger the webhook",
     )
     alert_status: Optional[str] = Field(
@@ -5588,13 +5588,13 @@ class Rule(BaseModel):
         default=None, description="Timestamp when the rule was created"
     )
     commit_committer_check: bool = Field(
-        default=False, description="Check for committer compliance"
+        default=None, description="Check for committer compliance"
     )
     commit_committer_name_check: bool = Field(
-        default=False, description="Check for committer's name compliance"
+        default=None, description="Check for committer's name compliance"
     )
     reject_unsigned_commits: bool = Field(
-        default=False, description="Flag to reject unsigned commits"
+        default=None, description="Flag to reject unsigned commits"
     )
     commit_message_regex: Optional[str] = Field(
         default=None, description="Regex for validating commit messages"
@@ -5606,11 +5606,11 @@ class Rule(BaseModel):
         default=None, description="Regex for validating branch names"
     )
     deny_delete_tag: bool = Field(
-        default=False, description="Flag to deny deletion of tags"
+        default=None, description="Flag to deny deletion of tags"
     )
-    member_check: bool = Field(default=False, description="Check for valid membership")
+    member_check: bool = Field(default=None, description="Check for valid membership")
     prevent_secrets: bool = Field(
-        default=False, description="Flag to prevent secrets in commits"
+        default=None, description="Flag to prevent secrets in commits"
     )
     author_email_regex: Optional[str] = Field(
         default=None, description="Regex for author's email validation"
