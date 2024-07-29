@@ -45,6 +45,14 @@ def process_response(response: requests.Response) -> Union[Response, requests.Re
 
 
 def pydantic_to_sqlalchemy(pydantic_model):
+    # Check if the model is already converted by ensuring the model doesn't have Meta pydantic field,
+    # but does have base_type sqlalchemy field.
+    if (
+        not hasattr(pydantic_model, "Meta")
+        or not hasattr(pydantic_model.Meta, "orm_model")
+    ) and hasattr(pydantic_model, "base_type"):
+        sqlalchemy_instance = pydantic_model
+        return sqlalchemy_instance
     sqlalchemy_model = pydantic_model.Meta.orm_model
     sqlalchemy_instance = sqlalchemy_model()
     for key, value in pydantic_model.model_dump(exclude_unset=True).items():
