@@ -5703,16 +5703,7 @@ def test_merge_request_response_1():
                     "web_url": "https://gitlab.example.com/axel.block",
                 }
             ],
-            "reviewers": [
-                {
-                    "id": 2,
-                    "name": "Sam Bauch",
-                    "username": "kenyatta_oconnell",
-                    "state": "active",
-                    "avatar_url": "https://www.gravatar.com/avatar/956c92487c6f6f7616b536927e22c9a0?s=80&d=identicon",
-                    "web_url": "http://gitlab.example.com//kenyatta_oconnell",
-                }
-            ],
+            "reviewers": [],
             "source_project_id": 2,
             "target_project_id": 3,
             "labels": ["Community contribution", "Manage"],

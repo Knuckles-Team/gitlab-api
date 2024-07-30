@@ -4947,6 +4947,8 @@ class ApprovalRule(BaseModel):
     def empty_list_to_none(cls, v):
         if isinstance(v, list) and not v:
             return None
+        if isinstance(v, list):
+            return Users(users=v)
         return v
 
 
@@ -5182,10 +5184,12 @@ class MergeRequest(BaseModel):
         default=None, description="List of merge request rules"
     )
 
-    @field_validator("assignees", "reviewers", mode="before")
+    @field_validator("assignees", "reviewers", "reviewer", mode="before")
     def empty_list_to_none(cls, v):
         if isinstance(v, list) and not v:
             return None
+        if isinstance(v, list):
+            return Users(users=v)
         return v
 
 
@@ -5352,6 +5356,8 @@ class Issue(BaseModel):
     def empty_list_to_none(cls, v):
         if isinstance(v, list) and not v:
             return None
+        if isinstance(v, list):
+            return Users(users=v)
         return v
 
 
@@ -5548,6 +5554,8 @@ class MergeApprovals(BaseModel):
     def empty_list_to_none(cls, v):
         if isinstance(v, list) and not v:
             return None
+        if isinstance(v, list):
+            return Users(users=v)
         return v
 
 
