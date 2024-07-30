@@ -721,15 +721,26 @@ class MergeRequestDBModel(BaseDBModel):
         backref=backref("author_merge_requests"),
     )
 
+    assignee_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_merge_request_assignee"),
+        nullable=True,
+    )
+    assignee = relationship(
+        argument="UserDBModel",
+        foreign_keys=[assignee_id],
+        backref=backref("merge_request_assignee"),
+    )
+
     assignees_id = Column(
         Integer,
-        ForeignKey(column="users_collection.id", name="fk_merge_request_assignee"),
+        ForeignKey(column="users_collection.id", name="fk_merge_request_assignees"),
         nullable=True,
     )
     assignees = relationship(
         argument="UsersDBModel",
         foreign_keys=[assignees_id],
-        backref=backref("assigned_merge_requests"),
+        backref=backref("merge_request_assignees"),
     )
 
     milestone_id = Column(
@@ -868,6 +879,17 @@ class MergeRequestDBModel(BaseDBModel):
         backref=backref("merge_requests"),
     )
 
+    reviewer_id = Column(
+        Integer,
+        ForeignKey(column="users.id", name="fk_merge_request_reviewer"),
+        nullable=True,
+    )
+    reviewer = relationship(
+        argument="UserDBModel",
+        foreign_keys=[reviewer_id],
+        backref=backref("merge_request_reviewer"),
+    )
+
     reviewers_id = Column(
         Integer,
         ForeignKey(column="users_collection.id", name="fk_merge_request_reviewers"),
@@ -876,7 +898,7 @@ class MergeRequestDBModel(BaseDBModel):
     reviewers = relationship(
         argument="UsersDBModel",
         foreign_keys=[reviewers_id],
-        backref=backref("reviewed_merge_requests"),
+        backref=backref("merge_request_reviewers"),
     )
 
     approved_by_id = Column(
