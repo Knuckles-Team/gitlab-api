@@ -4943,6 +4943,12 @@ class ApprovalRule(BaseModel):
         default=None, description="List of users who approved"
     )
 
+    @field_validator('eligible_approvers', 'users', 'approved_by', mode='before')
+    def empty_list_to_none(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        return v
+
 
 class ApprovalRules(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -5120,9 +5126,6 @@ class MergeRequest(BaseModel):
     tag_list: Optional[List[str]] = Field(
         default=None, description="List of tags associated with the merge request"
     )
-    reviewer: Optional[Users] = Field(
-        default=None, description="List of reviewers for the merge request"
-    )
     review: Optional[Dict[str, Any]] = Field(
         default=None, description="Review information associated with the merge request"
     )
@@ -5175,6 +5178,12 @@ class MergeRequest(BaseModel):
     rules: Optional[List[ApprovalRule]] = Field(
         default=None, description="List of merge request rules"
     )
+
+    @field_validator('assignees', 'reviewers', mode='before')
+    def empty_list_to_none(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        return v
 
 
 class MergeRequests(BaseModel):
@@ -5335,6 +5344,12 @@ class Issue(BaseModel):
     blocking_issues_count: Optional[int] = Field(
         default=None, description="Blocking issue count."
     )
+
+    @field_validator('assignees', mode='before')
+    def empty_list_to_none(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        return v
 
 
 class Issues(BaseModel):
@@ -5525,6 +5540,12 @@ class MergeApprovals(BaseModel):
     require_password_to_approve: Optional[bool] = Field(
         default=None, description="Whether a password is required to approve"
     )
+
+    @field_validator('approvers', mode='before')
+    def empty_list_to_none(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        return v
 
 
 class DeployToken(BaseModel):
