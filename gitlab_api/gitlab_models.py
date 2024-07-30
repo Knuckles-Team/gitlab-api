@@ -94,6 +94,7 @@ from gitlab_api.gitlab_db_models import (
     GroupSamlIdentityDBModel,
     CreatedByDBModel,
     UserDBModel,
+    UsersDBModel,
     NamespaceDBModel,
     ContainerExpirationPolicyDBModel,
     PermissionsDBModel,
@@ -3287,10 +3288,13 @@ class User(BaseModel):
 
 
 class Users(BaseModel):
+    class Meta:
+        orm_model = UsersDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Users")
-    users: List[User] = Field(default=None, description="All the users")
+    users: Optional[List[User]] = Field(default=None, description="All the users")
 
 
 class Namespace(BaseModel):
@@ -3426,9 +3430,6 @@ class Links(BaseModel):
     )
     cluster_agents: Optional[str] = Field(
         default=None, description="URL to the project's cluster agents."
-    )
-    self_link: Optional[str] = Field(
-        default=None, alias="self", description="API URL to the issue itself."
     )
     notes: Optional[str] = Field(
         default=None, description="API URL to the notes of the issue."
@@ -4910,15 +4911,13 @@ class ApprovalRule(BaseModel):
     rule_type: Optional[str] = Field(
         default=None, description="Type of the approval rule"
     )
-    eligible_approvers: Optional[List[User]] = Field(
+    eligible_approvers: Optional[Users] = Field(
         default=None, description="List of eligible approvers"
     )
     approvals_required: Optional[int] = Field(
         default=None, description="Number of required approvals"
     )
-    users: Optional[List[User]] = Field(
-        default=None, description="List of associated users"
-    )
+    users: Optional[Users] = Field(default=None, description="List of associated users")
     groups: Optional[List[Group]] = Field(
         default=None, description="List of associated groups"
     )
@@ -4940,7 +4939,7 @@ class ApprovalRule(BaseModel):
     overridden: Optional[bool] = Field(
         default=None, description="Whether the rule is overridden"
     )
-    approved_by: Optional[List[User]] = Field(
+    approved_by: Optional[Users] = Field(
         default=None, description="List of users who approved"
     )
 
@@ -5121,7 +5120,7 @@ class MergeRequest(BaseModel):
     tag_list: Optional[List[str]] = Field(
         default=None, description="List of tags associated with the merge request"
     )
-    reviewer: Optional[List[User]] = Field(
+    reviewer: Optional[Users] = Field(
         default=None, description="List of reviewers for the merge request"
     )
     review: Optional[Dict[str, Any]] = Field(
@@ -5140,10 +5139,10 @@ class MergeRequest(BaseModel):
     prepared_at: Optional[datetime] = Field(
         default=None, description="Timestamp when the merge request was prepared"
     )
-    assignees: Optional[List[User]] = Field(
+    assignees: Optional[Users] = Field(
         default=None, description="List of users assigned to the merge request"
     )
-    reviewers: Optional[List[User]] = Field(
+    reviewers: Optional[Users] = Field(
         default=None, description="List of users reviewing the merge request"
     )
     detailed_merge_status: Optional[str] = Field(
@@ -5229,7 +5228,7 @@ class Issue(BaseModel):
     project_id: Optional[int] = Field(
         default=None, description="Unique identifier for the project."
     )
-    assignees: Optional[List[User]] = Field(
+    assignees: Optional[Users] = Field(
         default=None, description="List of assignees for the issue."
     )
     assignee: Optional[User] = Field(default=None, description="Assignee of the issue.")
@@ -5500,9 +5499,7 @@ class MergeApprovals(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="MergeApprovals")
-    approvers: Optional[List[User]] = Field(
-        default=None, description="List of approvers"
-    )
+    approvers: Optional[Users] = Field(default=None, description="List of approvers")
     approver_groups: Optional[List[Group]] = Field(
         default=None, description="List of approver groups"
     )

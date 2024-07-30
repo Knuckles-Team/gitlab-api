@@ -9,7 +9,7 @@ logging.basicConfig(
 from sqlalchemy import Column, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship, backref, declarative_base
 from sqlalchemy import Integer, Boolean
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy import (
     Float,
     JSON,
@@ -718,17 +718,19 @@ class MergeRequestDBModel(BaseDBModel):
     author = relationship(
         argument="UserDBModel",
         foreign_keys=[author_id],
-        backref=backref("authored_merge_requests"),
+        backref=backref("author_merge_requests"),
     )
 
-    assignee_id = Column(
+    assignees_id = Column(
         Integer,
-        ForeignKey(column="users.id", name="fk_merge_request_assignee"),
+        ForeignKey(
+            column="users_collection.id", name="fk_merge_request_assignee"
+        ),
         nullable=True,
     )
-    assignee = relationship(
-        argument="UserDBModel",
-        foreign_keys=[assignee_id],
+    assignees = relationship(
+        argument="UsersDBModel",
+        foreign_keys=[assignees_id],
         backref=backref("assigned_merge_requests"),
     )
 
@@ -745,13 +747,24 @@ class MergeRequestDBModel(BaseDBModel):
 
     merged_by_id = Column(
         Integer,
-        ForeignKey(column="users.id", name="fk_merge_request_merged_by"),
+        ForeignKey("users.id", name="fk_merge_request_merged_by"),
         nullable=True,
     )
     merged_by = relationship(
-        argument="UserDBModel",
+        "UserDBModel",
         foreign_keys=[merged_by_id],
         backref=backref("merged_merge_requests"),
+    )
+
+    merge_user_id = Column(
+        Integer,
+        ForeignKey("users.id", name="fk_merge_request_merge_user"),
+        nullable=True,
+    )
+    merge_user = relationship(
+        "UserDBModel",
+        foreign_keys=[merge_user_id],
+        backref=backref("merge_user_merge_requests"),
     )
 
     closed_by_id = Column(
@@ -762,7 +775,7 @@ class MergeRequestDBModel(BaseDBModel):
     closed_by = relationship(
         argument="UserDBModel",
         foreign_keys=[closed_by_id],
-        backref=backref("closed_merge_requests"),
+        backref=backref("merges_requests_closed_by"),
     )
 
     pipeline_id = Column(
@@ -859,11 +872,13 @@ class MergeRequestDBModel(BaseDBModel):
 
     reviewers_id = Column(
         Integer,
-        ForeignKey(column="users.id", name="fk_merge_request_reviewers"),
+        ForeignKey(
+            column="users_collection.id", name="fk_merge_request_reviewers"
+        ),
         nullable=True,
     )
     reviewers = relationship(
-        argument="UserDBModel",
+        argument="UsersDBModel",
         foreign_keys=[reviewers_id],
         backref=backref("reviewed_merge_requests"),
     )
@@ -2145,6 +2160,15 @@ class UserDBModel(BaseDBModel):
         foreign_keys=[namespace_id],
         backref=backref("users"),
     )
+
+
+# Users Model
+class UsersDBModel(BaseDBModel):
+    __tablename__ = "users_collection"
+
+    id = Column(Integer, primary_key=True)
+    base_type = Column(String, default="Users")
+    users = Column(JSONB, nullable=True)
 
 
 # Namespace Model

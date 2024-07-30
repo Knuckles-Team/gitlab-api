@@ -57,20 +57,22 @@ def pydantic_to_sqlalchemy(pydantic_model):
     sqlalchemy_instance = sqlalchemy_model()
     for key, value in pydantic_model.model_dump(exclude_unset=True).items():
         if isinstance(value, list):
-            related_instances = [
-                (
-                    pydantic_to_sqlalchemy(item)
-                    if hasattr(item, "Meta") and hasattr(item.Meta, "orm_model")
-                    else item
-                )
-                for item in value
-            ]
-            setattr(sqlalchemy_instance, key, related_instances)
+            if len(value) > 0:
+                related_instances = [
+                    (
+                        pydantic_to_sqlalchemy(item)
+                        if hasattr(item, "Meta") and hasattr(item.Meta, "orm_model")
+                        else item
+                    )
+                    for item in value
+                ]
+                setattr(sqlalchemy_instance, key, related_instances)
         elif isinstance(value, dict):
             related_sqlalchemy_model = getattr(
                 sqlalchemy_model, key
             ).property.mapper.class_
-            related_instance = pydantic_to_sqlalchemy(related_sqlalchemy_model(**value))
+            nested_model = related_sqlalchemy_model(**value)
+            related_instance = pydantic_to_sqlalchemy(nested_model)
             setattr(sqlalchemy_instance, key, related_instance)
         else:
             setattr(sqlalchemy_instance, key, value)
