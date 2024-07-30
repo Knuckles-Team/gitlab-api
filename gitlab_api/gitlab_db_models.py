@@ -723,9 +723,7 @@ class MergeRequestDBModel(BaseDBModel):
 
     assignees_id = Column(
         Integer,
-        ForeignKey(
-            column="users_collection.id", name="fk_merge_request_assignee"
-        ),
+        ForeignKey(column="users_collection.id", name="fk_merge_request_assignee"),
         nullable=True,
     )
     assignees = relationship(
@@ -872,9 +870,7 @@ class MergeRequestDBModel(BaseDBModel):
 
     reviewers_id = Column(
         Integer,
-        ForeignKey(
-            column="users_collection.id", name="fk_merge_request_reviewers"
-        ),
+        ForeignKey(column="users_collection.id", name="fk_merge_request_reviewers"),
         nullable=True,
     )
     reviewers = relationship(
