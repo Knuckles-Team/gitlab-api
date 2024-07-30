@@ -44,6 +44,10 @@ def process_response(response: requests.Response) -> Union[Response, requests.Re
     return response
 
 
+def remove_none_values(d: dict) -> dict:
+    return {k: v for k, v in d.items() if v is not None}
+
+
 def pydantic_to_sqlalchemy(pydantic_model):
     # Check if the model is already converted by ensuring the model doesn't have Meta pydantic field,
     # but does have base_type sqlalchemy field.
@@ -71,6 +75,7 @@ def pydantic_to_sqlalchemy(pydantic_model):
             related_sqlalchemy_model = getattr(
                 sqlalchemy_model, key
             ).property.mapper.class_
+            value = remove_none_values(value)
             nested_model = related_sqlalchemy_model(**value)
             related_instance = pydantic_to_sqlalchemy(nested_model)
             setattr(sqlalchemy_instance, key, related_instance)
