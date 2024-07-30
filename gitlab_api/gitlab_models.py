@@ -5126,9 +5126,6 @@ class MergeRequest(BaseModel):
     tag_list: Optional[List[str]] = Field(
         default=None, description="List of tags associated with the merge request"
     )
-    review: Optional[Dict[str, Any]] = Field(
-        default=None, description="Review information associated with the merge request"
-    )
     imported: Optional[bool] = Field(
         default=None, description="Indicates if the merge request was imported"
     )
@@ -5145,8 +5142,14 @@ class MergeRequest(BaseModel):
     assignees: Optional[Users] = Field(
         default=None, description="List of users assigned to the merge request"
     )
+    reviewer: Optional[Users] = Field(
+        default=None, description="List of reviewers for the merge request"
+    )
     reviewers: Optional[Users] = Field(
         default=None, description="List of users reviewing the merge request"
+    )
+    review: Optional[Dict[str, Any]] = Field(
+        default=None, description="Review information associated with the merge request"
     )
     detailed_merge_status: Optional[str] = Field(
         default=None, description="Detailed status of the merge request mergeability"
