@@ -80,5 +80,6 @@ def pydantic_to_sqlalchemy(pydantic_model):
             related_instance = pydantic_to_sqlalchemy(nested_model)
             setattr(sqlalchemy_instance, key, related_instance)
         else:
-            setattr(sqlalchemy_instance, key, value)
+            if value:
+                setattr(sqlalchemy_instance, key, value)
     return sqlalchemy_instance
