@@ -6,10 +6,10 @@ logging.basicConfig(
     level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text
+from sqlalchemy import Table,Column, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship, backref, declarative_base
 from sqlalchemy import Integer, Boolean
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import (
     Float,
     JSON,
@@ -559,12 +559,18 @@ class BranchDBModel(BaseDBModel):
         backref=backref("branches_unprotect_access_levels"),
     )
 
+labels_association = Table(
+    'labels_association', BaseDBModel.metadata,
+    Column('label_id', Integer, ForeignKey('labels.id'), primary_key=True),
+    Column('labels_collection_id', Integer, ForeignKey('labels_collection.id'), primary_key=True)
+)
 
 # Label Model
 class LabelDBModel(BaseDBModel):
     __tablename__ = "labels"
 
     id = Column(Integer, primary_key=True, autoincrement=False)
+    base_type = Column(String, default="Label")
     name = Column(String, nullable=False)
     color = Column(String, nullable=False)
     text_color = Column(String, nullable=False)
@@ -576,6 +582,35 @@ class LabelDBModel(BaseDBModel):
     subscribed = Column(Boolean, nullable=True, default=False)
     priority = Column(Integer, nullable=True)
     is_project_label = Column(Boolean, nullable=True, default=True)
+
+
+# Labels Model
+class LabelsDBModel(BaseDBModel):
+    __tablename__ = "labels_collection"
+
+    id = Column(Integer, primary_key=True)
+    base_type = Column(String, default="Labels")
+    labels = relationship(
+        'LabelDBModel',
+        secondary=labels_association,
+        backref=backref('labels_collections', lazy='dynamic')
+    )
+
+
+class TopicDBModel(BaseDBModel):
+    __tablename__ = 'topics'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Topic")
+    name = Column(String, nullable=False)
+
+
+class TagDBModel(BaseDBModel):
+    __tablename__ = 'tags'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Tag")
+    name = Column(String, nullable=False)
 
 
 # ApprovalRule Model
@@ -822,11 +857,11 @@ class MergeRequestDBModel(BaseDBModel):
 
     labels_id = Column(
         Integer,
-        ForeignKey(column="labels.id", name="fk_merge_request_labels"),
+        ForeignKey(column="labels_collection.id", name="fk_merge_request_labels"),
         nullable=True,
     )
     labels = relationship(
-        argument="LabelDBModel",
+        argument="LabelsDBModel",
         foreign_keys=[labels_id],
         backref=backref("merge_requests_labels"),
     )
@@ -2084,6 +2119,11 @@ class CreatedByDBModel(BaseDBModel):
         backref=backref("created_by_user"),
     )
 
+users_association = Table(
+    'users_association', BaseDBModel.metadata,
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
+    Column('users_collection_id', Integer, ForeignKey('users_collection.id'), primary_key=True)
+)
 
 # User Model
 class UserDBModel(BaseDBModel):
@@ -2186,7 +2226,11 @@ class UsersDBModel(BaseDBModel):
 
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="Users")
-    users = Column(JSONB, nullable=True)
+    users = relationship(
+        'UserDBModel',
+        secondary=users_association,
+        backref=backref('users_collections', lazy='dynamic')
+    )
 
 
 # Namespace Model
