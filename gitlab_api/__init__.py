@@ -164,9 +164,7 @@ from gitlab_api.gitlab_db_models import (
     DetailedStatusDBModel,
 )
 from gitlab_api.utils import (
-    pydantic_to_sqlalchemy,
-    insert_or_update,
-    bulk_insert_or_update,
+    upsert,
 )
 
 """
@@ -180,9 +178,7 @@ __author__ = __author__
 __credits__ = __credits__
 
 __all__ = [
-    "pydantic_to_sqlalchemy",
-    "insert_or_update",
-    "bulk_insert_or_update",
+    "upsert",
     "Api",
     "BranchModel",
     "CommitModel",

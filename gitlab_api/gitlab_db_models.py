@@ -7,7 +7,7 @@ logging.basicConfig(
 )
 
 from sqlalchemy import Table, Column, String, DateTime, ForeignKey, Text
-from sqlalchemy.orm import relationship, backref, declarative_base
+from sqlalchemy.orm import relationship, backref, declarative_base, Mapped
 from sqlalchemy import Integer, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import (
@@ -2285,7 +2285,7 @@ class NamespaceDBModel(BaseDBModel):
     user_id = Column(
         Integer, ForeignKey(column="users.id", name="fk_namespace_user"), nullable=True
     )
-    user = relationship(
+    user: Mapped["User"] = relationship(
         argument="UserDBModel", foreign_keys=[user_id], backref=backref("namespaces")
     )
 

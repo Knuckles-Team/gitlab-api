@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import gitlab_api
-from gitlab_api.utils import bulk_insert_or_update
+from gitlab_api.utils import upsert
 from gitlab_api.gitlab_db_models import BaseDBModel
 import urllib3
 import os
@@ -25,7 +25,7 @@ def get_users():
         f"Users Fetched - Status: {response.status_code}\n\n"
         f"Inserting Data Into Database..."
     )
-    bulk_insert_or_update(session=session, response=response)
+    upsert(session=session, response=response)
     print("Users Synchronization Complete!")
 
 
@@ -37,7 +37,7 @@ def get_namespaces():
         f"Namespaces Fetched - Status: {response.status_code}\n\n"
         f"Inserting Data Into Database..."
     )
-    bulk_insert_or_update(session=session, response=response)
+    upsert(session=session, response=response)
     print("Namespaces Synchronization Complete!")
 
 
@@ -47,7 +47,7 @@ def get_projects():
         f"Projects Fetched - Status: {response.status_code}\n\n"
         f"Inserting Data Into Database..."
     )
-    bulk_insert_or_update(session=session, response=response)
+    upsert(session=session, response=response)
     print("Projects Synchronization Complete!")
 
 
@@ -57,7 +57,7 @@ def get_merge_requests():
         f"Merge Requests Fetched - Status: {response.status_code}\n\n"
         f"Inserting Data Into Database..."
     )
-    bulk_insert_or_update(session=session, response=response)
+    upsert(session=session, response=response)
     print("Merge Request Synchronization Complete!")
 
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     Session = sessionmaker(bind=engine)
     session = Session()
     print("Session Created\n\nFetching GitLab Data...")
-    get_users()
-    get_namespaces()
-    get_projects()
+    # get_users()
+    # get_namespaces()
+    # get_projects()
     get_merge_requests()

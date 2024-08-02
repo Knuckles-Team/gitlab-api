@@ -173,7 +173,7 @@ def pydantic_to_sqlalchemy(pydantic_model):
     return sqlalchemy_instance
 
 
-def bulk_insert_or_update(session, response):
+def upsert(session, response):
     items = None
     for attribute_name in dir(response.data):
         if attribute_name.startswith("_"):
@@ -184,58 +184,24 @@ def bulk_insert_or_update(session, response):
     for item in items:
         print(f"Item: \n{item}\n\n")
         db_model = pydantic_to_sqlalchemy(item)
-        insert_or_update(db_model=db_model, session=session)
+        upsert_row(db_model=db_model, session=session)
     print("Items Added\n\nCommitting Session...")
     session.commit()
 
 
-def insert_or_update(db_model, session):
+def upsert_row(session, db_model):
     if db_model is None:
         return None
     model_instance = type(db_model)
-    # if model_instance.__name__ == "MergeRequestDBModel":
-    #     db_model.merged_by = insert_or_update(
-    #         db_model=db_model.merged_by, session=session
-    #     )
-    #     db_model.merge_user = insert_or_update(
-    #         db_model=db_model.merge_user, session=session
-    #     )
-    #     db_model.author = insert_or_update(db_model=db_model.author, session=session)
-    #     db_model.project = insert_or_update(db_model=db_model.project, session=session)
-    # if model_instance.__name__ == "ProjectDBModel":
-    #     db_model.namespace = insert_or_update(
-    #         db_model=db_model.namespace, session=session
-    #     )
-    #     db_model.creator = insert_or_update(
-    #         db_model=db_model.namespace, session=session
-    #     )
-    #     db_model.owner = insert_or_update(db_model=db_model.namespace, session=session)
-    #     db_model.container_expiration_policy = insert_or_update(
-    #         db_model=db_model.namespace, session=session
-    #     )
-    #     db_model.statistics = insert_or_update(
-    #         db_model=db_model.namespace, session=session
-    #     )
-    #     db_model.links = insert_or_update(db_model=db_model.namespace, session=session)
-    #     db_model.additional_links = insert_or_update(
-    #         db_model=db_model.namespace, session=session
-    #     )
-    #     db_model.shared_with_groups = insert_or_update(
-    #         db_model=db_model.namespace, session=session
-    #     )
-    #     db_model.permissions = insert_or_update(
-    #         db_model=db_model.namespace, session=session
-    #     )
-
-    # session.flush()
     print(f"\n\nSearching for {db_model.id} in {model_instance}")
     try:
         existing_model = session.query(model_instance).filter_by(id=db_model.id).one()
         print(f"\n\nFound Existing Model: {existing_model}")
+        #session.merge(model_instance)
         for attr, value in db_model.__dict__.items():
             if attr != "_sa_instance_state":
                 setattr(existing_model, attr, value)
-        print(f"Updated {model_instance.__name__} with ID {existing_model.id}")
+        print(f"Merged {model_instance.__name__} with ID {existing_model.id}")
     except NoResultFound:
         existing_model = db_model
         session.add(existing_model)
