@@ -3,6 +3,7 @@
 import logging
 from typing import Union, List, Any, Dict
 from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm.exc import NoResultFound
 import requests
 
 try:
@@ -109,7 +110,7 @@ def validate_list(list_object: List) -> List:
         )
         for item in list_object
     ]
-    print(f"\n\nRelated models: {related_models}")
+    logging.debug(f"\n\nRelated models: {related_models}")
     return related_models
 
 
@@ -121,7 +122,7 @@ def validate_dict(dictionary: Dict, parent_key: str, sqlalchemy_model: Any) -> A
             related_sqlalchemy_model = prop.mapper.class_
     if not related_sqlalchemy_model:
         raise ValueError(f"Unable to find related model for key: {parent_key}")
-    print(f"\n\nRelated instance: {related_sqlalchemy_model}")
+    logging.debug(f"\n\nRelated instance: {related_sqlalchemy_model}")
     # Special handling for labels
     if related_sqlalchemy_model == LabelsDBModel:
         labels = []
@@ -131,9 +132,9 @@ def validate_dict(dictionary: Dict, parent_key: str, sqlalchemy_model: Any) -> A
         return labels_model
     value = remove_none_values(dictionary)
     nested_model = related_sqlalchemy_model(**value)
-    print(f"\n\nObtained Nested Model: {nested_model}")
+    logging.debug(f"\n\nObtained Nested Model: {nested_model}")
     related_model = pydantic_to_sqlalchemy(nested_model)
-    print(f"\n\nDefined SQLAlchemy: {related_model}")
+    logging.debug(f"\n\nDefined SQLAlchemy: {related_model}")
     return related_model
 
 
@@ -145,30 +146,30 @@ def pydantic_to_sqlalchemy(pydantic_model):
         or not hasattr(pydantic_model.Meta, "orm_model")
     ) and hasattr(pydantic_model, "base_type"):
         sqlalchemy_instance = pydantic_model
-        print(f"\n\nFound SQLAlchemy Model on First Try: {sqlalchemy_instance}")
+        logging.debug(f"\n\nFound SQLAlchemy Model on First Try: {sqlalchemy_instance}")
         return sqlalchemy_instance
     sqlalchemy_model = pydantic_model.Meta.orm_model
     sqlalchemy_instance = sqlalchemy_model()
     for key, value in pydantic_model.model_dump(exclude_unset=True).items():
         if value:
             if isinstance(value, list):
-                print(f"\n\nValue that is a list: {value} for key: {key}")
+                logging.debug(f"\n\nValue that is a list: {value} for key: {key}")
                 related_models = validate_list(list_object=value)
                 setattr(sqlalchemy_instance, key, related_models)
-                print(f"\n\nSQLAlchemy Model Set: {related_models}")
+                logging.debug(f"\n\nSQLAlchemy Model Set: {related_models}")
             elif isinstance(value, dict):
-                print(f"\n\nValue that is a dict: {value} for key: {key}")
+                logging.debug(f"\n\nValue that is a dict: {value} for key: {key}")
                 related_model = validate_dict(
                     dictionary=value, parent_key=key, sqlalchemy_model=sqlalchemy_model
                 )
                 setattr(sqlalchemy_instance, key, related_model)
-                print(f"\n\nSQLAlchemy Model Set: {related_model}")
+                logging.debug(f"\n\nSQLAlchemy Model Set: {related_model}")
             else:
-                print(f"\n\nImmediately Setting Attribute: {value}")
+                logging.debug(f"\n\nImmediately Setting Attribute: {value}")
                 setattr(sqlalchemy_instance, key, value)
-                print(f"\n\nImmediately Set Attribute: {value}")
+                logging.debug(f"\n\nImmediately Set Attribute: {value}")
 
-    print(f"\n\nCompleted Conversion for: {sqlalchemy_instance}")
+    logging.debug(f"\n\nCompleted Conversion for: {sqlalchemy_instance}")
     return sqlalchemy_instance
 
 
@@ -192,44 +193,60 @@ def insert_or_update(db_model, session):
     if db_model is None:
         return None
     model_instance = type(db_model)
-    if model_instance.__name__ == "MergeRequestDBModel":
-        db_model.merged_by = insert_or_update(db_model=db_model.merged_by, session=session)
-        db_model.merge_user = insert_or_update(db_model=db_model.merge_user, session=session)
-        db_model.author = insert_or_update(db_model=db_model.author, session=session)
-        db_model.project = insert_or_update(db_model=db_model.project, session=session)
-    if model_instance.__name__ == "ProjectDBModel":
-        db_model.namespace = insert_or_update(db_model=db_model.namespace, session=session)
-        db_model.creator = insert_or_update(db_model=db_model.namespace, session=session)
-        db_model.owner = insert_or_update(db_model=db_model.namespace, session=session)
-        db_model.container_expiration_policy = insert_or_update(db_model=db_model.namespace, session=session)
-        db_model.statistics = insert_or_update(db_model=db_model.namespace, session=session)
-        db_model.links = insert_or_update(db_model=db_model.namespace, session=session)
-        db_model.additional_links = insert_or_update(db_model=db_model.namespace, session=session)
-        db_model.shared_with_groups = insert_or_update(db_model=db_model.namespace, session=session)
-        db_model.permissions = insert_or_update(db_model=db_model.namespace, session=session)
+    # if model_instance.__name__ == "MergeRequestDBModel":
+    #     db_model.merged_by = insert_or_update(
+    #         db_model=db_model.merged_by, session=session
+    #     )
+    #     db_model.merge_user = insert_or_update(
+    #         db_model=db_model.merge_user, session=session
+    #     )
+    #     db_model.author = insert_or_update(db_model=db_model.author, session=session)
+    #     db_model.project = insert_or_update(db_model=db_model.project, session=session)
+    # if model_instance.__name__ == "ProjectDBModel":
+    #     db_model.namespace = insert_or_update(
+    #         db_model=db_model.namespace, session=session
+    #     )
+    #     db_model.creator = insert_or_update(
+    #         db_model=db_model.namespace, session=session
+    #     )
+    #     db_model.owner = insert_or_update(db_model=db_model.namespace, session=session)
+    #     db_model.container_expiration_policy = insert_or_update(
+    #         db_model=db_model.namespace, session=session
+    #     )
+    #     db_model.statistics = insert_or_update(
+    #         db_model=db_model.namespace, session=session
+    #     )
+    #     db_model.links = insert_or_update(db_model=db_model.namespace, session=session)
+    #     db_model.additional_links = insert_or_update(
+    #         db_model=db_model.namespace, session=session
+    #     )
+    #     db_model.shared_with_groups = insert_or_update(
+    #         db_model=db_model.namespace, session=session
+    #     )
+    #     db_model.permissions = insert_or_update(
+    #         db_model=db_model.namespace, session=session
+    #     )
 
     # session.flush()
     print(f"\n\nSearching for {db_model.id} in {model_instance}")
-    print(f"ALL ITEMS: {session.query(model_instance).all()}")
-    existing_model = session.query(model_instance).filter_by(id=db_model.id).first()
-    print(f"\n\nFound Existing Model: {existing_model}")
-    if existing_model:
+    try:
+        existing_model = session.query(model_instance).filter_by(id=db_model.id).one()
+        print(f"\n\nFound Existing Model: {existing_model}")
         for attr, value in db_model.__dict__.items():
             if attr != "_sa_instance_state":
                 setattr(existing_model, attr, value)
-        print(f"Updated {model_instance} with ID {existing_model.id}")
-    else:
-        try:
-            existing_model = db_model
-            session.add(existing_model)
-            print(f"Inserted new {model_instance} with ID {existing_model.id}")
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            print(f"Error inserting {model_instance} with ID {db_model.id}: {e}")
-            existing_model = (
-                session.query(model_instance).filter_by(id=db_model.id).first()
-            )
-            print(f"\n\nAfter rollback, found Existing Model: {existing_model}")
-    session.commit()
+        print(f"Updated {model_instance.__name__} with ID {existing_model.id}")
+    except NoResultFound:
+        existing_model = db_model
+        session.add(existing_model)
+        print(f"Inserted new {model_instance.__name__} with ID {existing_model.id}")
+    try:
+        session.commit()
+        print("Committed Session!")
+    except Exception as e:
+        session.rollback()
+        print(
+            f"Error inserting/updating {model_instance.__name__} with ID {db_model.id}: {e}"
+        )
     return existing_model
+

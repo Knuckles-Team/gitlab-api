@@ -3630,6 +3630,7 @@ class Api(object):
             verify=self.verify,
             params=namespace.api_parameters,
         )
+        response = process_response(response=response)
         return response
 
     @require_auth

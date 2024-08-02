@@ -1363,7 +1363,9 @@ class ProjectDBModel(BaseDBModel):
     )
 
     additional_links_id = Column(
-        Integer, ForeignKey(column="links.id", name="fk_project_additional_links"), nullable=True
+        Integer,
+        ForeignKey(column="links.id", name="fk_project_additional_links"),
+        nullable=True,
     )
     additional_links = relationship(
         argument="LinksDBModel",

@@ -33,9 +33,10 @@ def get_namespaces():
     response = client.get_namespaces()
     print(f"RESPONSE : {response}")
     print(f"RESPONSE DATA: {response.data}")
-    print(f"Namespaces Fetched - Status: {response.status_code}\n\n"
-          f"Inserting Data Into Database..."
-          )
+    print(
+        f"Namespaces Fetched - Status: {response.status_code}\n\n"
+        f"Inserting Data Into Database..."
+    )
     bulk_insert_or_update(session=session, response=response)
     print("Namespaces Synchronization Complete!")
 
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     Session = sessionmaker(bind=engine)
     session = Session()
     print("Session Created\n\nFetching GitLab Data...")
-    #get_users()
+    get_users()
     get_namespaces()
-    #get_projects()
-    #get_merge_requests()
+    get_projects()
+    get_merge_requests()

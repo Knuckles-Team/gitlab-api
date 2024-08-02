@@ -1416,8 +1416,12 @@ class NamespaceModel(BaseModel):
 
     namespace_id: Optional[Union[int, str]] = None
     search: Optional[str] = Field(description="Search parameters", default=None)
-    owned_only: Optional[bool] = Field(description="Only show owned  namespace", default=None)
-    top_level_only: Optional[bool] = Field(description="Only show top level namespaces", default=None)
+    owned_only: Optional[bool] = Field(
+        description="Only show owned  namespace", default=None
+    )
+    top_level_only: Optional[bool] = Field(
+        description="Only show top level namespaces", default=None
+    )
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = None
 
@@ -3378,12 +3382,15 @@ class Namespace(BaseModel):
         default=None, description="The web URL of the namespace."
     )
 
+
 class Namespaces(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Namespaces")
-    namespaces: Optional[List[Namespace]] = Field(default=None, description="The list of namespaces")
+    namespaces: Optional[List[Namespace]] = Field(
+        default=None, description="The list of namespaces"
+    )
 
 
 class ContainerExpirationPolicy(BaseModel):
