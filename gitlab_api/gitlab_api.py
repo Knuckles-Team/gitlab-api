@@ -16,6 +16,7 @@ try:
         GroupModel,
         JobModel,
         MembersModel,
+        NamespaceModel,
         PackageModel,
         PipelineModel,
         ProjectModel,
@@ -37,6 +38,7 @@ except ModuleNotFoundError:
         GroupModel,
         JobModel,
         MembersModel,
+        NamespaceModel,
         PackageModel,
         PipelineModel,
         ProjectModel,
@@ -2054,24 +2056,38 @@ class Api(object):
         - ParameterError: If invalid parameters are provided.
         """
         project = ProjectModel(**kwargs)
+        if not project.per_page:
+            per_page = 100
+        else:
+            per_page = project.per_page
         response = self._session.get(
-            url=f"{self.url}/projects?per_page={project.per_page}&x-total-pages",
+            url=f"{self.url}/projects?per_page={per_page}&x-total-pages",
             headers=self.headers,
             verify=self.verify,
         )
-        total_pages = int(response.headers["X-Total-Pages"])
-        response = []
-        if project.max_pages == 0 or project.max_pages > total_pages:
-            project.max_pages = total_pages
-        for page in range(0, project.max_pages):
-            response_page = self._session.get(
-                url=f"{self.url}/projects?per_page={project.per_page}&page={page}&order_by={project.order_by}",
+        project.total_pages = int(response.headers["X-Total-Pages"])
+        response = None
+        if not project.max_pages:
+            max_pages = 0
+        else:
+            max_pages = project.max_pages
+        if max_pages == 0 or max_pages > project.total_pages:
+            project.max_pages = project.total_pages
+            max_pages = project.total_pages
+        for page in range(0, max_pages):
+            project.page = page
+            project.model_post_init(project)
+            temp_response = self._session.get(
+                url=f"{self.url}/projects",
                 headers=self.headers,
                 verify=self.verify,
+                params=project.api_parameters,
             )
-            response_page = json.loads(response_page.text.replace("'", '"'))
-            response = response + response_page
-        response = process_response(response=response)
+            temp_response = process_response(response=temp_response)
+            if not response:
+                response = temp_response
+            else:
+                response = response.data.projects + temp_response.data.projects
         return response
 
     @require_auth
@@ -3339,29 +3355,39 @@ class Api(object):
         - ParameterError: If there are invalid parameters.
         """
         user = UserModel(**kwargs)
-        api_parameters = f"?per_page={user.per_page}"
+        if not user.per_page:
+            per_page = 100
+        else:
+            per_page = user.per_page
         response = self._session.get(
-            url=f"{self.url}/users{api_parameters}&x-total-pages",
+            url=f"{self.url}/users?per_page={per_page}&x-total-pages",
             headers=self.headers,
             verify=self.verify,
         )
-        total_pages = int(response.headers["X-Total-Pages"])
-        response = []
+        user.total_pages = int(response.headers["X-Total-Pages"])
+        response = None
 
-        if user.max_pages == 0 or user.max_pages > total_pages:
-            user.max_pages = total_pages
-        for page in range(0, user.max_pages):
+        if not user.max_pages:
+            max_pages = 0
+        else:
+            max_pages = user.max_pages
+        if max_pages == 0 or max_pages > user.total_pages:
+            user.max_pages = user.total_pages
+            max_pages = user.total_pages
+        for page in range(0, max_pages):
             user.page = page
             user.model_post_init(user)
-            response_page = self._session.get(
+            temp_response = self._session.get(
                 url=f"{self.url}/users",
                 params=user.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
             )
-            response_page = json.loads(response_page.text.replace("'", '"'))
-            response = response + response_page
-        response = process_response(response=response)
+            temp_response = process_response(response=temp_response)
+            if not response:
+                response = temp_response
+            else:
+                response = response.data.users + temp_response.data.users
         return response
 
     @require_auth
@@ -3577,5 +3603,58 @@ class Api(object):
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
+        return response
+
+    ####################################################################################################################
+    #                                              Namespaces API                                                      #
+    ####################################################################################################################
+    @require_auth
+    def get_namespaces(self, **kwargs) -> Union[Response, requests.Response]:
+        """
+        Get information about namespaces.
+
+        Args:
+        - **kwargs: Additional parameters for the request.
+
+        Returns:
+        - The response from the server.
+
+        Raises:
+        - ParameterError: If invalid parameters are provided.
+        """
+        namespace = NamespaceModel(**kwargs)
+        response = self._session.get(
+            url=f"{self.url}/namespaces/",
+            headers=self.headers,
+            verify=self.verify,
+            params=namespace.api_parameters,
+        )
+        return response
+
+    @require_auth
+    def get_namespace(self, **kwargs) -> Union[Response, requests.Response]:
+        """
+        Get information about a specific namespace.
+
+        Args:
+        - **kwargs: Additional parameters for the request.
+
+        Returns:
+        - The response from the server.
+
+        Raises:
+        - MissingParameterError: If required parameters are missing.
+        - ParameterError: If invalid parameters are provided.
+        """
+
+        namespace = NamespaceModel(**kwargs)
+        if namespace.namespace_id is None:
+            raise MissingParameterError
+        response = self._session.get(
+            url=f"{self.url}/namespaces/{namespace.namespace_id}",
+            headers=self.headers,
+            verify=self.verify,
+        )
         response = process_response(response=response)
         return response

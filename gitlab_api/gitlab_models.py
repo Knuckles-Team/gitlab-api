@@ -1408,6 +1408,32 @@ class MergeRequestRuleModel(BaseModel):
         return values
 
 
+class NamespaceModel(BaseModel):
+    """
+    Documentation for the NamespaceModel Pydantic model.
+
+    """
+
+    namespace_id: Optional[Union[int, str]] = None
+    search: Optional[str] = Field(description="Search parameters", default=None)
+    owned_only: Optional[bool] = Field(description="Only show owned  namespace", default=None)
+    top_level_only: Optional[bool] = Field(description="Only show top level namespaces", default=None)
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    data: Optional[Dict] = None
+
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.search:
+            self.api_parameters["search"] = self.search
+        if self.owned_only:
+            self.api_parameters["owned_only"] = self.owned_only
+        if self.top_level_only:
+            self.api_parameters["top_level_only"] = self.top_level_only
+
+
 class PackageModel(BaseModel):
     """
     Documentation for the PackageModel Pydantic model.
@@ -1617,8 +1643,16 @@ class ProjectModel(BaseModel):
     issues_template: Optional[str] = None
     keep_latest_artifact: Optional[bool] = None
     lfs_enabled: Optional[bool] = None
-    max_pages: Optional[int] = 0
-    per_page: Optional[int] = 100
+    total_pages: Optional[int] = Field(
+        description="Total number of pages", default=None
+    )
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Page in multi-page response", default=None)
+    per_page: Optional[int] = Field(
+        description="Amount of items per page", default=None
+    )
     merge_commit_template: Optional[str] = None
     merge_method: Optional[str] = None
     merge_pipelines_enabled: Optional[bool] = None
@@ -1674,6 +1708,14 @@ class ProjectModel(BaseModel):
             self.api_parameters["group_access"] = self.group_access
         if self.expires_at:
             self.api_parameters["expires_at"] = self.expires_at
+        if self.max_pages:
+            self.api_parameters["max_pages"] = self.max_pages
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+        if self.total_pages:
+            self.api_parameters["total_pages"] = self.total_pages
 
     @model_validator(mode="before")
     def build_data(cls, values):
@@ -2595,9 +2637,16 @@ class UserModel(BaseModel):
     without_projects: Optional[bool] = None
     admins: Optional[bool] = None
     saml_provider_id: Optional[str] = None
-    max_pages: Optional[int] = 0
-    page: Optional[int] = 1
-    per_page: Optional[int] = 100
+    total_pages: Optional[int] = Field(
+        description="Total number of pages", default=None
+    )
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Page in multi-page response", default=None)
+    per_page: Optional[int] = Field(
+        description="Amount of items per page", default=None
+    )
     sudo: Optional[bool] = False
     user_id: Optional[Union[str, int]] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
@@ -2647,10 +2696,14 @@ class UserModel(BaseModel):
             self.api_parameters["sudo"] = self.user_id
         if self.user_id:
             self.api_parameters["user_id"] = self.user_id
+        if self.max_pages:
+            self.api_parameters["max_pages"] = self.max_pages
         if self.page:
             self.api_parameters["page"] = self.page
         if self.per_page:
             self.api_parameters["per_page"] = self.per_page
+        if self.total_pages:
+            self.api_parameters["total_pages"] = self.total_pages
 
     @field_validator("order_by")
     def validate_order_by(cls, value):
@@ -3324,6 +3377,13 @@ class Namespace(BaseModel):
     web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The web URL of the namespace."
     )
+
+class Namespaces(BaseModel):
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Namespaces")
+    namespaces: Optional[List[Namespace]] = Field(default=None, description="The list of namespaces")
 
 
 class ContainerExpirationPolicy(BaseModel):
@@ -4004,6 +4064,7 @@ class ApprovedBy(BaseModel):
 class Label(BaseModel):
     class Meta:
         orm_model = LabelDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Label")
@@ -4013,6 +4074,7 @@ class Label(BaseModel):
 class Labels(BaseModel):
     class Meta:
         orm_model = LabelsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Labels")
@@ -4022,6 +4084,7 @@ class Labels(BaseModel):
 class Tag(BaseModel):
     class Meta:
         orm_model = TagDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Tag")
@@ -4038,6 +4101,7 @@ class Tags(BaseModel):
 class Topic(BaseModel):
     class Meta:
         orm_model = TopicDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Topic")
@@ -4444,9 +4508,7 @@ class Project(BaseModel):
         default=None, description="Access level of operations"
     )
     ci_dockerfile: Optional[str] = Field(default=None, description="Dockerfile for CI")
-    groups: Optional["Groups"] = Field(
-        default=None, description="List of groups"
-    )
+    groups: Optional["Groups"] = Field(default=None, description="List of groups")
     public: Optional[bool] = Field(
         default=None, description="Whether project is allowed to be public."
     )
@@ -5317,7 +5379,6 @@ class MergeRequest(BaseModel):
             return Users(users=v)
         return v
 
-
     @field_validator("changes", mode="before")
     def validate_changes(cls, v):
         if isinstance(v, list) and not v:
@@ -5325,7 +5386,6 @@ class MergeRequest(BaseModel):
         if isinstance(v, list):
             return Diffs(diffs=v)
         return v
-
 
     @field_validator("labels", mode="before")
     def validate_labels(cls, v):
@@ -6169,6 +6229,8 @@ class Response(BaseModel):
             Issue,
             ToDo,
             TestReport,
+            Namespace,
+            Namespaces,
             MergeRequests,
             MergeRequest,
             MergeApprovals,
@@ -6231,6 +6293,7 @@ class Response(BaseModel):
             "DeployToken": DeployToken,
             "User": User,
             "Membership": Membership,
+            "Namespace": Namespace,
             "Group": Group,
             "Job": Job,
             "Package": Package,
@@ -6313,6 +6376,14 @@ class Response(BaseModel):
                     except Exception as e:
                         logging.debug(
                             f"\n\n\n Merge Requests Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        namespaces = [Namespace(**item) for item in value]
+                        temp_value = Namespaces(namespaces=namespaces)
+                        logging.info(f"Namespaces Validation Success: {value}")
+                    except Exception as e:
+                        logging.debug(
+                            f"\n\n\n Namespaces Validation Failed: {value}\nError: {e}"
                         )
                     try:
                         releases = [Release(**item) for item in value]

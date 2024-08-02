@@ -37,6 +37,7 @@ This repository is actively maintained - Contributions are welcome!
 - Members
 - Merge Request
 - Merge Request Rules
+- Namespaces
 - Packages
 - Pipeline
 - Projects

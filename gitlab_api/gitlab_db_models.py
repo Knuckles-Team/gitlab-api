@@ -6,7 +6,7 @@ logging.basicConfig(
     level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-from sqlalchemy import Table,Column, String, DateTime, ForeignKey, Text
+from sqlalchemy import Table, Column, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship, backref, declarative_base
 from sqlalchemy import Integer, Boolean
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -559,46 +559,54 @@ class BranchDBModel(BaseDBModel):
         backref=backref("branches_unprotect_access_levels"),
     )
 
+
 labels_association = Table(
-    'labels_association', BaseDBModel.metadata,
-    Column('label_id', Integer, ForeignKey('labels.id'), primary_key=True),
-    Column('labels_collection_id', Integer, ForeignKey('labels_collection.id'), primary_key=True)
+    "labels_association",
+    BaseDBModel.metadata,
+    Column("label_id", Integer, ForeignKey("labels.id"), primary_key=True),
+    Column(
+        "labels_collection_id",
+        Integer,
+        ForeignKey("labels_collection.id"),
+        primary_key=True,
+    ),
 )
+
 
 # Label Model
 class LabelDBModel(BaseDBModel):
     __tablename__ = "labels"
 
-    id = Column(Integer, primary_key=True, autoincrement=False)
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
     base_type = Column(String, default="Label")
-    name = Column(String, nullable=False)
-    color = Column(String, nullable=False)
-    text_color = Column(String, nullable=False)
+    name = Column(String, nullable=True)
+    color = Column(String, nullable=True)
+    text_color = Column(String, nullable=True)
     description = Column(Text, nullable=True)
     description_html = Column(Text, nullable=True)
-    open_issues_count = Column(Integer, nullable=False, default=0)
-    closed_issues_count = Column(Integer, nullable=False, default=0)
-    open_merge_requests_count = Column(Integer, nullable=False, default=0)
-    subscribed = Column(Boolean, nullable=True, default=False)
+    open_issues_count = Column(Integer, nullable=True)
+    closed_issues_count = Column(Integer, nullable=True)
+    open_merge_requests_count = Column(Integer, nullable=True)
+    subscribed = Column(Boolean, nullable=True)
     priority = Column(Integer, nullable=True)
-    is_project_label = Column(Boolean, nullable=True, default=True)
+    is_project_label = Column(Boolean, nullable=True)
 
 
 # Labels Model
 class LabelsDBModel(BaseDBModel):
     __tablename__ = "labels_collection"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
     base_type = Column(String, default="Labels")
     labels = relationship(
-        'LabelDBModel',
+        "LabelDBModel",
         secondary=labels_association,
-        backref=backref('labels_collections', lazy='dynamic')
+        backref=backref("labels_collections", lazy="dynamic"),
     )
 
 
 class TopicDBModel(BaseDBModel):
-    __tablename__ = 'topics'
+    __tablename__ = "topics"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     base_type = Column(String, default="Topic")
@@ -606,7 +614,7 @@ class TopicDBModel(BaseDBModel):
 
 
 class TagDBModel(BaseDBModel):
-    __tablename__ = 'tags'
+    __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     base_type = Column(String, default="Tag")
@@ -849,7 +857,7 @@ class MergeRequestDBModel(BaseDBModel):
         ForeignKey(column="projects.id", name="fk_merge_request_project"),
         nullable=True,
     )
-    projects = relationship(
+    project = relationship(
         argument="ProjectDBModel",
         foreign_keys=[project_id],
         backref=backref("project_merge_requests"),
@@ -1352,6 +1360,15 @@ class ProjectDBModel(BaseDBModel):
         argument="LinksDBModel",
         foreign_keys=[links_id],
         backref=backref("projects_links"),
+    )
+
+    additional_links_id = Column(
+        Integer, ForeignKey(column="links.id", name="fk_project_additional_links"), nullable=True
+    )
+    additional_links = relationship(
+        argument="LinksDBModel",
+        foreign_keys=[links_id],
+        backref=backref("projects_additional_links"),
     )
 
     permissions_id = Column(
@@ -2119,11 +2136,19 @@ class CreatedByDBModel(BaseDBModel):
         backref=backref("created_by_user"),
     )
 
+
 users_association = Table(
-    'users_association', BaseDBModel.metadata,
-    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
-    Column('users_collection_id', Integer, ForeignKey('users_collection.id'), primary_key=True)
+    "users_association",
+    BaseDBModel.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column(
+        "users_collection_id",
+        Integer,
+        ForeignKey("users_collection.id"),
+        primary_key=True,
+    ),
 )
+
 
 # User Model
 class UserDBModel(BaseDBModel):
@@ -2224,12 +2249,12 @@ class UserDBModel(BaseDBModel):
 class UsersDBModel(BaseDBModel):
     __tablename__ = "users_collection"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     base_type = Column(String, default="Users")
     users = relationship(
-        'UserDBModel',
+        "UserDBModel",
         secondary=users_association,
-        backref=backref('users_collections', lazy='dynamic')
+        backref=backref("users_collections", lazy="dynamic"),
     )
 
 
@@ -2252,11 +2277,7 @@ class NamespaceDBModel(BaseDBModel):
 
     parent_id = Column(
         Integer,
-        ForeignKey(column="namespaces.id", name="fk_namespace_parent"),
         nullable=True,
-    )
-    parent = relationship(
-        argument="NamespaceDBModel", foreign_keys=[parent_id], remote_side=[id]
     )
 
     user_id = Column(

@@ -163,7 +163,7 @@ from gitlab_api.gitlab_db_models import (
     DiffDBModel,
     DetailedStatusDBModel,
 )
-from gitlab_api.utils import pydantic_to_sqlalchemy
+from gitlab_api.utils import pydantic_to_sqlalchemy, insert_or_update, bulk_insert_or_update
 
 """
 GitLab API
@@ -177,6 +177,8 @@ __credits__ = __credits__
 
 __all__ = [
     "pydantic_to_sqlalchemy",
+    "insert_or_update",
+    "bulk_insert_or_update",
     "Api",
     "BranchModel",
     "CommitModel",
