@@ -122,7 +122,7 @@ def validate_dict(dictionary: Dict, parent_key: str, sqlalchemy_model: Any) -> A
             related_sqlalchemy_model = prop.mapper.class_
     if not related_sqlalchemy_model:
         raise ValueError(f"Unable to find related model for key: {parent_key}")
-    logging.debug(f"\n\nRelated instance: {related_sqlalchemy_model}")
+    print(f"\n\nRelated instance: {related_sqlalchemy_model}")
     # Special handling for labels
     if related_sqlalchemy_model == LabelsDBModel:
         labels = []
@@ -132,9 +132,9 @@ def validate_dict(dictionary: Dict, parent_key: str, sqlalchemy_model: Any) -> A
         return labels_model
     value = remove_none_values(dictionary)
     nested_model = related_sqlalchemy_model(**value)
-    logging.debug(f"\n\nObtained Nested Model: {nested_model}")
+    print(f"\n\nObtained Nested Model: {nested_model}")
     related_model = pydantic_to_sqlalchemy(nested_model)
-    logging.debug(f"\n\nDefined SQLAlchemy: {related_model}")
+    print(f"\n\nDefined SQLAlchemy: {related_model}")
     return related_model
 
 
@@ -146,31 +146,52 @@ def pydantic_to_sqlalchemy(pydantic_model):
         or not hasattr(pydantic_model.Meta, "orm_model")
     ) and hasattr(pydantic_model, "base_type"):
         sqlalchemy_instance = pydantic_model
-        logging.debug(f"\n\nFound SQLAlchemy Model on First Try: {sqlalchemy_instance}")
+        print(f"\n\nFound SQLAlchemy Model on First Try: {sqlalchemy_instance}")
         return sqlalchemy_instance
     sqlalchemy_model = pydantic_model.Meta.orm_model
     sqlalchemy_instance = sqlalchemy_model()
     for key, value in pydantic_model.model_dump(exclude_unset=True).items():
         if value:
             if isinstance(value, list):
-                logging.debug(f"\n\nValue that is a list: {value} for key: {key}")
+                print(f"\n\nValue that is a list: {value} for key: {key}")
                 related_models = validate_list(list_object=value)
                 setattr(sqlalchemy_instance, key, related_models)
-                logging.debug(f"\n\nSQLAlchemy Model Set: {related_models}")
+                print(f"\n\nSQLAlchemy Model Set: {related_models}")
             elif isinstance(value, dict):
-                logging.debug(f"\n\nValue that is a dict: {value} for key: {key}")
+                print(f"\n\nValue that is a dict: {value} for key: {key}")
                 related_model = validate_dict(
                     dictionary=value, parent_key=key, sqlalchemy_model=sqlalchemy_model
                 )
                 setattr(sqlalchemy_instance, key, related_model)
-                logging.debug(f"\n\nSQLAlchemy Model Set: {related_model}")
+                print(f"\n\nSQLAlchemy Model Set: {related_model}")
             else:
-                logging.debug(f"\n\nImmediately Setting Attribute: {value}")
+                print(f"\n\nImmediately Setting Attribute: {value}")
                 setattr(sqlalchemy_instance, key, value)
-                logging.debug(f"\n\nImmediately Set Attribute: {value}")
+                print(f"\n\nImmediately Set Attribute: {value}")
 
-    logging.debug(f"\n\nCompleted Conversion for: {sqlalchemy_instance}")
+    print(f"\n\nCompleted Conversion for: {sqlalchemy_instance}")
     return sqlalchemy_instance
+
+# def pydantic_to_sqlalchemy(pydantic_instance):
+#     sqlalchemy_instance = pydantic_instance.Meta.orm_model()
+#
+#     for key, value in pydantic_instance.dict(exclude_unset=True).items():
+#         if isinstance(value, list):
+#             related_model_list = []
+#             for item in value:
+#                 if hasattr(item, "Meta"):
+#                     related_model_list.append(pydantic_to_sqlalchemy(item))
+#                 else:
+#                     related_model_list.append(item)
+#             setattr(sqlalchemy_instance, key, related_model_list)
+#         elif hasattr(value, "Meta"):
+#             related_model = pydantic_to_sqlalchemy(value)
+#             setattr(sqlalchemy_instance, key, related_model)
+#         else:
+#             print(f"\n\nImmediately Setting Attribute: {value} for key: {key} on instance: {sqlalchemy_instance}")
+#             setattr(sqlalchemy_instance, key, value)
+#
+#     return sqlalchemy_instance
 
 
 def upsert(session, response):
@@ -197,7 +218,7 @@ def upsert_row(session, db_model):
     try:
         existing_model = session.query(model_instance).filter_by(id=db_model.id).one()
         print(f"\n\nFound Existing Model: {existing_model}")
-        #session.merge(model_instance)
+        # session.merge(model_instance)
         for attr, value in db_model.__dict__.items():
             if attr != "_sa_instance_state":
                 setattr(existing_model, attr, value)
@@ -215,4 +236,3 @@ def upsert_row(session, db_model):
             f"Error inserting/updating {model_instance.__name__} with ID {db_model.id}: {e}"
         )
     return existing_model
-

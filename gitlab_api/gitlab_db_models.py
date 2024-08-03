@@ -1165,6 +1165,75 @@ class ApprovedByDBModel(BaseDBModel):
     )
 
 
+# Project Association tables
+project_owners = Table(
+    "project_owners",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("user_id", Integer, ForeignKey("users.id")),
+)
+
+project_creators = Table(
+    "project_creators",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("user_id", Integer, ForeignKey("users.id")),
+)
+
+project_namespaces = Table(
+    "project_namespaces",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("namespace_id", Integer, ForeignKey("namespaces.id")),
+)
+
+project_container_expiration_policies = Table(
+    "project_container_expiration_policies",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column(
+        "container_expiration_policy_id",
+        Integer,
+        ForeignKey("container_expiration_policies.id"),
+    ),
+)
+
+project_statistics = Table(
+    "project_statistics",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("statistics_id", Integer, ForeignKey("statistics.id")),
+)
+
+project_links = Table(
+    "project_links",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("link_id", Integer, ForeignKey("links.id")),
+)
+
+project_additional_links = Table(
+    "project_additional_links",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("additional_link_id", Integer, ForeignKey("links.id")),
+)
+
+project_permissions = Table(
+    "project_permissions",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("permission_id", Integer, ForeignKey("permissions.id")),
+)
+
+project_shared_with_groups = Table(
+    "project_shared_with_groups",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("group_id", Integer, ForeignKey("groups.id")),
+)
+
+
 # Project Model
 class ProjectDBModel(BaseDBModel):
     __tablename__ = "projects"
@@ -1299,100 +1368,29 @@ class ProjectDBModel(BaseDBModel):
     ci_dockerfile = Column(String, nullable=True)
     public = Column(Boolean, nullable=True)
 
-    owner_id = Column(
-        Integer, ForeignKey(column="users.id", name="fk_owner"), nullable=True
-    )
     owner = relationship(
-        argument="UserDBModel",
-        foreign_keys=[owner_id],
-        backref=backref("owned_projects"),
-    )
-
-    creator_id = Column(
-        Integer, ForeignKey(column="users.id", name="fk_creator"), nullable=True
+        "UserDBModel", secondary=project_owners, backref="project_owner"
     )
     creator = relationship(
-        argument="UserDBModel",
-        foreign_keys=[creator_id],
-        backref=backref("created_projects"),
+        "UserDBModel", secondary=project_creators, backref="project_creators"
     )
-
-    namespace_id = Column(
-        Integer,
-        ForeignKey(column="namespaces.id", name="fk_project_namespace"),
-        nullable=True,
-    )
-    namespace = relationship(
-        argument="NamespaceDBModel",
-        foreign_keys=[namespace_id],
-        backref=backref("projects"),
-    )
-
-    container_expiration_policy_id = Column(
-        Integer,
-        ForeignKey(
-            column="container_expiration_policies.id",
-            name="fk_project_container_expiration_policy",
-        ),
-        nullable=True,
-    )
+    namespace_id = Column(Integer, ForeignKey('namespaces.id'))
+    namespace = relationship("NamespaceDBModel", back_populates="project")
     container_expiration_policy = relationship(
-        argument="ContainerExpirationPolicyDBModel",
-        foreign_keys=[container_expiration_policy_id],
-        backref=backref("projects"),
-    )
-
-    statistics_id = Column(
-        Integer,
-        ForeignKey(column="statistics.id", name="fk_project_statistics"),
-        nullable=True,
+        "ContainerExpirationPolicyDBModel",
+        secondary=project_container_expiration_policies,
+        backref="project_container_expiration_policy",
     )
     statistics = relationship(
-        argument="StatisticsDBModel",
-        foreign_keys=[statistics_id],
-        backref=backref("projects_statistics"),
+        "StatisticsDBModel", secondary=project_statistics, backref="project_statistics"
     )
-
-    links_id = Column(
-        Integer, ForeignKey(column="links.id", name="fk_project_links"), nullable=True
-    )
-    links = relationship(
-        argument="LinksDBModel",
-        foreign_keys=[links_id],
-        backref=backref("projects_links"),
-    )
-
-    additional_links_id = Column(
-        Integer,
-        ForeignKey(column="links.id", name="fk_project_additional_links"),
-        nullable=True,
-    )
-    additional_links = relationship(
-        argument="LinksDBModel",
-        foreign_keys=[links_id],
-        backref=backref("projects_additional_links"),
-    )
-
-    permissions_id = Column(
-        Integer,
-        ForeignKey(column="permissions.id", name="fk_project_permissions"),
-        nullable=True,
-    )
+    links = relationship("LinksDBModel", secondary=project_links, backref="project_links")
+    additional_links = relationship("LinksDBModel", secondary=project_additional_links, backref="project_additional_links")
     permissions = relationship(
-        argument="PermissionsDBModel",
-        foreign_keys=[permissions_id],
-        backref=backref("projects"),
-    )
-
-    shared_with_groups_id = Column(
-        Integer,
-        ForeignKey(column="groups.id", name="fk_project_shared_with_groups"),
-        nullable=True,
+        "PermissionsDBModel", secondary=project_permissions, backref="project_permissions"
     )
     shared_with_groups = relationship(
-        argument="GroupDBModel",
-        foreign_keys=[shared_with_groups_id],
-        backref=backref("shared_projects_with_group"),
+        "GroupDBModel", secondary=project_shared_with_groups, backref="project_shared_with_groups"
     )
 
 
@@ -2282,6 +2280,8 @@ class NamespaceDBModel(BaseDBModel):
         nullable=True,
     )
 
+    project = relationship("ProjectDBModel", back_populates="namespace")
+
     user_id = Column(
         Integer, ForeignKey(column="users.id", name="fk_namespace_user"), nullable=True
     )
@@ -2351,16 +2351,6 @@ class LinksDBModel(BaseDBModel):
     award_emoji = Column(String, nullable=True)
     project = Column(String, nullable=True)
     closed_as_duplicate_of = Column(String, nullable=True)
-    projects_id = Column(
-        Integer,
-        ForeignKey(column="projects.id", name="fk_links_projects"),
-        nullable=True,
-    )
-    projects = relationship(
-        argument="ProjectDBModel",
-        foreign_keys=[projects_id],
-        backref=backref("links_projects"),
-    )
 
 
 # Diff Model

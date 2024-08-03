@@ -22,11 +22,11 @@ postgres_db_name = os.environ["POSTGRES_DB_NAME"]
 def get_users():
     response = client.get_users()
     print(
-        f"Users Fetched - Status: {response.status_code}\n\n"
+        f"Users Fetched - Status: {response.status_code}\n"
         f"Inserting Data Into Database..."
     )
     upsert(session=session, response=response)
-    print("Users Synchronization Complete!")
+    print("Users Synchronization Complete!\n\n\n")
 
 
 def get_namespaces():
@@ -34,31 +34,31 @@ def get_namespaces():
     print(f"RESPONSE : {response}")
     print(f"RESPONSE DATA: {response.data}")
     print(
-        f"Namespaces Fetched - Status: {response.status_code}\n\n"
+        f"Namespaces Fetched - Status: {response.status_code}\n"
         f"Inserting Data Into Database..."
     )
     upsert(session=session, response=response)
-    print("Namespaces Synchronization Complete!")
+    print("Namespaces Synchronization Complete!\n\n\n")
 
 
 def get_projects():
     response = client.get_projects()
     print(
-        f"Projects Fetched - Status: {response.status_code}\n\n"
+        f"Projects Fetched - Status: {response.status_code}\n"
         f"Inserting Data Into Database..."
     )
     upsert(session=session, response=response)
-    print("Projects Synchronization Complete!")
+    print("Projects Synchronization Complete!\n\n\n")
 
 
 def get_merge_requests():
     response = client.get_group_merge_requests(argument="state=all", group_id=2)
     print(
-        f"Merge Requests Fetched - Status: {response.status_code}\n\n"
+        f"Merge Requests Fetched - Status: {response.status_code}\n"
         f"Inserting Data Into Database..."
     )
     upsert(session=session, response=response)
-    print("Merge Request Synchronization Complete!")
+    print("Merge Request Synchronization Complete!\n\n\n")
 
 
 if __name__ == "__main__":
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     Session = sessionmaker(bind=engine)
     session = Session()
     print("Session Created\n\nFetching GitLab Data...")
-    # get_users()
-    # get_namespaces()
-    # get_projects()
+    get_users()
+    get_namespaces()
+    get_projects()
     get_merge_requests()
