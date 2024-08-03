@@ -45,7 +45,8 @@ def get_projects():
     response = client.get_projects()
     print(
         f"Projects Fetched - Status: {response.status_code}\n"
-        f"Inserting Data Into Database..."
+        f"Inserting Data Into Database...\n"
+        f"Total: {len(response.data.projects)} - Projects: {response.data.projects}"
     )
     upsert(session=session, response=response)
     print("Projects Synchronization Complete!\n\n\n")
@@ -87,4 +88,6 @@ if __name__ == "__main__":
     get_users()
     get_namespaces()
     get_projects()
-    get_merge_requests()
+    # get_merge_requests()
+
+    session.close()

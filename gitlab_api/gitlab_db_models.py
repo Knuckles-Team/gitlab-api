@@ -1180,24 +1180,6 @@ project_creators = Table(
     Column("user_id", Integer, ForeignKey("users.id")),
 )
 
-project_namespaces = Table(
-    "project_namespaces",
-    BaseDBModel.metadata,
-    Column("project_id", Integer, ForeignKey("projects.id")),
-    Column("namespace_id", Integer, ForeignKey("namespaces.id")),
-)
-
-project_container_expiration_policies = Table(
-    "project_container_expiration_policies",
-    BaseDBModel.metadata,
-    Column("project_id", Integer, ForeignKey("projects.id")),
-    Column(
-        "container_expiration_policy_id",
-        Integer,
-        ForeignKey("container_expiration_policies.id"),
-    ),
-)
-
 project_statistics = Table(
     "project_statistics",
     BaseDBModel.metadata,
@@ -1374,23 +1356,38 @@ class ProjectDBModel(BaseDBModel):
     creator = relationship(
         "UserDBModel", secondary=project_creators, backref="project_creators"
     )
-    namespace_id = Column(Integer, ForeignKey('namespaces.id'))
+    namespace_id = Column(Integer, ForeignKey("namespaces.id"))
     namespace = relationship("NamespaceDBModel", back_populates="project")
+
+    container_expiration_policy_id = Column(Integer, ForeignKey("container_expiration_policies.id"))
     container_expiration_policy = relationship(
         "ContainerExpirationPolicyDBModel",
-        secondary=project_container_expiration_policies,
+        foreign_keys=[container_expiration_policy_id],
         backref="project_container_expiration_policy",
     )
     statistics = relationship(
         "StatisticsDBModel", secondary=project_statistics, backref="project_statistics"
     )
-    links = relationship("LinksDBModel", secondary=project_links, backref="project_links")
-    additional_links = relationship("LinksDBModel", secondary=project_additional_links, backref="project_additional_links")
+    links_id = Column(Integer, ForeignKey("links.id"))
+    links = relationship(
+        "LinksDBModel", foreign_keys=[links_id], backref="project_links"
+    )
+    additional_links_id = Column(Integer, ForeignKey("links.id"))
+    additional_links = relationship(
+        "LinksDBModel",
+        foreign_keys=[additional_links_id],
+        backref="project_additional_links",
+    )
+    permissions_id = Column(Integer, ForeignKey("permissions.id"))
     permissions = relationship(
-        "PermissionsDBModel", secondary=project_permissions, backref="project_permissions"
+        "PermissionsDBModel",
+        foreign_keys=[permissions_id],
+        backref="project_permissions",
     )
     shared_with_groups = relationship(
-        "GroupDBModel", secondary=project_shared_with_groups, backref="project_shared_with_groups"
+        "GroupDBModel",
+        secondary=project_shared_with_groups,
+        backref="project_shared_with_groups",
     )
 
 
