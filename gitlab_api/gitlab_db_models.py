@@ -613,12 +613,39 @@ class TopicDBModel(BaseDBModel):
     name = Column(String, nullable=False)
 
 
+
+tags_association = Table(
+    "tags_association",
+    BaseDBModel.metadata,
+    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
+    Column(
+        "tags_collection",
+        Integer,
+        ForeignKey("tags_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
 class TagDBModel(BaseDBModel):
     __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     base_type = Column(String, default="Tag")
     name = Column(String, nullable=False)
+    tag = Column(String, nullable=False)
+
+
+class TagsDBModel(BaseDBModel):
+    __tablename__ = "tags_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
+    base_type = Column(String, default="Tags")
+    tags = relationship(
+        "TagDBModel",
+        secondary=tags_association,
+        backref=backref("tags_collection", lazy="dynamic"),
+    )
 
 
 # ApprovalRule Model
@@ -1359,7 +1386,9 @@ class ProjectDBModel(BaseDBModel):
     namespace_id = Column(Integer, ForeignKey("namespaces.id"))
     namespace = relationship("NamespaceDBModel", back_populates="project")
 
-    container_expiration_policy_id = Column(Integer, ForeignKey("container_expiration_policies.id"))
+    container_expiration_policy_id = Column(
+        Integer, ForeignKey("container_expiration_policies.id")
+    )
     container_expiration_policy = relationship(
         "ContainerExpirationPolicyDBModel",
         foreign_keys=[container_expiration_policy_id],
@@ -1444,7 +1473,6 @@ class JobDBModel(BaseDBModel):
     duration = Column(Float, nullable=True)
     queued_duration = Column(Float, nullable=True)
     artifacts_expire_at = Column(DateTime, nullable=True)
-    tag_list = Column(JSON, nullable=True)
     name = Column(String, nullable=True)
     ref = Column(String, nullable=True)
     stage = Column(String, nullable=True)
@@ -1452,6 +1480,16 @@ class JobDBModel(BaseDBModel):
     failure_reason = Column(String, nullable=True)
     tag = Column(Boolean, nullable=True)
     web_url = Column(String, nullable=True)
+    tag_list_id = Column(
+        Integer,
+        ForeignKey(column="tags_collection.id", name="fk_job_tags"),
+        nullable=True,
+    )
+    tag_list = relationship(
+        argument="TagsDBModel",
+        foreign_keys=[tag_list_id],
+        backref=backref("job_tag_list"),
+    )
 
     commit_id = Column(
         Integer, ForeignKey(column="commits.id", name="fk_job_commit"), nullable=True

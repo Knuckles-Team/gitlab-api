@@ -2,7 +2,7 @@
 
 import gitlab_api
 from gitlab_api.utils import upsert
-from gitlab_api.gitlab_db_models import BaseDBModel
+from gitlab_api.gitlab_db_models import BaseDBModel as Base
 import urllib3
 import os
 from urllib.parse import quote_plus
@@ -19,49 +19,6 @@ postgres_port = os.environ["POSTGRES_PORT"]
 postgres_db_name = os.environ["POSTGRES_DB_NAME"]
 
 
-def get_users():
-    response = client.get_users()
-    print(
-        f"Users Fetched - Status: {response.status_code}\n"
-        f"Inserting Data Into Database..."
-    )
-    upsert(session=session, response=response)
-    print("Users Synchronization Complete!\n\n\n")
-
-
-def get_namespaces():
-    response = client.get_namespaces()
-    print(f"RESPONSE : {response}")
-    print(f"RESPONSE DATA: {response.data}")
-    print(
-        f"Namespaces Fetched - Status: {response.status_code}\n"
-        f"Inserting Data Into Database..."
-    )
-    upsert(session=session, response=response)
-    print("Namespaces Synchronization Complete!\n\n\n")
-
-
-def get_projects():
-    response = client.get_projects()
-    print(
-        f"Projects Fetched - Status: {response.status_code}\n"
-        f"Inserting Data Into Database...\n"
-        f"Total: {len(response.data.projects)} - Projects: {response.data.projects}"
-    )
-    upsert(session=session, response=response)
-    print("Projects Synchronization Complete!\n\n\n")
-
-
-def get_merge_requests():
-    response = client.get_group_merge_requests(argument="state=all", group_id=2)
-    print(
-        f"Merge Requests Fetched - Status: {response.status_code}\n"
-        f"Inserting Data Into Database..."
-    )
-    upsert(session=session, response=response)
-    print("Merge Request Synchronization Complete!\n\n\n")
-
-
 if __name__ == "__main__":
     print("Creating GitLab Client...")
     client = gitlab_api.Api(
@@ -69,25 +26,66 @@ if __name__ == "__main__":
         token=gitlab_token,
         verify=False,
     )
-    print("GitLab Client Created\n\nCreating Engine")
+    print("GitLab Client Created\n\n")
 
+    print("Creating Engine")
     engine = create_engine(
         f"postgresql://{postgres_username}:{quote_plus(postgres_password)}@"
         f"{postgres_db_host}:{postgres_port}/{postgres_db_name}"
     )
+    print("Engine Created\n\n")
 
-    print("Engine Created\n\nCreating Tables...")
+    print("Creating Tables...")
+    Base.metadata.create_all(engine)
+    print("Tables Created\n\n")
 
-    BaseDBModel.metadata.create_all(engine)
-
-    print("Tables Created\n\nCreating Session...")
-
+    print("Creating Session...")
     Session = sessionmaker(bind=engine)
     session = Session()
-    print("Session Created\n\nFetching GitLab Data...")
-    get_users()
-    get_namespaces()
-    get_projects()
-    # get_merge_requests()
+    print("Session Created\n\n")
+
+    print("Fetching GitLab Data...")
+    # User Data table is a dependency table
+    user_response = client.get_users()
+    print(f"Users Fetched - Status: {user_response.status_code}\n")
+    # # Namespaces table is a dependency table
+    # namespace_response = client.get_namespaces()
+    # print(f"Namespaces Fetched - Status: {namespace_response.status_code}\n")
+    # # Project table requires Users and Namespaces
+    # project_response = client.get_nested_projects_by_group(group_id=2, per_page=100)
+    # print(f"Projects ({len(project_response.data.projects)}) Fetched - Status: {project_response.status_code}\n")
+    # # Merge Requests table requires Users, Namespaces, and Projects
+    # merge_request_response = client.get_group_merge_requests(argument="state=all", group_id=2)
+    # print(f"Merge Requests Fetched - Status: {merge_request_response.status_code}\n\n")
+    #
+    # pipeline_job_responses = []
+    # for project in project_response.data.projects:
+    #     pipeline_job_response = client.get_project_jobs(project_id=49)#project.id)
+    #     pipeline_job_responses.append(pipeline_job_response)
+    #     print(f"Pipeline Jobs Fetched - Status: {pipeline_job_response.status_code}\n\n")
+    #     print(f"Inserting Pipeline Job {pipeline_job_response}\n\nData: {pipeline_job_response.data}")
+    #     break
+
+    print("Inserting Users Into Database...")
+    upsert(session=session, response=user_response)
+    print("Users Synchronization Complete!\n")
+    # print("Inserting Namespaces Into Database...")
+    # upsert(session=session, response=namespace_response)
+    # print("Namespaces Synchronization Complete!\n")
+    # print(
+    #     f"Inserting Projects Into Database...\n"
+    # )
+    # upsert(session=session, response=project_response)
+    # print("Projects Synchronization Complete!\n")
+    # print("Inserting Merge Requests Into Database...")
+    # upsert(session=session, response=merge_request_response)
+    # print("Merge Request Synchronization Complete!\n")
+    #
+    # print(f"Inserting ({len(pipeline_job_responses)}) Pipeline Jobs Into Database...")
+    # for pipeline_job_response in pipeline_job_responses:
+    #     upsert(session=session, response=pipeline_job_response)
+    # print("Pipeline Jobs Synchronization Complete!\n\n\n")
 
     session.close()
+    print("Session Closed")
+

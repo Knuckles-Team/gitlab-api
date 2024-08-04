@@ -593,6 +593,8 @@ class GroupModel(BaseModel):
         Raises:
         - ParameterError: If the parameter is not a positive integer.
         """
+        if not v:
+            return None
         if isinstance(v, str):
             try:
                 v = int(v)
@@ -668,10 +670,19 @@ class JobModel(BaseModel):
     """
 
     project_id: Union[int, str] = None
+    pipeline_id: Union[int, str] = None
     job_id: Union[int, str] = None
     scope: Optional[List[str]] = None
-    per_page: Optional[int] = 100
-    page: Optional[int] = 1
+    total_pages: Optional[int] = Field(
+        description="Total number of pages", default=None
+    )
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Page in multi-page response", default=None)
+    per_page: Optional[int] = Field(
+        description="Amount of items per page", default=None
+    )
     include_retried: Optional[bool] = None
     job_variable_attributes: Optional[Dict] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
@@ -690,6 +701,8 @@ class JobModel(BaseModel):
         Raises:
         - ParameterError: If the parameter is not a positive integer.
         """
+        if not v:
+            return None
         if isinstance(v, str):
             try:
                 v = int(v)
@@ -770,10 +783,14 @@ class JobModel(BaseModel):
         Build the API parameters
         """
         self.api_parameters = {}
+        if self.max_pages:
+            self.api_parameters["max_pages"] = self.max_pages
         if self.page:
             self.api_parameters["page"] = self.page
         if self.per_page:
             self.api_parameters["per_page"] = self.per_page
+        if self.total_pages:
+            self.api_parameters["total_pages"] = self.total_pages
         if self.scope:
             self.api_parameters["scope[]"] = self.scope
 
@@ -813,6 +830,8 @@ class MembersModel(BaseModel):
         Raises:
         - ParameterError: If the parameter is not a positive integer.
         """
+        if not v:
+            return None
         if isinstance(v, str):
             try:
                 v = int(v)

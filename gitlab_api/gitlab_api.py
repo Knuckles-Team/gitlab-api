@@ -1115,16 +1115,38 @@ class Api(object):
         job = JobModel(**kwargs)
         if job.project_id is None:
             raise MissingParameterError
-        try:
-            response = self._session.get(
+        if not job.per_page:
+            per_page = 100
+        else:
+            per_page = job.per_page
+        response = self._session.get(
+            url=f"{self.url}/projects/{job.project_id}/jobs?per_page={per_page}",
+            headers=self.headers,
+            verify=self.verify,
+        )
+        job.total_pages = int(getattr(response.headers, "X-Total-Pages", 1))
+        response = None
+        if not job.max_pages:
+            max_pages = 0
+        else:
+            max_pages = job.max_pages
+        if max_pages == 0 or max_pages > job.total_pages:
+            job.max_pages = job.total_pages
+            max_pages = job.total_pages
+        for page in range(0, max_pages):
+            job.page = page
+            job.model_post_init(job)
+            temp_response = self._session.get(
                 url=f"{self.url}/projects/{job.project_id}/jobs",
-                params=job.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                params=job.api_parameters,
             )
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-        response = process_response(response=response)
+            temp_response = process_response(response=temp_response)
+            if not response:
+                response = temp_response
+            else:
+                response = response.data.jobs + temp_response.data.jobs
         return response
 
     @require_auth
@@ -2142,7 +2164,7 @@ class Api(object):
         response = self.get_group(group_id=project.group_id)
         all_groups.append(response.data)
         groups = self.get_group_descendant_groups(group_id=project.group_id)
-        if hasattr(groups.data, "groups") and groups.data.groups is not None:
+        if hasattr(groups.data, "groups") and groups.data.groups:
             all_groups.extend(groups.data.groups)
         group_counter = 0
         for group in all_groups:
@@ -2162,7 +2184,7 @@ class Api(object):
                 )
                 if (
                     hasattr(projects.data, "projects")
-                    and projects.data.projects is not None
+                    and projects.data.projects
                     and len(projects.data.projects) > 0
                 ):
                     all_projects.extend(projects.data.projects)
