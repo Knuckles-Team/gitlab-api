@@ -48,6 +48,12 @@ from gitlab_api.gitlab_models import (
     Project,
     Runner,
     Job,
+    Label,
+    Labels,
+    Tag,
+    Tags,
+    Topic,
+    Topics,
     Pipeline,
     PackageLink,
     PackageVersion,
@@ -112,7 +118,11 @@ from gitlab_api.gitlab_db_models import (
     GroupDBModel,
     WebhookDBModel,
     AccessLevelDBModel,
+    TagDBModel,
+    TopicDBModel,
     ApprovedByDBModel,
+    LabelDBModel,
+    LabelsDBModel,
     ProjectDBModel,
     RunnerDBModel,
     EpicDBModel,
@@ -153,7 +163,9 @@ from gitlab_api.gitlab_db_models import (
     DiffDBModel,
     DetailedStatusDBModel,
 )
-from gitlab_api.utils import pydantic_to_sqlalchemy
+from gitlab_api.utils import (
+    upsert,
+)
 
 """
 GitLab API
@@ -166,7 +178,7 @@ __author__ = __author__
 __credits__ = __credits__
 
 __all__ = [
-    "pydantic_to_sqlalchemy",
+    "upsert",
     "Api",
     "BranchModel",
     "CommitModel",
@@ -189,6 +201,12 @@ __all__ = [
     "AccessControl",
     "Source",
     "Link",
+    "Tag",
+    "Tags",
+    "Topic",
+    "Topics",
+    "Label",
+    "Labels",
     "Assets",
     "Evidence",
     "ReleaseLinks",
@@ -282,6 +300,8 @@ __all__ = [
     "PackageLinkDBModel",
     "PackageVersionDBModel",
     "PackageDBModel",
+    "LabelDBModel",
+    "LabelsDBModel",
     "ProjectConfigDBModel",
     "ContributorDBModel",
     "CommitStatsDBModel",
@@ -304,6 +324,8 @@ __all__ = [
     "CreatedByDBModel",
     "UserDBModel",
     "UsersDBModel",
+    "TagDBModel",
+    "TopicDBModel",
     "TestCaseDBModel",
     "TestSuiteDBModel",
     "TestReportDBModel",

@@ -6,10 +6,10 @@ logging.basicConfig(
     level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text
-from sqlalchemy.orm import relationship, backref, declarative_base
+from sqlalchemy import Table, Column, String, DateTime, ForeignKey, Text
+from sqlalchemy.orm import relationship, backref, declarative_base, Mapped
 from sqlalchemy import Integer, Boolean
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy import (
     Float,
     JSON,
@@ -560,22 +560,92 @@ class BranchDBModel(BaseDBModel):
     )
 
 
+labels_association = Table(
+    "labels_association",
+    BaseDBModel.metadata,
+    Column("label_id", Integer, ForeignKey("labels.id"), primary_key=True),
+    Column(
+        "labels_collection_id",
+        Integer,
+        ForeignKey("labels_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
 # Label Model
 class LabelDBModel(BaseDBModel):
     __tablename__ = "labels"
 
-    id = Column(Integer, primary_key=True, autoincrement=False)
-    name = Column(String, nullable=False)
-    color = Column(String, nullable=False)
-    text_color = Column(String, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
+    base_type = Column(String, default="Label")
+    name = Column(String, nullable=True)
+    color = Column(String, nullable=True)
+    text_color = Column(String, nullable=True)
     description = Column(Text, nullable=True)
     description_html = Column(Text, nullable=True)
-    open_issues_count = Column(Integer, nullable=False, default=0)
-    closed_issues_count = Column(Integer, nullable=False, default=0)
-    open_merge_requests_count = Column(Integer, nullable=False, default=0)
-    subscribed = Column(Boolean, nullable=True, default=False)
+    open_issues_count = Column(Integer, nullable=True)
+    closed_issues_count = Column(Integer, nullable=True)
+    open_merge_requests_count = Column(Integer, nullable=True)
+    subscribed = Column(Boolean, nullable=True)
     priority = Column(Integer, nullable=True)
-    is_project_label = Column(Boolean, nullable=True, default=True)
+    is_project_label = Column(Boolean, nullable=True)
+
+
+# Labels Model
+class LabelsDBModel(BaseDBModel):
+    __tablename__ = "labels_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
+    base_type = Column(String, default="Labels")
+    labels = relationship(
+        "LabelDBModel",
+        secondary=labels_association,
+        backref=backref("labels_collections", lazy="dynamic"),
+    )
+
+
+class TopicDBModel(BaseDBModel):
+    __tablename__ = "topics"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Topic")
+    name = Column(String, nullable=False)
+
+
+
+tags_association = Table(
+    "tags_association",
+    BaseDBModel.metadata,
+    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
+    Column(
+        "tags_collection",
+        Integer,
+        ForeignKey("tags_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
+class TagDBModel(BaseDBModel):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Tag")
+    name = Column(String, nullable=False)
+    tag = Column(String, nullable=False)
+
+
+class TagsDBModel(BaseDBModel):
+    __tablename__ = "tags_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
+    base_type = Column(String, default="Tags")
+    tags = relationship(
+        "TagDBModel",
+        secondary=tags_association,
+        backref=backref("tags_collection", lazy="dynamic"),
+    )
 
 
 # ApprovalRule Model
@@ -814,7 +884,7 @@ class MergeRequestDBModel(BaseDBModel):
         ForeignKey(column="projects.id", name="fk_merge_request_project"),
         nullable=True,
     )
-    projects = relationship(
+    project = relationship(
         argument="ProjectDBModel",
         foreign_keys=[project_id],
         backref=backref("project_merge_requests"),
@@ -822,11 +892,11 @@ class MergeRequestDBModel(BaseDBModel):
 
     labels_id = Column(
         Integer,
-        ForeignKey(column="labels.id", name="fk_merge_request_labels"),
+        ForeignKey(column="labels_collection.id", name="fk_merge_request_labels"),
         nullable=True,
     )
     labels = relationship(
-        argument="LabelDBModel",
+        argument="LabelsDBModel",
         foreign_keys=[labels_id],
         backref=backref("merge_requests_labels"),
     )
@@ -1122,6 +1192,57 @@ class ApprovedByDBModel(BaseDBModel):
     )
 
 
+# Project Association tables
+project_owners = Table(
+    "project_owners",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("user_id", Integer, ForeignKey("users.id")),
+)
+
+project_creators = Table(
+    "project_creators",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("user_id", Integer, ForeignKey("users.id")),
+)
+
+project_statistics = Table(
+    "project_statistics",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("statistics_id", Integer, ForeignKey("statistics.id")),
+)
+
+project_links = Table(
+    "project_links",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("link_id", Integer, ForeignKey("links.id")),
+)
+
+project_additional_links = Table(
+    "project_additional_links",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("additional_link_id", Integer, ForeignKey("links.id")),
+)
+
+project_permissions = Table(
+    "project_permissions",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("permission_id", Integer, ForeignKey("permissions.id")),
+)
+
+project_shared_with_groups = Table(
+    "project_shared_with_groups",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("group_id", Integer, ForeignKey("groups.id")),
+)
+
+
 # Project Model
 class ProjectDBModel(BaseDBModel):
     __tablename__ = "projects"
@@ -1256,89 +1377,46 @@ class ProjectDBModel(BaseDBModel):
     ci_dockerfile = Column(String, nullable=True)
     public = Column(Boolean, nullable=True)
 
-    owner_id = Column(
-        Integer, ForeignKey(column="users.id", name="fk_owner"), nullable=True
-    )
     owner = relationship(
-        argument="UserDBModel",
-        foreign_keys=[owner_id],
-        backref=backref("owned_projects"),
-    )
-
-    creator_id = Column(
-        Integer, ForeignKey(column="users.id", name="fk_creator"), nullable=True
+        "UserDBModel", secondary=project_owners, backref="project_owner"
     )
     creator = relationship(
-        argument="UserDBModel",
-        foreign_keys=[creator_id],
-        backref=backref("created_projects"),
+        "UserDBModel", secondary=project_creators, backref="project_creators"
     )
-
-    namespace_id = Column(
-        Integer,
-        ForeignKey(column="namespaces.id", name="fk_project_namespace"),
-        nullable=True,
-    )
-    namespace = relationship(
-        argument="NamespaceDBModel",
-        foreign_keys=[namespace_id],
-        backref=backref("projects"),
-    )
+    namespace_id = Column(Integer, ForeignKey("namespaces.id"))
+    namespace = relationship("NamespaceDBModel", back_populates="project")
 
     container_expiration_policy_id = Column(
-        Integer,
-        ForeignKey(
-            column="container_expiration_policies.id",
-            name="fk_project_container_expiration_policy",
-        ),
-        nullable=True,
+        Integer, ForeignKey("container_expiration_policies.id")
     )
     container_expiration_policy = relationship(
-        argument="ContainerExpirationPolicyDBModel",
+        "ContainerExpirationPolicyDBModel",
         foreign_keys=[container_expiration_policy_id],
-        backref=backref("projects"),
-    )
-
-    statistics_id = Column(
-        Integer,
-        ForeignKey(column="statistics.id", name="fk_project_statistics"),
-        nullable=True,
+        backref="project_container_expiration_policy",
     )
     statistics = relationship(
-        argument="StatisticsDBModel",
-        foreign_keys=[statistics_id],
-        backref=backref("projects_statistics"),
+        "StatisticsDBModel", secondary=project_statistics, backref="project_statistics"
     )
-
-    links_id = Column(
-        Integer, ForeignKey(column="links.id", name="fk_project_links"), nullable=True
-    )
+    links_id = Column(Integer, ForeignKey("links.id"))
     links = relationship(
-        argument="LinksDBModel",
-        foreign_keys=[links_id],
-        backref=backref("projects_links"),
+        "LinksDBModel", foreign_keys=[links_id], backref="project_links"
     )
-
-    permissions_id = Column(
-        Integer,
-        ForeignKey(column="permissions.id", name="fk_project_permissions"),
-        nullable=True,
+    additional_links_id = Column(Integer, ForeignKey("links.id"))
+    additional_links = relationship(
+        "LinksDBModel",
+        foreign_keys=[additional_links_id],
+        backref="project_additional_links",
     )
+    permissions_id = Column(Integer, ForeignKey("permissions.id"))
     permissions = relationship(
-        argument="PermissionsDBModel",
+        "PermissionsDBModel",
         foreign_keys=[permissions_id],
-        backref=backref("projects"),
-    )
-
-    shared_with_groups_id = Column(
-        Integer,
-        ForeignKey(column="groups.id", name="fk_project_shared_with_groups"),
-        nullable=True,
+        backref="project_permissions",
     )
     shared_with_groups = relationship(
-        argument="GroupDBModel",
-        foreign_keys=[shared_with_groups_id],
-        backref=backref("shared_projects_with_group"),
+        "GroupDBModel",
+        secondary=project_shared_with_groups,
+        backref="project_shared_with_groups",
     )
 
 
@@ -1395,7 +1473,6 @@ class JobDBModel(BaseDBModel):
     duration = Column(Float, nullable=True)
     queued_duration = Column(Float, nullable=True)
     artifacts_expire_at = Column(DateTime, nullable=True)
-    tag_list = Column(JSON, nullable=True)
     name = Column(String, nullable=True)
     ref = Column(String, nullable=True)
     stage = Column(String, nullable=True)
@@ -1403,6 +1480,16 @@ class JobDBModel(BaseDBModel):
     failure_reason = Column(String, nullable=True)
     tag = Column(Boolean, nullable=True)
     web_url = Column(String, nullable=True)
+    tag_list_id = Column(
+        Integer,
+        ForeignKey(column="tags_collection.id", name="fk_job_tags"),
+        nullable=True,
+    )
+    tag_list = relationship(
+        argument="TagsDBModel",
+        foreign_keys=[tag_list_id],
+        backref=backref("job_tag_list"),
+    )
 
     commit_id = Column(
         Integer, ForeignKey(column="commits.id", name="fk_job_commit"), nullable=True
@@ -2085,6 +2172,19 @@ class CreatedByDBModel(BaseDBModel):
     )
 
 
+users_association = Table(
+    "users_association",
+    BaseDBModel.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column(
+        "users_collection_id",
+        Integer,
+        ForeignKey("users_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
 # User Model
 class UserDBModel(BaseDBModel):
     __tablename__ = "users"
@@ -2184,9 +2284,13 @@ class UserDBModel(BaseDBModel):
 class UsersDBModel(BaseDBModel):
     __tablename__ = "users_collection"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     base_type = Column(String, default="Users")
-    users = Column(JSONB, nullable=True)
+    users = relationship(
+        "UserDBModel",
+        secondary=users_association,
+        backref=backref("users_collections", lazy="dynamic"),
+    )
 
 
 # Namespace Model
@@ -2208,17 +2312,15 @@ class NamespaceDBModel(BaseDBModel):
 
     parent_id = Column(
         Integer,
-        ForeignKey(column="namespaces.id", name="fk_namespace_parent"),
         nullable=True,
     )
-    parent = relationship(
-        argument="NamespaceDBModel", foreign_keys=[parent_id], remote_side=[id]
-    )
+
+    project = relationship("ProjectDBModel", back_populates="namespace")
 
     user_id = Column(
         Integer, ForeignKey(column="users.id", name="fk_namespace_user"), nullable=True
     )
-    user = relationship(
+    user: Mapped["User"] = relationship(
         argument="UserDBModel", foreign_keys=[user_id], backref=backref("namespaces")
     )
 
@@ -2284,16 +2386,6 @@ class LinksDBModel(BaseDBModel):
     award_emoji = Column(String, nullable=True)
     project = Column(String, nullable=True)
     closed_as_duplicate_of = Column(String, nullable=True)
-    projects_id = Column(
-        Integer,
-        ForeignKey(column="projects.id", name="fk_links_projects"),
-        nullable=True,
-    )
-    projects = relationship(
-        argument="ProjectDBModel",
-        foreign_keys=[projects_id],
-        backref=backref("links_projects"),
-    )
 
 
 # Diff Model

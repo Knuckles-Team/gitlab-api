@@ -47,6 +47,8 @@ from gitlab_api.gitlab_db_models import (
     WikiAttachmentLinkDBModel,
     WikiAttachmentDBModel,
     AgentDBModel,
+    LabelDBModel,
+    LabelsDBModel,
     AgentsDBModel,
     ReleaseDBModel,
     BranchDBModel,
@@ -89,6 +91,8 @@ from gitlab_api.gitlab_db_models import (
     ArtifactsFileDBModel,
     RunnerManagerDBModel,
     ConfigurationDBModel,
+    TagDBModel,
+    TopicDBModel,
     IterationDBModel,
     IdentityDBModel,
     GroupSamlIdentityDBModel,
@@ -589,6 +593,8 @@ class GroupModel(BaseModel):
         Raises:
         - ParameterError: If the parameter is not a positive integer.
         """
+        if not v:
+            return None
         if isinstance(v, str):
             try:
                 v = int(v)
@@ -664,10 +670,19 @@ class JobModel(BaseModel):
     """
 
     project_id: Union[int, str] = None
+    pipeline_id: Union[int, str] = None
     job_id: Union[int, str] = None
     scope: Optional[List[str]] = None
-    per_page: Optional[int] = 100
-    page: Optional[int] = 1
+    total_pages: Optional[int] = Field(
+        description="Total number of pages", default=None
+    )
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Page in multi-page response", default=None)
+    per_page: Optional[int] = Field(
+        description="Amount of items per page", default=None
+    )
     include_retried: Optional[bool] = None
     job_variable_attributes: Optional[Dict] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
@@ -686,6 +701,8 @@ class JobModel(BaseModel):
         Raises:
         - ParameterError: If the parameter is not a positive integer.
         """
+        if not v:
+            return None
         if isinstance(v, str):
             try:
                 v = int(v)
@@ -766,10 +783,14 @@ class JobModel(BaseModel):
         Build the API parameters
         """
         self.api_parameters = {}
+        if self.max_pages:
+            self.api_parameters["max_pages"] = self.max_pages
         if self.page:
             self.api_parameters["page"] = self.page
         if self.per_page:
             self.api_parameters["per_page"] = self.per_page
+        if self.total_pages:
+            self.api_parameters["total_pages"] = self.total_pages
         if self.scope:
             self.api_parameters["scope[]"] = self.scope
 
@@ -809,6 +830,8 @@ class MembersModel(BaseModel):
         Raises:
         - ParameterError: If the parameter is not a positive integer.
         """
+        if not v:
+            return None
         if isinstance(v, str):
             try:
                 v = int(v)
@@ -1404,6 +1427,36 @@ class MergeRequestRuleModel(BaseModel):
         return values
 
 
+class NamespaceModel(BaseModel):
+    """
+    Documentation for the NamespaceModel Pydantic model.
+
+    """
+
+    namespace_id: Optional[Union[int, str]] = None
+    search: Optional[str] = Field(description="Search parameters", default=None)
+    owned_only: Optional[bool] = Field(
+        description="Only show owned  namespace", default=None
+    )
+    top_level_only: Optional[bool] = Field(
+        description="Only show top level namespaces", default=None
+    )
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    data: Optional[Dict] = None
+
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.search:
+            self.api_parameters["search"] = self.search
+        if self.owned_only:
+            self.api_parameters["owned_only"] = self.owned_only
+        if self.top_level_only:
+            self.api_parameters["top_level_only"] = self.top_level_only
+
+
 class PackageModel(BaseModel):
     """
     Documentation for the PackageModel Pydantic model.
@@ -1613,8 +1666,16 @@ class ProjectModel(BaseModel):
     issues_template: Optional[str] = None
     keep_latest_artifact: Optional[bool] = None
     lfs_enabled: Optional[bool] = None
-    max_pages: Optional[int] = 0
-    per_page: Optional[int] = 100
+    total_pages: Optional[int] = Field(
+        description="Total number of pages", default=None
+    )
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Page in multi-page response", default=None)
+    per_page: Optional[int] = Field(
+        description="Amount of items per page", default=None
+    )
     merge_commit_template: Optional[str] = None
     merge_method: Optional[str] = None
     merge_pipelines_enabled: Optional[bool] = None
@@ -1670,6 +1731,14 @@ class ProjectModel(BaseModel):
             self.api_parameters["group_access"] = self.group_access
         if self.expires_at:
             self.api_parameters["expires_at"] = self.expires_at
+        if self.max_pages:
+            self.api_parameters["max_pages"] = self.max_pages
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+        if self.total_pages:
+            self.api_parameters["total_pages"] = self.total_pages
 
     @model_validator(mode="before")
     def build_data(cls, values):
@@ -2591,9 +2660,16 @@ class UserModel(BaseModel):
     without_projects: Optional[bool] = None
     admins: Optional[bool] = None
     saml_provider_id: Optional[str] = None
-    max_pages: Optional[int] = 0
-    page: Optional[int] = 1
-    per_page: Optional[int] = 100
+    total_pages: Optional[int] = Field(
+        description="Total number of pages", default=None
+    )
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Page in multi-page response", default=None)
+    per_page: Optional[int] = Field(
+        description="Amount of items per page", default=None
+    )
     sudo: Optional[bool] = False
     user_id: Optional[Union[str, int]] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
@@ -2643,10 +2719,14 @@ class UserModel(BaseModel):
             self.api_parameters["sudo"] = self.user_id
         if self.user_id:
             self.api_parameters["user_id"] = self.user_id
+        if self.max_pages:
+            self.api_parameters["max_pages"] = self.max_pages
         if self.page:
             self.api_parameters["page"] = self.page
         if self.per_page:
             self.api_parameters["per_page"] = self.per_page
+        if self.total_pages:
+            self.api_parameters["total_pages"] = self.total_pages
 
     @field_validator("order_by")
     def validate_order_by(cls, value):
@@ -3319,6 +3399,16 @@ class Namespace(BaseModel):
     )
     web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The web URL of the namespace."
+    )
+
+
+class Namespaces(BaseModel):
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Namespaces")
+    namespaces: Optional[List[Namespace]] = Field(
+        default=None, description="The list of namespaces"
     )
 
 
@@ -3997,6 +4087,60 @@ class ApprovedBy(BaseModel):
     )
 
 
+class Label(BaseModel):
+    class Meta:
+        orm_model = LabelDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Label")
+    name: str = Field(default=None)
+
+
+class Labels(BaseModel):
+    class Meta:
+        orm_model = LabelsDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Labels")
+    labels: Optional[List[Label]] = Field(default=None, description="List of labels")
+
+
+class Tag(BaseModel):
+    class Meta:
+        orm_model = TagDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Tag")
+    tag: str = Field(default=None)
+
+
+class Tags(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Tags")
+    tags: Optional[List[Tag]] = Field(default=None, description="List of tags")
+
+
+class Topic(BaseModel):
+    class Meta:
+        orm_model = TopicDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Topic")
+    topic: str = Field(default=None)
+
+
+class Topics(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Topics")
+    topics: Optional[List[Topic]] = Field(default=None, description="List of topics")
+
+
 class Project(BaseModel):
     class Meta:
         orm_model = ProjectDBModel
@@ -4028,10 +4172,10 @@ class Project(BaseModel):
     default_branch: Optional[str] = Field(
         default=None, description="The default branch of the project."
     )
-    tag_list: Optional[List[str]] = Field(
+    tag_list: Optional[Tags] = Field(
         default=None, description="Deprecated. Use `topics` instead."
     )
-    topics: Optional[List[str]] = Field(
+    topics: Optional[Topics] = Field(
         default=None, description="The topics of the project."
     )
     ssh_url_to_repo: Optional[Union[HttpUrl, str]] = Field(
@@ -4390,12 +4534,40 @@ class Project(BaseModel):
         default=None, description="Access level of operations"
     )
     ci_dockerfile: Optional[str] = Field(default=None, description="Dockerfile for CI")
-    groups: Optional[List[Dict[str, int]]] = Field(
-        default=None, description="List of groups"
-    )
+    groups: Optional["Groups"] = Field(default=None, description="List of groups")
     public: Optional[bool] = Field(
         default=None, description="Whether project is allowed to be public."
     )
+
+    @field_validator("tag_list", mode="before")
+    def validate_tags(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            tags = []
+            for item in v:
+                tags.append(Tag(tag=item))
+            return Tags(tags=tags)
+        return v
+
+    @field_validator("topics", mode="before")
+    def validate_topics(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            topics = []
+            for item in v:
+                topics.append(Topic(topic=item))
+            return Topics(topics=topics)
+        return v
+
+    @field_validator("groups", mode="before")
+    def validate_groups(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            return Groups(groups=v)
+        return v
 
 
 class Projects(BaseModel):
@@ -4448,12 +4620,31 @@ class Runner(BaseModel):
     maintenance_note: Optional[str] = Field(
         None, description="Maintenance note for the runner"
     )
-    projects: Optional[List[Project]] = Field(
+    projects: Optional[Projects] = Field(
         None, description="List of projects associated with the runner"
     )
-    tag_list: Optional[List[str]] = Field(
+    tag_list: Optional[Tags] = Field(
         None, description="List of tags associated with the runner"
     )
+
+    @field_validator("tag_list", mode="before")
+    def validate_tags(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            tags = []
+            for item in v:
+                tags.append(Tag(tag=item))
+            return Tags(tags=tags)
+        return v
+
+    @field_validator("projects", mode="before")
+    def validate_projects(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            return Projects(projects=v)
+        return v
 
 
 class Runners(BaseModel):
@@ -4509,7 +4700,7 @@ class Job(BaseModel):
     artifacts_expire_at: Optional[datetime] = Field(
         default=None, description="Timestamp when the artifacts expire."
     )
-    tag_list: Optional[List[str]] = Field(
+    tag_list: Optional[Tags] = Field(
         default=None, description="List of tags associated with the job."
     )
     id: Optional[int] = Field(default=None, description="ID of the job.")
@@ -4544,6 +4735,17 @@ class Job(BaseModel):
     downstream_pipeline: Optional[Pipeline] = Field(
         default=None, description="Downstream pipeline."
     )
+
+    @field_validator("tag_list", mode="before")
+    def validate_tags(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            tags = []
+            for item in v:
+                tags.append(Tag(tag=item))
+            return Tags(tags=tags)
+        return v
 
 
 class Jobs(BaseModel):
@@ -4689,10 +4891,10 @@ class Group(BaseModel):
     prevent_sharing_groups_outside_hierarchy: Optional[bool] = Field(
         default=None, description="Prevent sharing groups outside hierarchy"
     )
-    projects: Optional[Union[List[Project]]] = Field(
+    projects: Optional[Projects] = Field(
         default=None, description="Projects within the group"
     )
-    shared_projects: Optional[Union[List[Project]]] = Field(
+    shared_projects: Optional[Projects] = Field(
         default=None, description="Projects within the group"
     )
     ip_restriction_ranges: Optional[Any] = Field(
@@ -4721,6 +4923,17 @@ class Group(BaseModel):
     prevent_forking_outside_group: Optional[bool] = Field(
         default=None, description="Forking disabled outside group"
     )
+
+    @field_validator("projects", "shared_projects", mode="before")
+    def validate_changes(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            projects = []
+            for item in v:
+                projects.append(Project(**item))
+            return Projects(projects=projects)
+        return v
 
 
 class Groups(BaseModel):
@@ -5010,7 +5223,7 @@ class MergeRequest(BaseModel):
     target_project_id: Optional[int] = Field(
         default=None, description="ID of the target project"
     )
-    labels: Optional[List[str]] = Field(
+    labels: Optional[Labels] = Field(
         default=None, description="List of labels assigned to the merge request"
     )
     work_in_progress: Optional[bool] = Field(
@@ -5080,7 +5293,7 @@ class MergeRequest(BaseModel):
     blocking_discussions_resolved: Optional[bool] = Field(
         default=None, description="Whether blocking discussions are resolved"
     )
-    changes: Optional[List[Diff]] = Field(
+    changes: Optional[Diffs] = Field(
         default=None, description="List of changes (diffs) in the merge request"
     )
     merged_by: Optional[User] = Field(
@@ -5125,7 +5338,7 @@ class MergeRequest(BaseModel):
     approvals_before_merge: Optional[int] = Field(
         default=None, description="Number of approvals required before merging"
     )
-    tag_list: Optional[List[str]] = Field(
+    tag_list: Optional[Tags] = Field(
         default=None, description="List of tags associated with the merge request"
     )
     imported: Optional[bool] = Field(
@@ -5190,6 +5403,36 @@ class MergeRequest(BaseModel):
             return None
         if isinstance(v, list):
             return Users(users=v)
+        return v
+
+    @field_validator("changes", mode="before")
+    def validate_changes(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            return Diffs(diffs=v)
+        return v
+
+    @field_validator("labels", mode="before")
+    def validate_labels(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            labels = []
+            for item in v:
+                labels.append(Label(name=item))
+            return Labels(labels=labels)
+        return v
+
+    @field_validator("tag_list", mode="before")
+    def validate_tags(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            tags = []
+            for item in v:
+                tags.append(Tag(tag=item))
+            return Tags(tags=tags)
         return v
 
 
@@ -5979,6 +6222,12 @@ class Response(BaseModel):
         Union[
             List,
             Dict,
+            Tag,
+            Tags,
+            Label,
+            Labels,
+            Topic,
+            Topics,
             Agents,
             Agent,
             Branches,
@@ -6006,6 +6255,8 @@ class Response(BaseModel):
             Issue,
             ToDo,
             TestReport,
+            Namespace,
+            Namespaces,
             MergeRequests,
             MergeRequest,
             MergeApprovals,
@@ -6049,6 +6300,9 @@ class Response(BaseModel):
         single_models = {
             "Agents": Agents,
             "Branch": Branch,
+            "Tag": Tag,
+            "Topic": Topic,
+            "Label": Label,
             "Pipeline": Pipeline,
             "CommitSignature": CommitSignature,
             "Contributor": Contributor,
@@ -6065,6 +6319,7 @@ class Response(BaseModel):
             "DeployToken": DeployToken,
             "User": User,
             "Membership": Membership,
+            "Namespace": Namespace,
             "Group": Group,
             "Job": Job,
             "Package": Package,
@@ -6089,15 +6344,39 @@ class Response(BaseModel):
                         temp_value = Branches(branches=branches)
                         logging.info(f"Branches Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Branches Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        labels = [Label(**item) for item in value]
+                        temp_value = Labels(labels=labels)
+                        logging.info(f"Labels Validation Success: {value}")
+                    except Exception as e:
+                        logging.debug(
+                            f"\n\n\n Labels Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        topics = [Topic(**item) for item in value]
+                        temp_value = Topics(topics=topics)
+                        logging.info(f"Topics Validation Success: {value}")
+                    except Exception as e:
+                        logging.debug(
+                            f"\n\n\n Topics Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        tags = [Tag(**item) for item in value]
+                        temp_value = Tags(tags=tags)
+                        logging.info(f"Tags Validation Success: {value}")
+                    except Exception as e:
+                        logging.debug(
+                            f"\n\n\n Tags Validation Failed: {value}\nError: {e}"
                         )
                     try:
                         contributors = [Contributor(**item) for item in value]
                         temp_value = Contributors(contributors=contributors)
                         logging.info(f"Contributors Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Contributors Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6105,7 +6384,7 @@ class Response(BaseModel):
                         temp_value = Commits(commits=commits)
                         logging.info(f"Commits Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Commits Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6113,7 +6392,7 @@ class Response(BaseModel):
                         temp_value = Pipelines(pipelines=pipelines)
                         logging.info(f"Pipelines Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Pipelines Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6121,15 +6400,23 @@ class Response(BaseModel):
                         temp_value = MergeRequests(merge_requests=merge_requests)
                         logging.info(f"Merge Requests Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Merge Requests Validation Failed: {value}\nError: {e}"
+                        )
+                    try:
+                        namespaces = [Namespace(**item) for item in value]
+                        temp_value = Namespaces(namespaces=namespaces)
+                        logging.info(f"Namespaces Validation Success: {value}")
+                    except Exception as e:
+                        logging.debug(
+                            f"\n\n\n Namespaces Validation Failed: {value}\nError: {e}"
                         )
                     try:
                         releases = [Release(**item) for item in value]
                         temp_value = Releases(releases=releases)
                         logging.info(f"Releases Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Releases Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6137,7 +6424,7 @@ class Response(BaseModel):
                         temp_value = Diffs(diffs=diffs)
                         logging.info(f"Diffs Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Diffs Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6145,7 +6432,7 @@ class Response(BaseModel):
                         temp_value = Comments(comments=comments)
                         logging.info(f"Comments Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Comments Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6153,7 +6440,7 @@ class Response(BaseModel):
                         temp_value = DeployTokens(deploy_tokens=deploy_tokens)
                         logging.info(f"Deploy Tokens Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Deploy Tokens Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6161,7 +6448,7 @@ class Response(BaseModel):
                         temp_value = Users(users=users)
                         logging.info(f"Users Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Users Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6169,7 +6456,7 @@ class Response(BaseModel):
                         temp_value = Memberships(memberships=memberships)
                         logging.info(f"Memberships Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Memberships Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6177,7 +6464,7 @@ class Response(BaseModel):
                         temp_value = Groups(groups=groups)
                         logging.info(f"Groups Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Groups Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6189,7 +6476,7 @@ class Response(BaseModel):
                         )
                         logging.info(f"PipelineVariable Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n PipelineVariable Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6197,7 +6484,7 @@ class Response(BaseModel):
                         temp_value = Projects(projects=projects)
                         logging.info(f"Projects Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Projects Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6205,7 +6492,7 @@ class Response(BaseModel):
                         temp_value = Issues(issues=issues)
                         logging.info(f"Issues Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Issues Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6213,7 +6500,7 @@ class Response(BaseModel):
                         temp_value = WikiPages(wiki_pages=wiki_pages)
                         logging.info(f"WikiPages Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n WikiPages Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6221,7 +6508,7 @@ class Response(BaseModel):
                         temp_value = ApprovalRules(approval_rules=approval_rules)
                         logging.info(f"ApprovalRules Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n ApprovalRules Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6229,7 +6516,7 @@ class Response(BaseModel):
                         temp_value = Jobs(jobs=jobs)
                         logging.info(f"Jobs Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Jobs Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6237,7 +6524,7 @@ class Response(BaseModel):
                         temp_value = Packages(packages=packages)
                         logging.info(f"Packages Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Packages Validation Failed: {value}\nError: {e}"
                         )
                     try:
@@ -6245,7 +6532,7 @@ class Response(BaseModel):
                         temp_value = Runners(runners=runners)
                         logging.info(f"Runners Validation Success: {value}")
                     except Exception as e:
-                        logging.error(
+                        logging.debug(
                             f"\n\n\n Runners Validation Failed: {value}\nError: {e}"
                         )
             else:
@@ -6258,7 +6545,7 @@ class Response(BaseModel):
                     logging.info(f"{model_name} Model Validation Success: {value}")
                     value = temp_value
                 except Exception as e:
-                    logging.error(
+                    logging.debug(
                         f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
                     )
         return value

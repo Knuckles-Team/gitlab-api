@@ -195,7 +195,7 @@ def test_user_model():
     user = UserModel(username=username, active=True)
     assert user.username == username
     assert user.active == True
-    assert user.api_parameters == {"page": 1, "per_page": 100, "username": "test_user"}
+    assert user.api_parameters == {"username": "test_user"}
 
 
 @pytest.mark.skipif(
