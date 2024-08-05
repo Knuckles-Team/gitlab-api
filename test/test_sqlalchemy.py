@@ -48,43 +48,49 @@ if __name__ == "__main__":
     # User Data table is a dependency table
     user_response = client.get_users()
     print(f"Users Fetched - Status: {user_response.status_code}\n")
-    # # Namespaces table is a dependency table
-    # namespace_response = client.get_namespaces()
-    # print(f"Namespaces Fetched - Status: {namespace_response.status_code}\n")
-    # # Project table requires Users and Namespaces
-    # project_response = client.get_nested_projects_by_group(group_id=2, per_page=100)
-    # print(f"Projects ({len(project_response.data.projects)}) Fetched - Status: {project_response.status_code}\n")
-    # # Merge Requests table requires Users, Namespaces, and Projects
-    # merge_request_response = client.get_group_merge_requests(argument="state=all", group_id=2)
-    # print(f"Merge Requests Fetched - Status: {merge_request_response.status_code}\n\n")
-    #
-    # pipeline_job_responses = []
-    # for project in project_response.data.projects:
-    #     pipeline_job_response = client.get_project_jobs(project_id=49)#project.id)
-    #     pipeline_job_responses.append(pipeline_job_response)
-    #     print(f"Pipeline Jobs Fetched - Status: {pipeline_job_response.status_code}\n\n")
-    #     print(f"Inserting Pipeline Job {pipeline_job_response}\n\nData: {pipeline_job_response.data}")
-    #     break
+
+    # Namespaces table is a dependency table
+    namespace_response = client.get_namespaces()
+    print(f"Namespaces Fetched - Status: {namespace_response.status_code}\n")
+
+    # Project table requires Users and Namespaces
+    project_response = client.get_nested_projects_by_group(group_id=2, per_page=100)
+    print(f"Projects ({len(project_response.data.projects)}) Fetched - Status: {project_response.status_code}\n")
+
+    # Merge Requests table requires Users, Namespaces, and Projects
+    merge_request_response = client.get_group_merge_requests(argument="state=all", group_id=2)
+    print(f"Merge Requests Fetched - Status: {merge_request_response.status_code}\n\n")
+
+    pipeline_job_responses = []
+    for project in project_response.data.projects:
+        pipeline_job_response = client.get_project_jobs(project_id=49)#project.id)
+        pipeline_job_responses.append(pipeline_job_response)
+        print(f"Pipeline Jobs Fetched - Status: {pipeline_job_response.status_code}\n\n")
+        print(f"Inserting Pipeline Job {pipeline_job_response}\n\nData: {pipeline_job_response.data}")
+        break
 
     print("Inserting Users Into Database...")
     upsert(session=session, response=user_response)
     print("Users Synchronization Complete!\n")
-    # print("Inserting Namespaces Into Database...")
-    # upsert(session=session, response=namespace_response)
-    # print("Namespaces Synchronization Complete!\n")
-    # print(
-    #     f"Inserting Projects Into Database...\n"
-    # )
-    # upsert(session=session, response=project_response)
-    # print("Projects Synchronization Complete!\n")
-    # print("Inserting Merge Requests Into Database...")
-    # upsert(session=session, response=merge_request_response)
-    # print("Merge Request Synchronization Complete!\n")
-    #
-    # print(f"Inserting ({len(pipeline_job_responses)}) Pipeline Jobs Into Database...")
-    # for pipeline_job_response in pipeline_job_responses:
-    #     upsert(session=session, response=pipeline_job_response)
-    # print("Pipeline Jobs Synchronization Complete!\n\n\n")
+
+    print("Inserting Namespaces Into Database...")
+    upsert(session=session, response=namespace_response)
+    print("Namespaces Synchronization Complete!\n")
+
+    print(
+        f"Inserting Projects Into Database...\n"
+    )
+    upsert(session=session, response=project_response)
+    print("Projects Synchronization Complete!\n")
+
+    print("Inserting Merge Requests Into Database...")
+    upsert(session=session, response=merge_request_response)
+    print("Merge Request Synchronization Complete!\n")
+
+    print(f"Inserting ({len(pipeline_job_responses)}) Pipeline Jobs Into Database...")
+    for pipeline_job_response in pipeline_job_responses:
+        upsert(session=session, response=pipeline_job_response)
+    print("Pipeline Jobs Synchronization Complete!\n\n\n")
 
     session.close()
     print("Session Closed")

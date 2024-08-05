@@ -4,6 +4,7 @@ import logging
 from typing import Union, List, Any, Dict
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.collections import InstrumentedList
+from sqlalchemy.orm.dynamic import AppenderQuery
 from sqlalchemy.orm.exc import NoResultFound
 import requests
 
@@ -207,18 +208,16 @@ def upsert_row(session, db_model):
         return None
     model_instance_type = type(db_model)
     print(f"\n\nSearching for {db_model.id} in {model_instance_type}")
-    try:
-        existing_model = (
-            session.query(model_instance_type).filter_by(id=db_model.id).first()
-        )
-        if not existing_model:
-            raise NoResultFound
+    existing_model = (
+        session.query(model_instance_type).filter_by(id=db_model.id).first()
+    )
+    if existing_model:
         print(f"\n\nFound Existing Model: {existing_model}")
         for attr, value in db_model.__dict__.items():
             if attr != "_sa_instance_state":
                 setattr(existing_model, attr, value)
         print(f"Merged {model_instance_type.__name__} with ID {existing_model.id}")
-    except NoResultFound:
+    else:
         for relation in db_model.__mapper__.relationships:
             related_model = getattr(db_model, relation.key)
             if isinstance(related_model, InstrumentedList):
@@ -230,7 +229,10 @@ def upsert_row(session, db_model):
                         else:
                             related_model.remove(item)
                             related_model.append(existing_related)
+            elif isinstance(related_model, AppenderQuery):
+                pass
             elif related_model is not None:
+                print(f"\n\nFound Related Model ({type(related_model)}): {related_model}")
                 existing_related = session.query(type(related_model)).get(
                     related_model.id
                 )
