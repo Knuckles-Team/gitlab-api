@@ -47,13 +47,17 @@ if __name__ == "__main__":
     print("Fetching GitLab Data...")
     # User Data table is a dependency table
     user_response = client.get_users()
-    print(f"Users ({len(user_response.data.users)}) Fetched - "
-          f"Status: {user_response.status_code}\n")
+    print(
+        f"Users ({len(user_response.data.users)}) Fetched - "
+        f"Status: {user_response.status_code}\n"
+    )
 
     # Namespaces table is a dependency table
     namespace_response = client.get_namespaces()
-    print(f"Namespaces ({len(namespace_response.data.namespaces)}) Fetched - "
-          f"Status: {namespace_response.status_code}\n")
+    print(
+        f"Namespaces ({len(namespace_response.data.namespaces)}) Fetched - "
+        f"Status: {namespace_response.status_code}\n"
+    )
 
     # Project table requires Users and Namespaces
     project_response = client.get_nested_projects_by_group(group_id=2, per_page=100)
@@ -66,18 +70,23 @@ if __name__ == "__main__":
     merge_request_response = client.get_group_merge_requests(
         argument="state=all", group_id=2
     )
-    print(f"Merge Requests ({len(merge_request_response.data.merge_requests)}) Fetched - "
-          f"Status: {merge_request_response.status_code}\n\n")
+    print(
+        f"Merge Requests ({len(merge_request_response.data.merge_requests)}) Fetched - "
+        f"Status: {merge_request_response.status_code}\n\n"
+    )
 
     pipeline_job_responses = []
     for project in project_response.data.projects:
         pipeline_job_response = client.get_project_jobs(project_id=49)  # project.id)
         pipeline_job_responses.append(pipeline_job_response)
-        print(f"Pipeline Jobs ({len(pipeline_job_response.data.jobs)}) Fetched for Project ({project.id}) - "
-              f"Status: {pipeline_job_response.status_code}\n\n")
-        print(f"Inserting Pipeline Job {pipeline_job_response}\n\n"
-              f"Data: {pipeline_job_response.data}")
-        break
+        print(
+            f"Pipeline Jobs ({len(pipeline_job_response.data.jobs)}) Fetched for Project ({project.id}) - "
+            f"Status: {pipeline_job_response.status_code}\n\n"
+        )
+        print(
+            f"Inserting Pipeline Job {pipeline_job_response}\n\n"
+            f"Data: {pipeline_job_response.data}"
+        )
 
     print("Inserting Users Into Database...")
     upsert(session=session, response=user_response)

@@ -84,7 +84,6 @@ def get_related_model(sqlalchemy_model, key, value):
             return prop.mapper.class_
     raise ValueError(f"Unable to find related model for key: {key}")
 
-
 def validate_list(list_object: List, session) -> List:
     related_models = [
         (
@@ -98,7 +97,9 @@ def validate_list(list_object: List, session) -> List:
     return related_models
 
 
-def validate_dict(dictionary: Dict, parent_key: str, sqlalchemy_model: Any, session=None) -> Any:
+def validate_dict(
+    dictionary: Dict, parent_key: str, sqlalchemy_model: Any, session=None
+) -> Any:
     related_sqlalchemy_model = None
     mapper = class_mapper(sqlalchemy_model)
     for prop in mapper.iterate_properties:
@@ -121,10 +122,10 @@ def validate_dict(dictionary: Dict, parent_key: str, sqlalchemy_model: Any, sess
     if related_sqlalchemy_model == TagsDBModel:
         tags = []
         for tag in dictionary["tags"]:
-            tag = TagDBModel(**tag)
-            session.add(tag)
-            tags.append(tag)
-            print(f"\n\nADDED TAG: {tag}")
+            tag_model = TagDBModel(**tag)
+            session.add(tag_model)
+            tags.append(tag_model)
+            print(f"\n\nADDED TAG: {tag_model}")
         if tags:
             tags_model = TagsDBModel(tags=tags)
             session.add(tags_model)
@@ -134,15 +135,36 @@ def validate_dict(dictionary: Dict, parent_key: str, sqlalchemy_model: Any, sess
     if related_sqlalchemy_model == CommitDBModel:
         parent_ids = []
         for parent_id in dictionary["parent_ids"]["parent_ids"]:
-            parent_ids.append(ParentIDDBModel(**parent_id))
+            parent_id_model = ParentIDDBModel(**parent_id)
+            parent_ids.append(parent_id_model)
+            session.add(parent_id_model)
         if parent_ids:
             parent_ids_model = ParentIDsDBModel(parent_ids=parent_ids)
+            session.add(parent_ids_model)
         else:
             parent_ids_model = None
         print(f"\n\nCOMMIT TRAILERS: {related_sqlalchemy_model.trailers}")
-        print(f"\n\nEXTENDED COMMIT TRAILERS: {related_sqlalchemy_model.extended_trailers}")
-
+        print(
+            f"\n\nEXTENDED COMMIT TRAILERS: {related_sqlalchemy_model.extended_trailers}"
+        )
+        dictionary.pop('parent_ids', None)
+        dictionary.pop('trailers', None)
+        dictionary.pop('extended_trailers', None)
         setattr(related_sqlalchemy_model, "parent_ids", parent_ids_model)
+        print(f"\n\nPARENT IDs ON COMMIT MODEL: {related_sqlalchemy_model.parent_ids}")
+    # if related_sqlalchemy_model == ParentIDsDBModel:
+    #     parent_ids = []
+    #     for parent_id in dictionary["parent_ids"]:
+    #         parent_id_model = ParentIDDBModel(**parent_id)
+    #         session.add(parent_id_model)
+    #         parent_ids.append(parent_id_model)
+    #         print(f"\n\nADDED PARENT ID: {parent_id_model}")
+    #     if parent_ids:
+    #         parent_ids_model = ParentIDsDBModel(parent_ids=parent_ids)
+    #         session.add(parent_ids_model)
+    #     else:
+    #         parent_ids_model = None
+    #     return parent_ids_model
     if related_sqlalchemy_model == ArtifactsDBModel:
         artifacts = []
         for artifact in dictionary["artifacts"]:
@@ -183,7 +205,10 @@ def pydantic_to_sqlalchemy(pydantic_model, session):
             elif isinstance(value, dict):
                 print(f"\n\nValue that is a dict: {value} for key: {key}")
                 related_model = validate_dict(
-                    dictionary=value, parent_key=key, sqlalchemy_model=sqlalchemy_model, session=session
+                    dictionary=value,
+                    parent_key=key,
+                    sqlalchemy_model=sqlalchemy_model,
+                    session=session,
                 )
                 print(f"\n\nSetting Related Model: {related_model} for {key}")
                 setattr(sqlalchemy_instance, key, related_model)
@@ -213,11 +238,142 @@ def upsert(session, response):
     session.commit()
 
 
-def upsert_row(session, db_model):
+# def upsert_row(session, db_model):
+#     if db_model is None:
+#         return None
+#     model_type = type(db_model)
+#     print(f"\n\nSearching for {db_model.id} in {model_type}")
+#     existing_model = session.query(model_type).filter_by(id=db_model.id).first()
+#     if existing_model:
+#         print(f"\n\nFound Existing Model: {existing_model}")
+#         try:
+#             for attr, value in db_model.__dict__.items():
+#                 if attr != "_sa_instance_state":
+#                     setattr(existing_model, attr, value)
+#         except Exception as e:
+#             print(f"Unable to merge: {e}")
+#         print(f"Merged {model_type.__name__} with ID {existing_model.id}")
+#     else:
+#         for relation in db_model.__mapper__.relationships:
+#             related_model = getattr(db_model, relation.key)
+#             related_model_type = type(related_model)
+#             if isinstance(related_model, InstrumentedList):
+#                 for item in related_model:
+#                     if item is not None:
+#                         existing_related = session.query(type(item)).get(item.id)
+#                         if existing_related is None:
+#                             session.add(item)
+#                         else:
+#                             related_model.remove(item)
+#                             related_model.append(existing_related)
+#             elif isinstance(related_model, AppenderQuery):
+#                 pass
+#             elif related_model is not None:
+#                 print(
+#                     f"\n\nFound Related Model ({related_model_type}): ID: {related_model.id} {related_model}"
+#                 )
+#                 existing_related = (
+#                     session.query(related_model_type)
+#                     .filter_by(id=related_model.id)
+#                     .first()
+#                 )
+#                 print(
+#                     f"\n\nExisting Related Model ({related_model_type}): Existing Related Model: {existing_related}"
+#                 )
+#                 if existing_related is None:
+#                     print(f"\n\nADDING RELATED MODEL: {related_model}")
+#                     session.add(related_model)
+#                 else:
+#                     print(f"\n\nUPDATING RELATED MODEL: {related_model}")
+#                     setattr(db_model, relation.key, existing_related)
+#             # elif related_model is not None and isinstance(related_model, Dict):
+#             #     validate_dict(dictionary=related_model, sqlalchemy_model=model_instance_type, parent_key=)
+#         # Add the new model instance
+#         print(f"\nSETTING EXISTING MODEL: {db_model}")
+#         existing_model = db_model
+#         session.add(existing_model)
+#         print(f"\nInserted new {model_type.__name__} with ID {existing_model.id}")
+#
+#     try:
+#         session.commit()
+#         print("Committed Session!")
+#     except Exception as e:
+#         session.rollback()
+#         print(
+#             f"Error inserting/updating {model_type.__name__} with ID {db_model.id}: {e}"
+#         )
+#     return existing_model
+
+def upsert_row(session, db_model, processed_models=None):
     if db_model is None:
         return None
+
+    if processed_models is None:
+        processed_models = set()
+
     model_type = type(db_model)
+    model_identifier = (model_type, db_model.id)
     print(f"\n\nSearching for {db_model.id} in {model_type}")
+
+    if model_identifier in processed_models:
+        return None
+
+    processed_models.add(model_identifier)
+
+    # Function to upsert nested models
+    def upsert_nested_models(session, db_model):
+        related_models = []
+        for relation in db_model.__mapper__.relationships:
+            related_model = getattr(db_model, relation.key)
+            if isinstance(related_model, InstrumentedList):
+                for item in related_model:
+                    if item is not None:
+                        related_models.append(item)
+            elif isinstance(related_model, AppenderQuery):
+                pass
+            elif related_model is not None:
+                related_models.append(related_model)
+
+        # Recursively upsert nested models first
+        for related_model in related_models:
+            upsert_row(session=session, db_model=related_model, processed_models=processed_models)
+        # for relation in db_model.__mapper__.relationships:
+        #     related_model = getattr(db_model, relation.key)
+        #     related_model_type = type(related_model)
+        #
+        #     if isinstance(related_model, InstrumentedList):
+        #         for item in related_model:
+        #             if item is not None:
+        #                 existing_related = session.query(type(item)).get(item.id)
+        #                 if existing_related is None:
+        #                     print(f"\n\nADDING RELATED MODEL: {related_model}")
+        #                     session.add(item)
+        #                 else:
+        #                     related_model.remove(item)
+        #                     related_model.append(existing_related)
+        #                     print(f"\n\nUPDATING RELATED MODEL: {related_model}")
+        #     elif isinstance(related_model, AppenderQuery):
+        #         pass
+        #     elif related_model is not None:
+        #         print(
+        #             f"\n\nFound Related Model ({related_model_type}): ID: {related_model.id} {related_model}"
+        #         )
+        #         existing_related = (
+        #             session.query(related_model_type)
+        #             .filter_by(id=related_model.id)
+        #             .first()
+        #         )
+        #         if existing_related is None:
+        #             session.add(related_model)
+        #             upsert_nested_models(session, related_model)  # Recurse for deeper relationships
+        #         else:
+        #             setattr(db_model, relation.key, existing_related)
+        #             upsert_nested_models(session, existing_related)  # Recurse for deeper relationships
+
+    # Upsert nested models first
+    upsert_nested_models(session, db_model)
+
+    # Now handle the main model
     existing_model = session.query(model_type).filter_by(id=db_model.id).first()
     if existing_model:
         print(f"\n\nFound Existing Model: {existing_model}")
@@ -229,37 +385,6 @@ def upsert_row(session, db_model):
             print(f"Unable to merge: {e}")
         print(f"Merged {model_type.__name__} with ID {existing_model.id}")
     else:
-        for relation in db_model.__mapper__.relationships:
-            related_model = getattr(db_model, relation.key)
-            related_model_type = type(related_model)
-            if isinstance(related_model, InstrumentedList):
-                for item in related_model:
-                    if item is not None:
-                        existing_related = session.query(type(item)).get(item.id)
-                        if existing_related is None:
-                            session.add(item)
-                        else:
-                            related_model.remove(item)
-                            related_model.append(existing_related)
-            elif isinstance(related_model, AppenderQuery):
-                pass
-            elif related_model is not None:
-                print(
-                    f"\n\nFound Related Model ({related_model_type}): ID: {related_model.id} {related_model}"
-                )
-                existing_related = session.query(related_model_type).filter_by(id=related_model.id).first()
-                print(
-                    f"\n\nExisting Related Model ({related_model_type}): {existing_related}"
-                )
-                if existing_related is None:
-                    print(f"\n\nADDING RELATED MODEL: {related_model}")
-                    session.add(related_model)
-                else:
-                    print(f"\n\nUPDATING RELATED MODEL: {related_model}")
-                    setattr(db_model, relation.key, existing_related)
-            # elif related_model is not None and isinstance(related_model, Dict):
-            #     validate_dict(dictionary=related_model, sqlalchemy_model=model_instance_type, parent_key=)
-        # Add the new model instance
         print(f"\nSETTING EXISTING MODEL: {db_model}")
         existing_model = db_model
         session.add(existing_model)
@@ -273,4 +398,5 @@ def upsert_row(session, db_model):
         print(
             f"Error inserting/updating {model_type.__name__} with ID {db_model.id}: {e}"
         )
+
     return existing_model

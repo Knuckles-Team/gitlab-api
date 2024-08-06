@@ -4070,6 +4070,11 @@ class Commit(BaseModel):
             return ParentIDs(parent_ids=parent_ids)
         return v
 
+    @field_validator("trailers", "extended_trailers", mode="before")
+    def validate_trailers(cls, v):
+        if isinstance(v, dict) and not v:
+            return None
+        return v
 
 class Commits(BaseModel):
     model_config = ConfigDict(extra="forbid")
