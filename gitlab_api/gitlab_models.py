@@ -99,6 +99,7 @@ from gitlab_api.gitlab_db_models import (
     CreatedByDBModel,
     UserDBModel,
     UsersDBModel,
+    ParentIDDBModel,
     NamespaceDBModel,
     ContainerExpirationPolicyDBModel,
     PermissionsDBModel,
@@ -3043,6 +3044,15 @@ class Artifact(BaseModel):
     )
 
 
+class Artifacts(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Artifacts")
+    artifacts: Optional[List[Artifact]] = Field(
+        default=None, description="List of artifacts"
+    )
+
+
 class ArtifactsFile(BaseModel):
     class Meta:
         orm_model = ArtifactsFileDBModel
@@ -3940,6 +3950,25 @@ class Comments(BaseModel):
     comments: List[Comment] = Field(default=None, description="List of comments")
 
 
+class ParentID(BaseModel):
+    class Meta:
+        orm_model = ParentIDDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ParentID")
+    parent_id: str = Field(default=None, description="Parent ID")
+
+
+class ParentIDs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ParentIDs")
+    parent_ids: Optional[List[ParentID]] = Field(
+        default=None, description="List of parent_ids"
+    )
+
+
 class Commit(BaseModel):
     class Meta:
         orm_model = CommitDBModel
@@ -3960,7 +3989,7 @@ class Commit(BaseModel):
     created_at: Optional[datetime] = Field(
         default=None, description="The creation date of the commit."
     )
-    parent_ids: Optional[List[str]] = Field(
+    parent_ids: Optional[ParentIDs] = Field(
         default=None, description="A list of parent commit IDs."
     )
     title: Optional[str] = Field(default=None, description="The title of the commit.")
@@ -4030,6 +4059,22 @@ class Commit(BaseModel):
     error_code: Optional[str] = Field(default=None, description="Error codes")
     coverage: Optional[float] = Field(default=None, description="Coverage of commit")
 
+    @field_validator("parent_ids", mode="before")
+    def validate_parent_ids(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            parent_ids = []
+            for item in v:
+                parent_ids.append(ParentID(parent_id=item))
+            return ParentIDs(parent_ids=parent_ids)
+        return v
+
+    @field_validator("trailers", "extended_trailers", mode="before")
+    def validate_trailers(cls, v):
+        if isinstance(v, dict) and not v:
+            return None
+        return v
 
 class Commits(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -4661,6 +4706,8 @@ class Job(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Job")
+    id: Optional[int] = Field(default=None, description="ID of the job.")
+    name: Optional[str] = Field(default=None, description="Name of the job.")
     commit: Optional[Commit] = Field(
         default=None, description="Details of the commit associated with the job."
     )
@@ -4694,7 +4741,7 @@ class Job(BaseModel):
     artifacts_file: Optional[ArtifactsFile] = Field(
         default=None, description="Details of the artifacts file produced by the job."
     )
-    artifacts: Optional[List[Artifact]] = Field(
+    artifacts: Optional[Artifacts] = Field(
         default=None, description="List of artifacts produced by the job."
     )
     artifacts_expire_at: Optional[datetime] = Field(
@@ -4703,8 +4750,6 @@ class Job(BaseModel):
     tag_list: Optional[Tags] = Field(
         default=None, description="List of tags associated with the job."
     )
-    id: Optional[int] = Field(default=None, description="ID of the job.")
-    name: Optional[str] = Field(default=None, description="Name of the job.")
     pipeline: Optional[Pipeline] = Field(
         default=None, description="Details of the pipeline associated with the job."
     )
@@ -4745,6 +4790,17 @@ class Job(BaseModel):
             for item in v:
                 tags.append(Tag(tag=item))
             return Tags(tags=tags)
+        return v
+
+    @field_validator("artifacts", mode="before")
+    def validate_artifacts(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            artifacts = []
+            for item in v:
+                artifacts.append(Artifact(**item))
+            return Artifacts(artifacts=artifacts)
         return v
 
 
@@ -5517,7 +5573,7 @@ class Issue(BaseModel):
     iid: Optional[int] = Field(
         default=None, description="Internal ID of the issue within the project."
     )
-    labels: Optional[List[str]] = Field(
+    labels: Optional[Labels] = Field(
         default=None, description="Labels associated with the issue."
     )
     upvotes: Optional[int] = Field(
@@ -5601,6 +5657,17 @@ class Issue(BaseModel):
             return None
         if isinstance(v, list):
             return Users(users=v)
+        return v
+
+    @field_validator("labels", mode="before")
+    def validate_labels(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            labels = []
+            for item in v:
+                labels.append(Label(name=item))
+            return Labels(labels=labels)
         return v
 
 

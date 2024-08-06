@@ -422,7 +422,7 @@ class ReleaseDBModel(BaseDBModel):
     )
 
     commit_id = Column(
-        Integer,
+        String,
         ForeignKey(column="commits.id", name="fk_release_commits"),
         nullable=True,
     )
@@ -520,7 +520,7 @@ class BranchDBModel(BaseDBModel):
     inherited = Column(Boolean, nullable=True)
 
     commit_id = Column(
-        Integer,
+        String,
         ForeignKey(column="commits.id", name="fk_branch_commits"),
         nullable=True,
     )
@@ -613,17 +613,11 @@ class TopicDBModel(BaseDBModel):
     name = Column(String, nullable=False)
 
 
-
 tags_association = Table(
     "tags_association",
     BaseDBModel.metadata,
-    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
-    Column(
-        "tags_collection",
-        Integer,
-        ForeignKey("tags_collection.id"),
-        primary_key=True,
-    ),
+    Column("tags_collection_id", Integer, ForeignKey("tags_collection.id")),
+    Column("tag_id", Integer, ForeignKey("tags.id")),
 )
 
 
@@ -632,14 +626,14 @@ class TagDBModel(BaseDBModel):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     base_type = Column(String, default="Tag")
-    name = Column(String, nullable=False)
-    tag = Column(String, nullable=False)
+    name = Column(String, nullable=True)
+    tag = Column(String, nullable=True)
 
 
 class TagsDBModel(BaseDBModel):
     __tablename__ = "tags_collection"
 
-    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     base_type = Column(String, default="Tags")
     tags = relationship(
         "TagDBModel",
@@ -1492,7 +1486,7 @@ class JobDBModel(BaseDBModel):
     )
 
     commit_id = Column(
-        Integer, ForeignKey(column="commits.id", name="fk_job_commit"), nullable=True
+        String, ForeignKey(column="commits.id", name="fk_job_commit"), nullable=True
     )
     commit = relationship(
         argument="CommitDBModel",
@@ -1561,11 +1555,11 @@ class JobDBModel(BaseDBModel):
 
     artifacts_id = Column(
         Integer,
-        ForeignKey(column="artifacts.id", name="fk_job_artifacts"),
+        ForeignKey(column="artifacts_collection.id", name="fk_job_artifacts"),
         nullable=True,
     )
     artifacts = relationship(
-        argument="ArtifactDBModel", backref=backref("jobs_artifacts")
+        argument="ArtifactsDBModel", backref=backref("jobs_artifacts")
     )
 
 
@@ -1793,7 +1787,7 @@ class CommentDBModel(BaseDBModel):
     )
 
     commits_id = Column(
-        Integer,
+        String,
         ForeignKey(column="commits.id", name="fk_comment_commit"),
         nullable=True,
     )
@@ -1804,17 +1798,49 @@ class CommentDBModel(BaseDBModel):
     )
 
 
+parent_ids_association = Table(
+    "parent_ids_association",
+    BaseDBModel.metadata,
+    Column("parent_ids_id", Integer, ForeignKey("parent_ids.id"), primary_key=True),
+    Column(
+        "parent_ids_collection",
+        Integer,
+        ForeignKey("parent_ids_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
+class ParentIDDBModel(BaseDBModel):
+    __tablename__ = "parent_ids"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="ParentID")
+    parent_id = Column(String, nullable=False)
+
+
+class ParentIDsDBModel(BaseDBModel):
+    __tablename__ = "parent_ids_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
+    base_type = Column(String, default="ParentIDs")
+    parent_ids = relationship(
+        "ParentIDDBModel",
+        secondary=parent_ids_association,
+        backref=backref("parent_ids_collection", lazy="dynamic"),
+    )
+
+
 # Commit Model
 class CommitDBModel(BaseDBModel):
     __tablename__ = "commits"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String, primary_key=True)
     base_type = Column(String, default="Commit")
     short_id = Column(String, nullable=True)
     started_at = Column(DateTime, nullable=True)
     finished_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=True)
-    parent_ids = Column(JSON, nullable=True)
     title = Column(String, nullable=True)
     description = Column(String, nullable=True)
     message = Column(String, nullable=True)
@@ -1888,6 +1914,16 @@ class CommitDBModel(BaseDBModel):
         argument="CommentDBModel",
         foreign_keys=[notes_id],
         backref=backref("commit_notes"),
+    )
+    parent_ids_id = Column(
+        Integer,
+        ForeignKey(column="parent_ids_collection.id", name="fk_commit_parent_ids"),
+        nullable=True,
+    )
+    parent_ids = relationship(
+        argument="ParentIDsDBModel",
+        foreign_keys=[parent_ids_id],
+        backref=backref("commit_parent_ids"),
     )
 
 
@@ -2028,6 +2064,14 @@ class ReferencesDBModel(BaseDBModel):
     full = Column(String, nullable=True)
 
 
+artifacts_association = Table(
+    "artifacts_association",
+    BaseDBModel.metadata,
+    Column("artifacts_collection_id", Integer, ForeignKey("artifacts_collection.id")),
+    Column("artifact_id", Integer, ForeignKey("artifacts.id")),
+)
+
+
 # Artifact Model
 class ArtifactDBModel(BaseDBModel):
     __tablename__ = "artifacts"
@@ -2038,6 +2082,18 @@ class ArtifactDBModel(BaseDBModel):
     size = Column(Integer, nullable=True)
     filename = Column(String, nullable=True)
     file_format = Column(String, nullable=True)
+
+
+class ArtifactsDBModel(BaseDBModel):
+    __tablename__ = "artifacts_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
+    base_type = Column(String, default="Artifacts")
+    artifacts = relationship(
+        "ArtifactDBModel",
+        secondary=artifacts_association,
+        backref=backref("artifacts_collection", lazy="dynamic"),
+    )
 
 
 # ArtifactsFile Model
