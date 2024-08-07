@@ -2365,6 +2365,7 @@ class NamespaceDBModel(BaseDBModel):
     full_path = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
     web_url = Column(String, nullable=True)
+    billable_members_count = Column(Integer, nullable=True)
 
     parent_id = Column(
         Integer,

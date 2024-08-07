@@ -3410,6 +3410,9 @@ class Namespace(BaseModel):
     web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The web URL of the namespace."
     )
+    billable_members_count: Optional[int] = Field(
+        default=None, description="The Billable members count of the namespace, if any."
+    )
 
 
 class Namespaces(BaseModel):
