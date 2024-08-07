@@ -2087,7 +2087,10 @@ class Api(object):
             headers=self.headers,
             verify=self.verify,
         )
-        project.total_pages = int(response.headers["X-Total-Pages"])
+        try:
+            project.total_pages = int(response.headers.get("X-Total-Pages", 1))
+        except ValueError:
+            project.total_pages = 1
         response = None
         if not project.max_pages:
             max_pages = 0
@@ -3382,11 +3385,14 @@ class Api(object):
         else:
             per_page = user.per_page
         response = self._session.get(
-            url=f"{self.url}/users?per_page={per_page}&x-total-pages",
+            url=f"{self.url}/users?per_page={per_page}",
             headers=self.headers,
             verify=self.verify,
         )
-        user.total_pages = int(response.headers["X-Total-Pages"])
+        try:
+            user.total_pages = int(response.headers.get("X-Total-Pages", 1))
+        except ValueError:
+            user.total_pages = 1
         response = None
 
         if not user.max_pages:
