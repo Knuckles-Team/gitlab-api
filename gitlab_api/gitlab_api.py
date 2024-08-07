@@ -1481,7 +1481,7 @@ class Api(object):
                 headers=self.headers,
                 verify=self.verify,
             )
-            total_pages = int(response.headers["X-Total-Pages"])
+            total_pages = int(response.headers.get("X-Total-Pages", 1))
             response = []
             if merge_request.max_pages == 0 or merge_request.max_pages > total_pages:
                 merge_request.max_pages = total_pages
@@ -2174,7 +2174,7 @@ class Api(object):
             pages_response = self.get_total_projects_in_group(
                 group_id=project.group_id, per_page=project.per_page
             )
-            total_pages = int(pages_response.headers["X-Total-Pages"])
+            total_pages = int(pages_response.headers.get("X-Total-Pages", 1))
             if (
                 not project.max_pages
                 or project.max_pages == 0
