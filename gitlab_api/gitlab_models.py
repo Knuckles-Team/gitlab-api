@@ -3413,6 +3413,15 @@ class Namespace(BaseModel):
     billable_members_count: Optional[int] = Field(
         default=None, description="The Billable members count of the namespace, if any."
     )
+    plan: Optional[str] = Field(
+        default=None, description="Plan of the Namespace"
+    )
+    trial_ends_on: Optional[datetime] = Field(
+        default=None, description="The date the Trial ends"
+    )
+    trial: Optional[bool] = Field(
+        default=None, description="Indicates if the namespace is a trial"
+    )
 
 
 class Namespaces(BaseModel):

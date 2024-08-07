@@ -2366,6 +2366,9 @@ class NamespaceDBModel(BaseDBModel):
     avatar_url = Column(String, nullable=True)
     web_url = Column(String, nullable=True)
     billable_members_count = Column(Integer, nullable=True)
+    plan = Column(String, nullable=True)
+    trial_ends_on = Column(DateTime, nullable=True)
+    trial = Column(Boolean, nullable=True)
 
     parent_id = Column(
         Integer,
