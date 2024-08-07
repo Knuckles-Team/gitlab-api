@@ -2164,8 +2164,9 @@ class Api(object):
         all_projects = []
         if project.group_id is None:
             raise MissingParameterError
-        response = self.get_group(group_id=project.group_id)
-        all_groups.append(response.data)
+        project_group = self.get_group(group_id=project.group_id)
+        if hasattr(project_group.data, "groups") and project_group.data.groups:
+            all_groups = all_groups.append(project_group.data.group)
         groups = self.get_group_descendant_groups(group_id=project.group_id)
         if hasattr(groups.data, "groups") and groups.data.groups:
             all_groups.extend(groups.data.groups)
