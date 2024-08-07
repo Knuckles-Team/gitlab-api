@@ -59,7 +59,6 @@ from gitlab_api.gitlab_db_models import (
     GroupDBModel,
     WebhookDBModel,
     AccessLevelDBModel,
-    ApprovedByDBModel,
     ProjectDBModel,
     RunnerDBModel,
     EpicDBModel,
@@ -96,7 +95,6 @@ from gitlab_api.gitlab_db_models import (
     IterationDBModel,
     IdentityDBModel,
     GroupSamlIdentityDBModel,
-    CreatedByDBModel,
     UserDBModel,
     UsersDBModel,
     ParentIDDBModel,
@@ -2969,6 +2967,15 @@ class Milestone(BaseModel):
     )
 
 
+class Milestones(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Milestones")
+    milestones: Optional[List[Milestone]] = Field(
+        default=None, description="List of milestones"
+    )
+
+
 class TimeStats(BaseModel):
     class Meta:
         orm_model = TimeStatsDBModel
@@ -3169,6 +3176,15 @@ class Identity(BaseModel):
     )
 
 
+class Identities(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Identities")
+    identities: Optional[List[Identity]] = Field(
+        default=None, description="List of identities"
+    )
+
+
 class GroupSamlIdentity(BaseModel):
     class Meta:
         orm_model = GroupSamlIdentityDBModel
@@ -3184,33 +3200,6 @@ class GroupSamlIdentity(BaseModel):
     )
     saml_provider_id: Optional[int] = Field(
         default=None, description="ID of the SAML provider"
-    )
-
-
-class CreatedBy(BaseModel):
-    class Meta:
-        orm_model = CreatedByDBModel
-
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="CreatedBy")
-    id: Optional[int] = Field(
-        default=None, description="ID of the user who created the member"
-    )
-    username: Optional[str] = Field(
-        default=None, description="Username of the user who created the member"
-    )
-    name: Optional[str] = Field(
-        default=None, description="Name of the user who created the member"
-    )
-    state: Optional[str] = Field(
-        default=None, description="State of the user who created the member"
-    )
-    avatar_url: Optional[Union[HttpUrl, str]] = Field(
-        default=None, description="Avatar URL of the user who created the member"
-    )
-    web_url: Optional[Union[HttpUrl, str]] = Field(
-        default=None, description="Web URL of the user who created the member"
     )
 
 
@@ -3293,7 +3282,7 @@ class User(BaseModel):
         default=None, description="The current sign-in date of the user."
     )
     note: Optional[str] = Field(default=None, description="A note about the user.")
-    identities: Optional[List[Identity]] = Field(
+    identities: Optional[Identities] = Field(
         default=None,
         description="List of external identities associated with the user.",
     )
@@ -3321,7 +3310,7 @@ class User(BaseModel):
     namespace_id: Optional[int] = Field(
         default=None, description="The namespace ID of the user."
     )
-    created_by: Optional[Union[int, CreatedBy]] = Field(
+    created_by: Optional[Union[int, "User"]] = Field(
         default=None, description="The ID of the user who created this user."
     )
     email_reset_offered_at: Optional[datetime] = Field(
@@ -3375,6 +3364,17 @@ class User(BaseModel):
     last_login_at: Optional[datetime] = Field(
         default=None, description="The last login-in date of the user."
     )
+
+    @field_validator("identities", mode="before")
+    def validate_tags(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            identities = []
+            for item in v:
+                identities.append(Identity(**item))
+            return Identities(identities=identities)
+        return v
 
 
 class Users(BaseModel):
@@ -3617,7 +3617,7 @@ class Diffs(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Diffs")
-    diffs: List[Diff] = Field(default=None, description="List of diffs")
+    diffs: Optional[List[Diff]] = Field(default=None, description="List of diffs")
 
 
 class DetailedStatus(BaseModel):
@@ -3726,7 +3726,9 @@ class Pipelines(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Pipelines")
-    pipelines: List[Pipeline] = Field(default=None, description="List of pipelines")
+    pipelines: Optional[List[Pipeline]] = Field(
+        default=None, description="List of pipelines"
+    )
 
 
 class PackageLink(BaseModel):
@@ -3756,10 +3758,21 @@ class PackageVersion(BaseModel):
     created_at: Optional[datetime] = Field(
         default=None, description="Creation date and time of the package version"
     )
-    pipelines: Optional[List[Pipeline]] = Field(
+    pipelines: Optional[Pipelines] = Field(
         default=None,
         description="List of pipelines associated with the package version",
     )
+
+    @field_validator("pipelines", mode="before")
+    def validate_pipelines(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            pipelines = []
+            for item in v:
+                pipelines.append(Pipeline(**item))
+            return Pipelines(pipelines=pipelines)
+        return v
 
 
 class Package(BaseModel):
@@ -3787,7 +3800,7 @@ class Package(BaseModel):
     links: Optional[PackageLink] = Field(
         default=None, alias="_links", description="Links related to the package"
     )
-    pipelines: Optional[List[Pipeline]] = Field(
+    pipelines: Optional[Pipelines] = Field(
         default=None, description="List of pipelines associated with the package"
     )
     tags: Optional[List[str]] = Field(
@@ -3814,6 +3827,17 @@ class Package(BaseModel):
     file_sha256: Optional[str] = Field(
         default=None, description="SHA-256 checksum of the package file"
     )
+
+    @field_validator("pipelines", mode="before")
+    def validate_pipelines(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            pipelines = []
+            for item in v:
+                pipelines.append(Pipeline(**item))
+            return Pipelines(pipelines=pipelines)
+        return v
 
 
 class Packages(BaseModel):
@@ -4056,9 +4080,7 @@ class Commit(BaseModel):
     individual_note: Optional[bool] = Field(
         default=None, description="Flag that this was a discussion"
     )
-    notes: Optional[List[Comment]] = Field(
-        default=None, description="Discussion on commit"
-    )
+    notes: Optional[Comments] = Field(default=None, description="Discussion on commit")
     allow_failure: Optional[bool] = Field(
         default=None, description="Flag allows for failure"
     )
@@ -4078,6 +4100,17 @@ class Commit(BaseModel):
             for item in v:
                 parent_ids.append(ParentID(parent_id=item))
             return ParentIDs(parent_ids=parent_ids)
+        return v
+
+    @field_validator("notes", mode="before")
+    def validate_notes(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            notes = []
+            for item in v:
+                notes.append(Comment(**item))
+            return Comments(comments=notes)
         return v
 
     @field_validator("trailers", "extended_trailers", mode="before")
@@ -4128,18 +4161,6 @@ class Memberships(BaseModel):
     base_type: str = Field(default="Memberships")
     memberships: List[Membership] = Field(
         default=None, description="List of memberships"
-    )
-
-
-class ApprovedBy(BaseModel):
-    class Meta:
-        orm_model = ApprovedByDBModel
-
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="ApprovedBy")
-    user: User = Field(
-        default=None, description="User who has approved the merge request"
     )
 
 
@@ -4379,7 +4400,7 @@ class Project(BaseModel):
     public_jobs: Optional[bool] = Field(
         default=None, description="Whether jobs are public."
     )
-    shared_with_groups: Optional[List] = Field(
+    shared_with_groups: Optional["Groups"] = Field(
         default=None, description="Groups the project is shared with."
     )
     only_allow_merge_if_pipeline_succeeds: Optional[bool] = Field(
@@ -4617,12 +4638,15 @@ class Project(BaseModel):
             return Topics(topics=topics)
         return v
 
-    @field_validator("groups", mode="before")
+    @field_validator("groups", "shared_with_groups", mode="before")
     def validate_groups(cls, v):
         if isinstance(v, list) and not v:
             return None
         if isinstance(v, list):
-            return Groups(groups=v)
+            groups = []
+            for item in v:
+                groups.append(Group(**item))
+            return Groups(groups=groups)
         return v
 
 
@@ -4834,6 +4858,15 @@ class GroupAccess(BaseModel):
     )
 
 
+class GroupAccesses(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="GroupAccesses")
+    group_accesses: List[GroupAccess] = Field(
+        default=None, description="List of group accesses"
+    )
+
+
 class DefaultBranchProtectionDefaults(BaseModel):
     class Meta:
         orm_model = DefaultBranchProtectionDefaultsDBModel
@@ -4841,15 +4874,27 @@ class DefaultBranchProtectionDefaults(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="DefaultBranchProtectionDefaults")
-    allowed_to_push: Optional[List[GroupAccess]] = Field(
+    allowed_to_push: Optional[GroupAccesses] = Field(
         default=None, description="List of groups allowed to push"
     )
     allow_force_push: Optional[bool] = Field(
         default=None, description="Whether force push is allowed"
     )
-    allowed_to_merge: Optional[List[GroupAccess]] = Field(
+    allowed_to_merge: Optional[GroupAccesses] = Field(
         default=None, description="List of groups allowed to merge"
     )
+
+    @field_validator("allowed_to_push", "allowed_to_merge", mode="before")
+    def validate_group_accesses(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            group_accesses = []
+            for item in v:
+                group = GroupAccess(**item)
+                group_accesses.append(group)
+            return GroupAccesses(group_accesses=group_accesses)
+        return v
 
 
 class Group(BaseModel):
@@ -4860,6 +4905,19 @@ class Group(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="Group")
     id: Optional[int] = Field(default=None, description="The ID of the group")
+    group_id: Optional[int] = Field(default=None, description="The ID of the group")
+    group_name: Optional[str] = Field(
+        default=None, description="Full name of the group"
+    )
+    group_full_path: Optional[str] = Field(
+        default=None, description="Full path of the group"
+    )
+    group_access_level: Optional[int] = Field(
+        default=None, description="Group access level"
+    )
+    expires_at: Optional[datetime] = Field(
+        default=None, description="Expiration date of the group"
+    )
     organization_id: Optional[int] = Field(
         default=None, description="The Organization ID of the group"
     )
@@ -4952,7 +5010,7 @@ class Group(BaseModel):
     enabled_git_access_protocol: Optional[str] = Field(
         default=None, description="Enabled Git access protocol"
     )
-    shared_with_groups: Optional[List[Dict[str, Any]]] = Field(
+    shared_with_groups: Optional["Groups"] = Field(
         default=None, description="Groups shared with this group"
     )
     prevent_sharing_groups_outside_hierarchy: Optional[bool] = Field(
@@ -4991,6 +5049,16 @@ class Group(BaseModel):
         default=None, description="Forking disabled outside group"
     )
 
+    @model_validator(mode="before")
+    def populate_id(cls, values):
+        if "group_id" in values and "id" not in values:
+            values["id"] = values["group_id"]
+        if "group_name" in values and "name" not in values:
+            values["name"] = values["group_name"]
+        if "group_full_path" in values and "full_path" not in values:
+            values["full_path"] = values["group_full_path"]
+        return values
+
     @field_validator("projects", "shared_projects", mode="before")
     def validate_changes(cls, v):
         if isinstance(v, list) and not v:
@@ -5000,6 +5068,17 @@ class Group(BaseModel):
             for item in v:
                 projects.append(Project(**item))
             return Projects(projects=projects)
+        return v
+
+    @field_validator("shared_with_groups", mode="before")
+    def validate_groups(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            groups = []
+            for item in v:
+                groups.append(Group(**item))
+            return Groups(groups=groups)
         return v
 
 
@@ -5119,6 +5198,16 @@ class AccessLevel(BaseModel):
     group_id: Optional[int] = Field(default=None, description="Group ID")
 
 
+class AccessLevels(BaseModel):
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="AccessLevels")
+    access_levels: Optional[List[AccessLevel]] = Field(
+        default=None, description="List of access levels"
+    )
+
+
 class Branch(BaseModel):
     class Meta:
         orm_model = BranchDBModel
@@ -5152,13 +5241,13 @@ class Branch(BaseModel):
         default=None, description="The commit associated with the branch."
     )
     id: Optional[int] = Field(default=None, description="Branch ID")
-    push_access_levels: Optional[List[AccessLevel]] = Field(
+    push_access_levels: Optional[AccessLevels] = Field(
         default=None, description="Push access levels for the branch"
     )
-    merge_access_levels: Optional[List[AccessLevel]] = Field(
+    merge_access_levels: Optional[AccessLevels] = Field(
         default=None, description="Merge access levels for the branch"
     )
-    unprotect_access_levels: Optional[List[AccessLevel]] = Field(
+    unprotect_access_levels: Optional[AccessLevels] = Field(
         default=None, description="Unprotect access levels for the branch"
     )
     allow_force_push: Optional[bool] = Field(
@@ -5170,6 +5259,22 @@ class Branch(BaseModel):
     inherited: Optional[bool] = Field(
         default=None, description="Whether the branch is inherited"
     )
+
+    @field_validator(
+        "push_access_levels",
+        "merge_access_levels",
+        "unprotect_access_levels",
+        mode="before",
+    )
+    def validate_access_levels(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            access_levels = []
+            for item in v:
+                access_levels.append(AccessLevel(**item))
+            return AccessLevels(access_levels=access_levels)
+        return v
 
 
 class Branches(BaseModel):
@@ -5198,13 +5303,13 @@ class ApprovalRule(BaseModel):
         default=None, description="Number of required approvals"
     )
     users: Optional[Users] = Field(default=None, description="List of associated users")
-    groups: Optional[List[Group]] = Field(
+    groups: Optional[Groups] = Field(
         default=None, description="List of associated groups"
     )
     contains_hidden_groups: Optional[bool] = Field(
         default=None, description="Whether the rule contains hidden groups"
     )
-    protected_branches: Optional[List[Branch]] = Field(
+    protected_branches: Optional[Branches] = Field(
         default=None, description="List of protected branches the rule applies to"
     )
     applies_to_all_protected_branches: Optional[bool] = Field(
@@ -5223,12 +5328,40 @@ class ApprovalRule(BaseModel):
         default=None, description="List of users who approved"
     )
 
-    @field_validator("eligible_approvers", "users", "approved_by", mode="before")
-    def empty_list_to_none(cls, v):
+    @field_validator("eligible_approvers", "approved_by", "users", mode="before")
+    def validate_users(cls, v):
         if isinstance(v, list) and not v:
             return None
         if isinstance(v, list):
-            return Users(users=v)
+            users = []
+            for item in v:
+                if "user" in item:
+                    users.append(User(**item["user"]))
+                else:
+                    users.append(User(**item))
+            return Users(users=users)
+        return v
+
+    @field_validator("protected_branches", mode="before")
+    def validate_protected_branches(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            protected_branches = []
+            for item in v:
+                protected_branches.append(Branch(**item))
+            return Branches(branches=protected_branches)
+        return v
+
+    @field_validator("groups", mode="before")
+    def validate_groups(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            groups = []
+            for item in v:
+                groups.append(Group(**item))
+            return Groups(groups=groups)
         return v
 
 
@@ -5454,22 +5587,28 @@ class MergeRequest(BaseModel):
     approvals_left: Optional[int] = Field(
         default=None, description="Number of approvals left"
     )
-    approved_by: Optional[List[ApprovedBy]] = Field(
+    approved_by: Optional[Users] = Field(
         default=None, description="List of users who approved"
     )
     approval_rules_overwritten: Optional[bool] = Field(
         default=None, description="Allow override of approval rules"
     )
-    rules: Optional[List[ApprovalRule]] = Field(
+    rules: Optional[ApprovalRules] = Field(
         default=None, description="List of merge request rules"
     )
 
-    @field_validator("assignees", "reviewers", "reviewer", mode="before")
-    def empty_list_to_none(cls, v):
+    @field_validator("assignees", "reviewers", "reviewer", "approved_by", mode="before")
+    def validate_users(cls, v):
         if isinstance(v, list) and not v:
             return None
         if isinstance(v, list):
-            return Users(users=v)
+            users = []
+            for item in v:
+                if "user" in item:
+                    users.append(User(**item["user"]))
+                else:
+                    users.append(User(**item))
+            return Users(users=users)
         return v
 
     @field_validator("changes", mode="before")
@@ -5477,7 +5616,10 @@ class MergeRequest(BaseModel):
         if isinstance(v, list) and not v:
             return None
         if isinstance(v, list):
-            return Diffs(diffs=v)
+            diffs = []
+            for item in v:
+                diffs.append(Diff(**item))
+            return Diffs(diffs=diffs)
         return v
 
     @field_validator("labels", mode="before")
@@ -5500,6 +5642,17 @@ class MergeRequest(BaseModel):
             for item in v:
                 tags.append(Tag(tag=item))
             return Tags(tags=tags)
+        return v
+
+    @field_validator("rules", mode="before")
+    def validate_approval_rules(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            rules = []
+            for item in v:
+                rules.append(ApprovalRule(**item))
+            return ApprovalRules(approval_rules=rules)
         return v
 
 
@@ -5737,6 +5890,13 @@ class TestCase(BaseModel):
     )
 
 
+class TestCases(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="TestCases")
+    test_cases: List[TestCase] = Field(default=None, description="List of test cases")
+
+
 class TestSuite(BaseModel):
     class Meta:
         orm_model = TestSuiteDBModel
@@ -5763,7 +5923,7 @@ class TestSuite(BaseModel):
     error_count: Optional[int] = Field(
         default=None, description="The number of test cases with errors."
     )
-    test_cases: Optional[List[TestCase]] = Field(
+    test_cases: Optional[TestCases] = Field(
         default=None, description="A list of test cases in the suite."
     )
     build_ids: Optional[List[int]] = Field(
@@ -5771,6 +5931,26 @@ class TestSuite(BaseModel):
     )
     suite_error: Optional[str] = Field(
         default=None, description="Errors encountered in the test suite."
+    )
+
+    @field_validator("test_cases", mode="before")
+    def validate_test_cases(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            test_cases = []
+            for item in v:
+                test_cases.append(TestCase(**item))
+            return TestCases(test_cases=test_cases)
+        return v
+
+
+class TestSuites(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="TestSuites")
+    test_suites: List[TestSuite] = Field(
+        default=None, description="List of test suites"
     )
 
 
@@ -5814,7 +5994,7 @@ class TestReport(BaseModel):
     total: Optional[TestReportTotal] = Field(
         default=None, description="Total count in test report."
     )
-    test_suites: Optional[List[TestSuite]] = Field(
+    test_suites: Optional[TestSuites] = Field(
         default=None, description="A list of test suites in the report."
     )
     total_time: Optional[int] = Field(
@@ -5836,6 +6016,17 @@ class TestReport(BaseModel):
         default=None, description="Error count of test report"
     )
 
+    @field_validator("test_suites", mode="before")
+    def validate_test_suites(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            test_suites = []
+            for item in v:
+                test_suites.append(TestSuite(**item))
+            return TestSuites(test_suites=test_suites)
+        return v
+
 
 class MergeApprovals(BaseModel):
     class Meta:
@@ -5845,7 +6036,7 @@ class MergeApprovals(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="MergeApprovals")
     approvers: Optional[Users] = Field(default=None, description="List of approvers")
-    approver_groups: Optional[List[Group]] = Field(
+    approver_groups: Optional[Groups] = Field(
         default=None, description="List of approver groups"
     )
     approvals_before_merge: Optional[int] = Field(
@@ -5877,6 +6068,17 @@ class MergeApprovals(BaseModel):
             return None
         if isinstance(v, list):
             return Users(users=v)
+        return v
+
+    @field_validator("approver_groups", mode="before")
+    def validate_groups(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            groups = []
+            for item in v:
+                groups.append(Group(**item))
+            return Groups(groups=groups)
         return v
 
 
@@ -6004,6 +6206,14 @@ class Source(BaseModel):
     )
 
 
+class Sources(BaseModel):
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Sources")
+    sources: Optional[List[Source]] = Field(default=None, description="List of Sources")
+
+
 class Link(BaseModel):
     class Meta:
         orm_model = LinkDBModel
@@ -6021,6 +6231,13 @@ class Link(BaseModel):
     )
 
 
+class LinksList(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="LinksList")
+    links: List[Link] = Field(default=None, description="List of links")
+
+
 class Assets(BaseModel):
     class Meta:
         orm_model = AssetsDBModel
@@ -6029,15 +6246,35 @@ class Assets(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="Assets")
     count: Optional[int] = Field(default=None, description="Total count of assets")
-    sources: Optional[List[Source]] = Field(
-        default=None, description="List of source files"
-    )
-    links: Optional[List[Link]] = Field(
+    sources: Optional[Sources] = Field(default=None, description="List of source files")
+    links: Optional[LinksList] = Field(
         default=None, description="List of additional links"
     )
     evidence_file_path: Optional[str] = Field(
         default=None, description="URL to the evidence file"
     )
+
+    @field_validator("sources", mode="before")
+    def validate_sources(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            sources = []
+            for item in v:
+                sources.append(Source(**item))
+            return Sources(sources=sources)
+        return v
+
+    @field_validator("links", mode="before")
+    def validate_links(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            links = []
+            for item in v:
+                links.append(Link(**item))
+            return LinksList(links=links)
+        return v
 
 
 class Evidence(BaseModel):
@@ -6055,6 +6292,15 @@ class Evidence(BaseModel):
     )
     collected_at: Optional[datetime] = Field(
         default=None, description="Timestamp when the evidence was collected"
+    )
+
+
+class Evidences(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Evidences")
+    evidences: Optional[List[Evidence]] = Field(
+        default=None, description="List of evidences"
     )
 
 
@@ -6110,7 +6356,7 @@ class Release(BaseModel):
     commit: Optional[Commit] = Field(
         default=None, description="Commit associated with the release"
     )
-    milestones: Optional[List[Milestone]] = Field(
+    milestones: Optional[Milestones] = Field(
         default=None, description="List of milestones related to the release"
     )
     commit_path: Optional[str] = Field(
@@ -6122,13 +6368,35 @@ class Release(BaseModel):
     assets: Optional[Assets] = Field(
         default=None, description="Assets related to the release"
     )
-    evidences: Optional[List[Evidence]] = Field(
+    evidences: Optional[Evidences] = Field(
         default=None, description="List of evidences related to the release"
     )
     links: Optional[ReleaseLinks] = Field(
         default=None, alias="_links", description="Links related to the release"
     )
     evidence_sha: Optional[str] = Field(default=None, description="Evidence hash")
+
+    @field_validator("milestones", mode="before")
+    def validate_milestones(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            milestones = []
+            for item in v:
+                milestones.append(Milestone(**item))
+            return Milestones(milestones=milestones)
+        return v
+
+    @field_validator("evidences", mode="before")
+    def validate_evidences(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            evidences = []
+            for item in v:
+                evidences.append(Evidence(**item))
+            return Evidences(evidences=evidences)
+        return v
 
 
 class Releases(BaseModel):

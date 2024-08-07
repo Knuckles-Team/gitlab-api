@@ -703,11 +703,11 @@ class ApprovalRuleDBModel(BaseDBModel):
 
     approved_by_id = Column(
         Integer,
-        ForeignKey(column="approved_by.id", name="fk_approval_rule_user_by_id"),
+        ForeignKey(column="users.id", name="fk_approval_rule_user_by_id"),
         nullable=True,
     )
     approved_by = relationship(
-        argument="ApprovedByDBModel",
+        argument="UserDBModel",
         foreign_keys=[approved_by_id],
         backref=backref("approval_rules_approved_by"),
     )
@@ -967,11 +967,11 @@ class MergeRequestDBModel(BaseDBModel):
 
     approved_by_id = Column(
         Integer,
-        ForeignKey(column="approved_by.id", name="fk_merge_request_user_approved_by"),
+        ForeignKey(column="users.id", name="fk_merge_request_user_approved_by"),
         nullable=True,
     )
     approved_by = relationship(
-        argument="ApprovedByDBModel",
+        argument="UserDBModel",
         foreign_keys=[approved_by_id],
         backref=backref("approved_users_merge_request"),
     )
@@ -1165,24 +1165,6 @@ class WebhookDBModel(BaseDBModel):
     )
     group = relationship(
         argument="GroupDBModel", foreign_keys=[group_id], backref=backref("webhooks")
-    )
-
-
-class ApprovedByDBModel(BaseDBModel):
-    __tablename__ = "approved_by"
-
-    id = Column(Integer, primary_key=True)
-    base_type = Column(String, default="ApprovedBy")
-
-    user_id = Column(
-        Integer,
-        ForeignKey(column="users.id", name="fk_approved_by_user"),
-        nullable=True,
-    )
-    user = relationship(
-        argument="UserDBModel",
-        foreign_keys=[user_id],
-        backref=backref("approved_by_users"),
     )
 
 
@@ -2204,30 +2186,6 @@ class GroupSamlIdentityDBModel(BaseDBModel):
     )
 
 
-# CreatedBy Model
-class CreatedByDBModel(BaseDBModel):
-    __tablename__ = "created_by"
-
-    id = Column(Integer, primary_key=True)
-    base_type = Column(String, default="CreatedBy")
-    username = Column(String, nullable=True)
-    name = Column(String, nullable=True)
-    state = Column(String, nullable=True)
-    avatar_url = Column(String, nullable=True)
-    web_url = Column(String, nullable=True)
-    user_id = Column(
-        Integer,
-        ForeignKey(column="users.id", name="fk_created_by_user_id"),
-        nullable=True,
-    )
-
-    user = relationship(
-        argument="UserDBModel",
-        foreign_keys=[user_id],
-        backref=backref("created_by_user"),
-    )
-
-
 users_association = Table(
     "users_association",
     BaseDBModel.metadata,
@@ -2302,13 +2260,13 @@ class UserDBModel(BaseDBModel):
 
     created_by_id = Column(
         Integer,
-        ForeignKey(column="created_by.id", name="fk_user_created_by_id"),
+        ForeignKey("users.id"),
         nullable=True,
     )
     created_by = relationship(
-        argument="CreatedByDBModel",
-        foreign_keys=[created_by_id],
-        backref=backref("users"),
+        "UserDBModel",
+        remote_side=[id],
+        backref=backref("users", remote_side=[created_by_id]),
     )
 
     group_saml_identity_id = Column(

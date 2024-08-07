@@ -148,9 +148,7 @@ def validate_dict(
         dictionary.pop("trailers", None)
         dictionary.pop("extended_trailers", None)
         setattr(related_sqlalchemy_model, "parent_ids", parent_ids_model)
-        logging.debug(
-            f"\n\nPARENT IDs ON COMMIT MODEL: {related_sqlalchemy_model.parent_ids}"
-        )
+        logging.debug(f"\n\nPARENT IDs ON COMMIT MODEL: {related_sqlalchemy_model.parent_ids}")
     if related_sqlalchemy_model == ArtifactsDBModel:
         artifacts = []
         for artifact in dictionary["artifacts"]:
@@ -280,9 +278,7 @@ def upsert_row(session, db_model, processed_models=None):
         logging.debug(f"\nSetting Existing Model: {db_model}")
         existing_model = db_model
         session.add(existing_model)
-        logging.debug(
-            f"\nInserted new {model_type.__name__} with ID {existing_model.id}"
-        )
+        logging.debug(f"\nInserted new {model_type.__name__} with ID {existing_model.id}")
 
     try:
         session.commit()
