@@ -88,25 +88,25 @@ def get_related_model(sqlalchemy_model, key, value):
 
 def validate(key, value, session, sqlalchemy_model):
     if isinstance(value, list):
-        logging.debug(f"\n\nValue that is a list: {value} for key: {key}")
+        print(f"\n\nValue that is a list: {value} for key: {key}")
         related_models = validate_list(list_object=value, session=session)
         new_model = related_models
-        logging.debug(f"\n\nSQLAlchemy List Model Set: {related_models}")
+        print(f"\n\nSQLAlchemy List Model Set: {related_models}")
     elif isinstance(value, dict):
-        logging.debug(f"\n\nValue that is a dict: {value} for key: {key}")
+        print(f"\n\nValue that is a dict: {value} for key: {key}")
         related_model = validate_dict(
             dictionary=value,
             parent_key=key,
             sqlalchemy_model=sqlalchemy_model,
             session=session,
         )
-        logging.debug(f"\n\nSetting Related Model: {related_model} for {key}")
+        print(f"\n\nSetting Related Model: {related_model} for {key}")
         new_model = related_model
-        logging.debug(f"\n\nSQLAlchemy Dict Model Set: {related_model}")
+        print(f"\n\nSQLAlchemy Dict Model Set: {related_model}")
     else:
-        logging.debug(f"\n\nImmediately Setting Attribute: {value}")
+        print(f"\n\nImmediately Setting Attribute: {value}")
         new_model = value
-        logging.debug(f"\n\nImmediately Set Attribute: {value}")
+        print(f"\n\nImmediately Set Attribute: {value}")
 
     return new_model
 
@@ -120,7 +120,7 @@ def validate_list(list_object: List, session) -> List:
         )
         for item in list_object
     ]
-    logging.debug(f"\n\nRelated models: {related_models}")
+    print(f"\n\nRelated models: {related_models}")
     return related_models
 
 
@@ -134,8 +134,8 @@ def validate_dict(
             related_sqlalchemy_model = prop.mapper.class_
     if not related_sqlalchemy_model:
         raise ValueError(f"Unable to find related model for key: {parent_key}")
-    logging.debug(f"\n\nRelated instance: {related_sqlalchemy_model}")
-    # Special handling for labels
+    print(f"\n\nRelated instance: {related_sqlalchemy_model}")
+    # # Special handling for labels
     if related_sqlalchemy_model == LabelsDBModel:
         labels = []
         for label in dictionary["labels"]:
@@ -148,8 +148,14 @@ def validate_dict(
     # Special handling for tags
     if related_sqlalchemy_model == TagsDBModel:
         tags = []
-        for tag in dictionary["tags"]:
+        scan_tags = []
+        if "tags" in dictionary:
+            scan_tags = dictionary["tags"]
+        elif "tag_list" in dictionary:
+            scan_tags = dictionary["tag_list"]
+        for tag in scan_tags:
             tag_model = TagDBModel(**tag)
+            print(f"\n\nTAG MODEL: {tag_model}")
             session.add(tag_model)
             tags.append(tag_model)
         if tags:
@@ -183,11 +189,11 @@ def validate_dict(
             artifacts_model = None
         return artifacts_model
     value = remove_none_values(dictionary)
-    logging.debug(f"\n\nSetting Nested Model ({related_sqlalchemy_model}): {value}")
+    print(f"\n\nSetting Nested Model ({related_sqlalchemy_model}): {value}")
     nested_model = related_sqlalchemy_model(**value)
-    logging.debug(f"\n\nObtained Nested Model: {nested_model}")
+    print(f"\n\nObtained Nested Model: {nested_model}")
     related_model = pydantic_to_sqlalchemy(pydantic_model=nested_model, session=session)
-    logging.debug(f"\n\nDefined SQLAlchemy: {related_model}")
+    print(f"\n\nDefined SQLAlchemy: {related_model}")
     return related_model
 
 
@@ -199,7 +205,7 @@ def pydantic_to_sqlalchemy(pydantic_model, session):
         or not hasattr(pydantic_model.Meta, "orm_model")
     ) and hasattr(pydantic_model, "base_type"):
         sqlalchemy_instance = pydantic_model
-        logging.debug(f"\n\nFound SQLAlchemy Model on First Try: {sqlalchemy_instance}")
+        print(f"\n\nFound SQLAlchemy Model on First Try: {sqlalchemy_instance}")
         return sqlalchemy_instance
     sqlalchemy_model = pydantic_model.Meta.orm_model
     sqlalchemy_instance = sqlalchemy_model()
@@ -209,8 +215,9 @@ def pydantic_to_sqlalchemy(pydantic_model, session):
                 key=key, value=value, sqlalchemy_model=sqlalchemy_model, session=session
             )
             setattr(sqlalchemy_instance, key, new_model)
+            session.commit()
 
-    logging.debug(f"\n\nCompleted Conversion for: {sqlalchemy_instance}")
+    print(f"\n\nCompleted Conversion for: {sqlalchemy_instance}")
     return sqlalchemy_instance
 
 
@@ -223,10 +230,10 @@ def upsert(session, response):
         if isinstance(attribute_value, list):
             items = attribute_value
     for item in items:
-        logging.debug(f"Item: \n{item}\n\n")
+        print(f"Item: \n{item}\n\n")
         db_model = pydantic_to_sqlalchemy(pydantic_model=item, session=session)
         upsert_row(db_model=db_model, session=session)
-    logging.debug("Items Added\n\nCommitting Session...")
+    print("Items Added\n\nCommitting Session...")
     session.commit()
 
 
@@ -239,7 +246,7 @@ def upsert_row(session, db_model, processed_models=None):
 
     model_type = type(db_model)
     model_identifier = (model_type, db_model.id)
-    logging.debug(f"\n\nSearching for {db_model.id} in {model_type}")
+    print(f"\n\nSearching for {db_model.id} in {model_type}")
 
     if model_identifier in processed_models:
         return None
@@ -274,14 +281,13 @@ def upsert_row(session, db_model, processed_models=None):
     try:
         existing_model = session.merge(db_model)
         session.commit()
-        logging.debug("Committed Session!")
+        print("Committed Session!")
+        return existing_model
     except Exception as e:
         session.rollback()
-        logging.debug(
+        print(
             f"Error inserting/updating {model_type.__name__} with ID {db_model.id}: {e}"
         )
-
-    return existing_model
 
 
 def create_table(db_instance, engine):
@@ -293,3 +299,55 @@ def create_table(db_instance, engine):
         print(f"Table {table_name} created.")
     else:
         print(f"Table {table_name} already exists.")
+
+
+# def remove_none_values(d: dict) -> dict:
+#     return {k: v for k, v in d.items() if v is not None}
+#
+# def get_related_model(sqlalchemy_model, key):
+#     mapper = class_mapper(sqlalchemy_model)
+#     for prop in mapper.iterate_properties:
+#         if prop.key == key:
+#             print(f"\n\nRelated Model: {prop.mapper.class_} for key: {key}")
+#             return prop.mapper.class_
+#     raise ValueError(f"Unable to find related model for key: {key}")
+#
+# def validate_value(key, value, session, sqlalchemy_model):
+#     if isinstance(value, list):
+#         print(f"\n\nInstance is a list: {value}")
+#         return [pydantic_to_sqlalchemy(item, session) if hasattr(item, "Meta") and hasattr(item.Meta, "orm_model") else item for item in value]
+#     elif isinstance(value, dict):
+#         print(f"\n\nInstance is a dict: {value}")
+#         related_model = get_related_model(sqlalchemy_model, key)
+#         nested_model = related_model(**remove_none_values(value))
+#         return pydantic_to_sqlalchemy(nested_model, session)
+#     else:
+#         print(f"\n\nInstance is a value: {value}")
+#         return value
+#
+# def pydantic_to_sqlalchemy(pydantic_model, session):
+#     if not hasattr(pydantic_model, "Meta") or not hasattr(pydantic_model.Meta, "orm_model"):
+#         return pydantic_model
+#
+#     sqlalchemy_model = pydantic_model.Meta.orm_model
+#     model_instance = sqlalchemy_model()
+#
+#     for key, value in pydantic_model.model_dump(exclude_unset=True).items():
+#         if value is not None:
+#             new_value = validate_value(key, value, session, sqlalchemy_model)
+#             setattr(model_instance, key, new_value)
+#
+#     session.add(model_instance)
+#     session.flush()  # Ensure any new IDs are generated before returning
+#     return model_instance
+#
+#
+# def create_table(db_instance, engine):
+#     inspector = reflection.Inspector.from_engine(engine)
+#     table_name = db_instance.__table__.name
+#
+#     if not inspector.has_table(table_name):
+#         db_instance.__table__.create(engine)
+#         print(f"Table {table_name} created.")
+#     else:
+#         print(f"Table {table_name} already exists.")

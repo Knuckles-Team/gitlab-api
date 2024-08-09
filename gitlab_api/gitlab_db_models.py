@@ -877,21 +877,21 @@ class TopicsDBModel(BaseDBModel):
     )
 
 
+class TagDBModel(BaseDBModel):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
+    base_type = Column(String, default="Tag")
+    name = Column(String, nullable=True)
+    tag = Column(String, nullable=True)
+
+
 tags_association = Table(
     "tags_association",
     BaseDBModel.metadata,
     Column("tags_collection_id", Integer, ForeignKey("tags_collection.id")),
     Column("tag_id", Integer, ForeignKey("tags.id")),
 )
-
-
-class TagDBModel(BaseDBModel):
-    __tablename__ = "tags"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    base_type = Column(String, default="Tag")
-    name = Column(String, nullable=True)
-    tag = Column(String, nullable=True)
 
 
 class TagsDBModel(BaseDBModel):
