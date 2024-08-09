@@ -29,6 +29,26 @@ class EvidenceDBModel(BaseDBModel):
     collected_at = Column(DateTime, nullable=True)
 
 
+evidences_association = Table(
+    "evidences_association",
+    BaseDBModel.metadata,
+    Column("evidences_collection_id", Integer, ForeignKey("evidences_collection.id")),
+    Column("evidence_id", Integer, ForeignKey("evidences.id")),
+)
+
+
+class EvidencesDBModel(BaseDBModel):
+    __tablename__ = "evidences_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Evidences")
+    evidences = relationship(
+        "EvidenceDBModel",
+        secondary=evidences_association,
+        backref=backref("evidences_collection", lazy="dynamic"),
+    )
+
+
 # IssueStats Model
 class IssueStatsDBModel(BaseDBModel):
     __tablename__ = "issue_stats"
@@ -85,6 +105,27 @@ class MilestoneDBModel(BaseDBModel):
     )
 
 
+milestone_association = Table(
+    "milestone_association",
+    BaseDBModel.metadata,
+    Column("milestones_collection_id", Integer, ForeignKey("milestones_collection.id")),
+    Column("milestone_id", Integer, ForeignKey("milestones.id")),
+)
+
+
+# Milestones Collection Model
+class MilestonesDBModel(BaseDBModel):
+    __tablename__ = "milestones_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Milestones")
+    milestones = relationship(
+        "MilestoneDBModel",
+        secondary=milestone_association,
+        backref=backref("milestones_collection", lazy="dynamic"),
+    )
+
+
 # DeployToken Model
 class DeployTokenDBModel(BaseDBModel):
     __tablename__ = "deploy_tokens"
@@ -109,6 +150,31 @@ class DeployTokenDBModel(BaseDBModel):
     )
     user = relationship(
         argument="UserDBModel", foreign_keys=[user_id], backref=backref("deploy_tokens")
+    )
+
+
+deploy_tokens_association = Table(
+    "deploy_tokens_association",
+    BaseDBModel.metadata,
+    Column(
+        "deploy_tokens_collection_id",
+        Integer,
+        ForeignKey("deploy_tokens_collection.id"),
+    ),
+    Column("deploy_tokens_id", Integer, ForeignKey("deploy_tokens.id")),
+)
+
+
+# DeployTokens Collection Model
+class DeployTokensDBModel(BaseDBModel):
+    __tablename__ = "deploy_tokens_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="DeployTokens")
+    deploy_tokens = relationship(
+        "DeployTokenDBModel",
+        secondary=deploy_tokens_association,
+        backref=backref("deploy_tokens_collection", lazy="dynamic"),
     )
 
 
@@ -142,6 +208,31 @@ class AccessControlDBModel(BaseDBModel):
     name = Column(String, nullable=True)
     access_level = Column(Integer, nullable=True)
     member_role_id = Column(Integer, nullable=True)
+
+
+access_controls_association = Table(
+    "access_controls_association",
+    BaseDBModel.metadata,
+    Column(
+        "access_controls_collection_id",
+        Integer,
+        ForeignKey("access_controls_collection.id"),
+    ),
+    Column("access_controls_id", Integer, ForeignKey("access_controls.id")),
+)
+
+
+# AccessControls Collection Model
+class AccessControlsDBModel(BaseDBModel):
+    __tablename__ = "access_controls_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="AccessControls")
+    access_controls = relationship(
+        "AccessControlDBModel",
+        secondary=access_controls_association,
+        backref=backref("access_controls_collection", lazy="dynamic"),
+    )
 
 
 # Source Model
@@ -178,6 +269,46 @@ class LinkDBModel(BaseDBModel):
     )
     assets = relationship(
         argument="AssetsDBModel", foreign_keys=[assets_id], backref=backref("link")
+    )
+
+
+# Links Model
+class LinksDBModel(BaseDBModel):
+    __tablename__ = "links"
+
+    id = Column(Integer, primary_key=True)
+    base_type = Column(String, default="Links")
+    self_link = Column(String, nullable=True)
+    issues = Column(String, nullable=True)
+    merge_requests = Column(String, nullable=True)
+    repo_branches = Column(String, nullable=True)
+    labels = Column(String, nullable=True)
+    events = Column(String, nullable=True)
+    members = Column(String, nullable=True)
+    cluster_agents = Column(String, nullable=True)
+    notes = Column(String, nullable=True)
+    award_emoji = Column(String, nullable=True)
+    project = Column(String, nullable=True)
+    closed_as_duplicate_of = Column(String, nullable=True)
+
+
+links_association = Table(
+    "links_association",
+    BaseDBModel.metadata,
+    Column("links_collection_id", Integer, ForeignKey("links_collection.id")),
+    Column("link_id", Integer, ForeignKey("link.id")),
+)
+
+
+class LinksListDBModel(BaseDBModel):
+    __tablename__ = "links_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="LinksList")
+    links = relationship(
+        "LinkDBModel",
+        secondary=links_association,
+        backref=backref("links_collection", lazy="dynamic"),
     )
 
 
@@ -293,6 +424,27 @@ class WikiPageDBModel(BaseDBModel):
     encoding = Column(String, nullable=True)
 
 
+wiki_pages_association = Table(
+    "wiki_pages_association",
+    BaseDBModel.metadata,
+    Column("wiki_pages_collection_id", Integer, ForeignKey("wiki_pages_collection.id")),
+    Column("link_id", Integer, ForeignKey("wiki_pages.id")),
+)
+
+
+# WikiPages Collection Model
+class WikiPagesDBModel(BaseDBModel):
+    __tablename__ = "wiki_pages_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="WikiPages")
+    wiki_pages = relationship(
+        "WikiPageDBModel",
+        secondary=wiki_pages_association,
+        backref=backref("wiki_pages_collection", lazy="dynamic"),
+    )
+
+
 # WikiAttachmentLink Model
 class WikiAttachmentLinkDBModel(BaseDBModel):
     __tablename__ = "wiki_attachment_links"
@@ -312,6 +464,31 @@ class PipelineVariableDBModel(BaseDBModel):
     key = Column(String, nullable=True)
     variable_type = Column(String, nullable=True)
     value = Column(String, nullable=True)
+
+
+pipeline_variables_association = Table(
+    "pipeline_variables_association",
+    BaseDBModel.metadata,
+    Column(
+        "pipeline_variable_collection_id",
+        Integer,
+        ForeignKey("pipeline_variable_collection.id"),
+    ),
+    Column("pipeline_variable_id", Integer, ForeignKey("pipeline_variables.id")),
+)
+
+
+# PipelineVariables Collection Model
+class PipelineVariablesDBModel(BaseDBModel):
+    __tablename__ = "pipeline_variable_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="PipelineVariables")
+    pipeline_variable = relationship(
+        "PipelineVariableDBModel",
+        secondary=pipeline_variables_association,
+        backref=backref("pipeline_variable_collection", lazy="dynamic"),
+    )
 
 
 # WikiAttachment Model
@@ -470,6 +647,27 @@ class ReleaseDBModel(BaseDBModel):
     )
 
 
+releases_association = Table(
+    "releases_association",
+    BaseDBModel.metadata,
+    Column("releases_collection_id", Integer, ForeignKey("releases_collection.id")),
+    Column("releases_id", Integer, ForeignKey("releases.id")),
+)
+
+
+# Releases Collection Model
+class ReleasesDBModel(BaseDBModel):
+    __tablename__ = "releases_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Releases")
+    releases = relationship(
+        "ReleaseDBModel",
+        secondary=releases_association,
+        backref=backref("releases_collection", lazy="dynamic"),
+    )
+
+
 # AccessLevel Model
 class AccessLevelDBModel(BaseDBModel):
     __tablename__ = "access_levels"
@@ -498,6 +696,31 @@ class AccessLevelDBModel(BaseDBModel):
         argument="GroupDBModel",
         foreign_keys=[group_id],
         backref=backref("access_levels"),
+    )
+
+
+access_levels_association = Table(
+    "access_levels_association",
+    BaseDBModel.metadata,
+    Column(
+        "access_levels_collection_id",
+        Integer,
+        ForeignKey("access_levels_collection.id"),
+    ),
+    Column("access_levels_id", Integer, ForeignKey("access_levels.id")),
+)
+
+
+# AccessLevels Collection Model
+class AccessLevelsDBModel(BaseDBModel):
+    __tablename__ = "access_levels_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="AccessLevels")
+    access_levels = relationship(
+        "AccessLevelDBModel",
+        secondary=access_levels_association,
+        backref=backref("access_levels_collection", lazy="dynamic"),
     )
 
 
@@ -560,6 +783,27 @@ class BranchDBModel(BaseDBModel):
     )
 
 
+branches_association = Table(
+    "branches_association",
+    BaseDBModel.metadata,
+    Column("branches_collection_id", Integer, ForeignKey("branches_collection.id")),
+    Column("branches_id", Integer, ForeignKey("branches.id")),
+)
+
+
+# Branches Collection Model
+class BranchesDBModel(BaseDBModel):
+    __tablename__ = "branches_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Branches")
+    branches = relationship(
+        "BranchDBModel",
+        secondary=branches_association,
+        backref=backref("branches_collection", lazy="dynamic"),
+    )
+
+
 labels_association = Table(
     "labels_association",
     BaseDBModel.metadata,
@@ -611,6 +855,26 @@ class TopicDBModel(BaseDBModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     base_type = Column(String, default="Topic")
     name = Column(String, nullable=False)
+
+
+topics_association = Table(
+    "topics_association",
+    BaseDBModel.metadata,
+    Column("topics_collection_id", Integer, ForeignKey("topics_collection.id")),
+    Column("topics_id", Integer, ForeignKey("topics.id")),
+)
+
+
+class TopicsDBModel(BaseDBModel):
+    __tablename__ = "topics_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Topics")
+    topics = relationship(
+        "TopicDBModel",
+        secondary=topics_association,
+        backref=backref("topics_collection", lazy="dynamic"),
+    )
 
 
 tags_association = Table(
@@ -710,6 +974,30 @@ class ApprovalRuleDBModel(BaseDBModel):
         argument="UserDBModel",
         foreign_keys=[approved_by_id],
         backref=backref("approval_rules_approved_by"),
+    )
+
+
+approval_rules_association = Table(
+    "approval_rules_association",
+    BaseDBModel.metadata,
+    Column(
+        "approval_rules_collection_id",
+        Integer,
+        ForeignKey("approval_rules_collection.id"),
+    ),
+    Column("approval_rules_id", Integer, ForeignKey("approval_rules.id")),
+)
+
+
+class ApprovalRulesDBModel(BaseDBModel):
+    __tablename__ = "approval_rules_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="ApprovalRules")
+    approval_rules = relationship(
+        "ApprovalRuleDBModel",
+        secondary=approval_rules_association,
+        backref=backref("approval_rules_collection", lazy="dynamic"),
     )
 
 
@@ -988,6 +1276,30 @@ class MergeRequestDBModel(BaseDBModel):
     )
 
 
+merge_requests_association = Table(
+    "merge_requests_association",
+    BaseDBModel.metadata,
+    Column(
+        "merge_requests_collection_id",
+        Integer,
+        ForeignKey("merge_requests_collection.id"),
+    ),
+    Column("merge_requests_id", Integer, ForeignKey("merge_requests.id")),
+)
+
+
+class MergeRequestsDBModel(BaseDBModel):
+    __tablename__ = "merge_requests_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="MergeRequests")
+    merge_requests = relationship(
+        "MergeRequestDBModel",
+        secondary=merge_requests_association,
+        backref=backref("merge_requests_collection", lazy="dynamic"),
+    )
+
+
 # GroupAccess Model
 class GroupAccessDBModel(BaseDBModel):
     __tablename__ = "group_accesses"
@@ -995,6 +1307,30 @@ class GroupAccessDBModel(BaseDBModel):
     id = Column(Integer, primary_key=True)
     base_type = Column(String, default="GroupAccess")
     access_level = Column(Integer, nullable=True)
+
+
+group_accesses_association = Table(
+    "group_accesses_association",
+    BaseDBModel.metadata,
+    Column(
+        "group_accesses_collection_id",
+        Integer,
+        ForeignKey("group_accesses_collection.id"),
+    ),
+    Column("group_accesses_id", Integer, ForeignKey("group_accesses.id")),
+)
+
+
+class GroupAccessesDBModel(BaseDBModel):
+    __tablename__ = "group_accesses_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="GroupAccesses")
+    group_accesses = relationship(
+        "GroupAccessDBModel",
+        secondary=group_accesses_association,
+        backref=backref("group_accesses_collection", lazy="dynamic"),
+    )
 
 
 # DefaultBranchProtectionDefaults Model
@@ -1127,6 +1463,31 @@ class GroupDBModel(BaseDBModel):
     )
 
 
+groups_association = Table(
+    "groups_association",
+    BaseDBModel.metadata,
+    Column("group_id", Integer, ForeignKey("groups.id"), primary_key=True),
+    Column(
+        "groups_collection_id",
+        Integer,
+        ForeignKey("groups_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
+class GroupsDBModel(BaseDBModel):
+    __tablename__ = "groups_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Groups")
+    groups = relationship(
+        "GroupDBModel",
+        secondary=groups_association,
+        backref=backref("groups_collection", lazy="dynamic"),
+    )
+
+
 # Webhook Model
 class WebhookDBModel(BaseDBModel):
     __tablename__ = "webhooks"
@@ -1165,6 +1526,26 @@ class WebhookDBModel(BaseDBModel):
     )
     group = relationship(
         argument="GroupDBModel", foreign_keys=[group_id], backref=backref("webhooks")
+    )
+
+
+webhooks_association = Table(
+    "webhooks_association",
+    BaseDBModel.metadata,
+    Column("webhooks_collection_id", Integer, ForeignKey("webhooks_collection.id")),
+    Column("webhooks_id", Integer, ForeignKey("webhooks.id")),
+)
+
+
+class WebhooksDBModel(BaseDBModel):
+    __tablename__ = "webhooks_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Webhooks")
+    webhooks = relationship(
+        "WebhookDBModel",
+        secondary=webhooks_association,
+        backref=backref("webhooks_collection", lazy="dynamic"),
     )
 
 
@@ -1215,7 +1596,7 @@ project_shared_with_groups = Table(
     "project_shared_with_groups",
     BaseDBModel.metadata,
     Column("project_id", Integer, ForeignKey("projects.id")),
-    Column("group_id", Integer, ForeignKey("groups.id")),
+    Column("groups_id", Integer, ForeignKey("groups_collection.id")),
 )
 
 
@@ -1390,9 +1771,29 @@ class ProjectDBModel(BaseDBModel):
         backref="project_permissions",
     )
     shared_with_groups = relationship(
-        "GroupDBModel",
+        argument="GroupsDBModel",
         secondary=project_shared_with_groups,
-        backref="project_shared_with_groups",
+        backref=backref("project_shared_with_groups"),
+    )
+
+
+projects_association = Table(
+    "projects_association",
+    BaseDBModel.metadata,
+    Column("projects_collection_id", Integer, ForeignKey("projects_collection.id")),
+    Column("projects_id", Integer, ForeignKey("projects.id")),
+)
+
+
+class ProjectsDBModel(BaseDBModel):
+    __tablename__ = "projects_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Projects")
+    projects = relationship(
+        "ProjectDBModel",
+        secondary=projects_association,
+        backref=backref("projects_collection", lazy="dynamic"),
     )
 
 
@@ -1433,6 +1834,34 @@ class RunnerDBModel(BaseDBModel):
     )
 
 
+runners_association = Table(
+    "runners_association",
+    BaseDBModel.metadata,
+    Column("runners_collection_id", Integer, ForeignKey("runners_collection.id")),
+    Column("runners_id", Integer, ForeignKey("runners.id")),
+)
+
+
+class RunnersDBModel(BaseDBModel):
+    __tablename__ = "runners_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Runners")
+    runners = relationship(
+        "RunnerDBModel",
+        secondary=runners_association,
+        backref=backref("runners_collection", lazy="dynamic"),
+    )
+
+
+job_tags_association = Table(
+    "job_tags_association",
+    BaseDBModel.metadata,
+    Column("job_id", Integer, ForeignKey("jobs.id")),
+    Column("tags_collection_id", Integer, ForeignKey("tags_collection.id")),
+)
+
+
 # Job Model
 class JobDBModel(BaseDBModel):
     __tablename__ = "jobs"
@@ -1456,14 +1885,10 @@ class JobDBModel(BaseDBModel):
     failure_reason = Column(String, nullable=True)
     tag = Column(Boolean, nullable=True)
     web_url = Column(String, nullable=True)
-    tag_list_id = Column(
-        Integer,
-        ForeignKey(column="tags_collection.id", name="fk_job_tags"),
-        nullable=True,
-    )
+
     tag_list = relationship(
         argument="TagsDBModel",
-        foreign_keys=[tag_list_id],
+        secondary=job_tags_association,
         backref=backref("job_tag_list"),
     )
 
@@ -1545,6 +1970,26 @@ class JobDBModel(BaseDBModel):
     )
 
 
+jobs_association = Table(
+    "jobs_association",
+    BaseDBModel.metadata,
+    Column("jobs_collection_id", Integer, ForeignKey("jobs_collection.id")),
+    Column("jobs_id", Integer, ForeignKey("jobs.id")),
+)
+
+
+class JobsDBModel(BaseDBModel):
+    __tablename__ = "jobs_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Jobs")
+    jobs = relationship(
+        "JobDBModel",
+        secondary=jobs_association,
+        backref=backref("jobs_collection", lazy="dynamic"),
+    )
+
+
 # Pipeline Model
 class PipelineDBModel(BaseDBModel):
     __tablename__ = "pipelines"
@@ -1600,6 +2045,26 @@ class PipelineDBModel(BaseDBModel):
     )
     jobs = relationship(
         argument="JobDBModel", foreign_keys=[job_id], backref=backref("pipeline_jobs")
+    )
+
+
+pipelines_association = Table(
+    "pipelines_association",
+    BaseDBModel.metadata,
+    Column("pipelines_collection_id", Integer, ForeignKey("pipelines_collection.id")),
+    Column("pipelines_id", Integer, ForeignKey("pipelines.id")),
+)
+
+
+class PipelinesDBModel(BaseDBModel):
+    __tablename__ = "pipelines_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Pipelines")
+    pipelines = relationship(
+        "PipelineDBModel",
+        secondary=pipelines_association,
+        backref=backref("pipelines_collection", lazy="dynamic"),
     )
 
 
@@ -1695,6 +2160,26 @@ class PackageDBModel(BaseDBModel):
     )
 
 
+packages_association = Table(
+    "packages_association",
+    BaseDBModel.metadata,
+    Column("packages_collection_id", Integer, ForeignKey("packages_collection.id")),
+    Column("packages_id", Integer, ForeignKey("packages.id")),
+)
+
+
+class PackagesDBModel(BaseDBModel):
+    __tablename__ = "packages_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Packages")
+    packages = relationship(
+        "PackageDBModel",
+        secondary=packages_association,
+        backref=backref("packages_collection", lazy="dynamic"),
+    )
+
+
 # Contributor Model
 class ContributorDBModel(BaseDBModel):
     __tablename__ = "contributors"
@@ -1706,6 +2191,28 @@ class ContributorDBModel(BaseDBModel):
     commits = Column(Integer, nullable=True)
     additions = Column(Integer, nullable=True)
     deletions = Column(Integer, nullable=True)
+
+
+contributors_association = Table(
+    "contributors_association",
+    BaseDBModel.metadata,
+    Column(
+        "contributors_collection_id", Integer, ForeignKey("contributors_collection.id")
+    ),
+    Column("contributors_id", Integer, ForeignKey("contributors.id")),
+)
+
+
+class ContributorsDBModel(BaseDBModel):
+    __tablename__ = "contributors_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Contributors")
+    contributors = relationship(
+        "ContributorDBModel",
+        secondary=contributors_association,
+        backref=backref("contributors_collection", lazy="dynamic"),
+    )
 
 
 # CommitStats Model
@@ -1777,6 +2284,26 @@ class CommentDBModel(BaseDBModel):
         argument="CommitDBModel",
         foreign_keys=[commits_id],
         backref=backref("commit_comments"),
+    )
+
+
+comments_association = Table(
+    "comments_association",
+    BaseDBModel.metadata,
+    Column("comments_collection_id", Integer, ForeignKey("comments_collection.id")),
+    Column("comments_id", Integer, ForeignKey("comments.id")),
+)
+
+
+class CommentsDBModel(BaseDBModel):
+    __tablename__ = "comments_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Comments")
+    comments = relationship(
+        "CommentDBModel",
+        secondary=comments_association,
+        backref=backref("comments_collection", lazy="dynamic"),
     )
 
 
@@ -1909,6 +2436,26 @@ class CommitDBModel(BaseDBModel):
     )
 
 
+commits_association = Table(
+    "commits_association",
+    BaseDBModel.metadata,
+    Column("commits_collection_id", String, ForeignKey("commits_collection.id")),
+    Column("commits_id", String, ForeignKey("commits.id")),
+)
+
+
+class CommitsDBModel(BaseDBModel):
+    __tablename__ = "commits_collection"
+
+    id = Column(String, primary_key=True)
+    base_type = Column(String, default="Commits")
+    commits = relationship(
+        "CommitDBModel",
+        secondary=commits_association,
+        backref=backref("commits_collection", lazy="dynamic"),
+    )
+
+
 # Membership Model
 class MembershipDBModel(BaseDBModel):
     __tablename__ = "memberships"
@@ -1921,6 +2468,28 @@ class MembershipDBModel(BaseDBModel):
     created_at = Column(DateTime, nullable=True)
     expires_at = Column(DateTime, nullable=True)
     access_level = Column(JSON, nullable=True)
+
+
+memberships_association = Table(
+    "memberships_association",
+    BaseDBModel.metadata,
+    Column(
+        "memberships_collection_id", Integer, ForeignKey("memberships_collection.id")
+    ),
+    Column("memberships_id", Integer, ForeignKey("memberships.id")),
+)
+
+
+class MembershipsDBModel(BaseDBModel):
+    __tablename__ = "memberships_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Memberships")
+    memberships = relationship(
+        "MembershipDBModel",
+        secondary=memberships_association,
+        backref=backref("memberships_collection", lazy="dynamic"),
+    )
 
 
 # Issue Model
@@ -2011,6 +2580,26 @@ class IssueDBModel(BaseDBModel):
     )
     iteration = relationship(argument="IterationDBModel", backref=backref("issues"))
     epic = relationship(argument="EpicDBModel", backref=backref("issues"))
+
+
+issues_association = Table(
+    "issues_association",
+    BaseDBModel.metadata,
+    Column("issues_collection_id", Integer, ForeignKey("issues_collection.id")),
+    Column("issues_id", Integer, ForeignKey("issues.id")),
+)
+
+
+class IssuesDBModel(BaseDBModel):
+    __tablename__ = "issues_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Issues")
+    issues = relationship(
+        "IssueDBModel",
+        secondary=issues_association,
+        backref=backref("issues_collection", lazy="dynamic"),
+    )
 
 
 # TimeStats Model
@@ -2161,6 +2750,29 @@ class IdentityDBModel(BaseDBModel):
     )
     user = relationship(
         argument="UserDBModel", foreign_keys=[user_id], backref=backref("identities")
+    )
+
+identities_association = Table(
+    "identities_association",
+    BaseDBModel.metadata,
+    Column("identities_id", Integer, ForeignKey("identities.id"), primary_key=True),
+    Column(
+        "identities_collection_id",
+        Integer,
+        ForeignKey("identities_collection.id"),
+        primary_key=True,
+    ),
+)
+
+class IdentitiesDBModel(BaseDBModel):
+    __tablename__ = "identities_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Identities")
+    identities = relationship(
+        "IdentityDBModel",
+        secondary=identities_association,
+        backref=backref("identities_collection", lazy="dynamic"),
     )
 
 
@@ -2343,6 +2955,31 @@ class NamespaceDBModel(BaseDBModel):
     )
 
 
+namespaces_association = Table(
+    "namespaces_association",
+    BaseDBModel.metadata,
+    Column("namespaces_id", Integer, ForeignKey("namespaces.id"), primary_key=True),
+    Column(
+        "namespaces_collection_id",
+        Integer,
+        ForeignKey("namespaces_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
+class NamespacesDBModel(BaseDBModel):
+    __tablename__ = "namespaces_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Namespaces")
+    namespaces = relationship(
+        "NamespacesDBModel",
+        secondary=namespaces_association,
+        backref=backref("namespaces_collection", lazy="dynamic"),
+    )
+
+
 # ContainerExpirationPolicy Model
 class ContainerExpirationPolicyDBModel(BaseDBModel):
     __tablename__ = "container_expiration_policies"
@@ -2386,26 +3023,6 @@ class StatisticsDBModel(BaseDBModel):
     uploads_size = Column(Integer, nullable=True)
 
 
-# Links Model
-class LinksDBModel(BaseDBModel):
-    __tablename__ = "links"
-
-    id = Column(Integer, primary_key=True)
-    base_type = Column(String, default="Links")
-    self_link = Column(String, nullable=True)
-    issues = Column(String, nullable=True)
-    merge_requests = Column(String, nullable=True)
-    repo_branches = Column(String, nullable=True)
-    labels = Column(String, nullable=True)
-    events = Column(String, nullable=True)
-    members = Column(String, nullable=True)
-    cluster_agents = Column(String, nullable=True)
-    notes = Column(String, nullable=True)
-    award_emoji = Column(String, nullable=True)
-    project = Column(String, nullable=True)
-    closed_as_duplicate_of = Column(String, nullable=True)
-
-
 # Diff Model
 class DiffDBModel(BaseDBModel):
     __tablename__ = "diffs"
@@ -2438,6 +3055,31 @@ class DiffDBModel(BaseDBModel):
         argument="MergeRequestDBModel",
         foreign_keys=[merge_request_id],
         backref=backref("diffs"),
+    )
+
+
+diffs_association = Table(
+    "diffs_association",
+    BaseDBModel.metadata,
+    Column("diffs_id", Integer, ForeignKey("diffs.id"), primary_key=True),
+    Column(
+        "diffs_collection_id",
+        Integer,
+        ForeignKey("diffs_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
+class DiffsDBModel(BaseDBModel):
+    __tablename__ = "diffs_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Diffs")
+    diffs = relationship(
+        "DiffDBModel",
+        secondary=diffs_association,
+        backref=backref("diffs_collection", lazy="dynamic"),
     )
 
 
@@ -2575,6 +3217,31 @@ class TestCaseDBModel(BaseDBModel):
     stack_trace = Column(String, nullable=True)
 
 
+test_cases_association = Table(
+    "test_cases_association",
+    BaseDBModel.metadata,
+    Column("test_cases_id", Integer, ForeignKey("test_cases.id"), primary_key=True),
+    Column(
+        "test_cases_collection_id",
+        Integer,
+        ForeignKey("test_cases_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
+class TestCasesDBModel(BaseDBModel):
+    __tablename__ = "test_cases_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="TestCases")
+    test_cases = relationship(
+        "TestCaseDBModel",
+        secondary=test_cases_association,
+        backref=backref("test_cases_collection", lazy="dynamic"),
+    )
+
+
 # TestSuite Model
 class TestSuiteDBModel(BaseDBModel):
     __tablename__ = "test_suites"
@@ -2599,6 +3266,30 @@ class TestSuiteDBModel(BaseDBModel):
         argument="TestCaseDBModel",
         foreign_keys=[test_cases_id],
         backref=backref("test_suites"),
+    )
+
+
+test_suites_association = Table(
+    "test_suites_association",
+    BaseDBModel.metadata,
+    Column("test_suites_id", Integer, ForeignKey("test_suites.id"), primary_key=True),
+    Column(
+        "test_suites_collection_id",
+        Integer,
+        ForeignKey("test_suites_collection.id"),
+        primary_key=True,
+    ),
+)
+
+class TestSuitesDBModel(BaseDBModel):
+    __tablename__ = "test_suites_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="TestSuites")
+    test_suites = relationship(
+        "TestSuiteDBModel",
+        secondary=test_suites_association,
+        backref=backref("test_cases_collection", lazy="dynamic"),
     )
 
 

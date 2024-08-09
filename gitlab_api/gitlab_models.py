@@ -33,78 +33,110 @@ except ModuleNotFoundError:
     )
 
 from gitlab_api.gitlab_db_models import (
-    DeployTokenDBModel,
-    RuleDBModel,
     AccessControlDBModel,
-    SourcesDBModel,
-    LinkDBModel,
-    AssetsDBModel,
-    EvidenceDBModel,
-    ReleaseLinksDBModel,
-    TokenDBModel,
-    ToDoDBModel,
-    WikiPageDBModel,
-    WikiAttachmentLinkDBModel,
-    WikiAttachmentDBModel,
+    AccessLevelDBModel,
+    AccessLevelsDBModel,
     AgentDBModel,
+    AgentsDBModel,
+    ApprovalRuleDBModel,
+    ApprovalRulesDBModel,
+    ArtifactDBModel,
+    ArtifactsDBModel,
+    ArtifactsFileDBModel,
+    AssetsDBModel,
+    BranchDBModel,
+    BranchesDBModel,
+    CommentDBModel,
+    CommentsDBModel,
+    CommitDBModel,
+    CommitsDBModel,
+    CommitSignatureDBModel,
+    CommitStatsDBModel,
+    ConfigurationDBModel,
+    ContainerExpirationPolicyDBModel,
+    ContributorDBModel,
+    ContributorsDBModel,
+    DefaultBranchProtectionDefaultsDBModel,
+    DeployTokenDBModel,
+    DeployTokensDBModel,
+    DetailedStatusDBModel,
+    DiffDBModel,
+    DiffsDBModel,
+    EpicDBModel,
+    EvidenceDBModel,
+    EvidencesDBModel,
+    GroupAccessDBModel,
+    GroupAccessesDBModel,
+    GroupDBModel,
+    GroupsDBModel,
+    GroupSamlIdentityDBModel,
+    IdentityDBModel,
+    IdentitiesDBModel,
+    IssueDBModel,
+    IssuesDBModel,
+    IssueStatsDBModel,
+    IterationDBModel,
+    JobDBModel,
+    JobsDBModel,
     LabelDBModel,
     LabelsDBModel,
-    AgentsDBModel,
-    ReleaseDBModel,
-    BranchDBModel,
-    ApprovalRuleDBModel,
-    MergeRequestDBModel,
-    GroupAccessDBModel,
-    DefaultBranchProtectionDefaultsDBModel,
-    GroupDBModel,
-    WebhookDBModel,
-    AccessLevelDBModel,
-    ProjectDBModel,
-    RunnerDBModel,
-    EpicDBModel,
-    IssueDBModel,
-    JobDBModel,
-    PipelineDBModel,
-    PipelineVariableDBModel,
-    PackageLinkDBModel,
-    PackageVersionDBModel,
-    ProjectConfigDBModel,
-    PackageDBModel,
-    ContributorDBModel,
-    CommitStatsDBModel,
-    CommitSignatureDBModel,
-    CommentDBModel,
-    CommitDBModel,
+    LinkDBModel,
+    LinksDBModel,
+    LinksListDBModel,
     MembershipDBModel,
+    MembershipsDBModel,
+    MergeApprovalsDBModel,
+    MergeRequestDBModel,
+    MergeRequestsDBModel,
+    MilestoneDBModel,
+    MilestonesDBModel,
+    NamespaceDBModel,
+    NamespacesDBModel,
+    PackageDBModel,
+    PackageLinkDBModel,
+    PackagesDBModel,
+    PackageVersionDBModel,
+    ParentIDDBModel,
+    ParentIDsDBModel,
+    PermissionsDBModel,
+    PipelineDBModel,
+    PipelinesDBModel,
+    PipelineVariableDBModel,
+    PipelineVariablesDBModel,
+    ProjectConfigDBModel,
+    ProjectDBModel,
+    ProjectsDBModel,
+    ReferencesDBModel,
+    ReleaseDBModel,
+    ReleasesDBModel,
+    ReleaseLinksDBModel,
+    RuleDBModel,
+    RunnerDBModel,
+    RunnersDBModel,
+    RunnerManagerDBModel,
+    SourcesDBModel,
+    StatisticsDBModel,
+    TagDBModel,
+    TagsDBModel,
+    TaskCompletionStatusDBModel,
     TestCaseDBModel,
-    TestSuiteDBModel,
+    TestCasesDBModel,
     TestReportDBModel,
     TestReportTotalDBModel,
-    MergeApprovalsDBModel,
-    IssueStatsDBModel,
-    MilestoneDBModel,
+    TestSuiteDBModel,
+    TestSuitesDBModel,
     TimeStatsDBModel,
-    TaskCompletionStatusDBModel,
-    ReferencesDBModel,
-    ArtifactDBModel,
-    ArtifactsFileDBModel,
-    RunnerManagerDBModel,
-    ConfigurationDBModel,
-    TagDBModel,
+    ToDoDBModel,
+    TokenDBModel,
     TopicDBModel,
-    IterationDBModel,
-    IdentityDBModel,
-    GroupSamlIdentityDBModel,
+    TopicsDBModel,
     UserDBModel,
     UsersDBModel,
-    ParentIDDBModel,
-    NamespaceDBModel,
-    ContainerExpirationPolicyDBModel,
-    PermissionsDBModel,
-    StatisticsDBModel,
-    LinksDBModel,
-    DiffDBModel,
-    DetailedStatusDBModel,
+    WebhookDBModel,
+    WikiAttachmentDBModel,
+    WikiAttachmentLinkDBModel,
+    WikiPageDBModel,
+    WikiPagesDBModel,
 )
 
 
@@ -2968,6 +3000,9 @@ class Milestone(BaseModel):
 
 
 class Milestones(BaseModel):
+    class Meta:
+        orm_model = MilestonesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Milestones")
@@ -3052,6 +3087,9 @@ class Artifact(BaseModel):
 
 
 class Artifacts(BaseModel):
+    class Meta:
+        orm_model = ArtifactsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Artifacts")
@@ -3177,6 +3215,9 @@ class Identity(BaseModel):
 
 
 class Identities(BaseModel):
+    class Meta:
+        orm_model = IdentitiesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Identities")
@@ -3423,6 +3464,8 @@ class Namespace(BaseModel):
 
 
 class Namespaces(BaseModel):
+    class Meta:
+        orm_model = NamespacesDBModel
 
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
@@ -3510,52 +3553,6 @@ class Statistics(BaseModel):
     )
 
 
-class Links(BaseModel):
-    class Meta:
-        orm_model = LinksDBModel
-
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="Links")
-    self_link: Optional[str] = Field(
-        default=None, alias="self", description="URL to the project itself."
-    )
-    issues: Optional[str] = Field(
-        default=None, description="URL to the project's issues."
-    )
-    merge_requests: Optional[str] = Field(
-        default=None, description="URL to the project's merge requests."
-    )
-    repo_branches: Optional[str] = Field(
-        default=None, description="URL to the project's repository branches."
-    )
-    labels: Optional[str] = Field(
-        default=None, description="URL to the project's labels."
-    )
-    events: Optional[str] = Field(
-        default=None, description="URL to the project's events."
-    )
-    members: Optional[str] = Field(
-        default=None, description="URL to the project's members."
-    )
-    cluster_agents: Optional[str] = Field(
-        default=None, description="URL to the project's cluster agents."
-    )
-    notes: Optional[str] = Field(
-        default=None, description="API URL to the notes of the issue."
-    )
-    award_emoji: Optional[str] = Field(
-        default=None, description="API URL to the award emojis of the issue."
-    )
-    project: Optional[str] = Field(
-        default=None, description="API URL to the project of the issue."
-    )
-    closed_as_duplicate_of: Optional[str] = Field(
-        default=None,
-        description="API URL to the issue this one was closed as duplicate of.",
-    )
-
-
 class Diff(BaseModel):
     class Meta:
         orm_model = DiffDBModel
@@ -3614,6 +3611,9 @@ class Diff(BaseModel):
 
 
 class Diffs(BaseModel):
+    class Meta:
+        orm_model = DiffsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Diffs")
@@ -3723,6 +3723,9 @@ class Pipeline(BaseModel):
 
 
 class Pipelines(BaseModel):
+    class Meta:
+        orm_model = PipelinesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Pipelines")
@@ -3841,6 +3844,9 @@ class Package(BaseModel):
 
 
 class Packages(BaseModel):
+    class Meta:
+        orm_model = PackagesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Packages")
@@ -3866,6 +3872,9 @@ class Contributor(BaseModel):
 
 
 class Contributors(BaseModel):
+    class Meta:
+        orm_model = ContributorsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Contributors")
@@ -3978,6 +3987,9 @@ class Comment(BaseModel):
 
 
 class Comments(BaseModel):
+    class Meta:
+        orm_model = CommentsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Comments")
@@ -3995,6 +4007,9 @@ class ParentID(BaseModel):
 
 
 class ParentIDs(BaseModel):
+    class Meta:
+        orm_model = ParentIDsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="ParentIDs")
@@ -4121,6 +4136,9 @@ class Commit(BaseModel):
 
 
 class Commits(BaseModel):
+    class Meta:
+        orm_model = CommitsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Commits")
@@ -4156,6 +4174,9 @@ class Membership(BaseModel):
 
 
 class Memberships(BaseModel):
+    class Meta:
+        orm_model = MembershipsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Memberships")
@@ -4195,6 +4216,9 @@ class Tag(BaseModel):
 
 
 class Tags(BaseModel):
+    class Meta:
+        orm_model = TagsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Tags")
@@ -4212,10 +4236,86 @@ class Topic(BaseModel):
 
 
 class Topics(BaseModel):
+    class Meta:
+        orm_model = TopicsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Topics")
     topics: Optional[List[Topic]] = Field(default=None, description="List of topics")
+
+
+class Link(BaseModel):
+    class Meta:
+        orm_model = LinkDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Link")
+    id: Optional[int] = Field(default=None, description="Link ID")
+    name: Optional[str] = Field(default=None, description="Name of the link")
+    url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="URL of the link"
+    )
+    link_type: Optional[str] = Field(
+        default=None, description="Type of the link (e.g., other)"
+    )
+
+
+class Links(BaseModel):
+    class Meta:
+        orm_model = LinksDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="Links")
+    self_link: Optional[str] = Field(
+        default=None, alias="self", description="URL to the project itself."
+    )
+    issues: Optional[str] = Field(
+        default=None, description="URL to the project's issues."
+    )
+    merge_requests: Optional[str] = Field(
+        default=None, description="URL to the project's merge requests."
+    )
+    repo_branches: Optional[str] = Field(
+        default=None, description="URL to the project's repository branches."
+    )
+    labels: Optional[str] = Field(
+        default=None, description="URL to the project's labels."
+    )
+    events: Optional[str] = Field(
+        default=None, description="URL to the project's events."
+    )
+    members: Optional[str] = Field(
+        default=None, description="URL to the project's members."
+    )
+    cluster_agents: Optional[str] = Field(
+        default=None, description="URL to the project's cluster agents."
+    )
+    notes: Optional[str] = Field(
+        default=None, description="API URL to the notes of the issue."
+    )
+    award_emoji: Optional[str] = Field(
+        default=None, description="API URL to the award emojis of the issue."
+    )
+    project: Optional[str] = Field(
+        default=None, description="API URL to the project of the issue."
+    )
+    closed_as_duplicate_of: Optional[str] = Field(
+        default=None,
+        description="API URL to the issue this one was closed as duplicate of.",
+    )
+
+
+class LinksList(BaseModel):
+    class Meta:
+        orm_model = LinksListDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="LinksList")
+    links: List[Link] = Field(default=None, description="List of links")
 
 
 class Project(BaseModel):
@@ -4651,6 +4751,9 @@ class Project(BaseModel):
 
 
 class Projects(BaseModel):
+    class Meta:
+        orm_model = ProjectsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Projects")
@@ -4728,6 +4831,9 @@ class Runner(BaseModel):
 
 
 class Runners(BaseModel):
+    class Meta:
+        orm_model = RunnersDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Runners")
@@ -4840,6 +4946,9 @@ class Job(BaseModel):
 
 
 class Jobs(BaseModel):
+    class Meta:
+        orm_model = JobsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Jobs")
@@ -4859,6 +4968,9 @@ class GroupAccess(BaseModel):
 
 
 class GroupAccesses(BaseModel):
+    class Meta:
+        orm_model = GroupAccessesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="GroupAccesses")
@@ -5083,6 +5195,9 @@ class Group(BaseModel):
 
 
 class Groups(BaseModel):
+    class Meta:
+        orm_model = GroupsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Groups")
@@ -5199,6 +5314,8 @@ class AccessLevel(BaseModel):
 
 
 class AccessLevels(BaseModel):
+    class Meta:
+        orm_model = AccessLevelsDBModel
 
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
@@ -5278,6 +5395,9 @@ class Branch(BaseModel):
 
 
 class Branches(BaseModel):
+    class Meta:
+        orm_model = BranchesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Branches")
@@ -5366,6 +5486,9 @@ class ApprovalRule(BaseModel):
 
 
 class ApprovalRules(BaseModel):
+    class Meta:
+        orm_model = ApprovalRulesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="ApprovalRules")
@@ -5657,6 +5780,9 @@ class MergeRequest(BaseModel):
 
 
 class MergeRequests(BaseModel):
+    class Meta:
+        orm_model = MergeRequestsDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="MergeRequests")
@@ -5836,6 +5962,9 @@ class Issue(BaseModel):
 
 
 class Issues(BaseModel):
+    class Meta:
+        orm_model = IssuesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Issues")
@@ -5857,6 +5986,9 @@ class PipelineVariable(BaseModel):
 
 
 class PipelineVariables(BaseModel):
+    class Meta:
+        orm_model = PipelineVariablesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="PipelineVariables")
@@ -5891,6 +6023,9 @@ class TestCase(BaseModel):
 
 
 class TestCases(BaseModel):
+    class Meta:
+        orm_model = TestCasesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="TestCases")
@@ -5946,6 +6081,9 @@ class TestSuite(BaseModel):
 
 
 class TestSuites(BaseModel):
+    class Meta:
+        orm_model = TestSuitesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="TestSuites")
@@ -6120,6 +6258,9 @@ class DeployToken(BaseModel):
 
 
 class DeployTokens(BaseModel):
+    class Meta:
+        orm_model = DeployTokensDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="DeployTokens")
@@ -6207,35 +6348,13 @@ class Source(BaseModel):
 
 
 class Sources(BaseModel):
+    class Meta:
+        orm_model = SourcesDBModel
 
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Sources")
     sources: Optional[List[Source]] = Field(default=None, description="List of Sources")
-
-
-class Link(BaseModel):
-    class Meta:
-        orm_model = LinkDBModel
-
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="Link")
-    id: Optional[int] = Field(default=None, description="Link ID")
-    name: Optional[str] = Field(default=None, description="Name of the link")
-    url: Optional[Union[HttpUrl, str]] = Field(
-        default=None, description="URL of the link"
-    )
-    link_type: Optional[str] = Field(
-        default=None, description="Type of the link (e.g., other)"
-    )
-
-
-class LinksList(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="LinksList")
-    links: List[Link] = Field(default=None, description="List of links")
 
 
 class Assets(BaseModel):
@@ -6296,6 +6415,9 @@ class Evidence(BaseModel):
 
 
 class Evidences(BaseModel):
+    class Meta:
+        orm_model = EvidencesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Evidences")
@@ -6400,6 +6522,9 @@ class Release(BaseModel):
 
 
 class Releases(BaseModel):
+    class Meta:
+        orm_model = ReleasesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Releases")
@@ -6468,6 +6593,9 @@ class WikiPage(BaseModel):
 
 
 class WikiPages(BaseModel):
+    class Meta:
+        orm_model = WikiPagesDBModel
+
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="WikiPages")

@@ -83,10 +83,7 @@ if __name__ == "__main__":
             f"Pipeline Jobs ({len(pipeline_job_response.data.jobs)}) Fetched for Project ({project.id}) - "
             f"Status: {pipeline_job_response.status_code}\n\n"
         )
-        print(
-            f"Inserting Pipeline Job {pipeline_job_response}\n\n"
-            f"Data: {pipeline_job_response.data}"
-        )
+        break
 
     print("Inserting Users Into Database...")
     upsert(session=session, response=user_response)

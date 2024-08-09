@@ -6,6 +6,7 @@ from typing import Union, List, Any, Dict
 from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.collections import InstrumentedList
 from sqlalchemy.orm.dynamic import AppenderQuery
+from sqlalchemy.engine import reflection
 import requests
 
 try:
@@ -85,6 +86,31 @@ def get_related_model(sqlalchemy_model, key, value):
     raise ValueError(f"Unable to find related model for key: {key}")
 
 
+def validate(key, value, session, sqlalchemy_model):
+    if isinstance(value, list):
+        logging.debug(f"\n\nValue that is a list: {value} for key: {key}")
+        related_models = validate_list(list_object=value, session=session)
+        new_model = related_models
+        logging.debug(f"\n\nSQLAlchemy List Model Set: {related_models}")
+    elif isinstance(value, dict):
+        logging.debug(f"\n\nValue that is a dict: {value} for key: {key}")
+        related_model = validate_dict(
+            dictionary=value,
+            parent_key=key,
+            sqlalchemy_model=sqlalchemy_model,
+            session=session,
+        )
+        logging.debug(f"\n\nSetting Related Model: {related_model} for {key}")
+        new_model = related_model
+        logging.debug(f"\n\nSQLAlchemy Dict Model Set: {related_model}")
+    else:
+        logging.debug(f"\n\nImmediately Setting Attribute: {value}")
+        new_model = value
+        logging.debug(f"\n\nImmediately Set Attribute: {value}")
+
+    return new_model
+
+
 def validate_list(list_object: List, session) -> List:
     related_models = [
         (
@@ -126,7 +152,6 @@ def validate_dict(
             tag_model = TagDBModel(**tag)
             session.add(tag_model)
             tags.append(tag_model)
-            logging.debug(f"\n\nADDED TAG: {tag_model}")
         if tags:
             tags_model = TagsDBModel(tags=tags)
             session.add(tags_model)
@@ -148,7 +173,6 @@ def validate_dict(
         dictionary.pop("trailers", None)
         dictionary.pop("extended_trailers", None)
         setattr(related_sqlalchemy_model, "parent_ids", parent_ids_model)
-        logging.debug(f"\n\nPARENT IDs ON COMMIT MODEL: {related_sqlalchemy_model.parent_ids}")
     if related_sqlalchemy_model == ArtifactsDBModel:
         artifacts = []
         for artifact in dictionary["artifacts"]:
@@ -181,26 +205,10 @@ def pydantic_to_sqlalchemy(pydantic_model, session):
     sqlalchemy_instance = sqlalchemy_model()
     for key, value in pydantic_model.model_dump(exclude_unset=True).items():
         if value:
-            if isinstance(value, list):
-                logging.debug(f"\n\nValue that is a list: {value} for key: {key}")
-                related_models = validate_list(list_object=value, session=session)
-                setattr(sqlalchemy_instance, key, related_models)
-                logging.debug(f"\n\nSQLAlchemy List Model Set: {related_models}")
-            elif isinstance(value, dict):
-                logging.debug(f"\n\nValue that is a dict: {value} for key: {key}")
-                related_model = validate_dict(
-                    dictionary=value,
-                    parent_key=key,
-                    sqlalchemy_model=sqlalchemy_model,
-                    session=session,
-                )
-                logging.debug(f"\n\nSetting Related Model: {related_model} for {key}")
-                setattr(sqlalchemy_instance, key, related_model)
-                logging.debug(f"\n\nSQLAlchemy Dict Model Set: {related_model}")
-            else:
-                logging.debug(f"\n\nImmediately Setting Attribute: {value}")
-                setattr(sqlalchemy_instance, key, value)
-                logging.debug(f"\n\nImmediately Set Attribute: {value}")
+            new_model = validate(
+                key=key, value=value, sqlalchemy_model=sqlalchemy_model, session=session
+            )
+            setattr(sqlalchemy_instance, key, new_model)
 
     logging.debug(f"\n\nCompleted Conversion for: {sqlalchemy_instance}")
     return sqlalchemy_instance
@@ -263,24 +271,25 @@ def upsert_row(session, db_model, processed_models=None):
     # Upsert nested models first
     upsert_nested_models(session, db_model)
 
-    # Now handle the main model
-    existing_model = session.query(model_type).filter_by(id=db_model.id).first()
-    if existing_model:
-        logging.debug(f"\n\nFound Existing Model: {existing_model}")
-        try:
-            for attr, value in db_model.__dict__.items():
-                if attr != "_sa_instance_state":
-                    setattr(existing_model, attr, value)
-        except Exception as e:
-            logging.debug(f"Unable to merge: {e}")
-        logging.debug(f"Merged {model_type.__name__} with ID {existing_model.id}")
-    else:
-        logging.debug(f"\nSetting Existing Model: {db_model}")
-        existing_model = db_model
-        session.add(existing_model)
-        logging.debug(f"\nInserted new {model_type.__name__} with ID {existing_model.id}")
+    # # Now handle the main model
+    # existing_model = session.query(model_type).filter_by(id=db_model.id).first()
+    # if existing_model:
+    #     logging.debug(f"\n\nFound Existing Model: {existing_model}")
+    #     try:
+    #         for attr, value in db_model.__dict__.items():
+    #             if attr != "_sa_instance_state":
+    #                 setattr(existing_model, attr, value)
+    #     except Exception as e:
+    #         logging.debug(f"Unable to merge: {e}")
+    #     logging.debug(f"Merged {model_type.__name__} with ID {existing_model.id}")
+    # else:
+    #     logging.debug(f"\nSetting Existing Model: {db_model}")
+    #     existing_model = db_model
+    #     session.add(existing_model)
+    #     logging.debug(f"\nInserted new {model_type.__name__} with ID {existing_model.id}")
 
     try:
+        existing_model = session.merge(db_model)
         session.commit()
         logging.debug("Committed Session!")
     except Exception as e:
@@ -290,3 +299,61 @@ def upsert_row(session, db_model, processed_models=None):
         )
 
     return existing_model
+
+
+# def upsert_row(session, db_model, processed_models=None):
+#     if db_model is None:
+#         return None
+#
+#     if processed_models is None:
+#         processed_models = set()
+#
+#     model_type = type(db_model)
+#     model_identifier = (model_type, db_model.id)
+#     logging.debug(f"Searching for {db_model.id} in {model_type}")
+#
+#     if model_identifier in processed_models:
+#         return None
+#
+#     processed_models.add(model_identifier)
+#
+#     # Function to upsert nested models
+#     def upsert_nested_models(session, db_model):
+#         related_models = []
+#         for relation in db_model.__mapper__.relationships:
+#             related_model = getattr(db_model, relation.key)
+#             if isinstance(related_model, InstrumentedList):
+#                 for item in related_model:
+#                     if item is not None:
+#                         related_models.append(item)
+#             elif related_model is not None:
+#                 related_models.append(related_model)
+#
+#         # Recursively upsert nested models first
+#         for related_model in related_models:
+#             upsert_row(session=session, db_model=related_model, processed_models=processed_models)
+#
+#     # Upsert nested models first
+#     upsert_nested_models(session, db_model)
+#
+#     # Now handle the main model using merge
+#     try:
+#         existing_model = session.merge(db_model)
+#         session.commit()
+#         logging.debug(f"Upserted {model_type.__name__} with ID {existing_model.id}")
+#     except Exception as e:
+#         session.rollback()
+#         logging.debug(f"Error inserting/updating {model_type.__name__} with ID {db_model.id}: {e}")
+#
+#     return existing_model
+
+
+def create_table(db_instance, engine):
+    inspector = reflection.Inspector.from_engine(engine)
+    table_name = db_instance.__table__.name
+
+    if not inspector.has_table(table_name):
+        db_instance.__table__.create(engine)
+        print(f"Table {table_name} created.")
+    else:
+        print(f"Table {table_name} already exists.")
