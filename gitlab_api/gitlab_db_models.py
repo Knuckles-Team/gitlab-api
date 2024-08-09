@@ -2752,6 +2752,7 @@ class IdentityDBModel(BaseDBModel):
         argument="UserDBModel", foreign_keys=[user_id], backref=backref("identities")
     )
 
+
 identities_association = Table(
     "identities_association",
     BaseDBModel.metadata,
@@ -2763,6 +2764,7 @@ identities_association = Table(
         primary_key=True,
     ),
 )
+
 
 class IdentitiesDBModel(BaseDBModel):
     __tablename__ = "identities_collection"
@@ -3280,6 +3282,7 @@ test_suites_association = Table(
         primary_key=True,
     ),
 )
+
 
 class TestSuitesDBModel(BaseDBModel):
     __tablename__ = "test_suites_collection"
