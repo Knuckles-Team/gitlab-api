@@ -363,16 +363,24 @@ def pydantic_to_sqlalchemy(schema):
 
 
 def upsert(model: Any, session):
-    if isinstance(model, list):
-        for item in model:
-            session.add(item)
-    else:
-        session.add(model)
-    try:
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        print(f"Error inserting/updating {model.__name__} with ID {model.id}: {e}")
+
+    for key, value in model.items():
+        if key == "base_type":
+            continue
+        print(f"SCANNING: {key}")
+        if isinstance(value, list):
+            for nested_item in value:
+                print(f"\n\nAdding Lists of models: {nested_item}")
+                session.add(nested_item)
+        else:
+            print(f"\n\nAdding models: {value}")
+            session.add(value)
+        try:
+            print("\n\nCommitting")
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            print(f"Error inserting/updating {value} with ID {value}: {e}")
 
 
 # def upsert(model: Any, session, indent: int = 0):

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import gitlab_api
-from gitlab_api.utils import pydantic_to_sqlalchemy
+from gitlab_api.utils import pydantic_to_sqlalchemy, upsert
 from gitlab_api.gitlab_db_models import BaseDBModel as Base
 import urllib3
 import os
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     # Namespaces table is a dependency table
     namespace_response = client.get_namespaces()
-    namespace_model = pydantic_to_sqlalchemy(schema=namespace_response.data)
+    namespace_db_model = pydantic_to_sqlalchemy(schema=namespace_response.data)
     print(
         f"Namespaces ({len(namespace_response.data.namespaces)}) Fetched - "
         f"Status: {namespace_response.status_code}\n"
@@ -81,32 +81,32 @@ if __name__ == "__main__":
         f"Status: {merge_request_response.status_code}\n\n"
     )
 
-    pipeline_db_models = []
-    for project in project_response.data.projects:
-        pipeline_job_response = client.get_project_jobs(project_id=project.id)
-        pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response.data)
-        pipeline_db_models.extend(pipeline_db_model)
-        print(
-            f"Pipeline Jobs ({len(pipeline_job_response.data.jobs)}) Fetched for Project ({project.id}) - "
-            f"Status: {pipeline_job_response.status_code}\n\n"
-        )
-        break
+    # pipeline_db_models = []
+    # for project in project_response.data.projects:
+    #     pipeline_job_response = client.get_project_jobs(project_id=project.id)
+    #     pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response.data)
+    #     pipeline_db_models.extend(pipeline_db_model)
+    #     print(
+    #         f"Pipeline Jobs ({len(pipeline_job_response.data.jobs)}) Fetched for Project ({project.id}) - "
+    #         f"Status: {pipeline_job_response.status_code}\n\n"
+    #     )
+    #     break
 
-    # print("Inserting Users Into Database...")
-    # upsert(session=session, model=user_db_model)
-    # print("Users Synchronization Complete!\n")
+    print("Inserting Users Into Database...")
+    upsert(session=session, model=user_db_model)
+    print("Users Synchronization Complete!\n")
 
-    # print("Inserting Namespaces Into Database...")
-    # upsert(session=session, model=namespace_db_model)
-    # print("Namespaces Synchronization Complete!\n")
-    #
-    # print("Inserting Projects Into Database...\n")
-    # upsert(session=session, model=project_db_model)
-    # print("Projects Synchronization Complete!\n")
-    # #
-    # print("Inserting Merge Requests Into Database...")
-    # upsert(session=session, model=merge_request_response.data)
-    # print("Merge Request Synchronization Complete!\n")
+    print("Inserting Namespaces Into Database...")
+    upsert(session=session, model=namespace_db_model)
+    print("Namespaces Synchronization Complete!\n")
+
+    print("Inserting Projects Into Database...\n")
+    upsert(session=session, model=project_db_model)
+    print("Projects Synchronization Complete!\n")
+
+    print("Inserting Merge Requests Into Database...")
+    upsert(session=session, model=merge_request_response.data)
+    print("Merge Request Synchronization Complete!\n")
 
     # print(f"Inserting ({len(pipeline_job_responses)}) Pipeline Jobs Into Database...")
     # for pipeline_job_response in pipeline_job_responses:
