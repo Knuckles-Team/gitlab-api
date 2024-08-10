@@ -1,11 +1,12 @@
 #!/usr/bin/python
 
 import gitlab_api
-from gitlab_api.utils import upsert
+from gitlab_api.utils import pydantic_to_sqlalchemy
 from gitlab_api.gitlab_db_models import BaseDBModel as Base
 import urllib3
 import os
 from urllib.parse import quote_plus
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -47,6 +48,7 @@ if __name__ == "__main__":
     print("Fetching GitLab Data...")
     # User Data table is a dependency table
     user_response = client.get_users()
+    user_db_model = pydantic_to_sqlalchemy(schema=user_response.data)
     print(
         f"Users ({len(user_response.data.users)}) Fetched - "
         f"Status: {user_response.status_code}\n"
@@ -54,6 +56,7 @@ if __name__ == "__main__":
 
     # Namespaces table is a dependency table
     namespace_response = client.get_namespaces()
+    namespace_model = pydantic_to_sqlalchemy(schema=namespace_response.data)
     print(
         f"Namespaces ({len(namespace_response.data.namespaces)}) Fetched - "
         f"Status: {namespace_response.status_code}\n"
@@ -61,50 +64,54 @@ if __name__ == "__main__":
 
     # Project table requires Users and Namespaces
     project_response = client.get_nested_projects_by_group(group_id=2, per_page=100)
+    project_db_model = pydantic_to_sqlalchemy(schema=project_response.data)
     print(
         f"Projects ({len(project_response.data.projects)}) Fetched - "
         f"Status: {project_response.status_code}\n"
     )
+    print(f"Project DB Model: {project_db_model}")
 
     # Merge Requests table requires Users, Namespaces, and Projects
     merge_request_response = client.get_group_merge_requests(
         argument="state=all", group_id=2
     )
+    merge_request_db_model = pydantic_to_sqlalchemy(schema=merge_request_response.data)
     print(
         f"Merge Requests ({len(merge_request_response.data.merge_requests)}) Fetched - "
         f"Status: {merge_request_response.status_code}\n\n"
     )
 
-    pipeline_job_responses = []
+    pipeline_db_models = []
     for project in project_response.data.projects:
-        pipeline_job_response = client.get_project_jobs(project_id=49)  # project.id)
-        pipeline_job_responses.append(pipeline_job_response)
+        pipeline_job_response = client.get_project_jobs(project_id=project.id)
+        pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response.data)
+        pipeline_db_models.extend(pipeline_db_model)
         print(
             f"Pipeline Jobs ({len(pipeline_job_response.data.jobs)}) Fetched for Project ({project.id}) - "
             f"Status: {pipeline_job_response.status_code}\n\n"
         )
         break
 
-    print("Inserting Users Into Database...")
-    upsert(session=session, response=user_response)
-    print("Users Synchronization Complete!\n")
+    # print("Inserting Users Into Database...")
+    # upsert(session=session, model=user_db_model)
+    # print("Users Synchronization Complete!\n")
 
-    print("Inserting Namespaces Into Database...")
-    upsert(session=session, response=namespace_response)
-    print("Namespaces Synchronization Complete!\n")
+    # print("Inserting Namespaces Into Database...")
+    # upsert(session=session, model=namespace_db_model)
+    # print("Namespaces Synchronization Complete!\n")
+    #
+    # print("Inserting Projects Into Database...\n")
+    # upsert(session=session, model=project_db_model)
+    # print("Projects Synchronization Complete!\n")
+    # #
+    # print("Inserting Merge Requests Into Database...")
+    # upsert(session=session, model=merge_request_response.data)
+    # print("Merge Request Synchronization Complete!\n")
 
-    print("Inserting Projects Into Database...\n")
-    upsert(session=session, response=project_response)
-    print("Projects Synchronization Complete!\n")
-
-    print("Inserting Merge Requests Into Database...")
-    upsert(session=session, response=merge_request_response)
-    print("Merge Request Synchronization Complete!\n")
-
-    print(f"Inserting ({len(pipeline_job_responses)}) Pipeline Jobs Into Database...")
-    for pipeline_job_response in pipeline_job_responses:
-        upsert(session=session, response=pipeline_job_response)
-    print("Pipeline Jobs Synchronization Complete!\n\n\n")
+    # print(f"Inserting ({len(pipeline_job_responses)}) Pipeline Jobs Into Database...")
+    # for pipeline_job_response in pipeline_job_responses:
+    #     upsert(session=session, response=pipeline_job_response.data)
+    # print("Pipeline Jobs Synchronization Complete!\n\n\n")
 
     session.close()
     print("Session Closed")

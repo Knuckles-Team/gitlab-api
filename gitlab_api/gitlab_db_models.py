@@ -77,10 +77,10 @@ class MilestoneDBModel(BaseDBModel):
     state = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=True)
     updated_at = Column(DateTime, nullable=True)
+    closed_at = Column(DateTime, nullable=True)
     due_date = Column(String, nullable=True)
     start_date = Column(String, nullable=True)
     web_url = Column(String, nullable=True)
-    closed_at = Column(DateTime, nullable=True)
 
     issue_stats_id = Column(
         Integer,
@@ -1013,6 +1013,12 @@ class MergeRequestDBModel(BaseDBModel):
     state = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=True)
     updated_at = Column(DateTime, nullable=True)
+    closed_at = Column(DateTime, nullable=True)
+    merged_at = Column(DateTime, nullable=True)
+    latest_build_started_at = Column(DateTime, nullable=True)
+    latest_build_finished_at = Column(DateTime, nullable=True)
+    first_deployed_to_production_at = Column(DateTime, nullable=True)
+    prepared_at = Column(DateTime, nullable=True)
     target_branch = Column(String, nullable=True)
     source_branch = Column(String, nullable=True)
     upvotes = Column(Integer, nullable=True)
@@ -1052,7 +1058,6 @@ class MergeRequestDBModel(BaseDBModel):
     tag_list = Column(ARRAY(String), nullable=True)
     imported = Column(Boolean, nullable=True)
     imported_from = Column(String, nullable=True)
-    prepared_at = Column(DateTime, nullable=True)
     detailed_merge_status = Column(String, nullable=True)
     subscribed = Column(Boolean, nullable=True)
     overflow = Column(Boolean, nullable=True)
@@ -1549,16 +1554,191 @@ class WebhooksDBModel(BaseDBModel):
     )
 
 
+users_association = Table(
+    "users_association",
+    BaseDBModel.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column(
+        "users_collection_id",
+        Integer,
+        ForeignKey("users_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
+# User Model
+class UserDBModel(BaseDBModel):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    base_type = Column(String, default="User")
+    user = Column(String, nullable=True)
+    username = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    name = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    locked = Column(Boolean, nullable=True)
+    avatar_url = Column(String, nullable=True)
+    web_url = Column(String, nullable=True)
+    created_at = Column(DateTime, nullable=True)
+    is_admin = Column(Boolean, nullable=True)
+    bio = Column(String, nullable=True)
+    location = Column(String, nullable=True)
+    skype = Column(String, nullable=True)
+    linkedin = Column(String, nullable=True)
+    twitter = Column(String, nullable=True)
+    discord = Column(String, nullable=True)
+    website_url = Column(String, nullable=True)
+    organization = Column(String, nullable=True)
+    job_title = Column(String, nullable=True)
+    last_sign_in_at = Column(DateTime, nullable=True)
+    confirmed_at = Column(DateTime, nullable=True)
+    theme_id = Column(Integer, nullable=True)
+    last_activity_on = Column(DateTime, nullable=True)
+    color_scheme_id = Column(Integer, nullable=True)
+    projects_limit = Column(Integer, nullable=True)
+    current_sign_in_at = Column(DateTime, nullable=True)
+    note = Column(String, nullable=True)
+    can_create_group = Column(Boolean, nullable=True)
+    can_create_project = Column(Boolean, nullable=True)
+    two_factor_enabled = Column(Boolean, nullable=True)
+    external = Column(Boolean, nullable=True)
+    private_profile = Column(Boolean, nullable=True)
+    current_sign_in_ip = Column(String, nullable=True)
+    last_sign_in_ip = Column(String, nullable=True)
+    email_reset_offered_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+    access_level = Column(Integer, nullable=True)
+    approved = Column(Boolean, nullable=True)
+    invited = Column(Boolean, nullable=True)
+    public_email = Column(String, nullable=True)
+    pronouns = Column(String, nullable=True)
+    bot = Column(Boolean, nullable=True)
+    work_information = Column(String, nullable=True)
+    followers = Column(Integer, nullable=True)
+    following = Column(Integer, nullable=True)
+    local_time = Column(String, nullable=True)
+    commit_email = Column(String, nullable=True)
+    shared_runners_minutes_limit = Column(Integer, nullable=True)
+    extra_shared_runners_minutes_limit = Column(Integer, nullable=True)
+    membership_type = Column(String, nullable=True)
+    removable = Column(Boolean, nullable=True)
+    last_login_at = Column(DateTime, nullable=True)
+
+    created_by_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=True,
+    )
+    created_by = relationship(
+        "UserDBModel",
+        remote_side=[id],
+        backref=backref("users", remote_side=[created_by_id]),
+    )
+
+    group_saml_identity_id = Column(
+        Integer,
+        ForeignKey(
+            column="group_saml_identities.id", name="fk_user_group_saml_identity_id"
+        ),
+        nullable=True,
+    )
+    group_saml_identity = relationship(
+        argument="GroupSamlIdentityDBModel",
+        foreign_keys=[group_saml_identity_id],
+        backref=backref("users"),
+    )
+
+    namespace_id = Column(
+        Integer,
+        ForeignKey(column="namespaces.id", name="fk_user_namespace_id"),
+        nullable=True,
+    )
+    namespace = relationship(
+        argument="NamespaceDBModel",
+        foreign_keys=[namespace_id],
+        backref=backref("users"),
+    )
+
+
+# Users Model
+class UsersDBModel(BaseDBModel):
+    __tablename__ = "users_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Users")
+    users = relationship(
+        "UserDBModel",
+        secondary=users_association,
+        backref=backref("users_collections", lazy="dynamic"),
+    )
+
+
+# Namespace Model
+class NamespaceDBModel(BaseDBModel):
+    __tablename__ = "namespaces"
+
+    id = Column(
+        Integer,
+        ForeignKey(column="namespaces.id", name="fk_namespace_id"),
+        primary_key=True,
+    )
+    base_type = Column(String, default="Namespace")
+    name = Column(String, nullable=True)
+    path = Column(String, nullable=True)
+    kind = Column(String, nullable=True)
+    full_path = Column(String, nullable=True)
+    avatar_url = Column(String, nullable=True)
+    web_url = Column(String, nullable=True)
+    billable_members_count = Column(Integer, nullable=True)
+    plan = Column(String, nullable=True)
+    trial_ends_on = Column(DateTime, nullable=True)
+    trial = Column(Boolean, nullable=True)
+
+    parent_id = Column(
+        Integer,
+        nullable=True,
+    )
+
+    project = relationship("ProjectDBModel", back_populates="namespace")
+
+    user_id = Column(
+        Integer, ForeignKey(column="users.id", name="fk_namespace_user"), nullable=True
+    )
+    user: Mapped["User"] = relationship(
+        argument="UserDBModel", foreign_keys=[user_id], backref=backref("namespaces")
+    )
+
+
+namespaces_association = Table(
+    "namespaces_association",
+    BaseDBModel.metadata,
+    Column("namespaces_id", Integer, ForeignKey("namespaces.id"), primary_key=True),
+    Column(
+        "namespaces_collection_id",
+        Integer,
+        ForeignKey("namespaces_collection.id"),
+        primary_key=True,
+    ),
+)
+
+
+class NamespacesDBModel(BaseDBModel):
+    __tablename__ = "namespaces_collection"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    base_type = Column(String, default="Namespaces")
+    namespaces = relationship(
+        "NamespacesDBModel",
+        secondary=namespaces_association,
+        backref=backref("namespaces_collection", lazy="dynamic"),
+    )
+
+
 # Project Association tables
 project_owners = Table(
     "project_owners",
-    BaseDBModel.metadata,
-    Column("project_id", Integer, ForeignKey("projects.id")),
-    Column("user_id", Integer, ForeignKey("users.id")),
-)
-
-project_creators = Table(
-    "project_creators",
     BaseDBModel.metadata,
     Column("project_id", Integer, ForeignKey("projects.id")),
     Column("user_id", Integer, ForeignKey("users.id")),
@@ -1588,7 +1768,7 @@ project_additional_links = Table(
 project_permissions = Table(
     "project_permissions",
     BaseDBModel.metadata,
-    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("project_id", Integer, ),
     Column("permission_id", Integer, ForeignKey("permissions.id")),
 )
 
@@ -1737,8 +1917,11 @@ class ProjectDBModel(BaseDBModel):
     owner = relationship(
         "UserDBModel", secondary=project_owners, backref="project_owner"
     )
+    creator_id = Column(Integer, ForeignKey("users.id"))
     creator = relationship(
-        "UserDBModel", secondary=project_creators, backref="project_creators"
+        "UserDBModel",
+        foreign_keys=[creator_id],
+        backref="project_creators"
     )
     namespace_id = Column(Integer, ForeignKey("namespaces.id"))
     namespace = relationship("NamespaceDBModel", back_populates="project")
@@ -2797,188 +2980,6 @@ class GroupSamlIdentityDBModel(BaseDBModel):
         argument="UserDBModel",
         foreign_keys=[user_id],
         backref=backref("group_saml_identities_user"),
-    )
-
-
-users_association = Table(
-    "users_association",
-    BaseDBModel.metadata,
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column(
-        "users_collection_id",
-        Integer,
-        ForeignKey("users_collection.id"),
-        primary_key=True,
-    ),
-)
-
-
-# User Model
-class UserDBModel(BaseDBModel):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True)
-    base_type = Column(String, default="User")
-    user = Column(String, nullable=True)
-    username = Column(String, nullable=True)
-    email = Column(String, nullable=True)
-    name = Column(String, nullable=True)
-    state = Column(String, nullable=True)
-    locked = Column(Boolean, nullable=True)
-    avatar_url = Column(String, nullable=True)
-    web_url = Column(String, nullable=True)
-    created_at = Column(DateTime, nullable=True)
-    is_admin = Column(Boolean, nullable=True)
-    bio = Column(String, nullable=True)
-    location = Column(String, nullable=True)
-    skype = Column(String, nullable=True)
-    linkedin = Column(String, nullable=True)
-    twitter = Column(String, nullable=True)
-    discord = Column(String, nullable=True)
-    website_url = Column(String, nullable=True)
-    organization = Column(String, nullable=True)
-    job_title = Column(String, nullable=True)
-    last_sign_in_at = Column(DateTime, nullable=True)
-    confirmed_at = Column(DateTime, nullable=True)
-    theme_id = Column(Integer, nullable=True)
-    last_activity_on = Column(DateTime, nullable=True)
-    color_scheme_id = Column(Integer, nullable=True)
-    projects_limit = Column(Integer, nullable=True)
-    current_sign_in_at = Column(DateTime, nullable=True)
-    note = Column(String, nullable=True)
-    can_create_group = Column(Boolean, nullable=True)
-    can_create_project = Column(Boolean, nullable=True)
-    two_factor_enabled = Column(Boolean, nullable=True)
-    external = Column(Boolean, nullable=True)
-    private_profile = Column(Boolean, nullable=True)
-    current_sign_in_ip = Column(String, nullable=True)
-    last_sign_in_ip = Column(String, nullable=True)
-    email_reset_offered_at = Column(DateTime, nullable=True)
-    expires_at = Column(DateTime, nullable=True)
-    access_level = Column(Integer, nullable=True)
-    approved = Column(Boolean, nullable=True)
-    invited = Column(Boolean, nullable=True)
-    public_email = Column(String, nullable=True)
-    pronouns = Column(String, nullable=True)
-    bot = Column(Boolean, nullable=True)
-    work_information = Column(String, nullable=True)
-    followers = Column(Integer, nullable=True)
-    following = Column(Integer, nullable=True)
-    local_time = Column(String, nullable=True)
-    commit_email = Column(String, nullable=True)
-    shared_runners_minutes_limit = Column(Integer, nullable=True)
-    extra_shared_runners_minutes_limit = Column(Integer, nullable=True)
-    membership_type = Column(String, nullable=True)
-    removable = Column(Boolean, nullable=True)
-    last_login_at = Column(DateTime, nullable=True)
-
-    created_by_id = Column(
-        Integer,
-        ForeignKey("users.id"),
-        nullable=True,
-    )
-    created_by = relationship(
-        "UserDBModel",
-        remote_side=[id],
-        backref=backref("users", remote_side=[created_by_id]),
-    )
-
-    group_saml_identity_id = Column(
-        Integer,
-        ForeignKey(
-            column="group_saml_identities.id", name="fk_user_group_saml_identity_id"
-        ),
-        nullable=True,
-    )
-    group_saml_identity = relationship(
-        argument="GroupSamlIdentityDBModel",
-        foreign_keys=[group_saml_identity_id],
-        backref=backref("users"),
-    )
-
-    namespace_id = Column(
-        Integer,
-        ForeignKey(column="namespaces.id", name="fk_user_namespace_id"),
-        nullable=True,
-    )
-    namespace = relationship(
-        argument="NamespaceDBModel",
-        foreign_keys=[namespace_id],
-        backref=backref("users"),
-    )
-
-
-# Users Model
-class UsersDBModel(BaseDBModel):
-    __tablename__ = "users_collection"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    base_type = Column(String, default="Users")
-    users = relationship(
-        "UserDBModel",
-        secondary=users_association,
-        backref=backref("users_collections", lazy="dynamic"),
-    )
-
-
-# Namespace Model
-class NamespaceDBModel(BaseDBModel):
-    __tablename__ = "namespaces"
-
-    id = Column(
-        Integer,
-        ForeignKey(column="namespaces.id", name="fk_namespace_id"),
-        primary_key=True,
-    )
-    base_type = Column(String, default="Namespace")
-    name = Column(String, nullable=True)
-    path = Column(String, nullable=True)
-    kind = Column(String, nullable=True)
-    full_path = Column(String, nullable=True)
-    avatar_url = Column(String, nullable=True)
-    web_url = Column(String, nullable=True)
-    billable_members_count = Column(Integer, nullable=True)
-    plan = Column(String, nullable=True)
-    trial_ends_on = Column(DateTime, nullable=True)
-    trial = Column(Boolean, nullable=True)
-
-    parent_id = Column(
-        Integer,
-        nullable=True,
-    )
-
-    project = relationship("ProjectDBModel", back_populates="namespace")
-
-    user_id = Column(
-        Integer, ForeignKey(column="users.id", name="fk_namespace_user"), nullable=True
-    )
-    user: Mapped["User"] = relationship(
-        argument="UserDBModel", foreign_keys=[user_id], backref=backref("namespaces")
-    )
-
-
-namespaces_association = Table(
-    "namespaces_association",
-    BaseDBModel.metadata,
-    Column("namespaces_id", Integer, ForeignKey("namespaces.id"), primary_key=True),
-    Column(
-        "namespaces_collection_id",
-        Integer,
-        ForeignKey("namespaces_collection.id"),
-        primary_key=True,
-    ),
-)
-
-
-class NamespacesDBModel(BaseDBModel):
-    __tablename__ = "namespaces_collection"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    base_type = Column(String, default="Namespaces")
-    namespaces = relationship(
-        "NamespacesDBModel",
-        secondary=namespaces_association,
-        backref=backref("namespaces_collection", lazy="dynamic"),
     )
 
 
