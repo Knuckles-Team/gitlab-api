@@ -882,7 +882,6 @@ class TagDBModel(BaseDBModel):
 
     id = Column(Integer, primary_key=True, autoincrement=True, nullable=True)
     base_type = Column(String, default="Tag")
-    name = Column(String, nullable=True)
     tag = Column(String, nullable=True)
 
 
@@ -891,6 +890,14 @@ tags_association = Table(
     BaseDBModel.metadata,
     Column("tags_collection_id", Integer, ForeignKey("tags_collection.id")),
     Column("tag_id", Integer, ForeignKey("tags.id")),
+)
+
+
+job_tags_association = Table(
+    "job_tags_association",
+    BaseDBModel.metadata,
+    Column("job_id", Integer, ForeignKey("jobs.id")),
+    Column("tags_collection_id", Integer, ForeignKey("tags_collection.id")),
 )
 
 
@@ -903,6 +910,11 @@ class TagsDBModel(BaseDBModel):
         "TagDBModel",
         secondary=tags_association,
         backref=backref("tags_collection", lazy="dynamic"),
+    )
+    tags_jobs = relationship(
+        "JobDBModel",
+        secondary=job_tags_association,
+        # backref=backref("tags_job_list"),  # or another appropriate name if needed
     )
 
 
@@ -1768,7 +1780,10 @@ project_additional_links = Table(
 project_permissions = Table(
     "project_permissions",
     BaseDBModel.metadata,
-    Column("project_id", Integer, ),
+    Column(
+        "project_id",
+        Integer,
+    ),
     Column("permission_id", Integer, ForeignKey("permissions.id")),
 )
 
@@ -1919,9 +1934,7 @@ class ProjectDBModel(BaseDBModel):
     )
     creator_id = Column(Integer, ForeignKey("users.id"))
     creator = relationship(
-        "UserDBModel",
-        foreign_keys=[creator_id],
-        backref="project_creators"
+        "UserDBModel", foreign_keys=[creator_id], backref="project_creators"
     )
     namespace_id = Column(Integer, ForeignKey("namespaces.id"))
     namespace = relationship("NamespaceDBModel", back_populates="project")
@@ -2037,14 +2050,6 @@ class RunnersDBModel(BaseDBModel):
     )
 
 
-job_tags_association = Table(
-    "job_tags_association",
-    BaseDBModel.metadata,
-    Column("job_id", Integer, ForeignKey("jobs.id")),
-    Column("tags_collection_id", Integer, ForeignKey("tags_collection.id")),
-)
-
-
 # Job Model
 class JobDBModel(BaseDBModel):
     __tablename__ = "jobs"
@@ -2069,9 +2074,15 @@ class JobDBModel(BaseDBModel):
     tag = Column(Boolean, nullable=True)
     web_url = Column(String, nullable=True)
 
+    tags_list_id = Column(
+        Integer,
+        ForeignKey(column="tags_collection.id", name="fk_job_tags_list"),
+        nullable=True,
+    )
+
     tag_list = relationship(
         argument="TagsDBModel",
-        secondary=job_tags_association,
+        foreign_keys=[tags_list_id],
         backref=backref("job_tag_list"),
     )
 
