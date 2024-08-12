@@ -1791,13 +1791,6 @@ project_permissions = Table(
     Column("permission_id", Integer, ForeignKey("permissions.id")),
 )
 
-project_shared_with_groups = Table(
-    "project_shared_with_groups",
-    BaseDBModel.metadata,
-    Column("project_id", Integer, ForeignKey("projects.id")),
-    Column("groups_id", Integer, ForeignKey("groups_collection.id")),
-)
-
 
 # Project Model
 class ProjectDBModel(BaseDBModel):
@@ -1970,12 +1963,18 @@ class ProjectDBModel(BaseDBModel):
         foreign_keys=[permissions_id],
         backref="project_permissions",
     )
-    shared_with_groups = relationship(
-        argument="GroupsDBModel",
-        secondary=project_shared_with_groups,
-        backref=backref("project_shared_with_groups"),
+
+    shared_with_groups_id = Column(
+        Integer,
+        ForeignKey(column="groups_collection.id", name="fk_project_shared_with_groups"),
+        nullable=True,
     )
 
+    shared_with_groups = relationship(
+        argument="GroupsDBModel",
+        foreign_keys=[shared_with_groups_id],
+        backref=backref("project_shared_with_groups"),
+    )
 
 projects_association = Table(
     "projects_association",
