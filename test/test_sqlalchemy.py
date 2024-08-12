@@ -83,9 +83,19 @@ if __name__ == "__main__":
     pipeline_job_response = None
     for project in project_response.data.projects:
         job_response = client.get_project_jobs(project_id=project.id)
-        if not pipeline_job_response and hasattr(job_response, "data") and hasattr(job_response.data, "jobs") and len(job_response.data.jobs)>0:
+        if (
+            not pipeline_job_response
+            and hasattr(job_response, "data")
+            and hasattr(job_response.data, "jobs")
+            and len(job_response.data.jobs) > 0
+        ):
             pipeline_job_response = job_response
-        elif pipeline_job_response and hasattr(job_response, "data") and hasattr(job_response.data, "jobs") and len(job_response.data.jobs)>0:
+        elif (
+            pipeline_job_response
+            and hasattr(job_response, "data")
+            and hasattr(job_response.data, "jobs")
+            and len(job_response.data.jobs) > 0
+        ):
             pipeline_job_response.data.jobs.extend(job_response.data.jobs)
             print(
                 f"Pipeline Jobs ({len(getattr(pipeline_job_response.data, 'jobs', []))}) Fetched for Project ({project.id}) - "
@@ -110,7 +120,9 @@ if __name__ == "__main__":
     upsert(session=session, model=merge_request_db_model)
     print("Merge Request Synchronization Complete!\n")
 
-    print(f"Inserting ({len(pipeline_job_response.data.jobs)}) Pipeline Jobs Into Database...")
+    print(
+        f"Inserting ({len(pipeline_job_response.data.jobs)}) Pipeline Jobs Into Database..."
+    )
     upsert(session=session, model=pipeline_db_model)
     print("Pipeline Jobs Synchronization Complete!\n\n\n")
 

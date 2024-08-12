@@ -100,12 +100,6 @@ def pydantic_to_sqlalchemy(schema):
             elif is_pydantic(value):
                 print(f"\n\nUpdating Nonlist: {key} {value}")
                 new_model = value.Meta.orm_model(**pydantic_to_sqlalchemy(value))
-                # if new_model.base_type == "Tags": #Alternatively, only look for fields with tag_list
-                #     print(f"\n\nResorting Tags for key: {key}\nSchema: {parsed_schema[key]} = {new_model.tags}")
-                #     parsed_schema[key] = new_model.tags
-                # else:
-                #     print(f"\n\nNew Model: {new_model}")
-                #     parsed_schema[key] = new_model
                 print(f"\n\nNew Model: {new_model}")
                 parsed_schema[key] = new_model
                 print(f"\n\nFinished Updated Nonlist: {key} {value}")
