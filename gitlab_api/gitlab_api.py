@@ -3382,41 +3382,34 @@ class Api(object):
         """
         user = UserModel(**kwargs)
         if not user.per_page:
-            per_page = 100
-        else:
-            per_page = user.per_page
+            user.per_page = 100
+        if not user.page:
+            user.page = 0
+
         response = self._session.get(
-            url=f"{self.url}/users?per_page={per_page}",
+            url=f"{self.url}/users",
+            params=user.api_parameters,
             headers=self.headers,
             verify=self.verify,
         )
-        try:
-            user.total_pages = int(response.headers.get("X-Total-Pages", 1))
-        except ValueError:
-            user.total_pages = 1
-        response = None
+        response = process_response(response=response)
 
-        if not user.max_pages:
-            max_pages = 0
-        else:
-            max_pages = user.max_pages
-        if max_pages == 0 or max_pages > user.total_pages:
-            user.max_pages = user.total_pages
-            max_pages = user.total_pages
-        for page in range(0, max_pages):
-            user.page = page
-            user.model_post_init(user)
-            temp_response = self._session.get(
-                url=f"{self.url}/users",
-                params=user.api_parameters,
-                headers=self.headers,
-                verify=self.verify,
-            )
-            temp_response = process_response(response=temp_response)
-            if not response:
-                response = temp_response
-            else:
-                response = response.data.users + temp_response.data.users
+        while hasattr(response.data, "users") and len(response.data.users) > 1:
+            try:
+                second_response = self._session.get(
+                    url=f"{self.url}/users",
+                    params=user.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                )
+                user.page = user.page + 1
+                if user.max_pages and user.page > user.max_pages:
+                    break
+            except ValidationError or Exception as e:
+                print(f"Invalid parameters: {e.errors()}")
+                raise e
+            second_response = process_response(response=second_response)
+            response.data.users.extend(second_response.data.users)
         return response
 
     @require_auth

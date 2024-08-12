@@ -1976,6 +1976,7 @@ class ProjectDBModel(BaseDBModel):
         backref=backref("project_shared_with_groups"),
     )
 
+
 projects_association = Table(
     "projects_association",
     BaseDBModel.metadata,
