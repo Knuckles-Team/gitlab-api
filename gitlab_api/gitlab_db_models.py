@@ -1384,6 +1384,7 @@ class GroupDBModel(BaseDBModel):
     __tablename__ = "groups"
 
     id = Column(Integer, primary_key=True)
+    group_id = Column(Integer, nullable=True)
     base_type = Column(String, default="Group")
     organization_id = Column(Integer, nullable=True)
     name = Column(String, nullable=True)
