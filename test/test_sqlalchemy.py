@@ -47,7 +47,7 @@ if __name__ == "__main__":
 
     print("Fetching GitLab Data...")
     # User Data table is a dependency table
-    user_response = client.get_users()
+    user_response = client.get_users(active=True, humans=True)
     user_db_model = pydantic_to_sqlalchemy(schema=user_response.data)
     print(
         f"Users ({len(user_response.data.users)}) Fetched - "
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         elif pipeline_job_response and hasattr(job_response, "data") and hasattr(job_response.data, "jobs") and len(job_response.data.jobs)>0:
             pipeline_job_response.data.jobs.extend(job_response.data.jobs)
             print(
-                f"Pipeline Jobs ({len(getattr(pipeline_job_response.data, "jobs", []))}) Fetched for Project ({project.id}) - "
+                f"Pipeline Jobs ({len(getattr(pipeline_job_response.data, 'jobs', []))}) Fetched for Project ({project.id}) - "
                 f"Status: {pipeline_job_response.status_code}\n"
             )
 

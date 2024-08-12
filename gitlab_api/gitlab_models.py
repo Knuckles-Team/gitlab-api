@@ -2677,6 +2677,7 @@ class UserModel(BaseModel):
     active: Optional[bool] = None
     blocked: Optional[bool] = None
     external: Optional[bool] = None
+    humans: Optional[bool] = None
     exclude_internal: Optional[bool] = None
     exclude_external: Optional[bool] = None
     without_project_bots: Optional[bool] = None
@@ -2718,6 +2719,8 @@ class UserModel(BaseModel):
             self.api_parameters["blocked"] = self.blocked
         if self.external:
             self.api_parameters["external"] = self.external
+        if self.humans:
+            self.api_parameters["humans"] = self.humans
         if self.exclude_internal:
             self.api_parameters["exclude_internal"] = self.exclude_internal
         if self.exclude_external:
