@@ -5,32 +5,9 @@ from typing import Union, Any
 
 from sqlalchemy.engine import reflection
 import requests
-from sqlalchemy.orm import AppenderQuery
-from sqlalchemy.orm.collections import InstrumentedList
 
-try:
-    from gitlab_api.gitlab_models import (
-        Response,
-    )
-except ModuleNotFoundError:
-    from gitlab_models import (
-        Response,
-    )
+from gitlab_api.gitlab_response_models import Response
 
-try:
-    from gitlab_api.gitlab_models import (
-        LabelsDBModel,
-        LabelDBModel,
-        TagDBModel,
-        TagsDBModel,
-        CommitDBModel,
-        ParentIDDBModel,
-        ParentIDsDBModel,
-        ArtifactDBModel,
-        ArtifactsDBModel,
-    )
-except ModuleNotFoundError:
-    pass
 logging.basicConfig(
     level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
 )
@@ -69,10 +46,10 @@ def remove_none_values(dictionary: dict) -> dict:
 def is_pydantic(obj: object):
     """Checks whether an object is pydantic."""
     if hasattr(obj, "Meta") and hasattr(obj.Meta, "orm_model"):
-        print(f"\nPydantic True for {obj}")
+        logging.debug(f"\nPydantic True for {obj}")
         return True
     else:
-        print(f"\nPydantic False for {obj}")
+        logging.debug(f"\nPydantic False for {obj}")
         return False
 
 
@@ -82,6 +59,7 @@ def pydantic_to_sqlalchemy(schema):
     to a dictionary containing SQLAlchemy models.
     Only works if nested schemas have specified the Meta.orm_model.
     """
+    print(f"SCHEMA: {schema}")
     parsed_schema = dict(schema)
     parsed_schema = remove_none_values(dictionary=parsed_schema)
     for key, value in parsed_schema.items():
@@ -91,11 +69,23 @@ def pydantic_to_sqlalchemy(schema):
         try:
             if isinstance(value, list) and len(value) and is_pydantic(value[0]):
                 print(f"\n\nUpdating: {key} {parsed_schema[key]}")
-                parsed_schema[key] = [
-                    item.Meta.orm_model(**pydantic_to_sqlalchemy(item))
-                    for item in value
-                    if value is not None
-                ]
+                parsed_schemas = []
+                for item in value:
+                    print(f"\nGoing through Item: {item} in Value: {value}")
+                    new_schema = pydantic_to_sqlalchemy(item)
+                    print(
+                        f"\nNew schema: {new_schema}\nFor Model: {item.Meta.orm_model}\nFor Item: {item}\nIn Value: {value}"
+                    )
+                    new_model = item.Meta.orm_model(**new_schema)
+                    print(
+                        f"\nNew model: {new_model}\nFor Item: {item}\nIn Value: {value}"
+                    )
+                    parsed_schemas.append(new_model)
+                # parsed_schema[key] = [
+                #     item.Meta.orm_model(**pydantic_to_sqlalchemy(item))
+                #     for item in value
+                # ]
+                parsed_schema = parsed_schemas
                 print(f"\n\nFinished Updated List: {key} {parsed_schema[key]}")
             elif is_pydantic(value):
                 print(f"\n\nUpdating Nonlist: {key} {value}")
@@ -119,61 +109,12 @@ def upsert(model: Any, session):
     for key, value in model.items():
         if key == "base_type":
             continue
-        print(f"SCANNING: {str(key)}")
+        print(f"SCANNING: {str(key)} - {model[key]}")
         for item in model[key]:
-            upsert_row(session=session, model=item)
+            session.merge(item)
+            print(f"MERGED: {item}\n\n")
 
-
-def upsert_row(session, model, processed_models=None):
-    if model is None:
-        return None
-
-    if processed_models is None:
-        processed_models = set()
-
-    model_type = type(model)
-    print(f"\n\nSearching for {model} in {model_type}")
-    model_identifier = (model_type, model.id)
-
-    if model_identifier in processed_models:
-        return None
-
-    processed_models.add(model_identifier)
-
-    # Function to upsert nested models
-    def upsert_nested_models(session, model):
-        related_models = []
-        for relation in model.__mapper__.relationships:
-            related_model = getattr(model, relation.key)
-            if isinstance(related_model, InstrumentedList):
-                for item in related_model:
-                    if item is not None:
-                        related_models.append(item)
-            elif isinstance(related_model, AppenderQuery):
-                pass
-            elif related_model is not None:
-                related_models.append(related_model)
-
-        # Recursively upsert nested models first
-        for related_model in related_models:
-            upsert_row(
-                session=session,
-                model=related_model,
-                processed_models=processed_models,
-            )
-
-    # Upsert nested models first
-    upsert_nested_models(session, model)
-
-    try:
-        print(f"\n\nCommitting: {model}")
-        existing_model = session.merge(model)
         session.commit()
-        print("Committed Session!")
-        return existing_model
-    except Exception as e:
-        session.rollback()
-        print(f"Error inserting/updating {model_type.__name__} with ID {model.id}: {e}")
 
 
 def create_table(db_instance, engine):
@@ -182,6 +123,6 @@ def create_table(db_instance, engine):
 
     if not inspector.has_table(table_name):
         db_instance.__table__.create(engine)
-        print(f"Table {table_name} created.")
+        logging.debug(f"Table {table_name} created.")
     else:
-        print(f"Table {table_name} already exists.")
+        logging.debug(f"Table {table_name} already exists.")

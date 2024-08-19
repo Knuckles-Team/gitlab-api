@@ -11,23 +11,24 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 try:
     import gitlab_api
-    from gitlab_api.gitlab_models import (
+    from gitlab_api.gitlab_input_models import (
         BranchModel,
         CommitModel,
         DeployTokenModel,
         GroupModel,
         JobModel,
-        MembersModel,
         PackageModel,
         PipelineModel,
         ProjectModel,
         ProtectedBranchModel,
-        MergeRequestModel,
         MergeRequestRuleModel,
+        MergeRequestModel,
         ReleaseModel,
         RunnerModel,
         UserModel,
         WikiModel,
+    )
+    from gitlab_api.gitlab_response_models import (
         Response,
     )
 
@@ -36,6 +37,7 @@ except ImportError:
     raise ("ERROR IMPORTING", ImportError)
 else:
     skip = False
+
 
 reason = "do not run on MacOS or windows OR dependency is not installed OR " + reason
 
@@ -567,7 +569,7 @@ def test_project_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Projects"
+    assert response.data[0].base_type == "Project"
 
 
 @pytest.mark.skipif(
@@ -4574,7 +4576,7 @@ def test_project_response_3():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Projects"
+    assert response.data[0].base_type == "Project"
 
 
 @pytest.mark.skipif(
@@ -4823,7 +4825,7 @@ def test_user_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Users"
+    assert response.data[0].base_type == "User"
 
 
 @pytest.mark.skipif(
@@ -4878,7 +4880,7 @@ def test_branch_response_1():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Branches"
+    assert response.data[0].base_type == "Branch"
 
 
 @pytest.mark.skipif(
@@ -4950,7 +4952,7 @@ def test_branch_response_3():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Branches"
+    assert response.data[0].base_type == "Branch"
 
 
 @pytest.mark.skipif(
@@ -5030,7 +5032,8 @@ def test_commit_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+
+    assert response.data[0].base_type == "Commit"
 
 
 @pytest.mark.skipif(
@@ -5198,7 +5201,7 @@ def test_commit_response_9():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Diffs"
+    assert response.data[0].base_type == "Diff"
 
 
 @pytest.mark.skipif(
@@ -5221,7 +5224,7 @@ def test_commit_response_10():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Comments"
+    assert response.data[0].base_type == "Comment"
 
 
 @pytest.mark.skipif(
@@ -5287,7 +5290,8 @@ def test_commit_response_12():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+
+    assert response.data[0].base_type == "Commit"
 
 
 @pytest.mark.skipif(
@@ -5341,7 +5345,8 @@ def test_commit_response_13():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+
+    assert response.data[0].base_type == "Commit"
 
 
 @pytest.mark.skipif(
@@ -5430,7 +5435,7 @@ def test_commit_response_15():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "MergeRequests"
+    assert response.data[0].base_type == "MergeRequest"
 
 
 @pytest.mark.skipif(
@@ -5533,7 +5538,7 @@ def test_deploy_token_response_1():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "DeployTokens"
+    assert response.data[0].base_type == "DeployToken"
 
 
 @pytest.mark.skipif(
@@ -5554,7 +5559,7 @@ def test_deploy_token_response_1():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "DeployTokens"
+    assert response.data[0].base_type == "DeployToken"
 
 
 @pytest.mark.skipif(
@@ -5614,7 +5619,7 @@ def test_deploy_token_response_4():
     ]
 
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "DeployTokens"
+    assert response.data[0].base_type == "DeployToken"
 
 
 @pytest.mark.skipif(
@@ -5751,7 +5756,7 @@ def test_merge_request_response_1():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "MergeRequests"
+    assert response.data[0].base_type == "MergeRequest"
 
 
 @pytest.mark.skipif(
@@ -5886,7 +5891,7 @@ def test_merge_request_response_2():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "MergeRequests"
+    assert response.data[0].base_type == "MergeRequest"
 
 
 @pytest.mark.skipif(
@@ -6013,7 +6018,7 @@ def test_merge_request_response_3():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "MergeRequests"
+    assert response.data[0].base_type == "MergeRequest"
 
 
 @pytest.mark.skipif(
@@ -6041,7 +6046,7 @@ def test_merge_request_response_4():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Users"
+    assert response.data[0].base_type == "User"
 
 
 @pytest.mark.skipif(
@@ -6077,7 +6082,7 @@ def test_merge_request_response_5():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "MergeRequests"
+    assert response.data[0].base_type == "MergeRequest"
 
 
 @pytest.mark.skipif(
@@ -6107,7 +6112,8 @@ def test_merge_request_response_6():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Commits"
+
+    assert response.data[0].base_type == "Commit"
 
 
 @pytest.mark.skipif(
@@ -6256,7 +6262,7 @@ def test_merge_request_response_8():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Diffs"
+    assert response.data[0].base_type == "Diff"
 
 
 @pytest.mark.skipif(
@@ -6274,7 +6280,7 @@ def test_merge_request_response_9():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data[0].base_type == "Pipeline"
 
 
 @pytest.mark.skipif(
@@ -6778,7 +6784,7 @@ def test_merge_request_response_17():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Issues"
+    assert response.data[0].base_type == "Issue"
 
 
 @pytest.mark.skipif(
@@ -6830,7 +6836,7 @@ def test_merge_request_response_18():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Issues"
+    assert response.data[0].base_type == "Issue"
 
 
 @pytest.mark.skipif(
@@ -6895,7 +6901,7 @@ def test_merge_request_response_21():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Diffs"
+    assert response.data[0].base_type == "Diff"
 
 
 @pytest.mark.skipif(
@@ -6991,7 +6997,7 @@ def test_issues_response_1():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Issues"
+    assert response.data[0].base_type == "Issue"
 
 
 @pytest.mark.skipif(
@@ -7007,7 +7013,7 @@ def test_issues_response_2():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Issues"
+    assert response.data[0].base_type == "Issue"
 
 
 @pytest.mark.skipif(
@@ -7149,7 +7155,7 @@ def test_issues_response_4():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Issues"
+    assert response.data[0].base_type == "Issue"
 
 
 @pytest.mark.skipif(
@@ -7261,7 +7267,7 @@ def test_issues_response_5():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Issues"
+    assert response.data[0].base_type == "Issue"
 
 
 @pytest.mark.skipif(
@@ -7919,7 +7925,7 @@ def test_pipeline_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data[0].base_type == "Pipeline"
 
 
 @pytest.mark.skipif(
@@ -7970,7 +7976,7 @@ def test_pipeline_response_3():
         {"key": "foo", "value": "bar"},
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "PipelineVariables"
+    assert response.data[0].base_type == "PipelineVariable"
 
 
 @pytest.mark.skipif(
@@ -8318,7 +8324,7 @@ def test_group_response_1():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Groups"
+    assert response.data[0].base_type == "Group"
 
 
 @pytest.mark.skipif(
@@ -8376,7 +8382,7 @@ def test_group_response_2():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Groups"
+    assert response.data[0].base_type == "Group"
 
 
 @pytest.mark.skipif(
@@ -8420,7 +8426,7 @@ def test_group_response_3():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Groups"
+    assert response.data[0].base_type == "Group"
 
 
 @pytest.mark.skipif(
@@ -8495,7 +8501,7 @@ def test_group_response_4():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Groups"
+    assert response.data[0].base_type == "Group"
 
 
 @pytest.mark.skipif(
@@ -8545,7 +8551,7 @@ def test_group_response_5():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Projects"
+    assert response.data[0].base_type == "Project"
 
 
 @pytest.mark.skipif(
@@ -8660,7 +8666,7 @@ def test_group_response_6():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Projects"
+    assert response.data[0].base_type == "Project"
 
 
 @pytest.mark.skipif(
@@ -8905,7 +8911,7 @@ def test_group_response_10():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Groups"
+    assert response.data[0].base_type == "Group"
 
 
 @pytest.mark.skipif(
@@ -8995,7 +9001,7 @@ def test_group_response_12():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Projects"
+    assert response.data[0].base_type == "Project"
 
 
 @pytest.mark.skipif(
@@ -9048,7 +9054,7 @@ def test_group_response_13():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Users"
+    assert response.data[0].base_type == "User"
 
 
 @pytest.mark.skipif(
@@ -9101,7 +9107,7 @@ def test_group_response_14():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Users"
+    assert response.data[0].base_type == "User"
 
 
 @pytest.mark.skipif(
@@ -9383,7 +9389,7 @@ def test_group_response_22():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Groups"
+    assert response.data[0].base_type == "Group"
 
 
 @pytest.mark.skipif(
@@ -9610,7 +9616,7 @@ def test_group_response_23():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Projects"
+    assert response.data[0].base_type == "Project"
 
 
 @pytest.mark.skipif(
@@ -9786,7 +9792,7 @@ def test_jobs_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Jobs"
+    assert response.data[0].base_type == "Job"
 
 
 @pytest.mark.skipif(
@@ -9961,7 +9967,7 @@ def test_jobs_response_2():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Jobs"
+    assert response.data[0].base_type == "Job"
 
 
 @pytest.mark.skipif(
@@ -10037,7 +10043,7 @@ def test_jobs_response_3():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Jobs"
+    assert response.data[0].base_type == "Job"
 
 
 @pytest.mark.skipif(
@@ -10390,7 +10396,7 @@ def test_member_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Users"
+    assert response.data[0].base_type == "User"
 
 
 @pytest.mark.skipif(
@@ -10467,7 +10473,7 @@ def test_member_response_2():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Users"
+    assert response.data[0].base_type == "User"
 
 
 @pytest.mark.skipif(
@@ -10581,7 +10587,7 @@ def test_member_response_5():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Users"
+    assert response.data[0].base_type == "User"
 
 
 @pytest.mark.skipif(
@@ -10611,7 +10617,7 @@ def test_member_response_6():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Memberships"
+    assert response.data[0].base_type == "Membership"
 
 
 @pytest.mark.skipif(
@@ -10678,7 +10684,7 @@ def test_member_response_8():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Users"
+    assert response.data[0].base_type == "User"
 
 
 @pytest.mark.skipif(
@@ -10714,7 +10720,7 @@ def test_approval_rule_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "ApprovalRules"
+    assert response.data[0].base_type == "ApprovalRule"
 
 
 @pytest.mark.skipif(
@@ -10942,7 +10948,7 @@ def test_approval_rule_response_6():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "ApprovalRules"
+    assert response.data[0].base_type == "ApprovalRule"
 
 
 @pytest.mark.skipif(
@@ -11358,7 +11364,7 @@ def test_approval_rule_response_12():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "ApprovalRules"
+    assert response.data[0].base_type == "ApprovalRule"
 
 
 @pytest.mark.skipif(
@@ -11569,7 +11575,7 @@ def test_protected_branch_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "ApprovalRules"
+    assert response.data[0].base_type == "ApprovalRule"
 
 
 @pytest.mark.skipif(
@@ -11797,7 +11803,7 @@ def test_protected_branch_response_6():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "ApprovalRules"
+    assert response.data[0].base_type == "ApprovalRule"
 
 
 @pytest.mark.skipif(
@@ -12213,7 +12219,7 @@ def test_protected_branch_response_12():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "ApprovalRules"
+    assert response.data[0].base_type == "ApprovalRule"
 
 
 @pytest.mark.skipif(
@@ -12427,7 +12433,7 @@ def test_package_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Packages"
+    assert response.data[0].base_type == "Package"
 
 
 @pytest.mark.skipif(
@@ -12492,7 +12498,7 @@ def test_package_response_2():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Packages"
+    assert response.data[0].base_type == "Package"
 
 
 @pytest.mark.skipif(
@@ -12610,7 +12616,7 @@ def test_package_response_4():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Packages"
+    assert response.data[0].base_type == "Package"
 
 
 @pytest.mark.skipif(
@@ -12663,7 +12669,7 @@ def test_package_response_5():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Pipelines"
+    assert response.data[0].base_type == "Pipeline"
 
 
 @pytest.mark.skipif(
@@ -12847,7 +12853,7 @@ def test_release_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Releases"
+    assert response.data[0].base_type == "Release"
 
 
 @pytest.mark.skipif(
@@ -13247,7 +13253,7 @@ def test_runner_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Runners"
+    assert response.data[0].base_type == "Runner"
 
 
 @pytest.mark.skipif(
@@ -13307,7 +13313,7 @@ def test_runner_response_2():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Runners"
+    assert response.data[0].base_type == "Runner"
 
 
 @pytest.mark.skipif(
@@ -13422,7 +13428,7 @@ def test_runner_response_4():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Jobs"
+    assert response.data[0].base_type == "Job"
 
 
 @pytest.mark.skipif(
@@ -13458,7 +13464,7 @@ def test_runner_response_5():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "Runners"
+    assert response.data[0].base_type == "Runner"
 
 
 @pytest.mark.skipif(
@@ -13570,7 +13576,7 @@ def test_wiki_response_1():
         },
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data.base_type == "WikiPages"
+    assert response.data[0].base_type == "WikiPage"
 
 
 @pytest.mark.skipif(
@@ -13658,7 +13664,7 @@ def test_wiki_response_5():
     response = Response(
         data=example_data, status_code=200, headers={}, json_output=example_data
     )
-    assert response.data.base_type == "WikiPages"
+    assert response.data[0].base_type == "WikiPage"
 
 
 @pytest.mark.skipif(
@@ -13685,7 +13691,7 @@ def test_contributor_response_1():
     response = Response(
         data=example_data, status_code=200, headers={}, json_output=example_data
     )
-    assert response.data.base_type == "Contributors"
+    assert response.data[0].base_type == "Contributor"
 
 
 if __name__ == "__main__":
@@ -13702,6 +13708,7 @@ if __name__ == "__main__":
     test_wiki_model()
     test_project_response_1()
     test_project_response_2()
+    test_project_response_3()
     test_user_response_1()
     test_user_response_2()
     test_branch_response_1()
