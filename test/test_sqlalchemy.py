@@ -2,6 +2,7 @@
 
 import gitlab_api
 from gitlab_api.gitlab_db_models import BaseDBModel as Base, UserDBModel
+from gitlab_api.utils import pydantic_to_sqlalchemy, upsert
 import urllib3
 import os
 from urllib.parse import quote_plus
@@ -45,26 +46,15 @@ if __name__ == "__main__":
     print("Session Created\n\n")
 
     print("Fetching GitLab Data...")
-    test = {
-        "base_type": "User",
-        "id": 11,
-        "username": "group_2_bot_7021a4d67ebeaa094cabdfb08823a34d",
-        "name": "Development",
-        "state": "active",
-        "locked": False,
-        "avatar_url": "https://www.gravatar.com/avatar/85814bd79b1d5dc32c9f9bbd05cc07a8f003a1b4523be0127c47cf0d3bfd4dae?s=80&d=identicon",
-        "web_url": "http://gitlab.arpa/group_2_bot_7021a4d67ebeaa094cabdfb08823a34d",
-    }
-    db_model = UserDBModel(**test)
-    # # User Data table is a dependency table
-    # user_response = client.get_users(active=True, humans=True)
-    # user_db_model = pydantic_to_sqlalchemy(schema=user_response)
-    # print(
-    #     f"Users ({len(user_response.data)}) Fetched - "
-    #     f"Status: {user_response.status_code}\n"
-    # )
-    #
-    # # Namespaces table is a dependency table
+    # User Data table is a dependency table
+    user_response = client.get_users(active=True, humans=True)
+    user_db_model = pydantic_to_sqlalchemy(schema=user_response)
+    print(
+        f"Users ({len(user_response.data)}) Fetched - "
+        f"Status: {user_response.status_code}\n"
+    )
+
+    # Namespaces table is a dependency table
     # namespace_response = client.get_namespaces()
     # namespace_db_model = pydantic_to_sqlalchemy(schema=namespace_response)
     # print(
@@ -115,10 +105,10 @@ if __name__ == "__main__":
     #
     # pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response.data)
     #
-    # print("Inserting Users Into Database...")
-    # upsert(session=session, model=user_db_model)
-    # print("Users Synchronization Complete!\n")
-    #
+    print("Inserting Users Into Database...")
+    upsert(session=session, model=user_db_model)
+    print("Users Synchronization Complete!\n")
+
     # print("Inserting Namespaces Into Database...")
     # upsert(session=session, model=namespace_db_model)
     # print("Namespaces Synchronization Complete!\n")

@@ -86,7 +86,7 @@ def pydantic_to_sqlalchemy(schema):
                 #     for item in value
                 # ]
                 parsed_schema = parsed_schemas
-                print(f"\n\nFinished Updated List: {key} {parsed_schema[key]}")
+                #print(f"\n\nFinished Updated List: {key} {parsed_schema[key]}")
             elif is_pydantic(value):
                 print(f"\n\nUpdating Nonlist: {key} {value}")
                 new_model = value.Meta.orm_model(**pydantic_to_sqlalchemy(value))
