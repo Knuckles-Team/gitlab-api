@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import gitlab_api
-from gitlab_api.gitlab_db_models import BaseDBModel as Base, UserDBModel
+from gitlab_api.gitlab_db_models import BaseDBModel as Base
 from gitlab_api.utils import pydantic_to_sqlalchemy, upsert
 import urllib3
 import os
@@ -47,20 +47,20 @@ if __name__ == "__main__":
 
     print("Fetching GitLab Data...")
     # User Data table is a dependency table
-    user_response = client.get_users(active=True, humans=True)
-    user_db_model = pydantic_to_sqlalchemy(schema=user_response)
-    print(
-        f"Users ({len(user_response.data)}) Fetched - "
-        f"Status: {user_response.status_code}\n"
-    )
+    # user_response = client.get_users(active=True, humans=True)
+    # user_db_model = pydantic_to_sqlalchemy(schema=user_response)
+    # print(
+    #     f"Users ({len(user_response.data)}) Fetched - "
+    #     f"Status: {user_response.status_code}\n"
+    # )
 
     # Namespaces table is a dependency table
-    # namespace_response = client.get_namespaces()
-    # namespace_db_model = pydantic_to_sqlalchemy(schema=namespace_response)
-    # print(
-    #     f"Namespaces ({len(namespace_response.data)}) Fetched - "
-    #     f"Status: {namespace_response.status_code}\n"
-    # )
+    namespace_response = client.get_namespaces()
+    namespace_db_model = pydantic_to_sqlalchemy(schema=namespace_response)
+    print(
+        f"Namespaces ({len(namespace_response.data)}) Fetched - "
+        f"Status: {namespace_response.status_code}\n"
+    )
 
     # # Project table requires Users and Namespaces
     # project_response = client.get_nested_projects_by_group(group_id=2, per_page=100)
@@ -105,13 +105,13 @@ if __name__ == "__main__":
     #
     # pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response.data)
     #
-    print("Inserting Users Into Database...")
-    upsert(session=session, model=user_db_model)
-    print("Users Synchronization Complete!\n")
+    # print("Inserting Users Into Database...")
+    # upsert(session=session, model=user_db_model)
+    # print("Users Synchronization Complete!\n")
 
-    # print("Inserting Namespaces Into Database...")
-    # upsert(session=session, model=namespace_db_model)
-    # print("Namespaces Synchronization Complete!\n")
+    print("Inserting Namespaces Into Database...")
+    upsert(session=session, model=namespace_db_model)
+    print("Namespaces Synchronization Complete!\n")
 
     # print("Inserting Projects Into Database...\n")
     # upsert(session=session, model=project_db_model)
