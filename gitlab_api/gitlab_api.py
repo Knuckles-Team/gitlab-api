@@ -3368,7 +3368,7 @@ class Api(object):
                     headers=self.headers,
                     verify=self.verify,
                 )
-                if user.page > user.max_pages:
+                if user.max_pages and user.page > user.max_pages:
                     break
             except ValidationError or Exception as e:
                 print(f"Invalid parameters: {e.errors()}")

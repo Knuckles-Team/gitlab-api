@@ -957,6 +957,22 @@ class DefaultBranchProtectionDefaultsDBModel(BaseDBModel):
     )
 
 
+
+project_groups = Table(
+    'project_groups',
+    BaseDBModel.metadata,
+    Column('project_id', Integer, ForeignKey('projects.id'), primary_key=True),
+    Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
+)
+
+project_shared_with_groups = Table(
+    'project_shared_with_groups',
+    BaseDBModel.metadata,
+    Column('project_id', Integer, ForeignKey('projects.id'), primary_key=True),
+    Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
+)
+
+
 # Group Model
 class GroupDBModel(BaseDBModel):
     __tablename__ = "groups"
@@ -1038,16 +1054,16 @@ class GroupDBModel(BaseDBModel):
         nullable=True,
     )
     statistics: Mapped["StatisticsDBModel"] = relationship(back_populates="groups")
-    projects: Mapped[List["ProjectDBModel"]] = relationship(
+    projects = relationship(
         "ProjectDBModel",
-        foreign_keys="[ProjectDBModel.groups_id]",
-        back_populates="groups",
+        secondary=project_groups,
+        back_populates="groups"
     )
 
-    shared_projects: Mapped[List["ProjectDBModel"]] = relationship(
+    shared_projects = relationship(
         "ProjectDBModel",
-        foreign_keys="[ProjectDBModel.shared_with_groups_id]",
-        back_populates="shared_with_groups",
+        secondary=project_shared_with_groups,
+        back_populates="shared_with_groups"
     )
 
     parent_id: Mapped[int] = mapped_column(
@@ -1582,26 +1598,16 @@ class ProjectDBModel(BaseDBModel):
     )
     permissions: Mapped["PermissionsDBModel"] = relationship(back_populates="projects")
 
-    groups_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey(column="groups.id", name="fk_project_groups"),
-        nullable=True,
-    )
-
-    shared_with_groups_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey(column="groups.id", name="fk_project_shared_with_groups"),
-        nullable=True,
-    )
-
-    groups: Mapped[List["GroupDBModel"]] = relationship(
-        "GroupDBModel", foreign_keys=[groups_id], back_populates="projects"
-    )
-
-    shared_with_groups: Mapped[List["GroupDBModel"]] = relationship(
+    groups = relationship(
         "GroupDBModel",
-        foreign_keys=[shared_with_groups_id],
-        back_populates="shared_projects",
+        secondary=project_groups,
+        back_populates="projects"
+    )
+
+    shared_with_groups = relationship(
+        "GroupDBModel",
+        secondary=project_shared_with_groups,
+        back_populates="shared_projects"
     )
     milestones: Mapped[List["MilestoneDBModel"]] = relationship(
         back_populates="project"
@@ -1705,7 +1711,7 @@ class JobDBModel(BaseDBModel):
         "CommitDBModel", back_populates="jobs"
     )
 
-    runner_id: Mapped[int] = mapped_column(ForeignKey(column="runners.id"), nullable=True)
+    runner_id = mapped_column(Integer, ForeignKey("runners.id", name="fk_jobs_runners"), nullable=True)
     runner: Mapped["RunnerDBModel"] = relationship(back_populates="jobs")
 
     runner_manager_id: Mapped[int] = mapped_column(
@@ -1713,7 +1719,7 @@ class JobDBModel(BaseDBModel):
     )
     runner_manager: Mapped["RunnerManagerDBModel"] = relationship(back_populates="jobs")
 
-    project_id: Mapped[int] = mapped_column(ForeignKey(column="projects.id"), nullable=True)
+    project_id = mapped_column(Integer, ForeignKey("projects.id", name="fk_jobs_projects"), nullable=True)
     project: Mapped["ProjectDBModel"] = relationship(back_populates="jobs")
 
     user_id: Mapped[int] = mapped_column(ForeignKey(column="users.id"), nullable=True)
@@ -2094,9 +2100,9 @@ class IssueDBModel(BaseDBModel):
     type: Mapped[str] = mapped_column(String, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     closed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     changes_count: Mapped[str] = mapped_column(String, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     moved_to_id: Mapped[int] = mapped_column(Integer, nullable=True)
     iid: Mapped[int] = mapped_column(Integer, nullable=True)
     labels = mapped_column(ARRAY(String), nullable=True)
@@ -2332,7 +2338,7 @@ class GroupSamlIdentityDBModel(BaseDBModel):
     provider: Mapped[str] = mapped_column(String, nullable=True)
     saml_provider_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
 
     # Define the many-to-one relationship
     user: Mapped["UserDBModel"] = relationship(

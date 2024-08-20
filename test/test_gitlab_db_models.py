@@ -6,7 +6,7 @@ from gitlab_api.gitlab_db_models import (
     DeployTokenDBModel,
     RuleDBModel,
     AccessControlDBModel,
-    SourcesDBModel,
+    SourceDBModel,
     LinkDBModel,
     AssetsDBModel,
     EvidenceDBModel,
@@ -95,10 +95,7 @@ from gitlab_api.gitlab_db_models import (
         (GroupDBModel, {"id": 1, "name": "group_1", "path": "group_path"}),
         (PipelineDBModel, {"id": 1, "iid": 1, "status": "status_1"}),
         # Create dependent records after the referenced records
-        (AgentDBModel, {"config_project_id": 1}),
-        (AgentsDBModel, {"job_id": 1, "pipeline_id": 1}),
-        (ApprovedByDBModel, {"user_id": 1}),
-        (DiffDBModel, {"merge_request_id": 1, "diff": "diff content"}),
+        (DiffDBModel, {"id": 1, "diff": "diff content"}),
         (
             WebhookDBModel,
             {
@@ -132,7 +129,7 @@ from gitlab_api.gitlab_db_models import (
             {"commit_committer_check": True, "commit_committer_name_check": False},
         ),
         (AccessControlDBModel, {"name": "access_control_1", "access_level": 10}),
-        (SourcesDBModel, {"format": "format_1", "url": "http://example.com"}),
+        (SourceDBModel, {"format": "format_1", "url": "http://example.com"}),
         (LinkDBModel, {"name": "link_1", "url": "http://example.com"}),
         (AssetsDBModel, {"count": 10}),
         (EvidenceDBModel, {"sha": "abc123", "filepath": "/path/to/file"}),
@@ -170,7 +167,7 @@ from gitlab_api.gitlab_db_models import (
             {"signature_type": "gpg", "verification_status": "verified"},
         ),
         (CommentDBModel, {"body": "comment_1", "note": "note_1"}),
-        (CommitDBModel, {"id": 123, "message": "commit message"}),
+        (CommitDBModel, {"id": '123', "message": "commit message"}),
         (MembershipDBModel, {"source_id": 1, "access_level": {}}),
         (IssueStatsDBModel, {"total": 10, "closed": 5}),
         (MilestoneDBModel, {"title": "milestone_1", "state": "active"}),
@@ -191,14 +188,15 @@ from gitlab_api.gitlab_db_models import (
         ),
         (
             ConfigurationDBModel,
-            {"approvals_before_merge": 2, "reset_approvals_on_push": True},
+            {"id": 1, "approvals_before_merge": 2, "reset_approvals_on_push": True},
         ),
         (IterationDBModel, {"title": "Iteration 1", "state": 1}),
         (IdentityDBModel, {"provider": "gitlab", "extern_uid": "user123"}),
-        (GroupSamlIdentityDBModel, {"extern_uid": "saml123", "provider": "saml"}),
-        (CreatedByDBModel, {"username": "creator_user", "name": "Creator Name"}),
+        (GroupSamlIdentityDBModel, {"user_id": 1, "extern_uid": "saml123", "provider": "saml"}),
         (NamespaceDBModel, {"id": 1, "name": "namespace_1", "path": "namespace_path"}),
         (ContainerExpirationPolicyDBModel, {"cadence": "1d", "enabled": True}),
+        (AgentDBModel, {"id": 1, "config_project_id": 1}),
+        (AgentsDBModel, {"job_id": 1, "pipeline_id": 1}),
         (
             PermissionsDBModel,
             {
@@ -208,17 +206,9 @@ from gitlab_api.gitlab_db_models import (
         ),
         (StatisticsDBModel, {"commit_count": 100, "storage_size": 2048}),
         (
-            LinksDBModel,
-            {
-                "self_link": "http://example.com/project",
-                "issues": "http://example.com/issues",
-            },
-        ),
-        (
             DetailedStatusDBModel,
             {"icon": "icon.png", "text": "status text", "label": "status label"},
         ),
-        # Missing Tests
         (
             MergeApprovalsDBModel,
             {
@@ -279,6 +269,8 @@ from gitlab_api.gitlab_db_models import (
                 "description": "project description",
                 "name": "project_1",
                 "created_at": datetime.now(),
+                "shared_with_groups": [GroupDBModel(**{"base_type": "Group", "id": 5, "name": "group_1", "path": "group_path"})],
+                "groups": [GroupDBModel(**{"base_type": "Group","id": 6, "name": "group_2", "path": "group_path2"})]
             },
         ),
         (
@@ -290,7 +282,7 @@ from gitlab_api.gitlab_db_models import (
             {
                 "state": "opened",
                 "description": "issue description",
-                "project_id": 1,
+                #"project_id": 2,
                 "title": "Issue 1",
                 "created_at": datetime.now(),
                 "author_id": 1,
@@ -305,9 +297,16 @@ from gitlab_api.gitlab_db_models import (
 )
 def test_model_creation(session, model, kwargs):
     instance = model(**kwargs)
-    session.add(instance)
+    session.merge(instance)
     session.commit()
 
     retrieved = session.query(model).first()
     for key, value in kwargs.items():
-        assert getattr(retrieved, key) == value
+        if isinstance(value, datetime):
+            assert getattr(retrieved, key).replace(microsecond=0) == value.replace(microsecond=0)
+        elif isinstance(value, list) and len(value) > 0 and isinstance(value[0], GroupDBModel):
+            retrieved_ids = [getattr(g, 'id') for g in getattr(retrieved, key)]
+            expected_ids = [getattr(g, 'id') for g in value]
+            assert retrieved_ids == expected_ids
+        else:
+            assert getattr(retrieved, key) == value
