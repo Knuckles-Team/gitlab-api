@@ -8,7 +8,7 @@ logging.basicConfig(
     level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-from sqlalchemy import String, DateTime, ForeignKey, Text
+from sqlalchemy import String, DateTime, ForeignKey, Text, Table, Column
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import (
     relationship,
@@ -540,6 +540,16 @@ class BranchDBModel(BaseDBModel):
     )
 
 
+merge_request_labels = Table(
+    "merge_request_labels",
+    BaseDBModel.metadata,
+    Column(
+        "merge_request_id", Integer, ForeignKey("merge_requests.id"), primary_key=True
+    ),
+    Column("label_id", Integer, ForeignKey("labels.id"), primary_key=True),
+)
+
+
 # Label Model
 class LabelDBModel(BaseDBModel):
     __tablename__ = "labels"
@@ -560,7 +570,9 @@ class LabelDBModel(BaseDBModel):
     priority: Mapped[int] = mapped_column(Integer, nullable=True)
     is_project_label: Mapped[bool] = mapped_column(Boolean, nullable=True)
     merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        back_populates="labels"
+        "MergeRequestDBModel",
+        secondary=merge_request_labels,  # Link to the association table
+        back_populates="labels",
     )
 
 
@@ -769,16 +781,18 @@ class MergeRequestDBModel(BaseDBModel):
         back_populates="merge_requests", foreign_keys=[project_id]
     )
 
-    labels_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="labels.id"), nullable=True
+    labels: Mapped[List["LabelDBModel"]] = relationship(
+        "LabelDBModel",
+        secondary=merge_request_labels,  # Link to the association table
+        back_populates="merge_requests",
     )
-    labels: Mapped[List["LabelDBModel"]] = relationship(back_populates="merge_requests")
 
     references_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="references.id"), nullable=True
     )
+
     references: Mapped["ReferencesDBModel"] = relationship(
-        back_populates="merge_requests"
+        "ReferencesDBModel", back_populates="merge_request_references"
     )
 
     time_stats_id: Mapped[int] = mapped_column(
@@ -1514,6 +1528,7 @@ class ProjectDBModel(BaseDBModel):
     ci_dockerfile: Mapped[str] = mapped_column(String, nullable=True)
     public: Mapped[bool] = mapped_column(Boolean, nullable=True)
 
+
     tag_list_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="tags.id"), nullable=True
     )
@@ -1540,7 +1555,7 @@ class ProjectDBModel(BaseDBModel):
     )
     namespace: Mapped["NamespaceDBModel"] = relationship(back_populates="projects")
 
-    container_expiration_policies: Mapped["ContainerExpirationPolicyDBModel"] = (
+    container_expiration_policy: Mapped["ContainerExpirationPolicyDBModel"] = (
         relationship(
             "ContainerExpirationPolicyDBModel",
             back_populates="project",
@@ -2205,8 +2220,8 @@ class ReferencesDBModel(BaseDBModel):
     short: Mapped[str] = mapped_column(String, nullable=True)
     relative: Mapped[str] = mapped_column(String, nullable=True)
     full: Mapped[str] = mapped_column(String, nullable=True)
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        back_populates="references"
+    merge_request_references: Mapped[List["MergeRequestDBModel"]] = relationship(
+        back_populates="references", foreign_keys="[MergeRequestDBModel.references_id]"
     )
 
 
@@ -2355,7 +2370,7 @@ class ContainerExpirationPolicyDBModel(BaseDBModel):
 
     project: Mapped["ProjectDBModel"] = relationship(
         "ProjectDBModel",
-        back_populates="container_expiration_policies",
+        back_populates="container_expiration_policy",
         foreign_keys=[project_id],  # Specify the foreign key here
     )
 

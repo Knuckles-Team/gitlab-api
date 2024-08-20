@@ -3587,215 +3587,32 @@ class Response(BaseModel):
             "ApprovalRule": ApprovalRule,
             "Runner": Runner,
         }
-        temp_value = None
         if isinstance(value, list):
             if len(value) > 0:
-                if all(isinstance(item, Dict) for item in value):
+                first_item = value[0]
+                if isinstance(first_item, BaseModel):  # Already validated
+                    return value  # Return as is
+
+                # Otherwise, continue with the validation logic
+                for model_name, model in single_models.items():
                     try:
-                        branches = [Branch(**item) for item in value]
-                        temp_value = branches
-                        print(f"Branches Validation Success: {temp_value}")
+                        temp_value = [model(**item) if isinstance(item, dict) else item for item in value]
+                        print(f"{model_name} Validation Success: {temp_value}")
+                        return temp_value
                     except Exception as e:
                         logging.debug(
-                            f"\n\n\n Branches Validation Failed: {value}\nError: {e}"
+                            f"\n\n\n {model_name} Validation Failed: {value}\nError: {e}"
                         )
-                    try:
-                        labels = [Label(**item) for item in value]
-                        temp_value = labels
-                        print(f"Labels Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Labels Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        topics = [Topic(**item) for item in value]
-                        temp_value = topics
-                        print(f"Topics Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Topics Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        tags = [Tag(**item) for item in value]
-                        temp_value = tags
-                        print(f"Tags Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Tags Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        contributors = [Contributor(**item) for item in value]
-                        temp_value = contributors
-                        print(f"Contributors Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Contributors Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        commits = [Commit(**item) for item in value]
-                        temp_value = commits
-                        print(f"Commits Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Commits Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        pipelines = [Pipeline(**item) for item in value]
-                        temp_value = pipelines
-                        print(f"Pipelines Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Pipelines Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        merge_requests = [MergeRequest(**item) for item in value]
-                        temp_value = merge_requests
-                        print(f"Merge Requests Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Merge Requests Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        namespaces = [Namespace(**item) for item in value]
-                        temp_value = namespaces
-                        print(f"Namespaces Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Namespaces Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        releases = [Release(**item) for item in value]
-                        temp_value = releases
-                        print(f"Releases Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Releases Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        diffs = [Diff(**item) for item in value]
-                        temp_value = diffs
-                        print(f"Diffs Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Diffs Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        comments = [Comment(**item) for item in value]
-                        temp_value = comments
-                        print(f"Comments Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Comments Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        deploy_tokens = [DeployToken(**item) for item in value]
-                        temp_value = deploy_tokens
-                        print(f"Deploy Tokens Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Deploy Tokens Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        users = [User(**item) for item in value]
-                        temp_value = users
-                        print(f"Users Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Users Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        memberships = [Membership(**item) for item in value]
-                        temp_value = memberships
-                        print(f"Memberships Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Memberships Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        groups = [Group(**item) for item in value]
-                        temp_value = groups
-                        print(f"Groups Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Groups Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        pipeline_variables = [
-                            PipelineVariable(**item) for item in value
-                        ]
-                        temp_value = pipeline_variables
-                        print(f"PipelineVariable Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n PipelineVariable Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        projects = [Project(**item) for item in value]
-                        temp_value = projects
-                        print(f"Projects Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Projects Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        issues = [Issue(**item) for item in value]
-                        temp_value = issues
-                        print(f"Issues Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Issues Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        wiki_pages = [WikiPage(**item) for item in value]
-                        temp_value = wiki_pages
-                        print(f"WikiPages Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n WikiPages Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        approval_rules = [ApprovalRule(**item) for item in value]
-                        temp_value = approval_rules
-                        print(f"ApprovalRules Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n ApprovalRules Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        jobs = [Job(**item) for item in value]
-                        temp_value = jobs
-                        print(f"Jobs Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Jobs Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        packages = [Package(**item) for item in value]
-                        temp_value = packages
-                        print(f"Packages Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Packages Validation Failed: {value}\nError: {e}"
-                        )
-                    try:
-                        runners = [Runner(**item) for item in value]
-                        temp_value = runners
-                        print(f"Runners Validation Success: {temp_value}")
-                    except Exception as e:
-                        logging.debug(
-                            f"\n\n\n Runners Validation Failed: {value}\nError: {e}"
-                        )
-            else:
-                return value
-            value = temp_value
+            return value
         elif isinstance(value, dict):
             for model_name, model in single_models.items():
                 try:
                     temp_value = model(**value)
                     print(f"{model_name} Model Validation Success: {value}")
-                    value = temp_value
+                    return temp_value
                 except Exception as e:
                     logging.debug(
                         f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
                     )
         return value
+

@@ -40,6 +40,11 @@ def process_response(response: requests.Response) -> Union[Response, requests.Re
 
 
 def remove_none_values(dictionary: dict) -> dict:
+    dictionary.pop("json_output", None)
+    dictionary.pop("raw_output", None)
+    dictionary.pop("status_code", None)
+    dictionary.pop("headers", None)
+    dictionary.pop("message", None)
     return {k: v for k, v in dictionary.items() if v is not None}
 
 
@@ -59,9 +64,11 @@ def pydantic_to_sqlalchemy(schema):
     to a dictionary containing SQLAlchemy models.
     Only works if nested schemas have specified the Meta.orm_model.
     """
-    print(f"SCHEMA: {schema}")
+    print(f"\n\nSCHEMA: {schema}")
     parsed_schema = dict(schema)
     parsed_schema = remove_none_values(dictionary=parsed_schema)
+
+    print(f"\n\nCLEANED PARSED SCHEMA: {parsed_schema}")
     for key, value in parsed_schema.items():
         if not value:
             continue
@@ -74,28 +81,28 @@ def pydantic_to_sqlalchemy(schema):
                     print(f"\nGoing through Item: {item} in Value: {value}")
                     new_schema = pydantic_to_sqlalchemy(item)
                     print(
-                        f"\nNew schema: {new_schema}\nFor Model: {item.Meta.orm_model}\nFor Item: {item}\nIn Value: {value}"
+                        f"\nNew schema: {new_schema}\n\tFor Model: {item.Meta.orm_model}"
                     )
                     new_model = item.Meta.orm_model(**new_schema)
                     print(
-                        f"\nNew model: {new_model}\nFor Item: {item}\nIn Value: {value}"
+                        f"\nNew model: {new_model}\n\tFor Item: {item}"  # \n\tIn Value: {value}"
                     )
                     parsed_schemas.append(new_model)
-                # parsed_schema[key] = [
-                #     item.Meta.orm_model(**pydantic_to_sqlalchemy(item))
-                #     for item in value
-                # ]
-                parsed_schema = parsed_schemas
-                # print(f"\n\nFinished Updated List: {key} {parsed_schema[key]}")
+                parsed_schema[key] = parsed_schemas
             elif is_pydantic(value):
                 print(f"\n\nUpdating Nonlist: {key} {value}")
                 new_model = value.Meta.orm_model(**pydantic_to_sqlalchemy(value))
-                print(f"\n\nNew Model: {new_model}")
+                print(
+                    f"\n\nNew Model: {new_model} for schema: {parsed_schema} in key: {key} of value: {value}"
+                )
                 parsed_schema[key] = new_model
                 print(f"\n\nFinished Updated Nonlist: {key} {value}")
-        except AttributeError:
-            raise AttributeError(
-                f"\n\nFound nested Pydantic model in {schema.__class__} but Meta.orm_model was not specified."
+        except AttributeError as e:
+            print(
+                f"\n\nFound nested Pydantic model in {schema.__class__} but Meta.orm_model was not specified.\nExact Error: {e}"
+            )
+            raise (
+                f"\n\nFound nested Pydantic model in {schema.__class__} but Meta.orm_model was not specified.\nExact Error: {e}"
             )
     print(f"\n\nReturning parsed schema: {parsed_schema}")
     return parsed_schema
@@ -106,21 +113,15 @@ def upsert(model: Any, session):
     if not model:
         return
 
-    for item in model:
+    # print(f"\n\nMODEL TO INSERT: {model['data']}")
+
+    if hasattr(model, "data"):
+        print("\n\nHAS ATTR TRUE FOR DATA")
+    for item in model["data"]:
+        print(f"MODEL TO INSERT: {model}")
         session.merge(item)
         print(f"MERGED: {item}\n\n")
-
     session.commit()
-
-    # for key, value in model.items():
-    #     if key == "base_type":
-    #         continue
-    #     print(f"SCANNING: {str(key)} - {model[key]}")
-    #     for item in model[key]:
-    #         session.merge(item)
-    #         print(f"MERGED: {item}\n\n")
-    #
-    #     session.commit()
 
 
 def create_table(db_instance, engine):

@@ -9001,7 +9001,7 @@ def test_group_response_12():
         }
     ]
     response = Response(data=example_data, status_code=200, json_output=example_data)
-    assert response.data[0].base_type == "Project"
+    assert response.data[0].base_type == "Group"
 
 
 @pytest.mark.skipif(

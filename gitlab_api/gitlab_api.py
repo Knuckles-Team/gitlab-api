@@ -2106,6 +2106,25 @@ class Api(object):
         return response
 
     @require_auth
+    def get_total_projects_in_group(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        per_page = 100
+        if project.per_page:
+            per_page = project.per_page
+        if project.group_id is None:
+            raise MissingParameterError
+        response = self._session.get(
+            url=f"{self.url}"
+            f"/groups/{project.group_id}"
+            f"/projects?per_page={per_page}&x-total-pages",
+            headers=self.headers,
+            verify=self.verify,
+        )
+        return response
+
+    @require_auth
     def get_nested_projects_by_group(
         self, **kwargs
     ) -> Union[Response, requests.Response]:
@@ -2128,12 +2147,11 @@ class Api(object):
         if project.group_id is None:
             raise MissingParameterError
         project_group = self.get_group(group_id=project.group_id)
-        if hasattr(project_group.data, "groups") and project_group.data:
-            all_groups = all_groups.append(project_group.data)
+        if project_group.data:
+            all_groups.append(project_group.data)
         groups = self.get_group_descendant_groups(group_id=project.group_id)
-        if hasattr(groups.data, "groups") and groups.data:
+        if groups.data:
             all_groups.extend(groups.data)
-        group_counter = 0
         for group in all_groups:
             pages_response = self.get_total_projects_in_group(
                 group_id=project.group_id, per_page=project.per_page
@@ -2154,28 +2172,8 @@ class Api(object):
                     and projects.data
                     and len(projects.data) > 0
                 ):
-                    all_projects.extend(projects.data)
-            group_counter = group_counter + 1
+                    all_projects = all_projects + projects.data
         response = Response(data=all_projects, status_code=200)
-        return response
-
-    @require_auth
-    def get_total_projects_in_group(
-        self, **kwargs
-    ) -> Union[Response, requests.Response]:
-        project = ProjectModel(**kwargs)
-        per_page = 100
-        if project.per_page:
-            per_page = project.per_page
-        if project.group_id is None:
-            raise MissingParameterError
-        response = self._session.get(
-            url=f"{self.url}"
-            f"/groups/{project.group_id}"
-            f"/projects?per_page={per_page}&x-total-pages",
-            headers=self.headers,
-            verify=self.verify,
-        )
         return response
 
     @require_auth
