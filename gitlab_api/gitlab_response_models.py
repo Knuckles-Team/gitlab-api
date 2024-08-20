@@ -3596,7 +3596,10 @@ class Response(BaseModel):
                 # Otherwise, continue with the validation logic
                 for model_name, model in single_models.items():
                     try:
-                        temp_value = [model(**item) if isinstance(item, dict) else item for item in value]
+                        temp_value = [
+                            model(**item) if isinstance(item, dict) else item
+                            for item in value
+                        ]
                         logging.debug(f"{model_name} Validation Success: {temp_value}")
                         return temp_value
                     except Exception as e:
@@ -3615,4 +3618,3 @@ class Response(BaseModel):
                         f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
                     )
         return value
-

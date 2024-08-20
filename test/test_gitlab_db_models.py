@@ -167,7 +167,7 @@ from gitlab_api.gitlab_db_models import (
             {"signature_type": "gpg", "verification_status": "verified"},
         ),
         (CommentDBModel, {"body": "comment_1", "note": "note_1"}),
-        (CommitDBModel, {"id": '123', "message": "commit message"}),
+        (CommitDBModel, {"id": "123", "message": "commit message"}),
         (MembershipDBModel, {"source_id": 1, "access_level": {}}),
         (IssueStatsDBModel, {"total": 10, "closed": 5}),
         (MilestoneDBModel, {"title": "milestone_1", "state": "active"}),
@@ -192,7 +192,10 @@ from gitlab_api.gitlab_db_models import (
         ),
         (IterationDBModel, {"title": "Iteration 1", "state": 1}),
         (IdentityDBModel, {"provider": "gitlab", "extern_uid": "user123"}),
-        (GroupSamlIdentityDBModel, {"user_id": 1, "extern_uid": "saml123", "provider": "saml"}),
+        (
+            GroupSamlIdentityDBModel,
+            {"user_id": 1, "extern_uid": "saml123", "provider": "saml"},
+        ),
         (NamespaceDBModel, {"id": 1, "name": "namespace_1", "path": "namespace_path"}),
         (ContainerExpirationPolicyDBModel, {"cadence": "1d", "enabled": True}),
         (AgentDBModel, {"id": 1, "config_project_id": 1}),
@@ -269,8 +272,27 @@ from gitlab_api.gitlab_db_models import (
                 "description": "project description",
                 "name": "project_1",
                 "created_at": datetime.now(),
-                "shared_with_groups": [GroupDBModel(**{"base_type": "Group", "id": 5, "name": "group_1", "path": "group_path"})],
-                "groups": [GroupDBModel(**{"base_type": "Group","id": 6, "name": "group_2", "path": "group_path2"})]
+                "creator": UserDBModel(**{"id": 2, "username": "creator"}),
+                "shared_with_groups": [
+                    GroupDBModel(
+                        **{
+                            "base_type": "Group",
+                            "id": 5,
+                            "name": "group_1",
+                            "path": "group_path",
+                        }
+                    )
+                ],
+                "groups": [
+                    GroupDBModel(
+                        **{
+                            "base_type": "Group",
+                            "id": 6,
+                            "name": "group_2",
+                            "path": "group_path2",
+                        }
+                    )
+                ],
             },
         ),
         (
@@ -282,7 +304,7 @@ from gitlab_api.gitlab_db_models import (
             {
                 "state": "opened",
                 "description": "issue description",
-                #"project_id": 2,
+                # "project_id": 2,
                 "title": "Issue 1",
                 "created_at": datetime.now(),
                 "author_id": 1,
@@ -303,10 +325,18 @@ def test_model_creation(session, model, kwargs):
     retrieved = session.query(model).first()
     for key, value in kwargs.items():
         if isinstance(value, datetime):
-            assert getattr(retrieved, key).replace(microsecond=0) == value.replace(microsecond=0)
-        elif isinstance(value, list) and len(value) > 0 and isinstance(value[0], GroupDBModel):
-            retrieved_ids = [getattr(g, 'id') for g in getattr(retrieved, key)]
-            expected_ids = [getattr(g, 'id') for g in value]
+            assert getattr(retrieved, key).replace(microsecond=0) == value.replace(
+                microsecond=0
+            )
+        elif (
+            isinstance(value, list)
+            and len(value) > 0
+            and isinstance(value[0], GroupDBModel)
+        ):
+            retrieved_ids = [getattr(g, "id") for g in getattr(retrieved, key)]
+            expected_ids = [getattr(g, "id") for g in value]
             assert retrieved_ids == expected_ids
+        elif isinstance(value, UserDBModel):
+            assert getattr(retrieved, key).id == value.id
         else:
             assert getattr(retrieved, key) == value

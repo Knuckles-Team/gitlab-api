@@ -7,7 +7,6 @@ from sqlalchemy.engine import reflection
 import requests
 
 from gitlab_api.gitlab_response_models import Response
-from gitlab_api.gitlab_db_models import BaseDBModel
 from sqlalchemy.orm import AppenderQuery
 from sqlalchemy.orm.collections import InstrumentedList
 
@@ -110,6 +109,7 @@ def pydantic_to_sqlalchemy(schema):
     print(f"\n\nReturning parsed schema: {parsed_schema}")
     return parsed_schema
 
+
 def upsert(model: Any, session):
 
     if not model:
@@ -160,7 +160,6 @@ def upsert_row(session, model, processed_models=None):
                 processed_models=processed_models,
             )
 
-
     # Upsert nested models first
     upsert_nested_models(session, model)
 
@@ -173,6 +172,54 @@ def upsert_row(session, model, processed_models=None):
     except Exception as e:
         session.rollback()
         print(f"Error inserting/updating {model_type.__name__} with ID {model.id}: {e}")
+
+
+# def upsert_row(session, model, processed_models=None):
+#     if model is None:
+#         return None
+#
+#     if processed_models is None:
+#         processed_models = set()
+#
+#     model_type = type(model)
+#     model_identifier = (model_type, model.id)
+#
+#     if model_identifier in processed_models:
+#         return None
+#
+#     processed_models.add(model_identifier)
+#
+#     # Ensure related models like UserDBModel are attached to the session
+#     if isinstance(model, ProjectDBModel):
+#         if model.creator and not session.contains(model.creator):
+#             session.add(model.creator)
+#         if model.owner and not session.contains(model.owner):
+#             session.add(model.owner)
+#
+#     # Function to upsert nested models
+#     def upsert_nested_models(session, model):
+#         for relation in model.__mapper__.relationships:
+#             related_model = getattr(model, relation.key)
+#             if isinstance(related_model, InstrumentedList):
+#                 for item in related_model:
+#                     if item is not None:
+#                         upsert_row(session=session, model=item, processed_models=processed_models)
+#             elif isinstance(related_model, AppenderQuery):
+#                 pass
+#             elif related_model is not None:
+#                 upsert_row(session=session, model=related_model, processed_models=processed_models)
+#
+#     # Upsert nested models first
+#     upsert_nested_models(session, model)
+#
+#     try:
+#         session.add(model)  # Use session.add() to handle new objects
+#         session.commit()
+#         return model
+#     except Exception as e:
+#         session.rollback()
+#         print(f"Error inserting/updating {model_type.__name__} with ID {model.id}: {e}")
+#         raise
 
 
 # def upsert(model: Any, session):

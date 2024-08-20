@@ -1,10 +1,9 @@
 #!/usr/bin/python
 
 import gitlab_api
-from gitlab_api import pydantic_to_sqlalchemy, upsert, JobDBModel
+from gitlab_api import pydantic_to_sqlalchemy, upsert
 from gitlab_api.gitlab_db_models import (
-    BaseDBModel as Base, RunnerManagerDBModel, CommitDBModel, ArtifactDBModel, TagDBModel, PipelineDBModel,
-    RunnerDBModel, ProjectDBModel, ParentIDDBModel, UserDBModel,
+    BaseDBModel as Base,
 )
 import urllib3
 import os
@@ -58,7 +57,7 @@ if __name__ == "__main__":
         f"Database Models: {user_db_model}\n"
     )
 
-    #Namespaces table is a dependency table
+    # Namespaces table is a dependency table
     namespace_response = client.get_namespaces()
     namespace_db_model = pydantic_to_sqlalchemy(schema=namespace_response)
     print(
@@ -107,12 +106,8 @@ if __name__ == "__main__":
                 f"Pipeline Jobs ({len(getattr(pipeline_job_response, 'data', []))}) Fetched for Project ({project.id}) - "
                 f"Status: {pipeline_job_response.status_code}\n"
             )
-
-
     pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response)
-    print(
-        f"Database Models: {pipeline_db_model}\n"
-    )
+    print(f"Database Models: {pipeline_db_model}\n")
 
     print("Inserting Users Into Database...")
     upsert(session=session, model=user_db_model)
