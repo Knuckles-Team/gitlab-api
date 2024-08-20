@@ -555,7 +555,7 @@ class LabelDBModel(BaseDBModel):
     __tablename__ = "labels"
 
     id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True, nullable=True
+        Integer, primary_key=True, autoincrement=True, nullable=False
     )
     base_type: Mapped[str] = mapped_column(String, default="Label")
     name: Mapped[str] = mapped_column(String, nullable=True)
@@ -588,7 +588,7 @@ class TagDBModel(BaseDBModel):
     __tablename__ = "tags"
 
     id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=True, nullable=True
+        Integer, primary_key=True, autoincrement=True, nullable=False
     )
     base_type: Mapped[str] = mapped_column(String, default="Tag")
     tag: Mapped[str] = mapped_column(String, nullable=True)
@@ -600,9 +600,8 @@ class TagDBModel(BaseDBModel):
         "ProjectDBModel", back_populates="tag_list"
     )
     runners: Mapped[List["RunnerDBModel"]] = relationship(back_populates="tag_list")
-    jobs: Mapped[List["ProjectDBModel"]] = relationship(
-        "JobDBModel", back_populates="tag_list"
-    )
+    job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id"), nullable=True)
+    job: Mapped["JobDBModel"] = relationship(back_populates="tag_list")
 
 
 # ApprovalRule Model
@@ -1697,34 +1696,34 @@ class JobDBModel(BaseDBModel):
     tag: Mapped[bool] = mapped_column(Boolean, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
 
-    tag_list_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="tags.id"), nullable=True
+    tag_list: Mapped[List["TagDBModel"]] = relationship(
+        back_populates="job"
     )
-    # This may require processeing in the response model like the other tag lists
-    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="jobs")
 
-    commit_id: Mapped[str] = mapped_column(ForeignKey(column="commits.id"))
-    commit: Mapped["CommitDBModel"] = relationship(back_populates="jobs")
+    commit_id: Mapped[str] = mapped_column(ForeignKey("commits.id"), nullable=True)
+    commit: Mapped["CommitDBModel"] = relationship(
+        "CommitDBModel", back_populates="jobs"
+    )
 
-    runner_id: Mapped[int] = mapped_column(ForeignKey(column="runners.id"))
+    runner_id: Mapped[int] = mapped_column(ForeignKey(column="runners.id"), nullable=True)
     runner: Mapped["RunnerDBModel"] = relationship(back_populates="jobs")
 
     runner_manager_id: Mapped[int] = mapped_column(
-        ForeignKey(column="runner_managers.id")
+        ForeignKey(column="runner_managers.id"), nullable=True
     )
     runner_manager: Mapped["RunnerManagerDBModel"] = relationship(back_populates="jobs")
 
-    project_id: Mapped[int] = mapped_column(ForeignKey(column="projects.id"))
+    project_id: Mapped[int] = mapped_column(ForeignKey(column="projects.id"), nullable=True)
     project: Mapped["ProjectDBModel"] = relationship(back_populates="jobs")
 
-    user_id: Mapped[int] = mapped_column(ForeignKey(column="users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey(column="users.id"), nullable=True)
     user: Mapped["UserDBModel"] = relationship(back_populates="jobs")
 
-    pipeline_id: Mapped[int] = mapped_column(ForeignKey(column="pipelines.id"))
-    head_pipeline_id: Mapped[int] = mapped_column(ForeignKey(column="pipelines.id"))
+    pipeline_id: Mapped[int] = mapped_column(ForeignKey(column="pipelines.id"), nullable=True)
+    head_pipeline_id: Mapped[int] = mapped_column(ForeignKey(column="pipelines.id"), nullable=True)
 
     downstream_pipeline_id: Mapped[int] = mapped_column(
-        ForeignKey(column="pipelines.id")
+        ForeignKey(column="pipelines.id"), nullable=True
     )
     pipeline: Mapped["PipelineDBModel"] = relationship(
         "PipelineDBModel", foreign_keys=[pipeline_id], back_populates="jobs"
@@ -1737,18 +1736,14 @@ class JobDBModel(BaseDBModel):
     )
 
     artifacts_file_id: Mapped[int] = mapped_column(
-        ForeignKey(column="artifacts_files.id")
+        ForeignKey(column="artifacts_files.id"), nullable=True
     )
     artifacts_file: Mapped["ArtifactsFileDBModel"] = relationship(back_populates="jobs")
 
-    artifacts_id: Mapped[int] = mapped_column(ForeignKey(column="artifacts.id"))
-    artifacts: Mapped[List["ArtifactDBModel"]] = relationship(back_populates="jobs")
-    agents = relationship("AgentsDBModel", back_populates="job")
-
-    commit_id: Mapped[str] = mapped_column(ForeignKey("commits.id"))
-    commit: Mapped["CommitDBModel"] = relationship(
-        "CommitDBModel", back_populates="jobs"
+    artifacts: Mapped[List["ArtifactDBModel"]] = relationship(
+        back_populates="job"
     )
+    agents = relationship("AgentsDBModel", back_populates="job")
 
 
 # Pipeline Model
@@ -1999,15 +1994,9 @@ class ParentIDDBModel(BaseDBModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="ParentID")
     parent_id: Mapped[str] = mapped_column(String, nullable=False)
-
-    commit_id: Mapped[str] = mapped_column(
-        String,
-        ForeignKey(column="commits.id", name="fk_commit_parent_ids"),
-        nullable=True,
-    )
-    commit: Mapped["CommitDBModel"] = relationship(
-        back_populates="parent_ids", foreign_keys=[commit_id]
-    )
+    commit_id: Mapped[str] = mapped_column(ForeignKey("commits.id"),
+                                           nullable=True)
+    commit: Mapped["CommitDBModel"] = relationship(back_populates="parent_ids")
 
 
 # Commit Model
@@ -2069,8 +2058,8 @@ class CommitDBModel(BaseDBModel):
     notes: Mapped["CommentDBModel"] = relationship(
         back_populates="commit", remote_side="[CommentDBModel.commit_id]"
     )
-    parent_ids: Mapped["ParentIDDBModel"] = relationship(
-        back_populates="commit", remote_side="[ParentIDDBModel.commit_id]"
+    parent_ids: Mapped[List["ParentIDDBModel"]] = relationship(
+        back_populates="commit"
     )
     releases: Mapped[List["ReleaseDBModel"]] = relationship(back_populates="commit")
     branches: Mapped[List["BranchDBModel"]] = relationship(back_populates="commit")
@@ -2235,7 +2224,8 @@ class ArtifactDBModel(BaseDBModel):
     size: Mapped[int] = mapped_column(Integer, nullable=True)
     filename: Mapped[str] = mapped_column(String, nullable=True)
     file_format: Mapped[str] = mapped_column(String, nullable=True)
-    jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="artifacts")
+    job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id"), nullable=True)
+    job: Mapped["JobDBModel"] = relationship(back_populates="artifacts")
 
 
 # ArtifactsFile Model

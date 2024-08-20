@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 import gitlab_api
-from gitlab_api import pydantic_to_sqlalchemy, upsert
+from gitlab_api import pydantic_to_sqlalchemy, upsert, JobDBModel
 from gitlab_api.gitlab_db_models import (
-    BaseDBModel as Base,
+    BaseDBModel as Base, RunnerManagerDBModel, CommitDBModel, ArtifactDBModel, TagDBModel, PipelineDBModel,
+    RunnerDBModel, ProjectDBModel, ParentIDDBModel, UserDBModel,
 )
 import urllib3
 import os
@@ -56,7 +57,6 @@ if __name__ == "__main__":
         f"Status: {user_response.status_code}\n"
         f"Database Models: {user_db_model}\n"
     )
-    print(f"USER DB MODEL: {user_db_model['data'][0]}")
 
     #Namespaces table is a dependency table
     namespace_response = client.get_namespaces()
@@ -108,6 +108,7 @@ if __name__ == "__main__":
                 f"Status: {pipeline_job_response.status_code}\n"
             )
 
+
     pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response)
     print(
         f"Database Models: {pipeline_db_model}\n"
@@ -129,11 +130,11 @@ if __name__ == "__main__":
     upsert(session=session, model=merge_request_db_model)
     print("Merge Request Synchronization Complete!\n")
 
-    # print(
-    #     f"Inserting ({len(pipeline_job_response.data.jobs)}) Pipeline Jobs Into Database..."
-    # )
-    # upsert(session=session, model=pipeline_db_model)
-    # print("Pipeline Jobs Synchronization Complete!\n\n\n")
+    print(
+        f"Inserting ({len(pipeline_job_response.data)}) Pipeline Jobs Into Database..."
+    )
+    upsert(session=session, model=pipeline_db_model)
+    print("Pipeline Jobs Synchronization Complete!\n")
 
     session.close()
     print("Session Closed")
