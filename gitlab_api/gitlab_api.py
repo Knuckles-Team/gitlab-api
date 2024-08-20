@@ -3344,7 +3344,7 @@ class Api(object):
         if not user.per_page:
             user.per_page = 100
         if not user.page:
-            user.page = 0
+            user.page = 1
 
         response = self._session.get(
             url=f"{self.url}/users",
@@ -3360,14 +3360,15 @@ class Api(object):
             and len(second_response.data) > 1
         ):
             try:
+                user.page = user.page + 1
+                user.model_post_init(user)
                 second_response = self._session.get(
                     url=f"{self.url}/users",
                     params=user.api_parameters,
                     headers=self.headers,
                     verify=self.verify,
                 )
-                user.page = user.page + 1
-                if user.max_pages and user.page > user.max_pages:
+                if user.page > user.max_pages:
                     break
             except ValidationError or Exception as e:
                 print(f"Invalid parameters: {e.errors()}")

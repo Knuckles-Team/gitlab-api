@@ -3597,7 +3597,7 @@ class Response(BaseModel):
                 for model_name, model in single_models.items():
                     try:
                         temp_value = [model(**item) if isinstance(item, dict) else item for item in value]
-                        print(f"{model_name} Validation Success: {temp_value}")
+                        logging.debug(f"{model_name} Validation Success: {temp_value}")
                         return temp_value
                     except Exception as e:
                         logging.debug(
@@ -3608,7 +3608,7 @@ class Response(BaseModel):
             for model_name, model in single_models.items():
                 try:
                     temp_value = model(**value)
-                    print(f"{model_name} Model Validation Success: {value}")
+                    logging.debug(f"{model_name} Model Validation Success: {value}")
                     return temp_value
                 except Exception as e:
                     logging.debug(
