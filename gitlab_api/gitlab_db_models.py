@@ -1699,12 +1699,17 @@ class JobDBModel(BaseDBModel):
     )
     runner_manager: Mapped["RunnerManagerDBModel"] = relationship(back_populates="jobs")
 
-    project_id = mapped_column(
-        Integer, ForeignKey("projects.id", name="fk_jobs_projects"), nullable=True
+    project_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("projects.id", name="fk_jobs_project_id"),
+        nullable=True
     )
     project: Mapped["ProjectDBModel"] = relationship(
-        back_populates="jobs", primaryjoin="ProjectDBModel.id == JobDBModel.project_id"
+        "ProjectDBModel",
+        back_populates="jobs",
+        primaryjoin="JobDBModel.project_id == ProjectDBModel.id",
     )
+
 
     user_id: Mapped[int] = mapped_column(ForeignKey(column="users.id"), nullable=True)
     user: Mapped["UserDBModel"] = relationship(
