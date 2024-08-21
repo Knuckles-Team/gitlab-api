@@ -8,71 +8,34 @@ from base64 import b64encode
 from typing import Union
 from pydantic import ValidationError
 
-try:
-    from gitlab_api.gitlab_models import (
-        BranchModel,
-        CommitModel,
-        DeployTokenModel,
-        GroupModel,
-        JobModel,
-        MembersModel,
-        NamespaceModel,
-        PackageModel,
-        PipelineModel,
-        ProjectModel,
-        ProtectedBranchModel,
-        MergeRequestModel,
-        MergeRequestRuleModel,
-        ReleaseModel,
-        RunnerModel,
-        UserModel,
-        WikiModel,
-        Response,
-        Projects,
-    )
-except ModuleNotFoundError:
-    from gitlab_models import (
-        BranchModel,
-        CommitModel,
-        DeployTokenModel,
-        GroupModel,
-        JobModel,
-        MembersModel,
-        NamespaceModel,
-        PackageModel,
-        PipelineModel,
-        ProjectModel,
-        ProtectedBranchModel,
-        MergeRequestModel,
-        MergeRequestRuleModel,
-        ReleaseModel,
-        RunnerModel,
-        UserModel,
-        WikiModel,
-        Response,
-    )
-try:
-    from gitlab_api.decorators import require_auth
-except ModuleNotFoundError:
-    from decorators import require_auth
-try:
-    from gitlab_api.exceptions import (
-        AuthError,
-        UnauthorizedError,
-        ParameterError,
-        MissingParameterError,
-    )
-except ModuleNotFoundError:
-    from exceptions import (
-        AuthError,
-        UnauthorizedError,
-        ParameterError,
-        MissingParameterError,
-    )
-try:
-    from gitlab_api.utils import process_response
-except ModuleNotFoundError:
-    from utils import process_response
+from gitlab_api.gitlab_input_models import (
+    BranchModel,
+    CommitModel,
+    DeployTokenModel,
+    GroupModel,
+    JobModel,
+    MembersModel,
+    NamespaceModel,
+    PackageModel,
+    PipelineModel,
+    ProjectModel,
+    ProtectedBranchModel,
+    MergeRequestModel,
+    MergeRequestRuleModel,
+    ReleaseModel,
+    RunnerModel,
+    UserModel,
+    WikiModel,
+)
+from gitlab_api.gitlab_response_models import Response
+from gitlab_api.decorators import require_auth
+from gitlab_api.exceptions import (
+    AuthError,
+    UnauthorizedError,
+    ParameterError,
+    MissingParameterError,
+)
+from gitlab_api.utils import process_response
 
 
 class Api(object):
@@ -1146,7 +1109,7 @@ class Api(object):
             if not response:
                 response = temp_response
             else:
-                response = response.data.jobs + temp_response.data.jobs
+                response = response.data + temp_response.data
         return response
 
     @require_auth
@@ -2112,7 +2075,7 @@ class Api(object):
             if not response:
                 response = temp_response
             else:
-                response = response.data.projects + temp_response.data.projects
+                response = response.data + temp_response.data
         return response
 
     @require_auth
@@ -2143,6 +2106,25 @@ class Api(object):
         return response
 
     @require_auth
+    def get_total_projects_in_group(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        per_page = 100
+        if project.per_page:
+            per_page = project.per_page
+        if project.group_id is None:
+            raise MissingParameterError
+        response = self._session.get(
+            url=f"{self.url}"
+            f"/groups/{project.group_id}"
+            f"/projects?per_page={per_page}&x-total-pages",
+            headers=self.headers,
+            verify=self.verify,
+        )
+        return response
+
+    @require_auth
     def get_nested_projects_by_group(
         self, **kwargs
     ) -> Union[Response, requests.Response]:
@@ -2165,12 +2147,11 @@ class Api(object):
         if project.group_id is None:
             raise MissingParameterError
         project_group = self.get_group(group_id=project.group_id)
-        if hasattr(project_group.data, "groups") and project_group.data.groups:
-            all_groups = all_groups.append(project_group.data.group)
+        if project_group.data:
+            all_groups.append(project_group.data)
         groups = self.get_group_descendant_groups(group_id=project.group_id)
-        if hasattr(groups.data, "groups") and groups.data.groups:
-            all_groups.extend(groups.data.groups)
-        group_counter = 0
+        if groups.data:
+            all_groups.extend(groups.data)
         for group in all_groups:
             pages_response = self.get_total_projects_in_group(
                 group_id=project.group_id, per_page=project.per_page
@@ -2187,33 +2168,12 @@ class Api(object):
                     group_id=group.id, per_page=project.per_page, page=page
                 )
                 if (
-                    hasattr(projects.data, "projects")
-                    and projects.data.projects
-                    and len(projects.data.projects) > 0
+                    isinstance(projects.data, list)
+                    and projects.data
+                    and len(projects.data) > 0
                 ):
-                    all_projects.extend(projects.data.projects)
-            group_counter = group_counter + 1
-        projects_model = Projects(projects=all_projects)
-        response = Response(data=projects_model, status_code=200)
-        return response
-
-    @require_auth
-    def get_total_projects_in_group(
-        self, **kwargs
-    ) -> Union[Response, requests.Response]:
-        project = ProjectModel(**kwargs)
-        per_page = 100
-        if project.per_page:
-            per_page = project.per_page
-        if project.group_id is None:
-            raise MissingParameterError
-        response = self._session.get(
-            url=f"{self.url}"
-            f"/groups/{project.group_id}"
-            f"/projects?per_page={per_page}&x-total-pages",
-            headers=self.headers,
-            verify=self.verify,
-        )
+                    all_projects = all_projects + projects.data
+        response = Response(data=all_projects, status_code=200)
         return response
 
     @require_auth
@@ -3384,7 +3344,7 @@ class Api(object):
         if not user.per_page:
             user.per_page = 100
         if not user.page:
-            user.page = 0
+            user.page = 1
 
         response = self._session.get(
             url=f"{self.url}/users",
@@ -3393,23 +3353,32 @@ class Api(object):
             verify=self.verify,
         )
         response = process_response(response=response)
-
-        while hasattr(response.data, "users") and len(response.data.users) > 1:
+        second_response = None
+        while (
+            second_response is None
+            or isinstance(second_response.data, list)
+            and len(second_response.data) > 1
+        ):
             try:
+                user.page = user.page + 1
+                user.model_post_init(user)
                 second_response = self._session.get(
                     url=f"{self.url}/users",
                     params=user.api_parameters,
                     headers=self.headers,
                     verify=self.verify,
                 )
-                user.page = user.page + 1
                 if user.max_pages and user.page > user.max_pages:
                     break
             except ValidationError or Exception as e:
                 print(f"Invalid parameters: {e.errors()}")
                 raise e
             second_response = process_response(response=second_response)
-            response.data.users.extend(second_response.data.users)
+            # Check if the list of users being returned is already inside the list of total users
+            if all(item in response.data for item in second_response.data):
+                break
+            else:
+                response.data.extend(second_response.data)
         return response
 
     @require_auth
