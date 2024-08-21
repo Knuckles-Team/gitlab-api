@@ -1612,7 +1612,10 @@ class ProjectDBModel(BaseDBModel):
         primaryjoin="foreign(MergeRequestDBModel.project_id) == ProjectDBModel.id",
     )
     runners: Mapped[List["RunnerDBModel"]] = relationship(back_populates="projects")
-    jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="project")
+    jobs: Mapped[List["JobDBModel"]] = relationship(
+        back_populates="project",
+        primaryjoin="foreign(JobDBModel.project_id) == ProjectDBModel.id",
+    )
     issues: Mapped["IssueDBModel"] = relationship(back_populates="project")
 
 
@@ -1699,10 +1702,14 @@ class JobDBModel(BaseDBModel):
     project_id = mapped_column(
         Integer, ForeignKey("projects.id", name="fk_jobs_projects"), nullable=True
     )
-    project: Mapped["ProjectDBModel"] = relationship(back_populates="jobs")
+    project: Mapped["ProjectDBModel"] = relationship(
+        back_populates="jobs", primaryjoin="ProjectDBModel.id == JobDBModel.project_id"
+    )
 
     user_id: Mapped[int] = mapped_column(ForeignKey(column="users.id"), nullable=True)
-    user: Mapped["UserDBModel"] = relationship(back_populates="jobs")
+    user: Mapped["UserDBModel"] = relationship(
+        back_populates="jobs", primaryjoin="UserDBModel.id == JobDBModel.user_id"
+    )
 
     pipeline_id: Mapped[int] = mapped_column(
         ForeignKey(column="pipelines.id"), nullable=True
@@ -1715,13 +1722,19 @@ class JobDBModel(BaseDBModel):
         ForeignKey(column="pipelines.id"), nullable=True
     )
     pipeline: Mapped["PipelineDBModel"] = relationship(
-        "PipelineDBModel", foreign_keys=[pipeline_id], back_populates="jobs"
+        "PipelineDBModel",
+        primaryjoin="PipelineDBModel.id == JobDBModel.pipeline_id",
+        back_populates="jobs",
     )
     head_pipeline: Mapped["PipelineDBModel"] = relationship(
-        "PipelineDBModel", foreign_keys=[head_pipeline_id], back_populates="jobs"
+        "PipelineDBModel",
+        primaryjoin="PipelineDBModel.id == JobDBModel.head_pipeline_id",
+        back_populates="jobs",
     )
     downstream_pipeline: Mapped["PipelineDBModel"] = relationship(
-        "PipelineDBModel", foreign_keys=[downstream_pipeline_id], back_populates="jobs"
+        "PipelineDBModel",
+        primaryjoin="PipelineDBModel.id == JobDBModel.downstream_pipeline_id",
+        back_populates="jobs",
     )
 
     artifacts_file_id: Mapped[int] = mapped_column(
@@ -1746,7 +1759,6 @@ class PipelineDBModel(BaseDBModel):
     web_url: Mapped[str] = mapped_column(String, nullable=True)
     project_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey(column="projects.id", name="fk_pipeline_project"),
         nullable=True,
     )
     before_sha: Mapped[str] = mapped_column(String, nullable=True)

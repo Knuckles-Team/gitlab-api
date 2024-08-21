@@ -7,8 +7,6 @@ from sqlalchemy.engine import reflection
 import requests
 
 from gitlab_api.gitlab_response_models import Response
-from sqlalchemy.orm import AppenderQuery
-from sqlalchemy.orm.collections import InstrumentedList
 
 logging.basicConfig(
     level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -114,181 +112,20 @@ def upsert(model: Any, session):
 
     if not model:
         return
+    if "data" not in model:
+        print(f"No data in model: {model}")
+        return
+    for item in model["data"]:
+        print(f"ITEM ID: {item.id} - {item}")
+        if item.id:
+            existing_model = session.query(item.__class__).get(item.id)
+            print(f"\n\n\n\nEXISTING MODEL: {existing_model}")
+            if existing_model:
+                print(f"\n\n\n\nFOUND EXISTING MODEL:!!!! {existing_model}")
+                item = existing_model
 
-    for key, value in model.items():
-        if key == "data":
-            print(f"SCANNING: {str(key)}")
-            for item in model[key]:
-                upsert_row(session=session, model=item)
-
-
-def upsert_row(session, model, processed_models=None):
-    if model is None:
-        return None
-
-    if processed_models is None:
-        processed_models = set()
-
-    model_type = type(model)
-    print(f"\n\nSearching for {model} in {model_type}")
-    model_identifier = (model_type, model.id)
-
-    if model_identifier in processed_models:
-        return None
-
-    processed_models.add(model_identifier)
-
-    # Function to upsert nested models
-    def upsert_nested_models(session, model):
-        related_models = []
-        for relation in model.__mapper__.relationships:
-            related_model = getattr(model, relation.key)
-            if isinstance(related_model, InstrumentedList):
-                for item in related_model:
-                    if item is not None:
-                        related_models.append(item)
-            elif isinstance(related_model, AppenderQuery):
-                pass
-            elif related_model is not None:
-                related_models.append(related_model)
-
-        # Recursively upsert nested models first
-        for related_model in related_models:
-            upsert_row(
-                session=session,
-                model=related_model,
-                processed_models=processed_models,
-            )
-
-    # Upsert nested models first
-    upsert_nested_models(session, model)
-
-    try:
-        print(f"\n\nCommitting: {model}")
-        existing_model = session.merge(model)
-        session.commit()
-        print("Committed Session!")
-        return existing_model
-    except Exception as e:
-        session.rollback()
-        print(f"Error inserting/updating {model_type.__name__} with ID {model.id}: {e}")
-
-
-# def upsert_row(session, model, processed_models=None):
-#     if model is None:
-#         return None
-#
-#     if processed_models is None:
-#         processed_models = set()
-#
-#     model_type = type(model)
-#     model_identifier = (model_type, model.id)
-#
-#     if model_identifier in processed_models:
-#         return None
-#
-#     processed_models.add(model_identifier)
-#
-#     # Ensure related models like UserDBModel are attached to the session
-#     if isinstance(model, ProjectDBModel):
-#         if model.creator and not session.contains(model.creator):
-#             session.add(model.creator)
-#         if model.owner and not session.contains(model.owner):
-#             session.add(model.owner)
-#
-#     # Function to upsert nested models
-#     def upsert_nested_models(session, model):
-#         for relation in model.__mapper__.relationships:
-#             related_model = getattr(model, relation.key)
-#             if isinstance(related_model, InstrumentedList):
-#                 for item in related_model:
-#                     if item is not None:
-#                         upsert_row(session=session, model=item, processed_models=processed_models)
-#             elif isinstance(related_model, AppenderQuery):
-#                 pass
-#             elif related_model is not None:
-#                 upsert_row(session=session, model=related_model, processed_models=processed_models)
-#
-#     # Upsert nested models first
-#     upsert_nested_models(session, model)
-#
-#     try:
-#         session.add(model)  # Use session.add() to handle new objects
-#         session.commit()
-#         return model
-#     except Exception as e:
-#         session.rollback()
-#         print(f"Error inserting/updating {model_type.__name__} with ID {model.id}: {e}")
-#         raise
-
-
-# def upsert(model: Any, session):
-#
-#     if not model:
-#         return
-#     with session.no_autoflush:
-#         for item in model["data"]:
-#             # Load existing associated objects to avoid duplicate insertion
-#             if item.id:
-#                 existing_model = session.query(item.__class__).get(item.id)
-#                 if existing_model:
-#                     # Update existing model attributes with incoming item's attributes
-#                     for attr, value in vars(item).items():
-#                         if attr != 'id':  # Do not overwrite the ID
-#                             print(f"Setting {attr}-{value} for {existing_model}")
-#                             setattr(existing_model, attr, value)
-#                     item = existing_model
-#
-#             # Ensure all nested/related models are merged first
-#             for attr, value in vars(item).items():
-#                 if isinstance(value, BaseDBModel):  # Assuming all models inherit from BaseDBModel
-#                     # Check if the related model already exists
-#                     related_existing = session.query(value.__class__).get(value.id)
-#                     if related_existing:
-#                         # Update the existing related model's attributes
-#                         for rel_attr, rel_value in vars(value).items():
-#                             if rel_attr != 'id':  # Do not overwrite the ID
-#                                 setattr(related_existing, rel_attr, rel_value)
-#                         setattr(item, attr, related_existing)
-#                     else:
-#                         session.merge(value)
-#
-#             # Now merge the item (parent model)
-#             session.merge(item)
-#
-#     session.commit()
-
-# def upsert(model: Any, session):
-#
-#     if not model:
-#         return
-#
-#     # print(f"\n\nMODEL TO INSERT: {model['data']}")
-#
-#     # if hasattr(model, "data"):
-#     #     print("\n\nHAS ATTR TRUE FOR DATA")
-#     # for item in model["data"]:
-#     #     print(f"MODEL TO INSERT: {model}")
-#     #     session.merge(item)
-#     #     print(f"MERGED: {item}\n\n")
-#     # session.commit()
-#     print(f"EVEN UPSERT? MODEL!!!!: {model}")
-#     if hasattr(model, "data"):
-#         print("EVEN UPSERT234234234234234234234?!")
-#     for item in model["data"]:
-#         # Load existing associated objects to avoid duplicate insertion
-#         print(f"ITEM ID: {item.id} - {item}")
-#         if item.id:
-#             existing_model = session.query(item.__class__).get(item.id)
-#             print(f"\n\n\n\nEXISTING MODEL: {existing_model}")
-#             if existing_model:
-#                 print(f"\n\n\n\nFOUND EXISTING MODEL:!!!! {existing_model}")
-#                 item = existing_model
-#
-#         # Repeat similar logic for other associated models (commit, runner, etc.)
-#
-#         session.merge(item)
-#     session.commit()
+        session.merge(item)
+    session.commit()
 
 
 def create_table(db_instance, engine):
