@@ -64,47 +64,47 @@ def pydantic_to_sqlalchemy(schema):
     to a dictionary containing SQLAlchemy models.
     Only works if nested schemas have specified the Meta.orm_model.
     """
-    print(f"\n\nSCHEMA: {schema}")
+    logging.debug(f"\n\nSchema: {schema}")
     parsed_schema = dict(schema)
     parsed_schema = remove_none_values(dictionary=parsed_schema)
 
-    print(f"\n\nCLEANED PARSED SCHEMA: {parsed_schema}")
+    logging.debug(f"\n\nCleaned Schema: {parsed_schema}")
     for key, value in parsed_schema.items():
         if not value:
             continue
-        print(f"\n\n\nKEY: {key} VALUE: {value}")
+        logging.debug(f"\n\n\nKEY: {key} VALUE: {value}")
         try:
             if isinstance(value, list) and len(value) and is_pydantic(value[0]):
-                print(f"\n\nUpdating: {key} {parsed_schema[key]}")
+                logging.debug(f"\n\nUpdating: {key} {parsed_schema[key]}")
                 parsed_schemas = []
                 for item in value:
-                    print(f"\nGoing through Item: {item} in Value: {value}")
+                    logging.debug(f"\nGoing through Item: {item} in Value: {value}")
                     new_schema = pydantic_to_sqlalchemy(item)
-                    print(
+                    logging.debug(
                         f"\nNew schema: {new_schema}\n\tFor Model: {item.Meta.orm_model}"
                     )
                     new_model = item.Meta.orm_model(**new_schema)
-                    print(
+                    logging.debug(
                         f"\nNew model: {new_model}\n\tFor Item: {item}"  # \n\tIn Value: {value}"
                     )
                     parsed_schemas.append(new_model)
                 parsed_schema[key] = parsed_schemas
             elif is_pydantic(value):
-                print(f"\n\nUpdating Nonlist: {key} {value}")
+                logging.debug(f"\n\nUpdating Nonlist: {key} {value}")
                 new_model = value.Meta.orm_model(**pydantic_to_sqlalchemy(value))
-                print(
+                logging.debug(
                     f"\n\nNew Model: {new_model} for schema: {parsed_schema} in key: {key} of value: {value}"
                 )
                 parsed_schema[key] = new_model
-                print(f"\n\nFinished Updated Nonlist: {key} {value}")
+                logging.debug(f"\n\nFinished Updated Nonlist: {key} {value}")
         except AttributeError as e:
-            print(
+            logging.debug(
                 f"\n\nFound nested Pydantic model in {schema.__class__} but Meta.orm_model was not specified.\nExact Error: {e}"
             )
             raise (
                 f"\n\nFound nested Pydantic model in {schema.__class__} but Meta.orm_model was not specified.\nExact Error: {e}"
             )
-    print(f"\n\nReturning parsed schema: {parsed_schema}")
+    logging.debug(f"\n\nReturning parsed schema: {parsed_schema}")
     return parsed_schema
 
 
@@ -113,15 +113,15 @@ def upsert(model: Any, session):
     if not model:
         return
     if "data" not in model:
-        print(f"No data in model: {model}")
+        logging.debug(f"No data in model: {model}")
         return
     for item in model["data"]:
-        print(f"ITEM ID: {item.id} - {item}")
+        logging.debug(f"Item ID: {item.id} - {item}")
         if item.id:
             existing_model = session.query(item.__class__).get(item.id)
-            print(f"\n\n\n\nEXISTING MODEL: {existing_model}")
+            logging.debug(f"\n\nExisting Model: {existing_model}")
             if existing_model:
-                print(f"\n\n\n\nFOUND EXISTING MODEL:!!!! {existing_model}")
+                logging.debug(f"\n\nFound Existing Model: {existing_model}")
                 item = existing_model
 
         session.merge(item)
