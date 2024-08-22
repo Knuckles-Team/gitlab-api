@@ -28,6 +28,12 @@ Includes a large portion of useful API calls to GitLab and SQLAlchemy Models to 
 
 This repository is actively maintained - Contributions are welcome!
 
+Additional Features:
+- All responses are returned as native Pydantic models
+- Save Pydantic models to pickle files locally
+- Easily convert Pydantic to SQLAlchemy models for quick database insertion
+
+
 ### API Calls:
 - Branches
 - Commits
@@ -47,6 +53,7 @@ This repository is actively maintained - Contributions are welcome!
 - Users
 - Wiki
 
+
 <details>
   <summary><b>Usage:</b></summary>
 
@@ -56,8 +63,10 @@ Using the API directly
 #!/usr/bin/python
 
 import gitlab_api
-from gitlab_api.utils import pydantic_to_sqlalchemy, upsert
-from gitlab_api.gitlab_db_models import BaseDBModel as Base
+from gitlab_api import pydantic_to_sqlalchemy, upsert, save_model, load_model
+from gitlab_api.gitlab_db_models import (
+    BaseDBModel as Base,
+)
 import urllib3
 import os
 from urllib.parse import quote_plus
@@ -84,6 +93,103 @@ if __name__ == "__main__":
     )
     print("GitLab Client Created\n\n")
 
+    print("\nFetching User Data...")
+    user_response = client.get_users(active=True, humans=True)
+    print(
+        f"Users ({len(user_response.data)}) Fetched - "
+        f"Status: {user_response.status_code}\n"
+    )
+
+    print("\nFetching Namespace Data...")
+    namespace_response = client.get_namespaces()
+    print(
+        f"Namespaces ({len(namespace_response.data)}) Fetched - "
+        f"Status: {namespace_response.status_code}\n"
+    )
+
+    print("\nFetching Project Data...")
+    project_response = client.get_nested_projects_by_group(group_id=2, per_page=100)
+    print(
+        f"Projects ({len(project_response.data)}) Fetched - "
+        f"Status: {project_response.status_code}\n"
+    )
+
+    print("\nFetching Merge Request Data...")
+    merge_request_response = client.get_group_merge_requests(
+        argument="state=all", group_id=2
+    )
+
+    print(
+        f"\nMerge Requests ({len(merge_request_response.data)}) Fetched - "
+        f"Status: {merge_request_response.status_code}\n"
+    )
+
+    # Pipeline Jobs table
+    pipeline_job_response = None
+    for project in project_response.data:
+        job_response = client.get_project_jobs(project_id=project.id)
+        if (
+                not pipeline_job_response
+                and hasattr(job_response, "data")
+                and len(job_response.data) > 0
+        ):
+            pipeline_job_response = job_response
+        elif (
+                pipeline_job_response
+                and hasattr(job_response, "data")
+                and len(job_response.data) > 0
+        ):
+            pipeline_job_response.data.extend(job_response.data)
+            print(
+                f"Pipeline Jobs ({len(getattr(pipeline_job_response, 'data', []))}) "
+                f"Fetched for Project ({project.id}) - "
+                f"Status: {pipeline_job_response.status_code}\n"
+            )
+
+    print("Saving Pydantic Models...")
+    user_file = save_model(model=user_response, file_name="user_model", file_path=".")
+    namespace_file = save_model(
+        model=namespace_response, file_name="namespace_model", file_path="."
+    )
+    project_file = save_model(
+        model=project_response, file_name="project_model", file_path="."
+    )
+    merge_request_file = save_model(
+        model=merge_request_response, file_name="merge_request_model", file_path="."
+    )
+    pipeline_job_file = save_model(
+        model=pipeline_job_response, file_name="pipeline_job_model", file_path="."
+    )
+    print("Models Saved")
+
+    print("Loading Pydantic Models...")
+    user_response = load_model(file=user_file)
+    namespace_response = load_model(file=namespace_file)
+    project_response = load_model(file=project_file)
+    merge_request_response = load_model(file=merge_request_file)
+    pipeline_job_response = load_model(file=pipeline_job_file)
+    print("Models Loaded")
+
+    print("Converting Pydantic to SQLAlchemy model...")
+    user_db_model = pydantic_to_sqlalchemy(schema=user_response)
+    print(f"Database Models: {user_db_model}\n")
+
+    print("Converting Pydantic to SQLAlchemy model...")
+    namespace_db_model = pydantic_to_sqlalchemy(schema=namespace_response)
+    print(f"Database Models: {namespace_db_model}\n")
+
+    print("Converting Pydantic to SQLAlchemy model...")
+    project_db_model = pydantic_to_sqlalchemy(schema=project_response)
+    print(f"Database Models: {project_db_model}\n")
+
+    print("Converting Pydantic to SQLAlchemy model...")
+    merge_request_db_model = pydantic_to_sqlalchemy(schema=merge_request_response)
+    print(f"Database Models: {merge_request_db_model}\n")
+
+    print("Converting Pydantic to SQLAlchemy model...")
+    pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response)
+    print(f"Database Models: {pipeline_db_model}\n")
+
     print("Creating Engine")
     engine = create_engine(
         f"postgresql://{postgres_username}:{quote_plus(postgres_password)}@"
@@ -100,78 +206,32 @@ if __name__ == "__main__":
     session = Session()
     print("Session Created\n\n")
 
-    print("Fetching GitLab Data...")
-    # User Data table is a dependency table
-    user_response = client.get_users()
-    user_db_model = pydantic_to_sqlalchemy(schema=user_response.data)
-    print(
-        f"Users ({len(user_response.data.users)}) Fetched - "
-        f"Status: {user_response.status_code}\n"
-    )
-
-    # Namespaces table is a dependency table
-    namespace_response = client.get_namespaces()
-    namespace_db_model = pydantic_to_sqlalchemy(schema=namespace_response.data)
-    print(
-        f"Namespaces ({len(namespace_response.data.namespaces)}) Fetched - "
-        f"Status: {namespace_response.status_code}\n"
-    )
-
-    # Project table requires Users and Namespaces
-    project_response = client.get_nested_projects_by_group(group_id=2, per_page=100)
-    project_db_model = pydantic_to_sqlalchemy(schema=project_response.data)
-    print(
-        f"Projects ({len(project_response.data.projects)}) Fetched - "
-        f"Status: {project_response.status_code}\n"
-    )
-
-    # Merge Requests table requires Users, Namespaces, and Projects
-    merge_request_response = client.get_group_merge_requests(
-        argument="state=all", group_id=2
-    )
-    merge_request_db_model = pydantic_to_sqlalchemy(schema=merge_request_response.data)
-    print(
-        f"Merge Requests ({len(merge_request_response.data.merge_requests)}) Fetched - "
-        f"Status: {merge_request_response.status_code}\n"
-    )
-
-    pipeline_job_response = None
-    for project in project_response.data.projects:
-        job_response = client.get_project_jobs(project_id=project.id)
-        if not pipeline_job_response and hasattr(job_response, "data") and hasattr(job_response.data, "jobs") and len(job_response.data.jobs)>0:
-            pipeline_job_response = job_response
-        elif pipeline_job_response and hasattr(job_response, "data") and hasattr(job_response.data, "jobs") and len(job_response.data.jobs)>0:
-            pipeline_job_response.data.jobs.extend(job_response.data.jobs)
-            print(
-                f"Pipeline Jobs ({len(getattr(pipeline_job_response.data, "jobs", []))}) Fetched for Project ({project.id}) - "
-                f"Status: {pipeline_job_response.status_code}\n"
-            )
-
-    pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response.data)
-
-    print("Inserting Users Into Database...")
+    print(f"Inserting ({len(user_response.data)}) Users Into Database...")
     upsert(session=session, model=user_db_model)
     print("Users Synchronization Complete!\n")
 
-    print("Inserting Namespaces Into Database...")
+    print(f"Inserting ({len(namespace_response.data)}) Namespaces Into Database...")
     upsert(session=session, model=namespace_db_model)
     print("Namespaces Synchronization Complete!\n")
 
-    print("Inserting Projects Into Database...\n")
+    print(f"Inserting ({len(project_response.data)}) Projects Into Database...\n")
     upsert(session=session, model=project_db_model)
     print("Projects Synchronization Complete!\n")
 
-    print("Inserting Merge Requests Into Database...")
+    print(
+        f"Inserting ({len(merge_request_response.data)}) Merge Requests Into Database..."
+    )
     upsert(session=session, model=merge_request_db_model)
     print("Merge Request Synchronization Complete!\n")
 
-    print(f"Inserting ({len(pipeline_job_response.data.jobs)}) Pipeline Jobs Into Database...")
+    print(
+        f"Inserting ({len(pipeline_job_response.data)}) Pipeline Jobs Into Database..."
+    )
     upsert(session=session, model=pipeline_db_model)
-    print("Pipeline Jobs Synchronization Complete!\n\n\n")
+    print("Pipeline Jobs Synchronization Complete!\n")
 
     session.close()
     print("Session Closed")
-
 
 ```
 

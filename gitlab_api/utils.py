@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # coding: utf-8
 import logging
+import os
+import pickle
 from typing import Union, Any
 
 from sqlalchemy.engine import reflection
@@ -145,3 +147,16 @@ def create_table(db_instance, engine):
         logging.debug(f"Table {table_name} created.")
     else:
         logging.debug(f"Table {table_name} already exists.")
+
+
+def save_model(model: Any, file_name: str = "model", file_path: str = ".") -> str:
+    pickle_file = os.path.join(file_path, f"{file_name}.pkl")
+    with open(pickle_file, "wb") as file:
+        pickle.dump(model, file)
+    return pickle_file
+
+
+def load_model(file: str) -> Any:
+    with open(file, "rb") as model_file:
+        model = pickle.load(model_file)
+    return model
