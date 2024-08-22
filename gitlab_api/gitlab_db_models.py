@@ -29,6 +29,14 @@ BaseDBModel = declarative_base()
 class EvidenceDBModel(BaseDBModel):
     __tablename__ = "evidences"
 
+    def __eq__(self, other):
+        if isinstance(other, EvidenceDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Evidence")
     sha: Mapped[str] = mapped_column(String, nullable=True)
@@ -40,6 +48,14 @@ class EvidenceDBModel(BaseDBModel):
 # IssueStats Model
 class IssueStatsDBModel(BaseDBModel):
     __tablename__ = "issue_stats"
+
+    def __eq__(self, other):
+        if isinstance(other, IssueStatsDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="IssueStats")
@@ -54,6 +70,14 @@ class IssueStatsDBModel(BaseDBModel):
 # Milestone Model
 class MilestoneDBModel(BaseDBModel):
     __tablename__ = "milestones"
+
+    def __eq__(self, other):
+        if isinstance(other, MilestoneDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Milestone")
@@ -95,6 +119,14 @@ class MilestoneDBModel(BaseDBModel):
 class DeployTokenDBModel(BaseDBModel):
     __tablename__ = "deploy_tokens"
 
+    def __eq__(self, other):
+        if isinstance(other, DeployTokenDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="DeployToken")
     name: Mapped[str] = mapped_column(String, nullable=True)
@@ -120,6 +152,14 @@ class DeployTokenDBModel(BaseDBModel):
 class RuleDBModel(BaseDBModel):
     __tablename__ = "rules"
 
+    def __eq__(self, other):
+        if isinstance(other, RuleDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Rule")
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -141,6 +181,14 @@ class RuleDBModel(BaseDBModel):
 class AccessControlDBModel(BaseDBModel):
     __tablename__ = "access_controls"
 
+    def __eq__(self, other):
+        if isinstance(other, AccessControlDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="AccessControl")
     name: Mapped[str] = mapped_column(String, nullable=True)
@@ -151,6 +199,14 @@ class AccessControlDBModel(BaseDBModel):
 # Source Model
 class SourceDBModel(BaseDBModel):
     __tablename__ = "sources"
+
+    def __eq__(self, other):
+        if isinstance(other, SourceDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Sources")
@@ -166,6 +222,14 @@ class SourceDBModel(BaseDBModel):
 # Links Model
 class LinkDBModel(BaseDBModel):
     __tablename__ = "links"
+
+    def __eq__(self, other):
+        if isinstance(other, LinkDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Links")
@@ -210,6 +274,14 @@ class LinkDBModel(BaseDBModel):
 class AssetsDBModel(BaseDBModel):
     __tablename__ = "assets"
 
+    def __eq__(self, other):
+        if isinstance(other, AssetsDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Assets")
     count: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -222,6 +294,14 @@ class AssetsDBModel(BaseDBModel):
 # ReleaseLinks Model
 class ReleaseLinksDBModel(BaseDBModel):
     __tablename__ = "release_links"
+
+    def __eq__(self, other):
+        if isinstance(other, ReleaseLinksDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="ReleaseLinks")
@@ -241,6 +321,14 @@ class ReleaseLinksDBModel(BaseDBModel):
 class TokenDBModel(BaseDBModel):
     __tablename__ = "tokens"
 
+    def __eq__(self, other):
+        if isinstance(other, TokenDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Token")
     token: Mapped[str] = mapped_column(String, nullable=True)
@@ -250,6 +338,14 @@ class TokenDBModel(BaseDBModel):
 # ToDo Model
 class ToDoDBModel(BaseDBModel):
     __tablename__ = "todos"
+
+    def __eq__(self, other):
+        if isinstance(other, ToDoDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="ToDo")
@@ -290,6 +386,15 @@ class ToDoDBModel(BaseDBModel):
 # WikiPage Model
 class WikiPageDBModel(BaseDBModel):
     __tablename__ = "wiki_pages"
+
+    def __eq__(self, other):
+        if isinstance(other, WikiPageDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="WikiPage")
     content: Mapped[str] = mapped_column(String, nullable=True)
@@ -303,6 +408,14 @@ class WikiPageDBModel(BaseDBModel):
 class WikiAttachmentLinkDBModel(BaseDBModel):
     __tablename__ = "wiki_attachment_links"
 
+    def __eq__(self, other):
+        if isinstance(other, WikiAttachmentLinkDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="WikiAttachmentLink")
     url: Mapped[str] = mapped_column(String, nullable=True)
@@ -312,6 +425,14 @@ class WikiAttachmentLinkDBModel(BaseDBModel):
 # PipelineVariable Model
 class PipelineVariableDBModel(BaseDBModel):
     __tablename__ = "pipeline_variables"
+
+    def __eq__(self, other):
+        if isinstance(other, PipelineVariableDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="PipelineVariable")
@@ -323,6 +444,14 @@ class PipelineVariableDBModel(BaseDBModel):
 # WikiAttachment Model
 class WikiAttachmentDBModel(BaseDBModel):
     __tablename__ = "wiki_attachments"
+
+    def __eq__(self, other):
+        if isinstance(other, WikiAttachmentDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="WikiAttachment")
@@ -342,6 +471,14 @@ class WikiAttachmentDBModel(BaseDBModel):
 class AgentDBModel(BaseDBModel):
     __tablename__ = "agent"
 
+    def __eq__(self, other):
+        if isinstance(other, AgentDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Agent")
 
@@ -359,13 +496,25 @@ class AgentDBModel(BaseDBModel):
 class AgentsDBModel(BaseDBModel):
     __tablename__ = "agents"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    def __eq__(self, other):
+        if isinstance(other, AgentsDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="Agents")
 
     job_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="jobs.id", name="fk_agents_jobs"), nullable=True
+        Integer, ForeignKey("jobs.id", name="fk_agents_jobs"), nullable=True
     )
-    job: Mapped["JobDBModel"] = relationship(back_populates="agents")
+    job: Mapped["JobDBModel"] = relationship(
+        "JobDBModel",
+        back_populates="agents",
+        primaryjoin="JobDBModel.id == foreign(AgentsDBModel.job_id)",
+    )
 
     pipeline_id: Mapped[int] = mapped_column(
         Integer,
@@ -390,6 +539,14 @@ class AgentsDBModel(BaseDBModel):
 # Release Model
 class ReleaseDBModel(BaseDBModel):
     __tablename__ = "releases"
+
+    def __eq__(self, other):
+        if isinstance(other, ReleaseDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Release")
@@ -443,6 +600,14 @@ class ReleaseDBModel(BaseDBModel):
 class AccessLevelDBModel(BaseDBModel):
     __tablename__ = "access_levels"
 
+    def __eq__(self, other):
+        if isinstance(other, AccessLevelDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="AccessLevel")
     access_level: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -484,6 +649,14 @@ class AccessLevelDBModel(BaseDBModel):
 # Branch Model
 class BranchDBModel(BaseDBModel):
     __tablename__ = "branches"
+
+    def __eq__(self, other):
+        if isinstance(other, BranchDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Branch")
@@ -554,6 +727,14 @@ merge_request_labels = Table(
 class LabelDBModel(BaseDBModel):
     __tablename__ = "labels"
 
+    def __eq__(self, other):
+        if isinstance(other, LabelDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, nullable=False
     )
@@ -579,6 +760,14 @@ class LabelDBModel(BaseDBModel):
 class TopicDBModel(BaseDBModel):
     __tablename__ = "topics"
 
+    def __eq__(self, other):
+        if isinstance(other, TopicDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="Topic")
     name: Mapped[str] = mapped_column(String, nullable=False)
@@ -586,6 +775,14 @@ class TopicDBModel(BaseDBModel):
 
 class TagDBModel(BaseDBModel):
     __tablename__ = "tags"
+
+    def __eq__(self, other):
+        if isinstance(other, TagDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True, nullable=False
@@ -607,6 +804,14 @@ class TagDBModel(BaseDBModel):
 # ApprovalRule Model
 class ApprovalRuleDBModel(BaseDBModel):
     __tablename__ = "approval_rules"
+
+    def __eq__(self, other):
+        if isinstance(other, ApprovalRuleDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="ApprovalRule")
@@ -671,9 +876,36 @@ class ApprovalRuleDBModel(BaseDBModel):
     )
 
 
+merge_request_assignees = Table(
+    "merge_request_assignees",
+    BaseDBModel.metadata,
+    Column(
+        "merge_requests_id", Integer, ForeignKey("merge_requests.id"), primary_key=True
+    ),
+    Column("assignees_id", Integer, ForeignKey("users.id"), primary_key=True),
+)
+
+merge_request_reviewers = Table(
+    "merge_request_reviewers",
+    BaseDBModel.metadata,
+    Column(
+        "merge_requests_id", Integer, ForeignKey("merge_requests.id"), primary_key=True
+    ),
+    Column("reviewers_id", Integer, ForeignKey("users.id"), primary_key=True),
+)
+
+
 # MergeRequest Model
 class MergeRequestDBModel(BaseDBModel):
     __tablename__ = "merge_requests"
+
+    def __eq__(self, other):
+        if isinstance(other, MergeRequestDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="MergeRequest")
@@ -835,7 +1067,7 @@ class MergeRequestDBModel(BaseDBModel):
 
     assignees: Mapped[List["UserDBModel"]] = relationship(
         "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.assignees_id) == UserDBModel.id",
+        secondary=merge_request_assignees,
         back_populates="assignee_merge_requests",
     )
 
@@ -871,7 +1103,7 @@ class MergeRequestDBModel(BaseDBModel):
 
     reviewers: Mapped[List["UserDBModel"]] = relationship(
         "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.reviewers_id) == UserDBModel.id",
+        secondary=merge_request_reviewers,
         back_populates="reviewers_merge_requests",
     )
 
@@ -879,6 +1111,14 @@ class MergeRequestDBModel(BaseDBModel):
 # GroupAccess Model
 class GroupAccessDBModel(BaseDBModel):
     __tablename__ = "group_accesses"
+
+    def __eq__(self, other):
+        if isinstance(other, GroupAccessDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="GroupAccess")
@@ -902,6 +1142,14 @@ class GroupAccessDBModel(BaseDBModel):
 # DefaultBranchProtectionDefaults Model
 class DefaultBranchProtectionDefaultsDBModel(BaseDBModel):
     __tablename__ = "default_branch_protection_defaults"
+
+    def __eq__(self, other):
+        if isinstance(other, DefaultBranchProtectionDefaultsDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(
@@ -950,6 +1198,14 @@ project_shared_with_groups = Table(
 # Group Model
 class GroupDBModel(BaseDBModel):
     __tablename__ = "groups"
+
+    def __eq__(self, other):
+        if isinstance(other, GroupDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     group_id: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -1076,6 +1332,14 @@ class GroupDBModel(BaseDBModel):
 class WebhookDBModel(BaseDBModel):
     __tablename__ = "webhooks"
 
+    def __eq__(self, other):
+        if isinstance(other, WebhookDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Webhook")
     url: Mapped[str] = mapped_column(String, nullable=False)
@@ -1114,6 +1378,14 @@ class WebhookDBModel(BaseDBModel):
 # User Model
 class UserDBModel(BaseDBModel):
     __tablename__ = "users"
+
+    def __eq__(self, other):
+        if isinstance(other, UserDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="User")
@@ -1227,16 +1499,15 @@ class UserDBModel(BaseDBModel):
 
     assigned_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
-        back_populates="assignees",
-        primaryjoin="foreign(MergeRequestDBModel.assignees_id) == UserDBModel.id",
-    )
-
-    assignee_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
         back_populates="assignee",
         primaryjoin="foreign(MergeRequestDBModel.assignee_id) == UserDBModel.id",
     )
 
+    assignee_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+        "MergeRequestDBModel",
+        secondary=merge_request_assignees,
+        back_populates="assignees",
+    )
     merged_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="merged_by",
@@ -1269,8 +1540,8 @@ class UserDBModel(BaseDBModel):
 
     reviewers_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
+        secondary=merge_request_reviewers,
         back_populates="reviewers",
-        primaryjoin="foreign(MergeRequestDBModel.reviewers_id) == UserDBModel.id",
     )
     project_owner: Mapped[List["ProjectDBModel"]] = relationship(
         "ProjectDBModel",
@@ -1283,7 +1554,7 @@ class UserDBModel(BaseDBModel):
         back_populates="creator",
         primaryjoin="foreign(ProjectDBModel.creator_id) == UserDBModel.id",
     )
-    jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="user")
+    jobs = relationship("JobDBModel", back_populates="user")
     pipelines: Mapped[List["PipelineDBModel"]] = relationship(back_populates="user")
     comments: Mapped[List["CommentDBModel"]] = relationship(back_populates="author")
     commits: Mapped[List["CommitDBModel"]] = relationship(back_populates="author")
@@ -1309,6 +1580,14 @@ class UserDBModel(BaseDBModel):
 # Namespace Model
 class NamespaceDBModel(BaseDBModel):
     __tablename__ = "namespaces"
+
+    def __eq__(self, other):
+        if isinstance(other, NamespaceDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id = mapped_column(
         Integer,
@@ -1346,6 +1625,14 @@ class NamespaceDBModel(BaseDBModel):
 # Project Model
 class ProjectDBModel(BaseDBModel):
     __tablename__ = "projects"
+
+    def __eq__(self, other):
+        if isinstance(other, ProjectDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Project")
@@ -1612,16 +1899,20 @@ class ProjectDBModel(BaseDBModel):
         primaryjoin="foreign(MergeRequestDBModel.project_id) == ProjectDBModel.id",
     )
     runners: Mapped[List["RunnerDBModel"]] = relationship(back_populates="projects")
-    jobs: Mapped[List["JobDBModel"]] = relationship(
-        back_populates="project",
-        primaryjoin="foreign(JobDBModel.project_id) == ProjectDBModel.id",
-    )
     issues: Mapped["IssueDBModel"] = relationship(back_populates="project")
 
 
 # Runner Model
 class RunnerDBModel(BaseDBModel):
     __tablename__ = "runners"
+
+    def __eq__(self, other):
+        if isinstance(other, RunnerDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Runner")
@@ -1662,6 +1953,14 @@ class RunnerDBModel(BaseDBModel):
 class JobDBModel(BaseDBModel):
     __tablename__ = "jobs"
 
+    def __eq__(self, other):
+        if isinstance(other, JobDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Job")
     coverage: Mapped[float] = mapped_column(Float, nullable=True)
@@ -1692,7 +1991,10 @@ class JobDBModel(BaseDBModel):
     runner_id = mapped_column(
         Integer, ForeignKey("runners.id", name="fk_jobs_runners"), nullable=True
     )
-    runner: Mapped["RunnerDBModel"] = relationship(back_populates="jobs")
+    runner: Mapped["RunnerDBModel"] = relationship(
+        back_populates="jobs",
+        primaryjoin="RunnerDBModel.id == foreign(JobDBModel.runner_id)",
+    )
 
     runner_manager_id: Mapped[int] = mapped_column(
         ForeignKey(column="runner_managers.id"), nullable=True
@@ -1700,20 +2002,18 @@ class JobDBModel(BaseDBModel):
     runner_manager: Mapped["RunnerManagerDBModel"] = relationship(back_populates="jobs")
 
     project_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("projects.id", name="fk_jobs_project_id"),
-        nullable=True
+        Integer, ForeignKey("project_configs.primary_id"), nullable=True
     )
-    project: Mapped["ProjectDBModel"] = relationship(
-        "ProjectDBModel",
+    project: Mapped["ProjectConfigDBModel"] = relationship(
+        "ProjectConfigDBModel",
         back_populates="jobs",
-        primaryjoin="JobDBModel.project_id == ProjectDBModel.id",
+        primaryjoin="ProjectConfigDBModel.primary_id == foreign(JobDBModel.project_id)",
     )
-
 
     user_id: Mapped[int] = mapped_column(ForeignKey(column="users.id"), nullable=True)
     user: Mapped["UserDBModel"] = relationship(
-        back_populates="jobs", primaryjoin="UserDBModel.id == JobDBModel.user_id"
+        back_populates="jobs",
+        primaryjoin="UserDBModel.id == foreign(JobDBModel.user_id)",
     )
 
     pipeline_id: Mapped[int] = mapped_column(
@@ -1728,17 +2028,17 @@ class JobDBModel(BaseDBModel):
     )
     pipeline: Mapped["PipelineDBModel"] = relationship(
         "PipelineDBModel",
-        primaryjoin="PipelineDBModel.id == JobDBModel.pipeline_id",
+        primaryjoin="PipelineDBModel.id == foreign(JobDBModel.pipeline_id)",
         back_populates="jobs",
     )
     head_pipeline: Mapped["PipelineDBModel"] = relationship(
         "PipelineDBModel",
-        primaryjoin="PipelineDBModel.id == JobDBModel.head_pipeline_id",
+        primaryjoin="PipelineDBModel.id == foreign(JobDBModel.head_pipeline_id)",
         back_populates="jobs",
     )
     downstream_pipeline: Mapped["PipelineDBModel"] = relationship(
         "PipelineDBModel",
-        primaryjoin="PipelineDBModel.id == JobDBModel.downstream_pipeline_id",
+        primaryjoin="PipelineDBModel.id == foreign(JobDBModel.downstream_pipeline_id)",
         back_populates="jobs",
     )
 
@@ -1754,6 +2054,14 @@ class JobDBModel(BaseDBModel):
 # Pipeline Model
 class PipelineDBModel(BaseDBModel):
     __tablename__ = "pipelines"
+
+    def __eq__(self, other):
+        if isinstance(other, PipelineDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Pipeline")
@@ -1799,15 +2107,11 @@ class PipelineDBModel(BaseDBModel):
         primaryjoin="foreign(MergeRequestDBModel.pipeline_id) == PipelineDBModel.id",
         back_populates="pipeline",
     )
-
-    jobs_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="jobs.id", name="fk_pipeline_jobs"), nullable=True
-    )
-
     jobs: Mapped[List["JobDBModel"]] = relationship(
-        foreign_keys="[JobDBModel.pipeline_id]", back_populates="pipeline"
+        "JobDBModel",
+        back_populates="pipeline",
+        primaryjoin="PipelineDBModel.id == JobDBModel.pipeline_id",
     )
-
     package_versions: Mapped[List["PackageVersionDBModel"]] = relationship(
         "PackageVersionDBModel",
         foreign_keys="[PackageVersionDBModel.pipeline_id]",
@@ -2006,6 +2310,14 @@ class ParentIDDBModel(BaseDBModel):
 class CommitDBModel(BaseDBModel):
     __tablename__ = "commits"
 
+    def __eq__(self, other):
+        if isinstance(other, CommitDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[str] = mapped_column(String, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Commit")
     short_id: Mapped[str] = mapped_column(String, nullable=True)
@@ -2087,6 +2399,14 @@ class MembershipDBModel(BaseDBModel):
 # Issue Model
 class IssueDBModel(BaseDBModel):
     __tablename__ = "issues"
+
+    def __eq__(self, other):
+        if isinstance(other, IssueDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Issue")
@@ -2219,7 +2539,7 @@ class ReferencesDBModel(BaseDBModel):
 class ArtifactDBModel(BaseDBModel):
     __tablename__ = "artifacts"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="Artifact")
     file_type: Mapped[str] = mapped_column(String, nullable=True)
     size: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -2233,7 +2553,15 @@ class ArtifactDBModel(BaseDBModel):
 class ArtifactsFileDBModel(BaseDBModel):
     __tablename__ = "artifacts_files"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    def __eq__(self, other):
+        if isinstance(other, ArtifactsFileDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="ArtifactsFile")
     filename: Mapped[str] = mapped_column(String, nullable=True)
     size: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -2243,6 +2571,14 @@ class ArtifactsFileDBModel(BaseDBModel):
 # RunnerManager Model
 class RunnerManagerDBModel(BaseDBModel):
     __tablename__ = "runner_managers"
+
+    def __eq__(self, other):
+        if isinstance(other, RunnerManagerDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="RunnerManager")
@@ -2261,6 +2597,14 @@ class RunnerManagerDBModel(BaseDBModel):
 # Configuration Model
 class ConfigurationDBModel(BaseDBModel):
     __tablename__ = "configurations"
+
+    def __eq__(self, other):
+        if isinstance(other, ConfigurationDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Configuration")
@@ -2281,6 +2625,14 @@ class ConfigurationDBModel(BaseDBModel):
 # Iteration Model
 class IterationDBModel(BaseDBModel):
     __tablename__ = "iterations"
+
+    def __eq__(self, other):
+        if isinstance(other, IterationDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Iteration")
@@ -2312,6 +2664,14 @@ class IterationDBModel(BaseDBModel):
 class IdentityDBModel(BaseDBModel):
     __tablename__ = "identities"
 
+    def __eq__(self, other):
+        if isinstance(other, IdentityDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Identity")
     provider: Mapped[str] = mapped_column(String, nullable=True)
@@ -2326,6 +2686,14 @@ class IdentityDBModel(BaseDBModel):
 # GroupSamlIdentity Model
 class GroupSamlIdentityDBModel(BaseDBModel):
     __tablename__ = "group_saml_identities"
+
+    def __eq__(self, other):
+        if isinstance(other, GroupSamlIdentityDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="GroupSamlIdentity")
@@ -2344,6 +2712,14 @@ class GroupSamlIdentityDBModel(BaseDBModel):
 # ContainerExpirationPolicy Model
 class ContainerExpirationPolicyDBModel(BaseDBModel):
     __tablename__ = "container_expiration_policies"
+
+    def __eq__(self, other):
+        if isinstance(other, ContainerExpirationPolicyDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="ContainerExpirationPolicy")
@@ -2370,6 +2746,14 @@ class ContainerExpirationPolicyDBModel(BaseDBModel):
 class PermissionsDBModel(BaseDBModel):
     __tablename__ = "permissions"
 
+    def __eq__(self, other):
+        if isinstance(other, PermissionsDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Permissions")
     project_access: Mapped[dict] = mapped_column(JSON, nullable=True)
@@ -2381,6 +2765,14 @@ class PermissionsDBModel(BaseDBModel):
 # Statistics Model
 class StatisticsDBModel(BaseDBModel):
     __tablename__ = "statistics"
+
+    def __eq__(self, other):
+        if isinstance(other, StatisticsDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Statistics")
@@ -2404,6 +2796,14 @@ class StatisticsDBModel(BaseDBModel):
 # Diff Model
 class DiffDBModel(BaseDBModel):
     __tablename__ = "diffs"
+
+    def __eq__(self, other):
+        if isinstance(other, DiffDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Diff")
@@ -2433,6 +2833,14 @@ class DiffDBModel(BaseDBModel):
 
 class MergeApprovalsDBModel(BaseDBModel):
     __tablename__ = "merge_approvals"
+
+    def __eq__(self, other):
+        if isinstance(other, MergeApprovalsDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="MergeApprovals")
@@ -2472,6 +2880,14 @@ class MergeApprovalsDBModel(BaseDBModel):
 class DetailedStatusDBModel(BaseDBModel):
     __tablename__ = "detailed_status"
 
+    def __eq__(self, other):
+        if isinstance(other, DetailedStatusDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="DetailedStatus")
     icon: Mapped[str] = mapped_column(String, nullable=True)
@@ -2492,6 +2908,14 @@ class DetailedStatusDBModel(BaseDBModel):
 # pytest: ignore these classes
 class TestReportDBModel(BaseDBModel):
     __tablename__ = "test_reports"
+
+    def __eq__(self, other):
+        if isinstance(other, TestReportDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="TestReport")
@@ -2524,19 +2948,38 @@ class TestReportDBModel(BaseDBModel):
 class ProjectConfigDBModel(BaseDBModel):
     __tablename__ = "project_configs"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    def __eq__(self, other):
+        if isinstance(other, ProjectConfigDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    primary_id = Column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, nullable=True)
     base_type: Mapped[str] = mapped_column(String, default="ProjectConfig")
     description: Mapped[str] = mapped_column(String, nullable=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    name_with_namespace: Mapped[str] = mapped_column(String, nullable=False)
-    path: Mapped[str] = mapped_column(String, nullable=False)
-    path_with_namespace: Mapped[str] = mapped_column(String, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=True)
+    name_with_namespace: Mapped[str] = mapped_column(String, nullable=True)
+    path: Mapped[str] = mapped_column(String, nullable=True)
+    path_with_namespace: Mapped[str] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    ci_job_token_scope_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    jobs = relationship("JobDBModel", back_populates="project")
 
 
 # Epic Model
 class EpicDBModel(BaseDBModel):
     __tablename__ = "epics"
+
+    def __eq__(self, other):
+        if isinstance(other, EpicDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Epic")
@@ -2557,6 +3000,14 @@ class EpicDBModel(BaseDBModel):
 # TestCase Model
 class TestCaseDBModel(BaseDBModel):
     __tablename__ = "test_cases"
+
+    def __eq__(self, other):
+        if isinstance(other, TestCaseDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="TestCase")
@@ -2580,6 +3031,14 @@ class TestCaseDBModel(BaseDBModel):
 # TestSuite Model
 class TestSuiteDBModel(BaseDBModel):
     __tablename__ = "test_suites"
+
+    def __eq__(self, other):
+        if isinstance(other, TestSuiteDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="TestSuite")
@@ -2605,6 +3064,14 @@ class TestSuiteDBModel(BaseDBModel):
 # TestReportTotal Model
 class TestReportTotalDBModel(BaseDBModel):
     __tablename__ = "test_report_totals"
+
+    def __eq__(self, other):
+        if isinstance(other, TestReportTotalDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="TestReportTotal")

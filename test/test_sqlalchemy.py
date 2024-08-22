@@ -50,7 +50,7 @@ if __name__ == "__main__":
     print("Fetching GitLab Data...")
     # User Data table is a dependency table
     user_response = client.get_users(active=True, humans=True)
-    print(f"Converting Pydantic to SQLAlchemy model...")
+    print("Converting Pydantic to SQLAlchemy model...")
     user_db_model = pydantic_to_sqlalchemy(schema=user_response)
     print(
         f"Users ({len(user_response.data)}) Fetched - "
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     # Namespaces table is a dependency table
     namespace_response = client.get_namespaces()
-    print(f"Converting Pydantic to SQLAlchemy model...")
+    print("Converting Pydantic to SQLAlchemy model...")
     namespace_db_model = pydantic_to_sqlalchemy(schema=namespace_response)
     print(
         f"Namespaces ({len(namespace_response.data)}) Fetched - "
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
     # Project table requires Users and Namespaces
     project_response = client.get_nested_projects_by_group(group_id=2, per_page=100)
-    print(f"Converting Pydantic to SQLAlchemy model...")
+    print("Converting Pydantic to SQLAlchemy model...")
     project_db_model = pydantic_to_sqlalchemy(schema=project_response)
     print(
         f"Projects ({len(project_response.data)}) Fetched - "
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     merge_request_response = client.get_group_merge_requests(
         argument="state=all", group_id=2
     )
-    print(f"Converting Pydantic to SQLAlchemy model...")
+    print("Converting Pydantic to SQLAlchemy model...")
     merge_request_db_model = pydantic_to_sqlalchemy(schema=merge_request_response)
     print(
         f"Merge Requests ({len(merge_request_response.data)}) Fetched - "
@@ -110,7 +110,8 @@ if __name__ == "__main__":
                 f"Pipeline Jobs ({len(getattr(pipeline_job_response, 'data', []))}) Fetched for Project ({project.id}) - "
                 f"Status: {pipeline_job_response.status_code}\n"
             )
-    print(f"Converting Pydantic to SQLAlchemy model...")
+
+    print("Converting Pydantic to SQLAlchemy model...")
     pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response)
     print(f"Database Models: {pipeline_db_model}\n")
 

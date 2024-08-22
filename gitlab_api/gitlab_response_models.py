@@ -1790,6 +1790,31 @@ class Runner(BaseModel):
         return v
 
 
+class ProjectConfig(BaseModel):
+    class Meta:
+        orm_model = ProjectConfigDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ProjectConfig")
+    id: int = Field(default=None, description="Project identifier")
+    description: Optional[str] = Field(None, description="Description of the project")
+    name: str = Field(default=None, description="Name of the project")
+    name_with_namespace: str = Field(
+        default=None, description="Full project name with namespace"
+    )
+    path: str = Field(default=None, description="Path of the project")
+    path_with_namespace: str = Field(
+        default=None, description="Full path of the project including namespace"
+    )
+    created_at: datetime = Field(
+        default=None, description="Creation timestamp of the project"
+    )
+    ci_job_token_scope_enabled: Optional[bool] = Field(
+        None, description="CI Job Token Scope Enabled for Project"
+    )
+
+
 class Job(BaseModel):
     class Meta:
         orm_model = JobDBModel
@@ -1862,7 +1887,7 @@ class Job(BaseModel):
     web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="URL to view the job on the web."
     )
-    project: Optional[Project] = Field(
+    project: Optional[ProjectConfig] = Field(
         default=None, description="Details of the project associated with the job."
     )
     user: Optional[User] = Field(
@@ -3411,28 +3436,6 @@ class WikiAttachment(BaseModel):
     )
     link: Optional[WikiAttachmentLink] = Field(
         None, description="Link information for the uploaded attachment"
-    )
-
-
-class ProjectConfig(BaseModel):
-    class Meta:
-        orm_model = ProjectConfigDBModel
-
-    model_config = ConfigDict(extra="forbid")
-    __hash__ = object.__hash__
-    base_type: str = Field(default="ProjectConfig")
-    id: int = Field(default=None, description="Project identifier")
-    description: Optional[str] = Field(None, description="Description of the project")
-    name: str = Field(default=None, description="Name of the project")
-    name_with_namespace: str = Field(
-        default=None, description="Full project name with namespace"
-    )
-    path: str = Field(default=None, description="Path of the project")
-    path_with_namespace: str = Field(
-        default=None, description="Full path of the project including namespace"
-    )
-    created_at: datetime = Field(
-        default=None, description="Creation timestamp of the project"
     )
 
 

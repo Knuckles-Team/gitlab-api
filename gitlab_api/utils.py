@@ -109,22 +109,30 @@ def pydantic_to_sqlalchemy(schema):
 
 
 def upsert(model: Any, session):
-
-    if not model:
-        return
-    if "data" not in model:
+    if not model or "data" not in model:
         logging.debug(f"No data in model: {model}")
         return
-    for item in model["data"]:
-        logging.debug(f"Item ID: {item.id} - {item}")
-        if item.id:
-            existing_model = session.query(item.__class__).get(item.id)
-            logging.debug(f"\n\nExisting Model: {existing_model}")
-            if existing_model:
-                logging.debug(f"\n\nFound Existing Model: {existing_model}")
-                item = existing_model
 
-        session.merge(item)
+    data = model["data"]
+    item_ids = [item.id for item in data if item.id]
+    existing_items = (
+        session.query(data[0].__class__)
+        .filter(data[0].__class__.id.in_(item_ids))
+        .all()
+    )
+    existing_items_map = {item.id: item for item in existing_items}
+
+    for item in data:
+        logging.debug(f"Going through Item: {item}")
+        if item.id and item.id in existing_items_map:
+            existing_model = existing_items_map[item.id]
+            logging.debug(f"Found Existing Model: {existing_model}")
+            for attr, value in vars(item).items():
+                setattr(existing_model, attr, value)
+            session.merge(existing_model)
+        else:
+            session.merge(item)
+
     session.commit()
 
 

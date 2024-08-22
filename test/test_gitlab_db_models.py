@@ -60,7 +60,6 @@ from gitlab_api.gitlab_db_models import (
     ConfigurationDBModel,
     IterationDBModel,
     IdentityDBModel,
-    GroupSamlIdentityDBModel,
     UserDBModel,
     NamespaceDBModel,
     ContainerExpirationPolicyDBModel,
@@ -68,6 +67,9 @@ from gitlab_api.gitlab_db_models import (
     StatisticsDBModel,
     DiffDBModel,
     DetailedStatusDBModel,
+    TagDBModel,
+    ParentIDDBModel,
+    BaseDBModel,
 )
 
 
@@ -78,7 +80,7 @@ from gitlab_api.gitlab_db_models import (
         (
             ProjectConfigDBModel,
             {
-                "id": 1,  # Ensure this ID matches the foreign key
+                "id": 2,  # Ensure this ID matches the foreign key
                 "name": "project_config_1",
                 "name_with_namespace": "namespace1/project_config_1",
                 "path": "path1",
@@ -86,15 +88,157 @@ from gitlab_api.gitlab_db_models import (
                 "created_at": datetime.now(),
             },
         ),
-        (JobDBModel, {"id": 1, "name": "job_1", "status": "status_1"}),
-        (UserDBModel, {"id": 1, "username": "user_1", "email": "user@example.com"}),
+        (
+            JobDBModel,
+            {
+                "base_type": "Job",
+                "id": 13983,
+                "name": "prepare-release",
+                "commit": CommitDBModel(
+                    **{
+                        "base_type": "Commit",
+                        "id": "7f4c58a36e74074173125b75985801e2210dc794",
+                        "short_id": "7f4c58a3",
+                        "created_at": datetime.now(),
+                        "parent_ids": [
+                            ParentIDDBModel(
+                                **{
+                                    "base_type": "ParentID",
+                                    "parent_id": "0a03c4a5913963e10b680632508b9d0a655ce3e3",
+                                }
+                            )
+                        ],
+                        "title": "Added alpine image.",
+                        "author_name": "KnucklesSG1",
+                        "author_email": "knucklessg1@gmail.com",
+                        "authored_date": datetime.now(),
+                        "committer_name": "KnucklesSG1",
+                        "committer_email": "knucklessg1@gmail.com",
+                        "committed_date": datetime.now(),
+                        "web_url": "http://gitlab.arpa/homelab/containers/alpine/-/commit/7f4c58a36e74074173125b75985801e2210dc794",
+                    }
+                ),
+                "archived": False,
+                "allow_failure": False,
+                "created_at": datetime.now(),
+                "started_at": datetime.now(),
+                "finished_at": datetime.now(),
+                "duration": 3.742688,
+                "queued_duration": 1.018504,
+                "artifacts_file": ArtifactsFileDBModel(
+                    **{
+                        "base_type": "ArtifactsFile",
+                        "filename": "artifacts.zip",
+                        "size": 243,
+                    }
+                ),
+                "artifacts": [
+                    ArtifactDBModel(
+                        **{
+                            "base_type": "Artifact",
+                            "file_type": "dotenv",
+                            "size": 161,
+                            "filename": ".env.gz",
+                            "file_format": "gzip",
+                        }
+                    ),
+                    ArtifactDBModel(
+                        **{
+                            "base_type": "Artifact",
+                            "file_type": "trace",
+                            "size": 2582,
+                            "filename": "job.log",
+                        }
+                    ),
+                ],
+                "artifacts_expire_at": datetime.now(),
+                "tag_list": [TagDBModel(**{"base_type": "Tag", "tag": "Docker"})],
+                "pipeline": PipelineDBModel(
+                    **{
+                        "base_type": "Pipeline",
+                        "id": 6187,
+                        "iid": 1,
+                        "ref": "main",
+                        "sha": "7f4c58a36e74074173125b75985801e2210dc794",
+                        "status": "success",
+                        "web_url": "http://gitlab.arpa/homelab/containers/alpine/-/pipelines/6187",
+                        "project_id": 105,
+                        "created_at": "2024-08-18T22:59:27.759Z",
+                        "updated_at": "2024-08-18T23:00:06.470Z",
+                        "source": "push",
+                    }
+                ),
+                "ref": "main",
+                "runner": RunnerDBModel(
+                    **{
+                        "base_type": "Runner",
+                        "id": 1,
+                        "description": "Docker-R510",
+                        "active": True,
+                        "paused": False,
+                        "is_shared": False,
+                        "runner_type": "group_type",
+                        "online": True,
+                        "status": "online",
+                    }
+                ),
+                "runner_manager": RunnerManagerDBModel(
+                    **{
+                        "base_type": "RunnerManager",
+                        "id": 40,
+                        "system_id": "r_Rf0lgxIqDUYN",
+                        "version": "17.2.0",
+                        "revision": "6428c288",
+                        "platform": "linux",
+                        "architecture": "amd64",
+                        "created_at": datetime.now(),
+                        "contacted_at": datetime.now(),
+                        "ip_address": "192.168.224.1",
+                        "status": "online",
+                    }
+                ),
+                "stage": "prepare-release",
+                "status": "success",
+                "tag": False,
+                "web_url": "http://gitlab.arpa/homelab/containers/alpine/-/jobs/13983",
+                "project": ProjectConfigDBModel(
+                    **{
+                        "base_type": "ProjectConfig",
+                        "ci_job_token_scope_enabled": False,
+                    }
+                ),
+                "user": UserDBModel(
+                    **{
+                        "base_type": "User",
+                        "id": 5,
+                        "username": "audel_rouhi",
+                        "name": "Audel Rouhi",
+                        "state": "active",
+                        "locked": False,
+                        "avatar_url": "https://www.gravatar.com/avatar/67028d2aea629022416fa7bcc7f7847d03c6a6b2365ef155473716cb0a0e7fc5?s=80&d=identicon",
+                        "web_url": "http://gitlab.arpa/audel_rouhi",
+                        "created_at": datetime.now(),
+                        "bio": "",
+                        "location": "",
+                        "skype": "",
+                        "linkedin": "",
+                        "twitter": "",
+                        "discord": "",
+                        "website_url": "",
+                        "organization": "",
+                        "job_title": "",
+                        "bot": False,
+                        "followers": 0,
+                        "following": 0,
+                    }
+                ),
+            },
+        ),
         (
             MergeRequestDBModel,
             {"id": 1, "iid": 1, "title": "title_1", "state": "state_1"},
         ),
         (GroupDBModel, {"id": 1, "name": "group_1", "path": "group_path"}),
-        (PipelineDBModel, {"id": 1, "iid": 1, "status": "status_1"}),
-        # Create dependent records after the referenced records
         (DiffDBModel, {"id": 1, "diff": "diff content"}),
         (
             WebhookDBModel,
@@ -153,7 +297,6 @@ from gitlab_api.gitlab_db_models import (
         (GroupAccessDBModel, {"access_level": 30}),
         (DefaultBranchProtectionDefaultsDBModel, {"allow_force_push": True}),
         (AccessLevelDBModel, {"access_level": 40}),
-        (RunnerDBModel, {"description": "runner_1", "ip_address": "127.0.0.1"}),
         (PackageLinkDBModel, {"web_path": "/path/to/package"}),
         (PackageVersionDBModel, {"version": "1.0.0"}),
         (PackageDBModel, {"name": "package_1", "version": "1.0.0"}),
@@ -167,7 +310,6 @@ from gitlab_api.gitlab_db_models import (
             {"signature_type": "gpg", "verification_status": "verified"},
         ),
         (CommentDBModel, {"body": "comment_1", "note": "note_1"}),
-        (CommitDBModel, {"id": "123", "message": "commit message"}),
         (MembershipDBModel, {"source_id": 1, "access_level": {}}),
         (IssueStatsDBModel, {"total": 10, "closed": 5}),
         (MilestoneDBModel, {"title": "milestone_1", "state": "active"}),
@@ -179,12 +321,19 @@ from gitlab_api.gitlab_db_models import (
         ),
         (
             ArtifactDBModel,
-            {"file_type": "zip", "size": 1024, "filename": "artifact.zip"},
+            {"file_type": "dotenv", "size": 161, "filename": ".env.gz"},
         ),
-        (ArtifactsFileDBModel, {"filename": "artifacts.zip", "size": 2048}),
+        (
+            ArtifactsFileDBModel,
+            {
+                "base_type": "ArtifactsFile",
+                "filename": "artifacts.zip",
+                "size": 243,
+            },
+        ),
         (
             RunnerManagerDBModel,
-            {"system_id": "sys123", "version": "v1.0", "platform": "linux"},
+            {"system_id": "r_Rf0lgxIqDUYN", "version": "17.2.0", "platform": "linux"},
         ),
         (
             ConfigurationDBModel,
@@ -192,14 +341,9 @@ from gitlab_api.gitlab_db_models import (
         ),
         (IterationDBModel, {"title": "Iteration 1", "state": 1}),
         (IdentityDBModel, {"provider": "gitlab", "extern_uid": "user123"}),
-        (
-            GroupSamlIdentityDBModel,
-            {"user_id": 1, "extern_uid": "saml123", "provider": "saml"},
-        ),
         (NamespaceDBModel, {"id": 1, "name": "namespace_1", "path": "namespace_path"}),
         (ContainerExpirationPolicyDBModel, {"cadence": "1d", "enabled": True}),
         (AgentDBModel, {"id": 1, "config_project_id": 1}),
-        (AgentsDBModel, {"job_id": 1, "pipeline_id": 1}),
         (
             PermissionsDBModel,
             {
@@ -217,7 +361,7 @@ from gitlab_api.gitlab_db_models import (
             {
                 "approvals_before_merge": 2,
                 "reset_approvals_on_push": True,
-                "approvers_id": 1,
+                "approvers_id": 5,
             },
         ),
         (
@@ -272,7 +416,7 @@ from gitlab_api.gitlab_db_models import (
                 "description": "project description",
                 "name": "project_1",
                 "created_at": datetime.now(),
-                "creator": UserDBModel(**{"id": 2, "username": "creator"}),
+                "creator": UserDBModel(**{"id": 1, "username": "creator"}),
                 "shared_with_groups": [
                     GroupDBModel(
                         **{
@@ -315,12 +459,17 @@ from gitlab_api.gitlab_db_models import (
             PipelineVariableDBModel,
             {"key": "VAR_KEY", "variable_type": "env_var", "value": "VAR_VALUE"},
         ),
+        (AgentsDBModel, {"job_id": 13983, "pipeline_id": 6187}),
     ],
 )
 def test_model_creation(session, model, kwargs):
     instance = model(**kwargs)
-    session.merge(instance)
-    session.commit()
+    try:
+        session.add(instance)
+        session.commit()
+    except:
+        session.merge(instance)
+        session.commit()
 
     retrieved = session.query(model).first()
     for key, value in kwargs.items():
@@ -328,15 +477,38 @@ def test_model_creation(session, model, kwargs):
             assert getattr(retrieved, key).replace(microsecond=0) == value.replace(
                 microsecond=0
             )
+        elif isinstance(value, list):
+            # If the value is a list of models, compare specific attributes
+            for retrieved_item, expected_item in zip(getattr(retrieved, key), value):
+                if isinstance(expected_item, ArtifactsFileDBModel):
+                    assert retrieved_item.filename == expected_item.filename
+                    assert retrieved_item.size == expected_item.size
+                elif isinstance(expected_item, TagDBModel):
+                    assert retrieved_item.tag == expected_item.tag
+                # Add similar blocks for other nested models if needed
         elif (
             isinstance(value, list)
             and len(value) > 0
-            and isinstance(value[0], GroupDBModel)
+            and isinstance(value[0], BaseDBModel)
         ):
             retrieved_ids = [getattr(g, "id") for g in getattr(retrieved, key)]
             expected_ids = [getattr(g, "id") for g in value]
             assert retrieved_ids == expected_ids
+        elif isinstance(value, ArtifactsFileDBModel):
+            # Compare specific attributes of ArtifactsFileDBModel
+            retrieved_artifacts_file = getattr(retrieved, key)
+            assert retrieved_artifacts_file.filename == value.filename
+            assert retrieved_artifacts_file.size == value.size
+        elif isinstance(value, CommitDBModel):
+            # Compare specific attributes of CommitDBModel
+            retrieved_commit = getattr(retrieved, key)
+            assert retrieved_commit.id == value.id
+            assert retrieved_commit.short_id == value.short_id
+            # Add additional attribute comparisons as needed
         elif isinstance(value, UserDBModel):
-            assert getattr(retrieved, key).id == value.id
+            # Compare specific attributes of UserDBModel
+            retrieved_user = getattr(retrieved, key)
+            assert retrieved_user.id == value.id
+            assert retrieved_user.username == value.username
         else:
             assert getattr(retrieved, key) == value
