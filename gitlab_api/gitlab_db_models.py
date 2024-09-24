@@ -1190,8 +1190,9 @@ project_groups = Table(
 project_shared_with_groups = Table(
     "project_shared_with_groups",
     BaseDBModel.metadata,
-    Column("project_id", Integer, ForeignKey("projects.id"), primary_key=True),
-    Column("group_id", Integer, ForeignKey("groups.id"), primary_key=True),
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("group_id", Integer, ForeignKey("groups.id")),
+    Column("id", Integer, primary_key=True, autoincrement=True)
 )
 
 
