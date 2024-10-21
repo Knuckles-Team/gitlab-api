@@ -2147,11 +2147,13 @@ class Api(object):
         if project.group_id is None:
             raise MissingParameterError
         project_group = self.get_group(group_id=project.group_id)
+        print(f"\n\nPROJECT GROUP: {project_group}\n\n")
         if project_group.data:
             all_groups.append(project_group.data)
         groups = self.get_group_descendant_groups(group_id=project.group_id)
         if groups.data:
             all_groups.extend(groups.data)
+        print(f"ALL GROUPS: {all_groups}")
         for group in all_groups:
             pages_response = self.get_total_projects_in_group(
                 group_id=project.group_id, per_page=project.per_page

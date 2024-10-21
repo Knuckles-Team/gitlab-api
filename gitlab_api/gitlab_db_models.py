@@ -1192,7 +1192,7 @@ project_shared_with_groups = Table(
     BaseDBModel.metadata,
     Column("project_id", Integer, ForeignKey("projects.id")),
     Column("group_id", Integer, ForeignKey("groups.id")),
-    Column("id", Integer, primary_key=True, autoincrement=True)
+    Column("id", Integer, primary_key=True, autoincrement=True),
 )
 
 
@@ -1805,6 +1805,13 @@ class ProjectDBModel(BaseDBModel):
     operations_access_level: Mapped[str] = mapped_column(String, nullable=True)
     ci_dockerfile: Mapped[str] = mapped_column(String, nullable=True)
     public: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    ci_id_token_sub_claim_components = mapped_column(ARRAY(String), nullable=True)
+    ci_pipeline_variables_minimum_override_role: Mapped[str] = mapped_column(
+        String, nullable=True
+    )
+    ci_push_repository_for_job_token_allowed: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
 
     tag_list_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="tags.id"), nullable=True

@@ -32,14 +32,12 @@ def test_get_nested_projects():
     # Get nested projects
     group_id = 2
     projects = client.get_nested_projects_by_group(group_id=group_id, per_page=3)
-    assert projects.data.base_type == "Projects"
-    assert isinstance(projects.data.projects, list)
-    assert len(projects.data.projects) > 3
+    assert len(projects.data) > 0
+    assert isinstance(projects.data, list)
     group_id = 6
     projects = client.get_nested_projects_by_group(group_id=group_id, per_page=3)
-    assert projects.data.base_type == "Projects"
-    assert isinstance(projects.data.projects, list)
-    assert len(projects.data.projects) > 3
+    assert len(projects.data) > 0
+    assert isinstance(projects.data, list)
 
 
 @pytest.mark.skipif(

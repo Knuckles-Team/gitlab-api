@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # coding: utf-8
-import logging
 
 from typing import Union, List, Dict, Optional, Any
 from pydantic import (
@@ -1681,6 +1680,15 @@ class Project(BaseModel):
     groups: Optional[List["Group"]] = Field(default=None, description="List of groups")
     public: Optional[bool] = Field(
         default=None, description="Whether project is allowed to be public."
+    )
+    ci_id_token_sub_claim_components: Optional[List[str]] = Field(
+        default=None, description="CI ID Token Sub Claim Components"
+    )
+    ci_pipeline_variables_minimum_override_role: Optional[str] = Field(
+        default=None, description="CI Pipeline Variables minimum override role"
+    )
+    ci_push_repository_for_job_token_allowed: Optional[bool] = Field(
+        default=None, description="CI Push repository for Job token allowed"
     )
 
     @field_validator("tag_list", mode="before")
@@ -3603,10 +3611,10 @@ class Response(BaseModel):
                             model(**item) if isinstance(item, dict) else item
                             for item in value
                         ]
-                        logging.debug(f"{model_name} Validation Success: {temp_value}")
+                        print(f"{model_name} Validation Success: {temp_value}")
                         return temp_value
                     except Exception as e:
-                        logging.debug(
+                        print(
                             f"\n\n\n {model_name} Validation Failed: {value}\nError: {e}"
                         )
             return value
@@ -3614,10 +3622,10 @@ class Response(BaseModel):
             for model_name, model in single_models.items():
                 try:
                     temp_value = model(**value)
-                    logging.debug(f"{model_name} Model Validation Success: {value}")
+                    print(f"{model_name} Model Validation Success: {value}")
                     return temp_value
                 except Exception as e:
-                    logging.debug(
+                    print(
                         f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
                     )
         return value
