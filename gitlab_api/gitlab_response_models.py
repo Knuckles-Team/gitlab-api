@@ -104,6 +104,7 @@ logging.basicConfig(
     level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+
 class IssueStats(BaseModel):
     class Meta:
         orm_model = IssueStatsDBModel
