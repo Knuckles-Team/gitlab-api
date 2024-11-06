@@ -841,7 +841,7 @@ class Api(object):
             response = self._session.post(
                 url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens",
                 headers=self.headers,
-                json=deploy_token.model_dump,
+                json=deploy_token.model_dump(),
                 verify=self.verify,
             )
         except ValidationError as e:
@@ -955,7 +955,7 @@ class Api(object):
         try:
             response = self._session.put(
                 url=f"{self.url}/groups/{group.group_id}",
-                json=group.model_dump(),
+                json=group.data,
                 headers=self.headers,
                 verify=self.verify,
             )
