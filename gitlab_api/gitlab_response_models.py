@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
+import logging
 from typing import Union, List, Dict, Optional, Any
 from pydantic import (
     BaseModel,
@@ -99,6 +100,9 @@ from gitlab_api.gitlab_db_models import (
     WikiPageDBModel,
 )
 
+logging.basicConfig(
+    level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 class IssueStats(BaseModel):
     class Meta:
@@ -3611,10 +3615,10 @@ class Response(BaseModel):
                             model(**item) if isinstance(item, dict) else item
                             for item in value
                         ]
-                        print(f"{model_name} Validation Success: {temp_value}")
+                        logging.info(f"{model_name} Validation Success: {temp_value}")
                         return temp_value
                     except Exception as e:
-                        print(
+                        logging.error(
                             f"\n\n\n {model_name} Validation Failed: {value}\nError: {e}"
                         )
             return value
@@ -3622,10 +3626,10 @@ class Response(BaseModel):
             for model_name, model in single_models.items():
                 try:
                     temp_value = model(**value)
-                    print(f"{model_name} Model Validation Success: {value}")
+                    logging.info(f"{model_name} Model Validation Success: {value}")
                     return temp_value
                 except Exception as e:
-                    print(
+                    logging.error(
                         f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
                     )
         return value
