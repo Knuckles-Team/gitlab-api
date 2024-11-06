@@ -697,6 +697,24 @@ class GroupModel(BaseModel):
             raise ParameterError
         return v
 
+    @field_validator("visibility")
+    def validate_visibility(cls, value):
+        """
+        Validate visibility value.
+
+        Args:
+        - value: visibility value to validate.
+
+        Returns:
+        - The validated visibility value.
+
+        Raises:
+        - ValueError: If the value is not a valid order_by.
+        """
+        if value.lower() not in ["internal", "private", "public"]:
+            raise ValueError("Invalid visibility")
+        return value.lower()
+
     @field_validator("group_id")
     def validate_group_id(cls, v):
         """
@@ -1957,6 +1975,24 @@ class ProjectModel(BaseModel):
         """
         if value.lower() not in ["id", "name", "username", "created_at", "updated_at"]:
             raise ValueError("Invalid order_by")
+        return value.lower()
+
+    @field_validator("visibility")
+    def validate_visibility(cls, value):
+        """
+        Validate visibility value.
+
+        Args:
+        - value: visibility value to validate.
+
+        Returns:
+        - The validated visibility value.
+
+        Raises:
+        - ValueError: If the value is not a valid order_by.
+        """
+        if value.lower() not in ["internal", "private", "public"]:
+            raise ValueError("Invalid visibility")
         return value.lower()
 
 
