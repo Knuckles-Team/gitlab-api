@@ -938,6 +938,33 @@ class Api(object):
         return response
 
     @require_auth
+    def edit_group(self, **kwargs) -> Union[Response, requests.Response]:
+        """
+        Edit a specific group.
+
+        Args:
+        - **kwargs: Additional parameters for the request.
+
+        Returns:
+        - The response from the server.
+
+        Raises:
+        - ParameterError: If invalid parameters are provided.
+        """
+        group = GroupModel(**kwargs)
+        try:
+            response = self._session.put(
+                url=f"{self.url}/groups/{group.group_id}",
+                json=group.model_dump(),
+                headers=self.headers,
+                verify=self.verify,
+            )
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
+        return response
+
+    @require_auth
     def get_group_subgroups(self, **kwargs) -> Union[Response, requests.Response]:
         """
         Get subgroups of a specific group.

@@ -137,7 +137,7 @@ class CommitModel(BaseModel):
     report_type: Optional[str] = None
     rule_type: Optional[str] = None
     user_ids: Optional[list] = None
-    data: Optional[Dict] = None
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     @field_validator("dry_run", "stats", "force")
     def validate_bool_fields(cls, v):
@@ -490,11 +490,169 @@ class GroupModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    group_id: Union[int, str] = None
-    per_page: Optional[int] = 100
-    page: Optional[int] = 1
-    argument: Optional[str] = "state=opened"
+    group_id: Union[int, str] = Field(description="The group ID.", default=None)
+    name: Optional[str] = Field(description="The name of the group.", default=None)
+    path: Optional[str] = Field(description="The path of the group.", default=None)
+    auto_devops_enabled: Optional[bool] = Field(
+        description="Enable Auto DevOps pipeline by default.", default=None
+    )
+    avatar: Optional[bytes] = Field(
+        description="Image file for avatar of the group.", default=None
+    )
+    default_branch: Optional[str] = Field(
+        description="The default branch name for the group's projects.", default=None
+    )
+    default_branch_protection: Optional[int] = Field(
+        description="Deprecated: Use default_branch_protection_defaults instead.",
+        default=None,
+    )
+    default_branch_protection_defaults: Optional[Dict] = Field(
+        description="Options for default_branch_protection_defaults.", default=None
+    )
+    description: Optional[str] = Field(
+        description="The description of the group.", default=None
+    )
+    enabled_git_access_protocol: Optional[str] = Field(
+        description="Enabled protocols for Git access (ssh, http, or all).",
+        default=None,
+    )
+    emails_enabled: Optional[bool] = Field(
+        description="Enable email notifications.", default=None
+    )
+    lfs_enabled: Optional[bool] = Field(
+        description="Enable or disable Large File Storage (LFS).", default=None
+    )
+    mentions_disabled: Optional[bool] = Field(
+        description="Disable mentions for the group.", default=None
+    )
+    prevent_sharing_groups_outside_hierarchy: Optional[bool] = Field(
+        description="Prevent sharing groups outside the hierarchy.", default=None
+    )
+    project_creation_level: Optional[str] = Field(
+        description="Determine if developers can create projects (noone, maintainer, or developer).",
+        default=None,
+    )
+    request_access_enabled: Optional[bool] = Field(
+        description="Allow users to request member access.", default=None
+    )
+    require_two_factor_authentication: Optional[bool] = Field(
+        description="Require all users to set up two-factor authentication.",
+        default=None,
+    )
+    shared_runners_setting: Optional[str] = Field(
+        description="Options for shared runners (enabled or disabled).", default=None
+    )
+    share_with_group_lock: Optional[bool] = Field(
+        description="Prevent sharing a project with another group.", default=None
+    )
+    subgroup_creation_level: Optional[str] = Field(
+        description="Allowed to create subgroups (owner or maintainer).", default=None
+    )
+    two_factor_grace_period: Optional[int] = Field(
+        description="Time before two-factor authentication is enforced (in hours).",
+        default=None,
+    )
+    visibility: Optional[str] = Field(
+        description="Visibility level of the group (private, internal, or public).",
+        default=None,
+    )
+    extra_shared_runners_minutes_limit: Optional[int] = Field(
+        description="Additional compute minutes for the group (admins only).",
+        default=None,
+    )
+    file_template_project_id: Optional[int] = Field(
+        description="ID of a project to load custom file templates from.", default=None
+    )
+    membership_lock: Optional[bool] = Field(
+        description="Prevent adding users to projects in this group.", default=None
+    )
+    prevent_forking_outside_group: Optional[bool] = Field(
+        description="Prevent forking projects to external namespaces.", default=None
+    )
+    shared_runners_minutes_limit: Optional[int] = Field(
+        description="Maximum number of monthly compute minutes for this group.",
+        default=None,
+    )
+    unique_project_download_limit: Optional[int] = Field(
+        description="Max unique projects a user can download in a time period.",
+        default=None,
+    )
+    unique_project_download_limit_interval_in_seconds: Optional[int] = Field(
+        description="Time period for unique project download limit (in seconds).",
+        default=None,
+    )
+    unique_project_download_limit_allowlist: Optional[List[str]] = Field(
+        description="Usernames excluded from the unique project download limit.",
+        default=None,
+    )
+    unique_project_download_limit_alertlist: Optional[List[int]] = Field(
+        description="User IDs alerted when unique project download limit is exceeded.",
+        default=None,
+    )
+    auto_ban_user_on_excessive_projects_download: Optional[bool] = Field(
+        description="Automatically ban users exceeding project download limits.",
+        default=None,
+    )
+    ip_restriction_ranges: Optional[str] = Field(
+        description="Comma-separated IP addresses or subnets to restrict access.",
+        default=None,
+    )
+    allowed_email_domains_list: Optional[str] = Field(
+        description="Comma-separated list of allowed email domains.", default=None
+    )
+    wiki_access_level: Optional[str] = Field(
+        description="Wiki access level (disabled, private, or enabled).", default=None
+    )
+    math_rendering_limits_enabled: Optional[bool] = Field(
+        description="Indicates if math rendering limits are used for this group.",
+        default=None,
+    )
+    lock_math_rendering_limits_enabled: Optional[bool] = Field(
+        description="Indicates if math rendering limits are locked for descendent groups.",
+        default=None,
+    )
+    duo_features_enabled: Optional[bool] = Field(
+        description="Indicates whether GitLab Duo features are enabled.", default=None
+    )
+    lock_duo_features_enabled: Optional[bool] = Field(
+        description="Indicates whether GitLab Duo features setting is enforced for subgroups.",
+        default=None,
+    )
+    per_page: Optional[int] = Field(description="Results per page", default=100)
+    page: Optional[int] = Field(description="Pagination page", default=1)
+    argument: Optional[str] = Field(
+        description="Any additional parameter arguments.", default="state=opened"
+    )
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
+        data = {}
+
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+
+        return values
 
     @field_validator("per_page", "page")
     def validate_positive_integer(cls, v):
@@ -729,8 +887,8 @@ class MembersModel(BaseModel):
 
     group_id: Optional[Union[int, str]] = None
     project_id: Optional[Union[int, str]] = None
-    per_page: Optional[int] = 100
-    page: Optional[int] = 1
+    per_page: Optional[int] = Field(description="Results per page", default=100)
+    page: Optional[int] = Field(description="Pagination page", default=1)
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
     @field_validator("per_page", "page")
@@ -867,10 +1025,11 @@ class MergeRequestModel(BaseModel):
     reviewer_ids: Optional[List[int]] = None
     squash: Optional[bool] = None
     target_project_id: Optional[Union[int, str]] = None
-    max_pages: Optional[int] = 0
-    per_page: Optional[int] = 100
+    max_pages: Optional[int] = Field(description="Maximum pages to return", default=0)
+    per_page: Optional[int] = Field(description="Results per page", default=100)
+    page: Optional[int] = Field(description="Pagination page", default=1)
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = None
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     def model_post_init(self, __context):
         """
@@ -960,34 +1119,9 @@ class MergeRequestModel(BaseModel):
         """
         data = {}
 
-        if "source_branch" in values:
-            data["source_branch"] = values.get("source_branch")
-        if "target_branch" in values:
-            data["target_branch"] = values.get("target_branch")
-        if "title" in values:
-            data["title"] = values.get("title")
-        if "allow_collaboration" in values:
-            data["allow_collaboration"] = values.get("allow_collaboration")
-        if "allow_maintainer_to_push" in values:
-            data["allow_maintainer_to_push"] = values.get("allow_maintainer_to_push")
-        if "approvals_before_merge" in values:
-            data["approvals_before_merge"] = values.get("approvals_before_merge")
-        if "assignee_id" in values:
-            data["assignee_id"] = values.get("assignee_id")
-        if "description" in values:
-            data["description"] = values.get("description")
-        if "labels" in values:
-            data["labels"] = values.get("labels")
-        if "milestone_id" in values:
-            data["milestone_id"] = values.get("milestone_id")
-        if "remove_source_branch" in values:
-            data["remove_source_branch"] = values.get("remove_source_branch")
-        if "reviewer_ids" in values:
-            data["reviewer_ids"] = values.get("reviewer_ids")
-        if "squash" in values:
-            data["squash"] = values.get("squash")
-        if "target_project_id" in values:
-            data["target_project_id"] = values.get("target_project_id")
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
 
         data = {k: v for k, v in data.items() if v is not None}
 
@@ -1242,7 +1376,7 @@ class MergeRequestRuleModel(BaseModel):
     report_type: Optional[str] = None
     rule_type: Optional[str] = None
     user_ids: Optional[List[int]] = None
-    data: Optional[Dict] = None
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     @field_validator("project_id", "approvals_required", "name")
     def check_required_fields(cls, value):
@@ -1359,7 +1493,7 @@ class NamespaceModel(BaseModel):
         description="Only show top level namespaces", default=None
     )
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = None
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     def model_post_init(self, __context):
         """
@@ -1500,8 +1634,8 @@ class PipelineModel(BaseModel):
     """
 
     project_id: Union[int, str] = None
-    per_page: Optional[int] = 100
-    page: Optional[int] = 1
+    per_page: Optional[int] = Field(description="Results per page", default=100)
+    page: Optional[int] = Field(description="Pagination page", default=1)
     status: Optional[str] = Field(description="Status", default=None)
     pipeline_id: Optional[Union[int, str]] = None
     reference: Optional[str] = None
@@ -1635,7 +1769,7 @@ class ProjectModel(BaseModel):
     visibility: Optional[str] = None
     wiki_access_level: Optional[str] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = None
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     def model_post_init(self, __context):
         """
@@ -1673,210 +1807,9 @@ class ProjectModel(BaseModel):
         """
         data = {}
 
-        if "allow_merge_on_skipped_pipeline" in values:
-            data["allow_merge_on_skipped_pipeline"] = values.get(
-                "allow_merge_on_skipped_pipeline"
-            )
-        if "allow_pipeline_trigger_approve_deployment" in values:
-            data["allow_pipeline_trigger_approve_deployment"] = values.get(
-                "allow_pipeline_trigger_approve_deployment"
-            )
-        if "only_allow_merge_if_all_status_checks_passed" in values:
-            data["only_allow_merge_if_all_status_checks_passed"] = values.get(
-                "only_allow_merge_if_all_status_checks_passed"
-            )
-        if "analytics_access_level" in values:
-            data["analytics_access_level"] = values.get("analytics_access_level")
-        if "approvals_before_merge" in values:
-            data["approvals_before_merge"] = values.get("approvals_before_merge")
-        if "auto_cancel_pending_pipelines" in values:
-            data["auto_cancel_pending_pipelines"] = values.get(
-                "auto_cancel_pending_pipelines"
-            )
-        if "auto_devops_deploy_strategy" in values:
-            data["auto_devops_deploy_strategy"] = values.get(
-                "auto_devops_deploy_strategy"
-            )
-        if "auto_devops_enabled" in values:
-            data["auto_devops_enabled"] = values.get("auto_devops_enabled")
-        if "autoclose_referenced_issues" in values:
-            data["autoclose_referenced_issues"] = values.get(
-                "autoclose_referenced_issues"
-            )
-        if "avatar" in values:
-            data["avatar"] = values.get("avatar")
-        if "build_git_strategy" in values:
-            data["build_git_strategy"] = values.get("build_git_strategy")
-        if "build_timeout" in values:
-            data["build_timeout"] = values.get("build_timeout")
-        if "builds_access_level" in values:
-            data["builds_access_level"] = values.get("builds_access_level")
-        if "ci_config_path" in values:
-            data["ci_config_path"] = values.get("ci_config_path")
-        if "container_registry_access_level" in values:
-            data["container_registry_access_level"] = values.get(
-                "container_registry_access_level"
-            )
-        if "container_registry_enabled" in values:
-            data["container_registry_enabled"] = values.get(
-                "container_registry_enabled"
-            )
-        if "default_branch" in values:
-            data["default_branch"] = values.get("default_branch")
-        if "description" in values:
-            data["description"] = values.get("description")
-        if "emails_disabled" in values:
-            data["emails_disabled"] = values.get("emails_disabled")
-        if "emails_enabled" in values:
-            data["emails_enabled"] = values.get("emails_enabled")
-        if "enforce_auth_checks_on_uploads" in values:
-            data["enforce_auth_checks_on_uploads"] = values.get(
-                "enforce_auth_checks_on_uploads"
-            )
-        if "environments_access_level" in values:
-            data["environments_access_level"] = values.get("environments_access_level")
-        if "external_authorization_classification_label" in values:
-            data["external_authorization_classification_label"] = values.get(
-                "external_authorization_classification_label"
-            )
-        if "feature_flags_access_level" in values:
-            data["feature_flags_access_level"] = values.get(
-                "feature_flags_access_level"
-            )
-        if "forking_access_level" in values:
-            data["forking_access_level"] = values.get("forking_access_level")
-        if "group_runners_enabled" in values:
-            data["group_runners_enabled"] = values.get("group_runners_enabled")
-        if "group_with_project_templates_id" in values:
-            data["group_with_project_templates_id"] = values.get(
-                "group_with_project_templates_id"
-            )
-        if "import_url" in values:
-            data["import_url"] = values.get("import_url")
-        if "infrastructure_access_level" in values:
-            data["infrastructure_access_level"] = values.get(
-                "infrastructure_access_level"
-            )
-        if "initialize_with_readme" in values:
-            data["initialize_with_readme"] = values.get("initialize_with_readme")
-        if "issue_branch_template" in values:
-            data["issue_branch_template"] = values.get("issue_branch_template")
-        if "issues_access_level" in values:
-            data["issues_access_level"] = values.get("issues_access_level")
-        if "issues_enabled" in values:
-            data["issues_enabled"] = values.get("issues_enabled")
-        if "jobs_enabled" in values:
-            data["jobs_enabled"] = values.get("jobs_enabled")
-        if "lfs_enabled" in values:
-            data["lfs_enabled"] = values.get("lfs_enabled")
-        if "merge_commit_template" in values:
-            data["merge_commit_template"] = values.get("merge_commit_template")
-        if "merge_method" in values:
-            data["merge_method"] = values.get("merge_method")
-        if "merge_requests_access_level" in values:
-            data["merge_requests_access_level"] = values.get(
-                "merge_requests_access_level"
-            )
-        if "merge_requests_enabled" in values:
-            data["merge_requests_enabled"] = values.get("merge_requests_enabled")
-        if "mirror_trigger_builds" in values:
-            data["mirror_trigger_builds"] = values.get("mirror_trigger_builds")
-        if "mirror" in values:
-            data["mirror"] = values.get("mirror")
-        if "model_experiments_access_level" in values:
-            data["model_experiments_access_level"] = values.get(
-                "model_experiments_access_level"
-            )
-        if "model_registry_access_level" in values:
-            data["model_registry_access_level"] = values.get(
-                "model_registry_access_level"
-            )
-        if "monitor_access_level" in values:
-            data["monitor_access_level"] = values.get("monitor_access_level")
-        if "namespace_id" in values:
-            data["namespace_id"] = values.get("namespace_id")
-        if "only_allow_merge_if_all_discussions_are_resolved" in values:
-            data["only_allow_merge_if_all_discussions_are_resolved"] = values.get(
-                "only_allow_merge_if_all_discussions_are_resolved"
-            )
-        if "only_allow_merge_if_all_status_checks_passed" in values:
-            data["only_allow_merge_if_all_status_checks_passed"] = values.get(
-                "only_allow_merge_if_all_status_checks_passed"
-            )
-        if "only_allow_merge_if_pipeline_succeeds" in values:
-            data["only_allow_merge_if_pipeline_succeeds"] = values.get(
-                "only_allow_merge_if_pipeline_succeeds"
-            )
-        if "packages_enabled" in values:
-            data["packages_enabled"] = values.get("packages_enabled")
-        if "pages_access_level" in values:
-            data["pages_access_level"] = values.get("pages_access_level")
-        if "path" in values:
-            data["path"] = values.get("path")
-        if "printing_merge_request_link_enabled" in values:
-            data["printing_merge_request_link_enabled"] = values.get(
-                "printing_merge_request_link_enabled"
-            )
-        if "public_builds" in values:
-            data["public_builds"] = values.get("public_builds")
-        if "public_jobs" in values:
-            data["public_jobs"] = values.get("public_jobs")
-        if "releases_access_level" in values:
-            data["releases_access_level"] = values.get("releases_access_level")
-        if "repository_object_format" in values:
-            data["repository_object_format"] = values.get("repository_object_format")
-        if "remove_source_branch_after_merge" in values:
-            data["remove_source_branch_after_merge"] = values.get(
-                "remove_source_branch_after_merge"
-            )
-        if "repository_access_level" in values:
-            data["repository_access_level"] = values.get("repository_access_level")
-        if "repository_storage" in values:
-            data["repository_storage"] = values.get("repository_storage")
-        if "request_access_enabled" in values:
-            data["request_access_enabled"] = values.get("request_access_enabled")
-        if "requirements_access_level" in values:
-            data["requirements_access_level"] = values.get("requirements_access_level")
-        if "resolve_outdated_diff_discussions" in values:
-            data["resolve_outdated_diff_discussions"] = values.get(
-                "resolve_outdated_diff_discussions"
-            )
-        if "security_and_compliance_access_level" in values:
-            data["security_and_compliance_access_level"] = values.get(
-                "security_and_compliance_access_level"
-            )
-        if "shared_runners_enabled" in values:
-            data["shared_runners_enabled"] = values.get("shared_runners_enabled")
-        if "show_default_award_emojis" in values:
-            data["show_default_award_emojis"] = values.get("show_default_award_emojis")
-        if "snippets_access_level" in values:
-            data["snippets_access_level"] = values.get("snippets_access_level")
-        if "snippets_enabled" in values:
-            data["snippets_enabled"] = values.get("snippets_enabled")
-        if "squash_commit_template" in values:
-            data["squash_commit_template"] = values.get("squash_commit_template")
-        if "squash_option" in values:
-            data["squash_option"] = values.get("squash_option")
-        if "suggestion_commit_message" in values:
-            data["suggestion_commit_message"] = values.get("suggestion_commit_message")
-        if "tag_list" in values:
-            data["tag_list"] = values.get("tag_list")
-        if "template_name" in values:
-            data["template_name"] = values.get("template_name")
-        if "topics" in values:
-            data["topics"] = values.get("topics")
-        if "use_custom_template" in values:
-            data["use_custom_template"] = values.get("use_custom_template")
-        if "visibility" in values:
-            data["visibility"] = values.get("visibility")
-        if "warn_about_potentially_unwanted_characters" in values:
-            data["warn_about_potentially_unwanted_characters"] = values.get(
-                "warn_about_potentially_unwanted_characters"
-            )
-        if "wiki_access_level" in values:
-            data["wiki_access_level"] = values.get("wiki_access_level")
-        if "wiki_enabled" in values:
-            data["wiki_enabled"] = values.get("wiki_enabled")
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
 
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
@@ -2068,7 +2001,7 @@ class ProtectedBranchModel(BaseModel):
     allowed_to_unprotect: Optional[List[Dict]] = None
     code_owner_approval_required: Optional[bool] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = None
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     def model_post_init(self, __context):
         """
@@ -2100,18 +2033,9 @@ class ProtectedBranchModel(BaseModel):
         """
         data = {}
 
-        if "allow_force_push" in values:
-            data["allow_force_push"] = values.get("allow_force_push")
-        if "allowed_to_push" in values:
-            data["allowed_to_push"] = values.get("allowed_to_push")
-        if "allowed_to_merge" in values:
-            data["allowed_to_merge"] = values.get("allowed_to_merge")
-        if "allowed_to_unprotect" in values:
-            data["allowed_to_unprotect"] = values.get("allowed_to_unprotect")
-        if "code_owner_approval_required" in values:
-            data["code_owner_approval_required"] = values.get(
-                "code_owner_approval_required"
-            )
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
 
         # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
@@ -2225,7 +2149,7 @@ class ReleaseModel(BaseModel):
     milestones: Optional[str] = None
     released_at: Optional[str] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = None
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     def model_post_init(self, __context):
         """
@@ -2251,30 +2175,9 @@ class ReleaseModel(BaseModel):
         """
         data = {}
 
-        if "description" in values:
-            data["name"] = values.get("description")
-        if "tag_name" in values:
-            data["tag_name"] = values.get("tag_name")
-        if "tag_message" in values:
-            data["tag_message"] = values.get("tag_message")
-        if "description" in values:
-            data["description"] = values.get("description")
-        if "ref" in values:
-            data["ref"] = values.get("reference")
-        if "milestones" in values:
-            data["milestones"] = values.get("milestones")
-        if "assets:links" in values:
-            data["assets:links"] = values.get("assets:links")
-        if "assets:links:name" in values:
-            data["assets:links:name"] = values.get("assets:links:name")
-        if "assets:links:url" in values:
-            data["assets:links:url"] = values.get("assets:links:url")
-        if "assets:links:direct_asset_path" in values:
-            data["assets:links:direct_asset_path"] = values.get(
-                "assets:links:direct_asset_path"
-            )
-        if "released_at" in values:
-            data["released_at"] = values.get("released_at")
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
 
         data = {k: v for k, v in data.items() if v is not None}
 
@@ -2411,7 +2314,7 @@ class RunnerModel(BaseModel):
     status: Optional[str] = None
     all_runners: Optional[bool] = False
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = None
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     def model_post_init(self, __context):
         """
@@ -2443,28 +2346,9 @@ class RunnerModel(BaseModel):
         """
         data = {}
 
-        if "description" in values:
-            data["name"] = values.get("description")
-        if "active" in values:
-            data["active"] = values.get("active")
-        if "paused" in values:
-            data["paused"] = values.get("paused")
-        if "tag_list" in values:
-            data["tag_list"] = values.get("tag_list")
-        if "run_untagged" in values:
-            data["run_untagged"] = values.get("run_untagged")
-        if "locked" in values:
-            data["locked"] = values.get("locked")
-        if "access_level" in values:
-            data["access_level"] = values.get("access_level")
-        if "maximum_timeout" in values:
-            data["maximum_timeout"] = values.get("maximum_timeout")
-        if "info" in values:
-            data["info"] = values.get("info")
-        if "maintenance_note" in values:
-            data["maintenance_note"] = values.get("maintenance_note")
-        if "token" in values:
-            data["token"] = values.get("token")
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
 
         data = {k: v for k, v in data.items() if v is not None}
 
@@ -2744,7 +2628,7 @@ class WikiModel(BaseModel):
     branch: Optional[str] = None
     version: Optional[str] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = None
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     def model_post_init(self, __context):
         """
@@ -2774,14 +2658,9 @@ class WikiModel(BaseModel):
         """
         data = {}
 
-        if "content" in values:
-            data["content"] = values.get("content")
-        if "title" in values:
-            data["title"] = values.get("title")
-        if "format" in values:
-            data["format"] = values.get("format")
-        if "file" in values:
-            data["file"] = f'@{values.get("file")}'
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
 
         data = {k: v for k, v in data.items() if v is not None}
 
