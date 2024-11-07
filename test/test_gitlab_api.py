@@ -85,7 +85,21 @@ def test_edit_group():
     # Get nested projects
     group_id = 6
     group = client.edit_group(group_id=group_id, visibility="internal")
-    assert group.visibility == "internal"
+    assert group.data.visibility == "internal"
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_edit_project():
+    # Get nested projects
+    group_id = 6
+    group = client.edit_group(group_id=group_id, visibility="internal")
+    group_id = 179
+    group = client.edit_group(group_id=group_id, visibility="internal")
+    project_id = 55
+    project = client.edit_project(project_id=project_id, visibility="internal")
+    assert project.data.visibility == "internal"
 
 
 if __name__ == "__main__":
@@ -94,3 +108,4 @@ if __name__ == "__main__":
     test_create_project_rule()
     test_get_project_rules()
     test_edit_group()
+    test_edit_project()

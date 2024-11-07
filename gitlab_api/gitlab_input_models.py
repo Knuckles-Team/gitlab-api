@@ -1307,8 +1307,7 @@ class MergeRequestModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator(
-        "approvals_before_merge", "assignee_id", "milestone_id", "target_project_id"
+    @field_validator("assignee_id", "milestone_id", "target_project_id"
     )
     def validate_positive_integer(cls, v):
         """
@@ -1919,7 +1918,6 @@ class ProjectModel(BaseModel):
         return value
 
     @field_validator(
-        "approvals_before_merge",
         "build_timeout",
         "ci_default_git_depth",
         "mirror_user_id",
