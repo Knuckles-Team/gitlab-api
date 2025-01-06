@@ -1370,6 +1370,9 @@ class Project(BaseModel):
     resolve_outdated_diff_discussions: Optional[bool] = Field(
         default=None, description="Whether outdated diff discussions are resolved."
     )
+    pre_receive_secret_detection_enabled: Optional[bool] = Field(
+        default=None, description="Secret Detection enabled."
+    )
     container_expiration_policy: Optional[ContainerExpirationPolicy] = Field(
         default=None, description="The container expiration policy."
     )
@@ -2138,7 +2141,7 @@ class Group(BaseModel):
         return values
 
     @field_validator("projects", "shared_projects", mode="before")
-    def validate_changes(cls, v):
+    def validate_projects(cls, v):
         if isinstance(v, list) and not v:
             return None
         if isinstance(v, list):

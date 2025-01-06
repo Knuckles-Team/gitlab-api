@@ -8692,6 +8692,7 @@ def test_group_response_7():
         "parent_id": None,
         "enabled_git_access_protocol": "all",
         "created_at": "2020-01-15T12:36:29.590Z",
+        "pre_receive_secret_detection_enabled": False,
         "shared_with_groups": [
             {
                 "group_id": 28,
