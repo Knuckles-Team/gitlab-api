@@ -1307,8 +1307,7 @@ class MergeRequestModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator("assignee_id", "milestone_id", "target_project_id"
-    )
+    @field_validator("assignee_id", "milestone_id", "target_project_id")
     def validate_positive_integer(cls, v):
         """
         Validate positive integer fields.

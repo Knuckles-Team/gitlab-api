@@ -1680,7 +1680,9 @@ class ProjectDBModel(BaseDBModel):
     jobs_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
     snippets_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
     container_registry_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    pre_receive_secret_detection_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    pre_receive_secret_detection_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
     container_registry_access_level: Mapped[str] = mapped_column(String, nullable=True)
     security_and_compliance_access_level: Mapped[str] = mapped_column(
         String, nullable=True

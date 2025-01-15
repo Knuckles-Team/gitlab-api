@@ -87,10 +87,11 @@ def test_edit_group():
     group = client.edit_group(group_id=group_id, visibility="internal")
     assert group.data.visibility == "internal"
 
+
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
-    )
+)
 def test_edit_project():
     # Get nested projects
     group_id = 6

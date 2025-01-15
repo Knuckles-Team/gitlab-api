@@ -52,6 +52,9 @@ Additional Features:
 - Runners
 - Users
 - Wiki
+- Custom Endpoint
+
+If your API call isn't supported, you can always run the standard custom API endpoint function to get/post/put/delete and endpoint
 
 
 <details>

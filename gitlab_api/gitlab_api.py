@@ -5,7 +5,7 @@ import json
 import requests
 import urllib3
 from base64 import b64encode
-from typing import Union
+from typing import Union, Dict, Any
 from pydantic import ValidationError
 
 from gitlab_api.gitlab_input_models import (
@@ -46,6 +46,7 @@ class Api(object):
         username: str = None,
         password: str = None,
         token: str = None,
+        proxies: dict = None,
         verify: bool = True,
     ):
         if url is None:
@@ -55,6 +56,7 @@ class Api(object):
         self.url = url
         self.headers = None
         self.verify = verify
+        self.proxies = proxies
 
         if self.verify is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -75,7 +77,10 @@ class Api(object):
             raise MissingParameterError
 
         response = self._session.get(
-            url=f"{self.url}/projects", headers=self.headers, verify=self.verify
+            url=f"{self.url}/projects",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
         )
 
         if response.status_code == 403:
@@ -111,6 +116,7 @@ class Api(object):
                 url=f"{self.url}/projects/{branch.project_id}/repository/branches",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
 
         except ValidationError as e:
@@ -138,6 +144,7 @@ class Api(object):
                 url=f"{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -165,6 +172,7 @@ class Api(object):
                 params=branch.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -192,6 +200,7 @@ class Api(object):
                 f"/repository/branches?branch={branch.branch}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -219,6 +228,7 @@ class Api(object):
                 f"/repository/merged_branches",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -248,6 +258,7 @@ class Api(object):
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -275,6 +286,7 @@ class Api(object):
                 f"/repository/commits/{commit.commit_hash}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -302,6 +314,7 @@ class Api(object):
                 f"/repository/commits/{commit.commit_hash}/refs",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -330,6 +343,7 @@ class Api(object):
                 headers=self.headers,
                 json=commit.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -357,6 +371,7 @@ class Api(object):
                 headers=self.headers,
                 json=commit.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -385,6 +400,7 @@ class Api(object):
                 headers=self.headers,
                 json=commit.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -412,6 +428,7 @@ class Api(object):
                 f"/repository/commits/{commit.commit_hash}/diff",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -439,6 +456,7 @@ class Api(object):
                 f"/repository/commits/{commit.commit_hash}/comments",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -467,6 +485,7 @@ class Api(object):
                 headers=self.headers,
                 json=commit.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -494,6 +513,7 @@ class Api(object):
                 f"/repository/commits/{commit.commit_hash}/discussions",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -521,6 +541,7 @@ class Api(object):
                 f"/repository/commits/{commit.commit_hash}/statuses",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -551,6 +572,7 @@ class Api(object):
                 headers=self.headers,
                 json=commit.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -578,6 +600,7 @@ class Api(object):
                 f"/repository/commits/{commit.commit_hash}/merge_requests",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -605,6 +628,7 @@ class Api(object):
                 f"/repository/commits/{commit.commit_hash}/merge_requests",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -631,6 +655,7 @@ class Api(object):
                 url=f"{self.url}/deploy_tokens",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -657,6 +682,7 @@ class Api(object):
                 url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -683,6 +709,7 @@ class Api(object):
                 url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -719,6 +746,7 @@ class Api(object):
                 headers=self.headers,
                 json=deploy_token.model_dump(),
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -750,6 +778,7 @@ class Api(object):
                 url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -779,6 +808,7 @@ class Api(object):
                 url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -809,6 +839,7 @@ class Api(object):
                 f"{deploy_token.group_id}/deploy_tokens/{deploy_token.token}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -843,6 +874,7 @@ class Api(object):
                 headers=self.headers,
                 json=deploy_token.model_dump(),
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -872,6 +904,7 @@ class Api(object):
                 url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.token}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -902,6 +935,7 @@ class Api(object):
                 params=group.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -931,6 +965,7 @@ class Api(object):
                 url=f"{self.url}/groups/{group.group_id}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -958,6 +993,7 @@ class Api(object):
                 json=group.data,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -987,6 +1023,7 @@ class Api(object):
                 url=f"{self.url}/groups/{group.group_id}/subgroups",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1018,6 +1055,7 @@ class Api(object):
                 url=f"{self.url}/groups/{group.group_id}/descendant_groups",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1048,6 +1086,7 @@ class Api(object):
                 params=group.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1078,6 +1117,7 @@ class Api(object):
                 params=group.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1113,6 +1153,7 @@ class Api(object):
             url=f"{self.url}/projects/{job.project_id}/jobs?per_page={per_page}",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         job.total_pages = int(getattr(response.headers, "X-Total-Pages", 1))
         response = None
@@ -1130,6 +1171,7 @@ class Api(object):
                 url=f"{self.url}/projects/{job.project_id}/jobs",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
                 params=job.api_parameters,
             )
             temp_response = process_response(response=temp_response)
@@ -1163,6 +1205,7 @@ class Api(object):
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1192,6 +1235,7 @@ class Api(object):
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/trace",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1221,6 +1265,7 @@ class Api(object):
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/cancel",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1250,6 +1295,7 @@ class Api(object):
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/retry",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1279,6 +1325,7 @@ class Api(object):
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/erase",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1310,6 +1357,7 @@ class Api(object):
                 headers=self.headers,
                 json=job.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1340,6 +1388,7 @@ class Api(object):
                 params=job.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1373,6 +1422,7 @@ class Api(object):
                 params=members.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1403,6 +1453,7 @@ class Api(object):
                 params=members.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1442,6 +1493,7 @@ class Api(object):
                 headers=self.headers,
                 json=merge_request.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1470,6 +1522,7 @@ class Api(object):
                 f"?per_page={merge_request.per_page}&x-total-pages",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
             total_pages = int(response.headers.get("X-Total-Pages", 1))
             response = []
@@ -1513,6 +1566,7 @@ class Api(object):
                 url=f"{self.url}/projects/{merge_request.project_id}/merge_requests",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
 
         except ValidationError as e:
@@ -1544,6 +1598,7 @@ class Api(object):
                 f"/merge_requests/{merge_request.merge_id}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1573,6 +1628,7 @@ class Api(object):
                 url=f"{self.url}/projects/{merge_rule.project_id}/approval_rules",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1599,6 +1655,7 @@ class Api(object):
                 url=f"{self.url}/projects/{merge_rule.project_id}/approval_rules/{merge_rule.approval_rule_id}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
 
         except ValidationError as e:
@@ -1627,6 +1684,7 @@ class Api(object):
                 headers=self.headers,
                 json=merge_rule.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
 
         except ValidationError as e:
@@ -1656,6 +1714,7 @@ class Api(object):
                 headers=self.headers,
                 json=merge_rule.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1684,6 +1743,7 @@ class Api(object):
                 headers=self.headers,
                 json=merge_rule.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1716,6 +1776,7 @@ class Api(object):
                 f"{merge_rule.merge_request_iid}/approvals",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1748,6 +1809,7 @@ class Api(object):
                 f"/merge_requests/{merge_rule.merge_request_iid}/approval_state",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1780,6 +1842,7 @@ class Api(object):
                 f"/merge_requests/{merge_rule.merge_request_iid}/approval_rules",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1810,6 +1873,7 @@ class Api(object):
                 f"/merge_requests/{merge_rule.merge_request_iid}/approve",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1840,6 +1904,7 @@ class Api(object):
                 f"/merge_requests/{merge_rule.merge_request_iid}/unapprove",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1871,6 +1936,7 @@ class Api(object):
                 url=f"{self.url}/projects/{package.project_id}/packages",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1908,6 +1974,7 @@ class Api(object):
                 params=package.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1945,6 +2012,7 @@ class Api(object):
                 f"/{package.file_name}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1978,6 +2046,7 @@ class Api(object):
                 params=pipeline.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2008,6 +2077,7 @@ class Api(object):
                 f"/pipelines/{pipeline.pipeline_id}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2039,6 +2109,7 @@ class Api(object):
                 headers=self.headers,
                 json=pipeline.variables,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         else:
             response = self._session.post(
@@ -2046,6 +2117,7 @@ class Api(object):
                 params=pipeline.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         response = process_response(response=response)
         return response
@@ -2076,6 +2148,7 @@ class Api(object):
             url=f"{self.url}/projects?per_page={per_page}&x-total-pages",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         try:
             project.total_pages = int(response.headers.get("X-Total-Pages", 1))
@@ -2096,6 +2169,7 @@ class Api(object):
                 url=f"{self.url}/projects",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
                 params=project.api_parameters,
             )
             temp_response = process_response(response=temp_response)
@@ -2128,6 +2202,7 @@ class Api(object):
             url=f"{self.url}/projects/{project.project_id}",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2148,6 +2223,7 @@ class Api(object):
             f"/projects?per_page={per_page}&x-total-pages",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         return response
 
@@ -2225,6 +2301,7 @@ class Api(object):
             url=f"{self.url}/projects/{project.project_id}/repository/contributors",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2251,6 +2328,7 @@ class Api(object):
             url=f"{self.url}/projects/{project.project_id}?statistics=true",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2276,6 +2354,7 @@ class Api(object):
                 json=project.data,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2302,6 +2381,7 @@ class Api(object):
                 url=f"{self.url}/projects/{project.project_id}/groups",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2328,6 +2408,7 @@ class Api(object):
                 url=f"{self.url}/projects/{project.project_id}/archive",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2356,6 +2437,7 @@ class Api(object):
             url=f"{self.url}/projects/{project.project_id}/unarchive",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2382,6 +2464,7 @@ class Api(object):
             url=f"{self.url}/projects/{project.project_id}",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2413,6 +2496,7 @@ class Api(object):
             params=project.api_parameters,
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2441,6 +2525,7 @@ class Api(object):
             url=f"{self.url}/projects/{protected_branch.project_id}/protected_branches",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2467,6 +2552,7 @@ class Api(object):
             f"/protected_branches/{protected_branch.branch}",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2496,6 +2582,7 @@ class Api(object):
                 headers=self.headers,
                 json=protected_branch.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         else:
             response = self._session.post(
@@ -2503,6 +2590,7 @@ class Api(object):
                 params=protected_branch.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         response = process_response(response=response)
         return response
@@ -2526,6 +2614,7 @@ class Api(object):
             f"/protected_branches/{protected_branch.branch}",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2554,6 +2643,7 @@ class Api(object):
             f"/protected_branches/{protected_branch.branch}",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         return response
@@ -2581,6 +2671,7 @@ class Api(object):
                 url=f"{self.url}/projects/{release.project_id}/releases",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2609,6 +2700,7 @@ class Api(object):
                 f"/permalink/latest",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2639,6 +2731,7 @@ class Api(object):
                 f"/permalink/latest/evidence",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2667,6 +2760,7 @@ class Api(object):
                 f"/permalink/latest/{release.direct_asset_path}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2694,6 +2788,7 @@ class Api(object):
                 params=release.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2723,6 +2818,7 @@ class Api(object):
                 f"/downloads/{release.direct_asset_path}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2750,6 +2846,7 @@ class Api(object):
                 f"/projects/{release.project_id}/releases/{release.tag_name}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2777,6 +2874,7 @@ class Api(object):
                 json=release.data,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2805,6 +2903,7 @@ class Api(object):
                 f"/releases/{release.tag_name}/evidence",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2833,6 +2932,7 @@ class Api(object):
                 json=release.data,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2860,6 +2960,7 @@ class Api(object):
                 f"/projects/{release.project_id}/releases/{release.tag_name}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2890,6 +2991,7 @@ class Api(object):
                 params=runner.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2919,6 +3021,7 @@ class Api(object):
                 url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2949,6 +3052,7 @@ class Api(object):
                 headers=self.headers,
                 json=runner.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2979,6 +3083,7 @@ class Api(object):
                 headers=self.headers,
                 json=runner.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3008,6 +3113,7 @@ class Api(object):
                 url=f"{self.url}/runners/{runner.runner_id}/jobs",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3038,6 +3144,7 @@ class Api(object):
                 params=runner.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3069,6 +3176,7 @@ class Api(object):
                 headers=self.headers,
                 json=runner.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3099,6 +3207,7 @@ class Api(object):
                 f"/runners/{runner.runner_id}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3129,6 +3238,7 @@ class Api(object):
                 params=runner.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3159,6 +3269,7 @@ class Api(object):
                 headers=self.headers,
                 json=runner.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3188,6 +3299,7 @@ class Api(object):
                 url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         else:
             try:
@@ -3228,6 +3340,7 @@ class Api(object):
                 headers=self.headers,
                 json=runner.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3250,6 +3363,7 @@ class Api(object):
                 url=f"{self.url}/runners/reset_registration_token",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3283,6 +3397,7 @@ class Api(object):
                 f"/runners/reset_registration_token",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3313,6 +3428,7 @@ class Api(object):
                 f"/runners/reset_registration_token",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3344,6 +3460,7 @@ class Api(object):
                 headers=self.headers,
                 json=runner.data,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3378,6 +3495,7 @@ class Api(object):
             params=user.api_parameters,
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
         second_response = None
@@ -3431,6 +3549,7 @@ class Api(object):
                 params=user.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3464,6 +3583,7 @@ class Api(object):
                 params=wiki.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3494,6 +3614,7 @@ class Api(object):
                 params=wiki.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3523,6 +3644,7 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
                 json=wiki.data,
             )
         except ValidationError as e:
@@ -3553,6 +3675,7 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
                 json=wiki.data,
             )
         except ValidationError as e:
@@ -3583,6 +3706,7 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}",
                 headers=self.headers,
                 verify=self.verify,
+                proxies=self.proxies,
             )
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3616,6 +3740,7 @@ class Api(object):
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/attachments",
                 headers=headers,
                 verify=self.verify,
+                proxies=self.proxies,
                 json=wiki.data,
             )
         except ValidationError as e:
@@ -3645,6 +3770,7 @@ class Api(object):
             url=f"{self.url}/namespaces/",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
             params=namespace.api_parameters,
         )
         response = process_response(response=response)
@@ -3673,6 +3799,51 @@ class Api(object):
             url=f"{self.url}/namespaces/{namespace.namespace_id}",
             headers=self.headers,
             verify=self.verify,
+            proxies=self.proxies,
         )
         response = process_response(response=response)
+        return response
+
+    ####################################################################################################################
+    #                                                 Custom API                                                       #
+    ####################################################################################################################
+    @require_auth
+    def api_request(
+        self,
+        method: str,
+        endpoint: str,
+        data: Dict[str, Any] = None,
+        json: Dict[str, Any] = None,
+    ) -> Union[Response, Dict[str, Any]]:
+        if method.upper() not in ["GET", "POST", "PUT", "DELETE"]:
+            raise ValueError(f"Unsupported HTTP method: {method.upper()}")
+        try:
+            request_func = getattr(self._session, method.lower())
+            response = request_func(
+                url=f"{self.url}/{endpoint}",
+                headers=self.headers,
+                data=data,
+                json=json,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+        except ValidationError or Exception as e:
+            print(f"Invalid parameters: {e.errors()}")
+            raise e
+        try:
+            response.raise_for_status()
+        except Exception as response_error:
+            print(f"Response Error: {response_error}")
+        status_code = response.status_code
+        raw_output = response.content
+        try:
+            response = response.json()
+        except Exception as response_error:
+            print(f"JSON Conversion Error: {response_error}")
+        try:
+            response.status_code = status_code
+            response.raw_output = raw_output
+            response.json_output = response
+        except Exception as response_error:
+            print(f"Response Model Application Error: {response_error}")
         return response
