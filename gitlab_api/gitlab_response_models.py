@@ -2386,6 +2386,7 @@ class ApprovalRule(BaseModel):
     approved_by: Optional[List[User]] = Field(
         default=None, description="List of users who approved"
     )
+    report_type: Optional[str] = Field(default=None, description="The type of report")
 
     @field_validator("eligible_approvers", "approved_by", "users", mode="before")
     def validate_users(cls, v):
