@@ -100,10 +100,6 @@ from gitlab_api.gitlab_db_models import (
     WikiPageDBModel,
 )
 
-logging.basicConfig(
-    level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
 
 class IssueStats(BaseModel):
     class Meta:
@@ -3623,7 +3619,7 @@ class Response(BaseModel):
                         logging.info(f"{model_name} Validation Success: {temp_value}")
                         return temp_value
                     except Exception as e:
-                        logging.error(
+                        logging.warn(
                             f"\n\n\n {model_name} Validation Failed: {value}\nError: {e}"
                         )
             return value
@@ -3634,7 +3630,7 @@ class Response(BaseModel):
                     logging.info(f"{model_name} Model Validation Success: {value}")
                     return temp_value
                 except Exception as e:
-                    logging.error(
+                    logging.warn(
                         f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
                     )
         return value

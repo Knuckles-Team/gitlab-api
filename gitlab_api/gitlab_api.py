@@ -4,6 +4,7 @@
 import json
 import requests
 import urllib3
+import logging
 from base64 import b64encode
 from typing import Union, Dict, Any
 from pydantic import ValidationError
@@ -48,7 +49,16 @@ class Api(object):
         token: str = None,
         proxies: dict = None,
         verify: bool = True,
+        debug: bool = False,
     ):
+        if debug:
+            logging.basicConfig(
+                level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+            )
+        else:
+            logging.basicConfig(
+                level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
+            )
         if url is None:
             raise MissingParameterError
 
@@ -57,6 +67,7 @@ class Api(object):
         self.headers = None
         self.verify = verify
         self.proxies = proxies
+        self.debug = debug
 
         if self.verify is False:
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

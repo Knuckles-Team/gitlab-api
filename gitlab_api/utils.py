@@ -10,10 +10,6 @@ import requests
 
 from gitlab_api.gitlab_response_models import Response
 
-logging.basicConfig(
-    level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
 
 def process_response(response: requests.Response) -> Union[Response, requests.Response]:
     try:

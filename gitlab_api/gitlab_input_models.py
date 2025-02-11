@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # coding: utf-8
-import logging
 import re
 
 from typing import Union, List, Dict, Optional
@@ -29,10 +28,6 @@ except ModuleNotFoundError:
         ParameterError,
         MissingParameterError,
     )
-
-logging.basicConfig(
-    level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 
 
 class BranchModel(BaseModel):

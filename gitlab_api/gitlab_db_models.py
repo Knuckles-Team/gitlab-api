@@ -1,12 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
-import logging
 from datetime import datetime
 from typing import List
-
-logging.basicConfig(
-    level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 
 from sqlalchemy import String, DateTime, ForeignKey, Text, Table, Column
 from sqlalchemy.orm import mapped_column
