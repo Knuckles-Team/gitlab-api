@@ -1237,7 +1237,12 @@ class Topic(BaseModel):
     model_config = ConfigDict(extra="forbid")
     __hash__ = object.__hash__
     base_type: str = Field(default="Topic")
-    topic: str = Field(default=None)
+    name: str = Field(default=None)
+    title: str = Field(default=None)
+    description: str = Field(default=None)
+    total_projects_count: int = Field(default=None)
+    organization_id: int = Field(default=None)
+    avatar_url: str = Field(default=None)
 
 
 class Link(BaseModel):
@@ -1725,7 +1730,7 @@ class Project(BaseModel):
         if isinstance(v, list):
             topics = []
             for item in v:
-                topics.append(Topic(topic=item))
+                topics.append(Topic(name=item))
             return topics
         return v
 
