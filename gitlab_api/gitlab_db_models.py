@@ -573,16 +573,9 @@ class ReleaseDBModel(BaseDBModel):
     milestones: Mapped[List["MilestoneDBModel"]] = relationship(
         back_populates="releases"
     )
-
-    evidences_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey(column="evidences.id", name="fk_release_evidences"),
-        nullable=True,
-    )
     evidences: Mapped[List["EvidenceDBModel"]] = relationship(
-        back_populates="releases", foreign_keys=[evidences_id]
+        back_populates="releases"
     )
-
     assets_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="assets.id", name="fk_release_assets"), nullable=True
     )
