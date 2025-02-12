@@ -76,17 +76,17 @@ def pydantic_to_sqlalchemy(schema):
         logging.debug(f"\n\n\nKEY: {key} VALUE: {value}")
         try:
             if isinstance(value, list) and len(value) and is_pydantic(value[0]):
-                logging.debug(f"\n\nUpdating: {key} {parsed_schema[key]}")
+                logging.debug(f"\n\nUpdating List: {key} {parsed_schema[key]}")
                 parsed_schemas = []
                 for item in value:
-                    logging.debug(f"\nGoing through Item: {item} in Value: {value}")
+                    logging.debug(f"\n\nGoing through Item: {item}\nValue: {value}")
                     new_schema = pydantic_to_sqlalchemy(item)
                     logging.debug(
-                        f"\nNew schema: {new_schema}\n\tFor Model: {item.Meta.orm_model}"
+                        f"\n\nNew schema: {new_schema}\nFor Model: {item.Meta.orm_model}"
                     )
                     new_model = item.Meta.orm_model(**new_schema)
                     logging.debug(
-                        f"\nNew model: {new_model}\n\tFor Item: {item}"  # \n\tIn Value: {value}"
+                        f"\n\nNew model: {new_model}\nFor Item: {item}"  # \n\tIn Value: {value}"
                     )
                     parsed_schemas.append(new_model)
                 parsed_schema[key] = parsed_schemas

@@ -1718,17 +1718,6 @@ class Project(BaseModel):
             return tags
         return v
 
-    @field_validator("topics", mode="before")
-    def validate_topics(cls, v):
-        if isinstance(v, list) and not v:
-            return None
-        if isinstance(v, list):
-            topics = []
-            for item in v:
-                topics.append(Topic(topic=item))
-            return topics
-        return v
-
     @field_validator("groups", "shared_with_groups", mode="before")
     def validate_groups(cls, v):
         if isinstance(v, list) and not v:
