@@ -578,9 +578,7 @@ class ReleaseDBModel(BaseDBModel):
     milestones: Mapped[List["MilestoneDBModel"]] = relationship(
         back_populates="releases"
     )
-    evidences: Mapped[List["EvidenceDBModel"]] = relationship(
-        back_populates="releases"
-    )
+    evidences: Mapped[List["EvidenceDBModel"]] = relationship(back_populates="releases")
     assets_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="assets.id", name="fk_release_assets"), nullable=True
     )
@@ -1202,6 +1200,14 @@ project_shared_with_groups = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
 )
 
+group_shared_with_groups = Table(
+    "group_shared_with_groups",
+    BaseDBModel.metadata,
+    Column("group_id", Integer, ForeignKey("group_id.id")),
+    Column("group_id", Integer, ForeignKey("groups.id")),
+    Column("id", Integer, primary_key=True, autoincrement=True),
+)
+
 
 # Group Model
 class GroupDBModel(BaseDBModel):
@@ -1299,6 +1305,12 @@ class GroupDBModel(BaseDBModel):
     shared_projects = relationship(
         "ProjectDBModel",
         secondary=project_shared_with_groups,
+        back_populates="shared_with_groups",
+    )
+
+    shared_with_groups = relationship(
+        "GroupDBModel",
+        secondary=group_shared_with_groups,
         back_populates="shared_with_groups",
     )
 
@@ -1633,6 +1645,15 @@ class NamespaceDBModel(BaseDBModel):
     )
 
 
+forked_from_project = Table(
+    "forked_from_project",
+    BaseDBModel.metadata,
+    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("project_id", Integer, ForeignKey("project_id.id")),
+    Column("id", Integer, primary_key=True, autoincrement=True),
+)
+
+
 # Project Model
 class ProjectDBModel(BaseDBModel):
     __tablename__ = "projects"
@@ -1716,7 +1737,11 @@ class ProjectDBModel(BaseDBModel):
     ci_restrict_pipeline_cancellation_role: Mapped[str] = mapped_column(
         String, nullable=True
     )
-    forked_from_project: Mapped[dict] = mapped_column(JSON, nullable=True)
+    forked_from_project = relationship(
+        "ProjectDBModel",
+        secondary=forked_from_project,
+        back_populates="forked_from_project",
+    )
     mr_default_target_self: Mapped[bool] = mapped_column(Boolean, nullable=True)
     public_jobs: Mapped[bool] = mapped_column(Boolean, nullable=True)
     only_allow_merge_if_pipeline_succeeds: Mapped[bool] = mapped_column(
@@ -1885,11 +1910,10 @@ class ProjectDBModel(BaseDBModel):
     groups = relationship(
         "GroupDBModel", secondary=project_groups, back_populates="projects"
     )
-
     shared_with_groups = relationship(
         "GroupDBModel",
-        secondary=project_shared_with_groups,
-        back_populates="shared_projects",
+        secondary=group_shared_with_groups,
+        back_populates="shared_groups",
     )
     milestones: Mapped[List["MilestoneDBModel"]] = relationship(
         back_populates="project"

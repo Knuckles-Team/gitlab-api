@@ -1472,7 +1472,7 @@ class Project(BaseModel):
     ci_restrict_pipeline_cancellation_role: Optional[str] = Field(
         default=None, description="The role that can cancel pipelines."
     )
-    forked_from_project: Optional[Dict] = Field(
+    forked_from_project: Optional["Project"] = Field(
         default=None, description="The project from where this project was forked from."
     )
     mr_default_target_self: Optional[bool] = Field(
