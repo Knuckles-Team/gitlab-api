@@ -1201,10 +1201,10 @@ project_shared_with_groups = Table(
 )
 
 group_sharing = Table(
-    'group_sharing',
+    "group_sharing",
     BaseDBModel.metadata,
-    Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True),
-    Column('shared_group_id', Integer, ForeignKey('groups.id'), primary_key=True)
+    Column("group_id", Integer, ForeignKey("groups.id"), primary_key=True),
+    Column("shared_group_id", Integer, ForeignKey("groups.id"), primary_key=True),
 )
 
 
@@ -1308,7 +1308,7 @@ class GroupDBModel(BaseDBModel):
     )
 
     shared_with_groups = relationship(
-        'GroupDBModel',
+        "GroupDBModel",
         secondary=group_sharing,
         primaryjoin="GroupDBModel.id == group_sharing.c.group_id",
         secondaryjoin="GroupDBModel.id == group_sharing.c.shared_group_id",
@@ -1729,9 +1729,19 @@ class ProjectDBModel(BaseDBModel):
     ci_restrict_pipeline_cancellation_role: Mapped[str] = mapped_column(
         String, nullable=True
     )
+    forked_from_project_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("projects.id"), nullable=True
+    )
     forked_from_project = relationship(
         "ProjectDBModel",
+        remote_side=[id],
+        foreign_keys=[forked_from_project_id],
+        uselist=False,
+    )
+    forks = relationship(
+        "ProjectDBModel",
         back_populates="forked_from_project",
+        foreign_keys="ProjectDBModel.forked_from_project_id",
     )
     mr_default_target_self: Mapped[bool] = mapped_column(Boolean, nullable=True)
     public_jobs: Mapped[bool] = mapped_column(Boolean, nullable=True)
