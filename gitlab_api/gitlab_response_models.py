@@ -565,6 +565,9 @@ class Namespace(BaseModel):
     web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The web URL of the namespace."
     )
+    members_count_with_descendants: Optional[int] = Field(
+        default=None, description="Number of descendant members"
+    )
     billable_members_count: Optional[int] = Field(
         default=None, description="The Billable members count of the namespace, if any."
     )
@@ -1319,7 +1322,7 @@ class Project(BaseModel):
     tag_list: Optional[List[Tag]] = Field(
         default=None, description="Deprecated. Use `topics` instead."
     )
-    topics: Optional[List[Topic]] = Field(
+    topics: Optional[List[str]] = Field(
         default=None, description="The topics of the project."
     )
     ssh_url_to_repo: Optional[Union[HttpUrl, str]] = Field(
@@ -3306,6 +3309,9 @@ class Release(BaseModel):
         default=None, description="Description of the release"
     )
     name: Optional[str] = Field(default=None, description="Name of the release")
+    upcoming_release: Optional[bool] = Field(
+        default=None, description="If this is an upcoming release"
+    )
     created_at: Optional[datetime] = Field(
         default=None, description="Creation date and time of the release"
     )
