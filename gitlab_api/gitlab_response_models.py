@@ -562,7 +562,9 @@ class Namespace(BaseModel):
     root_repository_size: Optional[int] = Field(
         default=None, description="The root repository size."
     )
-    project_count: Optional[int] = Field(default=None, description="The project count.")
+    projects_count: Optional[int] = Field(
+        default=None, description="The project count."
+    )
     avatar_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The avatar URL of the namespace."
     )
