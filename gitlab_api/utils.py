@@ -4,7 +4,10 @@ import logging
 import os
 import pickle
 from typing import Union, Any
-
+from alembic import command
+from alembic.config import Config
+from alembic.migration import MigrationContext
+from sqlalchemy import create_engine
 from sqlalchemy.engine import reflection
 import requests
 
@@ -156,3 +159,32 @@ def load_model(file: str) -> Any:
     with open(file, "rb") as model_file:
         model = pickle.load(model_file)
     return model
+
+
+def run_migrations(
+    config: str = "alembic.ini",
+    script_location: str = None,
+    migration_message: str = None,
+    database_url: str = None,
+):
+    alembic_cfg = Config(config)
+
+    if script_location:
+        alembic_cfg.set_main_option("script_location", script_location)
+
+    engine = create_engine(database_url)
+
+    with engine.connect() as connection:
+        context = MigrationContext.configure(connection)
+        try:
+            revision = command.revision(
+                alembic_cfg, message=migration_message, autogenerate=True
+            )
+            print(f"Generated migration: {revision.revision}")
+        except Exception as e:
+            print(f"Failed to generate migration: {e}")
+        try:
+            command.upgrade(alembic_cfg, "head")
+            print("Migrations applied successfully.")
+        except Exception as e:
+            print(f"An error occurred during migration: {e}")
