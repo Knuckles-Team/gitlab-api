@@ -37,7 +37,12 @@ class EvidenceDBModel(BaseDBModel):
     sha: Mapped[str] = mapped_column(String, nullable=True)
     filepath: Mapped[str] = mapped_column(String, nullable=True)
     collected_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    releases: Mapped[List["ReleaseDBModel"]] = relationship(back_populates="evidences")
+    release_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(column="releases.id", name="fk_evidence_release"),
+        nullable=True,
+    )
+    releases: Mapped["ReleaseDBModel"] = relationship(back_populates="evidences")
 
 
 # IssueStats Model
