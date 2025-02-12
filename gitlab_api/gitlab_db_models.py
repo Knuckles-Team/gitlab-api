@@ -1200,14 +1200,6 @@ project_shared_with_groups = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
 )
 
-group_shared_with_groups = Table(
-    "group_shared_with_groups",
-    BaseDBModel.metadata,
-    Column("group_id", Integer, ForeignKey("group_id.id")),
-    Column("group_id", Integer, ForeignKey("groups.id")),
-    Column("id", Integer, primary_key=True, autoincrement=True),
-)
-
 
 # Group Model
 class GroupDBModel(BaseDBModel):
@@ -1310,7 +1302,6 @@ class GroupDBModel(BaseDBModel):
 
     shared_with_groups = relationship(
         "GroupDBModel",
-        secondary=group_shared_with_groups,
         back_populates="shared_with_groups",
     )
 
@@ -1645,15 +1636,6 @@ class NamespaceDBModel(BaseDBModel):
     )
 
 
-forked_from_project = Table(
-    "forked_from_project",
-    BaseDBModel.metadata,
-    Column("project_id", Integer, ForeignKey("projects.id")),
-    Column("project_id", Integer, ForeignKey("project_id.id")),
-    Column("id", Integer, primary_key=True, autoincrement=True),
-)
-
-
 # Project Model
 class ProjectDBModel(BaseDBModel):
     __tablename__ = "projects"
@@ -1739,7 +1721,6 @@ class ProjectDBModel(BaseDBModel):
     )
     forked_from_project = relationship(
         "ProjectDBModel",
-        secondary=forked_from_project,
         back_populates="forked_from_project",
     )
     mr_default_target_self: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -1912,7 +1893,7 @@ class ProjectDBModel(BaseDBModel):
     )
     shared_with_groups = relationship(
         "GroupDBModel",
-        secondary=group_shared_with_groups,
+        secondary=project_shared_with_groups,
         back_populates="shared_groups",
     )
     milestones: Mapped[List["MilestoneDBModel"]] = relationship(
