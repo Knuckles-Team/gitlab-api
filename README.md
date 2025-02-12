@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 1.0.42*
+*Version: 1.0.43*
 
 Pythonic GitLab API Library
 
