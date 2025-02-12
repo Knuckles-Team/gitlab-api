@@ -417,6 +417,7 @@ from gitlab_api.gitlab_db_models import (
                 "name": "project_1",
                 "created_at": datetime.now(),
                 "creator": UserDBModel(**{"id": 1, "username": "creator"}),
+                "topics": ["Test Topic 1", "Test Topic 2", "Test Topic 3"],
                 "shared_with_groups": [
                     GroupDBModel(
                         **{

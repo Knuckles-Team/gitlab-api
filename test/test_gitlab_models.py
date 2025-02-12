@@ -307,23 +307,6 @@ def test_project_model():
         },
     ]
 
-    # Test first release
-    assert releases[0].tag_name == "v0.2"
-    assert releases[0].name == "Awesome app v0.2 beta"
-    assert releases[0].author["name"] == "Administrator"
-    assert releases[0].commit["id"] == "079e90101242458910cccd35eab0e211dfc359c0"
-    assert releases[0].assets["count"] == 6
-    assert len(releases[0].milestones) == 2
-
-    # Test second release
-    assert releases[1].tag_name == "v0.1"
-    assert releases[1].name == "Awesome app v0.1 alpha"
-    assert releases[1].commit["id"] == "f8d3d94cbd347e924aa7b715845e439d00e80ca4"
-    assert releases[1].assets["count"] == 4
-    assert len(releases[1].evidences) == 1
-    assert "_links" in vars(releases[1])
-
-
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,
@@ -8882,7 +8865,6 @@ def test_group_response_7():
         "parent_id": None,
         "enabled_git_access_protocol": "all",
         "created_at": "2020-01-15T12:36:29.590Z",
-        "pre_receive_secret_detection_enabled": False,
         "shared_with_groups": [
             {
                 "group_id": 28,

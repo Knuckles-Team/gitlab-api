@@ -264,6 +264,18 @@ pytest
 python -m pip install -r test-requirements.txt
 pytest ./test/test_gitlab_models.py
 ```
+
+Full pytests
+
+```bash
+rm -rf ./dist/* \
+&& python setup.py bdist_wheel --universal \
+&& python -m pip uninstall gitlab-api -y \
+&& python -m pip install  ./dist/*.whl \
+&& pytest -vv ./test/test_gitlab_models.py \
+&& pytest -vv ./test/test_gitlab_db_models.py \
+&& python ./test/test_sqlalchemy.py
+```
 </details>
 
 
