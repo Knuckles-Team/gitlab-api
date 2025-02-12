@@ -560,14 +560,18 @@ class ReleaseDBModel(BaseDBModel):
     author_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="users.id", name="fk_release_author"), nullable=True
     )
-    author: Mapped["UserDBModel"] = relationship(back_populates="releases")
+    author: Mapped["UserDBModel"] = relationship(
+        back_populates="releases", foreign_keys=[author_id]
+    )
 
     commit_id: Mapped[int] = mapped_column(
         String,
         ForeignKey(column="commits.id", name="fk_release_commits"),
         nullable=True,
     )
-    commit: Mapped["CommitDBModel"] = relationship(back_populates="releases")
+    commit: Mapped["CommitDBModel"] = relationship(
+        back_populates="releases", foreign_keys=[commit_id]
+    )
     milestones: Mapped[List["MilestoneDBModel"]] = relationship(
         back_populates="releases"
     )
@@ -577,19 +581,25 @@ class ReleaseDBModel(BaseDBModel):
         ForeignKey(column="evidences.id", name="fk_release_evidences"),
         nullable=True,
     )
-    evidences: Mapped[List["EvidenceDBModel"]] = relationship(back_populates="releases")
+    evidences: Mapped[List["EvidenceDBModel"]] = relationship(
+        back_populates="releases", foreign_keys=[evidences_id]
+    )
 
     assets_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="assets.id", name="fk_release_assets"), nullable=True
     )
-    assets: Mapped[List["AssetsDBModel"]] = relationship(back_populates="releases")
+    assets: Mapped[List["AssetsDBModel"]] = relationship(
+        back_populates="releases", foreign_keys=[assets_id]
+    )
 
     links_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(column="release_links.id", name="fk_release_links"),
         nullable=True,
     )
-    links: Mapped["ReleaseLinksDBModel"] = relationship(back_populates="releases")
+    links: Mapped["ReleaseLinksDBModel"] = relationship(
+        back_populates="releases", foreign_keys=[links_id]
+    )
 
 
 # AccessLevel Model
@@ -1604,6 +1614,8 @@ class NamespaceDBModel(BaseDBModel):
     avatar_url: Mapped[str] = mapped_column(String, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
     members_count_with_descendants: Mapped[int] = mapped_column(Integer, nullable=True)
+    root_repository_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    project_count: Mapped[int] = mapped_column(Integer, nullable=True)
     billable_members_count: Mapped[int] = mapped_column(Integer, nullable=True)
     plan: Mapped[str] = mapped_column(String, nullable=True)
     trial_ends_on: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -1789,6 +1801,7 @@ class ProjectDBModel(BaseDBModel):
     auto_devops_deploy_strategy: Mapped[str] = mapped_column(String, nullable=True)
     autoclose_referenced_issues: Mapped[bool] = mapped_column(Boolean, nullable=True)
     keep_latest_artifact: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    secret_push_protection_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
     runner_token_expiration_interval: Mapped[bool] = mapped_column(
         Boolean, nullable=True
     )

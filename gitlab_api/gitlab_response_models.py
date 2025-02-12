@@ -559,6 +559,10 @@ class Namespace(BaseModel):
     parent_id: Optional[int] = Field(
         default=None, description="The parent ID of the namespace, if any."
     )
+    root_repository_size: Optional[int] = Field(
+        default=None, description="The root repository size."
+    )
+    project_count: Optional[int] = Field(default=None, description="The project count.")
     avatar_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The avatar URL of the namespace."
     )
@@ -1302,28 +1306,11 @@ class Project(BaseModel):
     description_html: Optional[str] = Field(
         default=None, description="The HTML description of the project."
     )
-    name: Optional[str] = Field(default=None, description="The name of the project.")
-    name_with_namespace: Optional[str] = Field(
-        default=None, description="The name with namespace of the project."
-    )
-    path: Optional[str] = Field(default=None, description="The path of the project.")
-    path_with_namespace: Optional[str] = Field(
-        default=None, description="The path with namespace of the project."
-    )
-    created_at: Optional[datetime] = Field(
-        default=None, description="The creation time of the project."
-    )
-    updated_at: Optional[datetime] = Field(
-        default=None, description="The last update time of the project."
-    )
     default_branch: Optional[str] = Field(
         default=None, description="The default branch of the project."
     )
-    tag_list: Optional[List[Tag]] = Field(
-        default=None, description="Deprecated. Use `topics` instead."
-    )
-    topics: Optional[List[str]] = Field(
-        default=None, description="The topics of the project."
+    visibility: Optional[str] = Field(
+        default=None, description="The visibility of the project."
     )
     ssh_url_to_repo: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The SSH URL to the repository."
@@ -1336,6 +1323,32 @@ class Project(BaseModel):
     )
     readme_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The URL to the README file."
+    )
+    tag_list: Optional[List[Tag]] = Field(
+        default=None, description="Deprecated. Use `topics` instead."
+    )
+    topics: Optional[List[str]] = Field(
+        default=None, description="The topics of the project."
+    )
+    name: Optional[str] = Field(default=None, description="The name of the project.")
+    name_with_namespace: Optional[str] = Field(
+        default=None, description="The name with namespace of the project."
+    )
+    path: Optional[str] = Field(default=None, description="The path of the project.")
+    path_with_namespace: Optional[str] = Field(
+        default=None, description="The path with namespace of the project."
+    )
+    issues_enabled: Optional[bool] = Field(
+        default=None, description="Whether issues are enabled."
+    )
+    open_issues_count: Optional[int] = Field(
+        default=None, description="Open issues in project"
+    )
+    created_at: Optional[datetime] = Field(
+        default=None, description="The creation time of the project."
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None, description="The last update time of the project."
     )
     avatar_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The avatar URL of the project."
@@ -1362,9 +1375,6 @@ class Project(BaseModel):
     )
     archived: Optional[bool] = Field(
         default=None, description="Whether the project is archived."
-    )
-    visibility: Optional[str] = Field(
-        default=None, description="The visibility of the project."
     )
     resolve_outdated_diff_discussions: Optional[bool] = Field(
         default=None, description="Whether outdated diff discussions are resolved."
@@ -1399,9 +1409,6 @@ class Project(BaseModel):
         default=None,
         alias="model_registry_access_level",
         description="Model registry access level",
-    )
-    issues_enabled: Optional[bool] = Field(
-        default=None, description="Whether issues are enabled."
     )
     merge_requests_enabled: Optional[bool] = Field(
         default=None, description="Whether merge requests are enabled."
@@ -1624,9 +1631,6 @@ class Project(BaseModel):
     )
     emails_disabled: Optional[bool] = Field(default=None, description="Emails disabled")
     emails_enabled: Optional[bool] = Field(default=None, description="Emails enabled")
-    open_issues_count: Optional[int] = Field(
-        default=None, description="Open issues in project"
-    )
     ci_job_token_scope_enabled: Optional[bool] = Field(
         default=None, description="CI Job Token scope enabled"
     )
@@ -1668,6 +1672,9 @@ class Project(BaseModel):
     )
     owner: Optional[User] = Field(default=None, description="Owner user")
     runners_token: Optional[str] = Field(default=None, description="Runners token")
+    secret_push_protection_enabled: Optional[bool] = Field(
+        default=None, description="Secret push protection enabled"
+    )
     repository_storage: Optional[str] = Field(
         default=None, description="Repository storage enabled"
     )
