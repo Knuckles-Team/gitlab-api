@@ -307,6 +307,7 @@ def test_project_model():
         },
     ]
 
+
 @pytest.mark.skipif(
     sys.platform in ["darwin"] or skip,
     reason=reason,

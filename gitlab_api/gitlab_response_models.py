@@ -1329,7 +1329,7 @@ class Project(BaseModel):
     tag_list: Optional[List[Tag]] = Field(
         default=None, description="Deprecated. Use `topics` instead."
     )
-    topics: Optional[List[str]] = Field(
+    topics: Optional[List[Topic]] = Field(
         default=None, description="The topics of the project."
     )
     name: Optional[str] = Field(default=None, description="The name of the project.")
@@ -1716,6 +1716,17 @@ class Project(BaseModel):
             for item in v:
                 tags.append(Tag(tag=item))
             return tags
+        return v
+
+    @field_validator("topics", mode="before")
+    def validate_topics(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            topics = []
+            for item in v:
+                topics.append(Topic(topic=item))
+            return topics
         return v
 
     @field_validator("groups", "shared_with_groups", mode="before")

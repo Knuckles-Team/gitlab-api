@@ -776,6 +776,9 @@ class TopicDBModel(BaseDBModel):
     total_projects_count: Mapped[int] = mapped_column(Integer, nullable=True)
     organization_id: Mapped[int] = mapped_column(Integer, nullable=True)
     avatar_url: Mapped[str] = mapped_column(String, nullable=True)
+    projects: Mapped[List["ProjectDBModel"]] = relationship(
+        "ProjectDBModel", back_populates="topics"
+    )
 
 
 class TagDBModel(BaseDBModel):
@@ -1669,7 +1672,6 @@ class ProjectDBModel(BaseDBModel):
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     default_branch: Mapped[str] = mapped_column(String, nullable=True)
-    topics: Mapped[list[str]] = mapped_column(JSON, nullable=True)
     ssh_url_to_repo: Mapped[str] = mapped_column(String, nullable=True)
     http_url_to_repo: Mapped[str] = mapped_column(String, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
@@ -1856,8 +1858,12 @@ class ProjectDBModel(BaseDBModel):
     tag_list_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="tags.id"), nullable=True
     )
-    # This may require processeing in the response model like the other tag lists
     tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="projects")
+
+    topics_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="topics.id"), nullable=True
+    )
+    topics: Mapped[List["TopicDBModel"]] = relationship(back_populates="projects")
 
     owner_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
