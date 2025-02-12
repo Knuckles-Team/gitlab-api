@@ -1914,7 +1914,7 @@ class ProjectDBModel(BaseDBModel):
     shared_with_groups = relationship(
         "GroupDBModel",
         secondary=project_shared_with_groups,
-        back_populates="shared_groups",
+        back_populates="shared_projects",
     )
     milestones: Mapped[List["MilestoneDBModel"]] = relationship(
         back_populates="project"
