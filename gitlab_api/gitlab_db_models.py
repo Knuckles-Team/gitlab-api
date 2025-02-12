@@ -1200,6 +1200,13 @@ project_shared_with_groups = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
 )
 
+group_sharing = Table(
+    'group_sharing',
+    BaseDBModel.metadata,
+    Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True),
+    Column('shared_group_id', Integer, ForeignKey('groups.id'), primary_key=True)
+)
+
 
 # Group Model
 class GroupDBModel(BaseDBModel):
@@ -1301,8 +1308,11 @@ class GroupDBModel(BaseDBModel):
     )
 
     shared_with_groups = relationship(
-        "GroupDBModel",
-        back_populates="shared_with_groups",
+        'GroupDBModel',
+        secondary=group_sharing,
+        primaryjoin="GroupDBModel.id == group_sharing.c.group_id",
+        secondaryjoin="GroupDBModel.id == group_sharing.c.shared_group_id",
+        backref="groups_sharing_with_me",  # Optional, for the reverse relationship
     )
 
     parent_id: Mapped[int] = mapped_column(
