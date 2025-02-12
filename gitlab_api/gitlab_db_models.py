@@ -633,7 +633,7 @@ class AccessLevelDBModel(BaseDBModel):
     group: Mapped["GroupDBModel"] = relationship(
         back_populates="access_levels",
     )
-    
+    # Specify the foreign keys for each relationship
     branches_push_access: Mapped[List["BranchDBModel"]] = relationship(
         back_populates="push_access_levels",
         foreign_keys="[BranchDBModel.push_access_levels_id]",
