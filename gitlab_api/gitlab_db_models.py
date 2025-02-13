@@ -757,6 +757,44 @@ class LabelDBModel(BaseDBModel):
     )
 
 
+class ComplianceFrameworksDBModel(BaseDBModel):
+    __tablename__ = "compliance_frameworks"
+
+    def __eq__(self, other):
+        if isinstance(other, ComplianceFrameworksDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    base_type: Mapped[str] = mapped_column(String, default="ComplianceFrameworks")
+    name: Mapped[str] = mapped_column(String, nullable=True)
+    projects: Mapped[List["ProjectDBModel"]] = relationship(
+        "ProjectDBModel", back_populates="compliance_frameworks"
+    )
+
+
+class CIIDTokenComponentsDBModel(BaseDBModel):
+    __tablename__ = "ci_id_token_sub_claim_components"
+
+    def __eq__(self, other):
+        if isinstance(other, CIIDTokenComponentsDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    base_type: Mapped[str] = mapped_column(String, default="CIIDTokenComponents")
+    name: Mapped[str] = mapped_column(String, nullable=True)
+    projects: Mapped[List["ProjectDBModel"]] = relationship(
+        "ProjectDBModel", back_populates="ci_id_token_sub_claim_components"
+    )
+
+
 class TopicDBModel(BaseDBModel):
     __tablename__ = "topics"
 
@@ -1776,7 +1814,6 @@ class ProjectDBModel(BaseDBModel):
     squash_option: Mapped[str] = mapped_column(String, nullable=True)
     enforce_auth_checks_on_uploads: Mapped[bool] = mapped_column(Boolean, nullable=True)
     suggestion_commit_message: Mapped[str] = mapped_column(String, nullable=True)
-    compliance_frameworks: Mapped[dict] = mapped_column(JSON, nullable=True)
     issues_template: Mapped[str] = mapped_column(String, nullable=True)
     merge_requests_template: Mapped[str] = mapped_column(String, nullable=True)
     packages_relocation_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -1847,7 +1884,6 @@ class ProjectDBModel(BaseDBModel):
     operations_access_level: Mapped[str] = mapped_column(String, nullable=True)
     ci_dockerfile: Mapped[str] = mapped_column(String, nullable=True)
     public: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    ci_id_token_sub_claim_components = mapped_column(ARRAY(String), nullable=True)
     ci_pipeline_variables_minimum_override_role: Mapped[str] = mapped_column(
         String, nullable=True
     )
@@ -1864,6 +1900,20 @@ class ProjectDBModel(BaseDBModel):
         Integer, ForeignKey(column="topics.id"), nullable=True
     )
     topics: Mapped[List["TopicDBModel"]] = relationship(back_populates="projects")
+
+    compliance_frameworks_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="compliance_frameworks.id"), nullable=True
+    )
+    compliance_frameworks: Mapped[List["ComplianceFrameworksDBModel"]] = relationship(
+        back_populates="projects"
+    )
+
+    ci_id_token_sub_claim_components_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="ci_id_token_sub_claim_components.id"), nullable=True
+    )
+    ci_id_token_sub_claim_components: Mapped[List["CIIDTokenComponentsDBModel"]] = (
+        relationship(back_populates="projects")
+    )
 
     owner_id: Mapped[int] = mapped_column(Integer, nullable=True)
 

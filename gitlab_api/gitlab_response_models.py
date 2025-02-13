@@ -93,6 +93,7 @@ from gitlab_api.gitlab_db_models import (
     ToDoDBModel,
     TokenDBModel,
     TopicDBModel,
+    CIIDTokenComponentsDBModel,
     UserDBModel,
     WebhookDBModel,
     WikiAttachmentDBModel,
@@ -1245,6 +1246,26 @@ class Topic(BaseModel):
     avatar_url: str = Field(default=None)
 
 
+class ComplianceFrameworks(BaseModel):
+    class Meta:
+        orm_model = ComplianceFrameworksDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="ComplianceFrameworks")
+    name: str = Field(default=None)
+
+
+class CIIDTokenComponents(BaseModel):
+    class Meta:
+        orm_model = CIIDTokenComponentsDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="CIIDTokenComponents")
+    name: str = Field(default=None)
+
+
 class Link(BaseModel):
     class Meta:
         orm_model = LinkDBModel
@@ -1732,6 +1753,17 @@ class Project(BaseModel):
             for item in v:
                 topics.append(Topic(name=item))
             return topics
+        return v
+
+    @field_validator("ci_id_token_sub_claim_components", mode="before")
+    def validate_topics(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            ci_id_token_sub_claim_components = []
+            for item in v:
+                ci_id_token_sub_claim_components.append(CIIDTokenComponents(name=item))
+            return ci_id_token_sub_claim_components
         return v
 
     @field_validator("groups", "shared_with_groups", mode="before")
