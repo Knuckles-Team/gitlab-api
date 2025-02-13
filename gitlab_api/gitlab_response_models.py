@@ -94,6 +94,7 @@ from gitlab_api.gitlab_db_models import (
     TokenDBModel,
     TopicDBModel,
     CIIDTokenComponentsDBModel,
+    ComplianceFrameworksDBModel,
     UserDBModel,
     WebhookDBModel,
     WikiAttachmentDBModel,
@@ -1756,7 +1757,7 @@ class Project(BaseModel):
         return v
 
     @field_validator("ci_id_token_sub_claim_components", mode="before")
-    def validate_topics(cls, v):
+    def validate_ci_id_token_sub_claim_components(cls, v):
         if isinstance(v, list) and not v:
             return None
         if isinstance(v, list):
@@ -1764,6 +1765,17 @@ class Project(BaseModel):
             for item in v:
                 ci_id_token_sub_claim_components.append(CIIDTokenComponents(name=item))
             return ci_id_token_sub_claim_components
+        return v
+
+    @field_validator("compliance_frameworks", mode="before")
+    def validate_compliance_frameworks(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            compliance_frameworks = []
+            for item in v:
+                compliance_frameworks.append(ComplianceFrameworks(name=item))
+            return compliance_frameworks
         return v
 
     @field_validator("groups", "shared_with_groups", mode="before")
