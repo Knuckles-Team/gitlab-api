@@ -524,7 +524,7 @@ class GroupModel(BaseModel):
         description="Prevent sharing groups outside the hierarchy.", default=None
     )
     project_creation_level: Optional[str] = Field(
-        description="Determine if developers can create projects (noone, maintainer, or developer).",
+        description="Determine if developers can create projects (no-one, maintainer, or developer).",
         default=None,
     )
     request_access_enabled: Optional[bool] = Field(

@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pytest
+from gitlab_api import ComplianceFrameworksDBModel, CIIDTokenComponentsDBModel
 
 from gitlab_api.gitlab_db_models import (
     DeployTokenDBModel,
@@ -418,11 +419,19 @@ from gitlab_api.gitlab_db_models import (
                 "name": "project_1",
                 "created_at": datetime.now(),
                 "creator": UserDBModel(**{"id": 1, "username": "creator"}),
-                # "topics": [
-                #     TopicDBModel(**{"name": "Test Topic 1"}),
-                #     TopicDBModel(**{"name": "Test Topic 2"}),
-                #     TopicDBModel(**{"name": "Test Topic 3"}),
-                # ],
+                "topics": [
+                    TopicDBModel(**{"id": 1, "name": "Test Topic 1"}),
+                    TopicDBModel(**{"id": 2, "name": "Test Topic 2"}),
+                    TopicDBModel(**{"id": 3, "name": "Test Topic 3"}),
+                ],
+                "ci_id_token_sub_claim_components": [
+                    CIIDTokenComponentsDBModel(**{"id": 1, "name": "Test Topic 1"}),
+                    CIIDTokenComponentsDBModel(**{"id": 2, "name": "Test Topic 2"}),
+                    CIIDTokenComponentsDBModel(**{"id": 3, "name": "Test Topic 3"}),
+                ],
+                "compliance_frameworks": [
+                    ComplianceFrameworksDBModel(**{"id": 1, "name": "sox"}),
+                ],
                 "shared_with_groups": [
                     GroupDBModel(
                         **{

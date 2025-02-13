@@ -1046,11 +1046,11 @@ class Comment(BaseModel):
     system: Optional[bool] = Field(
         default=None, description="Whether the note is a system note"
     )
-    noteable_id: Optional[int] = Field(
-        default=None, description="ID of the noteable entity"
+    notable_id: Optional[int] = Field(
+        default=None, description="ID of the notable entity", alias="noteable_id"
     )
-    noteable_type: Optional[str] = Field(
-        default=None, description="Type of the noteable entity"
+    notable_type: Optional[str] = Field(
+        default=None, description="Type of the notable entity", alias="noteable_type"
     )
     resolvable: Optional[bool] = Field(
         default=None, description="Whether the note is resolvable"
@@ -1058,8 +1058,8 @@ class Comment(BaseModel):
     confidential: Optional[bool] = Field(
         default=None, description="Whether the note is confidential"
     )
-    noteable_iid: Optional[int] = Field(
-        default=None, description="IID of the noteable entity"
+    notable_iid: Optional[int] = Field(
+        default=None, description="IID of the notable entity", alias="noteable_iid"
     )
     commands_changes: Optional[Dict[str, Any]] = Field(
         default=None, description="Command changes associated with the note"
@@ -1367,10 +1367,10 @@ class Project(BaseModel):
     readme_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="The URL to the README file."
     )
-    tag_list: Optional[List[Tag]] = Field(
+    tag_list: Optional[List["Tag"]] = Field(
         default=None, description="Deprecated. Use `topics` instead."
     )
-    topics: Optional[List[Topic]] = Field(
+    topics: Optional[List["Topic"]] = Field(
         default=None, description="The topics of the project."
     )
     name: Optional[str] = Field(default=None, description="The name of the project.")
@@ -1407,7 +1407,7 @@ class Project(BaseModel):
     container_registry_image_prefix: Optional[str] = Field(
         default=None, description="The container registry image prefix."
     )
-    additional_links: Optional[Link] = Field(
+    additional_links: Optional["Link"] = Field(
         default=None, alias="_links", description="Related links."
     )
     packages_enabled: Optional[bool] = Field(

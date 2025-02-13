@@ -770,8 +770,11 @@ class ComplianceFrameworksDBModel(BaseDBModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="ComplianceFrameworks")
     name: Mapped[str] = mapped_column(String, nullable=True)
-    projects: Mapped[list["ProjectDBModel"]] = relationship(
-        "ProjectDBModel", back_populates="compliance_frameworks"
+    project_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("projects.id"), nullable=True
+    )
+    project: Mapped["ProjectDBModel"] = relationship(
+        back_populates="compliance_frameworks"
     )
 
 
@@ -789,8 +792,11 @@ class CIIDTokenComponentsDBModel(BaseDBModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="CIIDTokenComponents")
     name: Mapped[str] = mapped_column(String, nullable=True)
-    projects: Mapped[list["ProjectDBModel"]] = relationship(
-        "ProjectDBModel", back_populates="ci_id_token_sub_claim_components"
+    project_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("projects.id"), nullable=True
+    )
+    project: Mapped["ProjectDBModel"] = relationship(
+        back_populates="ci_id_token_sub_claim_components"
     )
 
 
@@ -813,9 +819,10 @@ class TopicDBModel(BaseDBModel):
     total_projects_count: Mapped[int] = mapped_column(Integer, nullable=True)
     organization_id: Mapped[int] = mapped_column(Integer, nullable=True)
     avatar_url: Mapped[str] = mapped_column(String, nullable=True)
-    projects: Mapped[list["ProjectDBModel"]] = relationship(
-        "ProjectDBModel", back_populates="topics"
+    project_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("projects.id"), nullable=True
     )
+    project: Mapped["ProjectDBModel"] = relationship(back_populates="topics")
 
 
 class TagDBModel(BaseDBModel):
@@ -838,9 +845,11 @@ class TagDBModel(BaseDBModel):
     merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         back_populates="tag_list"
     )
-    projects: Mapped[list["ProjectDBModel"]] = relationship(
-        "ProjectDBModel", back_populates="tag_list"
+    project_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("projects.id"), nullable=True
     )
+    project: Mapped["ProjectDBModel"] = relationship(back_populates="tag_list")
+
     packages: Mapped[list["PackageDBModel"]] = relationship(
         "PackageDBModel", back_populates="tags"
     )
@@ -1892,29 +1901,20 @@ class ProjectDBModel(BaseDBModel):
     ci_push_repository_for_job_token_allowed: Mapped[bool] = mapped_column(
         Boolean, nullable=True
     )
-
-    tag_list_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="tags.id"), nullable=True
+    tag_list: Mapped[list["TagDBModel"]] = relationship(
+        "TagDBModel", back_populates="project"
     )
-    tag_list: Mapped[list["TagDBModel"]] = relationship(back_populates="projects")
 
-    topics_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="topics.id"), nullable=True
+    topics: Mapped[list["TopicDBModel"]] = relationship(
+        "TopicDBModel", back_populates="project"
     )
-    topics: Mapped[list["TopicDBModel"]] = relationship(back_populates="projects")
 
-    compliance_frameworks_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="compliance_frameworks.id"), nullable=True
-    )
     compliance_frameworks: Mapped[list["ComplianceFrameworksDBModel"]] = relationship(
-        back_populates="projects"
+        "ComplianceFrameworksDBModel", back_populates="project"
     )
 
-    ci_id_token_sub_claim_components_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="ci_id_token_sub_claim_components.id"), nullable=True
-    )
     ci_id_token_sub_claim_components: Mapped[list["CIIDTokenComponentsDBModel"]] = (
-        relationship(back_populates="projects")
+        relationship("CIIDTokenComponentsDBModel", back_populates="project")
     )
 
     owner_id: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -2290,7 +2290,6 @@ class PackageDBModel(BaseDBModel):
     file_md5: Mapped[str] = mapped_column(String, nullable=True)
     file_sha1: Mapped[str] = mapped_column(String, nullable=True)
     file_sha256: Mapped[str] = mapped_column(String, nullable=True)
-
 
     tags_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="tags.id"), nullable=True
