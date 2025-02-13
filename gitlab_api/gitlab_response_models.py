@@ -897,7 +897,7 @@ class Package(BaseModel):
     pipelines: Optional[List[Pipeline]] = Field(
         default=None, description="List of pipelines associated with the package"
     )
-    tags: Optional[List[str]] = Field(
+    tags: Optional[List["Tag"]] = Field(
         default=None, description="List of tags associated with the package"
     )
     versions: Optional[List[PackageVersion]] = Field(
@@ -931,6 +931,20 @@ class Package(BaseModel):
             for item in v:
                 pipelines.append(Pipeline(**item))
             return pipelines
+        return v
+
+    @field_validator("tags", mode="before")
+    def validate_tags(cls, v):
+        if isinstance(v, list) and not v:
+            return None
+        if isinstance(v, list):
+            tags = []
+            for item in v:
+                tags.append(Tag(tag=item))
+            return tags
+        if isinstance(v, str):
+            tags = [Tag(tag=v)]
+            return tags
         return v
 
 
@@ -1557,7 +1571,7 @@ class Project(BaseModel):
     suggestion_commit_message: Optional[str] = Field(
         default=None, description="The suggestion commit message."
     )
-    compliance_frameworks: Optional[List[str]] = Field(
+    compliance_frameworks: Optional[List["ComplianceFrameworks"]] = Field(
         default=None, description="The compliance frameworks."
     )
     issues_template: Optional[str] = Field(
@@ -1724,7 +1738,7 @@ class Project(BaseModel):
     public: Optional[bool] = Field(
         default=None, description="Whether project is allowed to be public."
     )
-    ci_id_token_sub_claim_components: Optional[List[str]] = Field(
+    ci_id_token_sub_claim_components: Optional[List["CIIDTokenComponents"]] = Field(
         default=None, description="CI ID Token Sub Claim Components"
     )
     ci_pipeline_variables_minimum_override_role: Optional[str] = Field(

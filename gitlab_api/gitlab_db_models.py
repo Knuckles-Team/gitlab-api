@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
 from datetime import datetime
-from typing import List
 
 from sqlalchemy import String, DateTime, ForeignKey, Text, Table, Column
 from sqlalchemy.orm import mapped_column
@@ -62,7 +61,7 @@ class IssueStatsDBModel(BaseDBModel):
     total: Mapped[int] = mapped_column(Integer, nullable=True)
     closed: Mapped[int] = mapped_column(Integer, nullable=True)
     opened: Mapped[int] = mapped_column(Integer, nullable=True)
-    milestones: Mapped[List["MilestoneDBModel"]] = relationship(
+    milestones: Mapped[list["MilestoneDBModel"]] = relationship(
         back_populates="issue_stats"
     )
 
@@ -112,7 +111,7 @@ class MilestoneDBModel(BaseDBModel):
         nullable=True,
     )
     releases: Mapped["ReleaseDBModel"] = relationship(back_populates="milestones")
-    issues: Mapped[List["IssueDBModel"]] = relationship(back_populates="milestone")
+    issues: Mapped[list["IssueDBModel"]] = relationship(back_populates="milestone")
 
 
 # DeployToken Model
@@ -285,10 +284,10 @@ class AssetsDBModel(BaseDBModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Assets")
     count: Mapped[int] = mapped_column(Integer, nullable=True)
-    sources: Mapped[List["SourceDBModel"]] = relationship(back_populates="assets")
-    links: Mapped[List["LinkDBModel"]] = relationship(back_populates="assets")
+    sources: Mapped[list["SourceDBModel"]] = relationship(back_populates="assets")
+    links: Mapped[list["LinkDBModel"]] = relationship(back_populates="assets")
     evidence_file_path: Mapped[str] = mapped_column(String, nullable=True)
-    releases: Mapped[List["ReleaseDBModel"]] = relationship(back_populates="assets")
+    releases: Mapped[list["ReleaseDBModel"]] = relationship(back_populates="assets")
 
 
 # ReleaseLinks Model
@@ -575,14 +574,14 @@ class ReleaseDBModel(BaseDBModel):
     commit: Mapped["CommitDBModel"] = relationship(
         back_populates="releases", foreign_keys=[commit_id]
     )
-    milestones: Mapped[List["MilestoneDBModel"]] = relationship(
+    milestones: Mapped[list["MilestoneDBModel"]] = relationship(
         back_populates="releases"
     )
-    evidences: Mapped[List["EvidenceDBModel"]] = relationship(back_populates="releases")
+    evidences: Mapped[list["EvidenceDBModel"]] = relationship(back_populates="releases")
     assets_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="assets.id", name="fk_release_assets"), nullable=True
     )
-    assets: Mapped[List["AssetsDBModel"]] = relationship(
+    assets: Mapped[list["AssetsDBModel"]] = relationship(
         back_populates="releases", foreign_keys=[assets_id]
     )
 
@@ -630,17 +629,17 @@ class AccessLevelDBModel(BaseDBModel):
         back_populates="access_levels",
     )
     # Specify the foreign keys for each relationship
-    branches_push_access: Mapped[List["BranchDBModel"]] = relationship(
+    branches_push_access: Mapped[list["BranchDBModel"]] = relationship(
         back_populates="push_access_levels",
         foreign_keys="[BranchDBModel.push_access_levels_id]",
     )
 
-    branches_merge_access: Mapped[List["BranchDBModel"]] = relationship(
+    branches_merge_access: Mapped[list["BranchDBModel"]] = relationship(
         back_populates="merge_access_levels",
         foreign_keys="[BranchDBModel.merge_access_levels_id]",
     )
 
-    branches_unprotect_access: Mapped[List["BranchDBModel"]] = relationship(
+    branches_unprotect_access: Mapped[list["BranchDBModel"]] = relationship(
         back_populates="unprotect_access_levels",
         foreign_keys="[BranchDBModel.unprotect_access_levels_id]",
     )
@@ -708,7 +707,7 @@ class BranchDBModel(BaseDBModel):
         back_populates="branches_unprotect_access",
         foreign_keys="[BranchDBModel.unprotect_access_levels_id]",
     )
-    approval_rules: Mapped[List["ApprovalRuleDBModel"]] = relationship(
+    approval_rules: Mapped[list["ApprovalRuleDBModel"]] = relationship(
         back_populates="protected_branches"
     )
 
@@ -750,7 +749,7 @@ class LabelDBModel(BaseDBModel):
     subscribed: Mapped[bool] = mapped_column(Boolean, nullable=True)
     priority: Mapped[int] = mapped_column(Integer, nullable=True)
     is_project_label: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         secondary=merge_request_labels,  # Link to the association table
         back_populates="labels",
@@ -771,7 +770,7 @@ class ComplianceFrameworksDBModel(BaseDBModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="ComplianceFrameworks")
     name: Mapped[str] = mapped_column(String, nullable=True)
-    projects: Mapped[List["ProjectDBModel"]] = relationship(
+    projects: Mapped[list["ProjectDBModel"]] = relationship(
         "ProjectDBModel", back_populates="compliance_frameworks"
     )
 
@@ -790,7 +789,7 @@ class CIIDTokenComponentsDBModel(BaseDBModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="CIIDTokenComponents")
     name: Mapped[str] = mapped_column(String, nullable=True)
-    projects: Mapped[List["ProjectDBModel"]] = relationship(
+    projects: Mapped[list["ProjectDBModel"]] = relationship(
         "ProjectDBModel", back_populates="ci_id_token_sub_claim_components"
     )
 
@@ -814,7 +813,7 @@ class TopicDBModel(BaseDBModel):
     total_projects_count: Mapped[int] = mapped_column(Integer, nullable=True)
     organization_id: Mapped[int] = mapped_column(Integer, nullable=True)
     avatar_url: Mapped[str] = mapped_column(String, nullable=True)
-    projects: Mapped[List["ProjectDBModel"]] = relationship(
+    projects: Mapped[list["ProjectDBModel"]] = relationship(
         "ProjectDBModel", back_populates="topics"
     )
 
@@ -836,13 +835,16 @@ class TagDBModel(BaseDBModel):
     base_type: Mapped[str] = mapped_column(String, default="Tag")
     tag: Mapped[str] = mapped_column(String, nullable=True)
 
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         back_populates="tag_list"
     )
-    projects: Mapped[List["ProjectDBModel"]] = relationship(
+    projects: Mapped[list["ProjectDBModel"]] = relationship(
         "ProjectDBModel", back_populates="tag_list"
     )
-    runners: Mapped[List["RunnerDBModel"]] = relationship(back_populates="tag_list")
+    packages: Mapped[list["PackageDBModel"]] = relationship(
+        "PackageDBModel", back_populates="tags"
+    )
+    runners: Mapped[list["RunnerDBModel"]] = relationship(back_populates="tag_list")
     job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id"), nullable=True)
     job: Mapped["JobDBModel"] = relationship(back_populates="tag_list")
 
@@ -917,7 +919,7 @@ class ApprovalRuleDBModel(BaseDBModel):
         back_populates="approval_rules"
     )
 
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         back_populates="approval_rules"
     )
 
@@ -1009,9 +1011,9 @@ class MergeRequestDBModel(BaseDBModel):
     tag_list_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="tags.id"), nullable=True
     )
-    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="merge_requests")
+    tag_list: Mapped[list["TagDBModel"]] = relationship(back_populates="merge_requests")
 
-    labels: Mapped[List["LabelDBModel"]] = relationship(
+    labels: Mapped[list["LabelDBModel"]] = relationship(
         "LabelDBModel",
         secondary=merge_request_labels,  # Link to the association table
         back_populates="merge_requests",
@@ -1111,7 +1113,7 @@ class MergeRequestDBModel(BaseDBModel):
         back_populates="assigned_merge_requests",
     )
 
-    assignees: Mapped[List["UserDBModel"]] = relationship(
+    assignees: Mapped[list["UserDBModel"]] = relationship(
         "UserDBModel",
         secondary=merge_request_assignees,
         back_populates="assignee_merge_requests",
@@ -1147,7 +1149,7 @@ class MergeRequestDBModel(BaseDBModel):
         back_populates="closed_merge_requests",
     )
 
-    reviewers: Mapped[List["UserDBModel"]] = relationship(
+    reviewers: Mapped[list["UserDBModel"]] = relationship(
         "UserDBModel",
         secondary=merge_request_reviewers,
         back_populates="reviewers_merge_requests",
@@ -1170,14 +1172,14 @@ class GroupAccessDBModel(BaseDBModel):
     base_type: Mapped[str] = mapped_column(String, default="GroupAccess")
     access_level: Mapped[int] = mapped_column(Integer, nullable=True)
     push_branch_protection_defaults: Mapped[
-        List["DefaultBranchProtectionDefaultsDBModel"]
+        list["DefaultBranchProtectionDefaultsDBModel"]
     ] = relationship(
         "DefaultBranchProtectionDefaultsDBModel",
         back_populates="allowed_to_push",
         foreign_keys="[DefaultBranchProtectionDefaultsDBModel.allowed_to_push_id]",
     )
     merge_branch_protection_defaults: Mapped[
-        List["DefaultBranchProtectionDefaultsDBModel"]
+        list["DefaultBranchProtectionDefaultsDBModel"]
     ] = relationship(
         "DefaultBranchProtectionDefaultsDBModel",
         back_populates="allowed_to_merge",
@@ -1221,7 +1223,7 @@ class DefaultBranchProtectionDefaultsDBModel(BaseDBModel):
         back_populates="merge_branch_protection_defaults",
         foreign_keys="[DefaultBranchProtectionDefaultsDBModel.allowed_to_merge_id]",
     )
-    groups: Mapped[List["GroupDBModel"]] = relationship(
+    groups: Mapped[list["GroupDBModel"]] = relationship(
         "GroupDBModel", back_populates="default_branch_protection_defaults"
     )
 
@@ -1365,27 +1367,27 @@ class GroupDBModel(BaseDBModel):
         remote_side=[id],  # specify that this is a self-referential relationship
     )
 
-    groups: Mapped[List["GroupDBModel"]] = relationship(
+    groups: Mapped[list["GroupDBModel"]] = relationship(
         "GroupDBModel",
         back_populates="parent",
         foreign_keys=[parent_id],
         cascade="all, delete-orphan",
     )
-    todos: Mapped[List["ToDoDBModel"]] = relationship(back_populates="group")
-    access_levels: Mapped[List["AccessLevelDBModel"]] = relationship(
+    todos: Mapped[list["ToDoDBModel"]] = relationship(back_populates="group")
+    access_levels: Mapped[list["AccessLevelDBModel"]] = relationship(
         back_populates="group"
     )
-    approval_rules: Mapped[List["ApprovalRuleDBModel"]] = relationship(
+    approval_rules: Mapped[list["ApprovalRuleDBModel"]] = relationship(
         back_populates="groups"
     )
-    webhooks: Mapped[List["WebhookDBModel"]] = relationship(back_populates="group")
-    iterations: Mapped[List["IterationDBModel"]] = relationship(
+    webhooks: Mapped[list["WebhookDBModel"]] = relationship(back_populates="group")
+    iterations: Mapped[list["IterationDBModel"]] = relationship(
         back_populates="group", foreign_keys="[IterationDBModel.group_id]"
     )
-    merge_request_approver_groups: Mapped[List["MergeApprovalsDBModel"]] = relationship(
+    merge_request_approver_groups: Mapped[list["MergeApprovalsDBModel"]] = relationship(
         "MergeApprovalsDBModel", back_populates="approver_groups"
     )
-    epics: Mapped[List["EpicDBModel"]] = relationship(
+    epics: Mapped[list["EpicDBModel"]] = relationship(
         "EpicDBModel", back_populates="groups"
     )
 
@@ -1515,10 +1517,10 @@ class UserDBModel(BaseDBModel):
         "UserDBModel", remote_side=[id], back_populates="created_users"
     )
 
-    created_users: Mapped[List["UserDBModel"]] = relationship(
+    created_users: Mapped[list["UserDBModel"]] = relationship(
         "UserDBModel", back_populates="created_by"
     )
-    group_saml_identity: Mapped[List["GroupSamlIdentityDBModel"]] = relationship(
+    group_saml_identity: Mapped[list["GroupSamlIdentityDBModel"]] = relationship(
         "GroupSamlIdentityDBModel", back_populates="user"
     )
 
@@ -1537,102 +1539,102 @@ class UserDBModel(BaseDBModel):
         remote_side="[NamespaceDBModel.id]",  # Specify the remote side of the relationship
     )
 
-    deploy_tokens: Mapped[List["DeployTokenDBModel"]] = relationship(
+    deploy_tokens: Mapped[list["DeployTokenDBModel"]] = relationship(
         back_populates="user"
     )
 
-    todos: Mapped[List["ToDoDBModel"]] = relationship(back_populates="author")
+    todos: Mapped[list["ToDoDBModel"]] = relationship(back_populates="author")
     agents = relationship("AgentsDBModel", back_populates="user")
-    releases: Mapped[List["ReleaseDBModel"]] = relationship(back_populates="author")
-    access_levels: Mapped[List["AccessLevelDBModel"]] = relationship(
+    releases: Mapped[list["ReleaseDBModel"]] = relationship(back_populates="author")
+    access_levels: Mapped[list["AccessLevelDBModel"]] = relationship(
         back_populates="user"
     )
-    approval_rules: Mapped[List["ApprovalRuleDBModel"]] = relationship(
+    approval_rules: Mapped[list["ApprovalRuleDBModel"]] = relationship(
         "ApprovalRuleDBModel",
         back_populates="eligible_approvers",
         foreign_keys="[ApprovalRuleDBModel.eligible_approvers_id]",
     )
     # Relationships with MergeRequestDBModel
-    authored_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    authored_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="author",
         primaryjoin="foreign(MergeRequestDBModel.author_id) == UserDBModel.id",
     )
 
-    assigned_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    assigned_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="assignee",
         primaryjoin="foreign(MergeRequestDBModel.assignee_id) == UserDBModel.id",
     )
 
-    assignee_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    assignee_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         secondary=merge_request_assignees,
         back_populates="assignees",
     )
-    merged_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merged_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="merged_by",
         primaryjoin="foreign(MergeRequestDBModel.merged_by_id) == UserDBModel.id",
     )
 
-    merge_user_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_user_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="merge_user",
         primaryjoin="foreign(MergeRequestDBModel.merge_user_id) == UserDBModel.id",
     )
 
-    reviewed_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    reviewed_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="reviewer",
         primaryjoin="foreign(MergeRequestDBModel.reviewer_id) == UserDBModel.id",
     )
 
-    approved_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    approved_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="approved_by",
         primaryjoin="foreign(MergeRequestDBModel.approved_by_id) == UserDBModel.id",
     )
 
-    closed_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    closed_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="closed_by",
         primaryjoin="foreign(MergeRequestDBModel.closed_by_id) == UserDBModel.id",
     )
 
-    reviewers_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    reviewers_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         secondary=merge_request_reviewers,
         back_populates="reviewers",
     )
-    project_owner: Mapped[List["ProjectDBModel"]] = relationship(
+    project_owner: Mapped[list["ProjectDBModel"]] = relationship(
         "ProjectDBModel",
         back_populates="owner",
         primaryjoin="foreign(ProjectDBModel.owner_id) == UserDBModel.id",
     )
 
-    project_creator: Mapped[List["ProjectDBModel"]] = relationship(
+    project_creator: Mapped[list["ProjectDBModel"]] = relationship(
         "ProjectDBModel",
         back_populates="creator",
         primaryjoin="foreign(ProjectDBModel.creator_id) == UserDBModel.id",
     )
     jobs = relationship("JobDBModel", back_populates="user")
-    pipelines: Mapped[List["PipelineDBModel"]] = relationship(back_populates="user")
-    comments: Mapped[List["CommentDBModel"]] = relationship(back_populates="author")
-    commits: Mapped[List["CommitDBModel"]] = relationship(back_populates="author")
-    issues: Mapped[List["IssueDBModel"]] = relationship(
+    pipelines: Mapped[list["PipelineDBModel"]] = relationship(back_populates="user")
+    comments: Mapped[list["CommentDBModel"]] = relationship(back_populates="author")
+    commits: Mapped[list["CommitDBModel"]] = relationship(back_populates="author")
+    issues: Mapped[list["IssueDBModel"]] = relationship(
         back_populates="author", foreign_keys="[IssueDBModel.author_id]"
     )
-    assigned_issues: Mapped[List["IssueDBModel"]] = relationship(
+    assigned_issues: Mapped[list["IssueDBModel"]] = relationship(
         back_populates="assignee", foreign_keys="[IssueDBModel.assignee_id]"
     )
-    closed_issues: Mapped[List["IssueDBModel"]] = relationship(
+    closed_issues: Mapped[list["IssueDBModel"]] = relationship(
         back_populates="closed_by", foreign_keys="[IssueDBModel.closed_by_id]"
     )
-    identities: Mapped[List["IdentityDBModel"]] = relationship(
+    identities: Mapped[list["IdentityDBModel"]] = relationship(
         back_populates="user", foreign_keys="[IdentityDBModel.user_id]"
     )
-    merge_request_approvers: Mapped[List["MergeApprovalsDBModel"]] = relationship(
+    merge_request_approvers: Mapped[list["MergeApprovalsDBModel"]] = relationship(
         "MergeApprovalsDBModel",
         primaryjoin="UserDBModel.id == foreign(MergeApprovalsDBModel.approvers_id)",
         back_populates="approvers",
@@ -1676,7 +1678,7 @@ class NamespaceDBModel(BaseDBModel):
         nullable=True,
     )
 
-    projects: Mapped[List["ProjectDBModel"]] = relationship(
+    projects: Mapped[list["ProjectDBModel"]] = relationship(
         "ProjectDBModel",
         back_populates="namespace",
         primaryjoin="foreign(ProjectDBModel.namespace_id) == NamespaceDBModel.id",
@@ -1894,24 +1896,24 @@ class ProjectDBModel(BaseDBModel):
     tag_list_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="tags.id"), nullable=True
     )
-    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="projects")
+    tag_list: Mapped[list["TagDBModel"]] = relationship(back_populates="projects")
 
     topics_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="topics.id"), nullable=True
     )
-    topics: Mapped[List["TopicDBModel"]] = relationship(back_populates="projects")
+    topics: Mapped[list["TopicDBModel"]] = relationship(back_populates="projects")
 
     compliance_frameworks_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="compliance_frameworks.id"), nullable=True
     )
-    compliance_frameworks: Mapped[List["ComplianceFrameworksDBModel"]] = relationship(
+    compliance_frameworks: Mapped[list["ComplianceFrameworksDBModel"]] = relationship(
         back_populates="projects"
     )
 
     ci_id_token_sub_claim_components_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="ci_id_token_sub_claim_components.id"), nullable=True
     )
-    ci_id_token_sub_claim_components: Mapped[List["CIIDTokenComponentsDBModel"]] = (
+    ci_id_token_sub_claim_components: Mapped[list["CIIDTokenComponentsDBModel"]] = (
         relationship(back_populates="projects")
     )
 
@@ -1972,36 +1974,36 @@ class ProjectDBModel(BaseDBModel):
         secondary=project_shared_with_groups,
         back_populates="shared_projects",
     )
-    milestones: Mapped[List["MilestoneDBModel"]] = relationship(
+    milestones: Mapped[list["MilestoneDBModel"]] = relationship(
         back_populates="project"
     )
 
-    todos: Mapped[List["ToDoDBModel"]] = relationship(
+    todos: Mapped[list["ToDoDBModel"]] = relationship(
         "ToDoDBModel", back_populates="project"
     )
 
     agents = relationship("AgentsDBModel", back_populates="project")
-    source_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    source_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         foreign_keys="[MergeRequestDBModel.source_project_id]",
         back_populates="source_project",
         primaryjoin="foreign(MergeRequestDBModel.source_project_id) == ProjectDBModel.id",
     )
 
-    target_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    target_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         foreign_keys="[MergeRequestDBModel.target_project_id]",
         back_populates="target_project",
         primaryjoin="foreign(MergeRequestDBModel.target_project_id) == ProjectDBModel.id",
     )
 
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         foreign_keys="[MergeRequestDBModel.project_id]",
         back_populates="project",
         primaryjoin="foreign(MergeRequestDBModel.project_id) == ProjectDBModel.id",
     )
-    runners: Mapped[List["RunnerDBModel"]] = relationship(back_populates="projects")
+    runners: Mapped[list["RunnerDBModel"]] = relationship(back_populates="projects")
     issues: Mapped["IssueDBModel"] = relationship(back_populates="project")
 
 
@@ -2041,15 +2043,15 @@ class RunnerDBModel(BaseDBModel):
         Integer, ForeignKey(column="tags.id"), nullable=True
     )
 
-    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="runners")
+    tag_list: Mapped[list["TagDBModel"]] = relationship(back_populates="runners")
 
     projects_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(column="projects.id", name="fk_runner_project"),
         nullable=True,
     )
-    projects: Mapped[List["ProjectDBModel"]] = relationship(back_populates="runners")
-    jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="runner")
+    projects: Mapped[list["ProjectDBModel"]] = relationship(back_populates="runners")
+    jobs: Mapped[list["JobDBModel"]] = relationship(back_populates="runner")
 
 
 # Job Model
@@ -2084,7 +2086,7 @@ class JobDBModel(BaseDBModel):
     tag: Mapped[bool] = mapped_column(Boolean, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
 
-    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="job")
+    tag_list: Mapped[list["TagDBModel"]] = relationship(back_populates="job")
 
     commit_id: Mapped[str] = mapped_column(ForeignKey("commits.id"), nullable=True)
     commit: Mapped["CommitDBModel"] = relationship(
@@ -2150,7 +2152,7 @@ class JobDBModel(BaseDBModel):
     )
     artifacts_file: Mapped["ArtifactsFileDBModel"] = relationship(back_populates="jobs")
 
-    artifacts: Mapped[List["ArtifactDBModel"]] = relationship(back_populates="job")
+    artifacts: Mapped[list["ArtifactDBModel"]] = relationship(back_populates="job")
     agents = relationship("AgentsDBModel", back_populates="job")
 
 
@@ -2205,22 +2207,22 @@ class PipelineDBModel(BaseDBModel):
         back_populates="pipelines"
     )
     agents = relationship("AgentsDBModel", back_populates="pipeline")
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         primaryjoin="foreign(MergeRequestDBModel.pipeline_id) == PipelineDBModel.id",
         back_populates="pipeline",
     )
-    jobs: Mapped[List["JobDBModel"]] = relationship(
+    jobs: Mapped[list["JobDBModel"]] = relationship(
         "JobDBModel",
         back_populates="pipeline",
         primaryjoin="PipelineDBModel.id == JobDBModel.pipeline_id",
     )
-    package_versions: Mapped[List["PackageVersionDBModel"]] = relationship(
+    package_versions: Mapped[list["PackageVersionDBModel"]] = relationship(
         "PackageVersionDBModel",
         foreign_keys="[PackageVersionDBModel.pipeline_id]",
         back_populates="pipeline",
     )
-    packages: Mapped[List["PackageDBModel"]] = relationship(
+    packages: Mapped[list["PackageDBModel"]] = relationship(
         back_populates="pipelines",
         foreign_keys="[PackageDBModel.pipelines_id]",  # Specify the foreign key here
     )
@@ -2288,7 +2290,12 @@ class PackageDBModel(BaseDBModel):
     file_md5: Mapped[str] = mapped_column(String, nullable=True)
     file_sha1: Mapped[str] = mapped_column(String, nullable=True)
     file_sha256: Mapped[str] = mapped_column(String, nullable=True)
-    tags: Mapped[list[str]] = mapped_column(JSON, nullable=True)
+
+
+    tags_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="tags.id"), nullable=True
+    )
+    tags: Mapped[list["TagDBModel"]] = relationship(back_populates="packages")
 
     links_id: Mapped[int] = mapped_column(
         Integer,
@@ -2304,8 +2311,8 @@ class PackageDBModel(BaseDBModel):
         ForeignKey(column="pipelines.id", name="fk_package_pipeline"),
         nullable=True,
     )
-    pipelines: Mapped[List["PipelineDBModel"]] = relationship(back_populates="packages")
-    package_versions: Mapped[List["PackageVersionDBModel"]] = relationship(
+    pipelines: Mapped[list["PipelineDBModel"]] = relationship(back_populates="packages")
+    package_versions: Mapped[list["PackageVersionDBModel"]] = relationship(
         back_populates="package", foreign_keys="[PackageVersionDBModel.package_id]"
     )
 
@@ -2470,18 +2477,18 @@ class CommitDBModel(BaseDBModel):
         nullable=True,
     )
     last_pipeline: Mapped["PipelineDBModel"] = relationship(back_populates="commit")
-    commit_signatures: Mapped[List["CommitSignatureDBModel"]] = relationship(
+    commit_signatures: Mapped[list["CommitSignatureDBModel"]] = relationship(
         back_populates="commit", remote_side="[CommitSignatureDBModel.commit_id]"
     )
 
     notes: Mapped["CommentDBModel"] = relationship(
         back_populates="commit", remote_side="[CommentDBModel.commit_id]"
     )
-    parent_ids: Mapped[List["ParentIDDBModel"]] = relationship(back_populates="commit")
-    releases: Mapped[List["ReleaseDBModel"]] = relationship(back_populates="commit")
-    branches: Mapped[List["BranchDBModel"]] = relationship(back_populates="commit")
+    parent_ids: Mapped[list["ParentIDDBModel"]] = relationship(back_populates="commit")
+    releases: Mapped[list["ReleaseDBModel"]] = relationship(back_populates="commit")
+    branches: Mapped[list["BranchDBModel"]] = relationship(back_populates="commit")
 
-    jobs: Mapped[List["JobDBModel"]] = relationship(
+    jobs: Mapped[list["JobDBModel"]] = relationship(
         "JobDBModel", back_populates="commit"
     )
 
@@ -2592,7 +2599,7 @@ class IssueDBModel(BaseDBModel):
     )
     epic: Mapped["EpicDBModel"] = relationship(back_populates="issues")
 
-    todos: Mapped[List["ToDoDBModel"]] = relationship(
+    todos: Mapped[list["ToDoDBModel"]] = relationship(
         back_populates="target", foreign_keys="[ToDoDBModel.target_id]"
     )
 
@@ -2607,7 +2614,7 @@ class TimeStatsDBModel(BaseDBModel):
     total_time_spent: Mapped[int] = mapped_column(Integer, nullable=True)
     human_time_estimate: Mapped[str] = mapped_column(String, nullable=True)
     human_total_time_spent: Mapped[str] = mapped_column(String, nullable=True)
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         back_populates="time_stats"
     )
 
@@ -2620,7 +2627,7 @@ class TaskCompletionStatusDBModel(BaseDBModel):
     base_type: Mapped[str] = mapped_column(String, default="TaskCompletionStatus")
     count: Mapped[int] = mapped_column(Integer, nullable=True)
     completed_count: Mapped[int] = mapped_column(Integer, nullable=True)
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         back_populates="task_completion_status"
     )
 
@@ -2634,7 +2641,7 @@ class ReferencesDBModel(BaseDBModel):
     short: Mapped[str] = mapped_column(String, nullable=True)
     relative: Mapped[str] = mapped_column(String, nullable=True)
     full: Mapped[str] = mapped_column(String, nullable=True)
-    merge_request_references: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_request_references: Mapped[list["MergeRequestDBModel"]] = relationship(
         back_populates="references", foreign_keys="[MergeRequestDBModel.references_id]"
     )
 
@@ -2669,7 +2676,7 @@ class ArtifactsFileDBModel(BaseDBModel):
     base_type: Mapped[str] = mapped_column(String, default="ArtifactsFile")
     filename: Mapped[str] = mapped_column(String, nullable=True)
     size: Mapped[int] = mapped_column(Integer, nullable=True)
-    jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="artifacts_file")
+    jobs: Mapped[list["JobDBModel"]] = relationship(back_populates="artifacts_file")
 
 
 # RunnerManager Model
@@ -2695,7 +2702,7 @@ class RunnerManagerDBModel(BaseDBModel):
     contacted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     ip_address: Mapped[str] = mapped_column(String, nullable=True)
     status: Mapped[str] = mapped_column(String, nullable=True)
-    jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="runner_manager")
+    jobs: Mapped[list["JobDBModel"]] = relationship(back_populates="runner_manager")
 
 
 # Configuration Model
@@ -2758,7 +2765,7 @@ class IterationDBModel(BaseDBModel):
     )
     group: Mapped["GroupDBModel"] = relationship(back_populates="iterations")
 
-    issues: Mapped[List["IssueDBModel"]] = relationship(
+    issues: Mapped[list["IssueDBModel"]] = relationship(
         back_populates="iteration",
         foreign_keys="[IssueDBModel.iteration_id]",  # Explicitly specify the foreign key
     )
@@ -2890,7 +2897,7 @@ class StatisticsDBModel(BaseDBModel):
     packages_size: Mapped[int] = mapped_column(Integer, nullable=True)
     snippets_size: Mapped[int] = mapped_column(Integer, nullable=True)
     uploads_size: Mapped[int] = mapped_column(Integer, nullable=True)
-    groups: Mapped[List["GroupDBModel"]] = relationship(
+    groups: Mapped[list["GroupDBModel"]] = relationship(
         "GroupDBModel", back_populates="statistics"
     )
 
@@ -2928,7 +2935,7 @@ class DiffDBModel(BaseDBModel):
     deleted_file: Mapped[bool] = mapped_column(Boolean, nullable=True)
     generated_file: Mapped[bool] = mapped_column(Boolean, nullable=True)
 
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+    merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="changes",
         foreign_keys="[MergeRequestDBModel.change_id]",
@@ -2965,7 +2972,7 @@ class MergeApprovalsDBModel(BaseDBModel):
         ForeignKey(column="users.id", name="fk_merge_approvals_approvers"),
         nullable=True,
     )
-    approvers: Mapped[List["UserDBModel"]] = relationship(
+    approvers: Mapped[list["UserDBModel"]] = relationship(
         back_populates="merge_request_approvers"
     )
 
@@ -3004,7 +3011,7 @@ class DetailedStatusDBModel(BaseDBModel):
     illustration: Mapped[dict] = mapped_column(JSON, nullable=True)
     favicon: Mapped[str] = mapped_column(String, nullable=True)
 
-    pipelines: Mapped[List["PipelineDBModel"]] = relationship(
+    pipelines: Mapped[list["PipelineDBModel"]] = relationship(
         back_populates="detailed_status"
     )
 
@@ -3044,7 +3051,7 @@ class TestReportDBModel(BaseDBModel):
         ForeignKey("test_suites.id", name="fk_test_report_test_suite"),
         nullable=True,
     )
-    test_suites: Mapped[List["TestSuiteDBModel"]] = relationship(
+    test_suites: Mapped[list["TestSuiteDBModel"]] = relationship(
         back_populates="test_reports"
     )
 
@@ -3094,8 +3101,8 @@ class EpicDBModel(BaseDBModel):
     group_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="groups.id", name="fk_epic_group"), nullable=True
     )
-    groups: Mapped[List["GroupDBModel"]] = relationship(back_populates="epics")
-    issues: Mapped[List["IssueDBModel"]] = relationship(
+    groups: Mapped[list["GroupDBModel"]] = relationship(back_populates="epics")
+    issues: Mapped[list["IssueDBModel"]] = relationship(
         back_populates="epic",
         foreign_keys="[IssueDBModel.epic_id]",  # Explicitly specify the foreign key
     )
@@ -3155,12 +3162,12 @@ class TestSuiteDBModel(BaseDBModel):
     error_count: Mapped[int] = mapped_column(Integer, nullable=True)
     suite_error: Mapped[str] = mapped_column(String, nullable=True)
 
-    test_cases: Mapped[List["TestCaseDBModel"]] = relationship(
+    test_cases: Mapped[list["TestCaseDBModel"]] = relationship(
         "TestCaseDBModel",
         back_populates="test_suites",
         foreign_keys="[TestCaseDBModel.test_suite_id]",  # Specify the correct foreign key
     )
-    test_reports: Mapped[List["TestReportDBModel"]] = relationship(
+    test_reports: Mapped[list["TestReportDBModel"]] = relationship(
         back_populates="test_suites"
     )
 
@@ -3186,6 +3193,6 @@ class TestReportTotalDBModel(BaseDBModel):
     skipped: Mapped[int] = mapped_column(Integer, nullable=True)
     error: Mapped[int] = mapped_column(Integer, nullable=True)
     suite_error: Mapped[str] = mapped_column(String, nullable=True)
-    test_reports: Mapped[List["TestReportDBModel"]] = relationship(
+    test_reports: Mapped[list["TestReportDBModel"]] = relationship(
         back_populates="total"
     )
