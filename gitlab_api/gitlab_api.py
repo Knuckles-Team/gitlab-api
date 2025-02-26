@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
 
-import json
 import requests
 import urllib3
 import logging
@@ -207,8 +206,8 @@ class Api(object):
         branch = BranchModel(**kwargs)
         try:
             response = self._session.delete(
-                url=f"{self.url}/projects/{branch.project_id}"
-                f"/repository/branches?branch={branch.branch}",
+                url=f"{self.url}/projects/{branch.project_id}" f"/repository/branches",
+                params=branch.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -940,14 +939,41 @@ class Api(object):
         - ParameterError: If invalid parameters are provided.
         """
         group = GroupModel(**kwargs)
+        all_groups = []
+        if group.group_id is None:
+            raise MissingParameterError
         try:
-            response = self._session.get(
-                url=f"{self.url}/groups",
+            if group.group_id is None:
+                raise MissingParameterError
+            total_pages_response = self._session.get(
+                url=f"{self.url}" f"/groups",
                 params=group.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            groups = Response(data=total_pages_response, status_code=200)
+            if isinstance(groups.data, list) and groups.data and len(groups.data) > 0:
+                all_groups = all_groups + groups.data
+            if (
+                not group.max_pages
+                or group.max_pages == 0
+                or group.max_pages > total_pages
+            ):
+                group.max_pages = total_pages
+            for page in range(1, group.max_pages):
+                groups_response = self._session.get(
+                    url=f"{self.url}/groups",
+                    params=group.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                    proxies=self.proxies,
+                )
+                groups = Response(data=groups_response, status_code=200)
+                if isinstance(group.data, list) and group.data and len(group.data) > 0:
+                    all_groups = all_groups + groups.data
+            response = Response(data=all_groups, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         response = process_response(response=response)
@@ -1027,15 +1053,41 @@ class Api(object):
         - MissingParameterError: If required parameters are missing.
         """
         group = GroupModel(**kwargs)
+        all_groups = []
         if group.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(
-                url=f"{self.url}/groups/{group.group_id}/subgroups",
+            if group.group_id is None:
+                raise MissingParameterError
+            total_pages_response = self._session.get(
+                url=f"{self.url}" f"/groups/{group.group_id}/subgroups",
+                params=group.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            groups = Response(data=total_pages_response, status_code=200)
+            if isinstance(groups.data, list) and groups.data and len(groups.data) > 0:
+                all_groups = all_groups + groups.data
+            if (
+                not group.max_pages
+                or group.max_pages == 0
+                or group.max_pages > total_pages
+            ):
+                group.max_pages = total_pages
+            for page in range(1, group.max_pages):
+                groups_response = self._session.get(
+                    url=f"{self.url}/groups/{group.group_id}/subgroups",
+                    params=group.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                    proxies=self.proxies,
+                )
+                groups = Response(data=groups_response, status_code=200)
+                if isinstance(group.data, list) and group.data and len(group.data) > 0:
+                    all_groups = all_groups + groups.data
+            response = Response(data=all_groups, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         response = process_response(response=response)
@@ -1065,17 +1117,24 @@ class Api(object):
         try:
             if group.group_id is None:
                 raise MissingParameterError
-            pages_response = self.get_total_descendant_groups(
-                group_id=group.group_id, per_page=group.per_page
+            total_pages_response = self._session.get(
+                url=f"{self.url}" f"/groups/{group.group_id}/descendant_groups",
+                params=group.api_parameters,
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
             )
-            total_pages = int(pages_response.headers.get("X-Total-Pages", 1))
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            groups = Response(data=total_pages_response, status_code=200)
+            if isinstance(groups.data, list) and groups.data and len(groups.data) > 0:
+                all_groups = all_groups + groups.data
             if (
                 not group.max_pages
                 or group.max_pages == 0
                 or group.max_pages > total_pages
             ):
                 group.max_pages = total_pages
-            for page in range(0, group.max_pages):
+            for page in range(1, group.max_pages):
                 groups_response = self._session.get(
                     url=f"{self.url}/groups/{group.group_id}/descendant_groups",
                     params=group.api_parameters,
@@ -1083,7 +1142,7 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-                groups = process_response(response=groups_response)
+                groups = Response(data=groups_response, status_code=200)
                 if isinstance(group.data, list) and group.data and len(group.data) > 0:
                     all_groups = all_groups + groups.data
             response = Response(data=all_groups, status_code=200)
@@ -1108,34 +1167,51 @@ class Api(object):
         - MissingParameterError: If required parameters are missing.
         """
         group = GroupModel(**kwargs)
-        all_groups = []
+        all_projects = []
         if group.group_id is None:
             raise MissingParameterError
         try:
             if group.group_id is None:
                 raise MissingParameterError
-            pages_response = self.get_total_descendant_groups(
-                group_id=group.group_id, per_page=group.per_page
+            total_pages_response = self._session.get(
+                url=f"{self.url}" f"/groups/{group.group_id}/projects",
+                params=group.api_parameters,
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
             )
-            total_pages = int(pages_response.headers.get("X-Total-Pages", 1))
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            projects = Response(data=total_pages_response, status_code=200)
+            if (
+                isinstance(projects.data, list)
+                and projects.data
+                and len(projects.data) > 0
+            ):
+                all_projects = all_projects + projects.data
             if (
                 not group.max_pages
                 or group.max_pages == 0
                 or group.max_pages > total_pages
             ):
                 group.max_pages = total_pages
-            for page in range(0, group.max_pages):
-                groups_response = self._session.get(
+            for page in range(
+                1, group.max_pages
+            ):  # Start index at 1 because we get the first one from getting total_pages
+                projects_response = self._session.get(
                     url=f"{self.url}/groups/{group.group_id}/projects",
                     params=group.api_parameters,
                     headers=self.headers,
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-                groups = process_response(response=groups_response)
-                if isinstance(group.data, list) and group.data and len(group.data) > 0:
-                    all_groups = all_groups + groups.data
-            response = Response(data=all_groups, status_code=200)
+                projects = Response(data=projects_response, status_code=200)
+                if (
+                    isinstance(projects.data, list)
+                    and projects.data
+                    and len(projects.data) > 0
+                ):
+                    all_projects = all_projects + projects.data
+            response = Response(data=all_projects, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         response = process_response(response=response)
@@ -1157,16 +1233,51 @@ class Api(object):
         - MissingParameterError: If required parameters are missing.
         """
         group = GroupModel(**kwargs)
-        if group.group_id is None or group.argument is None:
+        all_merge_requests = []
+        if group.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(
-                url=f"{self.url}/groups/{group.group_id}/merge_requests",
+            if group.group_id is None:
+                raise MissingParameterError
+            total_pages_response = self._session.get(
+                url=f"{self.url}" f"/groups/{group.group_id}/merge_requests",
                 params=group.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            merge_requests = Response(data=total_pages_response, status_code=200)
+            if (
+                isinstance(merge_requests.data, list)
+                and merge_requests.data
+                and len(merge_requests.data) > 0
+            ):
+                all_merge_requests = all_merge_requests + merge_requests.data
+            if (
+                not group.max_pages
+                or group.max_pages == 0
+                or group.max_pages > total_pages
+            ):
+                group.max_pages = total_pages
+            for page in range(
+                1, group.max_pages
+            ):  # Start index at 1 because we already got the first page to get total pages
+                merge_requests_response = self._session.get(
+                    url=f"{self.url}/groups/{group.group_id}/merge_requests",
+                    params=group.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                    proxies=self.proxies,
+                )
+                merge_requests = Response(data=merge_requests_response, status_code=200)
+                if (
+                    isinstance(merge_requests.data, list)
+                    and merge_requests.data
+                    and len(merge_requests.data) > 0
+                ):
+                    all_merge_requests = all_merge_requests + merge_requests.data
+            response = Response(data=all_merge_requests, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         response = process_response(response=response)
@@ -1198,7 +1309,8 @@ class Api(object):
         else:
             per_page = job.per_page
         response = self._session.get(
-            url=f"{self.url}/projects/{job.project_id}/jobs?per_page={per_page}",
+            url=f"{self.url}/projects/{job.project_id}/jobs",
+            params=job.api_parameters,
             headers=self.headers,
             verify=self.verify,
             proxies=self.proxies,
@@ -1564,28 +1676,47 @@ class Api(object):
         - MissingParameterError: If required parameters are missing.
         """
         merge_request = MergeRequestModel(**kwargs)
+        all_merge_requests = []
+        if merge_request.group_id is None:
+            raise MissingParameterError
         try:
-            response = self._session.get(
-                url=f"{self.url}/merge_requests"
-                f"?per_page={merge_request.per_page}&x-total-pages",
+            total_pages_response = self._session.get(
+                url=f"{self.url}" f"/merge_requests",
+                params=merge_request.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            total_pages = int(response.headers.get("X-Total-Pages", 1))
-            response = []
-            if merge_request.max_pages == 0 or merge_request.max_pages > total_pages:
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            merge_requests = Response(data=total_pages_response, status_code=200)
+            if (
+                isinstance(merge_requests.data, list)
+                and merge_requests.data
+                and len(merge_requests.data) > 0
+            ):
+                all_merge_requests = all_merge_requests + merge_requests.data
+            if (
+                not merge_request.max_pages
+                or merge_request.max_pages == 0
+                or merge_request.max_pages > total_pages
+            ):
                 merge_request.max_pages = total_pages
-            merge_request.model_post_init(merge_request)
-            for page in range(0, merge_request.max_pages):
-                response_page = self._session.get(
+            for page in range(1, merge_request.max_pages):
+                merge_requests_response = self._session.get(
                     url=f"{self.url}/merge_requests",
                     params=merge_request.api_parameters,
                     headers=self.headers,
                     verify=self.verify,
+                    proxies=self.proxies,
                 )
-                response_page = json.loads(response_page.text.replace("'", '"'))
-                response = response + response_page
+                merge_requests = Response(data=merge_requests_response, status_code=200)
+                if (
+                    isinstance(merge_request.data, list)
+                    and merge_request.data
+                    and len(merge_request.data) > 0
+                ):
+                    all_merge_requests = all_merge_requests + merge_request.data
+            response = Response(data=all_merge_requests, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         response = process_response(response=response)
@@ -2188,43 +2319,54 @@ class Api(object):
         - ParameterError: If invalid parameters are provided.
         """
         project = ProjectModel(**kwargs)
-        if not project.per_page:
-            per_page = 100
-        else:
-            per_page = project.per_page
-        response = self._session.get(
-            url=f"{self.url}/projects?per_page={per_page}&x-total-pages",
-            headers=self.headers,
-            verify=self.verify,
-            proxies=self.proxies,
-        )
+        all_projects = []
+        if project.project_id is None:
+            raise MissingParameterError
         try:
-            project.total_pages = int(response.headers.get("X-Total-Pages", 1))
-        except ValueError:
-            project.total_pages = 1
-        response = None
-        if not project.max_pages:
-            max_pages = 0
-        else:
-            max_pages = project.max_pages
-        if max_pages == 0 or max_pages > project.total_pages:
-            project.max_pages = project.total_pages
-            max_pages = project.total_pages
-        for page in range(0, max_pages):
-            project.page = page
-            project.model_post_init(project)
-            temp_response = self._session.get(
-                url=f"{self.url}/projects",
+            if project.project_id is None:
+                raise MissingParameterError
+            total_pages_response = self._session.get(
+                url=f"{self.url}" f"/projects/{project.project_id}/projects",
+                params=project.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
-                params=project.api_parameters,
             )
-            temp_response = process_response(response=temp_response)
-            if not response:
-                response = temp_response
-            else:
-                response = response.data + temp_response.data
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            projects = Response(data=total_pages_response, status_code=200)
+            if (
+                isinstance(projects.data, list)
+                and projects.data
+                and len(projects.data) > 0
+            ):
+                all_projects = all_projects + projects.data
+            if (
+                not project.max_pages
+                or project.max_pages == 0
+                or project.max_pages > total_pages
+            ):
+                project.max_pages = total_pages
+            for page in range(
+                1, project.max_pages
+            ):  # Start index at 1 because we get the first one from getting total_pages
+                projects_response = self._session.get(
+                    url=f"{self.url}/projects/{project.project_id}/projects",
+                    params=project.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                    proxies=self.proxies,
+                )
+                projects = Response(data=projects_response, status_code=200)
+                if (
+                    isinstance(projects.data, list)
+                    and projects.data
+                    and len(projects.data) > 0
+                ):
+                    all_projects = all_projects + projects.data
+            response = Response(data=all_projects, status_code=200)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        response = process_response(response=response)
         return response
 
     @require_auth
@@ -2253,62 +2395,6 @@ class Api(object):
             proxies=self.proxies,
         )
         response = process_response(response=response)
-        return response
-
-    @require_auth
-    def get_total_projects_in_group(
-        self, **kwargs
-    ) -> Union[Response, requests.Response]:
-        project = ProjectModel(**kwargs)
-        per_page = 100
-        if project.per_page:
-            per_page = project.per_page
-        if project.group_id is None:
-            raise MissingParameterError
-        response = self._session.get(
-            url=f"{self.url}"
-            f"/groups/{project.group_id}"
-            f"/projects?per_page={per_page}&x-total-pages",
-            headers=self.headers,
-            verify=self.verify,
-            proxies=self.proxies,
-        )
-        return response
-
-    @require_auth
-    def get_total_subgroups(self, **kwargs) -> Union[Response, requests.Response]:
-        group = GroupModel(**kwargs)
-        per_page = 100
-        if group.per_page:
-            per_page = group.per_page
-        if group.group_id is None:
-            raise MissingParameterError
-        response = self._session.get(
-            url=f"{self.url}"
-            f"/groups/{group.group_id}/subgroups?per_page={per_page}&x-total-pages",
-            headers=self.headers,
-            verify=self.verify,
-            proxies=self.proxies,
-        )
-        return response
-
-    @require_auth
-    def get_total_descendant_groups(
-        self, **kwargs
-    ) -> Union[Response, requests.Response]:
-        group = GroupModel(**kwargs)
-        per_page = 100
-        if group.per_page:
-            per_page = group.per_page
-        if group.group_id is None:
-            raise MissingParameterError
-        response = self._session.get(
-            url=f"{self.url}"
-            f"/groups/{group.group_id}/descendant_groups?per_page={per_page}&x-total-pages",
-            headers=self.headers,
-            verify=self.verify,
-            proxies=self.proxies,
-        )
         return response
 
     @require_auth
@@ -2342,17 +2428,31 @@ class Api(object):
         if groups.data:
             all_groups.extend(groups.data)
         for group in all_groups:
-            pages_response = self.get_total_projects_in_group(
-                group_id=project.group_id, per_page=project.per_page
+            total_pages_response = self._session.get(
+                url=f"{self.url}"
+                f"/groups/{group.group_id}"
+                f"/projects?per_page={group.per_page}",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
             )
-            total_pages = int(pages_response.headers.get("X-Total-Pages", 1))
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            projects = Response(data=total_pages_response, status_code=200)
+            if (
+                isinstance(projects.data, list)
+                and projects.data
+                and len(projects.data) > 0
+            ):
+                all_projects = all_projects + projects.data
             if (
                 not project.max_pages
                 or project.max_pages == 0
                 or project.max_pages > total_pages
             ):
                 project.max_pages = total_pages
-            for page in range(0, project.max_pages):
+            for page in range(
+                1, project.max_pages
+            ):  # Start index at 1 because we get the first one from getting total_pages
                 projects = self.get_group_projects(
                     group_id=group.id, per_page=project.per_page, page=page
                 )
