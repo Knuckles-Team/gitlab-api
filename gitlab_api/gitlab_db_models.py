@@ -1328,7 +1328,7 @@ class GroupDBModel(BaseDBModel):
     ldap_cn: Mapped[str] = mapped_column(String, nullable=True)
     ldap_access: Mapped[str] = mapped_column(String, nullable=True)
     prevent_forking_outside_group: Mapped[bool] = mapped_column(Boolean, nullable=True)
-
+    allowed_email_domains_list: Mapped[str] = mapped_column(String, nullable=True)
     default_branch_protection_defaults_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(

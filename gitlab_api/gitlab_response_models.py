@@ -2200,6 +2200,11 @@ class Group(BaseModel):
     prevent_forking_outside_group: Optional[bool] = Field(
         default=None, description="Forking disabled outside group"
     )
+    allowed_email_domains_list: Optional[str] = Field(
+        default=None,
+        description="Comma-separated list of email address domains to allow group access. "
+        "Introduced in 17.4. GitLab Premium and Ultimate only.",
+    )
 
     @model_validator(mode="before")
     def populate_id(cls, values):
