@@ -1076,13 +1076,14 @@ class Api(object):
             ):
                 group.max_pages = total_pages
             for page in range(0, group.max_pages):
-                groups = self._session.get(
+                groups_response = self._session.get(
                     url=f"{self.url}/groups/{group.group_id}/descendant_groups",
                     params=group.api_parameters,
                     headers=self.headers,
                     verify=self.verify,
                     proxies=self.proxies,
                 )
+                groups = process_response(response=groups_response)
                 if isinstance(group.data, list) and group.data and len(group.data) > 0:
                     all_groups = all_groups + groups.data
             response = Response(data=all_groups, status_code=200)
@@ -1124,13 +1125,14 @@ class Api(object):
             ):
                 group.max_pages = total_pages
             for page in range(0, group.max_pages):
-                groups = self._session.get(
+                groups_response = self._session.get(
                     url=f"{self.url}/groups/{group.group_id}/projects",
                     params=group.api_parameters,
                     headers=self.headers,
                     verify=self.verify,
                     proxies=self.proxies,
                 )
+                groups = process_response(response=groups_response)
                 if isinstance(group.data, list) and group.data and len(group.data) > 0:
                     all_groups = all_groups + groups.data
             response = Response(data=all_groups, status_code=200)
