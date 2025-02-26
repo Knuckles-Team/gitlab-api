@@ -1059,15 +1059,33 @@ class Api(object):
         - MissingParameterError: If required parameters are missing.
         """
         group = GroupModel(**kwargs)
+        all_groups = []
         if group.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(
-                url=f"{self.url}/groups/{group.group_id}/descendant_groups",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
+            if group.group_id is None:
+                raise MissingParameterError
+            pages_response = self.get_total_descendant_groups(
+                group_id=group.group_id, per_page=group.per_page
             )
+            total_pages = int(pages_response.headers.get("X-Total-Pages", 1))
+            if (
+                not group.max_pages
+                or group.max_pages == 0
+                or group.max_pages > total_pages
+            ):
+                group.max_pages = total_pages
+            for page in range(0, group.max_pages):
+                groups = self._session.get(
+                    url=f"{self.url}/groups/{group.group_id}/descendant_groups",
+                    params=group.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                    proxies=self.proxies,
+                )
+                if isinstance(group.data, list) and group.data and len(group.data) > 0:
+                    all_groups = all_groups + groups.data
+            response = Response(data=all_groups, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         response = process_response(response=response)
@@ -1089,16 +1107,33 @@ class Api(object):
         - MissingParameterError: If required parameters are missing.
         """
         group = GroupModel(**kwargs)
+        all_groups = []
         if group.group_id is None:
             raise MissingParameterError
         try:
-            response = self._session.get(
-                url=f"{self.url}/groups/{group.group_id}/projects",
-                params=group.api_parameters,
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
+            if group.group_id is None:
+                raise MissingParameterError
+            pages_response = self.get_total_descendant_groups(
+                group_id=group.group_id, per_page=group.per_page
             )
+            total_pages = int(pages_response.headers.get("X-Total-Pages", 1))
+            if (
+                not group.max_pages
+                or group.max_pages == 0
+                or group.max_pages > total_pages
+            ):
+                group.max_pages = total_pages
+            for page in range(0, group.max_pages):
+                groups = self._session.get(
+                    url=f"{self.url}/groups/{group.group_id}/projects",
+                    params=group.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                    proxies=self.proxies,
+                )
+                if isinstance(group.data, list) and group.data and len(group.data) > 0:
+                    all_groups = all_groups + groups.data
+            response = Response(data=all_groups, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         response = process_response(response=response)
@@ -2239,6 +2274,42 @@ class Api(object):
         return response
 
     @require_auth
+    def get_total_subgroups(self, **kwargs) -> Union[Response, requests.Response]:
+        group = GroupModel(**kwargs)
+        per_page = 100
+        if group.per_page:
+            per_page = group.per_page
+        if group.group_id is None:
+            raise MissingParameterError
+        response = self._session.get(
+            url=f"{self.url}"
+            f"/groups/{group.group_id}/subgroups?per_page={per_page}&x-total-pages",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        return response
+
+    @require_auth
+    def get_total_descendant_groups(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
+        group = GroupModel(**kwargs)
+        per_page = 100
+        if group.per_page:
+            per_page = group.per_page
+        if group.group_id is None:
+            raise MissingParameterError
+        response = self._session.get(
+            url=f"{self.url}"
+            f"/groups/{group.group_id}/descendant_groups?per_page={per_page}&x-total-pages",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        return response
+
+    @require_auth
     def get_nested_projects_by_group(
         self, **kwargs
     ) -> Union[Response, requests.Response]:
@@ -2263,7 +2334,9 @@ class Api(object):
         project_group = self.get_group(group_id=project.group_id)
         if project_group.data:
             all_groups.append(project_group.data)
-        groups = self.get_group_descendant_groups(group_id=project.group_id)
+        groups = self.get_group_descendant_groups(
+            group_id=project.group_id, per_page=project.per_page
+        )
         if groups.data:
             all_groups.extend(groups.data)
         for group in all_groups:
