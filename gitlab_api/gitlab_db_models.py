@@ -1662,11 +1662,7 @@ class NamespaceDBModel(BaseDBModel):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    id = mapped_column(
-        Integer,
-        ForeignKey(column="namespaces.id", name="fk_namespace_id"),
-        primary_key=True,
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Namespace")
     name: Mapped[str] = mapped_column(String, nullable=True)
     path: Mapped[str] = mapped_column(String, nullable=True)
