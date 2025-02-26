@@ -121,7 +121,7 @@ def pydantic_to_sqlalchemy(schema):
     return parsed_schema
 
 
-def upsert(model: Any, session):
+def upsert(model: Any, session, batch_size: int = 100):
     if not model or "data" not in model:
         logging.debug(f"No data in model: {model}")
         return
@@ -134,7 +134,7 @@ def upsert(model: Any, session):
         .all()
     )
     existing_items_map = {item.id: item for item in existing_items}
-
+    batch_count = 0
     for item in data:
         logging.debug(f"Going through Item: {item}")
         if item.id and item.id in existing_items_map:
@@ -145,8 +145,15 @@ def upsert(model: Any, session):
             session.merge(existing_model)
         else:
             session.merge(item)
+        batch_count += 1
+        if batch_count >= batch_size:
+            session.commit()
+            logging.debug(f"Committed batch of {batch_size} records")
+            batch_count = 0
 
-    session.commit()
+    if batch_count > 0:
+        session.commit()
+        logging.debug(f"Committed final batch of {batch_count} records")
 
 
 def create_table(db_instance, engine):
