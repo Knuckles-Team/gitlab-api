@@ -613,6 +613,12 @@ class GroupModel(BaseModel):
         description="Indicates whether GitLab Duo features setting is enforced for subgroups.",
         default=None,
     )
+    total_pages: Optional[int] = Field(
+        description="Total number of pages", default=None
+    )
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
     per_page: Optional[int] = Field(description="Results per page", default=100)
     page: Optional[int] = Field(description="Pagination page", default=1)
     argument: Optional[str] = Field(
@@ -733,10 +739,14 @@ class GroupModel(BaseModel):
         Build the API parameters
         """
         self.api_parameters = {}
+        if self.max_pages:
+            self.api_parameters["max_pages"] = self.max_pages
         if self.page:
             self.api_parameters["page"] = self.page
         if self.per_page:
             self.api_parameters["per_page"] = self.per_page
+        if self.total_pages:
+            self.api_parameters["total_pages"] = self.total_pages
 
 
 class JobModel(BaseModel):
