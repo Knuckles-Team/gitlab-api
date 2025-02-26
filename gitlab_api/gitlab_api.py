@@ -953,7 +953,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
-            groups = Response(data=total_pages_response, status_code=200)
+            groups = Response(data=total_pages_response.json(), status_code=200)
             if isinstance(groups.data, list) and groups.data and len(groups.data) > 0:
                 all_groups = all_groups + groups.data
             if (
@@ -963,6 +963,8 @@ class Api(object):
             ):
                 group.max_pages = total_pages
             for page in range(1, group.max_pages):
+                group.page = page
+                group.model_post_init(group)
                 groups_response = self._session.get(
                     url=f"{self.url}/groups",
                     params=group.api_parameters,
@@ -970,7 +972,7 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-                groups = Response(data=groups_response, status_code=200)
+                groups = Response(data=groups_response.json(), status_code=200)
                 if isinstance(group.data, list) and group.data and len(group.data) > 0:
                     all_groups = all_groups + groups.data
             response = Response(data=all_groups, status_code=200)
@@ -1067,7 +1069,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
-            groups = Response(data=total_pages_response, status_code=200)
+            groups = Response(data=total_pages_response.json(), status_code=200)
             if isinstance(groups.data, list) and groups.data and len(groups.data) > 0:
                 all_groups = all_groups + groups.data
             if (
@@ -1077,6 +1079,8 @@ class Api(object):
             ):
                 group.max_pages = total_pages
             for page in range(1, group.max_pages):
+                group.page = page
+                group.model_post_init(group)
                 groups_response = self._session.get(
                     url=f"{self.url}/groups/{group.group_id}/subgroups",
                     params=group.api_parameters,
@@ -1084,13 +1088,12 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-                groups = Response(data=groups_response, status_code=200)
+                groups = Response(data=groups_response.json(), status_code=200)
                 if isinstance(group.data, list) and group.data and len(group.data) > 0:
                     all_groups = all_groups + groups.data
             response = Response(data=all_groups, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        response = process_response(response=response)
         return response
 
     @require_auth
@@ -1125,7 +1128,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
-            groups = Response(data=total_pages_response, status_code=200)
+            groups = Response(data=total_pages_response.json(), status_code=200)
             if isinstance(groups.data, list) and groups.data and len(groups.data) > 0:
                 all_groups = all_groups + groups.data
             if (
@@ -1135,6 +1138,8 @@ class Api(object):
             ):
                 group.max_pages = total_pages
             for page in range(1, group.max_pages):
+                group.page = page
+                group.model_post_init(group)
                 groups_response = self._session.get(
                     url=f"{self.url}/groups/{group.group_id}/descendant_groups",
                     params=group.api_parameters,
@@ -1142,13 +1147,12 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-                groups = Response(data=groups_response, status_code=200)
+                groups = Response(data=groups_response.json(), status_code=200)
                 if isinstance(group.data, list) and group.data and len(group.data) > 0:
                     all_groups = all_groups + groups.data
             response = Response(data=all_groups, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        response = process_response(response=response)
         return response
 
     @require_auth
@@ -1181,7 +1185,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
-            projects = Response(data=total_pages_response, status_code=200)
+            projects = Response(data=total_pages_response.json(), status_code=200)
             if (
                 isinstance(projects.data, list)
                 and projects.data
@@ -1197,6 +1201,8 @@ class Api(object):
             for page in range(
                 1, group.max_pages
             ):  # Start index at 1 because we get the first one from getting total_pages
+                group.page = page
+                group.model_post_init(group)
                 projects_response = self._session.get(
                     url=f"{self.url}/groups/{group.group_id}/projects",
                     params=group.api_parameters,
@@ -1204,7 +1210,7 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-                projects = Response(data=projects_response, status_code=200)
+                projects = Response(data=projects_response.json(), status_code=200)
                 if (
                     isinstance(projects.data, list)
                     and projects.data
@@ -1214,7 +1220,6 @@ class Api(object):
             response = Response(data=all_projects, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        response = process_response(response=response)
         return response
 
     @require_auth
@@ -1247,7 +1252,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
-            merge_requests = Response(data=total_pages_response, status_code=200)
+            merge_requests = Response(data=total_pages_response.json(), status_code=200)
             if (
                 isinstance(merge_requests.data, list)
                 and merge_requests.data
@@ -1263,6 +1268,8 @@ class Api(object):
             for page in range(
                 1, group.max_pages
             ):  # Start index at 1 because we already got the first page to get total pages
+                group.page = page
+                group.model_post_init(group)
                 merge_requests_response = self._session.get(
                     url=f"{self.url}/groups/{group.group_id}/merge_requests",
                     params=group.api_parameters,
@@ -1270,7 +1277,9 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-                merge_requests = Response(data=merge_requests_response, status_code=200)
+                merge_requests = Response(
+                    data=merge_requests_response.json(), status_code=200
+                )
                 if (
                     isinstance(merge_requests.data, list)
                     and merge_requests.data
@@ -1280,7 +1289,6 @@ class Api(object):
             response = Response(data=all_merge_requests, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        response = process_response(response=response)
         return response
 
     ####################################################################################################################
@@ -1302,43 +1310,41 @@ class Api(object):
         - MissingParameterError: If required parameters are missing.
         """
         job = JobModel(**kwargs)
-        if job.project_id is None:
-            raise MissingParameterError
-        if not job.per_page:
-            per_page = 100
-        else:
-            per_page = job.per_page
-        response = self._session.get(
-            url=f"{self.url}/projects/{job.project_id}/jobs",
-            params=job.api_parameters,
-            headers=self.headers,
-            verify=self.verify,
-            proxies=self.proxies,
-        )
-        job.total_pages = int(getattr(response.headers, "X-Total-Pages", 1))
-        response = None
-        if not job.max_pages:
-            max_pages = 0
-        else:
-            max_pages = job.max_pages
-        if max_pages == 0 or max_pages > job.total_pages:
-            job.max_pages = job.total_pages
-            max_pages = job.total_pages
-        for page in range(0, max_pages):
-            job.page = page
-            job.model_post_init(job)
-            temp_response = self._session.get(
+        all_jobs = []
+        try:
+            if job.project_id is None:
+                raise MissingParameterError
+            total_pages_response = self._session.get(
                 url=f"{self.url}/projects/{job.project_id}/jobs",
+                params=job.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
-                params=job.api_parameters,
             )
-            temp_response = process_response(response=temp_response)
-            if not response:
-                response = temp_response
-            else:
-                response = response.data + temp_response.data
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            jobs = Response(data=total_pages_response.json(), status_code=200)
+            if isinstance(jobs.data, list) and jobs.data and len(jobs.data) > 0:
+                all_jobs = all_jobs + jobs.data
+            if not job.max_pages or job.max_pages == 0 or job.max_pages > total_pages:
+                job.max_pages = total_pages
+            for page in range(
+                1, job.max_pages
+            ):  # Start index at 1 because we already got the first page to get total pages
+                job.page = page
+                job.model_post_init(job)
+                jobs_response = self._session.get(
+                    url=f"{self.url}/projects/{job.project_id}/jobs",
+                    params=job.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                    proxies=self.proxies,
+                )
+                jobs = Response(data=jobs_response.json(), status_code=200)
+                if isinstance(jobs.data, list) and jobs.data and len(jobs.data) > 0:
+                    all_jobs = all_jobs + jobs.data
+            response = Response(data=all_jobs, status_code=200)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
         return response
 
     @require_auth
@@ -1688,7 +1694,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
-            merge_requests = Response(data=total_pages_response, status_code=200)
+            merge_requests = Response(data=total_pages_response.json(), status_code=200)
             if (
                 isinstance(merge_requests.data, list)
                 and merge_requests.data
@@ -1702,6 +1708,8 @@ class Api(object):
             ):
                 merge_request.max_pages = total_pages
             for page in range(1, merge_request.max_pages):
+                merge_request.page = page
+                merge_request.model_post_init(merge_request)
                 merge_requests_response = self._session.get(
                     url=f"{self.url}/merge_requests",
                     params=merge_request.api_parameters,
@@ -1709,7 +1717,9 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-                merge_requests = Response(data=merge_requests_response, status_code=200)
+                merge_requests = Response(
+                    data=merge_requests_response.json(), status_code=200
+                )
                 if (
                     isinstance(merge_request.data, list)
                     and merge_request.data
@@ -2217,19 +2227,53 @@ class Api(object):
         - ParameterError: If invalid parameters are provided.
         """
         pipeline = PipelineModel(**kwargs)
-        if pipeline.project_id is None:
-            raise MissingParameterError
+        all_pipelines = []
         try:
-            response = self._session.get(
+            if pipeline.project_id is None:
+                raise MissingParameterError
+            total_pages_response = self._session.get(
                 url=f"{self.url}/projects/{pipeline.project_id}/pipelines",
                 params=pipeline.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            pipelines = Response(data=total_pages_response.json(), status_code=200)
+            if (
+                isinstance(pipelines.data, list)
+                and pipelines.data
+                and len(pipelines.data) > 0
+            ):
+                all_pipelines = all_pipelines + pipelines.data
+            if (
+                not pipeline.max_pages
+                or pipeline.max_pages == 0
+                or pipeline.max_pages > total_pages
+            ):
+                pipeline.max_pages = total_pages
+            for page in range(
+                1, pipeline.max_pages
+            ):  # Start index at 1 because we already got the first page to get total pages
+                pipeline.page = page
+                pipeline.model_post_init(pipeline)
+                pipelines_response = self._session.get(
+                    url=f"{self.url}/projects/{pipeline.project_id}/pipelines",
+                    params=pipeline.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                    proxies=self.proxies,
+                )
+                pipelines = Response(data=pipelines_response.json(), status_code=200)
+                if (
+                    isinstance(pipelines.data, list)
+                    and pipelines.data
+                    and len(pipelines.data) > 0
+                ):
+                    all_pipelines = all_pipelines + pipelines.data
+            response = Response(data=all_pipelines, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        response = process_response(response=response)
         return response
 
     @require_auth
@@ -2333,7 +2377,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
-            projects = Response(data=total_pages_response, status_code=200)
+            projects = Response(data=total_pages_response.json(), status_code=200)
             if (
                 isinstance(projects.data, list)
                 and projects.data
@@ -2349,6 +2393,8 @@ class Api(object):
             for page in range(
                 1, project.max_pages
             ):  # Start index at 1 because we get the first one from getting total_pages
+                project.page = page
+                project.model_post_init(project)
                 projects_response = self._session.get(
                     url=f"{self.url}/projects/{project.project_id}/projects",
                     params=project.api_parameters,
@@ -2356,7 +2402,7 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-                projects = Response(data=projects_response, status_code=200)
+                projects = Response(data=projects_response.json(), status_code=200)
                 if (
                     isinstance(projects.data, list)
                     and projects.data
@@ -2366,7 +2412,6 @@ class Api(object):
             response = Response(data=all_projects, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        response = process_response(response=response)
         return response
 
     @require_auth
@@ -2429,15 +2474,14 @@ class Api(object):
             all_groups.extend(groups.data)
         for group in all_groups:
             total_pages_response = self._session.get(
-                url=f"{self.url}"
-                f"/groups/{group.group_id}"
-                f"/projects?per_page={group.per_page}",
+                url=f"{self.url}" f"/groups/{group.id}" f"/projects",
+                params=project.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
-            projects = Response(data=total_pages_response, status_code=200)
+            projects = Response(data=total_pages_response.json(), status_code=200)
             if (
                 isinstance(projects.data, list)
                 and projects.data
@@ -2453,8 +2497,10 @@ class Api(object):
             for page in range(
                 1, project.max_pages
             ):  # Start index at 1 because we get the first one from getting total_pages
+                project.page = page
+                project.model_post_init(project)
                 projects = self.get_group_projects(
-                    group_id=group.id, per_page=project.per_page, page=page
+                    group_id=group.id, per_page=project.per_page, page=project.page
                 )
                 if (
                     isinstance(projects.data, list)

@@ -19,9 +19,21 @@ def process_response(response: requests.Response) -> Union[Response, requests.Re
         response.raise_for_status()
     except Exception as response_error:
         logging.error(f"Response Error: {response_error}")
-    status_code = response.status_code
-    raw_output = response.content
-    headers = response.headers
+    try:
+        status_code = response.status_code
+    except Exception as e:
+        status_code = None
+        logging.error(f"Unable to get status code: {e}")
+    try:
+        raw_output = response.content
+    except Exception as e:
+        raw_output = None
+        logging.error(f"Unable to get raw output: {e}")
+    try:
+        headers = response.headers
+    except Exception as e:
+        headers = {}
+        logging.error(f"Unable to get headers: {e}")
     try:
         response = response.json()
     except Exception as response_error:
