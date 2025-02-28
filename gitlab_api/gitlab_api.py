@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
+import re
+from urllib.parse import urlparse, parse_qs
 
 import requests
 import urllib3
@@ -1321,16 +1323,20 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            next_page = extract_next_page(total_pages_response.headers)
             jobs = Response(data=total_pages_response.json(), status_code=200)
             if isinstance(jobs.data, list) and jobs.data and len(jobs.data) > 0:
                 all_jobs = all_jobs + jobs.data
-            if not job.max_pages or job.max_pages == 0 or job.max_pages > total_pages:
-                job.max_pages = total_pages
-            for page in range(
-                1, job.max_pages
-            ):  # Start index at 1 because we already got the first page to get total pages
-                job.page = page
+
+            if job.max_pages and job.max_pages < next_page:
+                job.max_pages = next_page
+                job.model_post_init(job)
+            elif not job.max_pages:
+                job.max_pages = next_page
+                job.model_post_init(job)
+
+            while next_page:
+                job.page = next_page
                 job.model_post_init(job)
                 jobs_response = self._session.get(
                     url=f"{self.url}/projects/{job.project_id}/jobs",
@@ -1339,6 +1345,7 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
+                next_page = extract_next_page(jobs_response.headers)
                 jobs = Response(data=jobs_response.json(), status_code=200)
                 if isinstance(jobs.data, list) and jobs.data and len(jobs.data) > 0:
                     all_jobs = all_jobs + jobs.data
@@ -4079,3 +4086,31 @@ class Api(object):
         except Exception as response_error:
             print(f"Response Model Application Error: {response_error}")
         return response
+
+
+def extract_next_page(headers):
+    link_header = headers.get("Link")
+    if not link_header:
+        return None
+
+    links = link_header.split(", ")
+
+    next_link = None
+    for link in links:
+        if 'rel="next"' in link:
+            next_link = link
+            break
+
+    if not next_link:
+        return None
+
+    url_match = re.match(r"<(.+?)>", next_link)
+    if not url_match:
+        return None
+    next_url = url_match.group(1)
+
+    parsed_url = urlparse(next_url)
+    query_params = parse_qs(parsed_url.query)
+    page = query_params.get("page", [None])[0]
+
+    return int(page) if page else None
