@@ -1328,10 +1328,13 @@ class Api(object):
             if isinstance(jobs.data, list) and jobs.data and len(jobs.data) > 0:
                 all_jobs = all_jobs + jobs.data
 
-            if job.max_pages and job.max_pages < next_page:
+            if job.max_pages and next_page and job.max_pages < next_page:
                 job.max_pages = next_page
                 job.model_post_init(job)
-            elif not job.max_pages:
+            elif not job.max_pages and not next_page:
+                job.max_pages = 1
+                job.model_post_init(job)
+            elif not job.max_pages and next_page:
                 job.max_pages = next_page
                 job.model_post_init(job)
 
