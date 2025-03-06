@@ -167,7 +167,9 @@ class Api(object):
             self.headers_parallel if self.headers_parallel else [self.headers]
         )
 
-        initial_endpoint = endpoint.format(id=id_value) if "{id}" in endpoint else endpoint
+        initial_endpoint = (
+            endpoint.format(id=id_value) if "{id}" in endpoint else endpoint
+        )
         total_pages_response = self._session.get(
             url=f"{self.url}{initial_endpoint}",
             params=model.api_parameters,

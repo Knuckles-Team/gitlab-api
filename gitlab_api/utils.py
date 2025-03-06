@@ -10,6 +10,8 @@ from alembic.migration import MigrationContext
 from sqlalchemy import create_engine
 from sqlalchemy.engine import reflection
 import requests
+from concurrent.futures import ThreadPoolExecutor
+
 
 from gitlab_api.gitlab_response_models import Response
 
@@ -71,47 +73,34 @@ def is_pydantic(obj: object):
         return False
 
 
-def pydantic_to_sqlalchemy(schema):
+def process_list_item(item):
+    """Helper function to process a single item in a list."""
+    new_schema = pydantic_to_sqlalchemy(item)
+    return item.Meta.orm_model(**new_schema)
+
+
+def pydantic_to_sqlalchemy(schema, max_workers: int = 4):
     """
     Iterates through pydantic schema and parses nested schemas
     to a dictionary containing SQLAlchemy models.
     Only works if nested schemas have specified the Meta.orm_model.
     """
-    logging.debug(f"\n\nSchema: {schema}")
     parsed_schema = dict(schema)
     parsed_schema = remove_none_values(dictionary=parsed_schema)
 
-    logging.debug(f"\n\nCleaned Schema: {parsed_schema}")
     for key, value in parsed_schema.items():
         if not value:
             continue
-        logging.debug(f"\n\n\nKEY: {key} VALUE: {value}")
         try:
             if isinstance(value, list) and len(value) and is_pydantic(value[0]):
-                logging.debug(f"\n\nUpdating List: {key} {parsed_schema[key]}")
-                parsed_schemas = []
-                for item in value:
-                    logging.debug(f"\n\nGoing through Item: {item}\nValue: {value}")
-                    new_schema = pydantic_to_sqlalchemy(item)
-                    logging.debug(
-                        f"\n\nNew schema: {new_schema}\nFor Model: {item.Meta.orm_model}"
-                    )
-                    new_model = item.Meta.orm_model(**new_schema)
-                    logging.debug(
-                        f"\n\nNew model: {new_model}\nFor Item: {item}"  # \n\tIn Value: {value}"
-                    )
-                    parsed_schemas.append(new_model)
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    parsed_schemas = list(executor.map(process_list_item, value))
                 parsed_schema[key] = parsed_schemas
             elif is_pydantic(value):
-                logging.debug(f"\n\nUpdating Nonlist: {key} {value}")
                 new_model = value.Meta.orm_model(**pydantic_to_sqlalchemy(value))
-                logging.debug(
-                    f"\n\nNew Model: {new_model} for schema: {parsed_schema} in key: {key} of value: {value}"
-                )
                 parsed_schema[key] = new_model
-                logging.debug(f"\n\nFinished Updated Nonlist: {key} {value}")
         except AttributeError as e:
-            logging.debug(
+            logging.error(
                 f"\n\nFound nested Pydantic model in {schema.__class__} but Meta.orm_model was not specified.\nExact Error: {e}"
             )
             raise (
