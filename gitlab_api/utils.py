@@ -93,7 +93,6 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 4):
     for key, value in parsed_schema.items():
         if not value:
             continue
-
         try:
             if isinstance(value, list) and value and is_pydantic(value[0]):
                 with ThreadPoolExecutor(max_workers=max_workers) as executor:
