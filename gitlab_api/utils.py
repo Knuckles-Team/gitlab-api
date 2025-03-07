@@ -114,9 +114,57 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 4):
                          f"Key: {key}, Value: {value}\n"
                          f"Error: {e}")
             logging.error(error_msg)
-            raise ValueError(error_msg)
-
+            try:
+                pydantic_to_sqlalchemy_fallback(schema=parsed_schema)
+            except AttributeError as e:
+                error_msg = (f"Fallback Function Failure\n"
+                             f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
+                             f"Parsed Schema: {parsed_schema}\n"
+                             f"Key: {key}, Value: {value}\n"
+                             f"Error: {e}")
+                logging.error(error_msg)
+                raise ValueError(error_msg)
     logging.debug(f"\nReturned Parsed Schema: {parsed_schema}")
+    return parsed_schema
+
+def pydantic_to_sqlalchemy_fallback(schema):
+    """
+    Iterates through pydantic schema and parses nested schemas
+    to a dictionary containing SQLAlchemy models.
+    Only works if nested schemas have specified the Meta.orm_model.
+    """
+    parsed_schema = dict(schema)
+    parsed_schema = remove_none_values(dictionary=parsed_schema)
+
+    logging.debug(f"\n\nCleaned Schema: {parsed_schema}")
+    for key, value in parsed_schema.items():
+        if not value:
+            continue
+        try:
+            if isinstance(value, list) and len(value) and is_pydantic(value[0]):
+                parsed_schemas = []
+                for item in value:
+                    new_schema = pydantic_to_sqlalchemy_fallback(item)
+                    new_model = item.Meta.orm_model(**new_schema)
+                    parsed_schemas.append(new_model)
+                    logging.debug(
+                        f"\nNew Schema List Key: {parsed_schema[key]}\nWith Value: {parsed_schemas}"
+                    )
+                parsed_schema[key] = parsed_schemas
+            elif is_pydantic(value):
+                new_model = value.Meta.orm_model(**pydantic_to_sqlalchemy_fallback(value))
+                logging.debug(
+                    f"\n\nNew Schema Dictionary Key: {parsed_schema[key]} With Value: {new_model}"
+                )
+                parsed_schema[key] = new_model
+        except AttributeError as e:
+            error_msg = (f"Fallback Function Failure\n"
+                         f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
+                         f"Parsed Schema: {parsed_schema}\n"
+                         f"Key: {key}, Value: {value}\n"
+                         f"Error: {e}")
+            logging.error(error_msg)
+    logging.debug(f"\nFallback Function: Returned Parsed Schema: {parsed_schema}")
     return parsed_schema
 
 

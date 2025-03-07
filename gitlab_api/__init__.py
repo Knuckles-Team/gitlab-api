@@ -160,6 +160,7 @@ from gitlab_api.utils import (
     upsert,
     create_table,
     pydantic_to_sqlalchemy,
+    pydantic_to_sqlalchemy_fallback,
     save_model,
     load_model,
     run_migrations,
