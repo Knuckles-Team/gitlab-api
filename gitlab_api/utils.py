@@ -86,7 +86,7 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 4):
     Only works if nested schemas have specified the Meta.orm_model.
     """
     parsed_schema = remove_none_values(dict(schema))
-
+    logging.debug(f"\n\nCleaned Schema: {parsed_schema}")
     if not parsed_schema:
         return parsed_schema
 
@@ -95,16 +95,28 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 4):
             continue
         try:
             if isinstance(value, list) and value and is_pydantic(value[0]):
+                logging.debug(f"\n\nUpdating List: {key} {parsed_schema[key]}")
                 with ThreadPoolExecutor(max_workers=max_workers) as executor:
                     parsed_schemas = list(executor.map(process_list_item, value))
+                logging.debug(
+                    f"\nNew Schema List Key: {parsed_schema[key]}\nWith Value: {parsed_schemas}"
+                )
                 parsed_schema[key] = parsed_schemas
             elif is_pydantic(value):
                 new_model = value.Meta.orm_model(**pydantic_to_sqlalchemy(value, max_workers))
+                logging.debug(
+                    f"\n\nNew Schema Dictionary Key: {parsed_schema[key]} With Value: {new_model}"
+                )
                 parsed_schema[key] = new_model
         except AttributeError as e:
-            error_msg = f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. Error: {e}"
+            error_msg = (f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
+                         f"Parsed Schema: {parsed_schema}\n"
+                         f"Key: {key}, Value: {value}\n"
+                         f"Error: {e}")
             logging.error(error_msg)
             raise ValueError(error_msg)
+
+    logging.debug(f"\nReturned Parsed Schema: {parsed_schema}")
     return parsed_schema
 
 
