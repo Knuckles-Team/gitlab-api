@@ -79,7 +79,7 @@ def process_list_item(item):
     return item.Meta.orm_model(**new_schema)
 
 
-def pydantic_to_sqlalchemy(schema, max_workers: int = 4):
+def pydantic_to_sqlalchemy(schema, max_workers: int = 6):
     """
     Iterates through pydantic schema and parses nested schemas
     to a dictionary containing SQLAlchemy models.
@@ -114,16 +114,17 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 4):
                          f"Key: {key}, Value: {value}\n"
                          f"Error: {e}")
             logging.error(error_msg)
-            try:
-                pydantic_to_sqlalchemy_fallback(schema=parsed_schema)
-            except AttributeError as e:
-                error_msg = (f"Fallback Function Failure\n"
-                             f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
-                             f"Parsed Schema: {parsed_schema}\n"
-                             f"Key: {key}, Value: {value}\n"
-                             f"Error: {e}")
-                logging.error(error_msg)
-                raise ValueError(error_msg)
+            # try:
+            #     pydantic_to_sqlalchemy_fallback(schema=parsed_schema)
+            # except AttributeError as e:
+            #     error_msg = (f"Fallback Function Failure\n"
+            #                  f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
+            #                  f"Parsed Schema: {parsed_schema}\n"
+            #                  f"Key: {key}, Value: {value}\n"
+            #                  f"Error: {e}")
+            #     logging.error(error_msg)
+            #     raise ValueError(error_msg)
+            raise ValueError(error_msg)
     logging.debug(f"\nReturned Parsed Schema: {parsed_schema}")
     return parsed_schema
 
