@@ -11,9 +11,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import reflection
 import requests
 from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import Pool, cpu_count
+from itertools import islice
 
 
 from gitlab_api.gitlab_response_models import Response
+from sqlalchemy.orm import sessionmaker
 
 
 def process_response(response: requests.Response) -> Union[Response, requests.Response]:
@@ -103,16 +106,20 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 6):
                 )
                 parsed_schema[key] = parsed_schemas
             elif is_pydantic(value):
-                new_model = value.Meta.orm_model(**pydantic_to_sqlalchemy(value, max_workers))
+                new_model = value.Meta.orm_model(
+                    **pydantic_to_sqlalchemy(value, max_workers)
+                )
                 logging.debug(
                     f"\n\nNew Schema Dictionary Key: {parsed_schema[key]} With Value: {new_model}"
                 )
                 parsed_schema[key] = new_model
         except AttributeError as e:
-            error_msg = (f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
-                         f"Parsed Schema: {parsed_schema}\n"
-                         f"Key: {key}, Value: {value}\n"
-                         f"Error: {e}")
+            error_msg = (
+                f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
+                f"Parsed Schema: {parsed_schema}\n"
+                f"Key: {key}, Value: {value}\n"
+                f"Error: {e}"
+            )
             logging.error(error_msg)
             # try:
             #     pydantic_to_sqlalchemy_fallback(schema=parsed_schema)
@@ -127,6 +134,7 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 6):
             raise ValueError(error_msg)
     logging.debug(f"\nReturned Parsed Schema: {parsed_schema}")
     return parsed_schema
+
 
 def pydantic_to_sqlalchemy_fallback(schema):
     """
@@ -153,29 +161,119 @@ def pydantic_to_sqlalchemy_fallback(schema):
                     )
                 parsed_schema[key] = parsed_schemas
             elif is_pydantic(value):
-                new_model = value.Meta.orm_model(**pydantic_to_sqlalchemy_fallback(value))
+                new_model = value.Meta.orm_model(
+                    **pydantic_to_sqlalchemy_fallback(value)
+                )
                 logging.debug(
                     f"\n\nNew Schema Dictionary Key: {parsed_schema[key]} With Value: {new_model}"
                 )
                 parsed_schema[key] = new_model
         except AttributeError as e:
-            error_msg = (f"Fallback Function Failure\n"
-                         f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
-                         f"Parsed Schema: {parsed_schema}\n"
-                         f"Key: {key}, Value: {value}\n"
-                         f"Error: {e}")
+            error_msg = (
+                f"Fallback Function Failure\n"
+                f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
+                f"Parsed Schema: {parsed_schema}\n"
+                f"Key: {key}, Value: {value}\n"
+                f"Error: {e}"
+            )
             logging.error(error_msg)
     logging.debug(f"\nFallback Function: Returned Parsed Schema: {parsed_schema}")
     return parsed_schema
 
 
-def upsert(model: Any, session, batch_size: int = 100):
+def upsert_chunk(chunk_data: list, engine_url: str, batch_size: int = 1000):
+    """Process a chunk of data in a separate process."""
+    # Create a new engine and session for this process
+    engine = create_engine(engine_url)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    try:
+        if not chunk_data:
+            logging.debug("Empty chunk received")
+            return
+
+        # Extract item IDs for bulk query
+        item_ids = [item.id for item in chunk_data if item.id]
+        if not item_ids:
+            logging.debug("No valid IDs in chunk")
+            return
+
+        # Bulk query for existing items
+        model_class = chunk_data[0].__class__
+        existing_items = (
+            session.query(model_class).filter(model_class.id.in_(item_ids)).all()
+        )
+        existing_items_map = {item.id: item for item in existing_items}
+
+        batch_count = 0
+        for item in chunk_data:
+            if item.id and item.id in existing_items_map:
+                # Update existing item
+                existing_model = existing_items_map[item.id]
+                for attr, value in vars(item).items():
+                    setattr(existing_model, attr, value)
+                session.merge(existing_model)
+            else:
+                # Insert new item
+                session.merge(item)
+
+            batch_count += 1
+            if batch_count >= batch_size:
+                session.commit()
+                batch_count = 0
+
+        if batch_count > 0:
+            session.commit()
+
+        logging.debug(f"Processed chunk of {len(chunk_data)} records")
+    except Exception as e:
+        session.rollback()
+        logging.error(f"Error processing chunk: {e}")
+    finally:
+        session.close()
+        engine.dispose()
+
+
+def upsert(model: Any, engine, batch_size: int = 1000, chunk_size: int = 10000):
+    """Parallelized upsert function."""
+    if not model or "data" not in model:
+        logging.debug(f"No data in model: {model}")
+        return
+
+    data = model["data"]
+    if not data:
+        logging.debug("No data to process")
+        return
+
+    num_processes = min(cpu_count(), 8)
+    logging.info(f"Using {num_processes} processes")
+
+    data_iter = iter(data)
+    chunks = [
+        list(islice(data_iter, chunk_size)) for _ in range(0, len(data), chunk_size)
+    ]
+
+    engine_url = engine.url.render_as_string(hide_password=False)
+
+    with Pool(processes=num_processes) as pool:
+        pool.starmap(
+            upsert_chunk, [(chunk, engine_url, batch_size) for chunk in chunks]
+        )
+
+    logging.info(f"Completed upsert of {len(data)} records")
+
+
+def upsert_fallback(model: Any, engine, batch_size: int = 1000):
     if not model or "data" not in model:
         logging.debug(f"No data in model: {model}")
         return
 
     data = model["data"]
     item_ids = [item.id for item in data if item.id]
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
     existing_items = (
         session.query(data[0].__class__)
         .filter(data[0].__class__.id.in_(item_ids))
