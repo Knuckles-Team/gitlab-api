@@ -12,7 +12,7 @@ from sqlalchemy.engine import reflection
 import requests
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool, cpu_count
-from itertools import islice
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 from gitlab_api.gitlab_response_models import Response
@@ -181,9 +181,62 @@ def pydantic_to_sqlalchemy_fallback(schema):
     return parsed_schema
 
 
+def get_related_ids(item, visited=None):
+    """Recursively extract all relevant IDs from an item and its nested models."""
+    if visited is None:
+        visited = set()
+
+    ids = set()
+    if hasattr(item, "id") and item.id:
+        ids.add((item.__class__.__name__, item.id))
+        visited.add(id(item))
+
+    # Traverse relationships
+    for attr in dir(item):
+        try:
+            related = getattr(item, attr)
+            if related is None or id(related) in visited:
+                continue
+            if isinstance(related, list) or isinstance(related, tuple):
+                for sub_item in related:
+                    if hasattr(sub_item, "__class__") and sub_item not in visited:
+                        ids.update(get_related_ids(sub_item, visited))
+            elif hasattr(related, "__class__") and id(related) not in visited:
+                ids.update(get_related_ids(related, visited))
+        except AttributeError:
+            continue
+
+    return ids
+
+
+def partition_data(data, num_partitions):
+    """Partition data considering IDs of parent and nested models."""
+    # Map items to all their related IDs
+    item_to_ids = {}
+    for item in data:
+        related_ids = get_related_ids(item)
+        item_to_ids[item] = related_ids
+
+    # Group items by overlapping ID sets
+    clusters = {}
+    for item, ids in item_to_ids.items():
+        key = frozenset(ids)
+        clusters.setdefault(key, []).append(item)
+
+    # Split clusters into roughly equal partitions
+    cluster_list = list(clusters.values())
+    chunk_size = max(1, len(cluster_list) // num_partitions)
+    partitioned_data = [
+        sum(cluster_list[i : i + chunk_size], [])
+        for i in range(0, len(cluster_list), chunk_size)
+    ]
+
+    return partitioned_data
+
+
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
 def upsert_chunk(chunk_data: list, engine_url: str, batch_size: int = 1000):
-    """Process a chunk of data in a separate process."""
-    # Create a new engine and session for this process
+    """Process a chunk of data with nested models."""
     engine = create_engine(engine_url)
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -193,50 +246,26 @@ def upsert_chunk(chunk_data: list, engine_url: str, batch_size: int = 1000):
             logging.debug("Empty chunk received")
             return
 
-        # Extract item IDs for bulk query
-        item_ids = [item.id for item in chunk_data if item.id]
-        if not item_ids:
-            logging.debug("No valid IDs in chunk")
-            return
-
-        # Bulk query for existing items
-        model_class = chunk_data[0].__class__
-        existing_items = (
-            session.query(model_class).filter(model_class.id.in_(item_ids)).all()
-        )
-        existing_items_map = {item.id: item for item in existing_items}
-
-        batch_count = 0
-        for item in chunk_data:
-            if item.id and item.id in existing_items_map:
-                # Update existing item
-                existing_model = existing_items_map[item.id]
-                for attr, value in vars(item).items():
-                    setattr(existing_model, attr, value)
-                session.merge(existing_model)
-            else:
-                # Insert new item
-                session.merge(item)
-
-            batch_count += 1
-            if batch_count >= batch_size:
-                session.commit()
-                batch_count = 0
-
-        if batch_count > 0:
+        # Process in smaller batches
+        for i in range(0, len(chunk_data), batch_size):
+            batch = chunk_data[i : i + batch_size]
+            with session.no_autoflush:
+                for item in batch:
+                    session.merge(item)  # Merge cascades to nested models
             session.commit()
 
         logging.debug(f"Processed chunk of {len(chunk_data)} records")
     except Exception as e:
         session.rollback()
         logging.error(f"Error processing chunk: {e}")
+        raise
     finally:
         session.close()
         engine.dispose()
 
 
-def upsert(model: Any, engine, batch_size: int = 1000, chunk_size: int = 10000):
-    """Parallelized upsert function."""
+def upsert(model: Any, engine, batch_size: int = 1000):
+    """Parallelized upsert with nested model support."""
     if not model or "data" not in model:
         logging.debug(f"No data in model: {model}")
         return
@@ -246,19 +275,18 @@ def upsert(model: Any, engine, batch_size: int = 1000, chunk_size: int = 10000):
         logging.debug("No data to process")
         return
 
-    num_processes = min(cpu_count(), 8)
+    num_processes = cpu_count()
     logging.info(f"Using {num_processes} processes")
 
-    data_iter = iter(data)
-    chunks = [
-        list(islice(data_iter, chunk_size)) for _ in range(0, len(data), chunk_size)
-    ]
+    # Partition data considering nested relationships
+    chunks = partition_data(data, num_processes)
+    logging.info(f"Partitioned {len(data)} records into {len(chunks)} chunks")
 
     engine_url = engine.url.render_as_string(hide_password=False)
 
     with Pool(processes=num_processes) as pool:
         pool.starmap(
-            upsert_chunk, [(chunk, engine_url, batch_size) for chunk in chunks]
+            upsert_chunk, [(chunk, engine_url, batch_size) for chunk in chunks if chunk]
         )
 
     logging.info(f"Completed upsert of {len(data)} records")
