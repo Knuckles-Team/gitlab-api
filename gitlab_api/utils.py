@@ -179,15 +179,21 @@ def pydantic_to_sqlalchemy_fallback(schema):
     return parsed_schema
 
 
-def bulk_upsert(models, engine, batch_size=10000):
-    table = models[0].__table__
+def bulk_upsert(model, engine, batch_size=10000):
+    table = model[0].__table__
     with engine.connect() as conn:
-        for i in range(0, len(models), batch_size):
-            batch = models[i:i + batch_size]
-            data = [{k: getattr(m, k) for k in m.__table__.columns.keys()} for m in batch]
-            stmt = insert(table).values(data).on_conflict_do_update(
-                index_elements=['id'],
-                set_={col.name: col for col in stmt.excluded if col.name != 'id'}
+        for i in range(0, len(model), batch_size):
+            batch = model[i : i + batch_size]
+            data = [
+                {k: getattr(m, k) for k in m.__table__.columns.keys()} for m in batch
+            ]
+            stmt = (
+                insert(table)
+                .values(data)
+                .on_conflict_do_update(
+                    index_elements=["id"],
+                    set_={col.name: col for col in stmt.excluded if col.name != "id"},
+                )
             )
             conn.execute(stmt)
             conn.commit()
