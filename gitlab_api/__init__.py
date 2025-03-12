@@ -158,7 +158,7 @@ from gitlab_api.gitlab_db_models import (
 )
 from gitlab_api.utils import (
     upsert,
-    upsert_fallback,
+    bulk_upsert,
     create_table,
     pydantic_to_sqlalchemy,
     pydantic_to_sqlalchemy_fallback,

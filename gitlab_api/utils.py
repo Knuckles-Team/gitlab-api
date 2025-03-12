@@ -7,12 +7,11 @@ from typing import Union, Any
 from alembic import command
 from alembic.config import Config
 from alembic.migration import MigrationContext
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.engine import reflection
 import requests
 from concurrent.futures import ThreadPoolExecutor
-from multiprocessing import Pool, cpu_count
-from tenacity import retry, stop_after_attempt, wait_exponential
 from sqlalchemy.orm import sessionmaker
 
 from gitlab_api.gitlab_response_models import Response
@@ -180,118 +179,22 @@ def pydantic_to_sqlalchemy_fallback(schema):
     return parsed_schema
 
 
-def get_related_ids(item):
-    """Extract primary and foreign key IDs from any SQLAlchemy model."""
-    ids = set()
-
-    # Check if item is a SQLAlchemy model with a mapped table
-    if not hasattr(item, "__table__"):
-        return ids
-
-    # Use SQLAlchemy inspector to get table metadata
-    inspector = inspect(item.__class__)
-
-    # Add primary key
-    primary_keys = inspector.primary_key
-    for pk in primary_keys:
-        pk_value = getattr(item, pk.name, None)
-        if pk_value is not None:
-            ids.add((item.__class__.__name__, pk_value))
-
-    # Add foreign key IDs
-    for column in inspector.columns.values():
-        if column.foreign_keys:  # Check if column is a foreign key
-            fk_value = getattr(item, column.name, None)
-            if fk_value is not None:
-                # Use the target table name as a proxy for the related model
-                for fk in column.foreign_keys:
-                    target_table = fk.target_fullname.split(".")[
-                        1
-                    ]  # e.g., "commits" from "public.commits"
-                    ids.add((target_table, fk_value))
-
-    return ids
-
-
-def partition_data(data, num_partitions):
-    """Partition data considering IDs of parent and direct foreign keys."""
-    item_to_ids = {}
-    for item in data:
-        related_ids = get_related_ids(item)
-        item_to_ids[item] = related_ids
-
-    clusters = {}
-    for item, ids in item_to_ids.items():
-        key = frozenset(ids)
-        clusters.setdefault(key, []).append(item)
-
-    cluster_list = list(clusters.values())
-    chunk_size = max(1, len(cluster_list) // num_partitions)
-    partitioned_data = [
-        sum(cluster_list[i : i + chunk_size], [])
-        for i in range(0, len(cluster_list), chunk_size)
-    ]
-
-    return partitioned_data
-
-
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
-def upsert_chunk(chunk_data: list, engine_url: str, batch_size: int = 1000):
-    """Process a chunk of data with nested models."""
-    engine = create_engine(engine_url)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    try:
-        if not chunk_data:
-            logging.debug("Empty chunk received")
-            return
-
-        for i in range(0, len(chunk_data), batch_size):
-            batch = chunk_data[i : i + batch_size]
-            with session.no_autoflush:
-                for item in batch:
-                    session.merge(item)  # Merge cascades to nested models
-            session.commit()
-
-        logging.debug(f"Processed chunk of {len(chunk_data)} records")
-    except Exception as e:
-        session.rollback()
-        logging.error(f"Error processing chunk: {e}")
-        raise
-    finally:
-        session.close()
-        engine.dispose()
+def bulk_upsert(models, engine, batch_size=10000):
+    table = models[0].__table__
+    with engine.connect() as conn:
+        for i in range(0, len(models), batch_size):
+            batch = models[i:i + batch_size]
+            data = [{k: getattr(m, k) for k in m.__table__.columns.keys()} for m in batch]
+            stmt = insert(table).values(data).on_conflict_do_update(
+                index_elements=['id'],
+                set_={col.name: col for col in stmt.excluded if col.name != 'id'}
+            )
+            conn.execute(stmt)
+            conn.commit()
+            logging.debug(f"Upserted batch of {len(batch)} records")
 
 
 def upsert(model: Any, engine, batch_size: int = 1000):
-    """Parallelized upsert with nested model support."""
-    if not model or "data" not in model:
-        logging.debug(f"No data in model: {model}")
-        return
-
-    data = model["data"]
-    if not data:
-        logging.debug("No data to process")
-        return
-
-    num_processes = cpu_count()
-    logging.info(f"Using {num_processes} processes")
-
-    chunks = partition_data(data, num_processes)
-    logging.info(f"Partitioned {len(data)} records into {len(chunks)} chunks")
-
-    engine_url = engine.url.render_as_string(hide_password=False)
-
-    with Pool(processes=num_processes) as pool:
-        pool.starmap(
-            upsert_chunk, [(chunk, engine_url, batch_size) for chunk in chunks if chunk]
-        )
-
-    logging.info(f"Completed upsert of {len(data)} records")
-
-
-def upsert_fallback(model: Any, engine, batch_size: int = 1000):
     if not model or "data" not in model:
         logging.debug(f"No data in model: {model}")
         return
