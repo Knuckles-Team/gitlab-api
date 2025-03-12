@@ -180,7 +180,7 @@ def pydantic_to_sqlalchemy_fallback(schema):
 
 
 def bulk_upsert(model, engine, batch_size=10000):
-    table = model[0].__table__
+    table = model["data"][0].__table__
     with engine.connect() as conn:
         for i in range(0, len(model), batch_size):
             batch = model[i : i + batch_size]
