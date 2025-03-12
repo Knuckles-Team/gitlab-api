@@ -181,30 +181,37 @@ def pydantic_to_sqlalchemy_fallback(schema):
     return parsed_schema
 
 
-def get_related_ids(item, visited=None):
-    """Recursively extract all relevant IDs from an item and its nested models."""
-    if visited is None:
-        visited = set()
-
+def get_related_ids(item, max_depth=None):
+    """Iteratively extract all relevant IDs from an item and its nested models."""
     ids = set()
-    if hasattr(item, "id") and item.id:
-        ids.add((item.__class__.__name__, item.id))
-        visited.add(id(item))
+    visited = set()
+    stack = [(item, 0)]  # (object, depth) tuples
 
-    # Traverse relationships
-    for attr in dir(item):
-        try:
-            related = getattr(item, attr)
-            if related is None or id(related) in visited:
-                continue
-            if isinstance(related, list) or isinstance(related, tuple):
-                for sub_item in related:
-                    if hasattr(sub_item, "__class__") and sub_item not in visited:
-                        ids.update(get_related_ids(sub_item, visited))
-            elif hasattr(related, "__class__") and id(related) not in visited:
-                ids.update(get_related_ids(related, visited))
-        except AttributeError:
+    while stack:
+        current, depth = stack.pop()
+        obj_id = id(current)
+
+        if obj_id in visited or (max_depth is not None and depth > max_depth):
             continue
+
+        visited.add(obj_id)
+        if hasattr(current, "id") and current.id:
+            ids.add((current.__class__.__name__, current.id))
+
+        # Traverse relationships
+        for attr in dir(current):
+            try:
+                related = getattr(current, attr)
+                if related is None or id(related) in visited:
+                    continue
+                if isinstance(related, (list, tuple)):
+                    for sub_item in related:
+                        if hasattr(sub_item, "__class__"):
+                            stack.append((sub_item, depth + 1))
+                elif hasattr(related, "__class__"):
+                    stack.append((related, depth + 1))
+            except AttributeError:
+                continue
 
     return ids
 
@@ -214,7 +221,7 @@ def partition_data(data, num_partitions):
     # Map items to all their related IDs
     item_to_ids = {}
     for item in data:
-        related_ids = get_related_ids(item)
+        related_ids = get_related_ids(item, max_depth=5)  # Optional: limit depth
         item_to_ids[item] = related_ids
 
     # Group items by overlapping ID sets
