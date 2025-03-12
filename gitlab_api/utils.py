@@ -7,16 +7,15 @@ from typing import Union, Any
 from alembic import command
 from alembic.config import Config
 from alembic.migration import MigrationContext
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.engine import reflection
 import requests
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool, cpu_count
 from tenacity import retry, stop_after_attempt, wait_exponential
-
+from sqlalchemy.orm import sessionmaker
 
 from gitlab_api.gitlab_response_models import Response
-from sqlalchemy.orm import sessionmaker
 
 
 def process_response(response: requests.Response) -> Union[Response, requests.Response]:
@@ -181,56 +180,51 @@ def pydantic_to_sqlalchemy_fallback(schema):
     return parsed_schema
 
 
-def get_related_ids(item, max_depth=None):
-    """Iteratively extract all relevant IDs from an item and its nested models."""
+def get_related_ids(item):
+    """Extract primary and foreign key IDs from any SQLAlchemy model."""
     ids = set()
-    visited = set()
-    stack = [(item, 0)]  # (object, depth) tuples
 
-    while stack:
-        current, depth = stack.pop()
-        obj_id = id(current)
+    # Check if item is a SQLAlchemy model with a mapped table
+    if not hasattr(item, "__table__"):
+        return ids
 
-        if obj_id in visited or (max_depth is not None and depth > max_depth):
-            continue
+    # Use SQLAlchemy inspector to get table metadata
+    inspector = inspect(item.__class__)
 
-        visited.add(obj_id)
-        if hasattr(current, "id") and current.id:
-            ids.add((current.__class__.__name__, current.id))
+    # Add primary key
+    primary_keys = inspector.primary_key
+    for pk in primary_keys:
+        pk_value = getattr(item, pk.name, None)
+        if pk_value is not None:
+            ids.add((item.__class__.__name__, pk_value))
 
-        # Traverse relationships
-        for attr in dir(current):
-            try:
-                related = getattr(current, attr)
-                if related is None or id(related) in visited:
-                    continue
-                if isinstance(related, (list, tuple)):
-                    for sub_item in related:
-                        if hasattr(sub_item, "__class__"):
-                            stack.append((sub_item, depth + 1))
-                elif hasattr(related, "__class__"):
-                    stack.append((related, depth + 1))
-            except AttributeError:
-                continue
+    # Add foreign key IDs
+    for column in inspector.columns.values():
+        if column.foreign_keys:  # Check if column is a foreign key
+            fk_value = getattr(item, column.name, None)
+            if fk_value is not None:
+                # Use the target table name as a proxy for the related model
+                for fk in column.foreign_keys:
+                    target_table = fk.target_fullname.split(".")[
+                        1
+                    ]  # e.g., "commits" from "public.commits"
+                    ids.add((target_table, fk_value))
 
     return ids
 
 
 def partition_data(data, num_partitions):
-    """Partition data considering IDs of parent and nested models."""
-    # Map items to all their related IDs
+    """Partition data considering IDs of parent and direct foreign keys."""
     item_to_ids = {}
     for item in data:
-        related_ids = get_related_ids(item, max_depth=5)  # Optional: limit depth
+        related_ids = get_related_ids(item)
         item_to_ids[item] = related_ids
 
-    # Group items by overlapping ID sets
     clusters = {}
     for item, ids in item_to_ids.items():
         key = frozenset(ids)
         clusters.setdefault(key, []).append(item)
 
-    # Split clusters into roughly equal partitions
     cluster_list = list(clusters.values())
     chunk_size = max(1, len(cluster_list) // num_partitions)
     partitioned_data = [
@@ -253,7 +247,6 @@ def upsert_chunk(chunk_data: list, engine_url: str, batch_size: int = 1000):
             logging.debug("Empty chunk received")
             return
 
-        # Process in smaller batches
         for i in range(0, len(chunk_data), batch_size):
             batch = chunk_data[i : i + batch_size]
             with session.no_autoflush:
@@ -285,7 +278,6 @@ def upsert(model: Any, engine, batch_size: int = 1000):
     num_processes = cpu_count()
     logging.info(f"Using {num_processes} processes")
 
-    # Partition data considering nested relationships
     chunks = partition_data(data, num_processes)
     logging.info(f"Partitioned {len(data)} records into {len(chunks)} chunks")
 
