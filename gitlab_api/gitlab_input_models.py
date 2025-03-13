@@ -1862,7 +1862,9 @@ class ProjectModel(BaseModel):
         if self.owned:
             self.api_parameters["owned"] = self.owned
         if self.repository_checksum_failed:
-            self.api_parameters["repository_checksum_failed"] = self.repository_checksum_failed
+            self.api_parameters["repository_checksum_failed"] = (
+                self.repository_checksum_failed
+            )
         if self.repository_storage:
             self.api_parameters["repository_storage"] = self.repository_storage
         if self.search_namespaces:
