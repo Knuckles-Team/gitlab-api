@@ -14,7 +14,6 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy.orm import sessionmaker
 from multiprocessing import Pool
-from sqlalchemy import insert
 
 from gitlab_api.gitlab_response_models import Response
 
