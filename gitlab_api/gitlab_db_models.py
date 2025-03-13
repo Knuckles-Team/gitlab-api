@@ -1083,12 +1083,10 @@ class MergeRequestDBModel(BaseDBModel):
 
     author_id: Mapped[int] = mapped_column(Integer, nullable=True)
     assignee_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    assignees_id: Mapped[int] = mapped_column(Integer, nullable=True)
     merged_by_id: Mapped[int] = mapped_column(Integer, nullable=True)
     merge_user_id: Mapped[int] = mapped_column(Integer, nullable=True)
     closed_by_id: Mapped[int] = mapped_column(Integer, nullable=True)
     reviewer_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    reviewers_id: Mapped[int] = mapped_column(Integer, nullable=True)
     approved_by_id: Mapped[int] = mapped_column(Integer, nullable=True)
 
     author: Mapped["UserDBModel"] = relationship(
@@ -1103,11 +1101,10 @@ class MergeRequestDBModel(BaseDBModel):
         back_populates="assigned_merge_requests",
     )
 
-    assignees: Mapped[list["UserDBModel"]] = relationship(
-        "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.assignees_id) == UserDBModel.id",
-        back_populates="assignee_merge_requests",
+    assignees_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="users.id"), nullable=True
     )
+    assignees: Mapped[list["UserDBModel"]] = relationship(back_populates="assignee_merge_requests")
 
     merged_by: Mapped["UserDBModel"] = relationship(
         "UserDBModel",
@@ -1139,11 +1136,10 @@ class MergeRequestDBModel(BaseDBModel):
         back_populates="closed_merge_requests",
     )
 
-    reviewers: Mapped[list["UserDBModel"]] = relationship(
-        "UserDBModel",
-        back_populates="reviewers_merge_requests",
-        primaryjoin="foreign(MergeRequestDBModel.reviewers_id) == UserDBModel.id",
+    reviewers_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="users.id"), nullable=True
     )
+    reviewers: Mapped[list["UserDBModel"]] = relationship(back_populates="reviewers_merge_requests")
 
 
 # GroupAccess Model
