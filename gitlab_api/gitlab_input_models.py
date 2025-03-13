@@ -1800,6 +1800,24 @@ class ProjectModel(BaseModel):
     tag_list: Optional[List[str]] = None
     topics: Optional[List[str]] = None
     visibility: Optional[str] = None
+    archived: Optional[bool] = None
+    id_after: Optional[int] = None
+    id_before: Optional[int] = None
+    imported: Optional[bool] = None
+    include_hidden: Optional[bool] = None
+    include_pending_delete: Optional[bool] = None
+    membership: Optional[bool] = None
+    search: Optional[str] = None
+    sort: Optional[str] = None
+    min_access_level: Optional[int] = None
+    owned: Optional[bool] = None
+    statistics: Optional[bool] = None
+    simple: Optional[bool] = None
+    starred: Optional[bool] = None
+    topic: Optional[str] = None
+    topic_id: Optional[int] = None
+    repository_checksum_failed: Optional[bool] = None
+    search_namespaces: Optional[bool] = None
     wiki_access_level: Optional[str] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
@@ -1811,6 +1829,8 @@ class ProjectModel(BaseModel):
         self.api_parameters = {}
         if self.group_id:
             self.api_parameters["group_id"] = self.group_id
+        if self.archived:
+            self.api_parameters["archived"] = self.archived
         if self.group_access:
             self.api_parameters["group_access"] = self.group_access
         if self.expires_at:
@@ -1823,6 +1843,46 @@ class ProjectModel(BaseModel):
             self.api_parameters["per_page"] = self.per_page
         if self.total_pages:
             self.api_parameters["total_pages"] = self.total_pages
+        if self.id_after:
+            self.api_parameters["id_after"] = self.id_after
+        if self.id_before:
+            self.api_parameters["id_before"] = self.id_before
+        if self.imported:
+            self.api_parameters["imported"] = self.imported
+        if self.include_hidden:
+            self.api_parameters["include_hidden"] = self.include_hidden
+        if self.include_pending_delete:
+            self.api_parameters["include_pending_delete"] = self.include_pending_delete
+        if self.membership:
+            self.api_parameters["membership"] = self.membership
+        if self.min_access_level:
+            self.api_parameters["min_access_level"] = self.min_access_level
+        if self.order_by:
+            self.api_parameters["order_by"] = self.order_by
+        if self.owned:
+            self.api_parameters["owned"] = self.owned
+        if self.repository_checksum_failed:
+            self.api_parameters["repository_checksum_failed"] = self.repository_checksum_failed
+        if self.repository_storage:
+            self.api_parameters["repository_storage"] = self.repository_storage
+        if self.search_namespaces:
+            self.api_parameters["search_namespaces"] = self.search_namespaces
+        if self.search:
+            self.api_parameters["search"] = self.search
+        if self.simple:
+            self.api_parameters["simple"] = self.simple
+        if self.sort:
+            self.api_parameters["sort"] = self.sort
+        if self.starred:
+            self.api_parameters["starred"] = self.starred
+        if self.statistics:
+            self.api_parameters["statistics"] = self.statistics
+        if self.topic_id:
+            self.api_parameters["topic_id"] = self.topic_id
+        if self.topic:
+            self.api_parameters["topic"] = self.topic
+        if self.visibility:
+            self.api_parameters["visibility"] = self.visibility
 
     @model_validator(mode="before")
     def build_data(cls, values):
