@@ -222,7 +222,7 @@ def bulk_upsert(model, engine, num_processes=None):
         return
 
     # Get the database URL from the engine
-    db_url = str(engine.url)
+    db_url = engine.url.render_as_string(hide_password=False)
 
     # Default to the number of CPU cores if num_processes is not specified
     import multiprocessing
