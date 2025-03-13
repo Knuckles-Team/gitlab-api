@@ -13,6 +13,9 @@ from sqlalchemy.engine import reflection
 import requests
 from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy.orm import sessionmaker
+from multiprocessing import Pool
+from sqlalchemy import insert
+from sqlalchemy.engine import Engine
 
 from gitlab_api.gitlab_response_models import Response
 
@@ -179,22 +182,64 @@ def pydantic_to_sqlalchemy_fallback(schema):
     return parsed_schema
 
 
-def bulk_upsert(model, engine, batch_size=10000):
-    table = model["data"][0].__table__
+def _upsert_chunk(chunk_data, engine: Engine, table):
+    """
+    Helper function to upsert a chunk of data in a single process.
+    """
     with engine.connect() as conn:
-        for i in range(0, len(model["data"]), batch_size):
-            batch = model["data"][i : i + batch_size]
-            data = [
-                {k: getattr(m, k) for k in m.__table__.columns.keys()} for m in batch
-            ]
-            base_stmt = insert(table).values(data)
-            stmt = base_stmt.on_conflict_do_update(
-                index_elements=["id"],
-                set_={col.name: col for col in base_stmt.excluded if col.name != "id"},
-            )
-            conn.execute(stmt)
-            conn.commit()
-            logging.debug(f"Upserted batch of {len(batch)} records")
+        data = [
+            {k: getattr(m, k) for k in m.__table__.columns.keys()} for m in chunk_data
+        ]
+        base_stmt = insert(table).values(data)
+        stmt = base_stmt.on_conflict_do_update(
+            index_elements=["id"],
+            set_={col.name: col for col in base_stmt.excluded if col.name != "id"},
+        )
+        conn.execute(stmt)
+        conn.commit()
+        logging.debug(f"Upserted chunk of {len(chunk_data)} records in process")
+
+
+def bulk_upsert(model, engine: Engine, num_processes=None):
+    """
+    Perform a bulk upsert operation in parallel using multiple processes.
+
+    Args:
+        model: Dict containing "data" key with a list of SQLAlchemy model instances.
+        engine: SQLAlchemy engine instance.
+        num_processes: Number of parallel processes (defaults to CPU count if None).
+    """
+    # Get the table object from the first model instance
+    table = model["data"][0].__table__
+    data = model["data"]
+    total_records = len(data)
+
+    if total_records == 0:
+        logging.debug("No records to upsert")
+        return
+
+    # Default to the number of CPU cores if num_processes is not specified
+    import multiprocessing
+
+    if num_processes is None:
+        num_processes = multiprocessing.cpu_count()
+
+    # Ensure num_processes doesn't exceed the number of records
+    num_processes = min(num_processes, total_records)
+
+    # Calculate chunk size and split the data
+    chunk_size = max(1, total_records // num_processes)
+    chunks = [data[i : i + chunk_size] for i in range(0, total_records, chunk_size)]
+
+    logging.debug(
+        f"Total records: {total_records}, split into {len(chunks)} chunks across {num_processes} processes"
+    )
+
+    # Use multiprocessing Pool to process chunks in parallel
+    with Pool(processes=num_processes) as pool:
+        pool.starmap(_upsert_chunk, [(chunk, engine, table) for chunk in chunks])
+
+    logging.debug("Bulk upsert completed")
 
 
 def upsert(model: Any, engine, batch_size: int = 1000):
