@@ -190,7 +190,7 @@ def bulk_upsert(model, engine, batch_size=10000):
             base_stmt = insert(table).values(data)
             stmt = base_stmt.on_conflict_do_update(
                 index_elements=["id"],
-                set_={col.name: col for col in base_stmt.excluded if col.name != "id"}
+                set_={col.name: col for col in base_stmt.excluded if col.name != "id"},
             )
             conn.execute(stmt)
             conn.commit()

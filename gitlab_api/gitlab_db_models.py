@@ -933,6 +933,27 @@ class ApprovalRuleDBModel(BaseDBModel):
     )
 
 
+# Association table for MergeRequest assignees
+merge_request_assignees = Table(
+    "merge_request_assignees",
+    BaseDBModel.metadata,
+    Column(
+        "merge_request_id", Integer, ForeignKey("merge_requests.id"), primary_key=True
+    ),
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+)
+
+# Association table for MergeRequest reviewers
+merge_request_reviewers = Table(
+    "merge_request_reviewers",
+    BaseDBModel.metadata,
+    Column(
+        "merge_request_id", Integer, ForeignKey("merge_requests.id"), primary_key=True
+    ),
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+)
+
+
 # MergeRequest Model
 class MergeRequestDBModel(BaseDBModel):
     __tablename__ = "merge_requests"
@@ -1101,10 +1122,17 @@ class MergeRequestDBModel(BaseDBModel):
         back_populates="assigned_merge_requests",
     )
 
-    assignees_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="users.id"), nullable=True
+    assignees: Mapped[list["UserDBModel"]] = relationship(
+        "UserDBModel",
+        secondary=merge_request_assignees,  # Use the association table
+        back_populates="assignee_merge_requests",
     )
-    assignees: Mapped[list["UserDBModel"]] = relationship(back_populates="assignee_merge_requests")
+
+    reviewers: Mapped[list["UserDBModel"]] = relationship(
+        "UserDBModel",
+        secondary=merge_request_reviewers,  # Use the association table
+        back_populates="reviewers_merge_requests",
+    )
 
     merged_by: Mapped["UserDBModel"] = relationship(
         "UserDBModel",
@@ -1135,11 +1163,6 @@ class MergeRequestDBModel(BaseDBModel):
         primaryjoin="foreign(MergeRequestDBModel.closed_by_id) == UserDBModel.id",
         back_populates="closed_merge_requests",
     )
-
-    reviewers_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="users.id"), nullable=True
-    )
-    reviewers: Mapped[list["UserDBModel"]] = relationship(back_populates="reviewers_merge_requests")
 
 
 # GroupAccess Model
@@ -1555,9 +1578,22 @@ class UserDBModel(BaseDBModel):
 
     assignee_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
+        secondary=merge_request_assignees,  # Use the association table
         back_populates="assignees",
-        primaryjoin="foreign(MergeRequestDBModel.assignees_id) == UserDBModel.id",
     )
+
+    reviewed_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
+        "MergeRequestDBModel",
+        back_populates="reviewer",
+        primaryjoin="foreign(MergeRequestDBModel.reviewer_id) == UserDBModel.id",
+    )
+
+    reviewers_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
+        "MergeRequestDBModel",
+        secondary=merge_request_reviewers,  # Use the association table
+        back_populates="reviewers",
+    )
+
     merged_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
         "MergeRequestDBModel",
         back_populates="merged_by",
@@ -1568,12 +1604,6 @@ class UserDBModel(BaseDBModel):
         "MergeRequestDBModel",
         back_populates="merge_user",
         primaryjoin="foreign(MergeRequestDBModel.merge_user_id) == UserDBModel.id",
-    )
-
-    reviewed_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="reviewer",
-        primaryjoin="foreign(MergeRequestDBModel.reviewer_id) == UserDBModel.id",
     )
 
     approved_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
@@ -1588,11 +1618,6 @@ class UserDBModel(BaseDBModel):
         primaryjoin="foreign(MergeRequestDBModel.closed_by_id) == UserDBModel.id",
     )
 
-    reviewers_merge_requests: Mapped[list["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="reviewers",
-        primaryjoin="foreign(MergeRequestDBModel.reviewers_id) == UserDBModel.id",
-    )
     project_owner: Mapped[list["ProjectDBModel"]] = relationship(
         "ProjectDBModel",
         back_populates="owner",
