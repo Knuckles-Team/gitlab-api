@@ -114,7 +114,7 @@ def test_pipeline_model():
     project_id = 1234
     pipeline = PipelineModel(project_id=project_id, per_page=100, reference="test")
     assert project_id == pipeline.project_id
-    assert pipeline.api_parameters == {"per_page": 100, "ref": "test"}
+    assert pipeline.api_parameters == {'page': 1, "per_page": 100, "ref": "test"}
 
 
 @pytest.mark.skipif(

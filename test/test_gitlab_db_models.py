@@ -96,6 +96,8 @@ from gitlab_api.gitlab_db_models import (
                 "base_type": "Job",
                 "id": 13983,
                 "name": "prepare-release",
+                "coverage": None,
+                "erased_at": None,
                 "commit": CommitDBModel(
                     **{
                         "base_type": "Commit",
@@ -111,6 +113,7 @@ from gitlab_api.gitlab_db_models import (
                             )
                         ],
                         "title": "Added alpine image.",
+                        "message": "New message",
                         "author_name": "KnucklesSG1",
                         "author_email": "knucklessg1@gmail.com",
                         "authored_date": datetime.now(),
@@ -232,6 +235,9 @@ from gitlab_api.gitlab_db_models import (
                         "bot": False,
                         "followers": 0,
                         "following": 0,
+                        "pronouns": None,
+                        "work_information": None,
+                        "local_time": "1:25 PM",
                     }
                 ),
             },

@@ -115,7 +115,6 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 6):
         except AttributeError as e:
             error_msg = (
                 f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
-                f"Parsed Schema: {parsed_schema}\n"
                 f"Key: {key}, Value: {value}\n"
                 f"Error: {e}"
             )
@@ -125,7 +124,7 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 6):
             # except AttributeError as e:
             #     error_msg = (f"Fallback Function Failure\n"
             #                  f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
-            #                  f"Parsed Schema: {parsed_schema}\n"
+            #                  #f"Parsed Schema: {parsed_schema}\n"
             #                  f"Key: {key}, Value: {value}\n"
             #                  f"Error: {e}")
             #     logging.error(error_msg)
