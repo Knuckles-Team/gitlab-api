@@ -1234,13 +1234,11 @@ class Api(object):
             jobs = Response(data=total_pages_response.json(), status_code=200)
             if isinstance(jobs.data, list) and jobs.data and len(jobs.data) > 0:
                 all_jobs = all_jobs + jobs.data
-            print(f"\n\nFIRST ALL JOBS: {all_jobs}")
             if job.max_pages and next_page and job.max_pages < next_page:
                 next_page = None
             elif not job.max_pages and not next_page:
                 job.max_pages = 1
             job.model_post_init(job)
-            print(f"\n\nMAX PAGES: {job.max_pages}\nNEXT PAGE: {next_page}")
             while next_page:
                 job.page = next_page
                 job.model_post_init(job)
@@ -1258,7 +1256,6 @@ class Api(object):
                 jobs = Response(data=jobs_response.json(), status_code=200)
                 if isinstance(jobs.data, list) and jobs.data and len(jobs.data) > 0:
                     all_jobs = all_jobs + jobs.data
-                print(f"\n\nREST ALL JOBS: {all_jobs}\nNEXT PAGE: {next_page}")
             response = Response(data=all_jobs, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
