@@ -382,7 +382,7 @@ class User(BaseModel):
         default=None, description="The username of the user."
     )
     user: Optional[str] = Field(default=None, description="The user.")
-    email: Optional[EmailStr] = Field(
+    email: Optional[Union[EmailStr, str]] = Field(
         default=None, description="The email of the user."
     )
     name: Optional[str] = Field(default=None, description="The name of the user.")
@@ -956,7 +956,7 @@ class Contributor(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="Contributor")
     name: str = Field(default=None, description="The name of the contributor.")
-    email: EmailStr = Field(default=None, description="The email of the contributor.")
+    email: Union[EmailStr, str] = Field(default=None, description="The email of the contributor.")
     commits: int = Field(default=None, description="Number of commits from contributor")
     additions: int = Field(
         default=None, description="Number of additions from contributor"
@@ -1124,7 +1124,7 @@ class Commit(BaseModel):
     committer_name: Optional[str] = Field(
         default=None, description="The name of the committer."
     )
-    committer_email: Optional[EmailStr] = Field(
+    committer_email: Optional[Union[EmailStr, str]] = Field(
         default=None, description="The email of the committer."
     )
     committed_date: Optional[datetime] = Field(
