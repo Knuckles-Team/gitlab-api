@@ -87,7 +87,8 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 6):
     to a dictionary containing SQLAlchemy models.
     Only works if nested schemas have specified the Meta.orm_model.
     """
-    parsed_schema = remove_none_values(dict(schema))
+    parsed_schema = dict(schema)
+    parsed_schema = remove_none_values(dictionary=parsed_schema)
     logging.debug(f"\n\nCleaned Schema: {parsed_schema}")
     if not parsed_schema:
         return parsed_schema

@@ -2,6 +2,8 @@ import os
 import sys
 
 import pytest
+from gitlab_api import pydantic_to_sqlalchemy
+
 from conftest import reason
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -103,6 +105,24 @@ def test_edit_project():
     assert project.data.visibility == "internal"
 
 
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
+def test_get_project_jobs():
+    # Get project jobs
+    group_id = 2
+    projects = client.get_nested_projects_by_group(group_id=group_id, per_page=100)
+    all_jobs = []
+    for project in projects.data:
+        jobs = client.get_project_jobs(project_id=project.id, max_pages=1)
+        jobs_db_models = pydantic_to_sqlalchemy(schema=jobs)
+        print(f"\n\ndb models: {jobs_db_models['data']}\nLength: {len(jobs_db_models['data'])}")
+        all_jobs.extend(jobs_db_models['data'])
+    print(f"\n\nall jobs: {all_jobs}\nLength: {len(all_jobs)}")
+    assert isinstance(all_jobs, list)
+
+
 if __name__ == "__main__":
     test_get_nested_projects()
     test_create_branch()
@@ -110,3 +130,4 @@ if __name__ == "__main__":
     test_get_project_rules()
     test_edit_group()
     test_edit_project()
+    test_get_project_jobs()
