@@ -117,8 +117,10 @@ def test_get_project_jobs():
     for project in projects.data:
         jobs = client.get_project_jobs(project_id=project.id, max_pages=1)
         jobs_db_models = pydantic_to_sqlalchemy(schema=jobs)
-        print(f"\n\ndb models: {jobs_db_models['data']}\nLength: {len(jobs_db_models['data'])}")
-        all_jobs.extend(jobs_db_models['data'])
+        print(
+            f"\n\ndb models: {jobs_db_models['data']}\nLength: {len(jobs_db_models['data'])}"
+        )
+        all_jobs.extend(jobs_db_models["data"])
     print(f"\n\nall jobs: {all_jobs}\nLength: {len(all_jobs)}")
     assert isinstance(all_jobs, list)
 

@@ -956,7 +956,9 @@ class Contributor(BaseModel):
     __hash__ = object.__hash__
     base_type: str = Field(default="Contributor")
     name: str = Field(default=None, description="The name of the contributor.")
-    email: Union[EmailStr, str] = Field(default=None, description="The email of the contributor.")
+    email: Union[EmailStr, str] = Field(
+        default=None, description="The email of the contributor."
+    )
     commits: int = Field(default=None, description="Number of commits from contributor")
     additions: int = Field(
         default=None, description="Number of additions from contributor"
