@@ -2049,9 +2049,10 @@ class ProjectModel(BaseModel):
         Raises:
         - ValueError: If the value is not a valid order_by.
         """
-        if value.lower() not in ["id", "name", "username", "created_at", "updated_at"]:
+        lower_value = value.lower()
+        if lower_value not in ["id", "name", "username", "created_at", "updated_at"]:
             raise ValueError("Invalid order_by")
-        return value.lower()
+        return lower_value
 
     @field_validator("visibility")
     def validate_visibility(cls, value):
@@ -2067,9 +2068,10 @@ class ProjectModel(BaseModel):
         Raises:
         - ValueError: If the value is not a valid order_by.
         """
-        if value.lower() not in ["internal", "private", "public"]:
+        lower_value = value.lower()
+        if lower_value not in ["internal", "private", "public"]:
             raise ValueError("Invalid visibility")
-        return value.lower()
+        return lower_value
 
 
 class ProtectedBranchModel(BaseModel):
