@@ -1332,6 +1332,9 @@ class Link(BaseModel):
     url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="URL of the link"
     )
+    direct_asset_url: Optional[Union[HttpUrl, str]] = Field(
+        default=None, description="Direct URL of the asset"
+    )
     link_type: Optional[str] = Field(
         default=None, description="Type of the link (e.g., other)"
     )

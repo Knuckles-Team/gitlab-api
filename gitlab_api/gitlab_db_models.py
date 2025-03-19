@@ -246,6 +246,7 @@ class LinkDBModel(BaseDBModel):
     closed_as_duplicate_of: Mapped[str] = mapped_column(String, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
     url: Mapped[str] = mapped_column(String, nullable=True)
+    direct_asset_url: Mapped[str] = mapped_column(String, nullable=True)
     link_type: Mapped[str] = mapped_column(String, nullable=True)
     assets_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="assets.id", name="fk_links_assets"), nullable=True
