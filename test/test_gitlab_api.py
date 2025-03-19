@@ -125,11 +125,23 @@ def test_get_project_jobs():
     assert isinstance(all_jobs, list)
 
 
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+    )
+def test_get_project_releases():
+    project_id = 55
+    releases = client.get_releases(project_id=project_id, per_page=100, max_pages=100)
+    print(f"Releases: {releases} \n\nProjects Total: {len(releases.data)}")
+    assert isinstance(releases.data, list)
+
+
 if __name__ == "__main__":
-    test_get_nested_projects()
-    test_create_branch()
-    test_create_project_rule()
-    test_get_project_rules()
-    test_edit_group()
-    test_edit_project()
-    test_get_project_jobs()
+    # test_get_nested_projects()
+    # test_create_branch()
+    # test_create_project_rule()
+    # test_get_project_rules()
+    # test_edit_group()
+    # test_edit_project()
+    # test_get_project_jobs()
+    test_get_project_releases()

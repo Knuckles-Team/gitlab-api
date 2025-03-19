@@ -2260,6 +2260,16 @@ class ReleaseModel(BaseModel):
     name: Optional[List[str]] = None
     milestones: Optional[str] = None
     released_at: Optional[str] = None
+    total_pages: Optional[int] = Field(
+        description="Total number of pages", default=None
+    )
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Page in multi-page response", default=None)
+    per_page: Optional[int] = Field(
+        description="Amount of items per page", default=None
+    )
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
@@ -2270,6 +2280,14 @@ class ReleaseModel(BaseModel):
         self.api_parameters = {}
         if self.simple:
             self.api_parameters["simple"] = self.simple
+        if self.max_pages:
+            self.api_parameters["max_pages"] = self.max_pages
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+        if self.total_pages:
+            self.api_parameters["total_pages"] = self.total_pages
 
     @model_validator(mode="before")
     def build_data(cls, values):
