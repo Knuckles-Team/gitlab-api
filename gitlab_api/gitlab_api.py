@@ -1799,7 +1799,7 @@ class Api(object):
         """
         merge_rule = MergeRequestRuleModel(**kwargs)
         try:
-            response = self._session.put(
+            response = self._session.delete(
                 url=f"{self.url}/projects/{merge_rule.project_id}"
                 f"/approval_rules/{merge_rule.approval_rule_id}",
                 headers=self.headers,
