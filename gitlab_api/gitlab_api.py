@@ -2896,17 +2896,51 @@ class Api(object):
         - ParameterError: If there are invalid parameters.
         """
         release = ReleaseModel(**kwargs)
+        all_releases = []
+        if release.group_id is None:
+            raise MissingParameterError
         try:
-            response = self._session.get(
-                url=f"{self.url}/groups/{release.group_id}/releases",
+            total_pages_response = self._session.get(
+                url=f"{self.url}" f"/groups/{release.group_id}/releases",
                 params=release.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            total_pages = int(total_pages_response.headers.get("X-Total-Pages"))
+            releases = Response(data=total_pages_response.json(), status_code=200)
+            if (
+                isinstance(releases.data, list)
+                and releases.data
+                and len(releases.data) > 0
+            ):
+                all_releases = all_releases + releases.data
+            if (
+                not release.max_pages
+                or release.max_pages == 0
+                or release.max_pages > total_pages
+            ):
+                release.max_pages = total_pages
+            for page in range(1, release.max_pages):
+                release.page = page
+                release.model_post_init(release)
+                releases_response = self._session.get(
+                    url=f"{self.url}/groups/{release.group_id}/releases",
+                    params=release.api_parameters,
+                    headers=self.headers,
+                    verify=self.verify,
+                    proxies=self.proxies,
+                )
+                releases = Response(data=releases_response.json(), status_code=200)
+                if (
+                    isinstance(releases.data, list)
+                    and releases.data
+                    and len(releases.data) > 0
+                ):
+                    all_releases = all_releases + releases.data
+            response = Response(data=all_releases, status_code=200)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        response = process_response(response=response)
         return response
 
     @require_auth
