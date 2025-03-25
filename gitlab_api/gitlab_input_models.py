@@ -1399,24 +1399,6 @@ class MergeRequestRuleModel(BaseModel):
     user_ids: Optional[List[int]] = None
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
-    @field_validator("project_id", "approvals_required", "name")
-    def check_required_fields(cls, value):
-        """
-        Check if required fields are provided.
-
-        Args:
-        - value: The value to check.
-
-        Returns:
-        - The validated value if valid.
-
-        Raises:
-        - ValueError: If the required fields are missing.
-        """
-        if value is None:
-            raise ValueError("This field is required.")
-        return value
-
     @field_validator("report_type")
     def validate_report_type(cls, value):
         """
@@ -1497,6 +1479,95 @@ class MergeRequestRuleModel(BaseModel):
         if "data" not in values or values["data"] is None:
             values["data"] = data
         return values
+
+
+class MergeRequestRuleSettingsModel(BaseModel):
+    """
+    Documentation for the MergeRequestRuleModel Pydantic model.
+
+    This model represents a set of rules for merge requests.
+
+    Attributes:
+    - project_id (Union[int, str]): The ID of the project.
+    - approval_rule_id (Union[int, str]): The ID of the approval rule.
+    - approvals_required (int): The number of approvals required.
+    - name (str): The name of the rule.
+    - applies_to_all_protected_branches (bool): Indicates if the rule applies to all protected branches.
+    - group_ids (List[int]): List of group IDs.
+    - merge_request_iid (Union[int, str]): The IID of the merge request.
+    - protected_branch_ids (List[int]): List of protected branch IDs.
+    - report_type (str): The type of report associated with the rule.
+    - rule_type (str): The type of rule.
+    - user_ids (List[int]): List of user IDs.
+    - data (Dict): Additional data dictionary.
+
+    Methods:
+    - check_required_fields(value): Validate required fields.
+    - validate_report_type(value): Validate the 'report_type' field.
+    - validate_rule_type(value): Validate the 'rule_type' field.
+    - construct_data_dict(values): Construct a data dictionary.
+
+    Examples:
+    - Example 1: How to use this Pydantic model.
+    - Example 2: Another example of usage.
+    """
+
+    project_id: Optional[Union[int, str]] = Field(
+        description="Project ID", default=None
+    )
+    group_id: Optional[Union[int, str]] = Field(description="Group ID", default=None)
+    allow_author_approval: Optional[bool] = Field(
+        description="Allow or prevent authors from self approving merge requests; true means authors can self approve.",
+        default=None,
+    )
+    allow_committer_approval: Optional[bool] = Field(
+        description="Allow or prevent committers from self approving merge requests.",
+        default=None,
+    )
+    allow_overrides_to_approver_list_per_merge_request: Optional[bool] = Field(
+        description="Allow or prevent overriding approvers per merge request.",
+        default=None,
+    )
+    retain_approvals_on_push: Optional[bool] = Field(
+        description="Retain approval count on a new push.", default=None
+    )
+    selective_code_owner_removals: Optional[bool] = Field(
+        description="Reset approvals from Code Owners if their files changed. You must disable the retain_approvals_on_push field to use this field.",
+        default=None,
+    )
+    require_reauthentication_to_approve: Optional[bool] = Field(
+        description="Require approver to authenticate before adding the approval.",
+        default=None,
+    )
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.allow_author_approval:
+            self.api_parameters["allow_author_approval"] = self.allow_author_approval
+        if self.allow_committer_approval:
+            self.api_parameters["allow_committer_approval"] = (
+                self.allow_committer_approval
+            )
+        if self.allow_overrides_to_approver_list_per_merge_request:
+            self.api_parameters[
+                "allow_overrides_to_approver_list_per_merge_request"
+            ] = self.allow_overrides_to_approver_list_per_merge_request
+        if self.retain_approvals_on_push:
+            self.api_parameters["retain_approvals_on_push"] = (
+                self.retain_approvals_on_push
+            )
+        if self.selective_code_owner_removals:
+            self.api_parameters["selective_code_owner_removals"] = (
+                self.selective_code_owner_removals
+            )
+        if self.require_reauthentication_to_approve:
+            self.api_parameters["require_reauthentication_to_approve"] = (
+                self.require_reauthentication_to_approve
+            )
 
 
 class NamespaceModel(BaseModel):
@@ -1772,6 +1843,7 @@ class ProjectModel(BaseModel):
     mirror: Optional[bool] = None
     mr_default_target_self: Optional[bool] = None
     name: Optional[str] = None
+    tag_name: Optional[str] = None
     order_by: Optional[str] = None
     only_allow_merge_if_all_discussions_are_resolved: Optional[bool] = None
     only_allow_merge_if_pipeline_succeeds: Optional[bool] = None
@@ -1817,8 +1889,54 @@ class ProjectModel(BaseModel):
     topic: Optional[str] = None
     topic_id: Optional[int] = None
     repository_checksum_failed: Optional[bool] = None
+    allowed_to_create: Optional[List[dict]] = None
+    deploy_access_levels: Optional[List[dict]] = None
+    approval_rules: Optional[List[dict]] = None
     search_namespaces: Optional[bool] = None
+    environment_id: Optional[int] = None
+    environment_name: Optional[str] = None
     wiki_access_level: Optional[str] = None
+    create_access_level: Optional[int] = None
+    cluster_agent_id: Optional[str] = Field(
+        description="The cluster agent to associate with this environment.",
+        default=None,
+    )
+    external_url: Optional[str] = Field(
+        description="Place to link to for this environment.", default=None
+    )
+    tier: Optional[str] = Field(
+        description="The tier of the new environment. Allowed values are production, staging, testing, development, and other.",
+        default=None,
+    )
+    kubernetes_namespace: Optional[str] = Field(
+        description="The Kubernetes namespace to associate with this environment.",
+        default=None,
+    )
+    flux_resource_path: Optional[str] = Field(
+        description="The Flux resource path to associate with this environment. This must be the full resource path. For example, helm.toolkit.fluxcd.io/v2/namespaces/gitlab-agent/helmreleases/gitlab-agent.",
+        default=None,
+    )
+    auto_stop_setting: Optional[str] = Field(
+        description="The auto stop setting for the environment. Allowed values are always or with_action.",
+        default=None,
+    )
+    states: Optional[str] = Field(description="Search states", default=None)
+    before: Optional[str] = Field(
+        description="The date before which environments can be deleted. Defaults to 30 days ago. Expected in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).",
+        default=None,
+    )
+    limit: Optional[int] = Field(
+        description="Maximum number of environments to delete. Defaults to 100.",
+        default=None,
+    )
+    dry_run: Optional[int] = Field(
+        description="Defaults to true for safety reasons. It performs a dry run where no actual deletion is performed. Set to false to actually delete the environment.",
+        default=None,
+    )
+    force: Optional[bool] = Field(
+        description="Force environment to stop without executing on_stop actions.",
+        default=None,
+    )
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
@@ -1831,12 +1949,22 @@ class ProjectModel(BaseModel):
             self.api_parameters["group_id"] = self.group_id
         if self.archived:
             self.api_parameters["archived"] = self.archived
+        if self.before:
+            self.api_parameters["before"] = self.before
+        if self.limit:
+            self.api_parameters["limit"] = self.limit
+        if self.dry_run:
+            self.api_parameters["dry_run"] = self.dry_run
+        if self.force:
+            self.api_parameters["force"] = self.force
         if self.group_access:
             self.api_parameters["group_access"] = self.group_access
         if self.expires_at:
             self.api_parameters["expires_at"] = self.expires_at
         if self.max_pages:
             self.api_parameters["max_pages"] = self.max_pages
+        if self.tag_name:
+            self.api_parameters["tag_name"] = self.tag_name
         if self.page:
             self.api_parameters["page"] = self.page
         if self.per_page:
@@ -1875,6 +2003,8 @@ class ProjectModel(BaseModel):
             self.api_parameters["simple"] = self.simple
         if self.sort:
             self.api_parameters["sort"] = self.sort
+        if self.states:
+            self.api_parameters["states"] = self.states
         if self.starred:
             self.api_parameters["starred"] = self.starred
         if self.statistics:
@@ -1994,6 +2124,28 @@ class ProjectModel(BaseModel):
         if value is not None and not isinstance(value, bool):
             raise ValueError("Invalid boolean value")
         return value
+
+    @field_validator("states")
+    def validate_states(cls, v):
+        """
+        Validate the 'states' parameter to ensure it is a valid states.
+
+        Args:
+        - v: The value of 'states'.
+
+        Returns:
+        - str: The validated 'states'.
+
+        Raises:
+        - ValueError: If 'states' is provided and not a valid states.
+        """
+        if v is not None and v.lower() not in [
+            "available",
+            "stopping",
+            "stopped",
+        ]:
+            raise ValueError("Invalid states")
+        return v
 
     @field_validator(
         "build_timeout",

@@ -132,7 +132,7 @@ def test_get_project_jobs():
 def test_get_project_releases():
     project_id = 55
     releases = client.get_releases(project_id=project_id, per_page=100, max_pages=100)
-    print(f"Releases: {releases} \n\nProjects Total: {len(releases.data)}")
+    print(f"Releases: {releases} \n\nReleases Total: {len(releases.data)}")
     assert isinstance(releases.data, list)
 
 
@@ -143,7 +143,7 @@ def test_get_project_releases():
 def test_get_group_releases():
     group_id = 6
     releases = client.get_group_releases(group_id=group_id, per_page=100, max_pages=100)
-    print(f"Releases: {releases} \n\nProjects Total: {len(releases.data)}")
+    print(f"Releases: {releases} \n\nReleases Total: {len(releases.data)}")
     assert isinstance(releases.data, list)
 
 
@@ -155,5 +155,5 @@ if __name__ == "__main__":
     # test_edit_group()
     # test_edit_project()
     # test_get_project_jobs()
-    test_get_project_releases()
+    # test_get_project_releases()
     test_get_group_releases()

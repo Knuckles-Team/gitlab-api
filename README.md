@@ -43,6 +43,7 @@ Additional Features:
 - Members
 - Merge Request
 - Merge Request Rules
+- Merge Request Rule Settings
 - Namespaces
 - Packages
 - Pipeline
@@ -52,6 +53,10 @@ Additional Features:
 - Runners
 - Users
 - Wiki
+- Environments
+- Protected Environments
+- Tags
+- Protected Tags
 - Custom Endpoint
 
 If your API call isn't supported, you can always run the standard custom API endpoint function to get/post/put/delete and endpoint
