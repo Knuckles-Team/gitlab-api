@@ -1200,11 +1200,11 @@ class Api(object):
     @require_auth
     def get_protected_environment(self, **kwargs) -> Union[Response, requests.Response]:
         project = ProjectModel(**kwargs)
-        if project.project_id is None or project.environment_name is None:
+        if project.project_id is None or project.name is None:
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{project.project_id}/protected_environments/{project.environment_name}",
+                url=f"{self.url}/projects/{project.project_id}/protected_environments/{project.name}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -1241,7 +1241,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.put(
-                url=f"{self.url}/projects/{project.project_id}/protected_environments/{project.environment_name}",
+                url=f"{self.url}/projects/{project.project_id}/protected_environments/{project.name}",
                 headers=self.headers,
                 json=project.data,
                 verify=self.verify,
@@ -1259,7 +1259,7 @@ class Api(object):
             raise MissingParameterError
         try:
             response = self._session.delete(
-                url=f"{self.url}/projects/{project.project_id}/protected_environments/{project.environment_name}",
+                url=f"{self.url}/projects/{project.project_id}/protected_environments/{project.name}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -4035,12 +4035,12 @@ class Api(object):
     @require_auth
     def get_tag(self, **kwargs) -> Union[Response, requests.Response]:
         project = ProjectModel(**kwargs)
-        if project.project_id is None or project.tag_name is None:
+        if project.project_id is None or project.name is None:
             raise MissingParameterError
         try:
             response = self._session.get(
                 url=f"{self.url}"
-                f"/projects/{project.project_id}/repository/tags/{project.tag_name}",
+                f"/projects/{project.project_id}/repository/tags/{project.name}",
                 params=project.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
@@ -4054,12 +4054,12 @@ class Api(object):
     @require_auth
     def create_tag(self, **kwargs) -> Union[Response, requests.Response]:
         project = ProjectModel(**kwargs)
-        if project.project_id is None or project.tag_name is None:
+        if project.project_id is None or project.name is None:
             raise MissingParameterError
         try:
             response = self._session.post(
                 url=f"{self.url}"
-                f"/projects/{project.project_id}/repository/tags/{project.tag_name}",
+                f"/projects/{project.project_id}/repository/tags/{project.name}",
                 params=project.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
@@ -4073,12 +4073,12 @@ class Api(object):
     @require_auth
     def delete_tag(self, **kwargs) -> Union[Response, requests.Response]:
         project = ProjectModel(**kwargs)
-        if project.project_id is None or project.tag_name is None:
+        if project.project_id is None or project.name is None:
             raise MissingParameterError
         try:
             response = self._session.delete(
                 url=f"{self.url}"
-                f"/projects/{project.project_id}/repository/tags/{project.tag_name}",
+                f"/projects/{project.project_id}/repository/tags/{project.name}",
                 params=project.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
@@ -4146,12 +4146,12 @@ class Api(object):
     @require_auth
     def get_protected_tag(self, **kwargs) -> Union[Response, requests.Response]:
         project = ProjectModel(**kwargs)
-        if project.project_id is None or project.tag_name is None:
+        if project.project_id is None or project.name is None:
             raise MissingParameterError
         try:
             response = self._session.get(
                 url=f"{self.url}"
-                f"/projects/{project.project_id}/protected_tags/{project.tag_name}",
+                f"/projects/{project.project_id}/protected_tags/{project.name}",
                 params=project.api_parameters,
                 headers=self.headers,
                 verify=self.verify,
@@ -4165,7 +4165,7 @@ class Api(object):
     @require_auth
     def protect_tag(self, **kwargs) -> Union[Response, requests.Response]:
         project = ProjectModel(**kwargs)
-        if project.project_id is None or project.tag_name is None:
+        if project.project_id is None or project.name is None:
             raise MissingParameterError
         try:
             response = self._session.post(
@@ -4184,7 +4184,7 @@ class Api(object):
     @require_auth
     def unprotect_tag(self, **kwargs) -> Union[Response, requests.Response]:
         project = ProjectModel(**kwargs)
-        if project.project_id is None or project.tag_name is None:
+        if project.project_id is None or project.name is None:
             raise MissingParameterError
         try:
             response = self._session.delete(
