@@ -1540,6 +1540,7 @@ class MergeRequestRuleSettingsModel(BaseModel):
         default=None,
     )
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
 
     def model_post_init(self, __context):
         """
@@ -1568,6 +1569,34 @@ class MergeRequestRuleSettingsModel(BaseModel):
             self.api_parameters["require_reauthentication_to_approve"] = (
                 self.require_reauthentication_to_approve
             )
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
+        data = {}
+
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+
+        return values
 
 
 class NamespaceModel(BaseModel):
@@ -1598,6 +1627,34 @@ class NamespaceModel(BaseModel):
             self.api_parameters["owned_only"] = self.owned_only
         if self.top_level_only:
             self.api_parameters["top_level_only"] = self.top_level_only
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
+        data = {}
+
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+
+        return values
 
 
 class PackageModel(BaseModel):

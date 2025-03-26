@@ -147,6 +147,28 @@ def test_get_group_releases():
     assert isinstance(releases.data, list)
 
 
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
+def test_get_group_merge_rule_settings():
+    group_id = 6
+    settings = client.get_group_level_rule(group_id=group_id)
+    print(f"Settings: {settings}")
+    assert isinstance(settings.data, dict)
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
+def test_get_project_merge_rule_settings():
+    project_id = 52
+    settings = client.get_project_level_rule(project_id=project_id)
+    print(f"Settings: {settings}")
+    assert isinstance(settings.data, dict)
+
+
 if __name__ == "__main__":
     # test_get_nested_projects()
     # test_create_branch()
@@ -156,4 +178,6 @@ if __name__ == "__main__":
     # test_edit_project()
     # test_get_project_jobs()
     # test_get_project_releases()
-    test_get_group_releases()
+    # test_get_group_releases()
+    test_get_group_merge_rule_settings()
+    test_get_project_merge_rule_settings()
