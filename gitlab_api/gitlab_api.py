@@ -2231,7 +2231,7 @@ class Api(object):
         - ParameterError: If invalid parameters are provided.
         """
         merge_rule_setting = MergeRequestRuleSettingsModel(**kwargs)
-        merge_rule_setting.model_post_init()
+        merge_rule_setting.model_post_init(merge_rule_setting)
         try:
             response = self._session.get(
                 url=f"{self.url}/groups/{merge_rule_setting.group_id}/merge_request_approval_setting",
