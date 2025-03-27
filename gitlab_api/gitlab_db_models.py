@@ -440,6 +440,16 @@ class PipelineVariableDBModel(BaseDBModel):
     key: Mapped[str] = mapped_column(String, nullable=True)
     variable_type: Mapped[str] = mapped_column(String, nullable=True)
     value: Mapped[str] = mapped_column(String, nullable=True)
+    pipeline_schedule_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(
+            column="pipeline_schedules.id", name="fk_pipeline_schedule_variables"
+        ),
+        nullable=True,
+    )
+    pipeline_schedule: Mapped["PipelineScheduleDBModel"] = relationship(
+        back_populates="variables"
+    )
 
 
 # WikiAttachment Model
@@ -1860,6 +1870,11 @@ class UserDBModel(BaseDBModel):
         back_populates="creator",
         primaryjoin="foreign(ProjectDBModel.creator_id) == UserDBModel.id",
     )
+    pipeline_schedules: Mapped[list["PipelineScheduleDBModel"]] = relationship(
+        "PipelineScheduleDBModel",
+        back_populates="owner",
+        primaryjoin="foreign(PipelineScheduleDBModel.owner_id) == UserDBModel.id",
+    )
     jobs = relationship("JobDBModel", back_populates="user")
     pipelines: Mapped[List["PipelineDBModel"]] = relationship(back_populates="user")
     comments: Mapped[List["CommentDBModel"]] = relationship(back_populates="author")
@@ -2395,6 +2410,49 @@ class JobDBModel(BaseDBModel):
     agents = relationship("AgentsDBModel", back_populates="job")
 
 
+class PipelineScheduleDBModel(BaseDBModel):
+    __tablename__ = "pipeline_schedules"
+
+    def __eq__(self, other):
+        if isinstance(other, PipelineScheduleDBModel):
+            return self.id == other.id
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    ref: Mapped[str] = mapped_column(String, nullable=True)
+    cron: Mapped[str] = mapped_column(String, nullable=True)
+    cron_timezone: Mapped[str] = mapped_column(String, nullable=True)
+    next_run_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
+    owner_id: Mapped[int] = mapped_column(Integer, nullable=True)
+
+    owner: Mapped["UserDBModel"] = relationship(
+        "UserDBModel",
+        back_populates="pipeline_schedules",
+        primaryjoin="foreign(PipelineScheduleDBModel.owner_id) == UserDBModel.id",
+    )
+
+    last_pipeline_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(column="pipelines.id", name="fk_commit_last_pipeline"),
+        nullable=True,
+    )
+    last_pipeline: Mapped["PipelineDBModel"] = relationship(
+        back_populates="scheduled_by"
+    )
+
+    variables: Mapped[List["PipelineVariableDBModel"]] = relationship(
+        back_populates="pipeline_schedule", cascade="all, delete-orphan"
+    )
+
+
 # Pipeline Model
 class PipelineDBModel(BaseDBModel):
     __tablename__ = "pipelines"
@@ -2469,6 +2527,9 @@ class PipelineDBModel(BaseDBModel):
     commit: Mapped["CommitDBModel"] = relationship(back_populates="last_pipeline")
     deployables: Mapped[List["DeployableDBModel"]] = relationship(
         back_populates="pipeline"
+    )
+    scheduled_by: Mapped["PipelineScheduleDBModel"] = relationship(
+        back_populates="last_pipeline", uselist=False
     )
 
 

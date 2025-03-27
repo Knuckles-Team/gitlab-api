@@ -47,6 +47,7 @@ Additional Features:
 - Namespaces
 - Packages
 - Pipeline
+- Pipeline Schedules
 - Projects
 - Protected Branches
 - Releases

@@ -2579,6 +2579,160 @@ class Api(object):
         return response
 
     ####################################################################################################################
+    #                                          Pipeline Schedules API                                                  #
+    ####################################################################################################################
+    @require_auth
+    def get_pipeline_schedules(self, **kwargs) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None:
+            raise MissingParameterError
+        response = self._session.get(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    @require_auth
+    def get_pipeline_schedule(self, **kwargs) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None or project.pipeline_schedule_id is None:
+            raise MissingParameterError
+        response = self._session.get(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    @require_auth
+    def get_pipelines_triggered_from_schedule(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None or project.pipeline_schedule_id is None:
+            raise MissingParameterError
+        response = self._session.get(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/pipelines",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    @require_auth
+    def create_pipeline_schedule(self, **kwargs) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None:
+            raise MissingParameterError
+        response = self._session.post(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules",
+            json=project.data,
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    @require_auth
+    def edit_pipeline_schedule(self, **kwargs) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None:
+            raise MissingParameterError
+        response = self._session.put(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}",
+            json=project.data,
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    @require_auth
+    def take_pipeline_schedule_ownership(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None:
+            raise MissingParameterError
+        response = self._session.put(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/take_ownership",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    @require_auth
+    def delete_pipeline_schedule(self, **kwargs) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None:
+            raise MissingParameterError
+        response = self._session.delete(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    @require_auth
+    def run_pipeline_schedule(self, **kwargs) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None:
+            raise MissingParameterError
+        response = self._session.post(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/play",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    @require_auth
+    def create_pipeline_schedule_variable(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None:
+            raise MissingParameterError
+        response = self._session.post(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/variables",
+            json=project.data,
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    @require_auth
+    def delete_pipeline_schedule_variable(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
+        project = ProjectModel(**kwargs)
+        if project.project_id is None:
+            raise MissingParameterError
+        response = self._session.delete(
+            url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/variables/{project.key}",
+            headers=self.headers,
+            verify=self.verify,
+            proxies=self.proxies,
+        )
+        response = process_response(response=response)
+        return response
+
+    ####################################################################################################################
     #                                                Projects API                                                      #
     ####################################################################################################################
     @require_auth

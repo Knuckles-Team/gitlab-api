@@ -1532,7 +1532,8 @@ class MergeRequestRuleSettingsModel(BaseModel):
         description="Retain approval count on a new push.", default=None
     )
     selective_code_owner_removals: Optional[bool] = Field(
-        description="Reset approvals from Code Owners if their files changed. You must disable the retain_approvals_on_push field to use this field.",
+        description="Reset approvals from Code Owners if their files changed. "
+        "You must disable the retain_approvals_on_push field to use this field.",
         default=None,
     )
     require_reauthentication_to_approve: Optional[bool] = Field(
@@ -1962,7 +1963,8 @@ class ProjectModel(BaseModel):
         description="Place to link to for this environment.", default=None
     )
     tier: Optional[str] = Field(
-        description="The tier of the new environment. Allowed values are production, staging, testing, development, and other.",
+        description="The tier of the new environment. "
+        "Allowed values are production, staging, testing, development, and other.",
         default=None,
     )
     kubernetes_namespace: Optional[str] = Field(
@@ -1970,7 +1972,8 @@ class ProjectModel(BaseModel):
         default=None,
     )
     flux_resource_path: Optional[str] = Field(
-        description="The Flux resource path to associate with this environment. This must be the full resource path. For example, helm.toolkit.fluxcd.io/v2/namespaces/gitlab-agent/helmreleases/gitlab-agent.",
+        description="The Flux resource path to associate with this environment. This must be the full resource path. "
+        "For example, helm.toolkit.fluxcd.io/v2/namespaces/gitlab-agent/helmreleases/gitlab-agent.",
         default=None,
     )
     auto_stop_setting: Optional[str] = Field(
@@ -1979,7 +1982,8 @@ class ProjectModel(BaseModel):
     )
     states: Optional[str] = Field(description="Search states", default=None)
     before: Optional[str] = Field(
-        description="The date before which environments can be deleted. Defaults to 30 days ago. Expected in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).",
+        description="The date before which environments can be deleted. Defaults to 30 days ago. "
+        "Expected in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).",
         default=None,
     )
     limit: Optional[int] = Field(
@@ -1987,11 +1991,51 @@ class ProjectModel(BaseModel):
         default=None,
     )
     dry_run: Optional[int] = Field(
-        description="Defaults to true for safety reasons. It performs a dry run where no actual deletion is performed. Set to false to actually delete the environment.",
+        description="Defaults to true for safety reasons. It performs a dry run where no actual deletion is performed. "
+        "Set to false to actually delete the environment.",
         default=None,
     )
     force: Optional[bool] = Field(
         description="Force environment to stop without executing on_stop actions.",
+        default=None,
+    )
+    pipeline_schedule_id: Optional[int] = Field(
+        description="The pipeline schedule ID", default=None
+    )
+    cron: Optional[str] = Field(
+        description="The cron schedule, for example: '0 1 * * *'.", default=None
+    )
+    cron_timezone: Optional[str] = Field(
+        description="The time zone supported by ActiveSupport::TimeZone, for example: 'Pacific Time (US & Canada)'.",
+        default=None,
+    )
+    id: Optional[str] = Field(
+        description="The ID or URL-encoded path of the project.",
+        default=None,
+    )
+    ref: Optional[str] = Field(
+        description="The branch or tag name that is triggered. "
+        "Both short (e.g., 'main') and full (e.g., 'refs/heads/main' or 'refs/tags/main') ref versions are accepted. "
+        "If a short version is provided, "
+        "it is automatically expanded to the full ref version but, "
+        "if the ref is ambiguous, it will be rejected.",
+        default=None,
+    )
+    active: Optional[bool] = Field(
+        description="The activation of pipeline schedule. "
+        "If false is set, the pipeline schedule is initially deactivated.",
+        default=True,  # Default as per table
+    )
+    key: Optional[str] = Field(
+        description="The key of a variable",
+        default=None,
+    )
+    value: Optional[str] = Field(
+        description="The value of a variable",
+        default=None,
+    )
+    variable_type: Optional[str] = Field(
+        description="The type of a variable. Available types are: env_var (default) and file",
         default=None,
     )
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)

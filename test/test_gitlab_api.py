@@ -169,15 +169,26 @@ def test_get_project_merge_rule_settings():
     assert isinstance(settings.data, dict)
 
 
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
+def test_get_project_pipeline_schedules():
+    project_id = 52
+    pipeline_schedule = client.get_pipeline_schedules(project_id=project_id)
+    print(f"Pipeline Schedule: {pipeline_schedule}")
+    assert isinstance(pipeline_schedule.data, list)
+
+
 if __name__ == "__main__":
-    # test_get_nested_projects()
-    # test_create_branch()
-    # test_create_project_rule()
-    # test_get_project_rules()
-    # test_edit_group()
-    # test_edit_project()
-    # test_get_project_jobs()
-    # test_get_project_releases()
-    # test_get_group_releases()
+    test_get_nested_projects()
+    test_create_branch()
+    test_create_project_rule()
+    test_get_project_rules()
+    test_edit_group()
+    test_edit_project()
+    test_get_project_jobs()
+    test_get_project_releases()
+    test_get_group_releases()
     test_get_group_merge_rule_settings()
     test_get_project_merge_rule_settings()

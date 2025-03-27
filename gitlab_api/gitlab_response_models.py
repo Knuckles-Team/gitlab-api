@@ -78,6 +78,7 @@ from gitlab_api.gitlab_db_models import (
     ParentIDDBModel,
     PermissionsDBModel,
     PipelineDBModel,
+    PipelineScheduleDBModel,
     PipelineVariableDBModel,
     ProjectConfigDBModel,
     ProjectDBModel,
@@ -760,6 +761,47 @@ class DetailedStatus(BaseModel):
     )
     favicon: Optional[str] = Field(
         default=None, description="The URL to the favicon representing the status."
+    )
+
+
+class PipelineSchedule(BaseModel):
+    class Meta:
+        orm_model = PipelineScheduleDBModel
+
+    model_config = ConfigDict(extra="forbid")
+    __hash__ = object.__hash__
+    base_type: str = Field(default="PipelineSchedule")
+    id: Optional[int] = Field(default=None, description="ID of the pipeline schedule")
+    description: Optional[str] = Field(
+        default=None, description="Description of the schedule"
+    )
+    ref: Optional[str] = Field(
+        default=None, description="Git reference (e.g., refs/heads/main)"
+    )
+    cron: Optional[str] = Field(
+        default=None, description="Cron expression for scheduling"
+    )
+    cron_timezone: Optional[str] = Field(
+        default=None, description="Timezone for the cron schedule"
+    )
+    next_run_at: Optional[datetime] = Field(
+        default=None, description="Next scheduled run time"
+    )
+    active: bool = Field(default=True, description="Whether the schedule is active")
+    created_at: Optional[datetime] = Field(
+        default=None, description="Creation timestamp"
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None, description="Last update timestamp"
+    )
+    owner: Optional[User] = Field(
+        default=None, description="Owner of the pipeline schedule"
+    )
+    last_pipeline: Optional["Pipeline"] = Field(
+        default=None, description="Last pipeline triggered by this schedule"
+    )
+    variables: Optional[List["PipelineVariable"]] = Field(
+        default=None, description="List of variables for the schedule"
     )
 
 
@@ -3842,6 +3884,8 @@ class Response(BaseModel):
             list[Branch],
             Pipeline,
             list[Pipeline],
+            PipelineSchedule,
+            list[PipelineSchedule],
             Contributor,
             list[Contributor],
             Commit,
@@ -3910,6 +3954,7 @@ class Response(BaseModel):
             "Topic": Topic,
             "Label": Label,
             "Pipeline": Pipeline,
+            "PipelineSchedule": PipelineSchedule,
             "CommitSignature": CommitSignature,
             "Contributor": Contributor,
             "Commit": Commit,
