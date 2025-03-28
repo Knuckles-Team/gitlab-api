@@ -2863,6 +2863,9 @@ class MergeRequest(BaseModel):
     merged_at: Optional[datetime] = Field(
         default=None, description="Date when the merge request was merged"
     )
+    merge_after: Optional[datetime] = Field(
+        default=None, description="Date when the merge request was set to be merged"
+    )
     closed_by: Optional[User] = Field(
         default=None, description="User who closed the merge request"
     )

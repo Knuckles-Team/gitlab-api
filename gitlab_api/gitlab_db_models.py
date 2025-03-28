@@ -1217,6 +1217,7 @@ class MergeRequestDBModel(BaseDBModel):
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     closed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     merged_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    merge_after: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     latest_build_started_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     latest_build_finished_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     first_deployed_to_production_at: Mapped[datetime] = mapped_column(
