@@ -555,7 +555,7 @@ class GroupModel(BaseModel):
         description="Additional compute minutes for the group (admins only).",
         default=None,
     )
-    file_template_project_id: Optional[int] = Field(
+    file_template_project_id: Optional[Union[int, str]] = Field(
         description="ID of a project to load custom file templates from.", default=None
     )
     membership_lock: Optional[bool] = Field(
@@ -1008,8 +1008,8 @@ class MergeRequestModel(BaseModel):
 
     approved_by_ids: Optional[List[int]] = None
     approver_ids: Optional[List[int]] = None
-    assignee_id: Optional[int] = None
-    author_id: Optional[int] = None
+    assignee_id: Optional[Union[int, str]] = None
+    author_id: Optional[Union[int, str]] = None
     author_username: Optional[str] = None
     created_after: Optional[str] = None
     created_before: Optional[str] = None
@@ -1043,7 +1043,7 @@ class MergeRequestModel(BaseModel):
     approvals_before_merge: Optional[int] = None
     assignee_ids: Optional[List[int]] = None
     description: Optional[str] = None
-    milestone_id: Optional[int] = None
+    milestone_id: Optional[Union[int, str]] = None
     remove_source_branch: Optional[str] = None
     reviewer_ids: Optional[List[int]] = None
     squash: Optional[bool] = None
@@ -1897,7 +1897,7 @@ class ProjectModel(BaseModel):
     merge_trains_enabled: Optional[bool] = None
     mirror_overwrites_diverged_branches: Optional[bool] = None
     mirror_trigger_builds: Optional[bool] = None
-    mirror_user_id: Optional[int] = None
+    mirror_user_id: Optional[Union[int, str]] = None
     mirror: Optional[bool] = None
     mr_default_target_self: Optional[bool] = None
     name: Optional[str] = None
@@ -1945,13 +1945,13 @@ class ProjectModel(BaseModel):
     simple: Optional[bool] = None
     starred: Optional[bool] = None
     topic: Optional[str] = None
-    topic_id: Optional[int] = None
+    topic_id: Optional[Union[int, str]] = None
     repository_checksum_failed: Optional[bool] = None
     allowed_to_create: Optional[List[dict]] = None
     deploy_access_levels: Optional[List[dict]] = None
     approval_rules: Optional[List[dict]] = None
     search_namespaces: Optional[bool] = None
-    environment_id: Optional[int] = None
+    environment_id: Optional[Union[int, str]] = None
     environment_name: Optional[str] = None
     wiki_access_level: Optional[str] = None
     create_access_level: Optional[int] = None
@@ -1999,7 +1999,7 @@ class ProjectModel(BaseModel):
         description="Force environment to stop without executing on_stop actions.",
         default=None,
     )
-    pipeline_schedule_id: Optional[int] = Field(
+    pipeline_schedule_id: Optional[Union[int, str]] = Field(
         description="The pipeline schedule ID", default=None
     )
     cron: Optional[str] = Field(
@@ -2009,7 +2009,7 @@ class ProjectModel(BaseModel):
         description="The time zone supported by ActiveSupport::TimeZone, for example: 'Pacific Time (US & Canada)'.",
         default=None,
     )
-    id: Optional[str] = Field(
+    id: Optional[Union[int, str]] = Field(
         description="The ID or URL-encoded path of the project.",
         default=None,
     )
