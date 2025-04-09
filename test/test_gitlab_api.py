@@ -46,6 +46,18 @@ def test_get_nested_projects():
     sys.platform in ["darwin"] or skip,
     reason=reason,
 )
+def test_get_projects():
+    # Get nested projects
+    group_id = 6
+    projects = client.get_projects(group_id=group_id, per_page=3)
+    assert len(projects.data) > 0
+    assert isinstance(projects.data, list)
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
 def test_create_branch():
     # Create branch
     project = 79
@@ -181,6 +193,8 @@ def test_get_project_pipeline_schedules():
 
 
 if __name__ == "__main__":
+    test_get_projects()
+    test_get_project_pipeline_schedules()
     test_get_nested_projects()
     test_create_branch()
     test_create_project_rule()
