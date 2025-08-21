@@ -301,6 +301,13 @@ rm -rf ./dist/* \
 && pytest -vv ./test/test_gitlab_db_models.py \
 && python ./test/test_sqlalchemy.py
 ```
+
+Validate MCP Server
+
+```bash
+npx @modelcontextprotocol/inspector gitlab-mcp
+```
+
 </details>
 
 
