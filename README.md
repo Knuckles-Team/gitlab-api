@@ -24,6 +24,8 @@
 
 Pythonic GitLab API Library
 
+GitLab MCP Server for Agentic AI!
+
 Includes a large portion of useful API calls to GitLab and SQLAlchemy Models to handle loading API calls directly to a database!
 
 This repository is actively maintained - Contributions are welcome!
@@ -241,6 +243,23 @@ if __name__ == "__main__":
 
     session.close()
     print("Session Closed")
+
+```
+
+Use with Agentic AI
+
+
+
+```json
+{
+  "mcpServers": {
+    "gitlab": {
+      "command": "gitlab-mcp"
+    }
+  }
+}
+
+```
 
 ```
 

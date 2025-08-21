@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 from gitlab_api.version import __version__, __author__, __credits__
-from gitlab_api.gitlab_api import Api
+from gitlab_api.gitlab_api_mcp import main
 from gitlab_api.gitlab_input_models import (
     BranchModel,
     CommitModel,
@@ -22,6 +22,7 @@ from gitlab_api.gitlab_input_models import (
     WikiModel,
 )
 from gitlab_api.gitlab_response_models import (
+    Response,
     DeployToken,
     Rule,
     AccessControl,
@@ -194,9 +195,16 @@ __credits__ = __credits__
 
 __all__ = [
     "upsert",
+    "bulk_upsert",
     "create_table",
     "pydantic_to_sqlalchemy",
+    "pydantic_to_sqlalchemy_fallback",
+    "save_model",
+    "load_model",
+    "run_migrations",
     "Api",
+    "main",
+    "Response",
     "BranchModel",
     "CommitModel",
     "DeployTokenModel",
@@ -206,6 +214,7 @@ __all__ = [
     "PackageModel",
     "PipelineModel",
     "ProjectModel",
+    "MergeRequestRuleSettingsModel",
     "ProtectedBranchModel",
     "MergeRequestModel",
     "MergeRequestRuleModel",
@@ -246,6 +255,7 @@ __all__ = [
     "Runner",
     "Job",
     "Pipeline",
+    "ClusterAgent",
     "PipelineSchedule",
     "PackageLink",
     "PackageVersion",
@@ -309,6 +319,7 @@ __all__ = [
     "RunnerDBModel",
     "EpicDBModel",
     "IssueDBModel",
+    "ClusterAgentDBModel",
     "JobDBModel",
     "DeployableDBModel",
     "LastDeploymentDBModel",

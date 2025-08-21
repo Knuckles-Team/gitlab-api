@@ -370,7 +370,7 @@ def test_user_model():
     username = "test_user"
     user = UserModel(username=username, active=True)
     assert user.username == username
-    assert user.active == True
+    assert user.active
     assert user.api_parameters == {"username": "test_user"}
 
 
@@ -5699,7 +5699,7 @@ def test_commit_response_19():
     sys.platform in ["darwin"] or skip,
     reason=reason,
 )
-def test_deploy_token_response_1():
+def test_deploy_token_response_0():
     example_data = [
         {
             "id": 1,

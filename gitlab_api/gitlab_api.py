@@ -186,7 +186,6 @@ class Api(object):
             model.max_pages = total_pages
 
         if model.max_pages > 1:
-            pages_per_header = max(1, (model.max_pages - 1) // len(headers_to_use))
 
             with ThreadPoolExecutor(max_workers=len(headers_to_use)) as executor:
                 future_to_page = {}
@@ -1925,7 +1924,9 @@ class Api(object):
     #                                            Merge Rules API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_project_level_rules(self, **kwargs) -> Union[Response, requests.Response]:
+    def get_project_level_merge_request_rules(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get project-level merge request approval rules.
 
@@ -1952,7 +1953,9 @@ class Api(object):
         return response
 
     @require_auth
-    def get_project_level_rule(self, **kwargs) -> Union[Response, requests.Response]:
+    def get_project_level_merge_request_rule(
+        self, **kwargs
+    ) -> Union[Response, requests.Response]:
         """
         Get details of a specific project-level merge request approval rule.
 
