@@ -29,9 +29,10 @@ def get_branches(
     request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str, optional): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
             If None, the default project configured in gitlab_api is used.
@@ -91,9 +92,10 @@ def get_branch(
     It returns a dictionary containing the branch details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         branch (str): The name of the branch to retrieve.
@@ -149,9 +151,10 @@ def create_branch(
     It returns a dictionary containing the branch details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         branch (str): The name of the branch to create.
@@ -209,9 +212,10 @@ async def delete_branch(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         branch (str): The name of the branch to delete.
@@ -272,9 +276,10 @@ async def delete_merged_branches(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -342,9 +347,10 @@ def get_commits(
     It returns a dictionary containing the commit list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         ref_name (Optional[str], optional): The branch, tag, or commit SHA to filter commits. Defaults to None.
@@ -410,9 +416,10 @@ def get_commit(
     It returns a dictionary containing the commit details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to retrieve.
@@ -480,9 +487,10 @@ def get_commit_references(
     The type parameter can filter to 'branch', 'tag', or 'all'.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to query.
@@ -551,9 +559,10 @@ def cherry_pick_commit(
     Use dry_run to simulate the operation without applying changes.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to cherry-pick.
@@ -631,9 +640,10 @@ def create_commit(
     It returns a dictionary containing the commit details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         branch (str): The branch to commit to.
@@ -702,9 +712,10 @@ def revert_commit(
     Use dry_run to simulate the operation without applying changes.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to revert.
@@ -774,9 +785,10 @@ def get_commit_diff(
     Use unidiff for unified diff format.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to retrieve the diff for.
@@ -843,9 +855,10 @@ def get_commit_comments(
     Note: This endpoint is deprecated in GitLab; consider using get_commit_discussions.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to retrieve comments for.
@@ -904,9 +917,10 @@ def create_commit_comment(
     It returns a dictionary containing the comment details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to comment on.
@@ -976,9 +990,10 @@ def get_commit_discussions(
     It returns a dictionary containing the discussion details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to retrieve discussions for.
@@ -1038,9 +1053,10 @@ def get_commit_statuses(
     It returns a dictionary containing the status details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to retrieve statuses for.
@@ -1118,9 +1134,10 @@ def post_build_status_to_commit(
     It returns a dictionary containing the status details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to post the status for.
@@ -1194,9 +1211,10 @@ def get_commit_merge_requests(
     It returns a dictionary containing the merge request details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to query.
@@ -1251,9 +1269,10 @@ def get_commit_gpg_signature(
     It returns a dictionary containing the signature details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         commit_hash (str): The SHA of the commit to retrieve the signature for.
@@ -1307,9 +1326,10 @@ def get_deploy_tokens(
     It returns a dictionary containing the token list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
             Defaults to False (no verification).
@@ -1352,9 +1372,10 @@ def get_project_deploy_tokens(
     It returns a dictionary containing the token list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -1407,9 +1428,10 @@ def get_project_deploy_token(
     It returns a dictionary containing the token details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         token_id (int): The ID of the deploy token to retrieve.
@@ -1468,9 +1490,10 @@ async def create_project_deploy_token(
     It returns a dictionary containing the token details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the deploy token.
@@ -1543,9 +1566,10 @@ async def delete_project_deploy_token(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         token_id (int): The ID of the deploy token to delete.
@@ -1604,9 +1628,10 @@ def get_group_deploy_tokens(
     It returns a dictionary containing the token list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -1659,9 +1684,10 @@ def get_group_deploy_token(
     It returns a dictionary containing the token details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         token_id (int): The ID of the deploy token to retrieve.
@@ -1721,9 +1747,10 @@ async def create_group_deploy_token(
     It returns a dictionary containing the token details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         name (str): The name of the deploy token.
@@ -1796,9 +1823,10 @@ async def delete_group_deploy_token(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         token_id (int): The ID of the deploy token to delete.
@@ -1855,9 +1883,10 @@ def get_environments(
     It returns a dictionary containing the environment list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (Optional[str], optional): Filter environments by exact name. Defaults to None.
@@ -1914,9 +1943,10 @@ def get_environment(
     It returns a dictionary containing the environment details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         environment_id (int): The ID of the environment to retrieve.
@@ -1969,9 +1999,10 @@ async def create_environment(
     It returns a dictionary containing the environment details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the environment to create.
@@ -2044,9 +2075,10 @@ async def update_environment(
     It returns a dictionary containing the updated environment details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         environment_id (int): The ID of the environment to update.
@@ -2121,9 +2153,10 @@ async def delete_environment(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         environment_id (int): The ID of the environment to delete.
@@ -2180,9 +2213,10 @@ async def stop_environment(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         environment_id (int): The ID of the environment to stop.
@@ -2239,9 +2273,10 @@ async def stop_stale_environments(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         older_than (Optional[str], optional): Filter environments older than this timestamp (ISO 8601 format). Defaults to None.
@@ -2309,9 +2344,10 @@ async def delete_stopped_environments(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -2362,9 +2398,10 @@ def get_protected_environments(
     It returns a dictionary containing the list of protected environments or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -2411,9 +2448,10 @@ def get_protected_environment(
     It returns a dictionary containing the protected environment details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the protected environment to retrieve.
@@ -2464,9 +2502,10 @@ async def protect_environment(
     It returns a dictionary containing the protected environment details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the environment to protect.
@@ -2538,9 +2577,10 @@ async def update_protected_environment(
     It returns a dictionary containing the updated protected environment details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the protected environment to update.
@@ -2613,9 +2653,10 @@ async def unprotect_environment(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the environment to unprotect.
@@ -2674,9 +2715,10 @@ def get_groups(
     It returns a dictionary containing the group list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         search (Optional[str], optional): Filter groups by search term in name or path. Defaults to None.
         sort (Optional[str], optional): Sort order (e.g., "asc", "desc"). Defaults to None.
@@ -2735,9 +2777,10 @@ def get_group(
     It returns a dictionary containing the group details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         with_projects (Optional[bool], optional): Include projects in the group response. Defaults to None.
@@ -2797,9 +2840,10 @@ async def edit_group(
     It returns a dictionary containing the updated group details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         name (Optional[str], optional): The new name for the group. Defaults to None.
@@ -2874,9 +2918,10 @@ def get_group_subgroups(
     It returns a dictionary containing the subgroup list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         search (Optional[str], optional): Filter subgroups by search term in name or path. Defaults to None.
@@ -2937,9 +2982,10 @@ def get_group_descendant_groups(
     It returns a dictionary containing the descendant group list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         search (Optional[str], optional): Filter descendant groups by search term in name or path. Defaults to None.
@@ -3000,9 +3046,10 @@ def get_group_projects(
     It returns a dictionary containing the project list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         include_subgroups (Optional[bool], optional): Include projects from subgroups. Defaults to None.
@@ -3063,9 +3110,10 @@ def get_group_merge_requests(
     It returns a dictionary containing the merge request list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         state (Optional[str], optional): Filter merge requests by state (e.g., "opened", "closed"). Defaults to None.
@@ -3126,9 +3174,10 @@ def get_project_jobs(
     It returns a dictionary containing the job list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         scope (Optional[str], optional): Filter jobs by scope (e.g., "success", "failed"). Defaults to None.
@@ -3185,9 +3234,10 @@ def get_project_job(
     It returns a dictionary containing the job details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         job_id (int): The ID of the job to retrieve.
@@ -3236,9 +3286,10 @@ def get_project_job_log(
     It returns a dictionary containing the job log or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         job_id (int): The ID of the job to retrieve the log for.
@@ -3288,9 +3339,10 @@ async def cancel_project_job(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         job_id (int): The ID of the job to cancel.
@@ -3345,9 +3397,10 @@ async def retry_project_job(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         job_id (int): The ID of the job to retry.
@@ -3403,9 +3456,10 @@ async def erase_project_job(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         job_id (int): The ID of the job to erase.
@@ -3460,9 +3514,10 @@ async def run_project_job(
     It returns a dictionary containing the job details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         job_id (int): The ID of the job to run.
@@ -3517,9 +3572,10 @@ def get_pipeline_jobs(
     It returns a dictionary containing the job list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_id (int): The ID of the pipeline to retrieve jobs for.
@@ -3590,9 +3646,10 @@ def get_group_members(
     It returns a dictionary containing the member list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         query (Optional[str], optional): Filter members by search term in name or username. Defaults to None.
@@ -3652,9 +3709,10 @@ def get_project_members(
     It returns a dictionary containing the member list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         query (Optional[str], optional): Filter members by search term in name or username. Defaults to None.
@@ -3720,9 +3778,10 @@ async def create_merge_request(
     It returns a dictionary containing the merge request details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         source_branch (str): The source branch for the merge request.
@@ -3802,9 +3861,10 @@ def get_merge_requests(
     It returns a dictionary containing the merge request list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         state (Optional[str], optional): Filter merge requests by state (e.g., "opened", "closed"). Defaults to None.
         scope (Optional[str], optional): Filter merge requests by scope (e.g., "created_by_me"). Defaults to None.
@@ -3865,9 +3925,10 @@ def get_project_merge_requests(
     It returns a dictionary containing the merge request list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         state (Optional[str], optional): Filter merge requests by state (e.g., "opened", "closed"). Defaults to None.
@@ -3926,9 +3987,10 @@ def get_project_merge_request(
     It returns a dictionary containing the merge request details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         merge_id (int): The ID of the merge request to retrieve.
@@ -3979,9 +4041,10 @@ def get_project_level_merge_request_approval_rules(
     It returns a dictionary containing the approval rules list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -4028,9 +4091,10 @@ def get_project_level_merge_request_approval_rule(
     It returns a dictionary containing the approval rule details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         approval_rule_id (int): The ID of the approval rule to retrieve.
@@ -4086,9 +4150,10 @@ async def create_project_level_rule(
     It returns a dictionary containing the approval rule details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the approval rule.
@@ -4166,9 +4231,10 @@ async def update_project_level_rule(
     It returns a dictionary containing the updated approval rule details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         approval_rule_id (int): The ID of the approval rule to update.
@@ -4248,9 +4314,10 @@ async def delete_project_level_rule(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         approval_rule_id (int): The ID of the approval rule to delete.
@@ -4308,9 +4375,10 @@ def merge_request_level_approvals(
     It returns a dictionary containing the approval details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         merge_request_iid (int): The IID of the merge request to retrieve approvals for.
@@ -4361,9 +4429,10 @@ def get_approval_state_merge_requests(
     It returns a dictionary containing the approval state details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         merge_request_iid (int): The IID of the merge request to retrieve approval state for.
@@ -4414,9 +4483,10 @@ def get_merge_request_level_rules(
     It returns a dictionary containing the approval rules list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         merge_request_iid (int): The IID of the merge request to retrieve approval rules for.
@@ -4468,9 +4538,10 @@ async def approve_merge_request(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         merge_request_iid (int): The IID of the merge request to approve.
@@ -4529,9 +4600,10 @@ async def unapprove_merge_request(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         merge_request_iid (int): The IID of the merge request to unapprove.
@@ -4589,9 +4661,10 @@ def get_group_level_rule(
     It returns a dictionary containing the approval settings or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used_avalon
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -4642,9 +4715,10 @@ async def edit_group_level_rule(
     It returns a dictionary containing the updated settings or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         allow_author_approval (Optional[bool], optional): Whether authors can approve their own merge requests. Defaults to None.
@@ -4714,9 +4788,10 @@ def get_project_level_rule(
     It returns a dictionary containing the approval settings or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -4767,9 +4842,10 @@ async def edit_project_level_rule(
     It returns a dictionary containing the updated settings or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         allow_author_approval (Optional[bool], optional): Whether authors can approve their own merge requests. Defaults to None.
@@ -4841,9 +4917,10 @@ def get_repository_packages(
     It returns a dictionary containing the package list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         package_type (Optional[str], optional): Filter packages by type (e.g., "npm", "maven"). Defaults to None.
@@ -4903,9 +4980,10 @@ async def publish_repository_package(
     It returns a dictionary containing the package details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         package_name (str): The name of the package.
@@ -4982,9 +5060,10 @@ def download_repository_package(
     It returns a dictionary containing the download details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         package_name (str): The name of the package.
@@ -5048,9 +5127,10 @@ def get_pipelines(
     It returns a dictionary containing the pipeline list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         scope (Optional[str], optional): Filter pipelines by scope (e.g., "running", "branches"). Defaults to None.
@@ -5111,9 +5191,10 @@ def get_pipeline(
     It returns a dictionary containing the pipeline details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_id (int): The ID of the pipeline to retrieve.
@@ -5164,9 +5245,10 @@ async def run_pipeline(
     It returns a dictionary containing the pipeline details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         reference (str): The reference (e.g., branch or tag) to run the pipeline on.
@@ -5235,9 +5317,10 @@ def get_pipeline_schedules(
     It returns a dictionary containing the schedule list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -5284,9 +5367,10 @@ def get_pipeline_schedule(
     It returns a dictionary containing the schedule details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_schedule_id (int): The ID of the pipeline schedule to retrieve.
@@ -5337,9 +5421,10 @@ def get_pipelines_triggered_from_schedule(
     It returns a dictionary containing the pipeline list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_schedule_id (int): The ID of the pipeline schedule.
@@ -5395,9 +5480,10 @@ async def create_pipeline_schedule(
     It returns a dictionary containing the schedule details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         description (str): The description of the pipeline schedule.
@@ -5479,9 +5565,10 @@ async def edit_pipeline_schedule(
     It returns a dictionary containing the updated schedule details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_schedule_id (int): The ID of the pipeline schedule to edit.
@@ -5561,9 +5648,10 @@ async def take_pipeline_schedule_ownership(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_schedule_id (int): The ID of the pipeline schedule to take ownership of.
@@ -5622,9 +5710,10 @@ async def delete_pipeline_schedule(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_schedule_id (int): The ID of the pipeline schedule to delete.
@@ -5683,9 +5772,10 @@ async def run_pipeline_schedule(
     It returns a dictionary containing the pipeline details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_schedule_id (int): The ID of the pipeline schedule to run.
@@ -5747,9 +5837,10 @@ async def create_pipeline_schedule_variable(
     It returns a dictionary containing the variable details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_schedule_id (int): The ID of the pipeline schedule.
@@ -5829,9 +5920,10 @@ async def delete_pipeline_schedule_variable(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         pipeline_schedule_id (int): The ID of the pipeline schedule.
@@ -5894,9 +5986,10 @@ def get_projects(
     It returns a dictionary containing the project list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         owned (Optional[bool], optional): Filter projects owned by the authenticated user. Defaults to None.
         search (Optional[str], optional): Filter projects by search term in name or path. Defaults to None.
@@ -5951,9 +6044,10 @@ def get_project(
     It returns a dictionary containing the project details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -6000,9 +6094,10 @@ def get_nested_projects_by_group(
     It returns a dictionary containing the project list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         per_page (Optional[int], optional): Number of projects per page. Defaults to None.
@@ -6056,9 +6151,10 @@ def get_project_contributors(
     It returns a dictionary containing the contributor list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -6104,9 +6200,10 @@ def get_project_statistics(
     It returns a dictionary containing the statistics or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -6156,9 +6253,10 @@ async def edit_project(
     It returns a dictionary containing the updated project details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (Optional[str], optional): The new name of the project. Defaults to None.
@@ -6229,9 +6327,10 @@ def get_project_groups(
     It returns a dictionary containing the group list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         skip_groups (Optional[List[int]], optional): List of group IDs to exclude. Defaults to None.
@@ -6288,9 +6387,10 @@ async def archive_project(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -6343,9 +6443,10 @@ async def unarchive_project(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -6397,9 +6498,10 @@ async def delete_project(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -6454,9 +6556,10 @@ async def share_project(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         group_id (str): The ID or path of the GitLab group to share with (e.g., "5678" or "group/subgroup").
@@ -6527,9 +6630,10 @@ def get_protected_branches(
     It returns a dictionary containing the branch list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -6576,9 +6680,10 @@ def get_protected_branch(
     It returns a dictionary containing the branch details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         branch (str): The name of the branch to retrieve (e.g., "main").
@@ -6636,9 +6741,10 @@ async def protect_branch(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         branch (str): The name of the branch to protect (e.g., "main").
@@ -6716,9 +6822,10 @@ async def unprotect_branch(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         branch (str): The name of the branch to unprotect (e.g., "main").
@@ -6774,9 +6881,10 @@ async def require_code_owner_approvals_single_branch(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         branch (str): The name of the branch to set approval requirements for (e.g., "main").
@@ -6841,9 +6949,10 @@ def get_releases(
     It returns a dictionary containing the release list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         include_html_description (Optional[bool], optional): Whether to include HTML descriptions in the response. Defaults to None.
@@ -6900,9 +7009,10 @@ def get_latest_release(
     It returns a dictionary containing the release details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -6948,9 +7058,10 @@ def get_latest_release_evidence(
     It returns a dictionary containing the evidence details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -6997,9 +7108,10 @@ def get_latest_release_asset(
     It returns a dictionary containing the asset details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         direct_asset_path (str): The path to the asset (e.g., "assets/file.zip").
@@ -7052,9 +7164,10 @@ def get_group_releases(
     It returns a dictionary containing the release list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         include_html_description (Optional[bool], optional): Whether to include HTML descriptions in the response. Defaults to None.
@@ -7112,9 +7225,10 @@ def download_release_asset(
     It returns a dictionary containing the asset details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         tag_name (str): The tag name of the release (e.g., "v1.0.0").
@@ -7167,9 +7281,10 @@ def get_release_by_tag(
     It returns a dictionary containing the release details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         tag_name (str): The tag name of the release (e.g., "v1.0.0").
@@ -7223,9 +7338,10 @@ async def create_release(
     It returns a dictionary containing the release details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the release.
@@ -7299,9 +7415,10 @@ async def create_release_evidence(
     It returns a dictionary containing the evidence details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         tag_name (str): The tag name of the release (e.g., "v1.0.0").
@@ -7362,9 +7479,10 @@ async def update_release(
     It returns a dictionary containing the updated release details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         tag_name (str): The tag name of the release to update (e.g., "v1.0.0").
@@ -7439,9 +7557,10 @@ async def delete_release(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         tag_name (str): The tag name of the release to delete (e.g., "v1.0.0").
@@ -7498,9 +7617,10 @@ def get_runners(
     It returns a dictionary containing the runner list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         scope (Optional[str], optional): Filter runners by scope (e.g., "active"). Defaults to None.
         type (Optional[str], optional): Filter runners by type (e.g., "instance_type"). Defaults to None.
@@ -7554,9 +7674,10 @@ def get_runner(
     It returns a dictionary containing the runner details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to retrieve.
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -7610,9 +7731,10 @@ async def update_runner_details(
     It returns a dictionary containing the updated runner details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to update.
         description (Optional[str], optional): The new description of the runner. Defaults to None.
@@ -7687,9 +7809,10 @@ async def pause_runner(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to pause or unpause.
         active (bool): Whether the runner should be active (True) or paused (False).
@@ -7744,9 +7867,10 @@ def get_runner_jobs(
     It returns a dictionary containing the job list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to retrieve jobs for.
         status (Optional[str], optional): Filter jobs by status (e.g., "success", "failed"). Defaults to None.
@@ -7803,9 +7927,10 @@ def get_project_runners(
     It returns a dictionary containing the runner list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         scope (Optional[str], optional): Filter runners by scope (e.g., "active"). Defaults to None.
@@ -7862,9 +7987,10 @@ async def enable_project_runner(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         runner_id (int): The ID of the runner to enable.
@@ -7919,9 +8045,10 @@ async def delete_project_runner(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         runner_id (int): The ID of the runner to delete.
@@ -7975,9 +8102,10 @@ def get_group_runners(
     It returns a dictionary containing the runner list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         scope (Optional[str], optional): Filter runners by scope (e.g., "active"). Defaults to None.
@@ -8037,9 +8165,10 @@ async def register_new_runner(
     It returns a dictionary containing the runner details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         token (str): The registration token for the runner.
         description (Optional[str], optional): The description of the runner. Defaults to None.
@@ -8103,9 +8232,10 @@ async def delete_runner(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (Optional[int], optional): The ID of the runner to delete. Defaults to None.
         token (Optional[str], optional): The token of the runner to delete. Defaults to None.
@@ -8164,9 +8294,10 @@ async def verify_runner_authentication(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         token (str): The runner token to verify.
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -8217,9 +8348,10 @@ async def reset_gitlab_runner_token(
     It returns a dictionary containing the new token or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
             Defaults to False (no verification).
@@ -8268,9 +8400,10 @@ async def reset_project_runner_token(
     It returns a dictionary containing the new token or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -8322,9 +8455,10 @@ async def reset_group_runner_token(
     It returns a dictionary containing the new token or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -8377,9 +8511,10 @@ async def reset_token(
     It returns a dictionary containing the new token or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to reset the token for.
         token (str): The current token of the runner.
@@ -8435,9 +8570,10 @@ def get_tags(
     It returns a dictionary containing the tag list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         search (Optional[str], optional): Filter tags by search term in name. Defaults to None.
@@ -8494,9 +8630,10 @@ def get_tag(
     It returns a dictionary containing the tag details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the tag to retrieve (e.g., "v1.0.0").
@@ -8549,9 +8686,10 @@ async def create_tag(
     It returns a dictionary containing the tag details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the tag to create (e.g., "v1.0.0").
@@ -8624,9 +8762,10 @@ async def delete_tag(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the tag to delete (e.g., "v1.0.0").
@@ -8680,9 +8819,10 @@ def get_protected_tags(
     It returns a dictionary containing the tag list or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (Optional[str], optional): Filter tags by name. Defaults to None.
@@ -8738,9 +8878,10 @@ def get_protected_tag(
     It returns a dictionary containing the tag details or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the protected tag to retrieve (e.g., "v1.0.0").
@@ -8792,9 +8933,10 @@ async def protect_tag(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the tag to protect (e.g., "v1.0.0").
@@ -8866,9 +9008,10 @@ async def unprotect_tag(
     It returns a dictionary containing the result or an error message if the request fails.
 
     Args:
-        gitlab_instance (str, optional): The URL of the GitLab instance (e.g., "https://gitlab.com").
+        gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
             If None, the default instance configured in gitlab_api is used.
-        access_token (str, optional): The GitLab personal access token for authentication.
+            Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         name (str): The name of the tag to unprotect (e.g., "v1.0.0").
