@@ -172,6 +172,7 @@ from gitlab_api.gitlab_db_models import (
     DiffDBModel,
     DetailedStatusDBModel,
 )
+from gitlab_api.gitlab_api import Api
 from gitlab_api.utils import (
     upsert,
     bulk_upsert,

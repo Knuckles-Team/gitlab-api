@@ -3,7 +3,7 @@
 
 import getopt
 import sys
-import gitlab_api
+from gitlab_api.gitlab_api import Api
 from gitlab_api.gitlab_response_models import Response
 from fastmcp import FastMCP, Context
 from typing import Optional, List, Dict
@@ -62,7 +62,7 @@ def get_branches(
         >>> print(response)
         {"branches": [{"name": "feature/abc", "commit": {...}}, {"name": "feature/xyz", "commit": {...}}]}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -119,7 +119,7 @@ def get_branch(
         >>> print(response)
         {"name": "main", "commit": {...}}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -179,7 +179,7 @@ def create_branch(
         >>> print(response)
         {"name": "feature/new", "commit": {...}}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -240,7 +240,7 @@ async def delete_branch(
     """
     if ctx:
         await ctx.info(f"Deleting branch '{branch}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -301,7 +301,7 @@ async def delete_merged_branches(
     """
     if ctx:
         await ctx.info(f"Deleting merged branches in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -380,7 +380,7 @@ def get_commits(
         >>> print(response)
         [{"id": "abc123", "message": "Initial commit", ...}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -440,7 +440,7 @@ def get_commit(
         >>> print(response)
         {"id": "abc123", "message": "Fix bug", "stats": {...}}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -510,7 +510,7 @@ def get_commit_references(
         >>> print(response)
         [{"name": "main", "type": "branch"}, {"name": "feature/abc", "type": "branch"}]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -583,7 +583,7 @@ def cherry_pick_commit(
         >>> print(response)
         {"commit_id": "abc123", "branch": "main", "status": "simulated"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -670,7 +670,7 @@ def create_commit(
         >>> print(response)
         {"id": "xyz789", "message": "Add new file"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -734,7 +734,7 @@ def revert_commit(
         >>> print(response)
         {"commit_id": "abc123", "branch": "main", "status": "simulated"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -804,7 +804,7 @@ def get_commit_diff(
         >>> print(response)
         [{"diff": "...", "new_path": "file.txt"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -871,7 +871,7 @@ def get_commit_comments(
         >>> print(response)
         [{"id": 1, "note": "Great change"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -937,7 +937,7 @@ def create_commit_comment(
         >>> print(response)
         {"id": 1, "note": "Looks good!"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1004,7 +1004,7 @@ def get_commit_discussions(
         >>> print(response)
         [{"id": "disc1", "notes": [{"note": "Great change"}, ...]}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1072,7 +1072,7 @@ def get_commit_statuses(
         >>> print(response)
         [{"name": "test", "status": "success"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1155,7 +1155,7 @@ def post_build_status_to_commit(
         >>> print(response)
         {"name": "ci/build", "status": "success"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1222,7 +1222,7 @@ def get_commit_merge_requests(
         >>> print(response)
         [{"iid": 1, "title": "Add feature"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1279,7 +1279,7 @@ def get_commit_gpg_signature(
         >>> print(response)
         {"signature": "...", "verified": true}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1330,7 +1330,7 @@ def get_deploy_tokens(
         >>> print(response)
         [{"id": 1, "name": "token1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1378,7 +1378,7 @@ def get_project_deploy_tokens(
         >>> print(response)
         [{"id": 1, "name": "token1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1435,7 +1435,7 @@ def get_project_deploy_token(
         >>> print(response)
         {"id": 1, "name": "token1"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1503,7 +1503,7 @@ async def create_project_deploy_token(
     """
     if ctx:
         await ctx.info(f"Creating deploy token '{name}' for project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1574,7 +1574,7 @@ async def delete_project_deploy_token(
     """
     if ctx:
         await ctx.info(f"Deleting deploy token {token_id} for project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1630,7 +1630,7 @@ def get_group_deploy_tokens(
         >>> print(response)
         [{"id": 1, "name": "token1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1687,7 +1687,7 @@ def get_group_deploy_token(
         >>> print(response)
         {"id": 1, "name": "token1"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1756,7 +1756,7 @@ async def create_group_deploy_token(
     """
     if ctx:
         await ctx.info(f"Creating deploy token '{name}' for group {group_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1827,7 +1827,7 @@ async def delete_group_deploy_token(
     """
     if ctx:
         await ctx.info(f"Deleting deploy token {token_id} for group {group_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1885,7 +1885,7 @@ def get_environments(
         >>> print(response)
         [{"id": 1, "name": "prod", "state": "available"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -1942,7 +1942,7 @@ def get_environment(
         >>> print(response)
         {"id": 1, "name": "prod", "state": "available"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2002,7 +2002,7 @@ async def create_environment(
     """
     if ctx:
         await ctx.info(f"Creating environment '{name}' for project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2078,7 +2078,7 @@ async def update_environment(
     """
     if ctx:
         await ctx.info(f"Updating environment {environment_id} in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2152,7 +2152,7 @@ async def delete_environment(
     """
     if ctx:
         await ctx.info(f"Deleting environment {environment_id} in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2211,7 +2211,7 @@ async def stop_environment(
     """
     if ctx:
         await ctx.info(f"Stopping environment {environment_id} in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2270,7 +2270,7 @@ async def stop_stale_environments(
     """
     if ctx:
         await ctx.info(f"Stopping stale environments in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2338,7 +2338,7 @@ async def delete_stopped_environments(
     """
     if ctx:
         await ctx.info(f"Deleting stopped review apps in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2388,7 +2388,7 @@ def get_protected_environments(
         >>> print(response)
         [{"name": "prod", "id": 1}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2439,7 +2439,7 @@ def get_protected_environment(
         >>> print(response)
         {"name": "prod", "id": 1}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2497,7 +2497,7 @@ async def protect_environment(
     """
     if ctx:
         await ctx.info(f"Protecting environment '{name}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2573,7 +2573,7 @@ async def update_protected_environment(
         await ctx.info(
             f"Updating protected environment '{name}' in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2644,7 +2644,7 @@ async def unprotect_environment(
     """
     if ctx:
         await ctx.info(f"Unprotecting environment '{name}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2705,7 +2705,7 @@ def get_groups(
         >>> print(response)
         [{"id": 1, "name": "mygroup"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2764,7 +2764,7 @@ def get_group(
         >>> print(response)
         {"id": 1, "name": "group1", "projects": [...]}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2832,7 +2832,7 @@ async def edit_group(
     """
     if ctx:
         await ctx.info(f"Editing group {group_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2905,7 +2905,7 @@ def get_group_subgroups(
         >>> print(response)
         [{"id": 2, "name": "subgroup1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -2968,7 +2968,7 @@ def get_group_descendant_groups(
         >>> print(response)
         [{"id": 2, "name": "subgroup1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3031,7 +3031,7 @@ def get_group_projects(
         >>> print(response)
         [{"id": 1, "name": "project1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3094,7 +3094,7 @@ def get_group_merge_requests(
         >>> print(response)
         [{"iid": 1, "title": "Merge"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3156,7 +3156,7 @@ def get_project_jobs(
         >>> print(response)
         [{"id": 1, "name": "test", "status": "success"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3213,7 +3213,7 @@ def get_project_job(
         >>> print(response)
         {"id": 1, "name": "test", "status": "success"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3264,7 +3264,7 @@ def get_project_job_log(
         >>> print(response)
         {"log": "..."}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3319,7 +3319,7 @@ async def cancel_project_job(
     """
     if ctx:
         await ctx.info(f"Cancelling job {job_id} in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3376,7 +3376,7 @@ async def retry_project_job(
     """
     if ctx:
         await ctx.info(f"Retrying job {job_id} in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3434,7 +3434,7 @@ async def erase_project_job(
     """
     if ctx:
         await ctx.info(f"Erasing job {job_id} in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3491,7 +3491,7 @@ async def run_project_job(
     """
     if ctx:
         await ctx.info(f"Running job {job_id} in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3547,7 +3547,7 @@ def get_pipeline_jobs(
         >>> print(response)
         [{"id": 1, "name": "test", "status": "success"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3621,7 +3621,7 @@ def get_group_members(
         >>> print(response)
         [{"id": 1, "username": "user1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3682,7 +3682,7 @@ def get_project_members(
         >>> print(response)
         [{"id": 1, "username": "user1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3759,7 +3759,7 @@ async def create_merge_request(
     """
     if ctx:
         await ctx.info(f"Creating merge request '{title}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3833,7 +3833,7 @@ def get_merge_requests(
         >>> print(response)
         [{"iid": 1, "title": "Merge"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3896,7 +3896,7 @@ def get_project_merge_requests(
         >>> print(response)
         [{"iid": 1, "title": "Merge"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -3954,7 +3954,7 @@ def get_project_merge_request(
         >>> print(response)
         {"iid": 1, "title": "Merge"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4005,7 +4005,7 @@ def get_project_level_merge_request_approval_rules(
         >>> print(response)
         [{"id": 1, "name": "rule1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4056,7 +4056,7 @@ def get_project_level_merge_request_approval_rule(
         >>> print(response)
         {"id": 1, "name": "rule1"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4122,7 +4122,7 @@ async def create_project_level_rule(
     """
     if ctx:
         await ctx.info(f"Creating approval rule '{name}' for project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4205,7 +4205,7 @@ async def update_project_level_rule(
         await ctx.info(
             f"Updating approval rule {approval_rule_id} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4281,7 +4281,7 @@ async def delete_project_level_rule(
         await ctx.info(
             f"Deleting approval rule {approval_rule_id} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4336,7 +4336,7 @@ def merge_request_level_approvals(
         >>> print(response)
         {"approved": true, "approved_by": [{"id": 1, "username": "user1"}]}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4389,7 +4389,7 @@ def get_approval_state_merge_requests(
         >>> print(response)
         {"approved": true, "approvals_required": 2}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4442,7 +4442,7 @@ def get_merge_request_level_rules(
         >>> print(response)
         [{"id": 1, "name": "rule1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4501,7 +4501,7 @@ async def approve_merge_request(
         await ctx.info(
             f"Approving merge request {merge_request_iid} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4562,7 +4562,7 @@ async def unapprove_merge_request(
         await ctx.info(
             f"Unapproving merge request {merge_request_iid} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4615,7 +4615,7 @@ def get_group_level_rule(
         >>> print(response)
         {"allow_author_approval": true, "minimum_approvals": 2}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4676,7 +4676,7 @@ async def edit_group_level_rule(
     """
     if ctx:
         await ctx.info(f"Editing approval settings for group {group_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4740,7 +4740,7 @@ def get_project_level_rule(
         >>> print(response)
         {"allow_author_approval": true, "minimum_approvals": 2}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4801,7 +4801,7 @@ async def edit_project_level_rule(
     """
     if ctx:
         await ctx.info(f"Editing approval settings for project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4869,7 +4869,7 @@ def get_repository_packages(
         >>> print(response)
         [{"id": 1, "name": "package1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -4941,7 +4941,7 @@ async def publish_repository_package(
         await ctx.info(
             f"Publishing package {package_name}/{package_version} to project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5014,7 +5014,7 @@ def download_repository_package(
         >>> print(response)
         {"url": "https://.../mypackage-1.0.0.tar.gz"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5081,7 +5081,7 @@ def get_pipelines(
         >>> print(response)
         [{"id": 1, "status": "success"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5139,7 +5139,7 @@ def get_pipeline(
         >>> print(response)
         {"id": 1, "status": "success"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5196,7 +5196,7 @@ async def run_pipeline(
     """
     if ctx:
         await ctx.info(f"Running pipeline for project {project_id} on ref {reference}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5261,7 +5261,7 @@ def get_pipeline_schedules(
         >>> print(response)
         [{"id": 1, "description": "schedule1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5312,7 +5312,7 @@ def get_pipeline_schedule(
         >>> print(response)
         {"id": 1, "description": "schedule1"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5365,7 +5365,7 @@ def get_pipelines_triggered_from_schedule(
         >>> print(response)
         [{"id": 1, "status": "success"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5434,7 +5434,7 @@ async def create_pipeline_schedule(
         await ctx.info(
             f"Creating pipeline schedule '{description}' for project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5518,7 +5518,7 @@ async def edit_pipeline_schedule(
         await ctx.info(
             f"Editing pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5594,7 +5594,7 @@ async def take_pipeline_schedule_ownership(
         await ctx.info(
             f"Taking ownership of pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5655,7 +5655,7 @@ async def delete_pipeline_schedule(
         await ctx.info(
             f"Deleting pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5716,7 +5716,7 @@ async def run_pipeline_schedule(
         await ctx.info(
             f"Running pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5785,7 +5785,7 @@ async def create_pipeline_schedule_variable(
         await ctx.info(
             f"Creating variable '{key}' for pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5864,7 +5864,7 @@ async def delete_pipeline_schedule_variable(
         await ctx.info(
             f"Deleting variable '{key}' from pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5923,7 +5923,7 @@ def get_projects(
         >>> print(response)
         [{"id": 1, "name": "project1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -5977,7 +5977,7 @@ def get_project(
         >>> print(response)
         {"id": 1, "name": "project1"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6028,7 +6028,7 @@ def get_nested_projects_by_group(
         >>> print(response)
         [{"id": 1, "name": "project1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6082,7 +6082,7 @@ def get_project_contributors(
         >>> print(response)
         [{"id": 1, "name": "user1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6130,7 +6130,7 @@ def get_project_statistics(
         >>> print(response)
         {"commits_count": 100, "storage_size": 1024}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6189,7 +6189,7 @@ async def edit_project(
     """
     if ctx:
         await ctx.info(f"Editing project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6258,7 +6258,7 @@ def get_project_groups(
         >>> print(response)
         [{"id": 1, "name": "group1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6317,7 +6317,7 @@ async def archive_project(
     """
     if ctx:
         await ctx.info(f"Archiving project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6372,7 +6372,7 @@ async def unarchive_project(
     """
     if ctx:
         await ctx.info(f"Unarchiving project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6426,7 +6426,7 @@ async def delete_project(
     """
     if ctx:
         await ctx.info(f"Deleting project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6488,7 +6488,7 @@ async def share_project(
     """
     if ctx:
         await ctx.info(f"Sharing project {project_id} with group {group_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6553,7 +6553,7 @@ def get_protected_branches(
         >>> print(response)
         [{"name": "main", "push_access_levels": [...]}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6604,7 +6604,7 @@ def get_protected_branch(
         >>> print(response)
         {"name": "main", "push_access_levels": [...]}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6676,7 +6676,7 @@ async def protect_branch(
     """
     if ctx:
         await ctx.info(f"Protecting branch '{branch}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6747,7 +6747,7 @@ async def unprotect_branch(
     """
     if ctx:
         await ctx.info(f"Unprotecting branch '{branch}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6809,7 +6809,7 @@ async def require_code_owner_approvals_single_branch(
         await ctx.info(
             f"Setting code owner approval requirement for branch '{branch}' in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6871,7 +6871,7 @@ def get_releases(
         >>> print(response)
         [{"tag_name": "v1.0.0", "name": "Release 1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6926,7 +6926,7 @@ def get_latest_release(
         >>> print(response)
         {"tag_name": "v1.0.0", "name": "Release 1"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -6974,7 +6974,7 @@ def get_latest_release_evidence(
         >>> print(response)
         {"id": 1, "collected_at": "2023-01-01"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7025,7 +7025,7 @@ def get_latest_release_asset(
         >>> print(response)
         {"url": "https://.../file.zip"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7082,7 +7082,7 @@ def get_group_releases(
         >>> print(response)
         [{"tag_name": "v1.0.0", "name": "Release 1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7142,7 +7142,7 @@ def download_release_asset(
         >>> print(response)
         {"url": "https://.../file.zip"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7195,7 +7195,7 @@ def get_release_by_tag(
         >>> print(response)
         {"tag_name": "v1.0.0", "name": "Release 1"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7259,7 +7259,7 @@ async def create_release(
     """
     if ctx:
         await ctx.info(f"Creating release '{name}' for project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7332,7 +7332,7 @@ async def create_release_evidence(
         await ctx.info(
             f"Creating release evidence for tag '{tag_name}' in project {project_id}"
         )
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7398,7 +7398,7 @@ async def update_release(
     """
     if ctx:
         await ctx.info(f"Updating release for tag '{tag_name}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7470,7 +7470,7 @@ async def delete_release(
     """
     if ctx:
         await ctx.info(f"Deleting release for tag '{tag_name}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7526,7 +7526,7 @@ def get_runners(
         >>> print(response)
         [{"id": 1, "description": "runner1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7580,7 +7580,7 @@ def get_runner(
         >>> print(response)
         {"id": 1, "description": "runner1"}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7647,7 +7647,7 @@ async def update_runner_details(
     """
     if ctx:
         await ctx.info(f"Updating runner {runner_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7718,7 +7718,7 @@ async def pause_runner(
     """
     if ctx:
         await ctx.info(f"Setting runner {runner_id} active status to {active}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7773,7 +7773,7 @@ def get_runner_jobs(
         >>> print(response)
         [{"id": 1, "status": "success"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7831,7 +7831,7 @@ def get_project_runners(
         >>> print(response)
         [{"id": 1, "description": "runner1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7893,7 +7893,7 @@ async def enable_project_runner(
     """
     if ctx:
         await ctx.info(f"Enabling runner {runner_id} for project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -7950,7 +7950,7 @@ async def delete_project_runner(
     """
     if ctx:
         await ctx.info(f"Deleting runner {runner_id} from project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8003,7 +8003,7 @@ def get_group_runners(
         >>> print(response)
         [{"id": 1, "description": "runner1"}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8071,7 +8071,7 @@ async def register_new_runner(
     """
     if ctx:
         await ctx.info("Registering new runner with token")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8133,7 +8133,7 @@ async def delete_runner(
     """
     if ctx:
         await ctx.info(f"Deleting runner with ID {runner_id or 'token'}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8193,7 +8193,7 @@ async def verify_runner_authentication(
     """
     if ctx:
         await ctx.info("Verifying runner authentication")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8243,7 +8243,7 @@ async def reset_gitlab_runner_token(
     """
     if ctx:
         await ctx.info("Resetting GitLab runner registration token")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8297,7 +8297,7 @@ async def reset_project_runner_token(
     """
     if ctx:
         await ctx.info(f"Resetting runner token for project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8351,7 +8351,7 @@ async def reset_group_runner_token(
     """
     if ctx:
         await ctx.info(f"Resetting runner token for group {group_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8408,7 +8408,7 @@ async def reset_token(
     """
     if ctx:
         await ctx.info(f"Resetting authentication token for runner {runner_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8464,7 +8464,7 @@ def get_tags(
         >>> print(response)
         [{"name": "v1.0.0", "commit": {...}}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8522,7 +8522,7 @@ def get_tag(
         >>> print(response)
         {"name": "v1.0.0", "commit": {...}}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8584,7 +8584,7 @@ async def create_tag(
     """
     if ctx:
         await ctx.info(f"Creating tag '{name}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8655,7 +8655,7 @@ async def delete_tag(
     """
     if ctx:
         await ctx.info(f"Deleting tag '{name}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8708,7 +8708,7 @@ def get_protected_tags(
         >>> print(response)
         [{"name": "v1.0.0", "create_access_levels": [...]}, ...]
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8766,7 +8766,7 @@ def get_protected_tag(
         >>> print(response)
         {"name": "v1.0.0", "create_access_levels": [...]}
     """
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8826,7 +8826,7 @@ async def protect_tag(
     """
     if ctx:
         await ctx.info(f"Protecting tag '{name}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
@@ -8897,7 +8897,7 @@ async def unprotect_tag(
     """
     if ctx:
         await ctx.info(f"Unprotecting tag '{name}' in project {project_id}")
-    client = gitlab_api.Api(
+    client = Api(
         url=gitlab_instance,
         token=access_token,
         verify=verify,
