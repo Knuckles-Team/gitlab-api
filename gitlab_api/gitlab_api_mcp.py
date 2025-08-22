@@ -45,7 +45,7 @@ def get_branches(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of branch details (e.g., [{"name": "main", "commit": {...}}, ...]).
+            - If successful, contains a list of branch details (e.g., [{"name": "main", "commit": {   }},    ]).
             - If failed, contains an error message (e.g., {"error": "Invalid project ID"}).
 
     Raises:
@@ -53,15 +53,15 @@ def get_branches(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_branches(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     search="feature",
-        ...     regex="^feature/.*"
-        ... )
-        >>> print(response)
-        {"branches": [{"name": "feature/abc", "commit": {...}}, {"name": "feature/xyz", "commit": {...}}]}
+        response = get_branches(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                search="feature",
+                regex="^feature/.*"
+            )
+        print(response)
+        {"branches": [{"name": "feature/abc", "commit": {   }}, {"name": "feature/xyz", "commit": {   }}]}
     """
     client = Api(
         url=gitlab_instance,
@@ -104,7 +104,7 @@ def get_branch(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains branch details (e.g., {"name": "main", "commit": {...}}).
+            - If successful, contains branch details (e.g., {"name": "main", "commit": {   }}).
             - If failed, contains an error message (e.g., {"error": "Branch not found"}).
 
     Raises:
@@ -112,14 +112,14 @@ def get_branch(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_branch(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     branch="main"
-        ... )
-        >>> print(response)
-        {"name": "main", "commit": {...}}
+        response = get_branch(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                branch="main"
+            )
+        print(response)
+        {"name": "main", "commit": {   }}
     """
     client = Api(
         url=gitlab_instance,
@@ -164,7 +164,7 @@ def create_branch(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains branch details (e.g., {"name": "new-branch", "commit": {...}}).
+            - If successful, contains branch details (e.g., {"name": "new-branch", "commit": {   }}).
             - If failed, contains an error message (e.g., {"error": "Reference not found"}).
 
     Raises:
@@ -172,15 +172,15 @@ def create_branch(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = create_branch(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     branch="feature/new",
-        ...     ref="main"
-        ... )
-        >>> print(response)
-        {"name": "feature/new", "commit": {...}}
+        response = create_branch(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                branch="feature/new",
+                ref="main"
+            )
+        print(response)
+        {"name": "feature/new", "commit": {   }}
     """
     client = Api(
         url=gitlab_instance,
@@ -233,13 +233,13 @@ async def delete_branch(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_branch(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     branch="feature/old"
-        ... )
-        >>> print(response)
+        response = await delete_branch(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                branch="feature/old"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -296,12 +296,12 @@ async def delete_merged_branches(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_merged_branches(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = await delete_merged_branches(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"deleted": ["feature/old", "bugfix/123"]}
     """
     if ctx:
@@ -368,7 +368,7 @@ def get_commits(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of commit details (e.g., [{"id": "abc123", "message": "..."}, ...]).
+            - If successful, contains a list of commit details (e.g., [{"id": "abc123", "message": "   "},    ]).
             - If failed, contains an error message (e.g., {"error": "Invalid project ID"}).
 
     Raises:
@@ -376,15 +376,15 @@ def get_commits(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_commits(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     ref_name="main",
-        ...     since="2023-01-01T00:00:00Z"
-        ... )
-        >>> print(response)
-        [{"id": "abc123", "message": "Initial commit", ...}, ...]
+        response = get_commits(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                ref_name="main",
+                since="2023-01-01T00:00:00Z"
+            )
+        print(response)
+        [{"id": "abc123", "message": "Initial commit",    },    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -429,7 +429,7 @@ def get_commit(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains commit details (e.g., {"id": "abc123", "message": "..."}).
+            - If successful, contains commit details (e.g., {"id": "abc123", "message": "   "}).
             - If failed, contains an error message (e.g., {"error": "Commit not found"}).
 
     Raises:
@@ -437,15 +437,15 @@ def get_commit(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_commit(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123",
-        ...     stats=True
-        ... )
-        >>> print(response)
-        {"id": "abc123", "message": "Fix bug", "stats": {...}}
+        response = get_commit(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123",
+                stats=True
+            )
+        print(response)
+        {"id": "abc123", "message": "Fix bug", "stats": {   }}
     """
     client = Api(
         url=gitlab_instance,
@@ -500,7 +500,7 @@ def get_commit_references(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of references (e.g., [{"name": "main", "type": "branch"}, ...]).
+            - If successful, contains a list of references (e.g., [{"name": "main", "type": "branch"},    ]).
             - If failed, contains an error message (e.g., {"error": "Commit not found"}).
 
     Raises:
@@ -508,14 +508,14 @@ def get_commit_references(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_commit_references(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123",
-        ...     type="branch"
-        ... )
-        >>> print(response)
+        response = get_commit_references(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123",
+                type="branch"
+            )
+        print(response)
         [{"name": "main", "type": "branch"}, {"name": "feature/abc", "type": "branch"}]
     """
     client = Api(
@@ -581,15 +581,15 @@ def cherry_pick_commit(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = cherry_pick_commit(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123",
-        ...     branch="main",
-        ...     dry_run=True
-        ... )
-        >>> print(response)
+        response = cherry_pick_commit(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123",
+                branch="main",
+                dry_run=True
+            )
+        print(response)
         {"commit_id": "abc123", "branch": "main", "status": "simulated"}
     """
     client = Api(
@@ -648,7 +648,7 @@ def create_commit(
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
         branch (str): The branch to commit to.
         commit_message (str): The message for the commit.
-        actions (list): A list of file actions (e.g., [{"action": "create", "file_path": "file.txt", "content": "..."}]).
+        actions (list): A list of file actions (e.g., [{"action": "create", "file_path": "file.txt", "content": "   "}]).
         start_branch (Optional[str], optional): The starting branch for the commit. Defaults to None.
         start_sha (Optional[str], optional): The starting commit SHA. Defaults to None.
         start_project (Optional[str], optional): The starting project ID or path. Defaults to None.
@@ -661,7 +661,7 @@ def create_commit(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains commit details (e.g., {"id": "xyz789", "message": "..."}).
+            - If successful, contains commit details (e.g., {"id": "xyz789", "message": "   "}).
             - If failed, contains an error message (e.g., {"error": "Invalid actions"}).
 
     Raises:
@@ -669,15 +669,15 @@ def create_commit(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = create_commit(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     branch="main",
-        ...     commit_message="Add new file",
-        ...     actions=[{"action": "create", "file_path": "file.txt", "content": "Hello"}]
-        ... )
-        >>> print(response)
+        response = create_commit(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                branch="main",
+                commit_message="Add new file",
+                actions=[{"action": "create", "file_path": "file.txt", "content": "Hello"}]
+            )
+        print(response)
         {"id": "xyz789", "message": "Add new file"}
     """
     client = Api(
@@ -734,15 +734,15 @@ def revert_commit(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = revert_commit(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123",
-        ...     branch="main",
-        ...     dry_run=True
-        ... )
-        >>> print(response)
+        response = revert_commit(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123",
+                branch="main",
+                dry_run=True
+            )
+        print(response)
         {"commit_id": "abc123", "branch": "main", "status": "simulated"}
     """
     client = Api(
@@ -798,7 +798,7 @@ def get_commit_diff(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains the diff details (e.g., [{"diff": "...", "new_path": "file.txt"}, ...]).
+            - If successful, contains the diff details (e.g., [{"diff": "   ", "new_path": "file.txt"},    ]).
             - If failed, contains an error message (e.g., {"error": "Commit not found"}).
 
     Raises:
@@ -806,15 +806,15 @@ def get_commit_diff(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_commit_diff(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123",
-        ...     unidiff=True
-        ... )
-        >>> print(response)
-        [{"diff": "...", "new_path": "file.txt"}, ...]
+        response = get_commit_diff(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123",
+                unidiff=True
+            )
+        print(response)
+        [{"diff": "   ", "new_path": "file.txt"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -867,7 +867,7 @@ def get_commit_comments(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of comments (e.g., [{"id": 1, "note": "Great change"}, ...]).
+            - If successful, contains a list of comments (e.g., [{"id": 1, "note": "Great change"},    ]).
             - If failed, contains an error message (e.g., {"error": "Commit not found"}).
 
     Raises:
@@ -875,14 +875,14 @@ def get_commit_comments(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_commit_comments(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123"
-        ... )
-        >>> print(response)
-        [{"id": 1, "note": "Great change"}, ...]
+        response = get_commit_comments(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123"
+            )
+        print(response)
+        [{"id": 1, "note": "Great change"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -941,14 +941,14 @@ def create_commit_comment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = create_commit_comment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123",
-        ...     note="Looks good!"
-        ... )
-        >>> print(response)
+        response = create_commit_comment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123",
+                note="Looks good!"
+            )
+        print(response)
         {"id": 1, "note": "Looks good!"}
     """
     client = Api(
@@ -1002,7 +1002,7 @@ def get_commit_discussions(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of discussions (e.g., [{"id": "disc1", "notes": [...]}, ...]).
+            - If successful, contains a list of discussions (e.g., [{"id": "disc1", "notes": [   ]},    ]).
             - If failed, contains an error message (e.g., {"error": "Commit not found"}).
 
     Raises:
@@ -1010,14 +1010,14 @@ def get_commit_discussions(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_commit_discussions(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123"
-        ... )
-        >>> print(response)
-        [{"id": "disc1", "notes": [{"note": "Great change"}, ...]}, ...]
+        response = get_commit_discussions(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123"
+            )
+        print(response)
+        [{"id": "disc1", "notes": [{"note": "Great change"},    ]},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -1070,7 +1070,7 @@ def get_commit_statuses(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of statuses (e.g., [{"name": "test", "status": "success"}, ...]).
+            - If successful, contains a list of statuses (e.g., [{"name": "test", "status": "success"},    ]).
             - If failed, contains an error message (e.g., {"error": "Commit not found"}).
 
     Raises:
@@ -1078,15 +1078,15 @@ def get_commit_statuses(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_commit_statuses(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123",
-        ...     name="test"
-        ... )
-        >>> print(response)
-        [{"name": "test", "status": "success"}, ...]
+        response = get_commit_statuses(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123",
+                name="test"
+            )
+        print(response)
+        [{"name": "test", "status": "success"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -1161,15 +1161,15 @@ def post_build_status_to_commit(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = post_build_status_to_commit(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123",
-        ...     state="success",
-        ...     context="ci/build"
-        ... )
-        >>> print(response)
+        response = post_build_status_to_commit(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123",
+                state="success",
+                context="ci/build"
+            )
+        print(response)
         {"name": "ci/build", "status": "success"}
     """
     client = Api(
@@ -1223,7 +1223,7 @@ def get_commit_merge_requests(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of merge requests (e.g., [{"iid": 1, "title": "..."}, ...]).
+            - If successful, contains a list of merge requests (e.g., [{"iid": 1, "title": "   "},    ]).
             - If failed, contains an error message (e.g., {"error": "Commit not found"}).
 
     Raises:
@@ -1231,14 +1231,14 @@ def get_commit_merge_requests(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_commit_merge_requests(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123"
-        ... )
-        >>> print(response)
-        [{"iid": 1, "title": "Add feature"}, ...]
+        response = get_commit_merge_requests(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123"
+            )
+        print(response)
+        [{"iid": 1, "title": "Add feature"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -1281,7 +1281,7 @@ def get_commit_gpg_signature(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains signature details (e.g., {"signature": "...", "verified": true}).
+            - If successful, contains signature details (e.g., {"signature": "   ", "verified": true}).
             - If failed, contains an error message (e.g., {"error": "No GPG signature"}).
 
     Raises:
@@ -1289,14 +1289,14 @@ def get_commit_gpg_signature(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_commit_gpg_signature(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     commit_hash="abc123"
-        ... )
-        >>> print(response)
-        {"signature": "...", "verified": true}
+        response = get_commit_gpg_signature(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                commit_hash="abc123"
+            )
+        print(response)
+        {"signature": "   ", "verified": true}
     """
     client = Api(
         url=gitlab_instance,
@@ -1336,19 +1336,19 @@ def get_deploy_tokens(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of deploy tokens (e.g., [{"id": 1, "name": "token1"}, ...]).
+            - If successful, contains a list of deploy tokens (e.g., [{"id": 1, "name": "token1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Authentication failed"}).
 
     Raises:
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_deploy_tokens(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "token1"}, ...]
+        response = get_deploy_tokens(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token"
+            )
+        print(response)
+        [{"id": 1, "name": "token1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -1383,7 +1383,7 @@ def get_project_deploy_tokens(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of deploy tokens (e.g., [{"id": 1, "name": "token1"}, ...]).
+            - If successful, contains a list of deploy tokens (e.g., [{"id": 1, "name": "token1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -1391,13 +1391,13 @@ def get_project_deploy_tokens(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_deploy_tokens(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "token1"}, ...]
+        response = get_project_deploy_tokens(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
+        [{"id": 1, "name": "token1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -1448,13 +1448,13 @@ def get_project_deploy_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_deploy_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     token_id=1
-        ... )
-        >>> print(response)
+        response = get_project_deploy_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                token_id=1
+            )
+        print(response)
         {"id": 1, "name": "token1"}
     """
     client = Api(
@@ -1506,7 +1506,7 @@ async def create_project_deploy_token(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains token details (e.g., {"id": 1, "name": "token1", "token": "..."}).
+            - If successful, contains token details (e.g., {"id": 1, "name": "token1", "token": "   "}).
             - If failed, contains an error message (e.g., {"error": "Invalid scopes"}).
 
     Raises:
@@ -1514,15 +1514,15 @@ async def create_project_deploy_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_project_deploy_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="deploy-token",
-        ...     scopes=["read_repository"]
-        ... )
-        >>> print(response)
-        {"id": 1, "name": "deploy-token", "token": "..."}
+        response = await create_project_deploy_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="deploy-token",
+                scopes=["read_repository"]
+            )
+        print(response)
+        {"id": 1, "name": "deploy-token", "token": "   "}
     """
     if ctx:
         await ctx.info(f"Creating deploy token '{name}' for project {project_id}")
@@ -1587,13 +1587,13 @@ async def delete_project_deploy_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_project_deploy_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     token_id=1
-        ... )
-        >>> print(response)
+        response = await delete_project_deploy_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                token_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -1639,7 +1639,7 @@ def get_group_deploy_tokens(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of deploy tokens (e.g., [{"id": 1, "name": "token1"}, ...]).
+            - If successful, contains a list of deploy tokens (e.g., [{"id": 1, "name": "token1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Group not found"}).
 
     Raises:
@@ -1647,13 +1647,13 @@ def get_group_deploy_tokens(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_deploy_tokens(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "token1"}, ...]
+        response = get_group_deploy_tokens(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234"
+            )
+        print(response)
+        [{"id": 1, "name": "token1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -1704,13 +1704,13 @@ def get_group_deploy_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_deploy_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     token_id=1
-        ... )
-        >>> print(response)
+        response = get_group_deploy_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                token_id=1
+            )
+        print(response)
         {"id": 1, "name": "token1"}
     """
     client = Api(
@@ -1763,7 +1763,7 @@ async def create_group_deploy_token(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains token details (e.g., {"id": 1, "name": "token1", "token": "..."}).
+            - If successful, contains token details (e.g., {"id": 1, "name": "token1", "token": "   "}).
             - If failed, contains an error message (e.g., {"error": "Invalid scopes"}).
 
     Raises:
@@ -1771,15 +1771,15 @@ async def create_group_deploy_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_group_deploy_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     name="group-token",
-        ...     scopes=["read_repository"]
-        ... )
-        >>> print(response)
-        {"id": 1, "name": "group-token", "token": "..."}
+        response = await create_group_deploy_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                name="group-token",
+                scopes=["read_repository"]
+            )
+        print(response)
+        {"id": 1, "name": "group-token", "token": "   "}
     """
     if ctx:
         await ctx.info(f"Creating deploy token '{name}' for group {group_id}")
@@ -1844,13 +1844,13 @@ async def delete_group_deploy_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_group_deploy_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     token_id=1
-        ... )
-        >>> print(response)
+        response = await delete_group_deploy_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                token_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -1897,7 +1897,7 @@ def get_environments(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of environment details (e.g., [{"id": 1, "name": "prod"}, ...]).
+            - If successful, contains a list of environment details (e.g., [{"id": 1, "name": "prod"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -1905,14 +1905,14 @@ def get_environments(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_environments(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="prod"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "prod", "state": "available"}, ...]
+        response = get_environments(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="prod"
+            )
+        print(response)
+        [{"id": 1, "name": "prod", "state": "available"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -1963,13 +1963,13 @@ def get_environment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_environment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     environment_id=1
-        ... )
-        >>> print(response)
+        response = get_environment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                environment_id=1
+            )
+        print(response)
         {"id": 1, "name": "prod", "state": "available"}
     """
     client = Api(
@@ -2021,14 +2021,14 @@ async def create_environment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_environment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="prod",
-        ...     external_url="https://prod.example.com"
-        ... )
-        >>> print(response)
+        response = await create_environment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="prod",
+                external_url="https://prod.example.com"
+            )
+        print(response)
         {"id": 1, "name": "prod", "external_url": "https://prod.example.com"}
     """
     if ctx:
@@ -2098,14 +2098,14 @@ async def update_environment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await update_environment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     environment_id=1,
-        ...     name="production"
-        ... )
-        >>> print(response)
+        response = await update_environment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                environment_id=1,
+                name="production"
+            )
+        print(response)
         {"id": 1, "name": "production"}
     """
     if ctx:
@@ -2174,13 +2174,13 @@ async def delete_environment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_environment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     environment_id=1
-        ... )
-        >>> print(response)
+        response = await delete_environment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                environment_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -2234,13 +2234,13 @@ async def stop_environment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await stop_environment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     environment_id=1
-        ... )
-        >>> print(response)
+        response = await stop_environment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                environment_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -2294,13 +2294,13 @@ async def stop_stale_environments(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await stop_stale_environments(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     older_than="2023-01-01T00:00:00Z"
-        ... )
-        >>> print(response)
+        response = await stop_stale_environments(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                older_than="2023-01-01T00:00:00Z"
+            )
+        print(response)
         {"stopped": ["env1", "env2"]}
     """
     if ctx:
@@ -2364,12 +2364,12 @@ async def delete_stopped_environments(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_stopped_environments(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = await delete_stopped_environments(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"deleted": ["env1", "env2"]}
     """
     if ctx:
@@ -2409,7 +2409,7 @@ def get_protected_environments(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of protected environment details (e.g., [{"name": "prod", "id": 1}, ...]).
+            - If successful, contains a list of protected environment details (e.g., [{"name": "prod", "id": 1},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -2417,13 +2417,13 @@ def get_protected_environments(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_protected_environments(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
-        [{"name": "prod", "id": 1}, ...]
+        response = get_protected_environments(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
+        [{"name": "prod", "id": 1},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -2468,13 +2468,13 @@ def get_protected_environment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_protected_environment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="prod"
-        ... )
-        >>> print(response)
+        response = get_protected_environment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="prod"
+            )
+        print(response)
         {"name": "prod", "id": 1}
     """
     client = Api(
@@ -2524,14 +2524,14 @@ async def protect_environment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await protect_environment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="prod",
-        ...     required_approval_count=2
-        ... )
-        >>> print(response)
+        response = await protect_environment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="prod",
+                required_approval_count=2
+            )
+        print(response)
         {"name": "prod", "id": 1, "required_approval_count": 2}
     """
     if ctx:
@@ -2599,14 +2599,14 @@ async def update_protected_environment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await update_protected_environment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="prod",
-        ...     required_approval_count=3
-        ... )
-        >>> print(response)
+        response = await update_protected_environment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="prod",
+                required_approval_count=3
+            )
+        print(response)
         {"name": "prod", "id": 1, "required_approval_count": 3}
     """
     if ctx:
@@ -2674,13 +2674,13 @@ async def unprotect_environment(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await unprotect_environment(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="prod"
-        ... )
-        >>> print(response)
+        response = await unprotect_environment(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="prod"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -2731,21 +2731,21 @@ def get_groups(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of group details (e.g., [{"id": 1, "name": "group1"}, ...]).
+            - If successful, contains a list of group details (e.g., [{"id": 1, "name": "group1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Authentication failed"}).
 
     Raises:
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_groups(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     search="mygroup",
-        ...     owned=True
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "mygroup"}, ...]
+        response = get_groups(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                search="mygroup",
+                owned=True
+            )
+        print(response)
+        [{"id": 1, "name": "mygroup"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -2798,14 +2798,14 @@ def get_group(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     with_projects=True
-        ... )
-        >>> print(response)
-        {"id": 1, "name": "group1", "projects": [...]}
+        response = get_group(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                with_projects=True
+            )
+        print(response)
+        {"id": 1, "name": "group1", "projects": [   ]}
     """
     client = Api(
         url=gitlab_instance,
@@ -2864,14 +2864,14 @@ async def edit_group(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await edit_group(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     name="newname",
-        ...     visibility="public"
-        ... )
-        >>> print(response)
+        response = await edit_group(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                name="newname",
+                visibility="public"
+            )
+        print(response)
         {"id": 1, "name": "newname", "visibility": "public"}
     """
     if ctx:
@@ -2933,7 +2933,7 @@ def get_group_subgroups(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of subgroup details (e.g., [{"id": 2, "name": "subgroup1"}, ...]).
+            - If successful, contains a list of subgroup details (e.g., [{"id": 2, "name": "subgroup1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Group not found"}).
 
     Raises:
@@ -2941,14 +2941,14 @@ def get_group_subgroups(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_subgroups(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     search="subgroup"
-        ... )
-        >>> print(response)
-        [{"id": 2, "name": "subgroup1"}, ...]
+        response = get_group_subgroups(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                search="subgroup"
+            )
+        print(response)
+        [{"id": 2, "name": "subgroup1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -2997,7 +2997,7 @@ def get_group_descendant_groups(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of descendant group details (e.g., [{"id": 2, "name": "subgroup1"}, ...]).
+            - If successful, contains a list of descendant group details (e.g., [{"id": 2, "name": "subgroup1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Group not found"}).
 
     Raises:
@@ -3005,14 +3005,14 @@ def get_group_descendant_groups(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_descendant_groups(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     search="subgroup"
-        ... )
-        >>> print(response)
-        [{"id": 2, "name": "subgroup1"}, ...]
+        response = get_group_descendant_groups(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                search="subgroup"
+            )
+        print(response)
+        [{"id": 2, "name": "subgroup1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -3061,7 +3061,7 @@ def get_group_projects(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of project details (e.g., [{"id": 1, "name": "project1"}, ...]).
+            - If successful, contains a list of project details (e.g., [{"id": 1, "name": "project1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Group not found"}).
 
     Raises:
@@ -3069,14 +3069,14 @@ def get_group_projects(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_projects(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     include_subgroups=True
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "project1"}, ...]
+        response = get_group_projects(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                include_subgroups=True
+            )
+        print(response)
+        [{"id": 1, "name": "project1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -3125,7 +3125,7 @@ def get_group_merge_requests(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of merge request details (e.g., [{"iid": 1, "title": "Merge"}, ...]).
+            - If successful, contains a list of merge request details (e.g., [{"iid": 1, "title": "Merge"},    ]).
             - If failed, contains an error message (e.g., {"error": "Group not found"}).
 
     Raises:
@@ -3133,14 +3133,14 @@ def get_group_merge_requests(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_merge_requests(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     state="opened"
-        ... )
-        >>> print(response)
-        [{"iid": 1, "title": "Merge"}, ...]
+        response = get_group_merge_requests(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                state="opened"
+            )
+        print(response)
+        [{"iid": 1, "title": "Merge"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -3188,7 +3188,7 @@ def get_project_jobs(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of job details (e.g., [{"id": 1, "name": "test", "status": "success"}, ...]).
+            - If successful, contains a list of job details (e.g., [{"id": 1, "name": "test", "status": "success"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -3196,14 +3196,14 @@ def get_project_jobs(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_jobs(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     scope="success"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "test", "status": "success"}, ...]
+        response = get_project_jobs(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                scope="success"
+            )
+        print(response)
+        [{"id": 1, "name": "test", "status": "success"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -3254,13 +3254,13 @@ def get_project_job(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_job(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     job_id=1
-        ... )
-        >>> print(response)
+        response = get_project_job(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                job_id=1
+            )
+        print(response)
         {"id": 1, "name": "test", "status": "success"}
     """
     client = Api(
@@ -3298,7 +3298,7 @@ def get_project_job_log(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains the job log (e.g., {"log": "..."}).
+            - If successful, contains the job log (e.g., {"log": "   "}).
             - If failed, contains an error message (e.g., {"error": "Job not found"}).
 
     Raises:
@@ -3306,14 +3306,14 @@ def get_project_job_log(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_job_log(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     job_id=1
-        ... )
-        >>> print(response)
-        {"log": "..."}
+        response = get_project_job_log(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                job_id=1
+            )
+        print(response)
+        {"log": "   "}
     """
     client = Api(
         url=gitlab_instance,
@@ -3360,13 +3360,13 @@ async def cancel_project_job(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await cancel_project_job(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     job_id=1
-        ... )
-        >>> print(response)
+        response = await cancel_project_job(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                job_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -3418,13 +3418,13 @@ async def retry_project_job(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await retry_project_job(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     job_id=1
-        ... )
-        >>> print(response)
+        response = await retry_project_job(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                job_id=1
+            )
+        print(response)
         {"id": 1, "name": "test", "status": "pending"}
     """
     if ctx:
@@ -3477,13 +3477,13 @@ async def erase_project_job(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await erase_project_job(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     job_id=1
-        ... )
-        >>> print(response)
+        response = await erase_project_job(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                job_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -3535,13 +3535,13 @@ async def run_project_job(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await run_project_job(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     job_id=1
-        ... )
-        >>> print(response)
+        response = await run_project_job(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                job_id=1
+            )
+        print(response)
         {"id": 1, "name": "test", "status": "running"}
     """
     if ctx:
@@ -3585,7 +3585,7 @@ def get_pipeline_jobs(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of job details (e.g., [{"id": 1, "name": "test", "status": "success"}, ...]).
+            - If successful, contains a list of job details (e.g., [{"id": 1, "name": "test", "status": "success"},    ]).
             - If failed, contains an error message (e.g., {"error": "Pipeline not found"}).
 
     Raises:
@@ -3593,15 +3593,15 @@ def get_pipeline_jobs(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_pipeline_jobs(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_id=1,
-        ...     scope="success"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "test", "status": "success"}, ...]
+        response = get_pipeline_jobs(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_id=1,
+                scope="success"
+            )
+        print(response)
+        [{"id": 1, "name": "test", "status": "success"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -3661,7 +3661,7 @@ def get_group_members(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of member details (e.g., [{"id": 1, "username": "user1"}, ...]).
+            - If successful, contains a list of member details (e.g., [{"id": 1, "username": "user1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Group not found"}).
 
     Raises:
@@ -3669,14 +3669,14 @@ def get_group_members(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_members(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     query="user1"
-        ... )
-        >>> print(response)
-        [{"id": 1, "username": "user1"}, ...]
+        response = get_group_members(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                query="user1"
+            )
+        print(response)
+        [{"id": 1, "username": "user1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -3723,7 +3723,7 @@ def get_project_members(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of member details (e.g., [{"id": 1, "username": "user1"}, ...]).
+            - If successful, contains a list of member details (e.g., [{"id": 1, "username": "user1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -3731,14 +3731,14 @@ def get_project_members(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_members(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     query="user1"
-        ... )
-        >>> print(response)
-        [{"id": 1, "username": "user1"}, ...]
+        response = get_project_members(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                query="user1"
+            )
+        print(response)
+        [{"id": 1, "username": "user1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -3805,15 +3805,15 @@ async def create_merge_request(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_merge_request(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     source_branch="feature",
-        ...     target_branch="main",
-        ...     title="New feature merge"
-        ... )
-        >>> print(response)
+        response = await create_merge_request(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                source_branch="feature",
+                target_branch="main",
+                title="New feature merge"
+            )
+        print(response)
         {"iid": 1, "title": "New feature merge"}
     """
     if ctx:
@@ -3877,21 +3877,21 @@ def get_merge_requests(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of merge request details (e.g., [{"iid": 1, "title": "Merge"}, ...]).
+            - If successful, contains a list of merge request details (e.g., [{"iid": 1, "title": "Merge"},    ]).
             - If failed, contains an error message (e.g., {"error": "Authentication failed"}).
 
     Raises:
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_merge_requests(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     state="opened",
-        ...     author_id=1
-        ... )
-        >>> print(response)
-        [{"iid": 1, "title": "Merge"}, ...]
+        response = get_merge_requests(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                state="opened",
+                author_id=1
+            )
+        print(response)
+        [{"iid": 1, "title": "Merge"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -3940,7 +3940,7 @@ def get_project_merge_requests(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of merge request details (e.g., [{"iid": 1, "title": "Merge"}, ...]).
+            - If successful, contains a list of merge request details (e.g., [{"iid": 1, "title": "Merge"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -3948,14 +3948,14 @@ def get_project_merge_requests(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_merge_requests(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     state="opened"
-        ... )
-        >>> print(response)
-        [{"iid": 1, "title": "Merge"}, ...]
+        response = get_project_merge_requests(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                state="opened"
+            )
+        print(response)
+        [{"iid": 1, "title": "Merge"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -4007,13 +4007,13 @@ def get_project_merge_request(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_merge_request(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     merge_id=1
-        ... )
-        >>> print(response)
+        response = get_project_merge_request(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                merge_id=1
+            )
+        print(response)
         {"iid": 1, "title": "Merge"}
     """
     client = Api(
@@ -4052,7 +4052,7 @@ def get_project_level_merge_request_approval_rules(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of approval rule details (e.g., [{"id": 1, "name": "rule1"}, ...]).
+            - If successful, contains a list of approval rule details (e.g., [{"id": 1, "name": "rule1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -4060,13 +4060,13 @@ def get_project_level_merge_request_approval_rules(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_level_merge_request_approval_rules(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "rule1"}, ...]
+        response = get_project_level_merge_request_approval_rules(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
+        [{"id": 1, "name": "rule1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -4111,13 +4111,13 @@ def get_project_level_merge_request_approval_rule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_level_merge_request_approval_rule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     approval_rule_id=1
-        ... )
-        >>> print(response)
+        response = get_project_level_merge_request_approval_rule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                approval_rule_id=1
+            )
+        print(response)
         {"id": 1, "name": "rule1"}
     """
     client = Api(
@@ -4175,14 +4175,14 @@ async def create_project_level_rule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_project_level_rule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="rule1",
-        ...     approvals_required=2
-        ... )
-        >>> print(response)
+        response = await create_project_level_rule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="rule1",
+                approvals_required=2
+            )
+        print(response)
         {"id": 1, "name": "rule1", "approvals_required": 2}
     """
     if ctx:
@@ -4256,15 +4256,15 @@ async def update_project_level_rule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await update_project_level_rule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     approval_rule_id=1,
-        ...     name="updated_rule",
-        ...     approvals_required=3
-        ... )
-        >>> print(response)
+        response = await update_project_level_rule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                approval_rule_id=1,
+                name="updated_rule",
+                approvals_required=3
+            )
+        print(response)
         {"id": 1, "name": "updated_rule", "approvals_required": 3}
     """
     if ctx:
@@ -4335,13 +4335,13 @@ async def delete_project_level_rule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_project_level_rule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     approval_rule_id=1
-        ... )
-        >>> print(response)
+        response = await delete_project_level_rule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                approval_rule_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -4387,7 +4387,7 @@ def merge_request_level_approvals(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains approval details (e.g., {"approved": true, "approved_by": [...]}).
+            - If successful, contains approval details (e.g., {"approved": true, "approved_by": [   ]}).
             - If failed, contains an error message (e.g., {"error": "Merge request not found"}).
 
     Raises:
@@ -4395,13 +4395,13 @@ def merge_request_level_approvals(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = merge_request_level_approvals(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     merge_request_iid=1
-        ... )
-        >>> print(response)
+        response = merge_request_level_approvals(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                merge_request_iid=1
+            )
+        print(response)
         {"approved": true, "approved_by": [{"id": 1, "username": "user1"}]}
     """
     client = Api(
@@ -4449,13 +4449,13 @@ def get_approval_state_merge_requests(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_approval_state_merge_requests(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     merge_request_iid=1
-        ... )
-        >>> print(response)
+        response = get_approval_state_merge_requests(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                merge_request_iid=1
+            )
+        print(response)
         {"approved": true, "approvals_required": 2}
     """
     client = Api(
@@ -4495,7 +4495,7 @@ def get_merge_request_level_rules(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of approval rule details (e.g., [{"id": 1, "name": "rule1"}, ...]).
+            - If successful, contains a list of approval rule details (e.g., [{"id": 1, "name": "rule1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Merge request not found"}).
 
     Raises:
@@ -4503,14 +4503,14 @@ def get_merge_request_level_rules(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_merge_request_level_rules(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     merge_request_iid=1
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "rule1"}, ...]
+        response = get_merge_request_level_rules(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                merge_request_iid=1
+            )
+        print(response)
+        [{"id": 1, "name": "rule1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -4559,13 +4559,13 @@ async def approve_merge_request(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await approve_merge_request(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     merge_request_iid=1
-        ... )
-        >>> print(response)
+        response = await approve_merge_request(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                merge_request_iid=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -4621,13 +4621,13 @@ async def unapprove_merge_request(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await unapprove_merge_request(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     merge_request_iid=1
-        ... )
-        >>> print(response)
+        response = await unapprove_merge_request(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                merge_request_iid=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -4680,12 +4680,12 @@ def get_group_level_rule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_level_rule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234"
-        ... )
-        >>> print(response)
+        response = get_group_level_rule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234"
+            )
+        print(response)
         {"allow_author_approval": true, "minimum_approvals": 2}
     """
     client = Api(
@@ -4739,13 +4739,13 @@ async def edit_group_level_rule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await edit_group_level_rule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     minimum_approvals=2
-        ... )
-        >>> print(response)
+        response = await edit_group_level_rule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                minimum_approvals=2
+            )
+        print(response)
         {"minimum_approvals": 2}
     """
     if ctx:
@@ -4807,12 +4807,12 @@ def get_project_level_rule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_level_rule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = get_project_level_rule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"allow_author_approval": true, "minimum_approvals": 2}
     """
     client = Api(
@@ -4866,13 +4866,13 @@ async def edit_project_level_rule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await edit_project_level_rule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     minimum_approvals=2
-        ... )
-        >>> print(response)
+        response = await edit_project_level_rule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                minimum_approvals=2
+            )
+        print(response)
         {"minimum_approvals": 2}
     """
     if ctx:
@@ -4929,7 +4929,7 @@ def get_repository_packages(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of package details (e.g., [{"id": 1, "name": "package1"}, ...]).
+            - If successful, contains a list of package details (e.g., [{"id": 1, "name": "package1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -4937,14 +4937,14 @@ def get_repository_packages(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_repository_packages(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     package_type="npm"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "package1"}, ...]
+        response = get_repository_packages(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                package_type="npm"
+            )
+        print(response)
+        [{"id": 1, "name": "package1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -5004,15 +5004,15 @@ async def publish_repository_package(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await publish_repository_package(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     package_name="mypackage",
-        ...     package_version="1.0.0",
-        ...     file_name="mypackage-1.0.0.tar.gz"
-        ... )
-        >>> print(response)
+        response = await publish_repository_package(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                package_name="mypackage",
+                package_version="1.0.0",
+                file_name="mypackage-1.0.0.tar.gz"
+            )
+        print(response)
         {"id": 1, "name": "mypackage", "version": "1.0.0"}
     """
     if ctx:
@@ -5074,7 +5074,7 @@ def download_repository_package(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains download details (e.g., {"url": "https://..."}).
+            - If successful, contains download details (e.g., {"url": "https://   "}).
             - If failed, contains an error message (e.g., {"error": "Package not found"}).
 
     Raises:
@@ -5082,16 +5082,16 @@ def download_repository_package(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = download_repository_package(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     package_name="mypackage",
-        ...     package_version="1.0.0",
-        ...     file_name="mypackage-1.0.0.tar.gz"
-        ... )
-        >>> print(response)
-        {"url": "https://.../mypackage-1.0.0.tar.gz"}
+        response = download_repository_package(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                package_name="mypackage",
+                package_version="1.0.0",
+                file_name="mypackage-1.0.0.tar.gz"
+            )
+        print(response)
+        {"url": "https://   /mypackage-1.0.0.tar.gz"}
     """
     client = Api(
         url=gitlab_instance,
@@ -5144,7 +5144,7 @@ def get_pipelines(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of pipeline details (e.g., [{"id": 1, "status": "success"}, ...]).
+            - If successful, contains a list of pipeline details (e.g., [{"id": 1, "status": "success"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -5152,14 +5152,14 @@ def get_pipelines(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_pipelines(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     status="success"
-        ... )
-        >>> print(response)
-        [{"id": 1, "status": "success"}, ...]
+        response = get_pipelines(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                status="success"
+            )
+        print(response)
+        [{"id": 1, "status": "success"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -5211,13 +5211,13 @@ def get_pipeline(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_pipeline(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_id=1
-        ... )
-        >>> print(response)
+        response = get_pipeline(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_id=1
+            )
+        print(response)
         {"id": 1, "status": "success"}
     """
     client = Api(
@@ -5267,13 +5267,13 @@ async def run_pipeline(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await run_pipeline(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     reference="main"
-        ... )
-        >>> print(response)
+        response = await run_pipeline(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                reference="main"
+            )
+        print(response)
         {"id": 1, "status": "pending"}
     """
     if ctx:
@@ -5328,7 +5328,7 @@ def get_pipeline_schedules(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of schedule details (e.g., [{"id": 1, "description": "schedule1"}, ...]).
+            - If successful, contains a list of schedule details (e.g., [{"id": 1, "description": "schedule1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -5336,13 +5336,13 @@ def get_pipeline_schedules(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_pipeline_schedules(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
-        [{"id": 1, "description": "schedule1"}, ...]
+        response = get_pipeline_schedules(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
+        [{"id": 1, "description": "schedule1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -5387,13 +5387,13 @@ def get_pipeline_schedule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_pipeline_schedule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_schedule_id=1
-        ... )
-        >>> print(response)
+        response = get_pipeline_schedule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_schedule_id=1
+            )
+        print(response)
         {"id": 1, "description": "schedule1"}
     """
     client = Api(
@@ -5433,7 +5433,7 @@ def get_pipelines_triggered_from_schedule(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of pipeline details (e.g., [{"id": 1, "status": "success"}, ...]).
+            - If successful, contains a list of pipeline details (e.g., [{"id": 1, "status": "success"},    ]).
             - If failed, contains an error message (e.g., {"error": "Schedule not found"}).
 
     Raises:
@@ -5441,14 +5441,14 @@ def get_pipelines_triggered_from_schedule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_pipelines_triggered_from_schedule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_schedule_id=1
-        ... )
-        >>> print(response)
-        [{"id": 1, "status": "success"}, ...]
+        response = get_pipelines_triggered_from_schedule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_schedule_id=1
+            )
+        print(response)
+        [{"id": 1, "status": "success"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -5505,15 +5505,15 @@ async def create_pipeline_schedule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_pipeline_schedule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     description="Daily build",
-        ...     ref="main",
-        ...     cron="0 0 * * *"
-        ... )
-        >>> print(response)
+        response = await create_pipeline_schedule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                description="Daily build",
+                ref="main",
+                cron="0 0 * * *"
+            )
+        print(response)
         {"id": 1, "description": "Daily build"}
     """
     if ctx:
@@ -5591,14 +5591,14 @@ async def edit_pipeline_schedule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await edit_pipeline_schedule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_schedule_id=1,
-        ...     description="Updated daily build"
-        ... )
-        >>> print(response)
+        response = await edit_pipeline_schedule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_schedule_id=1,
+                description="Updated daily build"
+            )
+        print(response)
         {"id": 1, "description": "Updated daily build"}
     """
     if ctx:
@@ -5669,13 +5669,13 @@ async def take_pipeline_schedule_ownership(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await take_pipeline_schedule_ownership(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_schedule_id=1
-        ... )
-        >>> print(response)
+        response = await take_pipeline_schedule_ownership(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_schedule_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -5731,13 +5731,13 @@ async def delete_pipeline_schedule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_pipeline_schedule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_schedule_id=1
-        ... )
-        >>> print(response)
+        response = await delete_pipeline_schedule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_schedule_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -5793,13 +5793,13 @@ async def run_pipeline_schedule(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await run_pipeline_schedule(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_schedule_id=1
-        ... )
-        >>> print(response)
+        response = await run_pipeline_schedule(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_schedule_id=1
+            )
+        print(response)
         {"id": 1, "status": "pending"}
     """
     if ctx:
@@ -5861,15 +5861,15 @@ async def create_pipeline_schedule_variable(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_pipeline_schedule_variable(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_schedule_id=1,
-        ...     key="VAR1",key: str = None,
-        ...     value="value1"
-        ... )
-        >>> print(response)
+        response = await create_pipeline_schedule_variable(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_schedule_id=1,
+                key="VAR1",key: str = None,
+                value="value1"
+            )
+        print(response)
         {"key": "VAR1", "value": "value1"}
     """
     if ctx:
@@ -5942,14 +5942,14 @@ async def delete_pipeline_schedule_variable(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_pipeline_schedule_variable(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     pipeline_schedule_id=1,
-        ...     key="VAR1"
-        ... )
-        >>> print(response)
+        response = await delete_pipeline_schedule_variable(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                pipeline_schedule_id=1,
+                key="VAR1"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -6000,21 +6000,21 @@ def get_projects(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of project details (e.g., [{"id": 1, "name": "project1"}, ...]).
+            - If successful, contains a list of project details (e.g., [{"id": 1, "name": "project1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Authentication failed"}).
 
     Raises:
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_projects(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     owned=True,
-        ...     visibility="public"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "project1"}, ...]
+        response = get_projects(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                owned=True,
+                visibility="public"
+            )
+        print(response)
+        [{"id": 1, "name": "project1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -6063,12 +6063,12 @@ def get_project(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = get_project(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"id": 1, "name": "project1"}
     """
     client = Api(
@@ -6106,7 +6106,7 @@ def get_nested_projects_by_group(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of project details (e.g., [{"id": 1, "name": "project1"}, ...]).
+            - If successful, contains a list of project details (e.g., [{"id": 1, "name": "project1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Group not found"}).
 
     Raises:
@@ -6114,14 +6114,14 @@ def get_nested_projects_by_group(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_nested_projects_by_group(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     per_page=20
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "project1"}, ...]
+        response = get_nested_projects_by_group(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                per_page=20
+            )
+        print(response)
+        [{"id": 1, "name": "project1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -6162,7 +6162,7 @@ def get_project_contributors(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of contributor details (e.g., [{"id": 1, "name": "user1"}, ...]).
+            - If successful, contains a list of contributor details (e.g., [{"id": 1, "name": "user1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -6170,13 +6170,13 @@ def get_project_contributors(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_contributors(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "user1"}, ...]
+        response = get_project_contributors(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
+        [{"id": 1, "name": "user1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -6219,12 +6219,12 @@ def get_project_statistics(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_statistics(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = get_project_statistics(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"commits_count": 100, "storage_size": 1024}
     """
     client = Api(
@@ -6276,13 +6276,13 @@ async def edit_project(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await edit_project(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="New Project Name"
-        ... )
-        >>> print(response)
+        response = await edit_project(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="New Project Name"
+            )
+        print(response)
         {"id": 1, "name": "New Project Name"}
     """
     if ctx:
@@ -6340,7 +6340,7 @@ def get_project_groups(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of group details (e.g., [{"id": 1, "name": "group1"}, ...]).
+            - If successful, contains a list of group details (e.g., [{"id": 1, "name": "group1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -6348,14 +6348,14 @@ def get_project_groups(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_groups(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     search="group1"
-        ... )
-        >>> print(response)
-        [{"id": 1, "name": "group1"}, ...]
+        response = get_project_groups(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                search="group1"
+            )
+        print(response)
+        [{"id": 1, "name": "group1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -6407,12 +6407,12 @@ async def archive_project(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await archive_project(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = await archive_project(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -6463,12 +6463,12 @@ async def unarchive_project(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await unarchive_project(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = await unarchive_project(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -6518,12 +6518,12 @@ async def delete_project(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_project(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = await delete_project(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -6579,14 +6579,14 @@ async def share_project(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await share_project(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     group_id="5678",
-        ...     group_access="developer"
-        ... )
-        >>> print(response)
+        response = await share_project(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                group_id="5678",
+                group_access="developer"
+            )
+        print(response)
         {"project_id": "1234", "group_id": "5678", "group_access": "developer"}
     """
     if ctx:
@@ -6641,7 +6641,7 @@ def get_protected_branches(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of protected branch details (e.g., [{"name": "main", "push_access_levels": [...]}, ...]).
+            - If successful, contains a list of protected branch details (e.g., [{"name": "main", "push_access_levels": [   ]},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -6649,13 +6649,13 @@ def get_protected_branches(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_protected_branches(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
-        [{"name": "main", "push_access_levels": [...]}, ...]
+        response = get_protected_branches(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
+        [{"name": "main", "push_access_levels": [   ]},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -6692,7 +6692,7 @@ def get_protected_branch(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains branch details (e.g., {"name": "main", "push_access_levels": [...]}).
+            - If successful, contains branch details (e.g., {"name": "main", "push_access_levels": [   ]}).
             - If failed, contains an error message (e.g., {"error": "Branch not found"}).
 
     Raises:
@@ -6700,14 +6700,14 @@ def get_protected_branch(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_protected_branch(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     branch="main"
-        ... )
-        >>> print(response)
-        {"name": "main", "push_access_levels": [...]}
+        response = get_protected_branch(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                branch="main"
+            )
+        print(response)
+        {"name": "main", "push_access_levels": [   ]}
     """
     client = Api(
         url=gitlab_instance,
@@ -6762,7 +6762,7 @@ async def protect_branch(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains branch protection details (e.g., {"name": "main", "push_access_levels": [...]}).
+            - If successful, contains branch protection details (e.g., {"name": "main", "push_access_levels": [   ]}).
             - If failed, contains an error message (e.g., {"error": "Branch not found"}).
 
     Raises:
@@ -6770,15 +6770,15 @@ async def protect_branch(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await protect_branch(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     branch="main",
-        ...     push_access_level="maintainer"
-        ... )
-        >>> print(response)
-        {"name": "main", "push_access_levels": [...], "merge_access_levels": [...], ...}
+        response = await protect_branch(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                branch="main",
+                push_access_level="maintainer"
+            )
+        print(response)
+        {"name": "main", "push_access_levels": [   ], "merge_access_levels": [   ],    }
     """
     if ctx:
         await ctx.info(f"Protecting branch '{branch}' in project {project_id}")
@@ -6843,13 +6843,13 @@ async def unprotect_branch(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await unprotect_branch(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     branch="main"
-        ... )
-        >>> print(response)
+        response = await unprotect_branch(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                branch="main"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -6903,14 +6903,14 @@ async def require_code_owner_approvals_single_branch(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await require_code_owner_approvals_single_branch(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     branch="main",
-        ...     code_owner_approval_required=True
-        ... )
-        >>> print(response)
+        response = await require_code_owner_approvals_single_branch(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                branch="main",
+                code_owner_approval_required=True
+            )
+        print(response)
         {"name": "main", "code_owner_approval_required": true}
     """
     if ctx:
@@ -6963,7 +6963,7 @@ def get_releases(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of release details (e.g., [{"tag_name": "v1.0.0", "name": "Release 1"}, ...]).
+            - If successful, contains a list of release details (e.g., [{"tag_name": "v1.0.0", "name": "Release 1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -6971,14 +6971,14 @@ def get_releases(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_releases(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     sort="released_at"
-        ... )
-        >>> print(response)
-        [{"tag_name": "v1.0.0", "name": "Release 1"}, ...]
+        response = get_releases(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                sort="released_at"
+            )
+        print(response)
+        [{"tag_name": "v1.0.0", "name": "Release 1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -7028,12 +7028,12 @@ def get_latest_release(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_latest_release(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = get_latest_release(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"tag_name": "v1.0.0", "name": "Release 1"}
     """
     client = Api(
@@ -7077,12 +7077,12 @@ def get_latest_release_evidence(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_latest_release_evidence(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = get_latest_release_evidence(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"id": 1, "collected_at": "2023-01-01"}
     """
     client = Api(
@@ -7120,7 +7120,7 @@ def get_latest_release_asset(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains asset details (e.g., {"url": "https://.../file.zip"}).
+            - If successful, contains asset details (e.g., {"url": "https://   /file.zip"}).
             - If failed, contains an error message (e.g., {"error": "Asset not found"}).
 
     Raises:
@@ -7128,14 +7128,14 @@ def get_latest_release_asset(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_latest_release_asset(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     direct_asset_path="assets/file.zip"
-        ... )
-        >>> print(response)
-        {"url": "https://.../file.zip"}
+        response = get_latest_release_asset(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                direct_asset_path="assets/file.zip"
+            )
+        print(response)
+        {"url": "https://   /file.zip"}
     """
     client = Api(
         url=gitlab_instance,
@@ -7178,7 +7178,7 @@ def get_group_releases(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of release details (e.g., [{"tag_name": "v1.0.0", "name": "Release 1"}, ...]).
+            - If successful, contains a list of release details (e.g., [{"tag_name": "v1.0.0", "name": "Release 1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Group not found"}).
 
     Raises:
@@ -7186,14 +7186,14 @@ def get_group_releases(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_releases(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     sort="released_at"
-        ... )
-        >>> print(response)
-        [{"tag_name": "v1.0.0", "name": "Release 1"}, ...]
+        response = get_group_releases(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                sort="released_at"
+            )
+        print(response)
+        [{"tag_name": "v1.0.0", "name": "Release 1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -7238,7 +7238,7 @@ def download_release_asset(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains asset details (e.g., {"url": "https://.../file.zip"}).
+            - If successful, contains asset details (e.g., {"url": "https://   /file.zip"}).
             - If failed, contains an error message (e.g., {"error": "Asset not found"}).
 
     Raises:
@@ -7246,15 +7246,15 @@ def download_release_asset(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = download_release_asset(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     tag_name="v1.0.0",
-        ...     direct_asset_path="assets/file.zip"
-        ... )
-        >>> print(response)
-        {"url": "https://.../file.zip"}
+        response = download_release_asset(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                tag_name="v1.0.0",
+                direct_asset_path="assets/file.zip"
+            )
+        print(response)
+        {"url": "https://   /file.zip"}
     """
     client = Api(
         url=gitlab_instance,
@@ -7301,13 +7301,13 @@ def get_release_by_tag(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_release_by_tag(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     tag_name="v1.0.0"
-        ... )
-        >>> print(response)
+        response = get_release_by_tag(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                tag_name="v1.0.0"
+            )
+        print(response)
         {"tag_name": "v1.0.0", "name": "Release 1"}
     """
     client = Api(
@@ -7363,14 +7363,14 @@ async def create_release(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_release(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="Release 1",
-        ...     tag_name="v1.0.0"
-        ... )
-        >>> print(response)
+        response = await create_release(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="Release 1",
+                tag_name="v1.0.0"
+            )
+        print(response)
         {"tag_name": "v1.0.0", "name": "Release 1"}
     """
     if ctx:
@@ -7436,13 +7436,13 @@ async def create_release_evidence(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_release_evidence(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     tag_name="v1.0.0"
-        ... )
-        >>> print(response)
+        response = await create_release_evidence(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                tag_name="v1.0.0"
+            )
+        print(response)
         {"id": 1, "collected_at": "2023-01-01"}
     """
     if ctx:
@@ -7504,14 +7504,14 @@ async def update_release(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await update_release(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     tag_name="v1.0.0",
-        ...     name="Updated Release"
-        ... )
-        >>> print(response)
+        response = await update_release(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                tag_name="v1.0.0",
+                name="Updated Release"
+            )
+        print(response)
         {"tag_name": "v1.0.0", "name": "Updated Release"}
     """
     if ctx:
@@ -7578,13 +7578,13 @@ async def delete_release(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_release(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     tag_name="v1.0.0"
-        ... )
-        >>> print(response)
+        response = await delete_release(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                tag_name="v1.0.0"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -7631,20 +7631,20 @@ def get_runners(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of runner details (e.g., [{"id": 1, "description": "runner1"}, ...]).
+            - If successful, contains a list of runner details (e.g., [{"id": 1, "description": "runner1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Authentication failed"}).
 
     Raises:
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_runners(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     status="online"
-        ... )
-        >>> print(response)
-        [{"id": 1, "description": "runner1"}, ...]
+        response = get_runners(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                status="online"
+            )
+        print(response)
+        [{"id": 1, "description": "runner1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -7693,12 +7693,12 @@ def get_runner(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_runner(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     runner_id=1
-        ... )
-        >>> print(response)
+        response = get_runner(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                runner_id=1
+            )
+        print(response)
         {"id": 1, "description": "runner1"}
     """
     client = Api(
@@ -7758,13 +7758,13 @@ async def update_runner_details(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await update_runner_details(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     runner_id=1,
-        ...     description="Updated Runner"
-        ... )
-        >>> print(response)
+        response = await update_runner_details(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                runner_id=1,
+                description="Updated Runner"
+            )
+        print(response)
         {"id": 1, "description": "Updated Runner"}
     """
     if ctx:
@@ -7830,13 +7830,13 @@ async def pause_runner(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await pause_runner(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     runner_id=1,
-        ...     active=False
-        ... )
-        >>> print(response)
+        response = await pause_runner(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                runner_id=1,
+                active=False
+            )
+        print(response)
         {"id": 1, "active": false}
     """
     if ctx:
@@ -7880,7 +7880,7 @@ def get_runner_jobs(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of job details (e.g., [{"id": 1, "status": "success"}, ...]).
+            - If successful, contains a list of job details (e.g., [{"id": 1, "status": "success"},    ]).
             - If failed, contains an error message (e.g., {"error": "Runner not found"}).
 
     Raises:
@@ -7888,14 +7888,14 @@ def get_runner_jobs(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_runner_jobs(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     runner_id=1,
-        ...     status="success"
-        ... )
-        >>> print(response)
-        [{"id": 1, "status": "success"}, ...]
+        response = get_runner_jobs(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                runner_id=1,
+                status="success"
+            )
+        print(response)
+        [{"id": 1, "status": "success"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -7939,7 +7939,7 @@ def get_project_runners(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of runner details (e.g., [{"id": 1, "description": "runner1"}, ...]).
+            - If successful, contains a list of runner details (e.g., [{"id": 1, "description": "runner1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -7947,14 +7947,14 @@ def get_project_runners(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_project_runners(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     scope="active"
-        ... )
-        >>> print(response)
-        [{"id": 1, "description": "runner1"}, ...]
+        response = get_project_runners(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                scope="active"
+            )
+        print(response)
+        [{"id": 1, "description": "runner1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -8008,13 +8008,13 @@ async def enable_project_runner(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await enable_project_runner(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     runner_id=1
-        ... )
-        >>> print(response)
+        response = await enable_project_runner(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                runner_id=1
+            )
+        print(response)
         {"id": 1, "status": "enabled"}
     """
     if ctx:
@@ -8066,13 +8066,13 @@ async def delete_project_runner(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_project_runner(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     runner_id=1
-        ... )
-        >>> print(response)
+        response = await delete_project_runner(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                runner_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -8114,7 +8114,7 @@ def get_group_runners(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of runner details (e.g., [{"id": 1, "description": "runner1"}, ...]).
+            - If successful, contains a list of runner details (e.g., [{"id": 1, "description": "runner1"},    ]).
             - If failed, contains an error message (e.g., {"error": "Group not found"}).
 
     Raises:
@@ -8122,14 +8122,14 @@ def get_group_runners(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_group_runners(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234",
-        ...     scope="active"
-        ... )
-        >>> print(response)
-        [{"id": 1, "description": "runner1"}, ...]
+        response = get_group_runners(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234",
+                scope="active"
+            )
+        print(response)
+        [{"id": 1, "description": "runner1"},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -8189,13 +8189,13 @@ async def register_new_runner(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await register_new_runner(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     token="runner_token",
-        ...     description="New Runner"
-        ... )
-        >>> print(response)
+        response = await register_new_runner(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                token="runner_token",
+                description="New Runner"
+            )
+        print(response)
         {"id": 1, "description": "New Runner"}
     """
     if ctx:
@@ -8253,12 +8253,12 @@ async def delete_runner(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_runner(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     runner_id=1
-        ... )
-        >>> print(response)
+        response = await delete_runner(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                runner_id=1
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -8314,12 +8314,12 @@ async def verify_runner_authentication(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await verify_runner_authentication(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     token="runner_token"
-        ... )
-        >>> print(response)
+        response = await verify_runner_authentication(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                token="runner_token"
+            )
+        print(response)
         {"status": "verified"}
     """
     if ctx:
@@ -8366,11 +8366,11 @@ async def reset_gitlab_runner_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await reset_gitlab_runner_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token"
-        ... )
-        >>> print(response)
+        response = await reset_gitlab_runner_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token"
+            )
+        print(response)
         {"token": "new_token"}
     """
     if ctx:
@@ -8420,12 +8420,12 @@ async def reset_project_runner_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await reset_project_runner_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234"
-        ... )
-        >>> print(response)
+        response = await reset_project_runner_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234"
+            )
+        print(response)
         {"token": "new_token"}
     """
     if ctx:
@@ -8475,12 +8475,12 @@ async def reset_group_runner_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await reset_group_runner_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     group_id="1234"
-        ... )
-        >>> print(response)
+        response = await reset_group_runner_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                group_id="1234"
+            )
+        print(response)
         {"token": "new_token"}
     """
     if ctx:
@@ -8532,13 +8532,13 @@ async def reset_token(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await reset_token(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     runner_id=1,
-        ...     token="current_token"
-        ... )
-        >>> print(response)
+        response = await reset_token(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                runner_id=1,
+                token="current_token"
+            )
+        print(response)
         {"token": "new_token"}
     """
     if ctx:
@@ -8583,7 +8583,7 @@ def get_tags(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of tag details (e.g., [{"name": "v1.0.0", "commit": {...}}, ...]).
+            - If successful, contains a list of tag details (e.g., [{"name": "v1.0.0", "commit": {   }},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -8591,14 +8591,14 @@ def get_tags(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_tags(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     search="v1"
-        ... )
-        >>> print(response)
-        [{"name": "v1.0.0", "commit": {...}}, ...]
+        response = get_tags(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                search="v1"
+            )
+        print(response)
+        [{"name": "v1.0.0", "commit": {   }},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -8642,7 +8642,7 @@ def get_tag(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains tag details (e.g., {"name": "v1.0.0", "commit": {...}}).
+            - If successful, contains tag details (e.g., {"name": "v1.0.0", "commit": {   }}).
             - If failed, contains an error message (e.g., {"error": "Tag not found"}).
 
     Raises:
@@ -8650,14 +8650,14 @@ def get_tag(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_tag(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="v1.0.0"
-        ... )
-        >>> print(response)
-        {"name": "v1.0.0", "commit": {...}}
+        response = get_tag(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="v1.0.0"
+            )
+        print(response)
+        {"name": "v1.0.0", "commit": {   }}
     """
     client = Api(
         url=gitlab_instance,
@@ -8702,7 +8702,7 @@ async def create_tag(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains tag details (e.g., {"name": "v1.0.0", "commit": {...}}).
+            - If successful, contains tag details (e.g., {"name": "v1.0.0", "commit": {   }}).
             - If failed, contains an error message (e.g., {"error": "Invalid reference"}).
 
     Raises:
@@ -8710,15 +8710,15 @@ async def create_tag(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await create_tag(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="v1.0.0",
-        ...     ref="main"
-        ... )
-        >>> print(response)
-        {"name": "v1.0.0", "commit": {...}}
+        response = await create_tag(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="v1.0.0",
+                ref="main"
+            )
+        print(response)
+        {"name": "v1.0.0", "commit": {   }}
     """
     if ctx:
         await ctx.info(f"Creating tag '{name}' in project {project_id}")
@@ -8783,13 +8783,13 @@ async def delete_tag(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await delete_tag(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="v1.0.0"
-        ... )
-        >>> print(response)
+        response = await delete_tag(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="v1.0.0"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
@@ -8831,7 +8831,7 @@ def get_protected_tags(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains a list of protected tag details (e.g., [{"name": "v1.0.0", "create_access_levels": [...]}, ...]).
+            - If successful, contains a list of protected tag details (e.g., [{"name": "v1.0.0", "create_access_levels": [   ]},    ]).
             - If failed, contains an error message (e.g., {"error": "Project not found"}).
 
     Raises:
@@ -8839,14 +8839,14 @@ def get_protected_tags(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_protected_tags(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="v1"
-        ... )
-        >>> print(response)
-        [{"name": "v1.0.0", "create_access_levels": [...]}, ...]
+        response = get_protected_tags(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="v1"
+            )
+        print(response)
+        [{"name": "v1.0.0", "create_access_levels": [   ]},    ]
     """
     client = Api(
         url=gitlab_instance,
@@ -8890,7 +8890,7 @@ def get_protected_tag(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains tag details (e.g., {"name": "v1.0.0", "create_access_levels": [...]}).
+            - If successful, contains tag details (e.g., {"name": "v1.0.0", "create_access_levels": [   ]}).
             - If failed, contains an error message (e.g., {"error": "Tag not found"}).
 
     Raises:
@@ -8898,14 +8898,14 @@ def get_protected_tag(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = get_protected_tag(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="v1.0.0"
-        ... )
-        >>> print(response)
-        {"name": "v1.0.0", "create_access_levels": [...]}
+        response = get_protected_tag(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="v1.0.0"
+            )
+        print(response)
+        {"name": "v1.0.0", "create_access_levels": [   ]}
     """
     client = Api(
         url=gitlab_instance,
@@ -8948,7 +8948,7 @@ async def protect_tag(
 
     Returns:
         dict: A dictionary containing the API response.
-            - If successful, contains tag protection details (e.g., {"name": "v1.0.0", "create_access_levels": [...]}).
+            - If successful, contains tag protection details (e.g., {"name": "v1.0.0", "create_access_levels": [   ]}).
             - If failed, contains an error message (e.g., {"error": "Tag not found"}).
 
     Raises:
@@ -8956,15 +8956,15 @@ async def protect_tag(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await protect_tag(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="v1.0.0",
-        ...     create_access_level="maintainer"
-        ... )
-        >>> print(response)
-        {"name": "v1.0.0", "create_access_levels": [...]}
+        response = await protect_tag(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="v1.0.0",
+                create_access_level="maintainer"
+            )
+        print(response)
+        {"name": "v1.0.0", "create_access_levels": [   ]}
     """
     if ctx:
         await ctx.info(f"Protecting tag '{name}' in project {project_id}")
@@ -9029,13 +9029,13 @@ async def unprotect_tag(
         RuntimeError: If the GitLab API request fails due to network issues, authentication errors, or other API-related failures.
 
     Example:
-        >>> response = await unprotect_tag(
-        ...     gitlab_instance="https://gitlab.com",
-        ...     access_token="your_token",
-        ...     project_id="1234",
-        ...     name="v1.0.0"
-        ... )
-        >>> print(response)
+        response = await unprotect_tag(
+                gitlab_instance="https://gitlab.com",
+                access_token="your_token",
+                project_id="1234",
+                name="v1.0.0"
+            )
+        print(response)
         {"status": "success"}
     """
     if ctx:
