@@ -64,6 +64,46 @@ Additional Features:
 
 If your API call isn't supported, you can always run the standard custom API endpoint function to get/post/put/delete and endpoint
 
+#### Using an an MCP Server:
+
+AI Prompt:
+```text
+Get me the details of my gitlab project.
+My gitlab instance is
+http://gitlab.arpa/api/v4/
+
+
+Access token: glpat-*************
+And Project ID is 420.
+```
+
+AI Response:
+```text
+Here are the details for your GitLab project:
+
+Project Name: Docker Registry
+
+Project ID: 420
+
+Namespace: Homelab
+
+Visibility: Internal
+
+Created: November 13, 1999
+
+Default Branch: main
+
+Last Activity: August 20, 2025
+
+Web URL: 
+http://gitlab.arpa/homelab/docker-registry
+
+This project is configured with container registry capabilities 
+and supports CI/CD pipelines, merge requests, and issue tracking. 
+It is currently active with no open issues and follows 
+the default branch strategy for its workflow.
+
+```
 
 <details>
   <summary><b>Usage:</b></summary>
