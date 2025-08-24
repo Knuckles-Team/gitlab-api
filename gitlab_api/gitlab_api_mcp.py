@@ -9095,7 +9095,7 @@ def gitlab_api_mcp(argv: List[str]) -> None:
     if transport == "stdio":
         mcp.run(transport="stdio")
     else:
-        mcp.run(transport="tcp", host=host, port=port)
+        mcp.run(transport="http", host=host, port=port)
 
 
 def main() -> None:
