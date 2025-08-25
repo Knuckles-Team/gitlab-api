@@ -108,7 +108,7 @@ the default branch strategy for its workflow.
 <details>
   <summary><b>Usage:</b></summary>
 
-Using the API directly
+### Use API directly
 
 ```python
 #!/usr/bin/python
@@ -286,9 +286,27 @@ if __name__ == "__main__":
 
 ```
 
-Use with Agentic AI
+### Use with AI
 
+Deploy MCP Server as a Service
+```bash
+docker pull knucklessg1/gitlab:latest
+```
 
+Modify the `compose.yml`
+
+```compose
+services:
+  gitlab-mcp:
+    image: knucklessg1/gitlab:latest
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8003
+    ports:
+      - 8003:8003
+```
+
+Configure `mcp.json`
 
 ```json
 {
