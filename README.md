@@ -373,7 +373,6 @@ npx @modelcontextprotocol/inspector gitlab-mcp
 
 </details>
 
-
 <details>
   <summary><b>Repository Owners:</b></summary>
 
