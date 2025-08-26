@@ -9,7 +9,7 @@ from pip._internal.network.session import PipSession
 from pip._internal.req import parse_requirements
 
 readme = Path("README.md").read_text()
-version = os.environ.get("BUILD_VERSION", "1.0.0")
+version = os.environ.get("NEW_VERSION", "1.0.0")
 requirements = parse_requirements(
     os.path.join(os.path.dirname(__file__), "requirements.txt"), session=PipSession()
 )
