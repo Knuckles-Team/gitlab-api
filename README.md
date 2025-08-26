@@ -308,6 +308,9 @@ services:
 
 Configure `mcp.json`
 
+Store secrets in environment variables with lookup in JSON file, 
+otherwise plain text storage will work as well although not recommended.
+
 ```json
 {
   "mcpServers": {
@@ -316,7 +319,7 @@ Configure `mcp.json`
     },
     "env": {
       "GITLAB_INSTANCE": "http://gitlab.com/api/v4/",
-      "ACCESS_TOKEN": "glpat-abc123youandme"
+      "ACCESS_TOKEN": "${env:ACCESS_TOKEN}" // "glpat-abc123youandme"
     },
     "timeout": 300000
   }
