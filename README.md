@@ -93,12 +93,12 @@ Default Branch: main
 
 Last Activity: August 20, 2025
 
-Web URL: 
+Web URL:
 http://gitlab.arpa/homelab/docker-registry
 
-This project is configured with container registry capabilities 
-and supports CI/CD pipelines, merge requests, and issue tracking. 
-It is currently active with no open issues and follows 
+This project is configured with container registry capabilities
+and supports CI/CD pipelines, merge requests, and issue tracking.
+It is currently active with no open issues and follows
 the default branch strategy for its workflow.
 
 ```

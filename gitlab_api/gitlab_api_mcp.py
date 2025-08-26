@@ -5,7 +5,6 @@ import os
 import getopt
 import sys
 from gitlab_api.gitlab_api import Api
-from gitlab_api.gitlab_response_models import Response
 from fastmcp import FastMCP, Context
 from typing import Optional, List, Dict
 
@@ -13,6 +12,7 @@ mcp = FastMCP("GitLab")
 environment_gitlab_instance = os.environ.get("GITLAB_INSTANCE", None)
 environment_access_token = os.environ.get("ACCESS_TOKEN", None)
 environment_verify = os.environ.get("VERIFY", True)
+
 
 # Branches Tools
 @mcp.tool()
