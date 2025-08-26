@@ -2573,7 +2573,7 @@ class Api(object):
         - ParameterError: If invalid parameters are provided.
         """
         pipeline = PipelineModel(**kwargs)
-        if pipeline.project_id is None or pipeline.reference is None:
+        if pipeline.project_id is None or pipeline.ref is None:
             raise MissingParameterError
         if pipeline.variables:
             response = self._session.post(

@@ -37,17 +37,17 @@ class BranchModel(BaseModel):
     Attributes:
         project_id (Union[int, str]): The identifier of the project associated with the branch.
         branch (str, optional): The name of the branch.
-        reference (str, optional): Reference information for the branch.
+        ref (str, optional): Reference information for the branch.
         api_parameters (str): Additional API parameters for the group.
 
     Comments:
         This model includes a validator `validate_required_parameters` to ensure that the `project_id` field is
-        provided when either `branch` or `reference` is specified.
+        provided when either `branch` or `ref` is specified.
     """
 
     project_id: Union[int, str]
     branch: Optional[str] = None
-    reference: Optional[str] = None
+    ref: Optional[str] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
     def model_post_init(self, __context):
@@ -57,8 +57,8 @@ class BranchModel(BaseModel):
         self.api_parameters = {}
         if self.branch:
             self.api_parameters["branch"] = self.branch
-        if self.reference:
-            self.api_parameters["ref"] = self.reference
+        if self.ref:
+            self.api_parameters["ref"] = self.ref
 
 
 class CommitModel(BaseModel):
@@ -72,7 +72,7 @@ class CommitModel(BaseModel):
     - dry_run (bool): Flag indicating a dry run.
     - message (str): Commit message.
     - state (str): State of the commit.
-    - reference (str): Reference identifier.
+    - ref (str): Reference identifier.
     - name (str): Name of the commit.
     - context (str): Context of the commit.
     - target_url (str): Target URL for the commit.
@@ -108,7 +108,7 @@ class CommitModel(BaseModel):
     dry_run: Optional[bool] = None
     message: Optional[str] = None
     state: Optional[str] = None
-    reference: Optional[str] = None
+    ref: Optional[str] = None
     name: Optional[str] = None
     context: Optional[str] = None
     target_url: Optional[Union[HttpUrl, str]] = None
@@ -155,7 +155,7 @@ class CommitModel(BaseModel):
     @field_validator(
         "commit_hash",
         "branch",
-        "reference",
+        "ref",
         "name",
         "context",
         "note",
@@ -339,8 +339,8 @@ class CommitModel(BaseModel):
             data["line_type"] = values.get("line_type")
         if "state" in values:
             data["state"] = values.get("state")
-        if "reference" in values:
-            data["ref"] = values.get("reference")
+        if "ref" in values:
+            data["ref"] = values.get("ref")
         if "name" in values:
             data["name"] = values.get("name")
         if "context" in values:
@@ -1700,8 +1700,8 @@ class PackageModel(BaseModel):
             self.api_parameters["status"] = self.status
         if self.per_page:
             self.api_parameters["per_page"] = self.per_page
-        if self.reference:
-            self.api_parameters["ref"] = self.reference
+        if self.ref:
+            self.api_parameters["ref"] = self.ref
 
     @field_validator("file_name", "package_name")
     def validate_file_name(cls, value):
@@ -1774,7 +1774,7 @@ class PipelineModel(BaseModel):
     - per_page (int): Number of items per page.
     - page (int): Page number.
     - pipeline_id (Union[int, str]): The ID of the pipeline.
-    - reference (str): Reference for the pipeline.
+    - ref (str): Reference for the pipeline.
     - variables (Dict): Variables associated with the pipeline.
     - api_parameters (str): Additional API parameters.
 
@@ -1794,7 +1794,7 @@ class PipelineModel(BaseModel):
     page: Optional[int] = Field(description="Pagination page", default=1)
     status: Optional[str] = Field(description="Status", default=None)
     pipeline_id: Optional[Union[int, str]] = None
-    reference: Optional[str] = None
+    ref: Optional[str] = None
     variables: Optional[Dict] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
@@ -1813,8 +1813,8 @@ class PipelineModel(BaseModel):
             self.api_parameters["total_pages"] = self.total_pages
         if self.status:
             self.api_parameters["status"] = self.status
-        if self.reference:
-            self.api_parameters["ref"] = self.reference
+        if self.ref:
+            self.api_parameters["ref"] = self.ref
 
 
 class ProjectModel(BaseModel):
@@ -2116,6 +2116,8 @@ class ProjectModel(BaseModel):
             self.api_parameters["topic"] = self.topic
         if self.visibility:
             self.api_parameters["visibility"] = self.visibility
+        if self.ref:
+            self.api_parameters["ref"] = self.ref
 
     @model_validator(mode="before")
     def build_data(cls, values):
@@ -2510,7 +2512,7 @@ class ReleaseModel(BaseModel):
     tag_name: Optional[str] = None
     description: Optional[str] = None
     tag_message: Optional[str] = None
-    reference: Optional[str] = None
+    ref: Optional[str] = None
     direct_asset_path: Optional[str] = None
     name: Optional[List[str]] = None
     milestones: Optional[str] = None
