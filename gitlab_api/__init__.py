@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-from gitlab_api.version import __version__, __author__, __credits__
 from gitlab_api.gitlab_api_mcp import main
 from gitlab_api.gitlab_input_models import (
     BranchModel,
@@ -189,10 +188,6 @@ GitLab API
 
 A Python Wrapper for GitLab API
 """
-
-__version__ = __version__
-__author__ = __author__
-__credits__ = __credits__
 
 __all__ = [
     "upsert",
