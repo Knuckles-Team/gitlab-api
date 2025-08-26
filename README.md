@@ -280,7 +280,6 @@ if __name__ == "__main__":
 
     session.close()
     print("Session Closed")
-
 ```
 
 ### Use with AI
