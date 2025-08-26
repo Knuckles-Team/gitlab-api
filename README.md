@@ -33,7 +33,6 @@ Additional Features:
 - Save Pydantic models to pickle files locally
 - Easily convert Pydantic to SQLAlchemy models for quick database insertion
 
-
 ### API Calls:
 - Branches
 - Commits
