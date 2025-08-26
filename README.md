@@ -313,7 +313,12 @@ Configure `mcp.json`
   "mcpServers": {
     "gitlab": {
       "command": "gitlab-mcp"
-    }
+    },
+    "env": {
+      "GITLAB_INSTANCE": "http://gitlab.com/api/v4/",
+      "ACCESS_TOKEN": "glpat-abc123youandme"
+    },
+    "timeout": 300000
   }
 }
 

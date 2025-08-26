@@ -12,6 +12,7 @@ from typing import Optional, List, Dict
 mcp = FastMCP("GitLab")
 environment_gitlab_instance = os.environ.get("GITLAB_INSTANCE", None)
 environment_access_token = os.environ.get("ACCESS_TOKEN", None)
+environment_verify = os.environ.get("VERIFY", True)
 
 # Branches Tools
 @mcp.tool()
@@ -21,7 +22,7 @@ def get_branches(
     project_id: str = None,
     search: Optional[str] = None,
     regex: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of branches in a GitLab project, optionally filtered by search string or regex.
 
@@ -77,7 +78,7 @@ def get_branches(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_branches(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -86,7 +87,7 @@ def get_branch(
     access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details about a specific branch in a GitLab project.
 
@@ -137,7 +138,7 @@ def get_branch(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_branch(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -147,7 +148,7 @@ def create_branch(
     project_id: str = None,
     branch: str = None,
     ref: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Create a new branch in a GitLab project from a reference (branch name, tag, or commit SHA).
 
@@ -200,7 +201,7 @@ def create_branch(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.create_branch(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -209,7 +210,7 @@ async def delete_branch(
     access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a specific branch in a GitLab project.
@@ -266,7 +267,7 @@ async def delete_branch(
     response = client.delete_branch(**kwargs)
     if ctx:
         await ctx.info("Deletion complete")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -274,7 +275,7 @@ async def delete_merged_branches(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete all merged branches in a GitLab project (excluding protected branches).
@@ -330,7 +331,7 @@ async def delete_merged_branches(
     response = client.delete_merged_branches(**kwargs)
     if ctx:
         await ctx.info("Deletion complete")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Commits Tools
@@ -349,7 +350,7 @@ def get_commits(
     first_parent: Optional[bool] = None,
     order: Optional[str] = None,
     trailers: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of commits in a GitLab project, optionally filtered by ref, dates, path, author, etc.
 
@@ -410,7 +411,7 @@ def get_commits(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_commits(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -420,7 +421,7 @@ def get_commit(
     project_id: str = None,
     commit_hash: str = None,
     stats: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details about a specific commit in a GitLab project.
 
@@ -483,7 +484,7 @@ def get_commit(
     response = client.get_commit(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -493,7 +494,7 @@ def get_commit_references(
     project_id: str = None,
     commit_hash: str = None,
     type: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve references (branches/tags) where a commit is pushed in a GitLab project.
 
@@ -556,7 +557,7 @@ def get_commit_references(
     response = client.get_commit_references(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -567,7 +568,7 @@ def cherry_pick_commit(
     commit_hash: str = None,
     branch: str = None,
     dry_run: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Cherry-pick a commit into a target branch in a GitLab project.
 
@@ -632,7 +633,7 @@ def cherry_pick_commit(
     response = client.cherry_pick_commit(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -650,7 +651,7 @@ def create_commit(
     author_name: Optional[str] = None,
     stats: Optional[bool] = None,
     force: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Create a new commit with multiple file actions (create/update/delete/move/chmod) in a GitLab project.
 
@@ -713,7 +714,7 @@ def create_commit(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.create_commit(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -724,7 +725,7 @@ def revert_commit(
     commit_hash: str = None,
     branch: str = None,
     dry_run: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Revert a commit in a target branch in a GitLab project.
 
@@ -789,7 +790,7 @@ def revert_commit(
     response = client.revert_commit(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -799,7 +800,7 @@ def get_commit_diff(
     project_id: str = None,
     commit_hash: str = None,
     unidiff: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve the diff for a specific commit in a GitLab project.
 
@@ -862,7 +863,7 @@ def get_commit_diff(
     response = client.get_commit_diff(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -871,7 +872,7 @@ def get_commit_comments(
     access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve comments on a specific commit in a GitLab project.
 
@@ -922,7 +923,7 @@ def get_commit_comments(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_commit_comments(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -935,7 +936,7 @@ def create_commit_comment(
     path: Optional[str] = None,
     line: Optional[int] = None,
     line_type: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Create a new comment on a specific commit in a GitLab project.
 
@@ -1001,7 +1002,7 @@ def create_commit_comment(
     response = client.create_commit_comment(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1010,7 +1011,7 @@ def get_commit_discussions(
     access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve discussions (threaded comments) on a specific commit in a GitLab project.
 
@@ -1061,7 +1062,7 @@ def get_commit_discussions(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_commit_discussions(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1075,7 +1076,7 @@ def get_commit_statuses(
     name: Optional[str] = None,
     coverage: Optional[bool] = None,
     all: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve build/CI statuses for a specific commit in a GitLab project.
 
@@ -1142,7 +1143,7 @@ def get_commit_statuses(
     response = client.get_commit_statuses(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1158,7 +1159,7 @@ def post_build_status_to_commit(
     coverage: Optional[float] = None,
     pipeline_id: Optional[int] = None,
     ref: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Post a build/CI status to a specific commit in a GitLab project.
 
@@ -1228,7 +1229,7 @@ def post_build_status_to_commit(
     response = client.post_build_status_to_commit(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1237,7 +1238,7 @@ def get_commit_merge_requests(
     access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve merge requests associated with a specific commit in a GitLab project.
 
@@ -1288,7 +1289,7 @@ def get_commit_merge_requests(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_commit_merge_requests(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1297,7 +1298,7 @@ def get_commit_gpg_signature(
     access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve the GPG signature for a specific commit in a GitLab project.
 
@@ -1348,7 +1349,7 @@ def get_commit_gpg_signature(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_commit_gpg_signature(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Deploy Tokens Tools
@@ -1356,7 +1357,7 @@ def get_commit_gpg_signature(
 def get_deploy_tokens(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of all deploy tokens for the GitLab instance.
 
@@ -1396,7 +1397,7 @@ def get_deploy_tokens(
         verify=verify,
     )
     response = client.get_deploy_tokens()
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1404,7 +1405,7 @@ def get_project_deploy_tokens(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of deploy tokens for a specific GitLab project.
 
@@ -1453,7 +1454,7 @@ def get_project_deploy_tokens(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_project_deploy_tokens(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1462,7 +1463,7 @@ def get_project_deploy_token(
     access_token: str = environment_access_token,
     project_id: str = None,
     token_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific deploy token for a GitLab project.
 
@@ -1513,7 +1514,7 @@ def get_project_deploy_token(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_project_deploy_token(project_id=project_id, token=token_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1525,7 +1526,7 @@ async def create_project_deploy_token(
     scopes: List[str] = None,
     expires_at: Optional[str] = None,
     username: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create a deploy token for a GitLab project with specified name and scopes.
@@ -1594,7 +1595,7 @@ async def create_project_deploy_token(
     response = client.create_project_deploy_token(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Deploy token created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1603,7 +1604,7 @@ async def delete_project_deploy_token(
     access_token: str = environment_access_token,
     project_id: str = None,
     token_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a specific deploy token for a GitLab project.
@@ -1660,7 +1661,7 @@ async def delete_project_deploy_token(
     response = client.delete_project_deploy_token(project_id=project_id, token=token_id)
     if ctx:
         await ctx.info("Deploy token deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1668,7 +1669,7 @@ def get_group_deploy_tokens(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     group_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of deploy tokens for a specific GitLab group.
 
@@ -1717,7 +1718,7 @@ def get_group_deploy_tokens(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_group_deploy_tokens(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1726,7 +1727,7 @@ def get_group_deploy_token(
     access_token: str = environment_access_token,
     group_id: str = None,
     token_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific deploy token for a GitLab group.
 
@@ -1777,7 +1778,7 @@ def get_group_deploy_token(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_group_deploy_token(group_id=group_id, token=token_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Deploy Tokens Tools
@@ -1790,7 +1791,7 @@ async def create_group_deploy_token(
     scopes: List[str] = None,
     expires_at: Optional[str] = None,
     username: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create a deploy token for a GitLab group with specified name and scopes.
@@ -1859,7 +1860,7 @@ async def create_group_deploy_token(
     response = client.create_group_deploy_token(group_id=group_id, **kwargs)
     if ctx:
         await ctx.info("Deploy token created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1868,7 +1869,7 @@ async def delete_group_deploy_token(
     access_token: str = environment_access_token,
     group_id: str = None,
     token_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a specific deploy token for a GitLab group.
@@ -1919,7 +1920,7 @@ async def delete_group_deploy_token(
     response = client.delete_group_deploy_token(group_id=group_id, token=token_id)
     if ctx:
         await ctx.info("Deploy token deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Environments Tools
@@ -1931,7 +1932,7 @@ def get_environments(
     name: Optional[str] = None,
     search: Optional[str] = None,
     states: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of environments for a GitLab project, optionally filtered by name, search, or states.
 
@@ -1984,7 +1985,7 @@ def get_environments(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_environments(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -1993,7 +1994,7 @@ def get_environment(
     access_token: str = environment_access_token,
     project_id: str = None,
     environment_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific environment in a GitLab project.
 
@@ -2040,7 +2041,7 @@ def get_environment(
     response = client.get_environment(
         project_id=project_id, environment_id=environment_id
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2050,7 +2051,7 @@ async def create_environment(
     project_id: str = None,
     name: str = None,
     external_url: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create a new environment in a GitLab project with a specified name and optional external URL.
@@ -2117,7 +2118,7 @@ async def create_environment(
     response = client.create_environment(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Environment created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2128,7 +2129,7 @@ async def update_environment(
     environment_id: int = None,
     name: Optional[str] = None,
     external_url: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Update an existing environment in a GitLab project with new name or external URL.
@@ -2199,7 +2200,7 @@ async def update_environment(
     )
     if ctx:
         await ctx.info("Environment updated")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2208,7 +2209,7 @@ async def delete_environment(
     access_token: str = environment_access_token,
     project_id: str = None,
     environment_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a specific environment in a GitLab project.
@@ -2261,7 +2262,7 @@ async def delete_environment(
     )
     if ctx:
         await ctx.info("Environment deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2270,7 +2271,7 @@ async def stop_environment(
     access_token: str = environment_access_token,
     project_id: str = None,
     environment_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Stop a specific environment in a GitLab project.
@@ -2323,7 +2324,7 @@ async def stop_environment(
     )
     if ctx:
         await ctx.info("Environment stopped")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2332,7 +2333,7 @@ async def stop_stale_environments(
     access_token: str = environment_access_token,
     project_id: str = None,
     older_than: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Stop stale environments in a GitLab project, optionally filtered by older_than timestamp.
@@ -2397,7 +2398,7 @@ async def stop_stale_environments(
     response = client.stop_stale_environments(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Stale environments stopped")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2405,7 +2406,7 @@ async def delete_stopped_environments(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete stopped review app environments in a GitLab project.
@@ -2454,7 +2455,7 @@ async def delete_stopped_environments(
     response = client.delete_stopped_environments(project_id=project_id)
     if ctx:
         await ctx.info("Stopped review apps deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2462,7 +2463,7 @@ def get_protected_environments(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of protected environments in a GitLab project.
 
@@ -2505,7 +2506,7 @@ def get_protected_environments(
         verify=verify,
     )
     response = client.get_protected_environments(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2514,7 +2515,7 @@ def get_protected_environment(
     access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific protected environment in a GitLab project.
 
@@ -2559,7 +2560,7 @@ def get_protected_environment(
         verify=verify,
     )
     response = client.get_protected_environment(project_id=project_id, name=name)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2569,7 +2570,7 @@ async def protect_environment(
     project_id: str = None,
     name: str = None,
     required_approval_count: Optional[int] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Protect an environment in a GitLab project with optional approval count.
@@ -2636,7 +2637,7 @@ async def protect_environment(
     response = client.protect_environment(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Environment protected")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2646,7 +2647,7 @@ async def update_protected_environment(
     project_id: str = None,
     name: str = None,
     required_approval_count: Optional[int] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Update a protected environment in a GitLab project with new approval count.
@@ -2715,7 +2716,7 @@ async def update_protected_environment(
     response = client.update_protected_environment(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Protected environment updated")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2724,7 +2725,7 @@ async def unprotect_environment(
     access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Unprotect a specific environment in a GitLab project.
@@ -2775,7 +2776,7 @@ async def unprotect_environment(
     response = client.unprotect_environment(project_id=project_id, name=name)
     if ctx:
         await ctx.info("Environment unprotected")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Groups Tools
@@ -2789,7 +2790,7 @@ def get_groups(
     owned: Optional[bool] = None,
     min_access_level: Optional[int] = None,
     top_level_only: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of groups, optionally filtered by search, sort, ownership, or access level.
 
@@ -2843,7 +2844,7 @@ def get_groups(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_groups(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2853,7 +2854,7 @@ def get_group(
     group_id: str = None,
     with_projects: Optional[bool] = None,
     with_custom_attributes: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific GitLab group.
 
@@ -2905,7 +2906,7 @@ def get_group(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group(group_id=group_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2917,7 +2918,7 @@ async def edit_group(
     path: Optional[str] = None,
     description: Optional[str] = None,
     visibility: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Edit a specific GitLab group's details (name, path, description, or visibility).
@@ -2986,7 +2987,7 @@ async def edit_group(
     response = client.edit_group(group_id=group_id, **kwargs)
     if ctx:
         await ctx.info("Group edited")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -2998,7 +2999,7 @@ def get_group_subgroups(
     sort: Optional[str] = None,
     order_by: Optional[str] = None,
     owned: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of subgroups for a specific GitLab group, optionally filtered.
 
@@ -3052,7 +3053,7 @@ def get_group_subgroups(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_subgroups(group_id=group_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3064,7 +3065,7 @@ def get_group_descendant_groups(
     sort: Optional[str] = None,
     order_by: Optional[str] = None,
     owned: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of all descendant groups for a specific GitLab group, optionally filtered.
 
@@ -3118,7 +3119,7 @@ def get_group_descendant_groups(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_descendant_groups(group_id=group_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3130,7 +3131,7 @@ def get_group_projects(
     search: Optional[str] = None,
     sort: Optional[str] = None,
     order_by: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of projects associated with a specific GitLab group, optionally including subgroups.
 
@@ -3184,7 +3185,7 @@ def get_group_projects(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_projects(group_id=group_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3196,7 +3197,7 @@ def get_group_merge_requests(
     scope: Optional[str] = None,
     milestone: Optional[str] = None,
     search: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of merge requests associated with a specific GitLab group, optionally filtered.
 
@@ -3250,7 +3251,7 @@ def get_group_merge_requests(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_merge_requests(group_id=group_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Jobs Tools
@@ -3262,7 +3263,7 @@ def get_project_jobs(
     scope: Optional[str] = None,
     include_retried: Optional[bool] = None,
     include_invisible: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of jobs for a specific GitLab project, optionally filtered by scope (e.g., 'success', 'failed').
 
@@ -3315,7 +3316,7 @@ def get_project_jobs(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_project_jobs(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3324,7 +3325,7 @@ def get_project_job(
     access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific job in a GitLab project.
 
@@ -3369,7 +3370,7 @@ def get_project_job(
         verify=verify,
     )
     response = client.get_project_job(project_id=project_id, job_id=job_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3378,7 +3379,7 @@ def get_project_job_log(
     access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve the log (trace) of a specific job in a GitLab project.
 
@@ -3423,7 +3424,7 @@ def get_project_job_log(
         verify=verify,
     )
     response = client.get_project_job_log(project_id=project_id, job_id=job_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3432,7 +3433,7 @@ async def cancel_project_job(
     access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Cancel a specific job in a GitLab project.
@@ -3483,7 +3484,7 @@ async def cancel_project_job(
     response = client.cancel_project_job(project_id=project_id, job_id=job_id)
     if ctx:
         await ctx.info("Job cancelled")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3492,7 +3493,7 @@ async def retry_project_job(
     access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Retry a specific job in a GitLab project.
@@ -3543,7 +3544,7 @@ async def retry_project_job(
     response = client.retry_project_job(project_id=project_id, job_id=job_id)
     if ctx:
         await ctx.info("Job retried")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Jobs Tools
@@ -3553,7 +3554,7 @@ async def erase_project_job(
     access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Erase (delete artifacts and logs of) a specific job in a GitLab project.
@@ -3604,7 +3605,7 @@ async def erase_project_job(
     response = client.erase_project_job(project_id=project_id, job_id=job_id)
     if ctx:
         await ctx.info("Job erased")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3613,7 +3614,7 @@ async def run_project_job(
     access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Run (play) a specific manual job in a GitLab project.
@@ -3664,7 +3665,7 @@ async def run_project_job(
     response = client.run_project_job(project_id=project_id, job_id=job_id)
     if ctx:
         await ctx.info("Job started")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3674,7 +3675,7 @@ def get_pipeline_jobs(
     project_id: str = None,
     pipeline_id: int = None,
     scope: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of jobs for a specific pipeline in a GitLab project, optionally filtered by scope.
 
@@ -3737,7 +3738,7 @@ def get_pipeline_jobs(
     response = client.get_pipeline_jobs(
         project_id=project_id, pipeline_id=pipeline_id, **kwargs
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Members Tools
@@ -3750,7 +3751,7 @@ def get_group_members(
     user_ids: Optional[List[int]] = None,
     skip_users: Optional[List[int]] = None,
     show_seat_info: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of members in a specific GitLab group, optionally filtered by query or user IDs.
 
@@ -3804,7 +3805,7 @@ def get_group_members(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_members(group_id=group_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3815,7 +3816,7 @@ def get_project_members(
     query: Optional[str] = None,
     user_ids: Optional[List[int]] = None,
     skip_users: Optional[List[int]] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of members in a specific GitLab project, optionally filtered by query or user IDs.
 
@@ -3869,7 +3870,7 @@ def get_project_members(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_project_members(project_id=project_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Merge Request Tools
@@ -3885,7 +3886,7 @@ async def create_merge_request(
     assignee_id: Optional[int] = None,
     reviewer_ids: Optional[List[int]] = None,
     labels: Optional[List[str]] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create a new merge request in a GitLab project with specified source and target branches.
@@ -3958,7 +3959,7 @@ async def create_merge_request(
     response = client.create_merge_request(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Merge request created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -3971,7 +3972,7 @@ def get_merge_requests(
     view: Optional[str] = None,
     labels: Optional[List[str]] = None,
     author_id: Optional[int] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of merge requests across all projects, optionally filtered by state, scope, or labels.
 
@@ -4025,7 +4026,7 @@ def get_merge_requests(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_merge_requests(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4037,7 +4038,7 @@ def get_project_merge_requests(
     scope: Optional[str] = None,
     milestone: Optional[str] = None,
     labels: Optional[List[str]] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of merge requests for a specific GitLab project, optionally filtered.
 
@@ -4092,7 +4093,7 @@ def get_project_merge_requests(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_project_merge_requests(project_id=project_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4101,7 +4102,7 @@ def get_project_merge_request(
     access_token: str = environment_access_token,
     project_id: str = None,
     merge_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific merge request in a GitLab project.
 
@@ -4148,7 +4149,7 @@ def get_project_merge_request(
     response = client.get_project_merge_request(
         project_id=project_id, merge_id=merge_id
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Merge Rules Tools
@@ -4157,7 +4158,7 @@ def get_project_level_merge_request_approval_rules(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve project-level merge request approval rules for a GitLab project.
 
@@ -4199,8 +4200,8 @@ def get_project_level_merge_request_approval_rules(
         token=access_token,
         verify=verify,
     )
-    response = client.get_project_level_rules(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    response = client.get_project_level_rule(project_id=project_id)
+    return response.data
 
 
 @mcp.tool()
@@ -4209,7 +4210,7 @@ def get_project_level_merge_request_approval_rule(
     access_token: str = environment_access_token,
     project_id: str = None,
     approval_rule_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific project-level merge request approval rule.
 
@@ -4256,7 +4257,7 @@ def get_project_level_merge_request_approval_rule(
     response = client.get_project_level_rule(
         project_id=project_id, approval_rule_id=approval_rule_id
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4269,7 +4270,7 @@ async def create_project_level_rule(
     rule_type: Optional[str] = None,
     user_ids: Optional[List[int]] = None,
     group_ids: Optional[List[int]] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create a new project-level merge request approval rule.
@@ -4339,7 +4340,7 @@ async def create_project_level_rule(
     response = client.create_project_level_rule(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Approval rule created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4352,7 +4353,7 @@ async def update_project_level_rule(
     approvals_required: Optional[int] = None,
     user_ids: Optional[List[int]] = None,
     group_ids: Optional[List[int]] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Update an existing project-level merge request approval rule.
@@ -4428,7 +4429,7 @@ async def update_project_level_rule(
     )
     if ctx:
         await ctx.info("Approval rule updated")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4437,7 +4438,7 @@ async def delete_project_level_rule(
     access_token: str = environment_access_token,
     project_id: str = None,
     approval_rule_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a project-level merge request approval rule.
@@ -4492,7 +4493,7 @@ async def delete_project_level_rule(
     )
     if ctx:
         await ctx.info("Approval rule deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4501,7 +4502,7 @@ def merge_request_level_approvals(
     access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve approvals for a specific merge request in a GitLab project.
 
@@ -4548,7 +4549,7 @@ def merge_request_level_approvals(
     response = client.merge_request_level_approvals(
         project_id=project_id, merge_request_iid=merge_request_iid
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4557,7 +4558,7 @@ def get_approval_state_merge_requests(
     access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve the approval state of a specific merge request in a GitLab project.
 
@@ -4604,7 +4605,7 @@ def get_approval_state_merge_requests(
     response = client.get_approval_state_merge_requests(
         project_id=project_id, merge_request_iid=merge_request_iid
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4613,7 +4614,7 @@ def get_merge_request_level_rules(
     access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve merge request-level approval rules for a specific merge request in a GitLab project.
 
@@ -4660,7 +4661,7 @@ def get_merge_request_level_rules(
     response = client.get_merge_request_level_rules(
         project_id=project_id, merge_request_iid=merge_request_iid
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4669,7 +4670,7 @@ async def approve_merge_request(
     access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Approve a specific merge request in a GitLab project.
@@ -4724,7 +4725,7 @@ async def approve_merge_request(
     )
     if ctx:
         await ctx.info("Merge request approved")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4733,7 +4734,7 @@ async def unapprove_merge_request(
     access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Unapprove a specific merge request in a GitLab project.
@@ -4788,7 +4789,7 @@ async def unapprove_merge_request(
     )
     if ctx:
         await ctx.info("Merge request unapproved")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Merge Rules Settings Tools
@@ -4797,7 +4798,7 @@ def get_group_level_rule(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     group_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve merge request approval settings for a specific GitLab group.
 
@@ -4840,7 +4841,7 @@ def get_group_level_rule(
         verify=verify,
     )
     response = client.get_group_level_rule(group_id=group_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4852,7 +4853,7 @@ async def edit_group_level_rule(
     allow_committer_approval: Optional[bool] = None,
     allow_overrides_to_approver_list: Optional[bool] = None,
     minimum_approvals: Optional[int] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Edit merge request approval settings for a specific GitLab group.
@@ -4920,7 +4921,7 @@ async def edit_group_level_rule(
     response = client.edit_group_level_rule(group_id=group_id, **kwargs)
     if ctx:
         await ctx.info("Approval settings edited")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4928,7 +4929,7 @@ def get_project_level_rule(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve merge request approval settings for a specific GitLab project.
 
@@ -4971,7 +4972,7 @@ def get_project_level_rule(
         verify=verify,
     )
     response = client.get_project_level_rule(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -4983,7 +4984,7 @@ async def edit_project_level_rule(
     allow_committer_approval: Optional[bool] = None,
     allow_overrides_to_approver_list: Optional[bool] = None,
     minimum_approvals: Optional[int] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Edit merge request approval settings for a specific GitLab project.
@@ -5051,7 +5052,7 @@ async def edit_project_level_rule(
     response = client.edit_project_level_rule(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Approval settings edited")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Packages Tools
@@ -5061,7 +5062,7 @@ def get_repository_packages(
     access_token: str = environment_access_token,
     project_id: str = None,
     package_type: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of repository packages for a specific GitLab project, optionally filtered by package type.
 
@@ -5113,7 +5114,7 @@ def get_repository_packages(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_repository_packages(project_id=project_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5125,7 +5126,7 @@ async def publish_repository_package(
     package_version: str = None,
     file_name: str = None,
     status: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Publish a repository package to a specific GitLab project.
@@ -5197,7 +5198,7 @@ async def publish_repository_package(
     response = client.publish_repository_package(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Package published")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5208,7 +5209,7 @@ def download_repository_package(
     package_name: str = None,
     package_version: str = None,
     file_name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Download a repository package from a specific GitLab project.
 
@@ -5262,7 +5263,7 @@ def download_repository_package(
         package_version=package_version,
         file_name=file_name,
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Pipeline Tools
@@ -5277,7 +5278,7 @@ def get_pipelines(
     source: Optional[str] = None,
     updated_after: Optional[str] = None,
     updated_before: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of pipelines for a specific GitLab project, optionally filtered by scope, status, or ref.
 
@@ -5334,7 +5335,7 @@ def get_pipelines(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_pipelines(project_id=project_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5343,7 +5344,7 @@ def get_pipeline(
     access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific pipeline in a GitLab project.
 
@@ -5388,7 +5389,7 @@ def get_pipeline(
         verify=verify,
     )
     response = client.get_pipeline(project_id=project_id, pipeline_id=pipeline_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5398,7 +5399,7 @@ async def run_pipeline(
     project_id: str = None,
     reference: str = None,
     variables: Optional[Dict[str, str]] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Run a pipeline for a specific GitLab project with a given reference (e.g., branch or tag).
@@ -5464,7 +5465,7 @@ async def run_pipeline(
     response = client.run_pipeline(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Pipeline started")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Pipeline Schedules Tools
@@ -5473,7 +5474,7 @@ def get_pipeline_schedules(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of pipeline schedules for a specific GitLab project.
 
@@ -5516,7 +5517,7 @@ def get_pipeline_schedules(
         verify=verify,
     )
     response = client.get_pipeline_schedules(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5525,7 +5526,7 @@ def get_pipeline_schedule(
     access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific pipeline schedule in a GitLab project.
 
@@ -5572,7 +5573,7 @@ def get_pipeline_schedule(
     response = client.get_pipeline_schedule(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5581,7 +5582,7 @@ def get_pipelines_triggered_from_schedule(
     access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve pipelines triggered by a specific pipeline schedule in a GitLab project.
 
@@ -5628,7 +5629,7 @@ def get_pipelines_triggered_from_schedule(
     response = client.get_pipelines_triggered_from_schedule(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5641,7 +5642,7 @@ async def create_pipeline_schedule(
     cron: str = None,
     cron_timezone: Optional[str] = None,
     active: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create a pipeline schedule for a specific GitLab project.
@@ -5714,7 +5715,7 @@ async def create_pipeline_schedule(
     response = client.create_pipeline_schedule(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Pipeline schedule created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5728,7 +5729,7 @@ async def edit_pipeline_schedule(
     cron: Optional[str] = None,
     cron_timezone: Optional[str] = None,
     active: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Edit a pipeline schedule in a GitLab project.
@@ -5804,7 +5805,7 @@ async def edit_pipeline_schedule(
     )
     if ctx:
         await ctx.info("Pipeline schedule edited")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5813,7 +5814,7 @@ async def take_pipeline_schedule_ownership(
     access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Take ownership of a pipeline schedule in a GitLab project.
@@ -5868,7 +5869,7 @@ async def take_pipeline_schedule_ownership(
     )
     if ctx:
         await ctx.info("Ownership taken")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5877,7 +5878,7 @@ async def delete_pipeline_schedule(
     access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a pipeline schedule in a GitLab project.
@@ -5932,7 +5933,7 @@ async def delete_pipeline_schedule(
     )
     if ctx:
         await ctx.info("Pipeline schedule deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -5941,7 +5942,7 @@ async def run_pipeline_schedule(
     access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Run a pipeline schedule immediately in a GitLab project.
@@ -5996,7 +5997,7 @@ async def run_pipeline_schedule(
     )
     if ctx:
         await ctx.info("Pipeline schedule run started")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6008,7 +6009,7 @@ async def create_pipeline_schedule_variable(
     key: str = None,
     value: str = None,
     variable_type: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create a variable for a pipeline schedule in a GitLab project.
@@ -6083,7 +6084,7 @@ async def create_pipeline_schedule_variable(
     )
     if ctx:
         await ctx.info("Variable created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6093,7 +6094,7 @@ async def delete_pipeline_schedule_variable(
     project_id: str = None,
     pipeline_schedule_id: int = None,
     key: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a variable from a pipeline schedule in a GitLab project.
@@ -6150,7 +6151,7 @@ async def delete_pipeline_schedule_variable(
     )
     if ctx:
         await ctx.info("Variable deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Projects Tools
@@ -6162,7 +6163,7 @@ def get_projects(
     search: Optional[str] = None,
     sort: Optional[str] = None,
     visibility: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of projects, optionally filtered by ownership, search, sort, or visibility.
 
@@ -6214,7 +6215,7 @@ def get_projects(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_projects(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6222,7 +6223,7 @@ def get_project(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific GitLab project.
 
@@ -6265,7 +6266,7 @@ def get_project(
         verify=verify,
     )
     response = client.get_project(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6274,7 +6275,7 @@ def get_nested_projects_by_group(
     access_token: str = environment_access_token,
     group_id: str = None,
     per_page: Optional[int] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of nested projects within a GitLab group, including descendant groups.
 
@@ -6325,7 +6326,7 @@ def get_nested_projects_by_group(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_nested_projects_by_group(group_id=group_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6333,7 +6334,7 @@ def get_project_contributors(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of contributors to a specific GitLab project.
 
@@ -6376,7 +6377,7 @@ def get_project_contributors(
         verify=verify,
     )
     response = client.get_project_contributors(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6384,7 +6385,7 @@ def get_project_statistics(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve statistics for a specific GitLab project.
 
@@ -6427,7 +6428,7 @@ def get_project_statistics(
         verify=verify,
     )
     response = client.get_project_statistics(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6438,7 +6439,7 @@ async def edit_project(
     name: Optional[str] = None,
     description: Optional[str] = None,
     visibility: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Edit a specific GitLab project's details (name, description, or visibility).
@@ -6505,7 +6506,7 @@ async def edit_project(
     response = client.edit_project(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Project edited")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6515,7 +6516,7 @@ def get_project_groups(
     project_id: str = None,
     skip_groups: Optional[List[int]] = None,
     search: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of groups associated with a specific GitLab project, optionally filtered.
 
@@ -6568,7 +6569,7 @@ def get_project_groups(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_project_groups(project_id=project_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6576,7 +6577,7 @@ async def archive_project(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Archive a specific GitLab project.
@@ -6625,7 +6626,7 @@ async def archive_project(
     response = client.archive_project(project_id=project_id)
     if ctx:
         await ctx.info("Project archived")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Projects Tools
@@ -6634,7 +6635,7 @@ async def unarchive_project(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Unarchive a specific GitLab project.
@@ -6683,7 +6684,7 @@ async def unarchive_project(
     response = client.unarchive_project(project_id=project_id)
     if ctx:
         await ctx.info("Project unarchived")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6691,7 +6692,7 @@ async def delete_project(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a specific GitLab project.
@@ -6740,7 +6741,7 @@ async def delete_project(
     response = client.delete_project(project_id=project_id)
     if ctx:
         await ctx.info("Project deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6751,7 +6752,7 @@ async def share_project(
     group_id: str = None,
     group_access: str = None,
     expires_at: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Share a specific GitLab project with a group, specifying access level.
@@ -6819,7 +6820,7 @@ async def share_project(
     response = client.share_project(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Project shared")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Protected Branches Tools
@@ -6828,7 +6829,7 @@ def get_protected_branches(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of protected branches in a specific GitLab project.
 
@@ -6871,7 +6872,7 @@ def get_protected_branches(
         verify=verify,
     )
     response = client.get_protected_branches(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6880,7 +6881,7 @@ def get_protected_branch(
     access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific protected branch in a GitLab project.
 
@@ -6925,7 +6926,7 @@ def get_protected_branch(
         verify=verify,
     )
     response = client.get_protected_branch(project_id=project_id, branch=branch)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -6942,7 +6943,7 @@ async def protect_branch(
     allowed_to_merge: Optional[List[Dict]] = None,
     allowed_to_unprotect: Optional[List[Dict]] = None,
     code_owner_approval_required: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Protect a specific branch in a GitLab project with specified access levels.
@@ -7016,7 +7017,7 @@ async def protect_branch(
     response = client.protect_branch(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Branch protected")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7025,7 +7026,7 @@ async def unprotect_branch(
     access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Unprotect a specific branch in a GitLab project.
@@ -7076,7 +7077,7 @@ async def unprotect_branch(
     response = client.unprotect_branch(project_id=project_id, branch=branch)
     if ctx:
         await ctx.info("Branch unprotected")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7086,7 +7087,7 @@ async def require_code_owner_approvals_single_branch(
     project_id: str = None,
     branch: str = None,
     code_owner_approval_required: bool = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Require or disable code owner approvals for a specific branch in a GitLab project.
@@ -7145,7 +7146,7 @@ async def require_code_owner_approvals_single_branch(
     )
     if ctx:
         await ctx.info("Code owner approval setting updated")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Release Tools
@@ -7157,7 +7158,7 @@ def get_releases(
     include_html_description: Optional[bool] = None,
     sort: Optional[str] = None,
     order_by: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of releases for a specific GitLab project, optionally filtered.
 
@@ -7211,7 +7212,7 @@ def get_releases(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_releases(project_id=project_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7219,7 +7220,7 @@ def get_latest_release(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of the latest release in a GitLab project.
 
@@ -7262,7 +7263,7 @@ def get_latest_release(
         verify=verify,
     )
     response = client.get_latest_release(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7270,7 +7271,7 @@ def get_latest_release_evidence(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve evidence for the latest release in a GitLab project.
 
@@ -7313,7 +7314,7 @@ def get_latest_release_evidence(
         verify=verify,
     )
     response = client.get_latest_release_evidence(project_id=project_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7322,7 +7323,7 @@ def get_latest_release_asset(
     access_token: str = environment_access_token,
     project_id: str = None,
     direct_asset_path: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a specific asset for the latest release in a GitLab project.
 
@@ -7369,7 +7370,7 @@ def get_latest_release_asset(
     response = client.get_latest_release_asset(
         project_id=project_id, direct_asset_path=direct_asset_path
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7380,7 +7381,7 @@ def get_group_releases(
     include_html_description: Optional[bool] = None,
     sort: Optional[str] = None,
     order_by: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of releases for a specific GitLab group, optionally filtered.
 
@@ -7433,7 +7434,7 @@ def get_group_releases(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_releases(group_id=group_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7443,7 +7444,7 @@ def download_release_asset(
     group_id: str = None,
     tag_name: str = None,
     direct_asset_path: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Download a release asset from a group's release in GitLab.
 
@@ -7492,7 +7493,7 @@ def download_release_asset(
     response = client.download_release_asset(
         group_id=group_id, tag_name=tag_name, direct_asset_path=direct_asset_path
     )
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7501,7 +7502,7 @@ def get_release_by_tag(
     access_token: str = environment_access_token,
     project_id: str = None,
     tag_name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a release by its tag in a GitLab project.
 
@@ -7546,7 +7547,7 @@ def get_release_by_tag(
         verify=verify,
     )
     response = client.get_release_by_tag(project_id=project_id, tag_name=tag_name)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7559,7 +7560,7 @@ async def create_release(
     description: Optional[str] = None,
     released_at: Optional[str] = None,
     assets: Optional[Dict] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create a new release in a GitLab project.
@@ -7629,7 +7630,7 @@ async def create_release(
     response = client.create_release(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Release created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7638,7 +7639,7 @@ async def create_release_evidence(
     access_token: str = environment_access_token,
     project_id: str = None,
     tag_name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create evidence for a release in a GitLab project.
@@ -7691,7 +7692,7 @@ async def create_release_evidence(
     response = client.create_release_evidence(project_id=project_id, tag_name=tag_name)
     if ctx:
         await ctx.info("Release evidence created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7704,7 +7705,7 @@ async def update_release(
     description: Optional[str] = None,
     released_at: Optional[str] = None,
     assets: Optional[Dict] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Update a release in a GitLab project.
@@ -7775,7 +7776,7 @@ async def update_release(
     response = client.update_release(project_id=project_id, tag_name=tag_name, **kwargs)
     if ctx:
         await ctx.info("Release updated")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7784,7 +7785,7 @@ async def delete_release(
     access_token: str = environment_access_token,
     project_id: str = None,
     tag_name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a release in a GitLab project.
@@ -7835,7 +7836,7 @@ async def delete_release(
     response = client.delete_release(project_id=project_id, tag_name=tag_name)
     if ctx:
         await ctx.info("Release deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Runners Tools
@@ -7847,7 +7848,7 @@ def get_runners(
     type: Optional[str] = None,
     status: Optional[str] = None,
     tag_list: Optional[List[str]] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of runners in GitLab, optionally filtered by scope, type, status, or tags.
 
@@ -7898,7 +7899,7 @@ def get_runners(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_runners(**kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7906,7 +7907,7 @@ def get_runner(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     runner_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific GitLab runner.
 
@@ -7949,7 +7950,7 @@ def get_runner(
         verify=verify,
     )
     response = client.get_runner(runner_id=runner_id)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -7964,7 +7965,7 @@ async def update_runner_details(
     locked: Optional[bool] = None,
     access_level: Optional[str] = None,
     maximum_timeout: Optional[int] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Update details for a specific GitLab runner.
@@ -8035,7 +8036,7 @@ async def update_runner_details(
     response = client.update_runner_details(runner_id=runner_id, **kwargs)
     if ctx:
         await ctx.info("Runner updated")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8044,7 +8045,7 @@ async def pause_runner(
     access_token: str = environment_access_token,
     runner_id: int = None,
     active: bool = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Pause or unpause a specific GitLab runner.
@@ -8095,7 +8096,7 @@ async def pause_runner(
     response = client.pause_runner(runner_id=runner_id, active=active)
     if ctx:
         await ctx.info("Runner status updated")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8105,7 +8106,7 @@ def get_runner_jobs(
     runner_id: int = None,
     status: Optional[str] = None,
     sort: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve jobs for a specific GitLab runner, optionally filtered by status or sorted.
 
@@ -8158,7 +8159,7 @@ def get_runner_jobs(
         not in ["client", "gitlab_instance", "access_token", "verify", "runner_id"]
     }
     response = client.get_runner_jobs(runner_id=runner_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8167,7 +8168,7 @@ def get_project_runners(
     access_token: str = environment_access_token,
     project_id: str = None,
     scope: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of runners in a specific GitLab project, optionally filtered by scope.
 
@@ -8219,7 +8220,7 @@ def get_project_runners(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_project_runners(project_id=project_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8228,7 +8229,7 @@ async def enable_project_runner(
     access_token: str = environment_access_token,
     project_id: str = None,
     runner_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Enable a runner in a specific GitLab project.
@@ -8279,7 +8280,7 @@ async def enable_project_runner(
     response = client.enable_project_runner(project_id=project_id, runner_id=runner_id)
     if ctx:
         await ctx.info("Runner enabled")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8288,7 +8289,7 @@ async def delete_project_runner(
     access_token: str = environment_access_token,
     project_id: str = None,
     runner_id: int = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a runner from a specific GitLab project.
@@ -8339,7 +8340,7 @@ async def delete_project_runner(
     response = client.delete_project_runner(project_id=project_id, runner_id=runner_id)
     if ctx:
         await ctx.info("Runner deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8348,7 +8349,7 @@ def get_group_runners(
     access_token: str = environment_access_token,
     group_id: str = None,
     scope: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of runners in a specific GitLab group, optionally filtered by scope.
 
@@ -8399,7 +8400,7 @@ def get_group_runners(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_runners(group_id=group_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Runners Tools
@@ -8412,7 +8413,7 @@ async def register_new_runner(
     tag_list: Optional[List[str]] = None,
     run_untagged: Optional[bool] = None,
     locked: Optional[bool] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Register a new GitLab runner.
@@ -8472,7 +8473,7 @@ async def register_new_runner(
     response = client.register_new_runner(**kwargs)
     if ctx:
         await ctx.info("Runner registered")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8481,7 +8482,7 @@ async def delete_runner(
     access_token: str = environment_access_token,
     runner_id: Optional[int] = None,
     token: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a GitLab runner by ID or token.
@@ -8537,7 +8538,7 @@ async def delete_runner(
     response = client.delete_runner(**kwargs)
     if ctx:
         await ctx.info("Runner deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8545,7 +8546,7 @@ async def verify_runner_authentication(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     token: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Verify authentication for a GitLab runner using its token.
@@ -8594,14 +8595,14 @@ async def verify_runner_authentication(
     response = client.verify_runner_authentication(token=token)
     if ctx:
         await ctx.info("Runner authentication verified")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
 async def reset_gitlab_runner_token(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Reset the GitLab runner registration token.
@@ -8647,7 +8648,7 @@ async def reset_gitlab_runner_token(
     response = client.reset_gitlab_runner_token()
     if ctx:
         await ctx.info("Runner token reset")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8655,7 +8656,7 @@ async def reset_project_runner_token(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Reset the registration token for a project's runner in GitLab.
@@ -8704,7 +8705,7 @@ async def reset_project_runner_token(
     response = client.reset_project_runner_token(project_id=project_id)
     if ctx:
         await ctx.info("Project runner token reset")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8712,7 +8713,7 @@ async def reset_group_runner_token(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     group_id: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Reset the registration token for a group's runner in GitLab.
@@ -8761,7 +8762,7 @@ async def reset_group_runner_token(
     response = client.reset_group_runner_token(group_id=group_id)
     if ctx:
         await ctx.info("Group runner token reset")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8770,7 +8771,7 @@ async def reset_token(
     access_token: str = environment_access_token,
     runner_id: int = None,
     token: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Reset the authentication token for a specific GitLab runner.
@@ -8821,7 +8822,7 @@ async def reset_token(
     response = client.reset_token(runner_id=runner_id, token=token)
     if ctx:
         await ctx.info("Runner authentication token reset")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 # Tags Tools
@@ -8832,7 +8833,7 @@ def get_tags(
     project_id: str = None,
     search: Optional[str] = None,
     sort: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of tags for a specific GitLab project, optionally filtered or sorted.
 
@@ -8885,7 +8886,7 @@ def get_tags(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_tags(project_id=project_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8894,7 +8895,7 @@ def get_tag(
     access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific tag in a GitLab project.
 
@@ -8939,7 +8940,7 @@ def get_tag(
         verify=verify,
     )
     response = client.get_tag(project_id=project_id, name=name)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -8951,7 +8952,7 @@ async def create_tag(
     ref: str = None,
     message: Optional[str] = None,
     release_description: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Create a new tag in a GitLab project.
@@ -9020,7 +9021,7 @@ async def create_tag(
     response = client.create_tag(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Tag created")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -9029,7 +9030,7 @@ async def delete_tag(
     access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Delete a specific tag in a GitLab project.
@@ -9080,7 +9081,7 @@ async def delete_tag(
     response = client.delete_tag(project_id=project_id, name=name)
     if ctx:
         await ctx.info("Tag deleted")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -9089,7 +9090,7 @@ def get_protected_tags(
     access_token: str = environment_access_token,
     project_id: str = None,
     name: Optional[str] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve a list of protected tags in a specific GitLab project, optionally filtered by name.
 
@@ -9141,7 +9142,7 @@ def get_protected_tags(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_protected_tags(project_id=project_id, **kwargs)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -9150,7 +9151,7 @@ def get_protected_tag(
     access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
 ) -> dict:
     """Retrieve details of a specific protected tag in a GitLab project.
 
@@ -9195,7 +9196,7 @@ def get_protected_tag(
         verify=verify,
     )
     response = client.get_protected_tag(project_id=project_id, name=name)
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -9206,7 +9207,7 @@ async def protect_tag(
     name: str = None,
     create_access_level: Optional[str] = None,
     allowed_to_create: Optional[List[Dict]] = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Protect a specific tag in a GitLab project with specified access levels.
@@ -9274,7 +9275,7 @@ async def protect_tag(
     response = client.protect_tag(project_id=project_id, **kwargs)
     if ctx:
         await ctx.info("Tag protected")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 @mcp.tool()
@@ -9283,7 +9284,7 @@ async def unprotect_tag(
     access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
-    verify: bool = False,
+    verify: bool = environment_verify,
     ctx: Optional[Context] = None,
 ) -> dict:
     """Unprotect a specific tag in a GitLab project.
@@ -9334,7 +9335,7 @@ async def unprotect_tag(
     response = client.unprotect_tag(project_id=project_id, name=name)
     if ctx:
         await ctx.info("Tag unprotected")
-    return response.data if isinstance(response, Response) else {"error": str(response)}
+    return response.data
 
 
 def gitlab_api_mcp(argv: List[str]) -> None:
