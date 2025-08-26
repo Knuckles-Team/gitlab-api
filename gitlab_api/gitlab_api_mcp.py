@@ -9,10 +9,28 @@ from fastmcp import FastMCP, Context
 from typing import Optional, List, Dict
 
 mcp = FastMCP("GitLab")
+
+def to_boolean(string):
+    # Normalize the string: strip whitespace and convert to lowercase
+    normalized = str(string).strip().lower()
+
+    # Define valid true/false values
+    true_values = {'t', 'true', 'y', 'yes', '1'}
+    false_values = {'f', 'false', 'n', 'no', '0'}
+
+    if normalized in true_values:
+        return True
+    elif normalized in false_values:
+        return False
+    else:
+        raise ValueError(f"Cannot convert '{string}' to boolean")
+
 environment_gitlab_instance = os.environ.get("GITLAB_INSTANCE", None)
 environment_access_token = os.environ.get("ACCESS_TOKEN", None)
 environment_verify = os.environ.get("VERIFY", True)
 
+if environment_verify:
+    environment_verify = to_boolean(environment_verify)
 
 # Branches Tools
 @mcp.tool()
