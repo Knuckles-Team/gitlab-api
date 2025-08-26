@@ -377,7 +377,6 @@ npx @modelcontextprotocol/inspector gitlab-mcp
 <details>
   <summary><b>Repository Owners:</b></summary>
 
-
 <img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=Knucklessg1&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
 
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
