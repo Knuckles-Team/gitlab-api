@@ -22,7 +22,7 @@
 
 Pythonic GitLab API Library
 
-GitLab MCP Server for Agentic AI!
+GitLab MCP Server for Agentic AI! Get started with Pip or Docker
 
 Includes a large portion of useful API calls to GitLab and SQLAlchemy Models to handle loading API calls directly to a database!
 
