@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
+import os
 import getopt
 import sys
 from gitlab_api.gitlab_api import Api
@@ -9,13 +10,14 @@ from fastmcp import FastMCP, Context
 from typing import Optional, List, Dict
 
 mcp = FastMCP("GitLab")
-
+environment_gitlab_instance = os.environ.get("GITLAB_INSTANCE", None)
+environment_access_token = os.environ.get("ACCESS_TOKEN", None)
 
 # Branches Tools
 @mcp.tool()
 def get_branches(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     search: Optional[str] = None,
     regex: Optional[str] = None,
@@ -30,10 +32,10 @@ def get_branches(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
         access_token (str): The GitLab personal access token for authentication.
-            If None, the default token configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         project_id (str, optional): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
             If None, the default project configured in gitlab_api is used.
         search (Optional[str], optional): A string to filter branches by name (case-sensitive).
@@ -80,8 +82,8 @@ def get_branches(
 
 @mcp.tool()
 def get_branch(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
     verify: bool = False,
@@ -93,8 +95,10 @@ def get_branch(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -138,8 +142,8 @@ def get_branch(
 
 @mcp.tool()
 def create_branch(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
     ref: str = None,
@@ -152,8 +156,10 @@ def create_branch(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -199,8 +205,8 @@ def create_branch(
 
 @mcp.tool()
 async def delete_branch(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
     verify: bool = False,
@@ -213,8 +219,10 @@ async def delete_branch(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -263,8 +271,8 @@ async def delete_branch(
 
 @mcp.tool()
 async def delete_merged_branches(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
     ctx: Optional[Context] = None,
@@ -277,8 +285,10 @@ async def delete_merged_branches(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -326,8 +336,8 @@ async def delete_merged_branches(
 # Commits Tools
 @mcp.tool()
 def get_commits(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     ref_name: Optional[str] = None,
     since: Optional[str] = None,
@@ -348,8 +358,10 @@ def get_commits(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -403,8 +415,8 @@ def get_commits(
 
 @mcp.tool()
 def get_commit(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     stats: Optional[bool] = None,
@@ -417,8 +429,10 @@ def get_commit(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -474,8 +488,8 @@ def get_commit(
 
 @mcp.tool()
 def get_commit_references(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     type: Optional[str] = None,
@@ -488,8 +502,10 @@ def get_commit_references(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -545,8 +561,8 @@ def get_commit_references(
 
 @mcp.tool()
 def cherry_pick_commit(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     branch: str = None,
@@ -560,8 +576,10 @@ def cherry_pick_commit(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -619,8 +637,8 @@ def cherry_pick_commit(
 
 @mcp.tool()
 def create_commit(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
     commit_message: str = None,
@@ -641,8 +659,10 @@ def create_commit(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -698,8 +718,8 @@ def create_commit(
 
 @mcp.tool()
 def revert_commit(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     branch: str = None,
@@ -713,8 +733,10 @@ def revert_commit(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -772,8 +794,8 @@ def revert_commit(
 
 @mcp.tool()
 def get_commit_diff(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     unidiff: Optional[bool] = None,
@@ -786,8 +808,10 @@ def get_commit_diff(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -843,8 +867,8 @@ def get_commit_diff(
 
 @mcp.tool()
 def get_commit_comments(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     verify: bool = False,
@@ -856,8 +880,10 @@ def get_commit_comments(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -901,8 +927,8 @@ def get_commit_comments(
 
 @mcp.tool()
 def create_commit_comment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     note: str = None,
@@ -918,8 +944,10 @@ def create_commit_comment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -978,8 +1006,8 @@ def create_commit_comment(
 
 @mcp.tool()
 def get_commit_discussions(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     verify: bool = False,
@@ -991,8 +1019,10 @@ def get_commit_discussions(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1036,8 +1066,8 @@ def get_commit_discussions(
 
 @mcp.tool()
 def get_commit_statuses(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     ref: Optional[str] = None,
@@ -1054,8 +1084,10 @@ def get_commit_statuses(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1115,8 +1147,8 @@ def get_commit_statuses(
 
 @mcp.tool()
 def post_build_status_to_commit(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     state: str = None,
@@ -1135,8 +1167,10 @@ def post_build_status_to_commit(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1199,8 +1233,8 @@ def post_build_status_to_commit(
 
 @mcp.tool()
 def get_commit_merge_requests(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     verify: bool = False,
@@ -1212,8 +1246,10 @@ def get_commit_merge_requests(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1257,8 +1293,8 @@ def get_commit_merge_requests(
 
 @mcp.tool()
 def get_commit_gpg_signature(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     commit_hash: str = None,
     verify: bool = False,
@@ -1270,8 +1306,10 @@ def get_commit_gpg_signature(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1316,8 +1354,8 @@ def get_commit_gpg_signature(
 # Deploy Tokens Tools
 @mcp.tool()
 def get_deploy_tokens(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     verify: bool = False,
 ) -> dict:
     """Retrieve a list of all deploy tokens for the GitLab instance.
@@ -1327,8 +1365,10 @@ def get_deploy_tokens(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -1361,8 +1401,8 @@ def get_deploy_tokens(
 
 @mcp.tool()
 def get_project_deploy_tokens(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -1373,8 +1413,10 @@ def get_project_deploy_tokens(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1416,8 +1458,8 @@ def get_project_deploy_tokens(
 
 @mcp.tool()
 def get_project_deploy_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     token_id: int = None,
     verify: bool = False,
@@ -1429,8 +1471,10 @@ def get_project_deploy_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1474,8 +1518,8 @@ def get_project_deploy_token(
 
 @mcp.tool()
 async def create_project_deploy_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     scopes: List[str] = None,
@@ -1491,8 +1535,10 @@ async def create_project_deploy_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1553,8 +1599,8 @@ async def create_project_deploy_token(
 
 @mcp.tool()
 async def delete_project_deploy_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     token_id: int = None,
     verify: bool = False,
@@ -1567,8 +1613,10 @@ async def delete_project_deploy_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1617,8 +1665,8 @@ async def delete_project_deploy_token(
 
 @mcp.tool()
 def get_group_deploy_tokens(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -1629,8 +1677,10 @@ def get_group_deploy_tokens(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -1672,8 +1722,8 @@ def get_group_deploy_tokens(
 
 @mcp.tool()
 def get_group_deploy_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     token_id: int = None,
     verify: bool = False,
@@ -1685,8 +1735,10 @@ def get_group_deploy_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -1731,8 +1783,8 @@ def get_group_deploy_token(
 # Deploy Tokens Tools
 @mcp.tool()
 async def create_group_deploy_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     name: str = None,
     scopes: List[str] = None,
@@ -1748,8 +1800,10 @@ async def create_group_deploy_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -1810,8 +1864,8 @@ async def create_group_deploy_token(
 
 @mcp.tool()
 async def delete_group_deploy_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     token_id: int = None,
     verify: bool = False,
@@ -1824,8 +1878,10 @@ async def delete_group_deploy_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -1869,8 +1925,8 @@ async def delete_group_deploy_token(
 # Environments Tools
 @mcp.tool()
 def get_environments(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: Optional[str] = None,
     search: Optional[str] = None,
@@ -1884,8 +1940,10 @@ def get_environments(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1931,8 +1989,8 @@ def get_environments(
 
 @mcp.tool()
 def get_environment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     environment_id: int = None,
     verify: bool = False,
@@ -1944,8 +2002,10 @@ def get_environment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -1985,8 +2045,8 @@ def get_environment(
 
 @mcp.tool()
 async def create_environment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     external_url: Optional[str] = None,
@@ -2000,8 +2060,10 @@ async def create_environment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2060,8 +2122,8 @@ async def create_environment(
 
 @mcp.tool()
 async def update_environment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     environment_id: int = None,
     name: Optional[str] = None,
@@ -2076,8 +2138,10 @@ async def update_environment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2140,8 +2204,8 @@ async def update_environment(
 
 @mcp.tool()
 async def delete_environment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     environment_id: int = None,
     verify: bool = False,
@@ -2154,8 +2218,10 @@ async def delete_environment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2200,8 +2266,8 @@ async def delete_environment(
 
 @mcp.tool()
 async def stop_environment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     environment_id: int = None,
     verify: bool = False,
@@ -2214,8 +2280,10 @@ async def stop_environment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2260,8 +2328,8 @@ async def stop_environment(
 
 @mcp.tool()
 async def stop_stale_environments(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     older_than: Optional[str] = None,
     verify: bool = False,
@@ -2274,8 +2342,10 @@ async def stop_stale_environments(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2332,8 +2402,8 @@ async def stop_stale_environments(
 
 @mcp.tool()
 async def delete_stopped_environments(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
     ctx: Optional[Context] = None,
@@ -2345,8 +2415,10 @@ async def delete_stopped_environments(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2387,8 +2459,8 @@ async def delete_stopped_environments(
 
 @mcp.tool()
 def get_protected_environments(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -2399,8 +2471,10 @@ def get_protected_environments(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2436,8 +2510,8 @@ def get_protected_environments(
 
 @mcp.tool()
 def get_protected_environment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     verify: bool = False,
@@ -2449,8 +2523,10 @@ def get_protected_environment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2488,8 +2564,8 @@ def get_protected_environment(
 
 @mcp.tool()
 async def protect_environment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     required_approval_count: Optional[int] = None,
@@ -2503,8 +2579,10 @@ async def protect_environment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2563,8 +2641,8 @@ async def protect_environment(
 
 @mcp.tool()
 async def update_protected_environment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     required_approval_count: Optional[int] = None,
@@ -2578,8 +2656,10 @@ async def update_protected_environment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2640,8 +2720,8 @@ async def update_protected_environment(
 
 @mcp.tool()
 async def unprotect_environment(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     verify: bool = False,
@@ -2654,8 +2734,10 @@ async def unprotect_environment(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -2699,8 +2781,8 @@ async def unprotect_environment(
 # Groups Tools
 @mcp.tool()
 def get_groups(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     search: Optional[str] = None,
     sort: Optional[str] = None,
     order_by: Optional[str] = None,
@@ -2716,8 +2798,10 @@ def get_groups(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         search (Optional[str], optional): Filter groups by search term in name or path. Defaults to None.
@@ -2764,8 +2848,8 @@ def get_groups(
 
 @mcp.tool()
 def get_group(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     with_projects: Optional[bool] = None,
     with_custom_attributes: Optional[bool] = None,
@@ -2778,8 +2862,10 @@ def get_group(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -2824,8 +2910,8 @@ def get_group(
 
 @mcp.tool()
 async def edit_group(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     name: Optional[str] = None,
     path: Optional[str] = None,
@@ -2841,8 +2927,10 @@ async def edit_group(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -2903,8 +2991,8 @@ async def edit_group(
 
 @mcp.tool()
 def get_group_subgroups(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     search: Optional[str] = None,
     sort: Optional[str] = None,
@@ -2919,8 +3007,10 @@ def get_group_subgroups(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -2967,8 +3057,8 @@ def get_group_subgroups(
 
 @mcp.tool()
 def get_group_descendant_groups(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     search: Optional[str] = None,
     sort: Optional[str] = None,
@@ -2983,8 +3073,10 @@ def get_group_descendant_groups(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -3031,8 +3123,8 @@ def get_group_descendant_groups(
 
 @mcp.tool()
 def get_group_projects(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     include_subgroups: Optional[bool] = None,
     search: Optional[str] = None,
@@ -3047,8 +3139,10 @@ def get_group_projects(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -3095,8 +3189,8 @@ def get_group_projects(
 
 @mcp.tool()
 def get_group_merge_requests(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     state: Optional[str] = None,
     scope: Optional[str] = None,
@@ -3111,8 +3205,10 @@ def get_group_merge_requests(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -3160,8 +3256,8 @@ def get_group_merge_requests(
 # Jobs Tools
 @mcp.tool()
 def get_project_jobs(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     scope: Optional[str] = None,
     include_retried: Optional[bool] = None,
@@ -3175,8 +3271,10 @@ def get_project_jobs(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3222,8 +3320,8 @@ def get_project_jobs(
 
 @mcp.tool()
 def get_project_job(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
     verify: bool = False,
@@ -3235,8 +3333,10 @@ def get_project_job(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3274,8 +3374,8 @@ def get_project_job(
 
 @mcp.tool()
 def get_project_job_log(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
     verify: bool = False,
@@ -3287,8 +3387,10 @@ def get_project_job_log(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3326,8 +3428,8 @@ def get_project_job_log(
 
 @mcp.tool()
 async def cancel_project_job(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
     verify: bool = False,
@@ -3340,8 +3442,10 @@ async def cancel_project_job(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3384,8 +3488,8 @@ async def cancel_project_job(
 
 @mcp.tool()
 async def retry_project_job(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
     verify: bool = False,
@@ -3398,8 +3502,10 @@ async def retry_project_job(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3443,8 +3549,8 @@ async def retry_project_job(
 # Jobs Tools
 @mcp.tool()
 async def erase_project_job(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
     verify: bool = False,
@@ -3457,8 +3563,10 @@ async def erase_project_job(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3501,8 +3609,8 @@ async def erase_project_job(
 
 @mcp.tool()
 async def run_project_job(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     job_id: int = None,
     verify: bool = False,
@@ -3515,8 +3623,10 @@ async def run_project_job(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3559,8 +3669,8 @@ async def run_project_job(
 
 @mcp.tool()
 def get_pipeline_jobs(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_id: int = None,
     scope: Optional[str] = None,
@@ -3573,8 +3683,10 @@ def get_pipeline_jobs(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3631,8 +3743,8 @@ def get_pipeline_jobs(
 # Members Tools
 @mcp.tool()
 def get_group_members(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     query: Optional[str] = None,
     user_ids: Optional[List[int]] = None,
@@ -3647,8 +3759,10 @@ def get_group_members(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -3695,8 +3809,8 @@ def get_group_members(
 
 @mcp.tool()
 def get_project_members(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     query: Optional[str] = None,
     user_ids: Optional[List[int]] = None,
@@ -3710,8 +3824,10 @@ def get_project_members(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3759,8 +3875,8 @@ def get_project_members(
 # Merge Request Tools
 @mcp.tool()
 async def create_merge_request(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     source_branch: str = None,
     target_branch: str = None,
@@ -3779,8 +3895,10 @@ async def create_merge_request(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3845,8 +3963,8 @@ async def create_merge_request(
 
 @mcp.tool()
 def get_merge_requests(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     state: Optional[str] = None,
     scope: Optional[str] = None,
     milestone: Optional[str] = None,
@@ -3862,8 +3980,10 @@ def get_merge_requests(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         state (Optional[str], optional): Filter merge requests by state (e.g., "opened", "closed"). Defaults to None.
@@ -3910,8 +4030,8 @@ def get_merge_requests(
 
 @mcp.tool()
 def get_project_merge_requests(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     state: Optional[str] = None,
     scope: Optional[str] = None,
@@ -3926,8 +4046,10 @@ def get_project_merge_requests(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -3975,8 +4097,8 @@ def get_project_merge_requests(
 
 @mcp.tool()
 def get_project_merge_request(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     merge_id: int = None,
     verify: bool = False,
@@ -3988,8 +4110,10 @@ def get_project_merge_request(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4030,8 +4154,8 @@ def get_project_merge_request(
 # Merge Rules Tools
 @mcp.tool()
 def get_project_level_merge_request_approval_rules(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -4042,8 +4166,10 @@ def get_project_level_merge_request_approval_rules(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4079,8 +4205,8 @@ def get_project_level_merge_request_approval_rules(
 
 @mcp.tool()
 def get_project_level_merge_request_approval_rule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     approval_rule_id: int = None,
     verify: bool = False,
@@ -4092,8 +4218,10 @@ def get_project_level_merge_request_approval_rule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4133,8 +4261,8 @@ def get_project_level_merge_request_approval_rule(
 
 @mcp.tool()
 async def create_project_level_rule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     approvals_required: Optional[int] = None,
@@ -4151,8 +4279,10 @@ async def create_project_level_rule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4214,8 +4344,8 @@ async def create_project_level_rule(
 
 @mcp.tool()
 async def update_project_level_rule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     approval_rule_id: int = None,
     name: Optional[str] = None,
@@ -4232,8 +4362,10 @@ async def update_project_level_rule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4301,8 +4433,8 @@ async def update_project_level_rule(
 
 @mcp.tool()
 async def delete_project_level_rule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     approval_rule_id: int = None,
     verify: bool = False,
@@ -4315,8 +4447,10 @@ async def delete_project_level_rule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4363,8 +4497,8 @@ async def delete_project_level_rule(
 
 @mcp.tool()
 def merge_request_level_approvals(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
     verify: bool = False,
@@ -4376,8 +4510,10 @@ def merge_request_level_approvals(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4417,8 +4553,8 @@ def merge_request_level_approvals(
 
 @mcp.tool()
 def get_approval_state_merge_requests(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
     verify: bool = False,
@@ -4430,8 +4566,10 @@ def get_approval_state_merge_requests(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4471,8 +4609,8 @@ def get_approval_state_merge_requests(
 
 @mcp.tool()
 def get_merge_request_level_rules(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
     verify: bool = False,
@@ -4484,8 +4622,10 @@ def get_merge_request_level_rules(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4525,8 +4665,8 @@ def get_merge_request_level_rules(
 
 @mcp.tool()
 async def approve_merge_request(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
     verify: bool = False,
@@ -4539,8 +4679,10 @@ async def approve_merge_request(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4587,8 +4729,8 @@ async def approve_merge_request(
 
 @mcp.tool()
 async def unapprove_merge_request(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     merge_request_iid: int = None,
     verify: bool = False,
@@ -4601,8 +4743,10 @@ async def unapprove_merge_request(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4650,8 +4794,8 @@ async def unapprove_merge_request(
 # Merge Rules Settings Tools
 @mcp.tool()
 def get_group_level_rule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -4662,8 +4806,10 @@ def get_group_level_rule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used_avalon
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -4699,8 +4845,8 @@ def get_group_level_rule(
 
 @mcp.tool()
 async def edit_group_level_rule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     allow_author_approval: Optional[bool] = None,
     allow_committer_approval: Optional[bool] = None,
@@ -4716,8 +4862,10 @@ async def edit_group_level_rule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -4777,8 +4925,8 @@ async def edit_group_level_rule(
 
 @mcp.tool()
 def get_project_level_rule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -4789,8 +4937,10 @@ def get_project_level_rule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4826,8 +4976,8 @@ def get_project_level_rule(
 
 @mcp.tool()
 async def edit_project_level_rule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     allow_author_approval: Optional[bool] = None,
     allow_committer_approval: Optional[bool] = None,
@@ -4843,8 +4993,10 @@ async def edit_project_level_rule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4905,8 +5057,8 @@ async def edit_project_level_rule(
 # Packages Tools
 @mcp.tool()
 def get_repository_packages(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     package_type: Optional[str] = None,
     verify: bool = False,
@@ -4918,8 +5070,10 @@ def get_repository_packages(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -4964,8 +5118,8 @@ def get_repository_packages(
 
 @mcp.tool()
 async def publish_repository_package(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     package_name: str = None,
     package_version: str = None,
@@ -4981,8 +5135,10 @@ async def publish_repository_package(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5046,8 +5202,8 @@ async def publish_repository_package(
 
 @mcp.tool()
 def download_repository_package(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     package_name: str = None,
     package_version: str = None,
@@ -5061,8 +5217,10 @@ def download_repository_package(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5110,8 +5268,8 @@ def download_repository_package(
 # Pipeline Tools
 @mcp.tool()
 def get_pipelines(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     scope: Optional[str] = None,
     status: Optional[str] = None,
@@ -5128,8 +5286,10 @@ def get_pipelines(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5179,8 +5339,8 @@ def get_pipelines(
 
 @mcp.tool()
 def get_pipeline(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_id: int = None,
     verify: bool = False,
@@ -5192,8 +5352,10 @@ def get_pipeline(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5231,8 +5393,8 @@ def get_pipeline(
 
 @mcp.tool()
 async def run_pipeline(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     reference: str = None,
     variables: Optional[Dict[str, str]] = None,
@@ -5246,8 +5408,10 @@ async def run_pipeline(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5306,8 +5470,8 @@ async def run_pipeline(
 # Pipeline Schedules Tools
 @mcp.tool()
 def get_pipeline_schedules(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -5318,8 +5482,10 @@ def get_pipeline_schedules(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5355,8 +5521,8 @@ def get_pipeline_schedules(
 
 @mcp.tool()
 def get_pipeline_schedule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
     verify: bool = False,
@@ -5368,8 +5534,10 @@ def get_pipeline_schedule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5409,8 +5577,8 @@ def get_pipeline_schedule(
 
 @mcp.tool()
 def get_pipelines_triggered_from_schedule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
     verify: bool = False,
@@ -5422,8 +5590,10 @@ def get_pipelines_triggered_from_schedule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5463,8 +5633,8 @@ def get_pipelines_triggered_from_schedule(
 
 @mcp.tool()
 async def create_pipeline_schedule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     description: Optional[str] = None,
     ref: str = None,
@@ -5481,8 +5651,10 @@ async def create_pipeline_schedule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5547,8 +5719,8 @@ async def create_pipeline_schedule(
 
 @mcp.tool()
 async def edit_pipeline_schedule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
     description: Optional[str] = None,
@@ -5566,8 +5738,10 @@ async def edit_pipeline_schedule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5635,8 +5809,8 @@ async def edit_pipeline_schedule(
 
 @mcp.tool()
 async def take_pipeline_schedule_ownership(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
     verify: bool = False,
@@ -5649,8 +5823,10 @@ async def take_pipeline_schedule_ownership(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5697,8 +5873,8 @@ async def take_pipeline_schedule_ownership(
 
 @mcp.tool()
 async def delete_pipeline_schedule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
     verify: bool = False,
@@ -5711,8 +5887,10 @@ async def delete_pipeline_schedule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5759,8 +5937,8 @@ async def delete_pipeline_schedule(
 
 @mcp.tool()
 async def run_pipeline_schedule(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
     verify: bool = False,
@@ -5773,8 +5951,10 @@ async def run_pipeline_schedule(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5821,8 +6001,8 @@ async def run_pipeline_schedule(
 
 @mcp.tool()
 async def create_pipeline_schedule_variable(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
     key: str = None,
@@ -5838,8 +6018,10 @@ async def create_pipeline_schedule_variable(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5906,8 +6088,8 @@ async def create_pipeline_schedule_variable(
 
 @mcp.tool()
 async def delete_pipeline_schedule_variable(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     pipeline_schedule_id: int = None,
     key: str = None,
@@ -5921,8 +6103,10 @@ async def delete_pipeline_schedule_variable(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -5972,8 +6156,8 @@ async def delete_pipeline_schedule_variable(
 # Projects Tools
 @mcp.tool()
 def get_projects(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     owned: Optional[bool] = None,
     search: Optional[str] = None,
     sort: Optional[str] = None,
@@ -5987,8 +6171,10 @@ def get_projects(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         owned (Optional[bool], optional): Filter projects owned by the authenticated user. Defaults to None.
@@ -6033,8 +6219,8 @@ def get_projects(
 
 @mcp.tool()
 def get_project(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -6045,8 +6231,10 @@ def get_project(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6082,8 +6270,8 @@ def get_project(
 
 @mcp.tool()
 def get_nested_projects_by_group(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     per_page: Optional[int] = None,
     verify: bool = False,
@@ -6095,8 +6283,10 @@ def get_nested_projects_by_group(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -6140,8 +6330,8 @@ def get_nested_projects_by_group(
 
 @mcp.tool()
 def get_project_contributors(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -6152,8 +6342,10 @@ def get_project_contributors(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6189,8 +6381,8 @@ def get_project_contributors(
 
 @mcp.tool()
 def get_project_statistics(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -6201,8 +6393,10 @@ def get_project_statistics(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6238,8 +6432,8 @@ def get_project_statistics(
 
 @mcp.tool()
 async def edit_project(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: Optional[str] = None,
     description: Optional[str] = None,
@@ -6254,8 +6448,10 @@ async def edit_project(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6314,8 +6510,8 @@ async def edit_project(
 
 @mcp.tool()
 def get_project_groups(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     skip_groups: Optional[List[int]] = None,
     search: Optional[str] = None,
@@ -6328,8 +6524,10 @@ def get_project_groups(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6375,8 +6573,8 @@ def get_project_groups(
 
 @mcp.tool()
 async def archive_project(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
     ctx: Optional[Context] = None,
@@ -6388,8 +6586,10 @@ async def archive_project(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6431,8 +6631,8 @@ async def archive_project(
 # Projects Tools
 @mcp.tool()
 async def unarchive_project(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
     ctx: Optional[Context] = None,
@@ -6444,8 +6644,10 @@ async def unarchive_project(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6486,8 +6688,8 @@ async def unarchive_project(
 
 @mcp.tool()
 async def delete_project(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
     ctx: Optional[Context] = None,
@@ -6499,8 +6701,10 @@ async def delete_project(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6541,8 +6745,8 @@ async def delete_project(
 
 @mcp.tool()
 async def share_project(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     group_id: str = None,
     group_access: str = None,
@@ -6557,8 +6761,10 @@ async def share_project(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6619,8 +6825,8 @@ async def share_project(
 # Protected Branches Tools
 @mcp.tool()
 def get_protected_branches(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -6631,8 +6837,10 @@ def get_protected_branches(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6668,8 +6876,8 @@ def get_protected_branches(
 
 @mcp.tool()
 def get_protected_branch(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
     verify: bool = False,
@@ -6681,8 +6889,10 @@ def get_protected_branch(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6720,8 +6930,8 @@ def get_protected_branch(
 
 @mcp.tool()
 async def protect_branch(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
     push_access_level: Optional[str] = None,
@@ -6742,8 +6952,10 @@ async def protect_branch(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6809,8 +7021,8 @@ async def protect_branch(
 
 @mcp.tool()
 async def unprotect_branch(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
     verify: bool = False,
@@ -6823,8 +7035,10 @@ async def unprotect_branch(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6867,8 +7081,8 @@ async def unprotect_branch(
 
 @mcp.tool()
 async def require_code_owner_approvals_single_branch(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     branch: str = None,
     code_owner_approval_required: bool = None,
@@ -6882,8 +7096,10 @@ async def require_code_owner_approvals_single_branch(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6935,8 +7151,8 @@ async def require_code_owner_approvals_single_branch(
 # Release Tools
 @mcp.tool()
 def get_releases(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     include_html_description: Optional[bool] = None,
     sort: Optional[str] = None,
@@ -6950,8 +7166,10 @@ def get_releases(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -6998,8 +7216,8 @@ def get_releases(
 
 @mcp.tool()
 def get_latest_release(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -7010,8 +7228,10 @@ def get_latest_release(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -7047,8 +7267,8 @@ def get_latest_release(
 
 @mcp.tool()
 def get_latest_release_evidence(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
 ) -> dict:
@@ -7059,8 +7279,10 @@ def get_latest_release_evidence(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -7096,8 +7318,8 @@ def get_latest_release_evidence(
 
 @mcp.tool()
 def get_latest_release_asset(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     direct_asset_path: str = None,
     verify: bool = False,
@@ -7109,8 +7331,10 @@ def get_latest_release_asset(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -7150,8 +7374,8 @@ def get_latest_release_asset(
 
 @mcp.tool()
 def get_group_releases(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     include_html_description: Optional[bool] = None,
     sort: Optional[str] = None,
@@ -7165,8 +7389,10 @@ def get_group_releases(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -7212,8 +7438,8 @@ def get_group_releases(
 
 @mcp.tool()
 def download_release_asset(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     tag_name: str = None,
     direct_asset_path: str = None,
@@ -7226,8 +7452,10 @@ def download_release_asset(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -7269,8 +7497,8 @@ def download_release_asset(
 
 @mcp.tool()
 def get_release_by_tag(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     tag_name: str = None,
     verify: bool = False,
@@ -7282,8 +7510,10 @@ def get_release_by_tag(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -7321,8 +7551,8 @@ def get_release_by_tag(
 
 @mcp.tool()
 async def create_release(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     tag_name: str = None,
@@ -7339,8 +7569,10 @@ async def create_release(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -7402,8 +7634,8 @@ async def create_release(
 
 @mcp.tool()
 async def create_release_evidence(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     tag_name: str = None,
     verify: bool = False,
@@ -7416,8 +7648,10 @@ async def create_release_evidence(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -7462,8 +7696,8 @@ async def create_release_evidence(
 
 @mcp.tool()
 async def update_release(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     tag_name: str = None,
     name: Optional[str] = None,
@@ -7480,8 +7714,10 @@ async def update_release(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -7544,8 +7780,8 @@ async def update_release(
 
 @mcp.tool()
 async def delete_release(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     tag_name: str = None,
     verify: bool = False,
@@ -7558,8 +7794,10 @@ async def delete_release(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -7603,8 +7841,8 @@ async def delete_release(
 # Runners Tools
 @mcp.tool()
 def get_runners(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     scope: Optional[str] = None,
     type: Optional[str] = None,
     status: Optional[str] = None,
@@ -7618,8 +7856,10 @@ def get_runners(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         scope (Optional[str], optional): Filter runners by scope (e.g., "active"). Defaults to None.
@@ -7663,8 +7903,8 @@ def get_runners(
 
 @mcp.tool()
 def get_runner(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     runner_id: int = None,
     verify: bool = False,
 ) -> dict:
@@ -7675,8 +7915,10 @@ def get_runner(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to retrieve.
@@ -7712,8 +7954,8 @@ def get_runner(
 
 @mcp.tool()
 async def update_runner_details(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     runner_id: int = None,
     description: Optional[str] = None,
     active: Optional[bool] = None,
@@ -7732,8 +7974,10 @@ async def update_runner_details(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to update.
@@ -7796,8 +8040,8 @@ async def update_runner_details(
 
 @mcp.tool()
 async def pause_runner(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     runner_id: int = None,
     active: bool = None,
     verify: bool = False,
@@ -7810,8 +8054,10 @@ async def pause_runner(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to pause or unpause.
@@ -7854,8 +8100,8 @@ async def pause_runner(
 
 @mcp.tool()
 def get_runner_jobs(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     runner_id: int = None,
     status: Optional[str] = None,
     sort: Optional[str] = None,
@@ -7868,8 +8114,10 @@ def get_runner_jobs(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to retrieve jobs for.
@@ -7915,8 +8163,8 @@ def get_runner_jobs(
 
 @mcp.tool()
 def get_project_runners(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     scope: Optional[str] = None,
     verify: bool = False,
@@ -7928,8 +8176,10 @@ def get_project_runners(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -7974,8 +8224,8 @@ def get_project_runners(
 
 @mcp.tool()
 async def enable_project_runner(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     runner_id: int = None,
     verify: bool = False,
@@ -7988,8 +8238,10 @@ async def enable_project_runner(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8032,8 +8284,8 @@ async def enable_project_runner(
 
 @mcp.tool()
 async def delete_project_runner(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     runner_id: int = None,
     verify: bool = False,
@@ -8046,8 +8298,10 @@ async def delete_project_runner(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8090,8 +8344,8 @@ async def delete_project_runner(
 
 @mcp.tool()
 def get_group_runners(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     scope: Optional[str] = None,
     verify: bool = False,
@@ -8103,8 +8357,10 @@ def get_group_runners(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -8149,8 +8405,8 @@ def get_group_runners(
 # Runners Tools
 @mcp.tool()
 async def register_new_runner(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     token: str = None,
     description: Optional[str] = None,
     tag_list: Optional[List[str]] = None,
@@ -8166,8 +8422,10 @@ async def register_new_runner(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         token (str): The registration token for the runner.
@@ -8219,8 +8477,8 @@ async def register_new_runner(
 
 @mcp.tool()
 async def delete_runner(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     runner_id: Optional[int] = None,
     token: Optional[str] = None,
     verify: bool = False,
@@ -8233,8 +8491,10 @@ async def delete_runner(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (Optional[int], optional): The ID of the runner to delete. Defaults to None.
@@ -8282,8 +8542,8 @@ async def delete_runner(
 
 @mcp.tool()
 async def verify_runner_authentication(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     token: str = None,
     verify: bool = False,
     ctx: Optional[Context] = None,
@@ -8295,8 +8555,10 @@ async def verify_runner_authentication(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         token (str): The runner token to verify.
@@ -8337,8 +8599,8 @@ async def verify_runner_authentication(
 
 @mcp.tool()
 async def reset_gitlab_runner_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     verify: bool = False,
     ctx: Optional[Context] = None,
 ) -> dict:
@@ -8349,8 +8611,10 @@ async def reset_gitlab_runner_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
@@ -8388,8 +8652,8 @@ async def reset_gitlab_runner_token(
 
 @mcp.tool()
 async def reset_project_runner_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     verify: bool = False,
     ctx: Optional[Context] = None,
@@ -8401,8 +8665,10 @@ async def reset_project_runner_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8443,8 +8709,8 @@ async def reset_project_runner_token(
 
 @mcp.tool()
 async def reset_group_runner_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     group_id: str = None,
     verify: bool = False,
     ctx: Optional[Context] = None,
@@ -8456,8 +8722,10 @@ async def reset_group_runner_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         group_id (str): The ID or path of the GitLab group (e.g., "1234" or "group/subgroup").
@@ -8498,8 +8766,8 @@ async def reset_group_runner_token(
 
 @mcp.tool()
 async def reset_token(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     runner_id: int = None,
     token: str = None,
     verify: bool = False,
@@ -8512,8 +8780,10 @@ async def reset_token(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         runner_id (int): The ID of the runner to reset the token for.
@@ -8557,8 +8827,8 @@ async def reset_token(
 # Tags Tools
 @mcp.tool()
 def get_tags(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     search: Optional[str] = None,
     sort: Optional[str] = None,
@@ -8571,8 +8841,10 @@ def get_tags(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8618,8 +8890,8 @@ def get_tags(
 
 @mcp.tool()
 def get_tag(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     verify: bool = False,
@@ -8631,8 +8903,10 @@ def get_tag(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8670,8 +8944,8 @@ def get_tag(
 
 @mcp.tool()
 async def create_tag(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     ref: str = None,
@@ -8687,8 +8961,10 @@ async def create_tag(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8749,8 +9025,8 @@ async def create_tag(
 
 @mcp.tool()
 async def delete_tag(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     verify: bool = False,
@@ -8763,8 +9039,10 @@ async def delete_tag(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8807,8 +9085,8 @@ async def delete_tag(
 
 @mcp.tool()
 def get_protected_tags(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: Optional[str] = None,
     verify: bool = False,
@@ -8820,8 +9098,10 @@ def get_protected_tags(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8866,8 +9146,8 @@ def get_protected_tags(
 
 @mcp.tool()
 def get_protected_tag(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     verify: bool = False,
@@ -8879,8 +9159,10 @@ def get_protected_tag(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8918,8 +9200,8 @@ def get_protected_tag(
 
 @mcp.tool()
 async def protect_tag(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     create_access_level: Optional[str] = None,
@@ -8934,8 +9216,10 @@ async def protect_tag(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
@@ -8995,8 +9279,8 @@ async def protect_tag(
 
 @mcp.tool()
 async def unprotect_tag(
-    gitlab_instance: str = None,
-    access_token: str = None,
+    gitlab_instance: str = environment_gitlab_instance,
+    access_token: str = environment_access_token,
     project_id: str = None,
     name: str = None,
     verify: bool = False,
@@ -9009,8 +9293,10 @@ async def unprotect_tag(
 
     Args:
         gitlab_instance (str): The URL of the GitLab instance (e.g., "https://gitlab.com/api/v4/").
-            If None, the default instance configured in gitlab_api is used.
+            If None, it will attempt to use the environment variable GITLAB_INSTANCE
             Always ensure the URL includes the API suffix at the end /api/v4/.
+        access_token (str): The GitLab personal access token for authentication.
+            If None, it will attempt to use the environment variable ACCESS_TOKEN
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
