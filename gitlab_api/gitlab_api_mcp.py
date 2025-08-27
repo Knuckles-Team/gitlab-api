@@ -5418,7 +5418,7 @@ async def run_pipeline(
     gitlab_instance: str = environment_gitlab_instance,
     access_token: str = environment_access_token,
     project_id: str = None,
-    reference: str = None,
+    ref: str = None,
     variables: Optional[Dict[str, str]] = None,
     verify: bool = environment_verify,
     ctx: Optional[Context] = None,
@@ -5437,7 +5437,7 @@ async def run_pipeline(
         access_token (str): The GitLab personal access token for authentication.
             If None, the default token configured in gitlab_api is used.
         project_id (str): The ID or path of the GitLab project (e.g., "1234" or "namespace/project").
-        reference (str): The reference (e.g., branch or tag) to run the pipeline on.
+        ref (str): The reference (e.g., branch or tag) to run the pipeline on.
         variables (Optional[Dict[str, str]], optional): Dictionary of pipeline variables. Defaults to None.
         verify (bool, optional): Whether to verify the SSL certificate of the GitLab instance.
             Defaults to False (no verification).
@@ -5463,7 +5463,7 @@ async def run_pipeline(
         {"id": 1, "status": "pending"}
     """
     if ctx:
-        await ctx.info(f"Running pipeline for project {project_id} on ref {reference}")
+        await ctx.info(f"Running pipeline for project {project_id} on ref {ref}")
     client = Api(
         url=gitlab_instance,
         token=access_token,
