@@ -65,13 +65,7 @@ If your API call isn't supported, you can always run the standard custom API end
 
 AI Prompt:
 ```text
-Get me the details of my gitlab project.
-My gitlab instance is
-http://gitlab.arpa/api/v4/
-
-
-Access token: glpat-*************
-And Project ID is 420.
+Get me the details of my gitlab project with id 420.
 ```
 
 AI Response:
@@ -100,6 +94,71 @@ and supports CI/CD pipelines, merge requests, and issue tracking.
 It is currently active with no open issues and follows
 the default branch strategy for its workflow.
 
+```
+
+AI Prompt:
+```text
+Run the gitlab pipeline for this project id 133 on the main branch
+```
+
+AI Response:
+```text
+The pipeline has been successfully created for the project ID 133 on the main reference. Here are the details:
+
+Pipeline ID: 20601
+Reference: main
+SHA: asidfaskdjvalksdjv
+Status: Created
+Web URL: 
+
+Created At: 2025-08-27T02:49:20.068Z
+The pipeline is now queued and will start executing soon. Let me know if you'd like further details or actions!
+```
+
+AI Prompt:
+```text
+Create a branch called "test" from the main branch in this gitlab project with id 133
+```
+
+AI Response:
+```text
+The branch test has been successfully created from the main branch in the project with ID 133.
+
+Branch Details:
+Name: test
+URL: 
+
+Commit:
+Short ID: 1c3775ac
+Message: "Add adgurad."
+Author: KnucklesSG1
+Committed Date: August 25, 2025, at 05:03:01 (UTC-05:00)
+This branch is not protected, and it is not set as the default branch. 
+The branch is currently unmerged and can be pushed to by authorized users.
+
+Let me know if you'd like further actions (e.g., merging, pushing changes)!
+```
+
+AI Prompt:
+```text
+Create a merge request for project 133 from the test branch to the main branch with a title of 
+"This is a merge request by Qwen3" and a description of "This is a description populated by qwen3 LLM"
+```
+
+AI Response:
+```text
+The merge request has been successfully created with the following details:
+
+Title: This is a merge request by Qwen3
+Description: This is a description populated by qwen3 LLM
+Source Branch: test
+Target Branch: main
+Project: homelab/containers/services/project
+Merge Request URL: 
+
+Status: Opened
+Created At: 2025-08-27T03:15:51.520000Z
+The merge request is currently in the "preparing" state and is ready for review. Let me know if you'd like further actions, such as assigning reviewers or approving the merge! 😊
 ```
 
 <details>
