@@ -114,7 +114,8 @@ async def delete_branch(
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
     branch: Annotated[Optional[str], Field(description="Branch name to delete")] = None,
     delete_merged_branches: Annotated[
-        Optional[bool], Field(description="Delete merged branches")
+        Optional[bool],
+        Field(description="Delete all merged branches (excluding protected)"),
     ] = False,
     verify: Annotated[
         bool, Field(description="Verify SSL certificate")
@@ -123,11 +124,19 @@ async def delete_branch(
         Optional[Context], Field(description="MCP context for progress")
     ] = None,
 ) -> Dict[str, str]:
-    """Delete a specific branch in a GitLab project or Delete all merged branches in a GitLab project (excluding protected).."""
-    if not project_id or not branch:
-        raise ValueError("project_id and branch are required")
+    """Delete a branch or all merged branches in a GitLab project.
+
+    - If delete_merged_branches=True, deletes all merged branches (excluding protected).
+    - Otherwise, deletes the specified branch.
+    """
+    if not project_id:
+        raise ValueError("project_id is required")
+    if not delete_merged_branches and not branch:
+        raise ValueError("branch is required when delete_merged_branches=False")
     if ctx:
-        await ctx.info(f"Deleting branch '{branch}' in project {project_id}")
+        await ctx.info(
+            f"Deleting {'merged branches' if delete_merged_branches else f'branch {branch}'} in project {project_id}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -295,7 +304,11 @@ def revert_commit(
         bool, Field(description="Verify SSL certificate")
     ] = environment_verify,
 ) -> Dict[str, Union[str, Dict]]:
-    """Revert a commit in a target branch in a GitLab project."""
+    """Revert a commit in a target branch in a GitLab project.
+
+    - If dry_run=True, simulates the revert without applying changes.
+    - Returns the revert commit details or simulation result.
+    """
     if not project_id or not sha or not branch:
         raise ValueError("project_id, sha, and branch are required")
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
@@ -774,12 +787,14 @@ def get_group_deploy_tokens(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    token_id: Annotated[int, Field(description="Deploy token ID")] = None,
+    token_id: Annotated[
+        Optional[int], Field(description="Deploy token ID for single retrieval")
+    ] = None,
     verify: Annotated[
         bool, Field(description="Verify SSL certificate")
     ] = environment_verify,
-) -> List[Dict[str, Union[str, int]]]:
-    """Retrieve a list of deploy tokens for a specific GitLab group."""
+) -> Union[List[Dict[str, Union[str, int]]], Dict[str, Union[str, int]]]:
+    """Retrieve deploy tokens for a GitLab group (list or single by ID)."""
     if not group_id:
         raise ValueError("group_id is required")
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
@@ -1179,7 +1194,7 @@ def get_protected_environments(
         bool, Field(description="Verify SSL certificate")
     ] = environment_verify,
 ) -> Union[List[Dict[str, Union[str, int]]], Dict[str, Union[str, int]]]:
-    """Retrieve a list of protected environments in a GitLab project or a single protected environment by id."""
+    """Retrieve protected environments in a GitLab project (list or single by name)."""
     if not project_id:
         raise ValueError("project_id is required")
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
