@@ -165,7 +165,7 @@ def get_commits(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[Optional[str], Field(description="Commit SHA")] = None,
+    commit_hash: Annotated[Optional[str], Field(description="Commit SHA")] = None,
     ref_name: Annotated[
         Optional[str], Field(description="Branch, tag, or commit SHA to filter commits")
     ] = None,
@@ -197,7 +197,7 @@ def get_commits(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    if sha:
+    if commit_hash:
         response = client.get_commit(**kwargs)
     else:
         response = client.get_commits(**kwargs)
@@ -256,7 +256,7 @@ async def get_commit_diff(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[str, Field(description="Commit SHA")] = None,
+    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
     verify: Annotated[
         bool, Field(description="Verify SSL certificate")
     ] = environment_verify,
@@ -265,10 +265,12 @@ async def get_commit_diff(
     ] = None,
 ) -> List[Dict[str, str]]:
     """Get the diff of a specific commit in a GitLab project."""
-    if not project_id or not sha:
-        raise ValueError("project_id and sha are required")
+    if not project_id or not commit_hash:
+        raise ValueError("project_id and commit_hash are required")
     if ctx:
-        await ctx.info(f"Fetching diff for commit {sha} in project {project_id}")
+        await ctx.info(
+            f"Fetching diff for commit {commit_hash} in project {project_id}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -293,7 +295,7 @@ def revert_commit(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[str, Field(description="Commit SHA to revert")] = None,
+    commit_hash: Annotated[str, Field(description="Commit SHA to revert")] = None,
     branch: Annotated[
         str, Field(description="Target branch to apply the revert")
     ] = None,
@@ -309,8 +311,8 @@ def revert_commit(
     - If dry_run=True, simulates the revert without applying changes.
     - Returns the revert commit details or simulation result.
     """
-    if not project_id or not sha or not branch:
-        raise ValueError("project_id, sha, and branch are required")
+    if not project_id or not commit_hash or not branch:
+        raise ValueError("project_id, commit_hash, and branch are required")
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -318,7 +320,7 @@ def revert_commit(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.revert_commit(project_id=project_id, commit_hash=sha, **kwargs)
+    response = client.revert_commit(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -333,7 +335,7 @@ async def get_commit_comments(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[str, Field(description="Commit SHA")] = None,
+    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
     verify: Annotated[
         bool, Field(description="Verify SSL certificate")
     ] = environment_verify,
@@ -342,10 +344,12 @@ async def get_commit_comments(
     ] = None,
 ) -> List[Dict[str, Union[str, int]]]:
     """Retrieve comments on a specific commit in a GitLab project."""
-    if not project_id or not sha:
-        raise ValueError("project_id and sha are required")
+    if not project_id or not commit_hash:
+        raise ValueError("project_id and commit_hash are required")
     if ctx:
-        await ctx.info(f"Fetching comments for commit {sha} in project {project_id}")
+        await ctx.info(
+            f"Fetching comments for commit {commit_hash} in project {project_id}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -370,7 +374,7 @@ async def create_commit_comment(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[str, Field(description="Commit SHA")] = None,
+    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
     note: Annotated[str, Field(description="Content of the comment")] = None,
     path: Annotated[
         Optional[str], Field(description="File path to associate with the comment")
@@ -389,10 +393,12 @@ async def create_commit_comment(
     ] = None,
 ) -> Dict[str, Union[str, int]]:
     """Create a new comment on a specific commit in a GitLab project."""
-    if not project_id or not sha or not note:
-        raise ValueError("project_id, sha, and note are required")
+    if not project_id or not commit_hash or not note:
+        raise ValueError("project_id, commit_hash, and note are required")
     if ctx:
-        await ctx.info(f"Creating comment on commit {sha} in project {project_id}")
+        await ctx.info(
+            f"Creating comment on commit {commit_hash} in project {project_id}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -400,9 +406,7 @@ async def create_commit_comment(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_commit_comment(
-        project_id=project_id, commit_hash=sha, **kwargs
-    )
+    response = client.create_commit_comment(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -419,7 +423,7 @@ async def get_commit_discussions(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[str, Field(description="Commit SHA")] = None,
+    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
     verify: Annotated[
         bool, Field(description="Verify SSL certificate")
     ] = environment_verify,
@@ -428,10 +432,12 @@ async def get_commit_discussions(
     ] = None,
 ) -> List[Dict[str, Union[str, List]]]:
     """Retrieve discussions (threaded comments) on a specific commit in a GitLab project."""
-    if not project_id or not sha:
-        raise ValueError("project_id and sha are required")
+    if not project_id or not commit_hash:
+        raise ValueError("project_id and commit_hash are required")
     if ctx:
-        await ctx.info(f"Fetching discussions for commit {sha} in project {project_id}")
+        await ctx.info(
+            f"Fetching discussions for commit {commit_hash} in project {project_id}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -456,7 +462,7 @@ async def get_commit_statuses(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[str, Field(description="Commit SHA")] = None,
+    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
     ref: Annotated[
         Optional[str], Field(description="Filter statuses by reference (branch or tag)")
     ] = None,
@@ -478,10 +484,12 @@ async def get_commit_statuses(
     ] = None,
 ) -> List[Dict[str, Union[str, bool]]]:
     """Retrieve build/CI statuses for a specific commit in a GitLab project."""
-    if not project_id or not sha:
-        raise ValueError("project_id and sha are required")
+    if not project_id or not commit_hash:
+        raise ValueError("project_id and commit_hash are required")
     if ctx:
-        await ctx.info(f"Fetching statuses for commit {sha} in project {project_id}")
+        await ctx.info(
+            f"Fetching statuses for commit {commit_hash} in project {project_id}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -489,9 +497,7 @@ async def get_commit_statuses(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.get_commit_statuses(
-        project_id=project_id, commit_hash=sha, **kwargs
-    )
+    response = client.get_commit_statuses(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -508,7 +514,7 @@ async def post_build_status_to_commit(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[str, Field(description="Commit SHA")] = None,
+    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
     state: Annotated[
         str,
         Field(
@@ -541,10 +547,12 @@ async def post_build_status_to_commit(
     ] = None,
 ) -> Dict[str, Union[str, bool]]:
     """Post a build/CI status to a specific commit in a GitLab project."""
-    if not project_id or not sha or not state:
-        raise ValueError("project_id, sha, and state are required")
+    if not project_id or not commit_hash or not state:
+        raise ValueError("project_id, commit_hash, and state are required")
     if ctx:
-        await ctx.info(f"Posting build status for commit {sha} in project {project_id}")
+        await ctx.info(
+            f"Posting build status for commit {commit_hash} in project {project_id}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -552,9 +560,7 @@ async def post_build_status_to_commit(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.post_build_status_to_commit(
-        project_id=project_id, commit_hash=sha, **kwargs
-    )
+    response = client.post_build_status_to_commit(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -571,7 +577,7 @@ async def get_commit_merge_requests(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[str, Field(description="Commit SHA")] = None,
+    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
     verify: Annotated[
         bool, Field(description="Verify SSL certificate")
     ] = environment_verify,
@@ -580,11 +586,11 @@ async def get_commit_merge_requests(
     ] = None,
 ) -> List[Dict[str, Union[str, int]]]:
     """Retrieve merge requests associated with a specific commit in a GitLab project."""
-    if not project_id or not sha:
-        raise ValueError("project_id and sha are required")
+    if not project_id or not commit_hash:
+        raise ValueError("project_id and commit_hash are required")
     if ctx:
         await ctx.info(
-            f"Fetching merge requests for commit {sha} in project {project_id}"
+            f"Fetching merge requests for commit {commit_hash} in project {project_id}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -610,7 +616,7 @@ async def get_commit_gpg_signature(
         str, Field(description="GitLab access token")
     ] = environment_access_token,
     project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    sha: Annotated[str, Field(description="Commit SHA")] = None,
+    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
     verify: Annotated[
         bool, Field(description="Verify SSL certificate")
     ] = environment_verify,
@@ -619,11 +625,11 @@ async def get_commit_gpg_signature(
     ] = None,
 ) -> Dict[str, Union[str, bool]]:
     """Retrieve the GPG signature for a specific commit in a GitLab project."""
-    if not project_id or not sha:
-        raise ValueError("project_id and sha are required")
+    if not project_id or not commit_hash:
+        raise ValueError("project_id and commit_hash are required")
     if ctx:
         await ctx.info(
-            f"Fetching GPG signature for commit {sha} in project {project_id}"
+            f"Fetching GPG signature for commit {commit_hash} in project {project_id}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -975,7 +981,7 @@ async def create_environment(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_environment(project_id=project_id, **kwargs)
+    response = client.create_environment(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1022,9 +1028,7 @@ async def update_environment(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.update_environment(
-        project_id=project_id, environment_id=environment_id, **kwargs
-    )
+    response = client.update_environment(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1138,7 +1142,7 @@ async def stop_stale_environments(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.stop_stale_environments(project_id=project_id, **kwargs)
+    response = client.stop_stale_environments(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1243,7 +1247,7 @@ async def protect_environment(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.protect_environment(project_id=project_id, **kwargs)
+    response = client.protect_environment(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1290,7 +1294,7 @@ async def update_protected_environment(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.update_protected_environment(project_id=project_id, **kwargs)
+    response = client.update_protected_environment(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1377,7 +1381,7 @@ def get_groups(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     if group_id:
-        response = client.get_group(group_id=group_id, **kwargs)
+        response = client.get_group(**kwargs)
     else:
         response = client.get_groups(**kwargs)
     if "error" in response.data:
@@ -1426,7 +1430,7 @@ async def edit_group(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.edit_group(group_id=group_id, **kwargs)
+    response = client.edit_group(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1471,7 +1475,7 @@ def get_group_subgroups(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_group_subgroups(group_id=group_id, **kwargs)
+    response = client.get_group_subgroups(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1514,7 +1518,7 @@ def get_group_descendant_groups(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_group_descendant_groups(group_id=group_id, **kwargs)
+    response = client.get_group_descendant_groups(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1556,7 +1560,7 @@ def get_group_projects(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_group_projects(group_id=group_id, **kwargs)
+    response = client.get_group_projects(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1602,7 +1606,7 @@ def get_group_merge_requests(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_group_merge_requests(group_id=group_id, **kwargs)
+    response = client.get_group_merge_requests(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1829,9 +1833,7 @@ def get_pipeline_jobs(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_pipeline_jobs(
-        project_id=project_id, pipeline_id=pipeline_id, **kwargs
-    )
+    response = client.get_pipeline_jobs(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1874,7 +1876,7 @@ def get_group_members(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_group_members(group_id=group_id, **kwargs)
+    response = client.get_group_members(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1913,7 +1915,7 @@ def get_project_members(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_project_members(project_id=project_id, **kwargs)
+    response = client.get_project_members(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1972,7 +1974,7 @@ async def create_merge_request(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_merge_request(project_id=project_id, **kwargs)
+    response = client.create_merge_request(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2074,7 +2076,7 @@ def get_project_merge_requests(
             project_id=project_id, merge_id=merge_id
         )
     else:
-        response = client.get_project_merge_requests(project_id=project_id, **kwargs)
+        response = client.get_project_merge_requests(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -2154,7 +2156,7 @@ async def create_project_level_rule(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_project_level_rule(project_id=project_id, **kwargs)
+    response = client.create_project_level_rule(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2213,9 +2215,7 @@ async def update_project_level_rule(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.update_project_level_rule(
-        project_id=project_id, approval_rule_id=approval_rule_id, **kwargs
-    )
+    response = client.update_project_level_rule(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2499,7 +2499,7 @@ async def edit_group_level_rule(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.edit_group_level_rule(group_id=group_id, **kwargs)
+    response = client.edit_group_level_rule(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2588,7 +2588,7 @@ async def edit_project_level_rule(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.edit_project_level_rule(project_id=project_id, **kwargs)
+    response = client.edit_project_level_rule(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2624,7 +2624,7 @@ def get_repository_packages(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_repository_packages(project_id=project_id, **kwargs)
+    response = client.get_repository_packages(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -2669,7 +2669,7 @@ async def publish_repository_package(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.publish_repository_package(project_id=project_id, **kwargs)
+    response = client.publish_repository_package(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2768,7 +2768,7 @@ def get_pipelines(
     if pipeline_id:
         response = client.get_pipeline(project_id=project_id, pipeline_id=pipeline_id)
     else:
-        response = client.get_pipelines(project_id=project_id, **kwargs)
+        response = client.get_pipelines(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -2810,7 +2810,7 @@ async def run_pipeline(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.run_pipeline(project_id=project_id, **kwargs)
+    response = client.run_pipeline(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2956,7 +2956,7 @@ async def create_pipeline_schedule(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_pipeline_schedule(project_id=project_id, **kwargs)
+    response = client.create_pipeline_schedule(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3022,9 +3022,7 @@ async def edit_pipeline_schedule(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.edit_pipeline_schedule(
-        project_id=project_id, pipeline_schedule_id=pipeline_schedule_id, **kwargs
-    )
+    response = client.edit_pipeline_schedule(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3195,9 +3193,7 @@ async def create_pipeline_schedule_variable(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_pipeline_schedule_variable(
-        project_id=project_id, pipeline_schedule_id=pipeline_schedule_id, **kwargs
-    )
+    response = client.create_pipeline_schedule_variable(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3321,7 +3317,7 @@ def get_nested_projects_by_group(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_nested_projects_by_group(group_id=group_id, **kwargs)
+    response = client.get_nested_projects_by_group(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -3413,7 +3409,7 @@ async def edit_project(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.edit_project(project_id=project_id, **kwargs)
+    response = client.edit_project(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3450,7 +3446,7 @@ def get_project_groups(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_project_groups(project_id=project_id, **kwargs)
+    response = client.get_project_groups(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -3587,7 +3583,7 @@ async def share_project(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.share_project(project_id=project_id, **kwargs)
+    response = client.share_project(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3704,7 +3700,7 @@ async def protect_branch(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.protect_branch(project_id=project_id, **kwargs)
+    response = client.protect_branch(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3833,7 +3829,7 @@ def get_releases(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_releases(project_id=project_id, **kwargs)
+    response = client.get_releases(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -3947,7 +3943,7 @@ def get_group_releases(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_group_releases(group_id=group_id, **kwargs)
+    response = client.get_group_releases(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4051,7 +4047,7 @@ async def create_release(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_release(project_id=project_id, **kwargs)
+    response = client.create_release(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -4139,7 +4135,7 @@ async def update_release(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.update_release(project_id=project_id, tag_name=tag_name, **kwargs)
+    response = client.update_release(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -4288,7 +4284,7 @@ async def update_runner_details(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.update_runner_details(runner_id=runner_id, **kwargs)
+    response = client.update_runner_details(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -4366,7 +4362,7 @@ def get_runner_jobs(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_runner_jobs(runner_id=runner_id, **kwargs)
+    response = client.get_runner_jobs(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4398,7 +4394,7 @@ def get_project_runners(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_project_runners(project_id=project_id, **kwargs)
+    response = client.get_project_runners(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4492,7 +4488,7 @@ def get_group_runners(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_group_runners(group_id=group_id, **kwargs)
+    response = client.get_group_runners(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4776,7 +4772,7 @@ def get_tags(
     if name:
         response = client.get_tag(project_id=project_id, name=name)
     else:
-        response = client.get_tags(project_id=project_id, **kwargs)
+        response = client.get_tags(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4820,7 +4816,7 @@ async def create_tag(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_tag(project_id=project_id, **kwargs)
+    response = client.create_tag(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -4885,7 +4881,7 @@ def get_protected_tags(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
-    response = client.get_protected_tags(project_id=project_id, **kwargs)
+    response = client.get_protected_tags(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4960,7 +4956,7 @@ async def protect_tag(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.protect_tag(project_id=project_id, **kwargs)
+    response = client.protect_tag(**kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
