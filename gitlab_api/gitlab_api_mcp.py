@@ -318,9 +318,12 @@ def revert_commit(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "commit_hash"]
     }
-    response = client.revert_commit(**kwargs)
+    response = client.revert_commit(
+        project_id=project_id, commit_hash=commit_hash, **kwargs
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -406,7 +409,9 @@ async def create_commit_comment(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_commit_comment(**kwargs)
+    response = client.create_commit_comment(
+        project_id=project_id, commit_hash=commit_hash, **kwargs
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -497,7 +502,9 @@ async def get_commit_statuses(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.get_commit_statuses(**kwargs)
+    response = client.get_commit_statuses(
+        project_id=project_id, commit_hash=commit_hash, **kwargs
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -560,7 +567,9 @@ async def post_build_status_to_commit(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.post_build_status_to_commit(**kwargs)
+    response = client.post_build_status_to_commit(
+        project_id=project_id, commit_hash=commit_hash, **kwargs
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -979,9 +988,17 @@ async def create_environment(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.create_environment(**kwargs)
+    response = client.create_environment(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1026,9 +1043,20 @@ async def update_environment(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+            "environment_id",
+        ]
     }
-    response = client.update_environment(**kwargs)
+    response = client.update_environment(
+        project_id=project_id, environment_id=environment_id, **kwargs
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1140,9 +1168,17 @@ async def stop_stale_environments(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.stop_stale_environments(**kwargs)
+    response = client.stop_stale_environments(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1245,9 +1281,17 @@ async def protect_environment(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.protect_environment(**kwargs)
+    response = client.protect_environment(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1292,9 +1336,17 @@ async def update_protected_environment(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.update_protected_environment(**kwargs)
+    response = client.update_protected_environment(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1378,10 +1430,10 @@ def get_groups(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     if group_id:
-        response = client.get_group(**kwargs)
+        response = client.get_group(group_id=group_id, **kwargs)
     else:
         response = client.get_groups(**kwargs)
     if "error" in response.data:
@@ -1428,9 +1480,17 @@ async def edit_group(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "group_id",
+        ]
     }
-    response = client.edit_group(**kwargs)
+    response = client.edit_group(group_id=group_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -1473,9 +1533,9 @@ def get_group_subgroups(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
-    response = client.get_group_subgroups(**kwargs)
+    response = client.get_group_subgroups(group_id=group_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1516,9 +1576,9 @@ def get_group_descendant_groups(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
-    response = client.get_group_descendant_groups(**kwargs)
+    response = client.get_group_descendant_groups(group_id=group_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1558,9 +1618,9 @@ def get_group_projects(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
-    response = client.get_group_projects(**kwargs)
+    response = client.get_group_projects(group_id=group_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1604,9 +1664,9 @@ def get_group_merge_requests(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
-    response = client.get_group_merge_requests(**kwargs)
+    response = client.get_group_merge_requests(group_id=group_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1831,9 +1891,19 @@ def get_pipeline_jobs(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "project_id",
+            "pipeline_id",
+        ]
     }
-    response = client.get_pipeline_jobs(**kwargs)
+    response = client.get_pipeline_jobs(
+        project_id=project_id, pipeline_id=pipeline_id, **kwargs
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1874,9 +1944,9 @@ def get_group_members(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
-    response = client.get_group_members(**kwargs)
+    response = client.get_group_members(group_id=group_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1913,9 +1983,10 @@ def get_project_members(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
-    response = client.get_project_members(**kwargs)
+    response = client.get_project_members(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -1972,9 +2043,17 @@ async def create_merge_request(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.create_merge_request(**kwargs)
+    response = client.create_merge_request(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2069,14 +2148,15 @@ def get_project_merge_requests(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     if merge_id:
         response = client.get_project_merge_request(
             project_id=project_id, merge_id=merge_id
         )
     else:
-        response = client.get_project_merge_requests(**kwargs)
+        response = client.get_project_merge_requests(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -2154,9 +2234,17 @@ async def create_project_level_rule(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.create_project_level_rule(**kwargs)
+    response = client.create_project_level_rule(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2213,9 +2301,20 @@ async def update_project_level_rule(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+            "approval_rule_id",
+        ]
     }
-    response = client.update_project_level_rule(**kwargs)
+    response = client.update_project_level_rule(
+        project_id=project_id, approval_rule_id=approval_rule_id, **kwargs
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2497,9 +2596,17 @@ async def edit_group_level_rule(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "group_id",
+        ]
     }
-    response = client.edit_group_level_rule(**kwargs)
+    response = client.edit_group_level_rule(group_id=group_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2586,9 +2693,17 @@ async def edit_project_level_rule(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.edit_project_level_rule(**kwargs)
+    response = client.edit_project_level_rule(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2622,9 +2737,10 @@ def get_repository_packages(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
-    response = client.get_repository_packages(**kwargs)
+    response = client.get_repository_packages(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -2667,9 +2783,17 @@ async def publish_repository_package(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.publish_repository_package(**kwargs)
+    response = client.publish_repository_package(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2763,12 +2887,13 @@ def get_pipelines(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     if pipeline_id:
         response = client.get_pipeline(project_id=project_id, pipeline_id=pipeline_id)
     else:
-        response = client.get_pipelines(**kwargs)
+        response = client.get_pipelines(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -2810,7 +2935,7 @@ async def run_pipeline(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.run_pipeline(**kwargs)
+    response = client.run_pipeline(project_id=project_id, ref=ref, variables=variables)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -2956,7 +3081,14 @@ async def create_pipeline_schedule(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_pipeline_schedule(**kwargs)
+    response = client.create_pipeline_schedule(
+        project_id=project_id,
+        description=description,
+        ref=ref,
+        cron=cron,
+        cron_timezone=cron_timezone,
+        active=active,
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3022,7 +3154,15 @@ async def edit_pipeline_schedule(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.edit_pipeline_schedule(**kwargs)
+    response = client.edit_pipeline_schedule(
+        project_id=project_id,
+        pipeline_schedule_id=pipeline_schedule_id,
+        description=description,
+        ref=ref,
+        cron=cron,
+        cron_timezone=cron_timezone,
+        active=active,
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3193,7 +3333,13 @@ async def create_pipeline_schedule_variable(
         if v is not None
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
-    response = client.create_pipeline_schedule_variable(**kwargs)
+    response = client.create_pipeline_schedule_variable(
+        project_id=project_id,
+        pipeline_schedule_id=pipeline_schedule_id,
+        key=key,
+        value=value,
+        variable_type=variable_type,
+    )
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3311,13 +3457,7 @@ def get_nested_projects_by_group(
     if not group_id:
         raise ValueError("group_id is required")
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
-    kwargs = {
-        k: v
-        for k, v in locals().items()
-        if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
-    }
-    response = client.get_nested_projects_by_group(**kwargs)
+    response = client.get_nested_projects_by_group(group_id=group_id)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -3407,9 +3547,17 @@ async def edit_project(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.edit_project(**kwargs)
+    response = client.edit_project(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3444,9 +3592,10 @@ def get_project_groups(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
-    response = client.get_project_groups(**kwargs)
+    response = client.get_project_groups(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -3581,9 +3730,17 @@ async def share_project(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.share_project(**kwargs)
+    response = client.share_project(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3698,9 +3855,17 @@ async def protect_branch(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.protect_branch(**kwargs)
+    response = client.protect_branch(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -3827,9 +3992,10 @@ def get_releases(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
-    response = client.get_releases(**kwargs)
+    response = client.get_releases(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -3941,9 +4107,9 @@ def get_group_releases(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
-    response = client.get_group_releases(**kwargs)
+    response = client.get_group_releases(group_id=group_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4045,9 +4211,17 @@ async def create_release(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.create_release(**kwargs)
+    response = client.create_release(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -4133,9 +4307,18 @@ async def update_release(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+            "tag_name",
+        ]
     }
-    response = client.update_release(**kwargs)
+    response = client.update_release(project_id=project_id, tag_name=tag_name, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -4282,9 +4465,17 @@ async def update_runner_details(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "runner_id",
+        ]
     }
-    response = client.update_runner_details(**kwargs)
+    response = client.update_runner_details(runner_id=runner_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -4360,9 +4551,10 @@ def get_runner_jobs(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "runner_id"]
     }
-    response = client.get_runner_jobs(**kwargs)
+    response = client.get_runner_jobs(runner_id=runner_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4392,9 +4584,10 @@ def get_project_runners(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
-    response = client.get_project_runners(**kwargs)
+    response = client.get_project_runners(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4486,9 +4679,9 @@ def get_group_runners(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
-    response = client.get_group_runners(**kwargs)
+    response = client.get_group_runners(group_id=group_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4767,12 +4960,13 @@ def get_tags(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     if name:
         response = client.get_tag(project_id=project_id, name=name)
     else:
-        response = client.get_tags(**kwargs)
+        response = client.get_tags(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4814,9 +5008,17 @@ async def create_tag(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.create_tag(**kwargs)
+    response = client.create_tag(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
@@ -4879,9 +5081,10 @@ def get_protected_tags(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify"]
+        and k
+        not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
-    response = client.get_protected_tags(**kwargs)
+    response = client.get_protected_tags(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     return response.data
@@ -4954,9 +5157,17 @@ async def protect_tag(
         k: v
         for k, v in locals().items()
         if v is not None
-        and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+        and k
+        not in [
+            "client",
+            "gitlab_instance",
+            "access_token",
+            "verify",
+            "ctx",
+            "project_id",
+        ]
     }
-    response = client.protect_tag(**kwargs)
+    response = client.protect_tag(project_id=project_id, **kwargs)
     if "error" in response.data:
         raise RuntimeError(response.data["error"])
     if ctx:
