@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.8.14*
+*Version: 25.8.15*
 
 Pythonic GitLab API Library
 
@@ -100,7 +100,6 @@ This project is configured with container registry capabilities
 and supports CI/CD pipelines, merge requests, and issue tracking.
 It is currently active with no open issues and follows
 the default branch strategy for its workflow.
-
 ```
 
 AI Prompt:
