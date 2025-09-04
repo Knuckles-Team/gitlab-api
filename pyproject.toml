@@ -17,7 +17,15 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 requires-python = ">=3.8"
-dependencies = []
+dependencies = [
+    "requests>=2.8.1",
+    "urllib3>=2.2.2",
+    "pydantic[email]>=2.8.2",
+    "SQLAlchemy>=2.0.36",
+    "alembic>=1.14.1",
+    "tenacity>=9.0.0",
+    "fastmcp>=2.11.3",
+]
 
 [project.scripts]
 gitlab-mcp = "gitlab_api.gitlab_api_mcp:main"
