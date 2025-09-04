@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.8.15*
+*Version: 25.8.16*
 
 Pythonic GitLab API Library
 
@@ -374,14 +374,20 @@ For Testing Only: Plain text storage will also work, although **not** recommende
 {
   "mcpServers": {
     "gitlab": {
-      "command": "gitlab-mcp"
-    },
-    "env": {
-      "GITLAB_INSTANCE": "http://gitlab.com/api/v4/",
-      "ACCESS_TOKEN": "${env:ACCESS_TOKEN}"
-      // "ACCESS_TOKEN": "glpat-abc123youandme"
-    },
-    "timeout": 300000
+      "command": "uv",
+      "args": [
+        "run",
+        "--with",
+        "gitlab-api",
+        "gitlab-mcp"
+      ],
+      "env": {
+        "GITLAB_INSTANCE": "https://gitlab.com/api/v4/", // Optional
+        "ACCESS_TOKEN": "glpat-askdfalskdvjas",          // Optional
+        "VERIFY": "True"                                 // Optional
+      },
+      "timeout": 200000
+    }
   }
 }
 ```
