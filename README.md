@@ -20,6 +20,8 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
+*Version: 25.8.13*
+
 Pythonic GitLab API Library
 
 GitLab MCP Server for Agentic AI! Get started with Pip or Docker
