@@ -63,7 +63,12 @@ Additional Features:
 
 If your API call isn't supported, you can always run the standard custom API endpoint function to get/post/put/delete and endpoint
 
-#### Using an an MCP Server:
+
+
+<details>
+  <summary><b>Usage:</b></summary>
+
+### Using an an MCP Server:
 
 AI Prompt:
 ```text
@@ -162,9 +167,6 @@ Status: Opened
 Created At: 2025-08-27T03:15:51.520000Z
 The merge request is currently in the "preparing" state and is ready for review. Let me know if you'd like further actions, such as assigning reviewers or approving the merge! 😊
 ```
-
-<details>
-  <summary><b>Usage:</b></summary>
 
 ### Use API directly
 
