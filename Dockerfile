@@ -5,8 +5,7 @@ ARG PORT=8001
 ENV HOST=${HOST}
 ENV PORT=${PORT}
 ENV PATH="/usr/local/bin:${PATH}"
-# Update the base packages
-RUN pip install --upgrade gitlab-api
+RUN pip install uv \
+    && uv pip install --system gitlab-api
 
-# set the entrypoint to the start.sh script
-ENTRYPOINT exec gitlab-mcp --transport=http --host=${HOST} --port=${PORT}
+ENTRYPOINT exec gitlab-mcp --transport "http" --host "${HOST}" --port "${PORT}"
