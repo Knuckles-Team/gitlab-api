@@ -344,25 +344,7 @@ if __name__ == "__main__":
     print("Session Closed")
 ```
 
-### Use with AI
-
-Deploy MCP Server as a Service
-```bash
-docker pull knucklessg1/gitlab:latest
-```
-
-Modify the `compose.yml`
-
-```compose
-services:
-  gitlab-mcp:
-    image: knucklessg1/gitlab:latest
-    environment:
-      - HOST=0.0.0.0
-      - PORT=8003
-    ports:
-      - 8003:8003
-```
+## Use with AI
 
 Configure `mcp.json`
 
@@ -392,6 +374,22 @@ For Testing Only: Plain text storage will also work, although **not** recommende
 }
 ```
 
+### Deploy MCP Server as a container
+```bash
+docker pull knucklessg1/gitlab:latest
+```
+
+Modify the `compose.yml`
+
+```compose
+services:
+  gitlab-mcp:
+    image: knucklessg1/gitlab:latest
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8003
+    ports:
+      - 8003:8003
 ```
 
 </details>
@@ -399,10 +397,16 @@ For Testing Only: Plain text storage will also work, although **not** recommende
 <details>
   <summary><b>Installation Instructions:</b></summary>
 
-Install Python Package
+### Install Python Package
 
 ```bash
 python -m pip install gitlab-api
+```
+
+or
+
+```bash
+uv pip install --upgrade gitlab-api
 ```
 
 </details>
