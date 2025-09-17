@@ -2,12 +2,11 @@
 # coding: utf-8
 
 import os
-import getopt
+import argparse
 import sys
 from gitlab_api.gitlab_api import Api
 from fastmcp import FastMCP, Context
 from typing import Optional, List, Dict, Union
-from typing_extensions import Annotated
 from pydantic import Field
 
 mcp = FastMCP("GitLab")
@@ -25,31 +24,29 @@ def to_boolean(string: str) -> bool:
         raise ValueError(f"Cannot convert '{string}' to boolean")
 
 
-environment_gitlab_instance = os.environ.get("GITLAB_INSTANCE", None)
-environment_access_token = os.environ.get("ACCESS_TOKEN", None)
-environment_verify = to_boolean(os.environ.get("VERIFY", "True"))
-
-
 # Branches Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"})
 def get_branches(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    search: Annotated[
-        Optional[str], Field(description="Filter branches by name containing this term")
-    ] = None,
-    regex: Annotated[
-        Optional[str], Field(description="Filter branches by regex pattern on name")
-    ] = None,
-    branch: Annotated[Optional[str], Field(description="Branch name")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    search: Optional[str] = Field(
+        description="Filter branches by name containing this term", default=None
+    ),
+    regex: Optional[str] = Field(
+        description="Filter branches by regex pattern on name", default=None
+    ),
+    branch: Optional[str] = Field(description="Branch name", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Get branches in a GitLab project, optionally filtered."""
     if not project_id:
@@ -72,20 +69,23 @@ def get_branches(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"})
 def create_branch(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    branch: Annotated[str, Field(description="New branch name")] = None,
-    ref: Annotated[
-        str, Field(description="Reference to create from (branch/tag/commit SHA)")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    branch: str = Field(description="New branch name", default=None),
+    ref: str = Field(
+        description="Reference to create from (branch/tag/commit SHA)", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Create a new branch in a GitLab project from a reference."""
     if not project_id or not branch or not ref:
@@ -105,24 +105,26 @@ def create_branch(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"})
 async def delete_branch(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    branch: Annotated[Optional[str], Field(description="Branch name to delete")] = None,
-    delete_merged_branches: Annotated[
-        Optional[bool],
-        Field(description="Delete all merged branches (excluding protected)"),
-    ] = False,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    branch: Optional[str] = Field(description="Branch name to delete", default=None),
+    delete_merged_branches: Optional[bool] = Field(
+        description="Delete all merged branches (excluding protected)", default=False
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a branch or all merged branches in a GitLab project.
 
@@ -158,34 +160,35 @@ async def delete_branch(
 # Commits Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 def get_commits(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[Optional[str], Field(description="Commit SHA")] = None,
-    ref_name: Annotated[
-        Optional[str], Field(description="Branch, tag, or commit SHA to filter commits")
-    ] = None,
-    since: Annotated[
-        Optional[str],
-        Field(description="Only commits after this date (ISO 8601 format)"),
-    ] = None,
-    until: Annotated[
-        Optional[str],
-        Field(description="Only commits before this date (ISO 8601 format)"),
-    ] = None,
-    path: Annotated[
-        Optional[str], Field(description="Only commits that include this file path")
-    ] = None,
-    all: Annotated[
-        Optional[bool], Field(description="Include all commits across all branches")
-    ] = False,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: Optional[str] = Field(description="Commit SHA", default=None),
+    ref_name: Optional[str] = Field(
+        description="Branch, tag, or commit SHA to filter commits", default=None
+    ),
+    since: Optional[str] = Field(
+        description="Only commits after this date (ISO 8601 format)", default=None
+    ),
+    until: Optional[str] = Field(
+        description="Only commits before this date (ISO 8601 format)", default=None
+    ),
+    path: Optional[str] = Field(
+        description="Only commits that include this file path", default=None
+    ),
+    all: Optional[bool] = Field(
+        description="Include all commits across all branches", default=False
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Get commits in a GitLab project, optionally filtered."""
     if not project_id:
@@ -208,28 +211,30 @@ def get_commits(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 def create_commit(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    branch: Annotated[str, Field(description="Branch name for the commit")] = None,
-    commit_message: Annotated[str, Field(description="Commit message")] = None,
-    actions: Annotated[
-        List[Dict[str, str]],
-        Field(description="List of actions (create/update/delete files)"),
-    ] = None,
-    author_email: Annotated[
-        Optional[str], Field(description="Author email for the commit")
-    ] = None,
-    author_name: Annotated[
-        Optional[str], Field(description="Author name for the commit")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    branch: str = Field(description="Branch name for the commit", default=None),
+    commit_message: str = Field(description="Commit message", default=None),
+    actions: List[Dict[str, str]] = Field(
+        description="List of actions (create/update/delete files)", default=None
+    ),
+    author_email: Optional[str] = Field(
+        description="Author email for the commit", default=None
+    ),
+    author_name: Optional[str] = Field(
+        description="Author name for the commit", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Create a new commit in a GitLab project."""
     if not project_id or not branch or not commit_message or not actions:
@@ -249,20 +254,23 @@ def create_commit(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 async def get_commit_diff(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: str = Field(description="Commit SHA", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> List:
     """Get the diff of a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
@@ -288,23 +296,24 @@ async def get_commit_diff(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 def revert_commit(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[str, Field(description="Commit SHA to revert")] = None,
-    branch: Annotated[
-        str, Field(description="Target branch to apply the revert")
-    ] = None,
-    dry_run: Annotated[
-        Optional[bool], Field(description="Simulate the revert without applying")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: str = Field(description="Commit SHA to revert", default=None),
+    branch: str = Field(description="Target branch to apply the revert", default=None),
+    dry_run: Optional[bool] = Field(
+        description="Simulate the revert without applying", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Revert a commit in a target branch in a GitLab project.
 
@@ -331,20 +340,23 @@ def revert_commit(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 async def get_commit_comments(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: str = Field(description="Commit SHA", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> List:
     """Retrieve comments on a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
@@ -370,30 +382,33 @@ async def get_commit_comments(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 async def create_commit_comment(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
-    note: Annotated[str, Field(description="Content of the comment")] = None,
-    path: Annotated[
-        Optional[str], Field(description="File path to associate with the comment")
-    ] = None,
-    line: Annotated[
-        Optional[int], Field(description="Line number in the file for the comment")
-    ] = None,
-    line_type: Annotated[
-        Optional[str], Field(description="Type of line ('new' or 'old')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: str = Field(description="Commit SHA", default=None),
+    note: str = Field(description="Content of the comment", default=None),
+    path: Optional[str] = Field(
+        description="File path to associate with the comment", default=None
+    ),
+    line: Optional[int] = Field(
+        description="Line number in the file for the comment", default=None
+    ),
+    line_type: Optional[str] = Field(
+        description="Type of line ('new' or 'old')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Create a new comment on a specific commit in a GitLab project."""
     if not project_id or not commit_hash or not note:
@@ -421,20 +436,23 @@ async def create_commit_comment(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 async def get_commit_discussions(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: str = Field(description="Commit SHA", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> List:
     """Retrieve discussions (threaded comments) on a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
@@ -460,33 +478,36 @@ async def get_commit_discussions(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 async def get_commit_statuses(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
-    ref: Annotated[
-        Optional[str], Field(description="Filter statuses by reference (branch or tag)")
-    ] = None,
-    stage: Annotated[
-        Optional[str], Field(description="Filter statuses by CI stage")
-    ] = None,
-    name: Annotated[
-        Optional[str], Field(description="Filter statuses by job name")
-    ] = None,
-    coverage: Annotated[
-        Optional[bool], Field(description="Include coverage information")
-    ] = None,
-    all: Annotated[Optional[bool], Field(description="Include all statuses")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: str = Field(description="Commit SHA", default=None),
+    ref: Optional[str] = Field(
+        description="Filter statuses by reference (branch or tag)", default=None
+    ),
+    stage: Optional[str] = Field(
+        description="Filter statuses by CI stage", default=None
+    ),
+    name: Optional[str] = Field(
+        description="Filter statuses by job name", default=None
+    ),
+    coverage: Optional[bool] = Field(
+        description="Include coverage information", default=None
+    ),
+    all: Optional[bool] = Field(description="Include all statuses", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> List:
     """Retrieve build/CI statuses for a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
@@ -514,44 +535,43 @@ async def get_commit_statuses(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 async def post_build_status_to_commit(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
-    state: Annotated[
-        str,
-        Field(
-            description="State of the build (e.g., 'pending', 'running', 'success', 'failed')"
-        ),
-    ] = None,
-    target_url: Annotated[
-        Optional[str], Field(description="URL to link to the build")
-    ] = None,
-    context: Annotated[
-        Optional[str], Field(description="Context of the status (e.g., 'ci/build')")
-    ] = None,
-    description: Annotated[
-        Optional[str], Field(description="Description of the status")
-    ] = None,
-    coverage: Annotated[
-        Optional[float], Field(description="Coverage percentage")
-    ] = None,
-    pipeline_id: Annotated[
-        Optional[int], Field(description="ID of the associated pipeline")
-    ] = None,
-    ref: Annotated[
-        Optional[str], Field(description="Reference (branch or tag) for the status")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: str = Field(description="Commit SHA", default=None),
+    state: str = Field(
+        description="State of the build (e.g., 'pending', 'running', 'success', 'failed')",
+        default=None,
+    ),
+    target_url: Optional[str] = Field(
+        description="URL to link to the build", default=None
+    ),
+    context: Optional[str] = Field(
+        description="Context of the status (e.g., 'ci/build')", default=None
+    ),
+    description: Optional[str] = Field(
+        description="Description of the status", default=None
+    ),
+    coverage: Optional[float] = Field(description="Coverage percentage", default=None),
+    pipeline_id: Optional[int] = Field(
+        description="ID of the associated pipeline", default=None
+    ),
+    ref: Optional[str] = Field(
+        description="Reference (branch or tag) for the status", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Post a build/CI status to a specific commit in a GitLab project."""
     if not project_id or not commit_hash or not state:
@@ -579,20 +599,23 @@ async def post_build_status_to_commit(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 async def get_commit_merge_requests(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: str = Field(description="Commit SHA", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> List:
     """Retrieve merge requests associated with a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
@@ -618,20 +641,23 @@ async def get_commit_merge_requests(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
 async def get_commit_gpg_signature(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    commit_hash: Annotated[str, Field(description="Commit SHA")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    commit_hash: str = Field(description="Commit SHA", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Retrieve the GPG signature for a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
@@ -660,15 +686,18 @@ async def get_commit_gpg_signature(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"deploy_tokens"}
 )
 def get_deploy_tokens(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of all deploy tokens for the GitLab instance."""
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
@@ -682,17 +711,20 @@ def get_deploy_tokens(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"deploy_tokens"}
 )
 def get_project_deploy_tokens(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    token_id: Annotated[Optional[int], Field(description="Deploy token ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    token_id: Optional[int] = Field(description="Deploy token ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of deploy tokens for a specific GitLab project."""
     if not project_id:
@@ -713,30 +745,33 @@ def get_project_deploy_tokens(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"deploy_tokens"}
 )
 async def create_project_deploy_token(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[str, Field(description="Name of the deploy token")] = None,
-    scopes: Annotated[
-        List[str],
-        Field(description="Scopes for the deploy token (e.g., ['read_repository'])"),
-    ] = None,
-    expires_at: Annotated[
-        Optional[str], Field(description="Expiration date (ISO 8601 format)")
-    ] = None,
-    username: Annotated[
-        Optional[str], Field(description="Username associated with the token")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(description="Name of the deploy token", default=None),
+    scopes: List[str] = Field(
+        description="Scopes for the deploy token (e.g., ['read_repository'])",
+        default=None,
+    ),
+    expires_at: Optional[str] = Field(
+        description="Expiration date (ISO 8601 format)", default=None
+    ),
+    username: Optional[str] = Field(
+        description="Username associated with the token", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Create a deploy token for a GitLab project with specified name and scopes."""
     if not project_id or not name or not scopes:
@@ -762,20 +797,23 @@ async def create_project_deploy_token(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"deploy_tokens"}
 )
 async def delete_project_deploy_token(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    token_id: Annotated[int, Field(description="Deploy token ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    token_id: int = Field(description="Deploy token ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a specific deploy token for a GitLab project."""
     if not project_id or not token_id:
@@ -795,19 +833,22 @@ async def delete_project_deploy_token(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"deploy_tokens"}
 )
 def get_group_deploy_tokens(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    token_id: Annotated[
-        Optional[int], Field(description="Deploy token ID for single retrieval")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    token_id: Optional[int] = Field(
+        description="Deploy token ID for single retrieval", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve deploy tokens for a GitLab group (list or single by ID)."""
     if not group_id:
@@ -826,30 +867,33 @@ def get_group_deploy_tokens(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"deploy_tokens"}
 )
 async def create_group_deploy_token(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    name: Annotated[str, Field(description="Name of the deploy token")] = None,
-    scopes: Annotated[
-        List[str],
-        Field(description="Scopes for the deploy token (e.g., ['read_repository'])"),
-    ] = None,
-    expires_at: Annotated[
-        Optional[str], Field(description="Expiration date (ISO 8601 format)")
-    ] = None,
-    username: Annotated[
-        Optional[str], Field(description="Username associated with the token")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    name: str = Field(description="Name of the deploy token", default=None),
+    scopes: List[str] = Field(
+        description="Scopes for the deploy token (e.g., ['read_repository'])",
+        default=None,
+    ),
+    expires_at: Optional[str] = Field(
+        description="Expiration date (ISO 8601 format)", default=None
+    ),
+    username: Optional[str] = Field(
+        description="Username associated with the token", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Create a deploy token for a GitLab group with specified name and scopes."""
     if not group_id or not name or not scopes:
@@ -875,20 +919,23 @@ async def create_group_deploy_token(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"deploy_tokens"}
 )
 async def delete_group_deploy_token(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    token_id: Annotated[int, Field(description="Deploy token ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    token_id: int = Field(description="Deploy token ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a specific deploy token for a GitLab group."""
     if not group_id or not token_id:
@@ -909,31 +956,30 @@ async def delete_group_deploy_token(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 def get_environments(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    environment_id: Annotated[
-        Optional[int], Field(description="Environment ID")
-    ] = None,
-    name: Annotated[
-        Optional[str], Field(description="Filter environments by exact name")
-    ] = None,
-    search: Annotated[
-        Optional[str], Field(description="Filter environments by search term in name")
-    ] = None,
-    states: Annotated[
-        Optional[str],
-        Field(
-            description="Filter environments by state (e.g., 'available', 'stopped')"
-        ),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    environment_id: Optional[int] = Field(description="Environment ID", default=None),
+    name: Optional[str] = Field(
+        description="Filter environments by exact name", default=None
+    ),
+    search: Optional[str] = Field(
+        description="Filter environments by search term in name", default=None
+    ),
+    states: Optional[str] = Field(
+        description="Filter environments by state (e.g., 'available', 'stopped')",
+        default=None,
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of environments for a GitLab project, optionally filtered by name, search, or states or a single environment by id."""
     if not project_id:
@@ -960,23 +1006,26 @@ def get_environments(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 async def create_environment(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[str, Field(description="Name of the environment")] = None,
-    external_url: Annotated[
-        Optional[str], Field(description="External URL for the environment")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(description="Name of the environment", default=None),
+    external_url: Optional[str] = Field(
+        description="External URL for the environment", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Create a new environment in a GitLab project with a specified name and optional external URL."""
     if not project_id or not name:
@@ -1010,26 +1059,29 @@ async def create_environment(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 async def update_environment(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    environment_id: Annotated[int, Field(description="Environment ID")] = None,
-    name: Annotated[
-        Optional[str], Field(description="New name for the environment")
-    ] = None,
-    external_url: Annotated[
-        Optional[str], Field(description="New external URL for the environment")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    environment_id: int = Field(description="Environment ID", default=None),
+    name: Optional[str] = Field(
+        description="New name for the environment", default=None
+    ),
+    external_url: Optional[str] = Field(
+        description="New external URL for the environment", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Update an existing environment in a GitLab project with new name or external URL."""
     if not project_id or not environment_id:
@@ -1068,20 +1120,23 @@ async def update_environment(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 async def delete_environment(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    environment_id: Annotated[int, Field(description="Environment ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    environment_id: int = Field(description="Environment ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a specific environment in a GitLab project."""
     if not project_id or not environment_id:
@@ -1103,20 +1158,23 @@ async def delete_environment(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 async def stop_environment(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    environment_id: Annotated[int, Field(description="Environment ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    environment_id: int = Field(description="Environment ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Stop a specific environment in a GitLab project."""
     if not project_id or not environment_id:
@@ -1138,25 +1196,26 @@ async def stop_environment(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 async def stop_stale_environments(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    older_than: Annotated[
-        Optional[str],
-        Field(
-            description="Filter environments older than this timestamp (ISO 8601 format)"
-        ),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    older_than: Optional[str] = Field(
+        description="Filter environments older than this timestamp (ISO 8601 format)",
+        default=None,
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Stop stale environments in a GitLab project, optionally filtered by older_than timestamp."""
     if not project_id:
@@ -1190,19 +1249,22 @@ async def stop_stale_environments(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 async def delete_stopped_environments(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete stopped review app environments in a GitLab project."""
     if not project_id:
@@ -1222,17 +1284,20 @@ async def delete_stopped_environments(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 def get_protected_environments(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[str, Field(description="Name of the protected environment")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(description="Name of the protected environment", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve protected environments in a GitLab project (list or single by name)."""
     if not project_id:
@@ -1251,25 +1316,26 @@ def get_protected_environments(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 async def protect_environment(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[
-        str, Field(description="Name of the environment to protect")
-    ] = None,
-    required_approval_count: Annotated[
-        Optional[int], Field(description="Number of approvals required for deployment")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(description="Name of the environment to protect", default=None),
+    required_approval_count: Optional[int] = Field(
+        description="Number of approvals required for deployment", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Protect an environment in a GitLab project with optional approval count."""
     if not project_id or not name:
@@ -1303,24 +1369,26 @@ async def protect_environment(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 async def update_protected_environment(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[str, Field(description="Name of the protected environment")] = None,
-    required_approval_count: Annotated[
-        Optional[int],
-        Field(description="New number of approvals required for deployment"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(description="Name of the protected environment", default=None),
+    required_approval_count: Optional[int] = Field(
+        description="New number of approvals required for deployment", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Update a protected environment in a GitLab project with new approval count."""
     if not project_id or not name:
@@ -1358,22 +1426,23 @@ async def update_protected_environment(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"environments"}
 )
 async def unprotect_environment(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[
-        str, Field(description="Name of the environment to unprotect")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(description="Name of the environment to unprotect", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Unprotect a specific environment in a GitLab project."""
     if not project_id or not name:
@@ -1392,37 +1461,38 @@ async def unprotect_environment(
 # Groups Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
 def get_groups(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[Optional[str], Field(description="Group ID or path")] = None,
-    search: Annotated[
-        Optional[str], Field(description="Filter groups by search term in name or path")
-    ] = None,
-    sort: Annotated[
-        Optional[str], Field(description="Sort order (e.g., 'asc', 'desc')")
-    ] = None,
-    order_by: Annotated[
-        Optional[str], Field(description="Field to sort by (e.g., 'name', 'path')")
-    ] = None,
-    owned: Annotated[
-        Optional[bool],
-        Field(description="Filter groups owned by the authenticated user"),
-    ] = None,
-    min_access_level: Annotated[
-        Optional[int],
-        Field(description="Filter groups by minimum access level (e.g., 10 for Guest)"),
-    ] = None,
-    top_level_only: Annotated[
-        Optional[bool],
-        Field(description="Include only top-level groups (exclude subgroups)"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: Optional[str] = Field(description="Group ID or path", default=None),
+    search: Optional[str] = Field(
+        description="Filter groups by search term in name or path", default=None
+    ),
+    sort: Optional[str] = Field(
+        description="Sort order (e.g., 'asc', 'desc')", default=None
+    ),
+    order_by: Optional[str] = Field(
+        description="Field to sort by (e.g., 'name', 'path')", default=None
+    ),
+    owned: Optional[bool] = Field(
+        description="Filter groups owned by the authenticated user", default=None
+    ),
+    min_access_level: Optional[int] = Field(
+        description="Filter groups by minimum access level (e.g., 10 for Guest)",
+        default=None,
+    ),
+    top_level_only: Optional[bool] = Field(
+        description="Include only top-level groups (exclude subgroups)", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of groups, optionally filtered by search, sort, ownership, or access level or retrieve a single group by id."""
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
@@ -1443,28 +1513,30 @@ def get_groups(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
 async def edit_group(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    name: Annotated[Optional[str], Field(description="New name for the group")] = None,
-    path: Annotated[Optional[str], Field(description="New path for the group")] = None,
-    description: Annotated[
-        Optional[str], Field(description="New description for the group")
-    ] = None,
-    visibility: Annotated[
-        Optional[str],
-        Field(description="New visibility level (e.g., 'public', 'private')"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    name: Optional[str] = Field(description="New name for the group", default=None),
+    path: Optional[str] = Field(description="New path for the group", default=None),
+    description: Optional[str] = Field(
+        description="New description for the group", default=None
+    ),
+    visibility: Optional[str] = Field(
+        description="New visibility level (e.g., 'public', 'private')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Edit a specific GitLab group's details (name, path, description, or visibility)."""
     if not group_id:
@@ -1500,30 +1572,31 @@ async def edit_group(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
 def get_group_subgroups(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    search: Annotated[
-        Optional[str],
-        Field(description="Filter subgroups by search term in name or path"),
-    ] = None,
-    sort: Annotated[
-        Optional[str], Field(description="Sort order (e.g., 'asc', 'desc')")
-    ] = None,
-    order_by: Annotated[
-        Optional[str], Field(description="Field to sort by (e.g., 'name', 'path')")
-    ] = None,
-    owned: Annotated[
-        Optional[bool],
-        Field(description="Filter subgroups owned by the authenticated user"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    search: Optional[str] = Field(
+        description="Filter subgroups by search term in name or path", default=None
+    ),
+    sort: Optional[str] = Field(
+        description="Sort order (e.g., 'asc', 'desc')", default=None
+    ),
+    order_by: Optional[str] = Field(
+        description="Field to sort by (e.g., 'name', 'path')", default=None
+    ),
+    owned: Optional[bool] = Field(
+        description="Filter subgroups owned by the authenticated user", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of subgroups for a specific GitLab group, optionally filtered."""
     if not group_id:
@@ -1543,30 +1616,33 @@ def get_group_subgroups(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
 def get_group_descendant_groups(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    search: Annotated[
-        Optional[str],
-        Field(description="Filter descendant groups by search term in name or path"),
-    ] = None,
-    sort: Annotated[
-        Optional[str], Field(description="Sort order (e.g., 'asc', 'desc')")
-    ] = None,
-    order_by: Annotated[
-        Optional[str], Field(description="Field to sort by (e.g., 'name', 'path')")
-    ] = None,
-    owned: Annotated[
-        Optional[bool],
-        Field(description="Filter descendant groups owned by the authenticated user"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    search: Optional[str] = Field(
+        description="Filter descendant groups by search term in name or path",
+        default=None,
+    ),
+    sort: Optional[str] = Field(
+        description="Sort order (e.g., 'asc', 'desc')", default=None
+    ),
+    order_by: Optional[str] = Field(
+        description="Field to sort by (e.g., 'name', 'path')", default=None
+    ),
+    owned: Optional[bool] = Field(
+        description="Filter descendant groups owned by the authenticated user",
+        default=None,
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of all descendant groups for a specific GitLab group, optionally filtered."""
     if not group_id:
@@ -1586,29 +1662,31 @@ def get_group_descendant_groups(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
 def get_group_projects(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    include_subgroups: Annotated[
-        Optional[bool], Field(description="Include projects from subgroups")
-    ] = None,
-    search: Annotated[
-        Optional[str],
-        Field(description="Filter projects by search term in name or path"),
-    ] = None,
-    sort: Annotated[
-        Optional[str], Field(description="Sort order (e.g., 'asc', 'desc')")
-    ] = None,
-    order_by: Annotated[
-        Optional[str], Field(description="Field to sort by (e.g., 'name', 'path')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    include_subgroups: Optional[bool] = Field(
+        description="Include projects from subgroups", default=None
+    ),
+    search: Optional[str] = Field(
+        description="Filter projects by search term in name or path", default=None
+    ),
+    sort: Optional[str] = Field(
+        description="Sort order (e.g., 'asc', 'desc')", default=None
+    ),
+    order_by: Optional[str] = Field(
+        description="Field to sort by (e.g., 'name', 'path')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of projects associated with a specific GitLab group, optionally including subgroups."""
     if not group_id:
@@ -1628,33 +1706,34 @@ def get_group_projects(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
 def get_group_merge_requests(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    state: Annotated[
-        Optional[str],
-        Field(description="Filter merge requests by state (e.g., 'opened', 'closed')"),
-    ] = None,
-    scope: Annotated[
-        Optional[str],
-        Field(description="Filter merge requests by scope (e.g., 'created_by_me')"),
-    ] = None,
-    milestone: Annotated[
-        Optional[str], Field(description="Filter merge requests by milestone title")
-    ] = None,
-    search: Annotated[
-        Optional[str],
-        Field(
-            description="Filter merge requests by search term in title or description"
-        ),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    state: Optional[str] = Field(
+        description="Filter merge requests by state (e.g., 'opened', 'closed')",
+        default=None,
+    ),
+    scope: Optional[str] = Field(
+        description="Filter merge requests by scope (e.g., 'created_by_me')",
+        default=None,
+    ),
+    milestone: Optional[str] = Field(
+        description="Filter merge requests by milestone title", default=None
+    ),
+    search: Optional[str] = Field(
+        description="Filter merge requests by search term in title or description",
+        default=None,
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of merge requests associated with a specific GitLab group, optionally filtered."""
     if not group_id:
@@ -1675,28 +1754,29 @@ def get_group_merge_requests(
 # Jobs Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
 def get_project_jobs(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    job_id: Annotated[Optional[int], Field(description="Job ID")] = None,
-    scope: Annotated[
-        Optional[str],
-        Field(description="Filter jobs by scope (e.g., 'success', 'failed')"),
-    ] = None,
-    include_retried: Annotated[
-        Optional[bool], Field(description="Include retried jobs")
-    ] = None,
-    include_invisible: Annotated[
-        Optional[bool],
-        Field(description="Include invisible jobs (e.g., from hidden pipelines)"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    job_id: Optional[int] = Field(description="Job ID", default=None),
+    scope: Optional[str] = Field(
+        description="Filter jobs by scope (e.g., 'success', 'failed')", default=None
+    ),
+    include_retried: Optional[bool] = Field(
+        description="Include retried jobs", default=None
+    ),
+    include_invisible: Optional[bool] = Field(
+        description="Include invisible jobs (e.g., from hidden pipelines)", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of jobs for a specific GitLab project, optionally filtered by scope or a single job by id."""
     if not project_id:
@@ -1719,17 +1799,20 @@ def get_project_jobs(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
 def get_project_job_log(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    job_id: Annotated[int, Field(description="Job ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    job_id: int = Field(description="Job ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Retrieve the log (trace) of a specific job in a GitLab project."""
     if not project_id or not job_id:
@@ -1743,20 +1826,23 @@ def get_project_job_log(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
 async def cancel_project_job(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    job_id: Annotated[int, Field(description="Job ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    job_id: int = Field(description="Job ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Cancel a specific job in a GitLab project."""
     if not project_id or not job_id:
@@ -1774,20 +1860,23 @@ async def cancel_project_job(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
 async def retry_project_job(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    job_id: Annotated[int, Field(description="Job ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    job_id: int = Field(description="Job ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Retry a specific job in a GitLab project."""
     if not project_id or not job_id:
@@ -1805,20 +1894,23 @@ async def retry_project_job(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
 async def erase_project_job(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    job_id: Annotated[int, Field(description="Job ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    job_id: int = Field(description="Job ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Erase (delete artifacts and logs of) a specific job in a GitLab project."""
     if not project_id or not job_id:
@@ -1836,20 +1928,23 @@ async def erase_project_job(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
 async def run_project_job(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    job_id: Annotated[int, Field(description="Job ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    job_id: int = Field(description="Job ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Run (play) a specific manual job in a GitLab project."""
     if not project_id or not job_id:
@@ -1867,21 +1962,23 @@ async def run_project_job(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
 def get_pipeline_jobs(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_id: Annotated[int, Field(description="Pipeline ID")] = None,
-    scope: Annotated[
-        Optional[str],
-        Field(description="Filter jobs by scope (e.g., 'success', 'failed')"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_id: int = Field(description="Pipeline ID", default=None),
+    scope: Optional[str] = Field(
+        description="Filter jobs by scope (e.g., 'success', 'failed')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of jobs for a specific pipeline in a GitLab project, optionally filtered by scope."""
     if not project_id or not pipeline_id:
@@ -1912,29 +2009,31 @@ def get_pipeline_jobs(
 # Members Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"})
 def get_group_members(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    query: Annotated[
-        Optional[str],
-        Field(description="Filter members by search term in name or username"),
-    ] = None,
-    user_ids: Annotated[
-        Optional[List[int]], Field(description="Filter members by user IDs")
-    ] = None,
-    skip_users: Annotated[
-        Optional[List[int]], Field(description="Exclude specified user IDs")
-    ] = None,
-    show_seat_info: Annotated[
-        Optional[bool], Field(description="Include seat information for members")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    query: Optional[str] = Field(
+        description="Filter members by search term in name or username", default=None
+    ),
+    user_ids: Optional[List[int]] = Field(
+        description="Filter members by user IDs", default=None
+    ),
+    skip_users: Optional[List[int]] = Field(
+        description="Exclude specified user IDs", default=None
+    ),
+    show_seat_info: Optional[bool] = Field(
+        description="Include seat information for members", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of members in a specific GitLab group, optionally filtered by query or user IDs."""
     if not group_id:
@@ -1954,26 +2053,28 @@ def get_group_members(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"})
 def get_project_members(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    query: Annotated[
-        Optional[str],
-        Field(description="Filter members by search term in name or username"),
-    ] = None,
-    user_ids: Annotated[
-        Optional[List[int]], Field(description="Filter members by user IDs")
-    ] = None,
-    skip_users: Annotated[
-        Optional[List[int]], Field(description="Exclude specified user IDs")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    query: Optional[str] = Field(
+        description="Filter members by search term in name or username", default=None
+    ),
+    user_ids: Optional[List[int]] = Field(
+        description="Filter members by user IDs", default=None
+    ),
+    skip_users: Optional[List[int]] = Field(
+        description="Exclude specified user IDs", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of members in a specific GitLab project, optionally filtered by query or user IDs."""
     if not project_id:
@@ -1997,39 +2098,41 @@ def get_project_members(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_requests"}
 )
 async def create_merge_request(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    source_branch: Annotated[
-        str, Field(description="Source branch for the merge request")
-    ] = None,
-    target_branch: Annotated[
-        str, Field(description="Target branch for the merge request")
-    ] = None,
-    title: Annotated[str, Field(description="Title of the merge request")] = None,
-    description: Annotated[
-        Optional[str], Field(description="Description of the merge request")
-    ] = None,
-    assignee_id: Annotated[
-        Optional[int],
-        Field(description="ID of the user to assign the merge request to"),
-    ] = None,
-    reviewer_ids: Annotated[
-        Optional[List[int]], Field(description="IDs of users to set as reviewers")
-    ] = None,
-    labels: Annotated[
-        Optional[List[str]], Field(description="Labels to apply to the merge request")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    source_branch: str = Field(
+        description="Source branch for the merge request", default=None
+    ),
+    target_branch: str = Field(
+        description="Target branch for the merge request", default=None
+    ),
+    title: str = Field(description="Title of the merge request", default=None),
+    description: Optional[str] = Field(
+        description="Description of the merge request", default=None
+    ),
+    assignee_id: Optional[int] = Field(
+        description="ID of the user to assign the merge request to", default=None
+    ),
+    reviewer_ids: Optional[List[int]] = Field(
+        description="IDs of users to set as reviewers", default=None
+    ),
+    labels: Optional[List[str]] = Field(
+        description="Labels to apply to the merge request", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Create a new merge request in a GitLab project with specified source and target branches."""
     if not project_id or not source_branch or not target_branch or not title:
@@ -2065,36 +2168,38 @@ async def create_merge_request(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_requests"}
 )
 def get_merge_requests(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    state: Annotated[
-        Optional[str],
-        Field(description="Filter merge requests by state (e.g., 'opened', 'closed')"),
-    ] = None,
-    scope: Annotated[
-        Optional[str],
-        Field(description="Filter merge requests by scope (e.g., 'created_by_me')"),
-    ] = None,
-    milestone: Annotated[
-        Optional[str], Field(description="Filter merge requests by milestone title")
-    ] = None,
-    view: Annotated[
-        Optional[str],
-        Field(description="Filter merge requests by view (e.g., 'simple')"),
-    ] = None,
-    labels: Annotated[
-        Optional[List[str]], Field(description="Filter merge requests by labels")
-    ] = None,
-    author_id: Annotated[
-        Optional[int], Field(description="Filter merge requests by author ID")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    state: Optional[str] = Field(
+        description="Filter merge requests by state (e.g., 'opened', 'closed')",
+        default=None,
+    ),
+    scope: Optional[str] = Field(
+        description="Filter merge requests by scope (e.g., 'created_by_me')",
+        default=None,
+    ),
+    milestone: Optional[str] = Field(
+        description="Filter merge requests by milestone title", default=None
+    ),
+    view: Optional[str] = Field(
+        description="Filter merge requests by view (e.g., 'simple')", default=None
+    ),
+    labels: Optional[List[str]] = Field(
+        description="Filter merge requests by labels", default=None
+    ),
+    author_id: Optional[int] = Field(
+        description="Filter merge requests by author ID", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of merge requests across all projects, optionally filtered by state, scope, or labels."""
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
@@ -2114,31 +2219,34 @@ def get_merge_requests(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_requests"}
 )
 def get_project_merge_requests(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    merge_id: Annotated[Optional[int], Field(description="Merge request ID")] = None,
-    state: Annotated[
-        Optional[str],
-        Field(description="Filter merge requests by state (e.g., 'opened', 'closed')"),
-    ] = None,
-    scope: Annotated[
-        Optional[str],
-        Field(description="Filter merge requests by scope (e.g., 'created_by_me')"),
-    ] = None,
-    milestone: Annotated[
-        Optional[str], Field(description="Filter merge requests by milestone title")
-    ] = None,
-    labels: Annotated[
-        Optional[List[str]], Field(description="Filter merge requests by labels")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    merge_id: Optional[int] = Field(description="Merge request ID", default=None),
+    state: Optional[str] = Field(
+        description="Filter merge requests by state (e.g., 'opened', 'closed')",
+        default=None,
+    ),
+    scope: Optional[str] = Field(
+        description="Filter merge requests by scope (e.g., 'created_by_me')",
+        default=None,
+    ),
+    milestone: Optional[str] = Field(
+        description="Filter merge requests by milestone title", default=None
+    ),
+    labels: Optional[List[str]] = Field(
+        description="Filter merge requests by labels", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of merge requests for a specific GitLab project, optionally filtered or a single merge request or a single merge request by merge id"""
     if not project_id:
@@ -2166,17 +2274,20 @@ def get_project_merge_requests(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 def get_project_level_merge_request_approval_rules(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    approval_rule_id: Annotated[int, Field(description="Approval rule ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    approval_rule_id: int = Field(description="Approval rule ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve project-level merge request approval rules for a GitLab project details of a specific project-level merge request approval rule."""
     if not project_id:
@@ -2197,32 +2308,35 @@ def get_project_level_merge_request_approval_rules(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 async def create_project_level_rule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[str, Field(description="Name of the approval rule")] = None,
-    approvals_required: Annotated[
-        Optional[int], Field(description="Number of approvals required")
-    ] = None,
-    rule_type: Annotated[
-        Optional[str], Field(description="Type of rule (e.g., 'regular')")
-    ] = None,
-    user_ids: Annotated[
-        Optional[List[int]], Field(description="List of user IDs required to approve")
-    ] = None,
-    group_ids: Annotated[
-        Optional[List[int]], Field(description="List of group IDs required to approve")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(description="Name of the approval rule", default=None),
+    approvals_required: Optional[int] = Field(
+        description="Number of approvals required", default=None
+    ),
+    rule_type: Optional[str] = Field(
+        description="Type of rule (e.g., 'regular')", default=None
+    ),
+    user_ids: Optional[List[int]] = Field(
+        description="List of user IDs required to approve", default=None
+    ),
+    group_ids: Optional[List[int]] = Field(
+        description="List of group IDs required to approve", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Create a new project-level merge request approval rule."""
     if not project_id or not name:
@@ -2256,34 +2370,35 @@ async def create_project_level_rule(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 async def update_project_level_rule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    approval_rule_id: Annotated[int, Field(description="Approval rule ID")] = None,
-    name: Annotated[
-        Optional[str], Field(description="New name for the approval rule")
-    ] = None,
-    approvals_required: Annotated[
-        Optional[int], Field(description="New number of approvals required")
-    ] = None,
-    user_ids: Annotated[
-        Optional[List[int]],
-        Field(description="Updated list of user IDs required to approve"),
-    ] = None,
-    group_ids: Annotated[
-        Optional[List[int]],
-        Field(description="Updated list of group IDs required to approve"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    approval_rule_id: int = Field(description="Approval rule ID", default=None),
+    name: Optional[str] = Field(
+        description="New name for the approval rule", default=None
+    ),
+    approvals_required: Optional[int] = Field(
+        description="New number of approvals required", default=None
+    ),
+    user_ids: Optional[List[int]] = Field(
+        description="Updated list of user IDs required to approve", default=None
+    ),
+    group_ids: Optional[List[int]] = Field(
+        description="Updated list of group IDs required to approve", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Update an existing project-level merge request approval rule."""
     if not project_id or not approval_rule_id:
@@ -2326,20 +2441,23 @@ async def update_project_level_rule(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 async def delete_project_level_rule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    approval_rule_id: Annotated[int, Field(description="Approval rule ID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    approval_rule_id: int = Field(description="Approval rule ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a project-level merge request approval rule."""
     if not project_id or not approval_rule_id:
@@ -2359,21 +2477,25 @@ async def delete_project_level_rule(
     return response.data
 
 
+# Merge Rules Tools
 @mcp.tool(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 def merge_request_level_approvals(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    merge_request_iid: Annotated[int, Field(description="Merge request IID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    merge_request_iid: int = Field(description="Merge request IID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Retrieve approvals for a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
@@ -2391,17 +2513,20 @@ def merge_request_level_approvals(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 def get_approval_state_merge_requests(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    merge_request_iid: Annotated[int, Field(description="Merge request IID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    merge_request_iid: int = Field(description="Merge request IID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Retrieve the approval state of a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
@@ -2419,17 +2544,20 @@ def get_approval_state_merge_requests(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 def get_merge_request_level_rules(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    merge_request_iid: Annotated[int, Field(description="Merge request IID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    merge_request_iid: int = Field(description="Merge request IID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve merge request-level approval rules for a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
@@ -2447,20 +2575,23 @@ def get_merge_request_level_rules(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 async def approve_merge_request(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    merge_request_iid: Annotated[int, Field(description="Merge request IID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    merge_request_iid: int = Field(description="Merge request IID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Approve a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
@@ -2484,20 +2615,23 @@ async def approve_merge_request(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 async def unapprove_merge_request(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    merge_request_iid: Annotated[int, Field(description="Merge request IID")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    merge_request_iid: int = Field(description="Merge request IID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Unapprove a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
@@ -2521,16 +2655,19 @@ async def unapprove_merge_request(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 def get_group_level_rule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Retrieve merge request approval settings for a specific GitLab group."""
     if not group_id:
@@ -2546,34 +2683,34 @@ def get_group_level_rule(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 async def edit_group_level_rule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    allow_author_approval: Annotated[
-        Optional[bool],
-        Field(description="Whether authors can approve their own merge requests"),
-    ] = None,
-    allow_committer_approval: Annotated[
-        Optional[bool],
-        Field(description="Whether committers can approve merge requests"),
-    ] = None,
-    allow_overrides_to_approver_list: Annotated[
-        Optional[bool],
-        Field(description="Whether overrides to the approver list are allowed"),
-    ] = None,
-    minimum_approvals: Annotated[
-        Optional[int], Field(description="Minimum number of approvals required")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    allow_author_approval: Optional[bool] = Field(
+        description="Whether authors can approve their own merge requests", default=None
+    ),
+    allow_committer_approval: Optional[bool] = Field(
+        description="Whether committers can approve merge requests", default=None
+    ),
+    allow_overrides_to_approver_list: Optional[bool] = Field(
+        description="Whether overrides to the approver list are allowed", default=None
+    ),
+    minimum_approvals: Optional[int] = Field(
+        description="Minimum number of approvals required", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Edit merge request approval settings for a specific GitLab group."""
     if not group_id:
@@ -2618,16 +2755,19 @@ async def edit_group_level_rule(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 def get_project_level_rule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Retrieve merge request approval settings for a specific GitLab project."""
     if not project_id:
@@ -2643,34 +2783,34 @@ def get_project_level_rule(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
 )
 async def edit_project_level_rule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    allow_author_approval: Annotated[
-        Optional[bool],
-        Field(description="Whether authors can approve their own merge requests"),
-    ] = None,
-    allow_committer_approval: Annotated[
-        Optional[bool],
-        Field(description="Whether committers can approve merge requests"),
-    ] = None,
-    allow_overrides_to_approver_list: Annotated[
-        Optional[bool],
-        Field(description="Whether overrides to the approver list are allowed"),
-    ] = None,
-    minimum_approvals: Annotated[
-        Optional[int], Field(description="Minimum number of approvals required")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    allow_author_approval: Optional[bool] = Field(
+        description="Whether authors can approve their own merge requests", default=None
+    ),
+    allow_committer_approval: Optional[bool] = Field(
+        description="Whether committers can approve merge requests", default=None
+    ),
+    allow_overrides_to_approver_list: Optional[bool] = Field(
+        description="Whether overrides to the approver list are allowed", default=None
+    ),
+    minimum_approvals: Optional[int] = Field(
+        description="Minimum number of approvals required", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Edit merge request approval settings for a specific GitLab project."""
     if not project_id:
@@ -2714,20 +2854,22 @@ async def edit_project_level_rule(
 # Packages Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"})
 def get_repository_packages(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    package_type: Annotated[
-        Optional[str],
-        Field(description="Filter packages by type (e.g., 'npm', 'maven')"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    package_type: Optional[str] = Field(
+        description="Filter packages by type (e.g., 'npm', 'maven')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of repository packages for a specific GitLab project, optionally filtered by package type."""
     if not project_id:
@@ -2748,26 +2890,28 @@ def get_repository_packages(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"})
 async def publish_repository_package(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    package_name: Annotated[str, Field(description="Name of the package")] = None,
-    package_version: Annotated[str, Field(description="Version of the package")] = None,
-    file_name: Annotated[str, Field(description="Name of the package file")] = None,
-    status: Annotated[
-        Optional[str],
-        Field(description="Status of the package (e.g., 'default', 'hidden')"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    package_name: str = Field(description="Name of the package", default=None),
+    package_version: str = Field(description="Version of the package", default=None),
+    file_name: str = Field(description="Name of the package file", default=None),
+    status: Optional[str] = Field(
+        description="Status of the package (e.g., 'default', 'hidden')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Publish a repository package to a specific GitLab project."""
     if not project_id or not package_name or not package_version or not file_name:
@@ -2803,21 +2947,24 @@ async def publish_repository_package(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"})
 def download_repository_package(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    package_name: Annotated[str, Field(description="Name of the package")] = None,
-    package_version: Annotated[str, Field(description="Version of the package")] = None,
-    file_name: Annotated[
-        str, Field(description="Name of the package file to download")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    package_name: str = Field(description="Name of the package", default=None),
+    package_version: str = Field(description="Version of the package", default=None),
+    file_name: str = Field(
+        description="Name of the package file to download", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Download a repository package from a specific GitLab project."""
     if not project_id or not package_name or not package_version or not file_name:
@@ -2841,43 +2988,44 @@ def download_repository_package(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
 )
 def get_pipelines(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_id: Annotated[Optional[int], Field(description="Pipeline ID")] = None,
-    scope: Annotated[
-        Optional[str],
-        Field(description="Filter pipelines by scope (e.g., 'running', 'branches')"),
-    ] = None,
-    status: Annotated[
-        Optional[str],
-        Field(description="Filter pipelines by status (e.g., 'success', 'failed')"),
-    ] = None,
-    ref: Annotated[
-        Optional[str],
-        Field(description="Filter pipelines by reference (e.g., branch or tag name)"),
-    ] = None,
-    source: Annotated[
-        Optional[str],
-        Field(description="Filter pipelines by source (e.g., 'push', 'schedule')"),
-    ] = None,
-    updated_after: Annotated[
-        Optional[str],
-        Field(description="Filter pipelines updated after this date (ISO 8601 format)"),
-    ] = None,
-    updated_before: Annotated[
-        Optional[str],
-        Field(
-            description="Filter pipelines updated before this date (ISO 8601 format)"
-        ),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_id: Optional[int] = Field(description="Pipeline ID", default=None),
+    scope: Optional[str] = Field(
+        description="Filter pipelines by scope (e.g., 'running', 'branches')",
+        default=None,
+    ),
+    status: Optional[str] = Field(
+        description="Filter pipelines by status (e.g., 'success', 'failed')",
+        default=None,
+    ),
+    ref: Optional[str] = Field(
+        description="Filter pipelines by reference (e.g., branch or tag name)",
+        default=None,
+    ),
+    source: Optional[str] = Field(
+        description="Filter pipelines by source (e.g., 'push', 'schedule')",
+        default=None,
+    ),
+    updated_after: Optional[str] = Field(
+        description="Filter pipelines updated after this date (ISO 8601 format)",
+        default=None,
+    ),
+    updated_before: Optional[str] = Field(
+        description="Filter pipelines updated before this date (ISO 8601 format)",
+        default=None,
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of pipelines for a specific GitLab project, optionally filtered by scope, status, or ref or details of a specific pipeline in a GitLab project.."""
     if not project_id:
@@ -2903,25 +3051,29 @@ def get_pipelines(
     exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
 )
 async def run_pipeline(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    ref: Annotated[
-        str, Field(description="Reference (e.g., branch or tag) to run the pipeline on")
-    ] = None,
-    variables: Annotated[
-        Optional[Dict[str, str]], Field(description="Dictionary of pipeline variables")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    ref: str = Field(
+        description="Reference (e.g., branch or tag) to run the pipeline on",
+        default=None,
+    ),
+    variables: Optional[Dict[str, str]] = Field(
+        description="Dictionary of pipeline variables", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Run a pipeline for a specific GitLab project with a given reference (e.g., branch or tag)."""
     if not project_id or not ref:
@@ -2949,16 +3101,19 @@ async def run_pipeline(
     tags={"pipeline_schedules"},
 )
 def get_pipeline_schedules(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List[Dict]:
     """Retrieve a list of pipeline schedules for a specific GitLab project."""
     if not project_id:
@@ -2975,19 +3130,20 @@ def get_pipeline_schedules(
     tags={"pipeline_schedules"},
 )
 def get_pipeline_schedule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_schedule_id: Annotated[
-        int, Field(description="Pipeline schedule ID")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_schedule_id: int = Field(description="Pipeline schedule ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve details of a specific pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
@@ -3006,19 +3162,20 @@ def get_pipeline_schedule(
     tags={"pipeline_schedules"},
 )
 def get_pipelines_triggered_from_schedule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_schedule_id: Annotated[
-        int, Field(description="Pipeline schedule ID")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_schedule_id: int = Field(description="Pipeline schedule ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve pipelines triggered by a specific pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
@@ -3037,35 +3194,38 @@ def get_pipelines_triggered_from_schedule(
     tags={"pipeline_schedules"},
 )
 async def create_pipeline_schedule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    description: Annotated[
-        Optional[str], Field(description="Description of the pipeline schedule")
-    ] = None,
-    ref: Annotated[
-        str, Field(description="Reference (e.g., branch or tag) for the pipeline")
-    ] = None,
-    cron: Annotated[
-        str,
-        Field(description="Cron expression defining the schedule (e.g., '0 0 * * *')"),
-    ] = None,
-    cron_timezone: Annotated[
-        Optional[str], Field(description="Timezone for the cron schedule (e.g., 'UTC')")
-    ] = None,
-    active: Annotated[
-        Optional[bool], Field(description="Whether the schedule is active")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    description: Optional[str] = Field(
+        description="Description of the pipeline schedule", default=None
+    ),
+    ref: str = Field(
+        description="Reference (e.g., branch or tag) for the pipeline", default=None
+    ),
+    cron: str = Field(
+        description="Cron expression defining the schedule (e.g., '0 0 * * *')",
+        default=None,
+    ),
+    cron_timezone: Optional[str] = Field(
+        description="Timezone for the cron schedule (e.g., 'UTC')", default=None
+    ),
+    active: Optional[bool] = Field(
+        description="Whether the schedule is active", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Create a pipeline schedule for a specific GitLab project."""
     if not project_id or not ref or not cron:
@@ -3101,40 +3261,39 @@ async def create_pipeline_schedule(
     tags={"pipeline_schedules"},
 )
 async def edit_pipeline_schedule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_schedule_id: Annotated[
-        int, Field(description="Pipeline schedule ID")
-    ] = None,
-    description: Annotated[
-        Optional[str], Field(description="New description of the pipeline schedule")
-    ] = None,
-    ref: Annotated[
-        Optional[str],
-        Field(description="New reference (e.g., branch or tag) for the pipeline"),
-    ] = None,
-    cron: Annotated[
-        Optional[str],
-        Field(description="New cron expression for the schedule (e.g., '0 0 * * *')"),
-    ] = None,
-    cron_timezone: Annotated[
-        Optional[str],
-        Field(description="New timezone for the cron schedule (e.g., 'UTC')"),
-    ] = None,
-    active: Annotated[
-        Optional[bool], Field(description="Whether the schedule is active")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_schedule_id: int = Field(description="Pipeline schedule ID", default=None),
+    description: Optional[str] = Field(
+        description="New description of the pipeline schedule", default=None
+    ),
+    ref: Optional[str] = Field(
+        description="New reference (e.g., branch or tag) for the pipeline", default=None
+    ),
+    cron: Optional[str] = Field(
+        description="New cron expression for the schedule (e.g., '0 0 * * *')",
+        default=None,
+    ),
+    cron_timezone: Optional[str] = Field(
+        description="New timezone for the cron schedule (e.g., 'UTC')", default=None
+    ),
+    active: Optional[bool] = Field(
+        description="Whether the schedule is active", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Edit a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
@@ -3175,22 +3334,23 @@ async def edit_pipeline_schedule(
     tags={"pipeline_schedules"},
 )
 async def take_pipeline_schedule_ownership(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_schedule_id: Annotated[
-        int, Field(description="Pipeline schedule ID")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_schedule_id: int = Field(description="Pipeline schedule ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Take ownership of a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
@@ -3215,22 +3375,23 @@ async def take_pipeline_schedule_ownership(
     tags={"pipeline_schedules"},
 )
 async def delete_pipeline_schedule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_schedule_id: Annotated[
-        int, Field(description="Pipeline schedule ID")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_schedule_id: int = Field(description="Pipeline schedule ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
@@ -3255,22 +3416,23 @@ async def delete_pipeline_schedule(
     tags={"pipeline_schedules"},
 )
 async def run_pipeline_schedule(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_schedule_id: Annotated[
-        int, Field(description="Pipeline schedule ID")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_schedule_id: int = Field(description="Pipeline schedule ID", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Run a pipeline schedule immediately in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
@@ -3295,27 +3457,28 @@ async def run_pipeline_schedule(
     tags={"pipeline_schedules"},
 )
 async def create_pipeline_schedule_variable(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_schedule_id: Annotated[
-        int, Field(description="Pipeline schedule ID")
-    ] = None,
-    key: Annotated[str, Field(description="Key of the variable")] = None,
-    value: Annotated[str, Field(description="Value of the variable")] = None,
-    variable_type: Annotated[
-        Optional[str], Field(description="Type of variable (e.g., 'env_var')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_schedule_id: int = Field(description="Pipeline schedule ID", default=None),
+    key: str = Field(description="Key of the variable", default=None),
+    value: str = Field(description="Value of the variable", default=None),
+    variable_type: Optional[str] = Field(
+        description="Type of variable (e.g., 'env_var')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Create a variable for a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id or not key or not value:
@@ -3352,23 +3515,24 @@ async def create_pipeline_schedule_variable(
     tags={"pipeline_schedules"},
 )
 async def delete_pipeline_schedule_variable(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    pipeline_schedule_id: Annotated[
-        int, Field(description="Pipeline schedule ID")
-    ] = None,
-    key: Annotated[str, Field(description="Key of the variable to delete")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    pipeline_schedule_id: int = Field(description="Pipeline schedule ID", default=None),
+    key: str = Field(description="Key of the variable to delete", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a variable from a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id or not key:
@@ -3391,34 +3555,33 @@ async def delete_pipeline_schedule_variable(
 # Projects Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 def get_projects(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[
-        Optional[str], Field(description="Project ID or path")
-    ] = None,
-    owned: Annotated[
-        Optional[bool],
-        Field(description="Filter projects owned by the authenticated user"),
-    ] = None,
-    search: Annotated[
-        Optional[str],
-        Field(description="Filter projects by search term in name or path"),
-    ] = None,
-    sort: Annotated[
-        Optional[str],
-        Field(description="Sort projects by criteria (e.g., 'created_at', 'name')"),
-    ] = None,
-    visibility: Annotated[
-        Optional[str],
-        Field(description="Filter projects by visibility (e.g., 'public', 'private')"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: Optional[str] = Field(description="Project ID or path", default=None),
+    owned: Optional[bool] = Field(
+        description="Filter projects owned by the authenticated user", default=None
+    ),
+    search: Optional[str] = Field(
+        description="Filter projects by search term in name or path", default=None
+    ),
+    sort: Optional[str] = Field(
+        description="Sort projects by criteria (e.g., 'created_at', 'name')",
+        default=None,
+    ),
+    visibility: Optional[str] = Field(
+        description="Filter projects by visibility (e.g., 'public', 'private')",
+        default=None,
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of projects, optionally filtered by ownership, search, sort, or visibility or Retrieve details of a specific GitLab project.."""
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
@@ -3439,19 +3602,22 @@ def get_projects(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 def get_nested_projects_by_group(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    per_page: Annotated[
-        Optional[int], Field(description="Number of projects per page")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    per_page: Optional[int] = Field(
+        description="Number of projects per page", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of nested projects within a GitLab group, including descendant groups."""
     if not group_id:
@@ -3465,16 +3631,19 @@ def get_nested_projects_by_group(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 def get_project_contributors(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of contributors to a specific GitLab project."""
     if not project_id:
@@ -3488,16 +3657,19 @@ def get_project_contributors(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 def get_project_statistics(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Retrieve statistics for a specific GitLab project."""
     if not project_id:
@@ -3511,27 +3683,30 @@ def get_project_statistics(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 async def edit_project(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[Optional[str], Field(description="New name of the project")] = None,
-    description: Annotated[
-        Optional[str], Field(description="New description of the project")
-    ] = None,
-    visibility: Annotated[
-        Optional[str],
-        Field(description="New visibility of the project (e.g., 'public', 'private')"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: Optional[str] = Field(description="New name of the project", default=None),
+    description: Optional[str] = Field(
+        description="New description of the project", default=None
+    ),
+    visibility: Optional[str] = Field(
+        description="New visibility of the project (e.g., 'public', 'private')",
+        default=None,
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Edit a specific GitLab project's details (name, description, or visibility)."""
     if not project_id:
@@ -3567,22 +3742,25 @@ async def edit_project(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 def get_project_groups(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    skip_groups: Annotated[
-        Optional[List[int]], Field(description="List of group IDs to exclude")
-    ] = None,
-    search: Annotated[
-        Optional[str], Field(description="Filter groups by search term in name")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    skip_groups: Optional[List[int]] = Field(
+        description="List of group IDs to exclude", default=None
+    ),
+    search: Optional[str] = Field(
+        description="Filter groups by search term in name", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of groups associated with a specific GitLab project, optionally filtered."""
     if not project_id:
@@ -3603,19 +3781,22 @@ def get_project_groups(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 async def archive_project(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Archive a specific GitLab project."""
     if not project_id:
@@ -3633,19 +3814,22 @@ async def archive_project(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 async def unarchive_project(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Unarchive a specific GitLab project."""
     if not project_id:
@@ -3663,19 +3847,22 @@ async def unarchive_project(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 async def delete_project(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a specific GitLab project."""
     if not project_id:
@@ -3693,32 +3880,30 @@ async def delete_project(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
 async def share_project(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    group_id: Annotated[
-        str, Field(description="Group ID or path to share with")
-    ] = None,
-    group_access: Annotated[
-        str,
-        Field(
-            description="Access level for the group (e.g., 'guest', 'developer', 'maintainer')"
-        ),
-    ] = None,
-    expires_at: Annotated[
-        Optional[str],
-        Field(description="Expiration date for the share in ISO 8601 format"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    group_id: str = Field(description="Group ID or path to share with", default=None),
+    group_access: str = Field(
+        description="Access level for the group (e.g., 'guest', 'developer', 'maintainer')",
+        default=None,
+    ),
+    expires_at: Optional[str] = Field(
+        description="Expiration date for the share in ISO 8601 format", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Share a specific GitLab project with a group, specifying access level."""
     if not project_id or not group_id or not group_access:
@@ -3754,19 +3939,22 @@ async def share_project(
     tags={"protected_branches"},
 )
 def get_protected_branches(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    branch: Annotated[
-        str, Field(description="Name of the branch to retrieve (e.g., 'main')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    branch: Optional[str] = Field(
+        description="Name of the branch to retrieve (e.g., 'main')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of protected branches in a specific GitLab project or Retrieve details of a specific protected branch in a GitLab project.."""
     if not project_id:
@@ -3786,51 +3974,49 @@ def get_protected_branches(
     tags={"protected_branches"},
 )
 async def protect_branch(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    branch: Annotated[
-        str, Field(description="Name of the branch to protect (e.g., 'main')")
-    ] = None,
-    push_access_level: Annotated[
-        Optional[str],
-        Field(description="Access level for pushing (e.g., 'maintainer')"),
-    ] = None,
-    merge_access_level: Annotated[
-        Optional[str], Field(description="Access level for merging (e.g., 'developer')")
-    ] = None,
-    unprotect_access_level: Annotated[
-        Optional[str],
-        Field(description="Access level for unprotecting (e.g., 'maintainer')"),
-    ] = None,
-    allow_force_push: Annotated[
-        Optional[bool], Field(description="Whether force pushes are allowed")
-    ] = None,
-    allowed_to_push: Annotated[
-        Optional[List[Dict]],
-        Field(description="List of users or groups allowed to push"),
-    ] = None,
-    allowed_to_merge: Annotated[
-        Optional[List[Dict]],
-        Field(description="List of users or groups allowed to merge"),
-    ] = None,
-    allowed_to_unprotect: Annotated[
-        Optional[List[Dict]],
-        Field(description="List of users or groups allowed to unprotect"),
-    ] = None,
-    code_owner_approval_required: Annotated[
-        Optional[bool], Field(description="Whether code owner approval is required")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    branch: str = Field(
+        description="Name of the branch to protect (e.g., 'main')", default=None
+    ),
+    push_access_level: Optional[str] = Field(
+        description="Access level for pushing (e.g., 'maintainer')", default=None
+    ),
+    merge_access_level: Optional[str] = Field(
+        description="Access level for merging (e.g., 'developer')", default=None
+    ),
+    unprotect_access_level: Optional[str] = Field(
+        description="Access level for unprotecting (e.g., 'maintainer')", default=None
+    ),
+    allow_force_push: Optional[bool] = Field(
+        description="Whether force pushes are allowed", default=None
+    ),
+    allowed_to_push: Optional[List[Dict]] = Field(
+        description="List of users or groups allowed to push", default=None
+    ),
+    allowed_to_merge: Optional[List[Dict]] = Field(
+        description="List of users or groups allowed to merge", default=None
+    ),
+    allowed_to_unprotect: Optional[List[Dict]] = Field(
+        description="List of users or groups allowed to unprotect", default=None
+    ),
+    code_owner_approval_required: Optional[bool] = Field(
+        description="Whether code owner approval is required", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Protect a specific branch in a GitLab project with specified access levels."""
     if not project_id or not branch:
@@ -3878,22 +4064,25 @@ async def protect_branch(
     tags={"protected_branches"},
 )
 async def unprotect_branch(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    branch: Annotated[
-        str, Field(description="Name of the branch to unprotect (e.g., 'main')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    branch: str = Field(
+        description="Name of the branch to unprotect (e.g., 'main')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Unprotect a specific branch in a GitLab project."""
     if not project_id or not branch:
@@ -3914,28 +4103,29 @@ async def unprotect_branch(
     tags={"protected_branches"},
 )
 async def require_code_owner_approvals_single_branch(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    branch: Annotated[
-        str,
-        Field(
-            description="Name of the branch to set approval requirements for (e.g., 'main')"
-        ),
-    ] = None,
-    code_owner_approval_required: Annotated[
-        bool, Field(description="Whether code owner approval is required")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    branch: str = Field(
+        description="Name of the branch to set approval requirements for (e.g., 'main')",
+        default=None,
+    ),
+    code_owner_approval_required: bool = Field(
+        description="Whether code owner approval is required", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Require or disable code owner approvals for a specific branch in a GitLab project."""
     if not project_id or not branch or code_owner_approval_required is None:
@@ -3962,27 +4152,28 @@ async def require_code_owner_approvals_single_branch(
 # Release Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 def get_releases(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    include_html_description: Annotated[
-        Optional[bool], Field(description="Whether to include HTML descriptions")
-    ] = None,
-    sort: Annotated[
-        Optional[str],
-        Field(description="Sort releases by criteria (e.g., 'released_at')"),
-    ] = None,
-    order_by: Annotated[
-        Optional[str],
-        Field(description="Order releases by criteria (e.g., 'asc', 'desc')"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    include_html_description: Optional[bool] = Field(
+        description="Whether to include HTML descriptions", default=None
+    ),
+    sort: Optional[str] = Field(
+        description="Sort releases by criteria (e.g., 'released_at')", default=None
+    ),
+    order_by: Optional[str] = Field(
+        description="Order releases by criteria (e.g., 'asc', 'desc')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of releases for a specific GitLab project, optionally filtered."""
     if not project_id:
@@ -4003,16 +4194,19 @@ def get_releases(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 def get_latest_release(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve details of the latest release in a GitLab project."""
     if not project_id:
@@ -4026,16 +4220,19 @@ def get_latest_release(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 def get_latest_release_evidence(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve evidence for the latest release in a GitLab project."""
     if not project_id:
@@ -4049,19 +4246,22 @@ def get_latest_release_evidence(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 def get_latest_release_asset(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    direct_asset_path: Annotated[
-        str, Field(description="Path to the asset (e.g., 'assets/file.zip')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    direct_asset_path: str = Field(
+        description="Path to the asset (e.g., 'assets/file.zip')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Retrieve a specific asset for the latest release in a GitLab project."""
     if not project_id or not direct_asset_path:
@@ -4077,27 +4277,28 @@ def get_latest_release_asset(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 def get_group_releases(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    include_html_description: Annotated[
-        Optional[bool], Field(description="Whether to include HTML descriptions")
-    ] = None,
-    sort: Annotated[
-        Optional[str],
-        Field(description="Sort releases by criteria (e.g., 'released_at')"),
-    ] = None,
-    order_by: Annotated[
-        Optional[str],
-        Field(description="Order releases by criteria (e.g., 'asc', 'desc')"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    include_html_description: Optional[bool] = Field(
+        description="Whether to include HTML descriptions", default=None
+    ),
+    sort: Optional[str] = Field(
+        description="Sort releases by criteria (e.g., 'released_at')", default=None
+    ),
+    order_by: Optional[str] = Field(
+        description="Order releases by criteria (e.g., 'asc', 'desc')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of releases for a specific GitLab group, optionally filtered."""
     if not group_id:
@@ -4117,22 +4318,25 @@ def get_group_releases(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 def download_release_asset(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    tag_name: Annotated[
-        str, Field(description="Tag name of the release (e.g., 'v1.0.0')")
-    ] = None,
-    direct_asset_path: Annotated[
-        str, Field(description="Path to the asset (e.g., 'assets/file.zip')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    tag_name: str = Field(
+        description="Tag name of the release (e.g., 'v1.0.0')", default=None
+    ),
+    direct_asset_path: str = Field(
+        description="Path to the asset (e.g., 'assets/file.zip')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Download a release asset from a group's release in GitLab."""
     if not group_id or not tag_name or not direct_asset_path:
@@ -4148,19 +4352,22 @@ def download_release_asset(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 def get_release_by_tag(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    tag_name: Annotated[
-        str, Field(description="Tag name of the release (e.g., 'v1.0.0')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    tag_name: str = Field(
+        description="Tag name of the release (e.g., 'v1.0.0')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve details of a release by its tag in a GitLab project."""
     if not project_id or not tag_name:
@@ -4174,32 +4381,36 @@ def get_release_by_tag(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 async def create_release(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[str, Field(description="Name of the release")] = None,
-    tag_name: Annotated[
-        str, Field(description="Tag name associated with the release (e.g., 'v1.0.0')")
-    ] = None,
-    description: Annotated[
-        Optional[str], Field(description="Description of the release")
-    ] = None,
-    released_at: Annotated[
-        Optional[str], Field(description="Release date in ISO 8601 format")
-    ] = None,
-    assets: Annotated[
-        Optional[Dict], Field(description="Dictionary of release assets")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(description="Name of the release", default=None),
+    tag_name: str = Field(
+        description="Tag name associated with the release (e.g., 'v1.0.0')",
+        default=None,
+    ),
+    description: Optional[str] = Field(
+        description="Description of the release", default=None
+    ),
+    released_at: Optional[str] = Field(
+        description="Release date in ISO 8601 format", default=None
+    ),
+    assets: Optional[Dict] = Field(
+        description="Dictionary of release assets", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Create a new release in a GitLab project."""
     if not project_id or not name or not tag_name:
@@ -4231,22 +4442,25 @@ async def create_release(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 async def create_release_evidence(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    tag_name: Annotated[
-        str, Field(description="Tag name of the release (e.g., 'v1.0.0')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    tag_name: str = Field(
+        description="Tag name of the release (e.g., 'v1.0.0')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Create evidence for a release in a GitLab project."""
     if not project_id or not tag_name:
@@ -4266,32 +4480,35 @@ async def create_release_evidence(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 async def update_release(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    tag_name: Annotated[
-        str, Field(description="Tag name of the release to update (e.g., 'v1.0.0')")
-    ] = None,
-    name: Annotated[Optional[str], Field(description="New name of the release")] = None,
-    description: Annotated[
-        Optional[str], Field(description="New description of the release")
-    ] = None,
-    released_at: Annotated[
-        Optional[str], Field(description="New release date in ISO 8601 format")
-    ] = None,
-    assets: Annotated[
-        Optional[Dict], Field(description="Updated dictionary of release assets")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    tag_name: str = Field(
+        description="Tag name of the release to update (e.g., 'v1.0.0')", default=None
+    ),
+    name: Optional[str] = Field(description="New name of the release", default=None),
+    description: Optional[str] = Field(
+        description="New description of the release", default=None
+    ),
+    released_at: Optional[str] = Field(
+        description="New release date in ISO 8601 format", default=None
+    ),
+    assets: Optional[Dict] = Field(
+        description="Updated dictionary of release assets", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Update a release in a GitLab project."""
     if not project_id or not tag_name:
@@ -4328,22 +4545,25 @@ async def update_release(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
 async def delete_release(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    tag_name: Annotated[
-        str, Field(description="Tag name of the release to delete (e.g., 'v1.0.0')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    tag_name: str = Field(
+        description="Tag name of the release to delete (e.g., 'v1.0.0')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a release in a GitLab project."""
     if not project_id or not tag_name:
@@ -4362,31 +4582,33 @@ async def delete_release(
 # Runners Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 def get_runners(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    runner_id: Annotated[
-        Optional[int], Field(description="ID of the runner to retrieve")
-    ] = None,
-    scope: Annotated[
-        Optional[str], Field(description="Filter runners by scope (e.g., 'active')")
-    ] = None,
-    type: Annotated[
-        Optional[str],
-        Field(description="Filter runners by type (e.g., 'instance_type')"),
-    ] = None,
-    status: Annotated[
-        Optional[str], Field(description="Filter runners by status (e.g., 'online')")
-    ] = None,
-    tag_list: Annotated[
-        Optional[List[str]], Field(description="Filter runners by tags")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    runner_id: Optional[int] = Field(
+        description="ID of the runner to retrieve", default=None
+    ),
+    scope: Optional[str] = Field(
+        description="Filter runners by scope (e.g., 'active')", default=None
+    ),
+    type: Optional[str] = Field(
+        description="Filter runners by type (e.g., 'instance_type')", default=None
+    ),
+    status: Optional[str] = Field(
+        description="Filter runners by status (e.g., 'online')", default=None
+    ),
+    tag_list: Optional[List[str]] = Field(
+        description="Filter runners by tags", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of runners in GitLab, optionally filtered by scope, type, status, or tags or Retrieve details of a specific GitLab runner.."""
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
@@ -4407,41 +4629,43 @@ def get_runners(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def update_runner_details(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    runner_id: Annotated[int, Field(description="ID of the runner to update")] = None,
-    description: Annotated[
-        Optional[str], Field(description="New description of the runner")
-    ] = None,
-    active: Annotated[
-        Optional[bool], Field(description="Whether the runner is active")
-    ] = None,
-    tag_list: Annotated[
-        Optional[List[str]], Field(description="List of tags for the runner")
-    ] = None,
-    run_untagged: Annotated[
-        Optional[bool], Field(description="Whether the runner can run untagged jobs")
-    ] = None,
-    locked: Annotated[
-        Optional[bool], Field(description="Whether the runner is locked")
-    ] = None,
-    access_level: Annotated[
-        Optional[str],
-        Field(description="Access level of the runner (e.g., 'ref_protected')"),
-    ] = None,
-    maximum_timeout: Annotated[
-        Optional[int], Field(description="Maximum timeout for the runner in seconds")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    runner_id: int = Field(description="ID of the runner to update", default=None),
+    description: Optional[str] = Field(
+        description="New description of the runner", default=None
+    ),
+    active: Optional[bool] = Field(
+        description="Whether the runner is active", default=None
+    ),
+    tag_list: Optional[List[str]] = Field(
+        description="List of tags for the runner", default=None
+    ),
+    run_untagged: Optional[bool] = Field(
+        description="Whether the runner can run untagged jobs", default=None
+    ),
+    locked: Optional[bool] = Field(
+        description="Whether the runner is locked", default=None
+    ),
+    access_level: Optional[str] = Field(
+        description="Access level of the runner (e.g., 'ref_protected')", default=None
+    ),
+    maximum_timeout: Optional[int] = Field(
+        description="Maximum timeout for the runner in seconds", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Update details for a specific GitLab runner."""
     if not runner_id:
@@ -4485,27 +4709,28 @@ async def update_runner_details(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def pause_runner(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    runner_id: Annotated[
-        int, Field(description="ID of the runner to pause or unpause")
-    ] = None,
-    active: Annotated[
-        bool,
-        Field(
-            description="Whether the runner should be active (True) or paused (False)"
-        ),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    runner_id: int = Field(
+        description="ID of the runner to pause or unpause", default=None
+    ),
+    active: bool = Field(
+        description="Whether the runner should be active (True) or paused (False)",
+        default=None,
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Pause or unpause a specific GitLab runner."""
     if not runner_id or active is None:
@@ -4523,25 +4748,27 @@ async def pause_runner(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 def get_runner_jobs(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    runner_id: Annotated[
-        int, Field(description="ID of the runner to retrieve jobs for")
-    ] = None,
-    status: Annotated[
-        Optional[str],
-        Field(description="Filter jobs by status (e.g., 'success', 'failed')"),
-    ] = None,
-    sort: Annotated[
-        Optional[str], Field(description="Sort jobs by criteria (e.g., 'created_at')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    runner_id: int = Field(
+        description="ID of the runner to retrieve jobs for", default=None
+    ),
+    status: Optional[str] = Field(
+        description="Filter jobs by status (e.g., 'success', 'failed')", default=None
+    ),
+    sort: Optional[str] = Field(
+        description="Sort jobs by criteria (e.g., 'created_at')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve jobs for a specific GitLab runner, optionally filtered by status or sorted."""
     if not runner_id:
@@ -4562,19 +4789,22 @@ def get_runner_jobs(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 def get_project_runners(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    scope: Annotated[
-        Optional[str], Field(description="Filter runners by scope (e.g., 'active')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    scope: Optional[str] = Field(
+        description="Filter runners by scope (e.g., 'active')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of runners in a specific GitLab project, optionally filtered by scope."""
     if not project_id:
@@ -4595,20 +4825,23 @@ def get_project_runners(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def enable_project_runner(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    runner_id: Annotated[int, Field(description="ID of the runner to enable")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    runner_id: int = Field(description="ID of the runner to enable", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Enable a runner in a specific GitLab project."""
     if not project_id or not runner_id:
@@ -4626,20 +4859,23 @@ async def enable_project_runner(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def delete_project_runner(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    runner_id: Annotated[int, Field(description="ID of the runner to delete")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    runner_id: int = Field(description="ID of the runner to delete", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a runner from a specific GitLab project."""
     if not project_id or not runner_id:
@@ -4657,19 +4893,22 @@ async def delete_project_runner(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 def get_group_runners(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    scope: Annotated[
-        Optional[str], Field(description="Filter runners by scope (e.g., 'active')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    scope: Optional[str] = Field(
+        description="Filter runners by scope (e.g., 'active')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of runners in a specific GitLab group, optionally filtered by scope."""
     if not group_id:
@@ -4689,33 +4928,34 @@ def get_group_runners(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def register_new_runner(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    token: Annotated[
-        str, Field(description="Registration token for the runner")
-    ] = None,
-    description: Annotated[
-        Optional[str], Field(description="Description of the runner")
-    ] = None,
-    tag_list: Annotated[
-        Optional[List[str]], Field(description="List of tags for the runner")
-    ] = None,
-    run_untagged: Annotated[
-        Optional[bool], Field(description="Whether the runner can run untagged jobs")
-    ] = None,
-    locked: Annotated[
-        Optional[bool], Field(description="Whether the runner is locked")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    token: str = Field(description="Registration token for the runner", default=None),
+    description: Optional[str] = Field(
+        description="Description of the runner", default=None
+    ),
+    tag_list: Optional[List[str]] = Field(
+        description="List of tags for the runner", default=None
+    ),
+    run_untagged: Optional[bool] = Field(
+        description="Whether the runner can run untagged jobs", default=None
+    ),
+    locked: Optional[bool] = Field(
+        description="Whether the runner is locked", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Union[List, Dict]:
     """Register a new GitLab runner."""
     if not token:
@@ -4739,24 +4979,27 @@ async def register_new_runner(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def delete_runner(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    runner_id: Annotated[
-        Optional[int], Field(description="ID of the runner to delete")
-    ] = None,
-    token: Annotated[
-        Optional[str], Field(description="Token of the runner to delete")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    runner_id: Optional[int] = Field(
+        description="ID of the runner to delete", default=None
+    ),
+    token: Optional[str] = Field(
+        description="Token of the runner to delete", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a GitLab runner by ID or token."""
     if not runner_id and not token:
@@ -4780,19 +5023,22 @@ async def delete_runner(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def verify_runner_authentication(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    token: Annotated[str, Field(description="Runner token to verify")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    token: str = Field(description="Runner token to verify", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Verify authentication for a GitLab runner using its token."""
     if not token:
@@ -4810,18 +5056,21 @@ async def verify_runner_authentication(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def reset_gitlab_runner_token(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Reset the GitLab runner registration token."""
     if ctx:
@@ -4837,19 +5086,22 @@ async def reset_gitlab_runner_token(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def reset_project_runner_token(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Reset the registration token for a project's runner in GitLab."""
     if not project_id:
@@ -4867,19 +5119,22 @@ async def reset_project_runner_token(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def reset_group_runner_token(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    group_id: Annotated[str, Field(description="Group ID or path")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    group_id: str = Field(description="Group ID or path", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Reset the registration token for a group's runner in GitLab."""
     if not group_id:
@@ -4897,22 +5152,25 @@ async def reset_group_runner_token(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
 async def reset_token(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    runner_id: Annotated[
-        int, Field(description="ID of the runner to reset the token for")
-    ] = None,
-    token: Annotated[str, Field(description="Current token of the runner")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    runner_id: int = Field(
+        description="ID of the runner to reset the token for", default=None
+    ),
+    token: str = Field(description="Current token of the runner", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Reset the authentication token for a specific GitLab runner."""
     if not runner_id or not token:
@@ -4931,26 +5189,28 @@ async def reset_token(
 # Tags Tools
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
 def get_tags(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[
-        Optional[str], Field(description="Name of the tag to retrieve (e.g., 'v1.0.0')")
-    ] = None,
-    search: Annotated[
-        Optional[str], Field(description="Filter tags by search term in name")
-    ] = None,
-    sort: Annotated[
-        Optional[str],
-        Field(description="Sort tags by criteria (e.g., 'name', 'updated')"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: Optional[str] = Field(
+        description="Name of the tag to retrieve (e.g., 'v1.0.0')", default=None
+    ),
+    search: Optional[str] = Field(
+        description="Filter tags by search term in name", default=None
+    ),
+    sort: Optional[str] = Field(
+        description="Sort tags by criteria (e.g., 'name', 'updated')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Union[List, Dict]:
     """Retrieve a list of tags for a specific GitLab project, optionally filtered or sorted or Retrieve details of a specific tag in a GitLab project."""
     if not project_id:
@@ -4974,29 +5234,32 @@ def get_tags(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
 async def create_tag(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[
-        str, Field(description="Name of the tag to create (e.g., 'v1.0.0')")
-    ] = None,
-    ref: Annotated[
-        str, Field(description="Reference (e.g., branch or commit SHA) to tag")
-    ] = None,
-    message: Annotated[Optional[str], Field(description="Tag message")] = None,
-    release_description: Annotated[
-        Optional[str], Field(description="Release description associated with the tag")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(
+        description="Name of the tag to create (e.g., 'v1.0.0')", default=None
+    ),
+    ref: str = Field(
+        description="Reference (e.g., branch or commit SHA) to tag", default=None
+    ),
+    message: Optional[str] = Field(description="Tag message", default=None),
+    release_description: Optional[str] = Field(
+        description="Release description associated with the tag", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Create a new tag in a GitLab project."""
     if not project_id or not name or not ref:
@@ -5028,22 +5291,25 @@ async def create_tag(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
 async def delete_tag(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[
-        str, Field(description="Name of the tag to delete (e.g., 'v1.0.0')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(
+        description="Name of the tag to delete (e.g., 'v1.0.0')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Delete a specific tag in a GitLab project."""
     if not project_id or not name:
@@ -5061,17 +5327,20 @@ async def delete_tag(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
 def get_protected_tags(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[Optional[str], Field(description="Filter tags by name")] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: Optional[str] = Field(description="Filter tags by name", default=None),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> List:
     """Retrieve a list of protected tags in a specific GitLab project, optionally filtered by name."""
     if not project_id:
@@ -5092,19 +5361,23 @@ def get_protected_tags(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
 def get_protected_tag(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[
-        str, Field(description="Name of the protected tag to retrieve (e.g., 'v1.0.0')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(
+        description="Name of the protected tag to retrieve (e.g., 'v1.0.0')",
+        default=None,
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
 ) -> Dict:
     """Retrieve details of a specific protected tag in a GitLab project."""
     if not project_id or not name:
@@ -5118,30 +5391,32 @@ def get_protected_tag(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
 async def protect_tag(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[
-        str, Field(description="Name of the tag to protect (e.g., 'v1.0.0')")
-    ] = None,
-    create_access_level: Annotated[
-        Optional[str],
-        Field(description="Access level for creating the tag (e.g., 'maintainer')"),
-    ] = None,
-    allowed_to_create: Annotated[
-        Optional[List[Dict]],
-        Field(description="List of users or groups allowed to create the tag"),
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(
+        description="Name of the tag to protect (e.g., 'v1.0.0')", default=None
+    ),
+    create_access_level: Optional[str] = Field(
+        description="Access level for creating the tag (e.g., 'maintainer')",
+        default=None,
+    ),
+    allowed_to_create: Optional[List[Dict]] = Field(
+        description="List of users or groups allowed to create the tag", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Protect a specific tag in a GitLab project with specified access levels."""
     if not project_id or not name:
@@ -5177,22 +5452,25 @@ async def protect_tag(
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
 async def unprotect_tag(
-    gitlab_instance: Annotated[
-        str, Field(description="URL of GitLab instance with /api/v4/ suffix")
-    ] = environment_gitlab_instance,
-    access_token: Annotated[
-        str, Field(description="GitLab access token")
-    ] = environment_access_token,
-    project_id: Annotated[str, Field(description="Project ID or path")] = None,
-    name: Annotated[
-        str, Field(description="Name of the tag to unprotect (e.g., 'v1.0.0')")
-    ] = None,
-    verify: Annotated[
-        bool, Field(description="Verify SSL certificate")
-    ] = environment_verify,
-    ctx: Annotated[
-        Optional[Context], Field(description="MCP context for progress")
-    ] = None,
+    gitlab_instance: Optional[str] = Field(
+        description="URL of GitLab instance with /api/v4/ suffix",
+        default=os.environ.get("GITLAB_INSTANCE", None),
+    ),
+    access_token: Optional[str] = Field(
+        description="GitLab access token",
+        default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+    ),
+    project_id: str = Field(description="Project ID or path", default=None),
+    name: str = Field(
+        description="Name of the tag to unprotect (e.g., 'v1.0.0')", default=None
+    ),
+    verify: Optional[bool] = Field(
+        description="Verify SSL certificate",
+        default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+    ),
+    ctx: Optional[Context] = Field(
+        description="MCP context for progress", default=None
+    ),
 ) -> Dict:
     """Unprotect a specific tag in a GitLab project."""
     if not project_id or not name:
@@ -5208,70 +5486,50 @@ async def unprotect_tag(
     return response.data
 
 
-def gitlab_api_mcp(argv: List[str]) -> None:
+def gitlab_api_mcp() -> None:
     """Run the GitLab MCP server with specified transport and connection parameters.
 
     This function parses command-line arguments to configure and start the MCP server for GitLab API interactions.
     It supports stdio or TCP transport modes and exits on invalid arguments or help requests.
 
-    Args:
-        argv (List[str]): Command-line arguments passed to the script.
-
-    Command-line Options:
-        -h, --help: Display help and exit.
-        -t, --transport: Specify transport mode ("stdio" or "tcp"). Defaults to "stdio".
-        -h, --host: Specify host for TCP transport (e.g., "localhost"). Required for TCP mode.
-        -p, --port: Specify port for TCP transport (e.g., "5000"). Required for TCP mode.
-
-    Raises:
-        SystemExit: If invalid arguments are provided or help is requested.
-
     Example:
         $ python gitlab_api_mcp.py --transport tcp --host localhost --port 5000
     """
-    transport = "stdio"
-    host = None
-    port = None
-    try:
-        opts, args = getopt.getopt(
-            argv,
-            "ht:h:p:",
-            ["help", "transport=", "host=", "port="],
-        )
-    except getopt.GetoptError:
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            sys.exit()
-        elif opt in ("-t", "--transport"):
-            transport = arg
-        elif opt in ("-h", "--host"):
-            host = arg
-        elif opt in ("-p", "--port"):
-            try:
-                port = int(arg)  # Attempt to convert port to integer
-                if not (0 <= port <= 65535):  # Valid port range
-                    print(f"Error: Port {arg} is out of valid range (0-65535).")
-                    sys.exit(1)
-            except ValueError:
-                print(f"Error: Port {arg} is not a valid integer.")
-                sys.exit(1)
-    if transport == "stdio":
+    parser = argparse.ArgumentParser(
+        description="Run the GitLab MCP server with specified transport and connection parameters."
+    )
+    parser.add_argument(
+        "-t",
+        "--transport",
+        default="stdio",
+        choices=["stdio", "tcp"],
+        help='Specify transport mode ("stdio" or "tcp"). Defaults to "stdio".',
+    )
+    parser.add_argument(
+        "-s",
+        "--host",
+        help='Specify host for TCP transport (e.g., "localhost"). Required for TCP mode.',
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        help='Specify port for TCP transport (e.g., "5000"). Required for TCP mode.',
+    )
+
+    args = parser.parse_args(sys.argv[1:])
+
+    if args.transport == "tcp":
+        if not args.host or not args.port:
+            parser.error("Both --host and --port are required for TCP transport mode.")
+        if not (0 <= args.port <= 65535):
+            parser.error(f"Port {args.port} is out of valid range (0-65535).")
+
+    if args.transport == "stdio":
         mcp.run(transport="stdio")
     else:
-        mcp.run(transport="http", host=host, port=port)
-
-
-def main() -> None:
-    """Entry point for the GitLab MCP script.
-
-    This function serves as the main entry point for the script, passing command-line arguments to the gitlab_api_mcp function.
-
-    Example:
-        $ python gitlab_api_mcp.py --transport stdio
-    """
-    gitlab_api_mcp(sys.argv[1:])
+        mcp.run(transport="http", host=args.host, port=args.port)
 
 
 if __name__ == "__main__":
-    main()
+    gitlab_api_mcp()
