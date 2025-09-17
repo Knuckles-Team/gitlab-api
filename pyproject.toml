@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "25.9.1"
+version = "25.9.2"
 description = "GitLab API Python Wrapper"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [project.scripts]
-gitlab-mcp = "gitlab_api.gitlab_api_mcp:main"
+gitlab-mcp = "gitlab_api.gitlab_api_mcp:gitlab_api_mcp"
 
 [tool.setuptools.packages.find]
 where = ["."]
