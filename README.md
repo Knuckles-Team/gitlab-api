@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.8.18*
+*Version: 25.9.0*
 
 Pythonic GitLab API Library
 
@@ -365,8 +365,8 @@ For Testing Only: Plain text storage will also work, although **not** recommende
       ],
       "env": {
         "GITLAB_INSTANCE": "https://gitlab.com/api/v4/", // Optional
-        "ACCESS_TOKEN": "glpat-askdfalskdvjas",          // Optional
-        "VERIFY": "True"                                 // Optional
+        "GITLAB_ACCESS_TOKEN": "glpat-askdfalskdvjas",   // Optional
+        "GITLAB_VERIFY": "True"                          // Optional
       },
       "timeout": 200000
     }
