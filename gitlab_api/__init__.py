@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-from gitlab_api.gitlab_api_mcp import main
+from gitlab_api.gitlab_api_mcp import gitlab_api_mcp
 from gitlab_api.gitlab_input_models import (
     BranchModel,
     CommitModel,
@@ -199,7 +199,7 @@ __all__ = [
     "load_model",
     "run_migrations",
     "Api",
-    "main",
+    "gitlab_api_mcp",
     "Response",
     "BranchModel",
     "CommitModel",
