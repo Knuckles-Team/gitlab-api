@@ -5502,8 +5502,8 @@ def gitlab_api_mcp() -> None:
         "-t",
         "--transport",
         default="stdio",
-        choices=["stdio", "tcp"],
-        help='Specify transport mode ("stdio" or "tcp"). Defaults to "stdio".',
+        choices=["stdio", "http", "sse"],
+        help="Transport method: 'stdio', 'http', or 'sse' [legacy] (default: stdio)",
     )
     parser.add_argument(
         "-s",
@@ -5517,18 +5517,18 @@ def gitlab_api_mcp() -> None:
         help='Specify port for TCP transport (e.g., "5000"). Required for TCP mode.',
     )
 
-    args = parser.parse_args(sys.argv[1:])
+    args = parser.parse_args()
 
-    if args.transport == "tcp":
-        if not args.host or not args.port:
-            parser.error("Both --host and --port are required for TCP transport mode.")
-        if not (0 <= args.port <= 65535):
-            parser.error(f"Port {args.port} is out of valid range (0-65535).")
+    if args.port < 0 or args.port > 65535:
+        print(f"Error: Port {args.port} is out of valid range (0-65535).")
+        sys.exit(1)
 
     if args.transport == "stdio":
         mcp.run(transport="stdio")
-    else:
+    elif args.transport == "http":
         mcp.run(transport="http", host=args.host, port=args.port)
+    elif args.transport == "sse":
+        mcp.run(transport="sse", host=args.host, port=args.port)
 
 
 if __name__ == "__main__":
