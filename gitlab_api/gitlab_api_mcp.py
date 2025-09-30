@@ -5508,13 +5508,15 @@ def gitlab_api_mcp() -> None:
     parser.add_argument(
         "-s",
         "--host",
-        help='Specify host for TCP transport (e.g., "localhost"). Required for TCP mode.',
+        default="0.0.0.0",
+        help="Host address for HTTP transport (default: 0.0.0.0)",
     )
     parser.add_argument(
         "-p",
         "--port",
         type=int,
-        help='Specify port for TCP transport (e.g., "5000"). Required for TCP mode.',
+        default=8000,
+        help="Port number for HTTP transport (default: 8000)",
     )
 
     args = parser.parse_args()
