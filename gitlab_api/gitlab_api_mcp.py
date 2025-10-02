@@ -12,7 +12,11 @@ from pydantic import Field
 mcp = FastMCP("GitLab")
 
 
-def to_boolean(string: str) -> bool:
+def to_boolean(string: Union[str, bool] = None) -> bool:
+    if isinstance(string, bool):
+        return string
+    if not string:
+        return False
     normalized = str(string).strip().lower()
     true_values = {"t", "true", "y", "yes", "1"}
     false_values = {"f", "false", "n", "no", "0"}
@@ -51,6 +55,10 @@ def get_branches(
     """Get branches in a GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -90,6 +98,10 @@ def create_branch(
     """Create a new branch in a GitLab project from a reference."""
     if not project_id or not branch or not ref:
         raise ValueError("project_id, branch, and ref are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -138,6 +150,10 @@ async def delete_branch(
     if ctx:
         await ctx.info(
             f"Deleting {'merged branches' if delete_merged_branches else f'branch {branch}'} in project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -193,6 +209,10 @@ def get_commits(
     """Get commits in a GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -239,6 +259,10 @@ def create_commit(
     """Create a new commit in a GitLab project."""
     if not project_id or not branch or not commit_message or not actions:
         raise ValueError("project_id, branch, commit_message, and actions are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -278,6 +302,10 @@ async def get_commit_diff(
     if ctx:
         await ctx.info(
             f"Fetching diff for commit {commit_hash} in project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -322,6 +350,10 @@ def revert_commit(
     """
     if not project_id or not commit_hash or not branch:
         raise ValueError("project_id, commit_hash, and branch are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -364,6 +396,10 @@ async def get_commit_comments(
     if ctx:
         await ctx.info(
             f"Fetching comments for commit {commit_hash} in project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -417,6 +453,10 @@ async def create_commit_comment(
         await ctx.info(
             f"Creating comment on commit {commit_hash} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -460,6 +500,10 @@ async def get_commit_discussions(
     if ctx:
         await ctx.info(
             f"Fetching discussions for commit {commit_hash} in project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -515,6 +559,10 @@ async def get_commit_statuses(
     if ctx:
         await ctx.info(
             f"Fetching statuses for commit {commit_hash} in project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -580,6 +628,10 @@ async def post_build_status_to_commit(
         await ctx.info(
             f"Posting build status for commit {commit_hash} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -624,6 +676,10 @@ async def get_commit_merge_requests(
         await ctx.info(
             f"Fetching merge requests for commit {commit_hash} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -666,6 +722,10 @@ async def get_commit_gpg_signature(
         await ctx.info(
             f"Fetching GPG signature for commit {commit_hash} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -700,6 +760,10 @@ def get_deploy_tokens(
     ),
 ) -> List:
     """Retrieve a list of all deploy tokens for the GitLab instance."""
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_deploy_tokens()
     if "error" in response.data:
@@ -729,6 +793,10 @@ def get_project_deploy_tokens(
     """Retrieve a list of deploy tokens for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     if token_id:
         response = client.get_project_deploy_token(
@@ -778,6 +846,10 @@ async def create_project_deploy_token(
         raise ValueError("project_id, name, and scopes are required")
     if ctx:
         await ctx.info(f"Creating deploy token '{name}' for project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -820,6 +892,10 @@ async def delete_project_deploy_token(
         raise ValueError("project_id and token_id are required")
     if ctx:
         await ctx.info(f"Deleting deploy token {token_id} for project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_project_deploy_token(project_id=project_id, token=token_id)
     if "error" in response.data:
@@ -853,6 +929,10 @@ def get_group_deploy_tokens(
     """Retrieve deploy tokens for a GitLab group (list or single by ID)."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     if token_id:
         response = client.get_group_deploy_token(group_id=group_id, token=token_id)
@@ -900,6 +980,10 @@ async def create_group_deploy_token(
         raise ValueError("group_id, name, and scopes are required")
     if ctx:
         await ctx.info(f"Creating deploy token '{name}' for group {group_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -942,6 +1026,10 @@ async def delete_group_deploy_token(
         raise ValueError("group_id and token_id are required")
     if ctx:
         await ctx.info(f"Deleting deploy token {token_id} for group {group_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_group_deploy_token(group_id=group_id, token=token_id)
     if "error" in response.data:
@@ -984,6 +1072,10 @@ def get_environments(
     """Retrieve a list of environments for a GitLab project, optionally filtered by name, search, or states or a single environment by id."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1032,6 +1124,10 @@ async def create_environment(
         raise ValueError("project_id and name are required")
     if ctx:
         await ctx.info(f"Creating environment '{name}' for project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1090,6 +1186,10 @@ async def update_environment(
         raise ValueError("At least one of name or external_url must be provided")
     if ctx:
         await ctx.info(f"Updating environment {environment_id} in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1143,6 +1243,10 @@ async def delete_environment(
         raise ValueError("project_id and environment_id are required")
     if ctx:
         await ctx.info(f"Deleting environment {environment_id} in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_environment(
         project_id=project_id, environment_id=environment_id
@@ -1181,6 +1285,10 @@ async def stop_environment(
         raise ValueError("project_id and environment_id are required")
     if ctx:
         await ctx.info(f"Stopping environment {environment_id} in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.stop_environment(
         project_id=project_id, environment_id=environment_id
@@ -1222,6 +1330,10 @@ async def stop_stale_environments(
         raise ValueError("project_id is required")
     if ctx:
         await ctx.info(f"Stopping stale environments in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1271,6 +1383,10 @@ async def delete_stopped_environments(
         raise ValueError("project_id is required")
     if ctx:
         await ctx.info(f"Deleting stopped review apps in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_stopped_environments(project_id=project_id)
     if "error" in response.data:
@@ -1302,6 +1418,10 @@ def get_protected_environments(
     """Retrieve protected environments in a GitLab project (list or single by name)."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     if name:
         response = client.get_protected_environment(project_id=project_id, name=name)
@@ -1342,6 +1462,10 @@ async def protect_environment(
         raise ValueError("project_id and name are required")
     if ctx:
         await ctx.info(f"Protecting environment '{name}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1399,6 +1523,10 @@ async def update_protected_environment(
         await ctx.info(
             f"Updating protected environment '{name}' in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1449,6 +1577,10 @@ async def unprotect_environment(
         raise ValueError("project_id and name are required")
     if ctx:
         await ctx.info(f"Unprotecting environment '{name}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.unprotect_environment(project_id=project_id, name=name)
     if "error" in response.data:
@@ -1495,6 +1627,10 @@ def get_groups(
     ),
 ) -> Union[List, Dict]:
     """Retrieve a list of groups, optionally filtered by search, sort, ownership, or access level or retrieve a single group by id."""
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1547,6 +1683,10 @@ async def edit_group(
         )
     if ctx:
         await ctx.info(f"Editing group {group_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1601,6 +1741,10 @@ def get_group_subgroups(
     """Retrieve a list of subgroups for a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1647,6 +1791,10 @@ def get_group_descendant_groups(
     """Retrieve a list of all descendant groups for a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1691,6 +1839,10 @@ def get_group_projects(
     """Retrieve a list of projects associated with a specific GitLab group, optionally including subgroups."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1738,6 +1890,10 @@ def get_group_merge_requests(
     """Retrieve a list of merge requests associated with a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1781,6 +1937,10 @@ def get_project_jobs(
     """Retrieve a list of jobs for a specific GitLab project, optionally filtered by scope or a single job by id."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -1817,6 +1977,10 @@ def get_project_job_log(
     """Retrieve the log (trace) of a specific job in a GitLab project."""
     if not project_id or not job_id:
         raise ValueError("project_id and job_id are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_project_job_log(project_id=project_id, job_id=job_id)
     if "error" in response.data:
@@ -1849,6 +2013,10 @@ async def cancel_project_job(
         raise ValueError("project_id and job_id are required")
     if ctx:
         await ctx.info(f"Cancelling job {job_id} in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.cancel_project_job(project_id=project_id, job_id=job_id)
     if "error" in response.data:
@@ -1883,6 +2051,10 @@ async def retry_project_job(
         raise ValueError("project_id and job_id are required")
     if ctx:
         await ctx.info(f"Retrying job {job_id} in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.retry_project_job(project_id=project_id, job_id=job_id)
     if "error" in response.data:
@@ -1917,6 +2089,10 @@ async def erase_project_job(
         raise ValueError("project_id and job_id are required")
     if ctx:
         await ctx.info(f"Erasing job {job_id} in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.erase_project_job(project_id=project_id, job_id=job_id)
     if "error" in response.data:
@@ -1951,6 +2127,10 @@ async def run_project_job(
         raise ValueError("project_id and job_id are required")
     if ctx:
         await ctx.info(f"Running job {job_id} in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.run_project_job(project_id=project_id, job_id=job_id)
     if "error" in response.data:
@@ -1983,6 +2163,10 @@ def get_pipeline_jobs(
     """Retrieve a list of jobs for a specific pipeline in a GitLab project, optionally filtered by scope."""
     if not project_id or not pipeline_id:
         raise ValueError("project_id and pipeline_id are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2038,6 +2222,10 @@ def get_group_members(
     """Retrieve a list of members in a specific GitLab group, optionally filtered by query or user IDs."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2079,6 +2267,10 @@ def get_project_members(
     """Retrieve a list of members in a specific GitLab project, optionally filtered by query or user IDs."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2141,6 +2333,10 @@ async def create_merge_request(
         )
     if ctx:
         await ctx.info(f"Creating merge request '{title}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2202,6 +2398,10 @@ def get_merge_requests(
     ),
 ) -> List:
     """Retrieve a list of merge requests across all projects, optionally filtered by state, scope, or labels."""
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2251,6 +2451,10 @@ def get_project_merge_requests(
     """Retrieve a list of merge requests for a specific GitLab project, optionally filtered or a single merge request or a single merge request by merge id"""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2292,6 +2496,10 @@ def get_project_level_merge_request_approval_rules(
     """Retrieve project-level merge request approval rules for a GitLab project details of a specific project-level merge request approval rule."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     if approval_rule_id:
         response = client.get_project_level_rule(
@@ -2343,6 +2551,10 @@ async def create_project_level_rule(
         raise ValueError("project_id and name are required")
     if ctx:
         await ctx.info(f"Creating approval rule '{name}' for project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2411,6 +2623,10 @@ async def update_project_level_rule(
         await ctx.info(
             f"Updating approval rule {approval_rule_id} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2466,6 +2682,10 @@ async def delete_project_level_rule(
         await ctx.info(
             f"Deleting approval rule {approval_rule_id} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_project_level_rule(
         project_id=project_id, approval_rule_id=approval_rule_id
@@ -2500,6 +2720,10 @@ def merge_request_level_approvals(
     """Retrieve approvals for a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.merge_request_level_approvals(
         project_id=project_id, merge_request_iid=merge_request_iid
@@ -2531,6 +2755,10 @@ def get_approval_state_merge_requests(
     """Retrieve the approval state of a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_approval_state_merge_requests(
         project_id=project_id, merge_request_iid=merge_request_iid
@@ -2562,6 +2790,10 @@ def get_merge_request_level_rules(
     """Retrieve merge request-level approval rules for a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_merge_request_level_rules(
         project_id=project_id, merge_request_iid=merge_request_iid
@@ -2599,6 +2831,10 @@ async def approve_merge_request(
     if ctx:
         await ctx.info(
             f"Approving merge request {merge_request_iid} in project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.approve_merge_request(
@@ -2640,6 +2876,10 @@ async def unapprove_merge_request(
         await ctx.info(
             f"Unapproving merge request {merge_request_iid} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.unapprove_merge_request(
         project_id=project_id, merge_request_iid=merge_request_iid
@@ -2672,6 +2912,10 @@ def get_group_level_rule(
     """Retrieve merge request approval settings for a specific GitLab group."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_group_level_rule(group_id=group_id)
     if "error" in response.data:
@@ -2728,6 +2972,10 @@ async def edit_group_level_rule(
         )
     if ctx:
         await ctx.info(f"Editing approval settings for group {group_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2772,6 +3020,10 @@ def get_project_level_rule(
     """Retrieve merge request approval settings for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_project_level_rule(project_id=project_id)
     if "error" in response.data:
@@ -2828,6 +3080,10 @@ async def edit_project_level_rule(
         )
     if ctx:
         await ctx.info(f"Editing approval settings for project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2874,6 +3130,10 @@ def get_repository_packages(
     """Retrieve a list of repository packages for a specific GitLab project, optionally filtered by package type."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -2921,6 +3181,10 @@ async def publish_repository_package(
     if ctx:
         await ctx.info(
             f"Publishing package {package_name}/{package_version} to project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -2970,6 +3234,10 @@ def download_repository_package(
     if not project_id or not package_name or not package_version or not file_name:
         raise ValueError(
             "project_id, package_name, package_version, and file_name are required"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.download_repository_package(
@@ -3030,6 +3298,10 @@ def get_pipelines(
     """Retrieve a list of pipelines for a specific GitLab project, optionally filtered by scope, status, or ref or details of a specific pipeline in a GitLab project.."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -3080,6 +3352,10 @@ async def run_pipeline(
         raise ValueError("project_id and ref are required")
     if ctx:
         await ctx.info(f"Running pipeline for project {project_id} on ref {ref}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -3118,6 +3394,10 @@ def get_pipeline_schedules(
     """Retrieve a list of pipeline schedules for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_pipeline_schedules(project_id=project_id)
     if "error" in response.data:
@@ -3148,6 +3428,10 @@ def get_pipeline_schedule(
     """Retrieve details of a specific pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_pipeline_schedule(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
@@ -3180,6 +3464,10 @@ def get_pipelines_triggered_from_schedule(
     """Retrieve pipelines triggered by a specific pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_pipelines_triggered_from_schedule(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
@@ -3233,6 +3521,10 @@ async def create_pipeline_schedule(
     if ctx:
         await ctx.info(
             f"Creating pipeline schedule '{description or 'no description'}' for project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -3306,6 +3598,10 @@ async def edit_pipeline_schedule(
         await ctx.info(
             f"Editing pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -3359,6 +3655,10 @@ async def take_pipeline_schedule_ownership(
         await ctx.info(
             f"Taking ownership of pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.take_pipeline_schedule_ownership(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
@@ -3400,6 +3700,10 @@ async def delete_pipeline_schedule(
         await ctx.info(
             f"Deleting pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_pipeline_schedule(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
@@ -3440,6 +3744,10 @@ async def run_pipeline_schedule(
     if ctx:
         await ctx.info(
             f"Running pipeline schedule {pipeline_schedule_id} in project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.run_pipeline_schedule(
@@ -3488,6 +3796,10 @@ async def create_pipeline_schedule_variable(
     if ctx:
         await ctx.info(
             f"Creating variable '{key}' for pipeline schedule {pipeline_schedule_id} in project {project_id}"
+        )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
@@ -3541,6 +3853,10 @@ async def delete_pipeline_schedule_variable(
         await ctx.info(
             f"Deleting variable '{key}' from pipeline schedule {pipeline_schedule_id} in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_pipeline_schedule_variable(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id, key=key
@@ -3583,7 +3899,12 @@ def get_projects(
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
 ) -> Union[List, Dict]:
-    """Retrieve a list of projects, optionally filtered by ownership, search, sort, or visibility or Retrieve details of a specific GitLab project.."""
+    """Retrieve a list of projects, optionally filtered by ownership, search, sort, or visibility or Retrieve details of a specific GitLab project."""
+
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -3611,9 +3932,6 @@ def get_nested_projects_by_group(
         default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
     ),
     group_id: str = Field(description="Group ID or path", default=None),
-    per_page: Optional[int] = Field(
-        description="Number of projects per page", default=None
-    ),
     verify: Optional[bool] = Field(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
@@ -3622,6 +3940,10 @@ def get_nested_projects_by_group(
     """Retrieve a list of nested projects within a GitLab group, including descendant groups."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_nested_projects_by_group(group_id=group_id)
     if "error" in response.data:
@@ -3648,6 +3970,10 @@ def get_project_contributors(
     """Retrieve a list of contributors to a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_project_contributors(project_id=project_id)
     if "error" in response.data:
@@ -3674,6 +4000,10 @@ def get_project_statistics(
     """Retrieve statistics for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_project_statistics(project_id=project_id)
     if "error" in response.data:
@@ -3717,6 +4047,10 @@ async def edit_project(
         )
     if ctx:
         await ctx.info(f"Editing project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -3765,6 +4099,10 @@ def get_project_groups(
     """Retrieve a list of groups associated with a specific GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -3803,6 +4141,10 @@ async def archive_project(
         raise ValueError("project_id is required")
     if ctx:
         await ctx.info(f"Archiving project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.archive_project(project_id=project_id)
     if "error" in response.data:
@@ -3836,6 +4178,10 @@ async def unarchive_project(
         raise ValueError("project_id is required")
     if ctx:
         await ctx.info(f"Unarchiving project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.unarchive_project(project_id=project_id)
     if "error" in response.data:
@@ -3869,6 +4215,10 @@ async def delete_project(
         raise ValueError("project_id is required")
     if ctx:
         await ctx.info(f"Deleting project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_project(project_id=project_id)
     if "error" in response.data:
@@ -3910,6 +4260,10 @@ async def share_project(
         raise ValueError("project_id, group_id, and group_access are required")
     if ctx:
         await ctx.info(f"Sharing project {project_id} with group {group_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -3959,6 +4313,10 @@ def get_protected_branches(
     """Retrieve a list of protected branches in a specific GitLab project or Retrieve details of a specific protected branch in a GitLab project.."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     if branch:
         response = client.get_protected_branch(project_id=project_id, branch=branch)
@@ -4036,6 +4394,10 @@ async def protect_branch(
         raise ValueError("At least one protection parameter must be provided")
     if ctx:
         await ctx.info(f"Protecting branch '{branch}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4089,6 +4451,10 @@ async def unprotect_branch(
         raise ValueError("project_id and branch are required")
     if ctx:
         await ctx.info(f"Unprotecting branch '{branch}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.unprotect_branch(project_id=project_id, branch=branch)
     if "error" in response.data:
@@ -4136,6 +4502,10 @@ async def require_code_owner_approvals_single_branch(
         await ctx.info(
             f"Setting code owner approval requirement for branch '{branch}' in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.require_code_owner_approvals_single_branch(
         project_id=project_id,
@@ -4178,6 +4548,10 @@ def get_releases(
     """Retrieve a list of releases for a specific GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4211,6 +4585,10 @@ def get_latest_release(
     """Retrieve details of the latest release in a GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_latest_release(project_id=project_id)
     if "error" in response.data:
@@ -4237,6 +4615,10 @@ def get_latest_release_evidence(
     """Retrieve evidence for the latest release in a GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_latest_release_evidence(project_id=project_id)
     if "error" in response.data:
@@ -4266,6 +4648,10 @@ def get_latest_release_asset(
     """Retrieve a specific asset for the latest release in a GitLab project."""
     if not project_id or not direct_asset_path:
         raise ValueError("project_id and direct_asset_path are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_latest_release_asset(
         project_id=project_id, direct_asset_path=direct_asset_path
@@ -4303,6 +4689,10 @@ def get_group_releases(
     """Retrieve a list of releases for a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4341,6 +4731,10 @@ def download_release_asset(
     """Download a release asset from a group's release in GitLab."""
     if not group_id or not tag_name or not direct_asset_path:
         raise ValueError("group_id, tag_name, and direct_asset_path are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.download_release_asset(
         group_id=group_id, tag_name=tag_name, direct_asset_path=direct_asset_path
@@ -4372,6 +4766,10 @@ def get_release_by_tag(
     """Retrieve details of a release by its tag in a GitLab project."""
     if not project_id or not tag_name:
         raise ValueError("project_id and tag_name are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_release_by_tag(project_id=project_id, tag_name=tag_name)
     if "error" in response.data:
@@ -4417,6 +4815,10 @@ async def create_release(
         raise ValueError("project_id, name, and tag_name are required")
     if ctx:
         await ctx.info(f"Creating release '{name}' for project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4469,6 +4871,10 @@ async def create_release_evidence(
         await ctx.info(
             f"Creating release evidence for tag '{tag_name}' in project {project_id}"
         )
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.create_release_evidence(project_id=project_id, tag_name=tag_name)
     if "error" in response.data:
@@ -4519,6 +4925,10 @@ async def update_release(
         )
     if ctx:
         await ctx.info(f"Updating release for tag '{tag_name}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4570,6 +4980,10 @@ async def delete_release(
         raise ValueError("project_id and tag_name are required")
     if ctx:
         await ctx.info(f"Deleting release for tag '{tag_name}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_release(project_id=project_id, tag_name=tag_name)
     if "error" in response.data:
@@ -4611,6 +5025,10 @@ def get_runners(
     ),
 ) -> Union[List, Dict]:
     """Retrieve a list of runners in GitLab, optionally filtered by scope, type, status, or tags or Retrieve details of a specific GitLab runner.."""
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4684,6 +5102,10 @@ async def update_runner_details(
         raise ValueError("At least one update parameter must be provided")
     if ctx:
         await ctx.info(f"Updating runner {runner_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4737,6 +5159,10 @@ async def pause_runner(
         raise ValueError("runner_id and active are required")
     if ctx:
         await ctx.info(f"Setting runner {runner_id} active status to {active}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.pause_runner(runner_id=runner_id, active=active)
     if "error" in response.data:
@@ -4773,6 +5199,10 @@ def get_runner_jobs(
     """Retrieve jobs for a specific GitLab runner, optionally filtered by status or sorted."""
     if not runner_id:
         raise ValueError("runner_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4809,6 +5239,10 @@ def get_project_runners(
     """Retrieve a list of runners in a specific GitLab project, optionally filtered by scope."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4848,6 +5282,10 @@ async def enable_project_runner(
         raise ValueError("project_id and runner_id are required")
     if ctx:
         await ctx.info(f"Enabling runner {runner_id} for project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.enable_project_runner(project_id=project_id, runner_id=runner_id)
     if "error" in response.data:
@@ -4882,6 +5320,10 @@ async def delete_project_runner(
         raise ValueError("project_id and runner_id are required")
     if ctx:
         await ctx.info(f"Deleting runner {runner_id} from project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_project_runner(project_id=project_id, runner_id=runner_id)
     if "error" in response.data:
@@ -4913,6 +5355,10 @@ def get_group_runners(
     """Retrieve a list of runners in a specific GitLab group, optionally filtered by scope."""
     if not group_id:
         raise ValueError("group_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -4962,6 +5408,10 @@ async def register_new_runner(
         raise ValueError("token is required")
     if ctx:
         await ctx.info("Registering new runner with token")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -5006,6 +5456,10 @@ async def delete_runner(
         raise ValueError("Either runner_id or token is required")
     if ctx:
         await ctx.info(f"Deleting runner with ID {runner_id or 'token'}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -5045,6 +5499,10 @@ async def verify_runner_authentication(
         raise ValueError("token is required")
     if ctx:
         await ctx.info("Verifying runner authentication")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.verify_runner_authentication(token=token)
     if "error" in response.data:
@@ -5075,6 +5533,10 @@ async def reset_gitlab_runner_token(
     """Reset the GitLab runner registration token."""
     if ctx:
         await ctx.info("Resetting GitLab runner registration token")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.reset_gitlab_runner_token()
     if "error" in response.data:
@@ -5108,6 +5570,10 @@ async def reset_project_runner_token(
         raise ValueError("project_id is required")
     if ctx:
         await ctx.info(f"Resetting runner token for project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.reset_project_runner_token(project_id=project_id)
     if "error" in response.data:
@@ -5141,6 +5607,10 @@ async def reset_group_runner_token(
         raise ValueError("group_id is required")
     if ctx:
         await ctx.info(f"Resetting runner token for group {group_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.reset_group_runner_token(group_id=group_id)
     if "error" in response.data:
@@ -5177,6 +5647,10 @@ async def reset_token(
         raise ValueError("runner_id and token are required")
     if ctx:
         await ctx.info(f"Resetting authentication token for runner {runner_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.reset_token(runner_id=runner_id, token=token)
     if "error" in response.data:
@@ -5215,6 +5689,10 @@ def get_tags(
     """Retrieve a list of tags for a specific GitLab project, optionally filtered or sorted or Retrieve details of a specific tag in a GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -5266,6 +5744,10 @@ async def create_tag(
         raise ValueError("project_id, name, and ref are required")
     if ctx:
         await ctx.info(f"Creating tag '{name}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -5316,6 +5798,10 @@ async def delete_tag(
         raise ValueError("project_id and name are required")
     if ctx:
         await ctx.info(f"Deleting tag '{name}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_tag(project_id=project_id, name=name)
     if "error" in response.data:
@@ -5345,6 +5831,10 @@ def get_protected_tags(
     """Retrieve a list of protected tags in a specific GitLab project, optionally filtered by name."""
     if not project_id:
         raise ValueError("project_id is required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -5382,6 +5872,10 @@ def get_protected_tag(
     """Retrieve details of a specific protected tag in a GitLab project."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_protected_tag(project_id=project_id, name=name)
     if "error" in response.data:
@@ -5427,6 +5921,10 @@ async def protect_tag(
         )
     if ctx:
         await ctx.info(f"Protecting tag '{name}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     kwargs = {
         k: v
@@ -5477,6 +5975,10 @@ async def unprotect_tag(
         raise ValueError("project_id and name are required")
     if ctx:
         await ctx.info(f"Unprotecting tag '{name}' in project {project_id}")
+    if not access_token:
+        raise RuntimeError(
+            f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+        )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.unprotect_tag(project_id=project_id, name=name)
     if "error" in response.data:
