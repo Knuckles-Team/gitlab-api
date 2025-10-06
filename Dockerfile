@@ -8,6 +8,6 @@ ENV PORT=${PORT}
 ENV TRANSPORT=${TRANSPORT}
 ENV PATH="/usr/local/bin:${PATH}"
 RUN pip install --root-user-action uv \
-    && uv pip install --system gitlab-api>=25.9.10
+    && uv pip install --system --upgrade gitlab-api>=25.9.11
 
 ENTRYPOINT exec gitlab-mcp --transport "${TRANSPORT}" --host "${HOST}" --port "${PORT}"
