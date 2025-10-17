@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.10.0*
+*Version: 25.10.1*
 
 Pythonic GitLab API Library
 
@@ -77,9 +77,48 @@ If your API call isn't supported, you can always run the standard custom API end
 <details>
   <summary><b>Usage:</b></summary>
 
-### Using as an MCP Server:
+### MCP CLI
 
-The GitLab MCP server can be configured via CLI arguments to support various transport methods (`stdio`, `http`, `sse`) and authentication options (`none`, `static`, `jwt`, `oauth-proxy`, `oidc-proxy`, `remote-oauth`). Eunomia authorization is also supported (`none`, `embedded`, `remote`).
+| Short Flag | Long Flag                          | Description                                                                 |
+|------------|------------------------------------|-----------------------------------------------------------------------------|
+| -h         | --help                             | Display help information                                                    |
+| -t         | --transport                        | Transport method: 'stdio', 'http', or 'sse' [legacy] (default: stdio)       |
+| -s         | --host                             | Host address for HTTP transport (default: 0.0.0.0)                          |
+| -p         | --port                             | Port number for HTTP transport (default: 8000)                              |
+|            | --auth-type                        | Authentication type: 'none', 'static', 'jwt', 'oauth-proxy', 'oidc-proxy', 'remote-oauth' (default: none) |
+|            | --token-jwks-uri                   | JWKS URI for JWT verification                                              |
+|            | --token-issuer                     | Issuer for JWT verification                                                |
+|            | --token-audience                   | Audience for JWT verification                                              |
+|            | --oauth-upstream-auth-endpoint     | Upstream authorization endpoint for OAuth Proxy                             |
+|            | --oauth-upstream-token-endpoint    | Upstream token endpoint for OAuth Proxy                                    |
+|            | --oauth-upstream-client-id         | Upstream client ID for OAuth Proxy                                         |
+|            | --oauth-upstream-client-secret     | Upstream client secret for OAuth Proxy                                     |
+|            | --oauth-base-url                   | Base URL for OAuth Proxy                                                   |
+|            | --oidc-config-url                  | OIDC configuration URL                                                     |
+|            | --oidc-client-id                   | OIDC client ID                                                             |
+|            | --oidc-client-secret               | OIDC client secret                                                         |
+|            | --oidc-base-url                    | Base URL for OIDC Proxy                                                    |
+|            | --remote-auth-servers              | Comma-separated list of authorization servers for Remote OAuth             |
+|            | --remote-base-url                  | Base URL for Remote OAuth                                                  |
+|            | --allowed-client-redirect-uris     | Comma-separated list of allowed client redirect URIs                       |
+|            | --eunomia-type                     | Eunomia authorization type: 'none', 'embedded', 'remote' (default: none)   |
+|            | --eunomia-policy-file              | Policy file for embedded Eunomia (default: mcp_policies.json)              |
+|            | --eunomia-remote-url               | URL for remote Eunomia server                                              |
+
+
+### Using as an MCP Server
+
+The MCP Server can be run in two modes: `stdio` (for local testing) or `http` (for networked access). To start the server, use the following commands:
+
+#### Run in stdio mode (default):
+```bash
+gitlab-mcp
+```
+
+#### Run in HTTP mode:
+```bash
+gitlab-mcp --transport http --host 0.0.0.0 --port 8012
+```
 
 #### CLI Configuration
 Run the MCP server with custom options:
@@ -397,9 +436,95 @@ print(result.data)
 - Some features (e.g., deploy tokens, wiki attachments) are not supported in GitLab's GraphQL API and require the REST API.
 - See the [GitLab GraphQL API documentation](https://docs.gitlab.com/ee/api/graphql/) for available queries and mutations.
 
-### Use with AI
+### Deploy MCP Server as a Service
 
-Configure `mcp.json`
+The MCP server can be deployed using Docker, with configurable authentication, middleware, and Eunomia authorization.
+
+#### Using Docker Run
+
+```bash
+docker pull knucklessg1/gitlab:latest
+
+docker run -d \
+  --name gitlab-mcp \
+  -p 8004:8004 \
+  -e HOST=0.0.0.0 \
+  -e PORT=8004 \
+  -e TRANSPORT=http \
+  -e AUTH_TYPE=none \
+  -e EUNOMIA_TYPE=none \
+  knucklessg1/gitlab:latest
+```
+
+For advanced authentication (e.g., JWT, OAuth Proxy, OIDC Proxy, Remote OAuth) or Eunomia, add the relevant environment variables:
+
+```bash
+docker run -d \
+  --name gitlab-mcp \
+  -p 8004:8004 \
+  -e HOST=0.0.0.0 \
+  -e PORT=8004 \
+  -e TRANSPORT=http \
+  -e AUTH_TYPE=oidc-proxy \
+  -e OIDC_CONFIG_URL=https://provider.com/.well-known/openid-configuration \
+  -e OIDC_CLIENT_ID=your-client-id \
+  -e OIDC_CLIENT_SECRET=your-client-secret \
+  -e OIDC_BASE_URL=https://your-server.com \
+  -e ALLOWED_CLIENT_REDIRECT_URIS=http://localhost:*,https://*.example.com/* \
+  -e EUNOMIA_TYPE=embedded \
+  -e EUNOMIA_POLICY_FILE=/app/mcp_policies.json \
+  knucklessg1/gitlab:latest
+```
+
+#### Using Docker Compose
+
+Create a `docker-compose.yml` file:
+
+```yaml
+services:
+  gitlab-mcp:
+    image: knucklessg1/gitlab:latest
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8004
+      - TRANSPORT=http
+      - AUTH_TYPE=none
+      - EUNOMIA_TYPE=none
+    ports:
+      - 8004:8004
+```
+
+For advanced setups with authentication and Eunomia:
+
+```yaml
+services:
+  gitlab-mcp:
+    image: knucklessg1/gitlab:latest
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8004
+      - TRANSPORT=http
+      - AUTH_TYPE=oidc-proxy
+      - OIDC_CONFIG_URL=https://provider.com/.well-known/openid-configuration
+      - OIDC_CLIENT_ID=your-client-id
+      - OIDC_CLIENT_SECRET=your-client-secret
+      - OIDC_BASE_URL=https://your-server.com
+      - ALLOWED_CLIENT_REDIRECT_URIS=http://localhost:*,https://*.example.com/*
+      - EUNOMIA_TYPE=embedded
+      - EUNOMIA_POLICY_FILE=/app/mcp_policies.json
+    ports:
+      - 8004:8004
+    volumes:
+      - ./mcp_policies.json:/app/mcp_policies.json
+```
+
+Run the service:
+
+```bash
+docker-compose up -d
+```
+
+#### Configure `mcp.json` for AI Integration
 
 Recommended: Store secrets in environment variables with lookup in JSON file.
 
@@ -445,56 +570,6 @@ For Testing Only: Plain text storage will also work, although **not** recommende
 }
 ```
 
-### Deploy MCP Server as a Container
-
-#### Using `docker run`
-Pull the latest GitLab MCP image and run it with custom configuration:
-
-```bash
-docker pull knucklessg1/gitlab:latest
-
-docker run -d \
-  --name gitlab-mcp \
-  -p 8002:8002 \
-  -e HOST=0.0.0.0 \
-  -e PORT=8002 \
-  -e TRANSPORT=http \
-  -e AUTH_TYPE=jwt \
-  -e TOKEN_JWKS_URI=https://example.com/.well-known/jwks.json \
-  -e TOKEN_ISSUER=https://example.com \
-  -e TOKEN_AUDIENCE=gitlab-mcp \
-  -e EUNOMIA_TYPE=embedded \
-  -e EUNOMIA_POLICY_FILE=mcp_policies.json \
-  knucklessg1/gitlab:latest
-```
-
-#### Using `docker-compose`
-Create or modify a `docker-compose.yml` file:
-
-```yaml
-services:
-  gitlab-mcp:
-    image: knucklessg1/gitlab:latest
-    environment:
-      - HOST=0.0.0.0
-      - PORT=8002
-      - TRANSPORT=http
-      - AUTH_TYPE=jwt
-      - TOKEN_JWKS_URI=https://example.com/.well-known/jwks.json
-      - TOKEN_ISSUER=https://example.com
-      - TOKEN_AUDIENCE=gitlab-mcp
-      - EUNOMIA_TYPE=embedded
-      - EUNOMIA_POLICY_FILE=mcp_policies.json
-    ports:
-      - 8002:8002
-```
-
-Run the container:
-
-```bash
-docker-compose up -d
-```
-
 </details>
 
 <details>
@@ -502,8 +577,9 @@ docker-compose up -d
 
 ### Install Python Package
 
+Install Python Package
 ```bash
-python -m pip install gitlab-api
+python -m pip install --upgrade gitlab-api
 ```
 
 or

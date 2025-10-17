@@ -1,7 +1,7 @@
 FROM python:3-slim
 
 ARG HOST=0.0.0.0
-ARG PORT=8002
+ARG PORT=8000
 ARG TRANSPORT="http"
 ARG AUTH_TYPE="none"
 ARG TOKEN_JWKS_URI=""
@@ -46,8 +46,9 @@ ENV EUNOMIA_TYPE=${EUNOMIA_TYPE}
 ENV EUNOMIA_POLICY_FILE=${EUNOMIA_POLICY_FILE}
 ENV EUNOMIA_REMOTE_URL=${EUNOMIA_REMOTE_URL}
 ENV PATH="/usr/local/bin:${PATH}"
+
 RUN pip install uv \
-    && uv pip install --system --upgrade gitlab-api>=25.10.0
+    && uv pip install --system --upgrade gitlab-api>=25.10.1
 
 ENTRYPOINT exec gitlab-mcp \
     --transport "${TRANSPORT}" \
