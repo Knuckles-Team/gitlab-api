@@ -13,6 +13,7 @@ MODULES = [
     "gitlab_api.gitlab_response_models",
     "gitlab_api.gitlab_db_models",
     "gitlab_api.gitlab_api",
+    "gitlab_api.gitlab_gql",
     "gitlab_api.utils",
 ]
 

@@ -361,6 +361,102 @@ class CommitModel(BaseModel):
         return values
 
 
+class TagModel(BaseModel):
+    project_id: Union[int, str] = Field(..., description="Project ID or full path")
+    tag: Optional[str] = Field(None, description="Name of the tag")
+    ref: Optional[str] = Field(
+        None,
+        description="Reference (branch, tag, or commit SHA) to create the tag from",
+    )
+    message: Optional[str] = Field(None, description="Tag message")
+
+    @field_validator("project_id")
+    def validate_project_id(cls, v):
+        if not v:
+            raise ValueError("Project ID or path cannot be empty")
+        return str(v)
+
+    @field_validator("tag")
+    def validate_tag(cls, v):
+        if v and not v.strip():
+            raise ValueError("Tag name cannot be empty or whitespace")
+        return v
+
+    @field_validator("ref")
+    def validate_ref(cls, v):
+        if v and not v.strip():
+            raise ValueError("Ref cannot be empty or whitespace")
+        return v
+
+
+class PipelineScheduleModel(BaseModel):
+    project_id: Union[int, str] = Field(..., description="Project ID or full path")
+    description: Optional[str] = Field(
+        None, description="Description of the pipeline schedule"
+    )
+    ref: Optional[str] = Field(None, description="Branch or tag to run the pipeline on")
+    cron: Optional[str] = Field(None, description="Cron expression for the schedule")
+    cron_timezone: Optional[str] = Field(
+        None, description="Timezone for the cron expression"
+    )
+    active: Optional[bool] = Field(True, description="Whether the schedule is active")
+
+    @field_validator("project_id")
+    def validate_project_id(cls, v):
+        if not v:
+            raise ValueError("Project ID or path cannot be empty")
+        return str(v)
+
+    @field_validator("ref")
+    def validate_ref(cls, v):
+        if v and not v.strip():
+            raise ValueError("Ref cannot be empty or whitespace")
+        return v
+
+    @field_validator("cron")
+    def validate_cron(cls, v):
+        if v and not v.strip():
+            raise ValueError("Cron expression cannot be empty or whitespace")
+        return v
+
+
+class IssueModel(BaseModel):
+    project_id: Union[int, str] = Field(..., description="Project ID or full path")
+    title: Optional[str] = Field(None, description="Title of the issue")
+    description: Optional[str] = Field(None, description="Description of the issue")
+    labels: Optional[List[str]] = Field(
+        None, description="List of labels for the issue"
+    )
+    state: Optional[str] = Field(
+        None, description="State of the issue (e.g., 'opened', 'closed')"
+    )
+    issue_iid: Optional[int] = Field(None, description="Internal ID of the issue")
+
+    @field_validator("project_id")
+    def validate_project_id(cls, v):
+        if not v:
+            raise ValueError("Project ID or path cannot be empty")
+        return str(v)
+
+    @field_validator("title")
+    def validate_title(cls, v):
+        if v and not v.strip():
+            raise ValueError("Issue title cannot be empty or whitespace")
+        return v
+
+    @field_validator("state")
+    def validate_state(cls, v):
+        if v and v not in ["opened", "closed"]:
+            raise ValueError("State must be 'opened' or 'closed'")
+        return v
+
+    @field_validator("issue_iid")
+    def validate_issue_iid(cls, v):
+        if v is not None and v <= 0:
+            raise ValueError("Issue IID must be a positive integer")
+        return v
+
+
 class DeployTokenModel(BaseModel):
     """
     Pydantic model representing a deploy token.

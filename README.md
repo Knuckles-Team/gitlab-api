@@ -63,6 +63,17 @@ Additional Features:
 
 If your API call isn't supported, you can always run the standard custom API endpoint function to get/post/put/delete and endpoint
 
+### Experimental - GraphQL:
+- Branches
+- Groups
+- Jobs
+- Merge Request
+- Pipeline
+- Branches
+- Users
+- Wiki
+- Projects
+
 <details>
   <summary><b>Usage:</b></summary>
 
@@ -354,6 +365,37 @@ if __name__ == "__main__":
     session.close()
     print("Session Closed")
 ```
+
+### Experimental GraphQL Support
+
+The `gitlab_gql.py` module provides a GraphQL interface to interact with GitLab's GraphQL API, offering parity with the REST API functionality in `gitlab_api.py`. It supports queries and mutations for managing projects, branches, tags, commits, merge requests, pipelines, jobs, packages, users, memberships, releases, issues, to-dos, environments, test reports, namespaces, groups, and wikis.
+
+### Key Features
+- **Generic Query Execution**: Use the `execute_gql` method to run custom GraphQL queries or mutations.
+- **Consistent Interface**: Leverages the same Pydantic models, exceptions, and response handling as the REST API wrapper.
+- **Pagination Support**: Handles cursor-based pagination with `first` and `after` parameters.
+- **Authentication**: Supports Bearer token authentication, SSL verification, and proxy configuration.
+
+### Usage Example
+```python
+from gitlab_api.gitlab_gql import GraphQL
+
+# Initialize the GraphQL client
+gql_api = GraphQL(url="https://gitlab.com", token="your_token")
+
+# Fetch a project
+result = gql_api.get_project(project_id="group/project")
+print(result.data)
+
+# Create a branch
+result = gql_api.create_branch(project_id="group/project", branch="new-branch", ref="main")
+print(result.data)
+```
+
+### Notes
+- Requires the `gitlab-api[gql]` package (`pip install gitlab-api[gql]`).
+- Some features (e.g., deploy tokens, wiki attachments) are not supported in GitLab's GraphQL API and require the REST API.
+- See the [GitLab GraphQL API documentation](https://docs.gitlab.com/ee/api/graphql/) for available queries and mutations.
 
 ### Use with AI
 

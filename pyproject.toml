@@ -25,6 +25,14 @@ dependencies = [
     "alembic>=1.14.1",
     "tenacity>=9.0.0",
     "fastmcp>=2.12.4",
+
+]
+[project.optional-dependencies]
+all = [
+    "gql>=4.0.0",
+]
+gql = [
+    "gql>=4.0.0",
 ]
 
 [project.scripts]
