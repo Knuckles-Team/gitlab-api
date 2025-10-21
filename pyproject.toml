@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "25.10.2"
+version = "25.10.3"
 description = "GitLab API Python Wrapper"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -25,6 +25,7 @@ dependencies = [
     "alembic>=1.14.1",
     "tenacity>=9.0.0",
     "fastmcp>=2.12.4",
+    "gql>=4.0.0",
 
 ]
 [project.optional-dependencies]
