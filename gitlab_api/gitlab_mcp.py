@@ -5996,7 +5996,7 @@ async def unprotect_tag(
     return response.data
 
 
-def gitlab_api_mcp() -> None:
+def gitlab_mcp() -> None:
     """Run the GitLab MCP server with specified transport and connection parameters.
 
     This function parses command-line arguments to configure and start the MCP server for GitLab API interactions.
@@ -6250,4 +6250,4 @@ def gitlab_api_mcp() -> None:
 
 
 if __name__ == "__main__":
-    gitlab_api_mcp()
+    gitlab_mcp()

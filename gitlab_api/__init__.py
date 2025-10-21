@@ -8,7 +8,7 @@ import inspect
 MODULES = [
     "gitlab_api.decorators",
     "gitlab_api.exceptions",
-    "gitlab_api.gitlab_api_mcp",
+    "gitlab_api.gitlab_mcp",
     "gitlab_api.gitlab_input_models",
     "gitlab_api.gitlab_response_models",
     "gitlab_api.gitlab_db_models",

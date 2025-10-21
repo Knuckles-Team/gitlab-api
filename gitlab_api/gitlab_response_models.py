@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
 
-import logging
 from typing import Union, List, Dict, Optional, Any
 from pydantic import (
     BaseModel,
@@ -114,7 +113,7 @@ class IssueStats(BaseModel):
     class Meta:
         orm_model = IssueStatsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="IssueStats")
     total: Optional[int] = Field(default=None, description="Total number of issues")
@@ -126,7 +125,7 @@ class Milestone(BaseModel):
     class Meta:
         orm_model = MilestoneDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Milestone")
     id: Optional[int] = Field(
@@ -172,7 +171,7 @@ class TimeStats(BaseModel):
     class Meta:
         orm_model = TimeStatsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="TimeStats")
     time_estimate: Optional[int] = Field(
@@ -195,7 +194,7 @@ class TaskCompletionStatus(BaseModel):
     class Meta:
         orm_model = TaskCompletionStatusDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="TaskCompletionStatus")
     count: Optional[int] = Field(
@@ -210,7 +209,7 @@ class References(BaseModel):
     class Meta:
         orm_model = ReferencesDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="References")
     short: Optional[str] = Field(
@@ -228,7 +227,7 @@ class Artifact(BaseModel):
     class Meta:
         orm_model = ArtifactDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Artifact")
     file_type: Optional[str] = Field(
@@ -247,7 +246,7 @@ class ArtifactsFile(BaseModel):
     class Meta:
         orm_model = ArtifactsFileDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="ArtifactsFile")
     filename: Optional[str] = Field(
@@ -260,7 +259,7 @@ class RunnerManager(BaseModel):
     class Meta:
         orm_model = RunnerManagerDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="RunnerManager")
     id: Optional[int] = Field(default=None, description="ID of the runner manager.")
@@ -298,7 +297,7 @@ class Configuration(BaseModel):
     class Meta:
         orm_model = ConfigurationDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Configuration")
     approvals_before_merge: Optional[int] = Field(
@@ -329,7 +328,7 @@ class Iteration(BaseModel):
     class Meta:
         orm_model = IterationDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Iteration")
     id: Optional[int] = Field(default=None)
@@ -350,7 +349,7 @@ class Identity(BaseModel):
     class Meta:
         orm_model = IdentityDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Identity")
     provider: Optional[str] = Field(default=None, description="The external provider.")
@@ -363,7 +362,7 @@ class GroupSamlIdentity(BaseModel):
     class Meta:
         orm_model = GroupSamlIdentityDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="GroupSamlIdentity")
     extern_uid: Optional[str] = Field(
@@ -381,7 +380,7 @@ class User(BaseModel):
     class Meta:
         orm_model = UserDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="User")
     id: Optional[int] = Field(default=None, description="The unique ID of the user.")
@@ -555,7 +554,7 @@ class Namespace(BaseModel):
     class Meta:
         orm_model = NamespaceDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Namespace")
     id: Optional[int] = Field(default=None, description="The ID of the namespace.")
@@ -599,7 +598,7 @@ class ContainerExpirationPolicy(BaseModel):
     class Meta:
         orm_model = ContainerExpirationPolicyDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="ContainerExpirationPolicy")
     cadence: Optional[str] = Field(
@@ -625,7 +624,7 @@ class Permissions(BaseModel):
     class Meta:
         orm_model = PermissionsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Permissions")
     project_access: Optional[Dict] = Field(
@@ -640,7 +639,7 @@ class Statistics(BaseModel):
     class Meta:
         orm_model = StatisticsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Statistics")
     commit_count: Optional[int] = Field(
@@ -677,7 +676,7 @@ class Diff(BaseModel):
     class Meta:
         orm_model = DiffDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Diff")
     id: Optional[int] = Field(default=None, description="The ID of the Diff")
@@ -734,7 +733,7 @@ class DetailedStatus(BaseModel):
     class Meta:
         orm_model = DetailedStatusDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="DetailedStatus")
     icon: Optional[str] = Field(
@@ -768,7 +767,7 @@ class PipelineSchedule(BaseModel):
     class Meta:
         orm_model = PipelineScheduleDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="PipelineSchedule")
     id: Optional[int] = Field(default=None, description="ID of the pipeline schedule")
@@ -809,7 +808,7 @@ class Pipeline(BaseModel):
     class Meta:
         orm_model = PipelineDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Pipeline")
     id: Optional[int] = Field(default=None, description="ID of the pipeline")
@@ -877,7 +876,7 @@ class PackageLink(BaseModel):
     class Meta:
         orm_model = PackageLinkDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="PackageLink")
     web_path: Optional[str] = Field(
@@ -892,7 +891,7 @@ class PackageVersion(BaseModel):
     class Meta:
         orm_model = PackageVersionDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="PackageVersion")
     id: Optional[int] = Field(default=None, description="Version ID of the package")
@@ -921,7 +920,7 @@ class Package(BaseModel):
     class Meta:
         orm_model = PackageDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Package")
     id: Optional[int] = Field(default=None, description="Package ID")
@@ -1000,7 +999,7 @@ class Contributor(BaseModel):
     class Meta:
         orm_model = ContributorDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Contributor")
     name: str = Field(default=None, description="The name of the contributor.")
@@ -1020,7 +1019,7 @@ class CommitStats(BaseModel):
     class Meta:
         orm_model = CommitStatsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="CommitStats")
     additions: Optional[int] = Field(
@@ -1038,7 +1037,7 @@ class CommitSignature(BaseModel):
     class Meta:
         orm_model = CommitSignatureDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="CommitSignature")
     signature_type: Optional[str] = Field(
@@ -1076,7 +1075,7 @@ class Comment(BaseModel):
     class Meta:
         orm_model = CommentDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Comment")
     id: Optional[int] = Field(default=None, description="ID of the note")
@@ -1123,7 +1122,7 @@ class ParentID(BaseModel):
     class Meta:
         orm_model = ParentIDDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="ParentID")
     parent_id: str = Field(default=None, description="Parent ID")
@@ -1133,7 +1132,7 @@ class Commit(BaseModel):
     class Meta:
         orm_model = CommitDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Commit")
     id: Optional[Union[str, int]] = Field(default=None, description="The commit ID.")
@@ -1252,7 +1251,7 @@ class Membership(BaseModel):
     class Meta:
         orm_model = MembershipDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Membership")
     id: Optional[int] = Field(default=None, description="ID of the membership")
@@ -1280,7 +1279,7 @@ class Deployable(BaseModel):
     class Meta:
         orm_model = DeployableDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     id: Optional[int] = Field(
         default=None, description="Unique identifier for the deployable"
@@ -1343,7 +1342,7 @@ class LastDeployment(BaseModel):
     class Meta:
         orm_model = LastDeploymentDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     id: Optional[int] = Field(
         default=None, description="Unique identifier for the last deployment"
@@ -1373,7 +1372,7 @@ class Environment(BaseModel):
     class Meta:
         orm_model = EnvironmentDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Environment")
     id: Optional[int] = Field(
@@ -1435,7 +1434,7 @@ class Label(BaseModel):
     class Meta:
         orm_model = LabelDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Label")
     name: str = Field(default=None)
@@ -1445,7 +1444,7 @@ class Tag(BaseModel):
     class Meta:
         orm_model = TagDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Tag")
     tag: Optional[str] = Field(default=None)
@@ -1457,7 +1456,7 @@ class Topic(BaseModel):
     class Meta:
         orm_model = TopicDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Topic")
     name: str = Field(default=None)
@@ -1472,7 +1471,7 @@ class ComplianceFrameworks(BaseModel):
     class Meta:
         orm_model = ComplianceFrameworksDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="ComplianceFrameworks")
     name: str = Field(default=None)
@@ -1482,7 +1481,7 @@ class CIIDTokenComponents(BaseModel):
     class Meta:
         orm_model = CIIDTokenComponentsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="CIIDTokenComponents")
     name: str = Field(default=None)
@@ -1492,7 +1491,7 @@ class Link(BaseModel):
     class Meta:
         orm_model = LinkDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Links")
     self_link: Optional[str] = Field(
@@ -1549,7 +1548,7 @@ class Project(BaseModel):
     class Meta:
         orm_model = ProjectDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Project")
     id: Optional[int] = Field(default=None, description="The ID of the project.")
@@ -2018,7 +2017,7 @@ class Runner(BaseModel):
     class Meta:
         orm_model = RunnerDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Runner")
     id: Optional[int] = Field(default=None, description="ID of the runner.")
@@ -2091,7 +2090,7 @@ class ProjectConfig(BaseModel):
     class Meta:
         orm_model = ProjectConfigDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="ProjectConfig")
     id: int = Field(default=None, description="Project identifier")
@@ -2116,7 +2115,7 @@ class ClusterAgent(BaseModel):
     class Meta:
         orm_model = ClusterAgentDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     id: Optional[int] = Field(
         default=None, description="Unique identifier for the cluster agent"
@@ -2137,7 +2136,7 @@ class Job(BaseModel):
     class Meta:
         orm_model = JobDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Job")
     id: Optional[int] = Field(default=None, description="ID of the job.")
@@ -2242,7 +2241,7 @@ class GroupAccess(BaseModel):
     class Meta:
         orm_model = GroupAccessDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="GroupAccess")
     access_level: Optional[int] = Field(
@@ -2254,7 +2253,7 @@ class DefaultBranchProtectionDefaults(BaseModel):
     class Meta:
         orm_model = DefaultBranchProtectionDefaultsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="DefaultBranchProtectionDefaults")
     allowed_to_push: Optional[List[GroupAccess]] = Field(
@@ -2284,7 +2283,7 @@ class Group(BaseModel):
     class Meta:
         orm_model = GroupDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Group")
     id: Optional[int] = Field(default=None, description="The ID of the group")
@@ -2474,7 +2473,7 @@ class Webhook(BaseModel):
     class Meta:
         orm_model = WebhookDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Webhook")
     id: int = Field(default=None, description="Unique identifier for the webhook")
@@ -2564,7 +2563,7 @@ class AccessLevel(BaseModel):
     class Meta:
         orm_model = AccessLevelDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="AccessLevel")
     id: Optional[int] = Field(default=None, description="Access level ID")
@@ -2586,7 +2585,7 @@ class Branch(BaseModel):
     class Meta:
         orm_model = BranchDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Branch")
     name: Optional[str] = Field(default=None, description="The name of the branch.")
@@ -2655,7 +2654,7 @@ class ApprovalRule(BaseModel):
     class Meta:
         orm_model = ApprovalRuleDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="ApprovalRule")
     id: Optional[int] = Field(default=None, description="Approval rule ID")
@@ -2739,7 +2738,7 @@ class MergeRequest(BaseModel):
     class Meta:
         orm_model = MergeRequestDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="MergeRequest")
     id: Optional[int] = Field(default=None, description="ID of the merge request")
@@ -3024,7 +3023,7 @@ class Epic(BaseModel):
     class Meta:
         orm_model = EpicDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Epic")
     id: Optional[int] = Field(
@@ -3046,7 +3045,7 @@ class Issue(BaseModel):
     class Meta:
         orm_model = IssueDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Issue")
     state: Optional[str] = Field(
@@ -3194,7 +3193,7 @@ class PipelineVariable(BaseModel):
     class Meta:
         orm_model = PipelineVariableDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="PipelineVariable")
     key: Optional[str] = Field(default=None, description="The key of the variable.")
@@ -3208,7 +3207,7 @@ class TestCase(BaseModel):
     class Meta:
         orm_model = TestCaseDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="TestCase")
     status: Optional[str] = Field(
@@ -3233,7 +3232,7 @@ class TestSuite(BaseModel):
     class Meta:
         orm_model = TestSuiteDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="TestSuite")
     name: Optional[str] = Field(default=None, description="The name of the test suite.")
@@ -3281,7 +3280,7 @@ class TestReportTotal(BaseModel):
     class Meta:
         orm_model = TestReportTotalDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="TestReportTotal")
     time: Optional[int] = Field(
@@ -3311,7 +3310,7 @@ class TestReport(BaseModel):
     class Meta:
         orm_model = TestReportDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="TestReport")
     total: Optional[TestReportTotal] = Field(
@@ -3355,7 +3354,7 @@ class MergeApprovals(BaseModel):
     class Meta:
         orm_model = MergeApprovalsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="MergeApprovals")
     approvers: Optional[List[User]] = Field(
@@ -3411,7 +3410,7 @@ class DeployToken(BaseModel):
     class Meta:
         orm_model = DeployTokenDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="DeployToken")
     id: Optional[int] = Field(
@@ -3448,7 +3447,7 @@ class Rule(BaseModel):
     class Meta:
         orm_model = RuleDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Rule")
     id: int = Field(default=None, description="Unique identifier for the rule")
@@ -3495,7 +3494,7 @@ class Setting(BaseModel):
     class Meta:
         orm_model = SettingDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Setting")
     id: Optional[int] = Field(
@@ -3512,7 +3511,7 @@ class MergeRequestRuleSettings(BaseModel):
     class Meta:
         orm_model = MergeRequestRuleSettingsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="MergeRequestRuleSettings")
     id: Optional[int] = Field(
@@ -3550,7 +3549,7 @@ class AccessControl(BaseModel):
     class Meta:
         orm_model = AccessControlDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="AccessControl")
     name: str = Field(default=None, description="Name of the access group")
@@ -3566,7 +3565,7 @@ class Source(BaseModel):
     class Meta:
         orm_model = SourceDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Source")
     format: Optional[str] = Field(
@@ -3581,7 +3580,7 @@ class Assets(BaseModel):
     class Meta:
         orm_model = AssetsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Assets")
     count: Optional[int] = Field(default=None, description="Total count of assets")
@@ -3622,7 +3621,7 @@ class Evidence(BaseModel):
     class Meta:
         orm_model = EvidenceDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Evidence")
     sha: Optional[str] = Field(
@@ -3640,7 +3639,7 @@ class ReleaseLinks(BaseModel):
     class Meta:
         orm_model = ReleaseLinksDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="ReleaseLinks")
     closed_issues_url: Optional[Union[HttpUrl, str]] = Field(
@@ -3670,7 +3669,7 @@ class Release(BaseModel):
     class Meta:
         orm_model = ReleaseDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Release")
     tag_name: Optional[str] = Field(default=None, description="Tag name of the release")
@@ -3738,7 +3737,7 @@ class Token(BaseModel):
     class Meta:
         orm_model = TokenDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Token")
     id: Optional[int] = Field(None, description="Token ID")
@@ -3752,7 +3751,7 @@ class ToDo(BaseModel):
     class Meta:
         orm_model = ToDoDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="ToDo")
     id: int = Field(default=None, description="To-do identifier")
@@ -3779,7 +3778,7 @@ class WikiPage(BaseModel):
     class Meta:
         orm_model = WikiPageDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="WikiPage")
     content: Optional[str] = Field(None, description="Content of the wiki page")
@@ -3799,7 +3798,7 @@ class WikiAttachmentLink(BaseModel):
     class Meta:
         orm_model = WikiAttachmentLinkDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="WikiAttachmentLink")
     url: Optional[Union[HttpUrl, str]] = Field(
@@ -3814,7 +3813,7 @@ class WikiAttachment(BaseModel):
     class Meta:
         orm_model = WikiAttachmentDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="WikiAttachment")
     file_name: Optional[str] = Field(None, description="Name of the uploaded file")
@@ -3831,7 +3830,7 @@ class Agent(BaseModel):
     class Meta:
         orm_model = AgentDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Agent")
     id: int = Field(default=None, description="Agent identifier")
@@ -3844,7 +3843,7 @@ class Agents(BaseModel):
     class Meta:
         orm_model = AgentsDBModel
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str = Field(default="Agents")
     allowed_agents: list[Agent] = Field(
@@ -3858,169 +3857,3 @@ class Agents(BaseModel):
         default=None, description="Project associated with the agents"
     )
     user: User = Field(default=None, description="User associated with the agents")
-
-
-class Response(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    base_type: str = Field(default="Response")
-    data: Optional[
-        Union[
-            List,
-            Dict,
-            Tag,
-            list[Tag],
-            Environment,
-            list[Environment],
-            Label,
-            list[Label],
-            Topic,
-            list[Topic],
-            Agents,
-            Agent,
-            Deployable,
-            list[Deployable],
-            Setting,
-            list[Setting],
-            MergeRequestRuleSettings,
-            list[MergeRequestRuleSettings],
-            Branch,
-            list[Branch],
-            Pipeline,
-            list[Pipeline],
-            PipelineSchedule,
-            list[PipelineSchedule],
-            Contributor,
-            list[Contributor],
-            Commit,
-            list[Commit],
-            PipelineVariable,
-            list[PipelineVariable],
-            CommitSignature,
-            Diff,
-            list[CommitSignature],
-            Comment,
-            list[Comment],
-            User,
-            list[User],
-            Membership,
-            list[Membership],
-            Release,
-            list[Release],
-            Issue,
-            list[Issue],
-            ToDo,
-            TestReport,
-            Namespace,
-            list[Namespace],
-            MergeRequest,
-            list[MergeRequest],
-            MergeApprovals,
-            ApprovalRule,
-            Runner,
-            list[Runner],
-            Job,
-            list[Job],
-            Package,
-            list[Package],
-            DeployToken,
-            AccessLevel,
-            AccessControl,
-            Rule,
-            Group,
-            list[Group],
-            Project,
-            list[Project],
-            TimeStats,
-            Token,
-            WikiPage,
-            list[WikiPage],
-            WikiAttachment,
-            Webhook,
-        ]
-    ] = Field(default=None, description="Data")
-    status_code: Union[str, int] = Field(
-        default=None, description="Response status code"
-    )
-    headers: Dict = Field(default=None, description="Headers of payload")
-    json_output: Optional[Union[List, Dict]] = Field(
-        default=None, description="Response JSON data"
-    )
-    raw_output: Optional[bytes] = Field(default=None, description="Response Raw bytes")
-    message: Optional[str] = Field(default=None, description="Any error messages")
-
-    @field_validator("data")
-    def determine_model_type(cls, value):
-        single_models = {
-            "Agents": Agents,
-            "Branch": Branch,
-            "Tag": Tag,
-            "Topic": Topic,
-            "Label": Label,
-            "Pipeline": Pipeline,
-            "PipelineSchedule": PipelineSchedule,
-            "CommitSignature": CommitSignature,
-            "Contributor": Contributor,
-            "Commit": Commit,
-            "Deployable": Deployable,
-            "PipelineVariable": PipelineVariable,
-            "Diff": Diff,
-            "Comment": Comment,
-            "Issue": Issue,
-            "ToDo": ToDo,
-            "Environment": Environment,
-            "TestReport": TestReport,
-            "MergeRequest": MergeRequest,
-            "MergeApprovals": MergeApprovals,
-            "Setting": Setting,
-            "MergeRequestRuleSettings": MergeRequestRuleSettings,
-            "Release": Release,
-            "DeployToken": DeployToken,
-            "User": User,
-            "Membership": Membership,
-            "Namespace": Namespace,
-            "Group": Group,
-            "Job": Job,
-            "Package": Package,
-            "AccessLevel": AccessLevel,
-            "AccessControl": AccessControl,
-            "Rule": Rule,
-            "Project": Project,
-            "TimeStats": TimeStats,
-            "Token": Token,
-            "WikiPage": WikiPage,
-            "WikiAttachment": WikiAttachment,
-            "Webhook": Webhook,
-            "ApprovalRule": ApprovalRule,
-            "Runner": Runner,
-        }
-        if isinstance(value, list):
-            if len(value) > 0:
-                first_item = value[0]
-                if isinstance(first_item, BaseModel):  # Already validated
-                    return value  # Return as is
-
-                # Otherwise, continue with the validation logic
-                for model_name, model in single_models.items():
-                    try:
-                        temp_value = [
-                            model(**item) if isinstance(item, dict) else item
-                            for item in value
-                        ]
-                        logging.info(f"{model_name} Validation Success: {temp_value}")
-                        return temp_value
-                    except Exception as e:
-                        logging.warn(
-                            f"\n\n\n {model_name} Validation Failed: {value}\nError: {e}"
-                        )
-            return value
-        elif isinstance(value, dict):
-            for model_name, model in single_models.items():
-                try:
-                    temp_value = model(**value)
-                    logging.info(f"{model_name} Model Validation Success: {value}")
-                    return temp_value
-                except Exception as e:
-                    logging.warn(
-                        f"\n\n\n {model_name} Dict Validation Failed for  - {value}\nError: {e}"
-                    )
-        return value

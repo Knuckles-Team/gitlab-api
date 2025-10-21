@@ -6,11 +6,9 @@ from typing import Dict, Any, Optional, Union, List
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
-from .exceptions import ParameterError, MissingParameterError
-from .decorators import require_auth
-from .utils import process_response
-from .gitlab_response_models import Response
-from .gitlab_input_models import (
+from gitlab_api.exceptions import ParameterError, MissingParameterError
+from gitlab_api.decorators import require_auth
+from gitlab_api.gitlab_input_models import (
     ProjectModel,
     BranchModel,
     TagModel,
@@ -78,7 +76,7 @@ class GraphQL:
         query_str: str,
         variables: Optional[Dict[str, Any]] = None,
         operation_name: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Execute a GraphQL query or mutation.
 
@@ -88,7 +86,10 @@ class GraphQL:
             operation_name: Optional name of the operation.
 
         Returns:
-            Response: A Response object containing the GraphQL result.
+            Dict[str, Any]: The raw GraphQL response dictionary.
+
+        Raises:
+            ParameterError: If the query execution fails or returns errors.
         """
         try:
             query = gql(query_str)
@@ -97,15 +98,7 @@ class GraphQL:
             )
             if "errors" in result:
                 raise ParameterError(f"GraphQL errors: {result['errors']}")
-
-            response = Response(
-                data=result.get("data", {}),
-                status_code=200,
-                headers=self.transport.headers,
-                json_output=result,
-                raw_output=None,
-            )
-            return process_response(response)
+            return result
         except Exception as e:
             logging.error(f"GraphQL execution failed: {str(e)}")
             raise ParameterError(f"Query execution failed: {str(e)}")
@@ -119,7 +112,20 @@ class GraphQL:
         regex: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
+        """
+        Get branches for a project.
+
+        Args:
+            project_id: Project ID or full path.
+            search: Optional search term for branch names.
+            regex: Optional regex filter (not supported in GraphQL, included for REST parity).
+            first: Number of branches to fetch.
+            after: Cursor for pagination.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with branch data.
+        """
         branch = BranchModel(project_id=project_id, search=search)
         query = """
         query ($fullPath: ID!, $search: String, $first: Int, $after: String) {
@@ -148,7 +154,18 @@ class GraphQL:
     @require_auth
     def create_branch(
         self, project_id: Union[int, str], branch: str, ref: str
-    ) -> Response:
+    ) -> Dict[str, Any]:
+        """
+        Create a branch in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            branch: Name of the branch to create.
+            ref: Reference (branch, tag, or commit SHA) to create from.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with created branch data.
+        """
         branch_model = BranchModel(project_id=project_id, branch=branch, ref=ref)
         query = """
         mutation ($input: CreateBranchInput!) {
@@ -175,7 +192,18 @@ class GraphQL:
         project_id: Union[int, str],
         branch: str,
         delete_merged_branches: Optional[bool] = False,
-    ) -> Response:
+    ) -> Dict[str, Any]:
+        """
+        Delete a branch in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            branch: Name of the branch to delete.
+            delete_merged_branches: Optional flag for REST API compatibility (ignored in GraphQL).
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with deletion result.
+        """
         branch_model = BranchModel(project_id=project_id, branch=branch)
         query = """
         mutation ($input: DestroyBranchInput!) {
@@ -196,7 +224,17 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_branch(self, project_id: Union[int, str], branch: str) -> Response:
+    def get_branch(self, project_id: Union[int, str], branch: str) -> Dict[str, Any]:
+        """
+        Get a specific branch in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            branch: Name of the branch.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with branch data.
+        """
         branch_model = BranchModel(project_id=project_id, branch=branch)
         query = """
         query ($fullPath: ID!, $branch: String!) {
@@ -226,25 +264,96 @@ class GraphQL:
         merge_access_level: Optional[str] = None,
         unprotect_access_level: Optional[str] = None,
         allow_force_push: Optional[bool] = False,
-    ) -> Response:
-        # Note: GitLab GraphQL may not have a direct mutation for protecting branches; use commit rules or branch protection mutation if available.
-        # For parity, assume a mutation like updateBranchProtection.
-        # If not, note that some features may not have exact parity.
-        raise NotImplementedError(
-            "Protect branch mutation not directly available in GitLab GraphQL; use REST for this."
-        )
+    ) -> Dict[str, Any]:
+        """
+        Protect a branch in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            branch: Name of the branch to protect.
+            push_access_level: Access level for pushing (e.g., 'maintainer').
+            merge_access_level: Access level for merging.
+            unprotect_access_level: Access level for unprotecting.
+            allow_force_push: Whether to allow force pushes.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with protection result.
+
+        Note:
+            Uses branchRuleUpdate mutation; some parameters (e.g., access levels) may require REST API.
+        """
+        branch_model = BranchModel(project_id=project_id, branch=branch)
+        query = """
+        mutation ($input: BranchRuleUpdateInput!) {
+            branchRuleUpdate(input: $input) {
+                branchRule {
+                    name
+                    isProtected
+                }
+                errors
+            }
+        }
+        """
+        variables = {
+            "input": {
+                "projectPath": str(branch_model.project_id),
+                "name": branch_model.branch,
+                "isProtected": True,
+            }
+        }
+        if allow_force_push is not None:
+            variables["input"]["allowForcePush"] = allow_force_push
+        return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def unprotect_branch(self, project_id: Union[int, str], branch: str) -> Response:
-        # Similar to protect, may require deleting protection rule.
-        raise NotImplementedError(
-            "Unprotect branch mutation not directly available in GitLab GraphQL; use REST for this."
-        )
+    def unprotect_branch(
+        self, project_id: Union[int, str], branch: str
+    ) -> Dict[str, Any]:
+        """
+        Unprotect a branch in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            branch: Name of the branch to unprotect.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with unprotection result.
+        """
+        branch_model = BranchModel(project_id=project_id, branch=branch)
+        query = """
+        mutation ($input: BranchRuleUpdateInput!) {
+            branchRuleUpdate(input: $input) {
+                branchRule {
+                    name
+                    isProtected
+                }
+                errors
+            }
+        }
+        """
+        variables = {
+            "input": {
+                "projectPath": str(branch_model.project_id),
+                "name": branch_model.branch,
+                "isProtected": False,
+            }
+        }
+        return self.execute_gql(query, variables=variables)
 
     @require_auth
     def get_protected_branches(
         self, project_id: Union[int, str], search: Optional[str] = None
-    ) -> Response:
+    ) -> Dict[str, Any]:
+        """
+        Get protected branches for a project.
+
+        Args:
+            project_id: Project ID or full path.
+            search: Optional search term for branch names.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with protected branch data.
+        """
         query = """
         query ($fullPath: ID!, $search: String) {
             project(fullPath: $fullPath) {
@@ -271,7 +380,20 @@ class GraphQL:
         sort: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
+        """
+        Get tags for a project.
+
+        Args:
+            project_id: Project ID or full path.
+            search: Optional search term for tag names.
+            sort: Optional sort order (not supported in GraphQL, included for REST parity).
+            first: Number of tags to fetch.
+            after: Cursor for pagination.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with tag data.
+        """
         tag = TagModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $search: String, $first: Int, $after: String) {
@@ -308,7 +430,19 @@ class GraphQL:
         tag: str,
         ref: str,
         message: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
+        """
+        Create a tag in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            tag: Name of the tag to create.
+            ref: Reference (commit SHA, branch, or tag) to tag.
+            message: Optional tag message.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with created tag data.
+        """
         tag_model = TagModel(project_id=project_id, tag=tag, ref=ref, message=message)
         query = """
         mutation ($input: CreateTagInput!) {
@@ -332,7 +466,17 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_tag(self, project_id: Union[int, str], tag: str) -> Response:
+    def delete_tag(self, project_id: Union[int, str], tag: str) -> Dict[str, Any]:
+        """
+        Delete a tag in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            tag: Name of the tag to delete.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with deletion result.
+        """
         tag_model = TagModel(project_id=project_id, tag=tag)
         query = """
         mutation ($input: DestroyTagInput!) {
@@ -350,7 +494,17 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_tag(self, project_id: Union[int, str], tag: str) -> Response:
+    def get_tag(self, project_id: Union[int, str], tag: str) -> Dict[str, Any]:
+        """
+        Get a specific tag in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            tag: Name of the tag.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with tag data.
+        """
         tag_model = TagModel(project_id=project_id, tag=tag)
         query = """
         query ($fullPath: ID!, $tagName: String!) {
@@ -373,8 +527,20 @@ class GraphQL:
     @require_auth
     def get_protected_tags(
         self, project_id: Union[int, str], name: Optional[str] = None
-    ) -> Response:
-        # Protected tags are handled via branchRules or tag protection.
+    ) -> Dict[str, Any]:
+        """
+        Get protected tags for a project.
+
+        Args:
+            project_id: Project ID or full path.
+            name: Optional tag name filter.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with protected tag data.
+
+        Note:
+            Uses branchRules for tag protection, as direct tag protection is limited.
+        """
         query = """
         query ($fullPath: ID!, $name: String) {
             project(fullPath: $fullPath) {
@@ -393,7 +559,19 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_protected_tag(self, project_id: Union[int, str], name: str) -> Response:
+    def get_protected_tag(
+        self, project_id: Union[int, str], name: str
+    ) -> Dict[str, Any]:
+        """
+        Get a specific protected tag in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            name: Name of the protected tag.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with protected tag data.
+        """
         query = """
         query ($fullPath: ID!, $name: String!) {
             project(fullPath: $fullPath) {
@@ -414,17 +592,75 @@ class GraphQL:
         name: str,
         create_access_level: Optional[str] = None,
         allowed_to_create: Optional[List[Dict]] = None,
-    ) -> Response:
-        # Use updateBranchRule or similar for tags.
-        raise NotImplementedError(
-            "Protect tag mutation not directly available; use branchRuleUpdate for patterns like 'v*'."
-        )
+    ) -> Dict[str, Any]:
+        """
+        Protect a tag in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            name: Name of the tag to protect.
+            create_access_level: Access level for creating the tag.
+            allowed_to_create: List of users or groups allowed to create the tag.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with protection result.
+
+        Note:
+            Uses branchRuleUpdate for tag patterns; full tag protection requires REST API.
+        """
+        tag_model = TagModel(project_id=project_id, tag=name)
+        query = """
+        mutation ($input: BranchRuleUpdateInput!) {
+            branchRuleUpdate(input: $input) {
+                branchRule {
+                    name
+                    isProtected
+                }
+                errors
+            }
+        }
+        """
+        variables = {
+            "input": {
+                "projectPath": str(tag_model.project_id),
+                "name": name,
+                "isProtected": True,
+            }
+        }
+        return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def unprotect_tag(self, project_id: Union[int, str], name: str) -> Response:
-        raise NotImplementedError(
-            "Unprotect tag mutation not directly available; use branchRuleUpdate."
-        )
+    def unprotect_tag(self, project_id: Union[int, str], name: str) -> Dict[str, Any]:
+        """
+        Unprotect a tag in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            name: Name of the tag to unprotect.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with unprotection result.
+        """
+        tag_model = TagModel(project_id=project_id, tag=name)
+        query = """
+        mutation ($input: BranchRuleUpdateInput!) {
+            branchRuleUpdate(input: $input) {
+                branchRule {
+                    name
+                    isProtected
+                }
+                errors
+            }
+        }
+        """
+        variables = {
+            "input": {
+                "projectPath": str(tag_model.project_id),
+                "name": name,
+                "isProtected": False,
+            }
+        }
+        return self.execute_gql(query, variables=variables)
 
     # Commit Tools
     @require_auth
@@ -440,7 +676,25 @@ class GraphQL:
         with_stats: Optional[bool] = False,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
+        """
+        Get commits for a project.
+
+        Args:
+            project_id: Project ID or full path.
+            ref: Optional reference (branch, tag, or SHA).
+            path: Optional file path filter.
+            author: Optional author filter (not supported in GraphQL).
+            since: Optional start date filter (not supported in GraphQL).
+            until: Optional end date filter (not supported in GraphQL).
+            all: Optional flag for REST API compatibility (ignored in GraphQL).
+            with_stats: Optional flag for commit stats (not supported in GraphQL).
+            first: Number of commits to fetch.
+            after: Cursor for pagination.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with commit data.
+        """
         commit = CommitModel(project_id=project_id, ref=ref)
         query = """
         query ($fullPath: ID!, $ref: String, $first: Int, $after: String) {
@@ -471,7 +725,19 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_commit(self, project_id: Union[int, str], commit_hash: str) -> Response:
+    def get_commit(
+        self, project_id: Union[int, str], commit_hash: str
+    ) -> Dict[str, Any]:
+        """
+        Get a specific commit in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            commit_hash: SHA of the commit.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with commit data.
+        """
         commit = CommitModel(project_id=project_id, commit_hash=commit_hash)
         query = """
         query ($fullPath: ID!, $sha: String!) {
@@ -504,7 +770,26 @@ class GraphQL:
         author_name: Optional[str] = None,
         stats: Optional[bool] = False,
         force: Optional[bool] = False,
-    ) -> Response:
+    ) -> Dict[str, Any]:
+        """
+        Create a commit in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            branch: Target branch for the commit.
+            message: Commit message.
+            actions: List of commit actions (create, update, delete files).
+            start_branch: Optional starting branch (not supported in GraphQL).
+            start_sha: Optional starting SHA (not supported in GraphQL).
+            start_project: Optional starting project (not supported in GraphQL).
+            author_email: Optional author email.
+            author_name: Optional author name.
+            stats: Optional flag for commit stats (not supported in GraphQL).
+            force: Optional flag to force commit (not supported in GraphQL).
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with created commit data.
+        """
         commit = CommitModel(
             project_id=project_id, branch=branch, message=message, actions=actions
         )
@@ -527,11 +812,12 @@ class GraphQL:
                 "actions": actions,
             }
         }
+        if author_email:
+            variables["input"]["authorEmail"] = author_email
+        if author_name:
+            variables["input"]["authorName"] = author_name
         return self.execute_gql(query, variables=variables)
 
-    # Add similar methods for cherry_pick_commit, revert_commit, etc.
-
-    # For cherry_pick
     @require_auth
     def cherry_pick_commit(
         self,
@@ -540,7 +826,20 @@ class GraphQL:
         branch: str,
         message: Optional[str] = None,
         dry_run: Optional[bool] = False,
-    ) -> Response:
+    ) -> Dict[str, Any]:
+        """
+        Cherry-pick a commit into a branch.
+
+        Args:
+            project_id: Project ID or full path.
+            commit_hash: SHA of the commit to cherry-pick.
+            branch: Target branch.
+            message: Optional commit message.
+            dry_run: Whether to perform a dry run.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with cherry-pick result.
+        """
         query = """
         mutation ($input: CherryPickCommitInput!) {
             cherryPickCommit(input: $input) {
@@ -562,407 +861,10 @@ class GraphQL:
         }
         return self.execute_gql(query, variables=variables)
 
-    # Add revert_commit similarly.
-
-    # For commit comments, discussions, etc., use noteCreate, noteUpdate on commit.
-
-    # Merge Request Tools
-    @require_auth
-    def get_merge_requests(
-        self,
-        project_id: Union[int, str],
-        state: Optional[str] = None,
-        labels: Optional[List[str]] = None,
-        milestone: Optional[str] = None,
-        author_username: Optional[str] = None,
-        reviewer_username: Optional[str] = None,
-        source_branch: Optional[str] = None,
-        target_branch: Optional[str] = None,
-        search: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Response:
-        mr = MergeRequestModel(project_id=project_id, state=state)
-        query = """
-        query ($fullPath: ID!, $state: MergeRequestState, $first: Int, $after: String) {
-            project(fullPath: $fullPath) {
-                mergeRequests(state: $state, first: $first, after: $after) {
-                    nodes {
-                        iid
-                        title
-                        description
-                        state
-                    }
-                    pageInfo {
-                        endCursor
-                        hasNextPage
-                    }
-                }
-            }
-        }
-        """
-        variables = {"fullPath": str(project_id), "first": first}
-        if state:
-            variables["state"] = state
-        if after:
-            variables["after"] = after
-        # Add other filters as available in GraphQL.
-        return self.execute_gql(query, variables=variables)
-
-    @require_auth
-    def get_merge_request(
-        self, project_id: Union[int, str], merge_request_iid: int
-    ) -> Response:
-        mr = MergeRequestModel(
-            project_id=project_id, merge_request_iid=merge_request_iid
-        )
-        query = """
-        query ($fullPath: ID!, $iid: String!) {
-            project(fullPath: $fullPath) {
-                mergeRequest(iid: $iid) {
-                    iid
-                    title
-                    description
-                    state
-                }
-            }
-        }
-        """
-        variables = {"fullPath": str(project_id), "iid": str(merge_request_iid)}
-        return self.execute_gql(query, variables=variables)
-
-    @require_auth
-    def create_merge_request(
-        self,
-        project_id: Union[int, str],
-        source_branch: str,
-        target_branch: str,
-        title: str,
-        description: Optional[str] = None,
-        labels: Optional[List[str]] = None,
-        milestone_id: Optional[int] = None,
-        assignee_ids: Optional[List[int]] = None,
-        remove_source_branch: Optional[bool] = False,
-    ) -> Response:
-        mr = MergeRequestModel(
-            project_id=project_id,
-            source_branch=source_branch,
-            target_branch=target_branch,
-            title=title,
-        )
-        query = """
-        mutation ($input: MergeRequestCreateInput!) {
-            mergeRequestCreate(input: $input) {
-                mergeRequest {
-                    iid
-                    title
-                }
-                errors
-            }
-        }
-        """
-        variables = {
-            "input": {
-                "projectPath": str(project_id),
-                "sourceBranch": source_branch,
-                "targetBranch": target_branch,
-                "title": title,
-                "description": description,
-            }
-        }
-        return self.execute_gql(query, variables=variables)
-
-    # Add update_merge_request, delete_merge_request, accept_merge_request, etc.
-
-    # For update
-    @require_auth
-    def update_merge_request(
-        self,
-        project_id: Union[int, str],
-        merge_request_iid: int,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        target_branch: Optional[str] = None,
-    ) -> Response:
-        query = """
-        mutation ($input: MergeRequestUpdateInput!) {
-            mergeRequestUpdate(input: $input) {
-                mergeRequest {
-                    iid
-                    title
-                }
-                errors
-            }
-        }
-        """
-        variables = {
-            "input": {
-                "projectPath": str(project_id),
-                "iid": str(merge_request_iid),
-                "title": title,
-                "description": description,
-                "targetBranch": target_branch,
-            }
-        }
-        return self.execute_gql(query, variables=variables)
-
-    # For delete, there is no direct delete, but close or reopen.
-
-    # For accept, mergeRequestAccept.
-
-    # Continue adding for other categories like pipelines, jobs, packages, deploy tokens, users, memberships, releases, issues, to dos, environments, test reports, namespaces.
-
-    # For pipelines
-    @require_auth
-    def get_pipelines(
-        self,
-        project_id: Union[int, str],
-        ref: Optional[str] = None,
-        status: Optional[str] = None,
-        source: Optional[str] = None,
-        username: Optional[str] = None,
-        updated_after: Optional[str] = None,
-        updated_before: Optional[str] = None,
-        order_by: Optional[str] = None,
-        sort: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Response:
-        pipeline = PipelineModel(project_id=project_id)
-        query = """
-        query ($fullPath: ID!, $first: Int, $after: String) {
-            project(fullPath: $fullPath) {
-                pipelines(first: $first, after: $after) {
-                    nodes {
-                        id
-                        status
-                        duration
-                    }
-                    pageInfo {
-                        endCursor
-                        hasNextPage
-                    }
-                }
-            }
-        }
-        """
-        variables = {"fullPath": str(project_id), "first": first}
-        if after:
-            variables["after"] = after
-        return self.execute_gql(query, variables=variables)
-
-    @require_auth
-    def create_pipeline(
-        self, project_id: Union[int, str], ref: str, variables: Optional[Dict] = None
-    ) -> Response:
-        pipeline = PipelineModel(project_id=project_id, ref=ref)
-        query = """
-        mutation ($input: CiPipelineCreateInput!) {
-            ciPipelineCreate(input: $input) {
-                pipeline {
-                    id
-                }
-                errors
-            }
-        }
-        """
-        variables_dict = {"input": {"projectPath": str(project_id), "ref": ref}}
-        if variables:
-            variables_dict["input"]["variables"] = variables
-        return self.execute_gql(query, variables=variables_dict)
-
-    # Add delete_pipeline, retry_pipeline, cancel_pipeline.
-
-    # For delete
-    @require_auth
-    def delete_pipeline(
-        self, project_id: Union[int, str], pipeline_id: int
-    ) -> Response:
-        query = """
-        mutation ($id: CiPipelineID!) {
-            pipelineDestroy(input: {id: $id}) {
-                errors
-            }
-        }
-        """
-        variables = {"id": f"gid://gitlab/Ci::Pipeline/{pipeline_id}"}
-        return self.execute_gql(query, variables=variables)
-
-    # Similarly for other pipeline methods.
-
-    # For pipeline schedules, job, package, deploy token, user, etc., follow similar pattern.
-
-    # Note: Some features like deploy tokens may not have GraphQL support; in those cases, raise NotImplementedError or note in comments.
-
-    # Branch Tools (Completing protect/unprotect)
-    @require_auth
-    def protect_branch(
-        self,
-        project_id: Union[int, str],
-        branch: str,
-        push_access_level: Optional[str] = None,
-        merge_access_level: Optional[str] = None,
-        unprotect_access_level: Optional[str] = None,
-        allow_force_push: Optional[bool] = False,
-    ) -> Response:
-        """
-        Protect a branch in a project.
-
-        Args:
-            project_id: Project ID or full path.
-            branch: Name of the branch to protect.
-            push_access_level: Access level for pushing (e.g., 'maintainer').
-            merge_access_level: Access level for merging.
-            unprotect_access_level: Access level for unprotecting.
-            allow_force_push: Whether to allow force pushes.
-
-        Returns:
-            Response: Result of the protection operation.
-
-        Note:
-            Uses branchRuleUpdate mutation, but some parameters may not be fully supported.
-        """
-        branch_model = BranchModel(project_id=project_id, branch=branch)
-        query = """
-        mutation ($input: BranchRuleUpdateInput!) {
-            branchRuleUpdate(input: $input) {
-                branchRule {
-                    name
-                    isProtected
-                }
-                errors
-            }
-        }
-        """
-        variables = {
-            "input": {
-                "projectPath": str(branch_model.project_id),
-                "name": branch_model.branch,
-                "isProtected": True,
-            }
-        }
-        if allow_force_push is not None:
-            variables["input"]["allowForcePush"] = allow_force_push
-        # Note: push_access_level, merge_access_level, unprotect_access_level may require additional configuration or REST API.
-        return self.execute_gql(query, variables=variables)
-
-    @require_auth
-    def unprotect_branch(self, project_id: Union[int, str], branch: str) -> Response:
-        """
-        Unprotect a branch in a project.
-
-        Args:
-            project_id: Project ID or full path.
-            branch: Name of the branch to unprotect.
-
-        Returns:
-            Response: Result of the unprotection operation.
-        """
-        branch_model = BranchModel(project_id=project_id, branch=branch)
-        query = """
-        mutation ($input: BranchRuleUpdateInput!) {
-            branchRuleUpdate(input: $input) {
-                branchRule {
-                    name
-                    isProtected
-                }
-                errors
-            }
-        }
-        """
-        variables = {
-            "input": {
-                "projectPath": str(branch_model.project_id),
-                "name": branch_model.branch,
-                "isProtected": False,
-            }
-        }
-        return self.execute_gql(query, variables=variables)
-
-    # Tag Tools (Completing protect/unprotect)
-    @require_auth
-    def protect_tag(
-        self,
-        project_id: Union[int, str],
-        name: str,
-        create_access_level: Optional[str] = None,
-        allowed_to_create: Optional[List[Dict]] = None,
-    ) -> Response:
-        """
-        Protect a tag in a project.
-
-        Args:
-            project_id: Project ID or full path.
-            name: Name of the tag to protect.
-            create_access_level: Access level for creating the tag.
-            allowed_to_create: List of users or groups allowed to create the tag.
-
-        Returns:
-            Response: Result of the protection operation.
-
-        Note:
-            Tag protection is limited in GraphQL; may need to use branchRuleUpdate for patterns (e.g., 'v*').
-        """
-        tag_model = TagModel(project_id=project_id, tag=name)
-        query = """
-        mutation ($input: BranchRuleUpdateInput!) {
-            branchRuleUpdate(input: $input) {
-                branchRule {
-                    name
-                    isProtected
-                }
-                errors
-            }
-        }
-        """
-        variables = {
-            "input": {
-                "projectPath": str(tag_model.project_id),
-                "name": name,  # Use tag name as a pattern
-                "isProtected": True,
-            }
-        }
-        # Note: create_access_level, allowed_to_create require additional configuration via REST API.
-        return self.execute_gql(query, variables=variables)
-
-    @require_auth
-    def unprotect_tag(self, project_id: Union[int, str], name: str) -> Response:
-        """
-        Unprotect a tag in a project.
-
-        Args:
-            project_id: Project ID or full path.
-            name: Name of the tag to unprotect.
-
-        Returns:
-            Response: Result of the unprotection operation.
-        """
-        tag_model = TagModel(project_id=project_id, tag=name)
-        query = """
-        mutation ($input: BranchRuleUpdateInput!) {
-            branchRuleUpdate(input: $input) {
-                branchRule {
-                    name
-                    isProtected
-                }
-                errors
-            }
-        }
-        """
-        variables = {
-            "input": {
-                "projectPath": str(tag_model.project_id),
-                "name": name,
-                "isProtected": False,
-            }
-        }
-        return self.execute_gql(query, variables=variables)
-
-    # Commit Tools (Completing revert_commit and comments)
     @require_auth
     def revert_commit(
         self, project_id: Union[int, str], commit_hash: str, branch: str
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Revert a commit in a project.
 
@@ -972,7 +874,7 @@ class GraphQL:
             branch: Target branch for the revert.
 
         Returns:
-            Response: Result of the revert operation.
+            Dict[str, Any]: Raw GraphQL response with revert result.
         """
         commit = CommitModel(
             project_id=project_id, commit_hash=commit_hash, branch=branch
@@ -992,7 +894,13 @@ class GraphQL:
                 "projectPath": str(project_id),
                 "branch": branch,
                 "message": f"Revert commit {commit_hash}",
-                "actions": [{"action": "delete", "filePath": "", "sha": commit_hash}],
+                "actions": [
+                    {
+                        "action": "revert",
+                        "filePath": "",
+                        "previousSha": commit_hash,
+                    }
+                ],
             }
         }
         return self.execute_gql(query, variables=variables)
@@ -1006,7 +914,7 @@ class GraphQL:
         path: Optional[str] = None,
         line: Optional[int] = None,
         line_type: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Create a comment on a commit.
 
@@ -1019,7 +927,7 @@ class GraphQL:
             line_type: Optional line type (e.g., 'new', 'old').
 
         Returns:
-            Response: Result of the comment creation.
+            Dict[str, Any]: Raw GraphQL response with comment data.
         """
         commit = CommitModel(project_id=project_id, commit_hash=commit_hash, note=note)
         query = """
@@ -1054,7 +962,7 @@ class GraphQL:
         commit_hash: str,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get comments on a commit.
 
@@ -1065,7 +973,7 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of comments.
+            Dict[str, Any]: Raw GraphQL response with comment data.
         """
         commit = CommitModel(project_id=project_id, commit_hash=commit_hash)
         query = """
@@ -1096,11 +1004,217 @@ class GraphQL:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
 
-    # Merge Request Tools (Completing delete, accept, and others)
+    # Merge Request Tools
+    @require_auth
+    def get_merge_requests(
+        self,
+        project_id: Union[int, str],
+        state: Optional[str] = None,
+        labels: Optional[List[str]] = None,
+        milestone: Optional[str] = None,
+        author_username: Optional[str] = None,
+        reviewer_username: Optional[str] = None,
+        source_branch: Optional[str] = None,
+        target_branch: Optional[str] = None,
+        search: Optional[str] = None,
+        first: Optional[int] = 20,
+        after: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Get merge requests for a project.
+
+        Args:
+            project_id: Project ID or full path.
+            state: Optional merge request state (e.g., 'opened').
+            labels: Optional list of labels (not supported in GraphQL).
+            milestone: Optional milestone title (not supported in GraphQL).
+            author_username: Optional author username (not supported in GraphQL).
+            reviewer_username: Optional reviewer username (not supported in GraphQL).
+            source_branch: Optional source branch (not supported in GraphQL).
+            target_branch: Optional target branch (not supported in GraphQL).
+            search: Optional search term (not supported in GraphQL).
+            first: Number of merge requests to fetch.
+            after: Cursor for pagination.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with merge request data.
+        """
+        mr = MergeRequestModel(project_id=project_id, state=state)
+        query = """
+        query ($fullPath: ID!, $state: MergeRequestState, $first: Int, $after: String) {
+            project(fullPath: $fullPath) {
+                mergeRequests(state: $state, first: $first, after: $after) {
+                    nodes {
+                        iid
+                        title
+                        description
+                        state
+                    }
+                    pageInfo {
+                        endCursor
+                        hasNextPage
+                    }
+                }
+            }
+        }
+        """
+        variables = {"fullPath": str(project_id), "first": first}
+        if state:
+            variables["state"] = state
+        if after:
+            variables["after"] = after
+        return self.execute_gql(query, variables=variables)
+
+    @require_auth
+    def get_merge_request(
+        self, project_id: Union[int, str], merge_request_iid: int
+    ) -> Dict[str, Any]:
+        """
+        Get a specific merge request.
+
+        Args:
+            project_id: Project ID or full path.
+            merge_request_iid: Internal ID of the merge request.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with merge request data.
+        """
+        mr = MergeRequestModel(
+            project_id=project_id, merge_request_iid=merge_request_iid
+        )
+        query = """
+        query ($fullPath: ID!, $iid: String!) {
+            project(fullPath: $fullPath) {
+                mergeRequest(iid: $iid) {
+                    iid
+                    title
+                    description
+                    state
+                }
+            }
+        }
+        """
+        variables = {"fullPath": str(project_id), "iid": str(merge_request_iid)}
+        return self.execute_gql(query, variables=variables)
+
+    @require_auth
+    def create_merge_request(
+        self,
+        project_id: Union[int, str],
+        source_branch: str,
+        target_branch: str,
+        title: str,
+        description: Optional[str] = None,
+        labels: Optional[List[str]] = None,
+        milestone_id: Optional[int] = None,
+        assignee_ids: Optional[List[int]] = None,
+        remove_source_branch: Optional[bool] = False,
+    ) -> Dict[str, Any]:
+        """
+        Create a merge request.
+
+        Args:
+            project_id: Project ID or full path.
+            source_branch: Source branch.
+            target_branch: Target branch.
+            title: Title of the merge request.
+            description: Optional description.
+            labels: Optional list of labels.
+            milestone_id: Optional milestone ID (not supported in GraphQL).
+            assignee_ids: Optional list of assignee IDs.
+            remove_source_branch: Whether to remove source branch on merge.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with created merge request data.
+        """
+        mr = MergeRequestModel(
+            project_id=project_id,
+            source_branch=source_branch,
+            target_branch=target_branch,
+            title=title,
+        )
+        query = """
+        mutation ($input: MergeRequestCreateInput!) {
+            mergeRequestCreate(input: $input) {
+                mergeRequest {
+                    iid
+                    title
+                }
+                errors
+            }
+        }
+        """
+        variables = {
+            "input": {
+                "projectPath": str(project_id),
+                "sourceBranch": source_branch,
+                "targetBranch": target_branch,
+                "title": title,
+                "description": description,
+                "labels": labels,
+                "removeSourceBranch": remove_source_branch,
+            }
+        }
+        if assignee_ids:
+            variables["input"]["assigneeIds"] = [
+                f"gid://gitlab/User/{id}" for id in assignee_ids
+            ]
+        variables["input"] = {
+            k: v for k, v in variables["input"].items() if v is not None
+        }
+        return self.execute_gql(query, variables=variables)
+
+    @require_auth
+    def update_merge_request(
+        self,
+        project_id: Union[int, str],
+        merge_request_iid: int,
+        title: Optional[str] = None,
+        description: Optional[str] = None,
+        target_branch: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Update a merge request.
+
+        Args:
+            project_id: Project ID or full path.
+            merge_request_iid: Internal ID of the merge request.
+            title: Updated title.
+            description: Updated description.
+            target_branch: Updated target branch.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with updated merge request data.
+        """
+        query = """
+        mutation ($input: MergeRequestUpdateInput!) {
+            mergeRequestUpdate(input: $input) {
+                mergeRequest {
+                    iid
+                    title
+                }
+                errors
+            }
+        }
+        """
+        variables = {
+            "input": {
+                "projectPath": str(project_id),
+                "iid": str(merge_request_iid),
+                "title": title,
+                "description": description,
+                "targetBranch": target_branch,
+            }
+        }
+        variables["input"] = {
+            k: v for k, v in variables["input"].items() if v is not None
+        }
+        return self.execute_gql(query, variables=variables)
+
     @require_auth
     def delete_merge_request(
         self, project_id: Union[int, str], merge_request_iid: int
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Close a merge request (GitLab GraphQL doesn't support direct deletion).
 
@@ -1109,7 +1223,7 @@ class GraphQL:
             merge_request_iid: Internal ID of the merge request.
 
         Returns:
-            Response: Result of the close operation.
+            Dict[str, Any]: Raw GraphQL response with close result.
         """
         mr = MergeRequestModel(
             project_id=project_id, merge_request_iid=merge_request_iid
@@ -1142,7 +1256,7 @@ class GraphQL:
         merge_commit_message: Optional[str] = None,
         squash: Optional[bool] = False,
         squash_commit_message: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Accept a merge request.
 
@@ -1154,7 +1268,7 @@ class GraphQL:
             squash_commit_message: Optional squash commit message.
 
         Returns:
-            Response: Result of the accept operation.
+            Dict[str, Any]: Raw GraphQL response with merge result.
         """
         mr = MergeRequestModel(
             project_id=project_id, merge_request_iid=merge_request_iid
@@ -1179,11 +1293,128 @@ class GraphQL:
                 "squashCommitMessage": squash_commit_message,
             }
         }
+        variables["input"] = {
+            k: v for k, v in variables["input"].items() if v is not None
+        }
         return self.execute_gql(query, variables=variables)
 
-    # Pipeline Tools (Completing retry, cancel)
+    # Pipeline Tools
     @require_auth
-    def retry_pipeline(self, project_id: Union[int, str], pipeline_id: int) -> Response:
+    def get_pipelines(
+        self,
+        project_id: Union[int, str],
+        ref: Optional[str] = None,
+        status: Optional[str] = None,
+        source: Optional[str] = None,
+        username: Optional[str] = None,
+        updated_after: Optional[str] = None,
+        updated_before: Optional[str] = None,
+        order_by: Optional[str] = None,
+        sort: Optional[str] = None,
+        first: Optional[int] = 20,
+        after: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Get pipelines for a project.
+
+        Args:
+            project_id: Project ID or full path.
+            ref: Optional reference filter (branch, tag, or SHA).
+            status: Optional pipeline status filter (not supported in GraphQL).
+            source: Optional source filter (not supported in GraphQL).
+            username: Optional username filter (not supported in GraphQL).
+            updated_after: Optional updated after filter (not supported in GraphQL).
+            updated_before: Optional updated before filter (not supported in GraphQL).
+            order_by: Optional order by field (not supported in GraphQL).
+            sort: Optional sort order (not supported in GraphQL).
+            first: Number of pipelines to fetch.
+            after: Cursor for pagination.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with pipeline data.
+        """
+        pipeline = PipelineModel(project_id=project_id)
+        query = """
+        query ($fullPath: ID!, $first: Int, $after: String) {
+            project(fullPath: $fullPath) {
+                pipelines(first: $first, after: $after) {
+                    nodes {
+                        id
+                        status
+                        duration
+                    }
+                    pageInfo {
+                        endCursor
+                        hasNextPage
+                    }
+                }
+            }
+        }
+        """
+        variables = {"fullPath": str(project_id), "first": first}
+        if after:
+            variables["after"] = after
+        return self.execute_gql(query, variables=variables)
+
+    @require_auth
+    def create_pipeline(
+        self, project_id: Union[int, str], ref: str, variables: Optional[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Create a pipeline in a project.
+
+        Args:
+            project_id: Project ID or full path.
+            ref: Branch, tag, or SHA to run the pipeline on.
+            variables: Optional CI variables for the pipeline.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with created pipeline data.
+        """
+        pipeline = PipelineModel(project_id=project_id, ref=ref)
+        query = """
+        mutation ($input: CiPipelineCreateInput!) {
+            ciPipelineCreate(input: $input) {
+                pipeline {
+                    id
+                }
+                errors
+            }
+        }
+        """
+        variables_dict = {"input": {"projectPath": str(project_id), "ref": ref}}
+        if variables:
+            variables_dict["input"]["variables"] = variables
+        return self.execute_gql(query, variables=variables_dict)
+
+    @require_auth
+    def delete_pipeline(
+        self, project_id: Union[int, str], pipeline_id: int
+    ) -> Dict[str, Any]:
+        """
+        Delete a pipeline.
+
+        Args:
+            project_id: Project ID or full path.
+            pipeline_id: ID of the pipeline.
+
+        Returns:
+            Dict[str, Any]: Raw GraphQL response with deletion result.
+        """
+        query = """
+        mutation ($input: PipelineDestroyInput!) {
+            pipelineDestroy(input: $input) {
+                errors
+            }
+        }
+        """
+        variables = {"input": {"id": f"gid://gitlab/Ci::Pipeline/{pipeline_id}"}}
+        return self.execute_gql(query, variables=variables)
+
+    @require_auth
+    def retry_pipeline(
+        self, project_id: Union[int, str], pipeline_id: int
+    ) -> Dict[str, Any]:
         """
         Retry a pipeline.
 
@@ -1192,7 +1423,7 @@ class GraphQL:
             pipeline_id: ID of the pipeline.
 
         Returns:
-            Response: Result of the retry operation.
+            Dict[str, Any]: Raw GraphQL response with retry result.
         """
         pipeline = PipelineModel(project_id=project_id)
         query = """
@@ -1212,7 +1443,7 @@ class GraphQL:
     @require_auth
     def cancel_pipeline(
         self, project_id: Union[int, str], pipeline_id: int
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Cancel a pipeline.
 
@@ -1221,7 +1452,7 @@ class GraphQL:
             pipeline_id: ID of the pipeline.
 
         Returns:
-            Response: Result of the cancel operation.
+            Dict[str, Any]: Raw GraphQL response with cancel result.
         """
         pipeline = PipelineModel(project_id=project_id)
         query = """
@@ -1245,7 +1476,7 @@ class GraphQL:
         project_id: Union[int, str],
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get pipeline schedules for a project.
 
@@ -1255,7 +1486,7 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of pipeline schedules.
+            Dict[str, Any]: Raw GraphQL response with pipeline schedule data.
         """
         pipeline_schedule = PipelineScheduleModel(project_id=project_id)
         query = """
@@ -1284,7 +1515,7 @@ class GraphQL:
     @require_auth
     def get_pipeline_schedule(
         self, project_id: Union[int, str], pipeline_schedule_id: int
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get a specific pipeline schedule.
 
@@ -1293,7 +1524,7 @@ class GraphQL:
             pipeline_schedule_id: ID of the pipeline schedule.
 
         Returns:
-            Response: Pipeline schedule details.
+            Dict[str, Any]: Raw GraphQL response with pipeline schedule data.
         """
         pipeline_schedule = PipelineScheduleModel(project_id=project_id)
         query = """
@@ -1323,7 +1554,7 @@ class GraphQL:
         cron: str,
         cron_timezone: Optional[str] = None,
         active: Optional[bool] = True,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Create a pipeline schedule.
 
@@ -1336,7 +1567,7 @@ class GraphQL:
             active: Whether the schedule is active.
 
         Returns:
-            Response: Created pipeline schedule.
+            Dict[str, Any]: Raw GraphQL response with created pipeline schedule data.
         """
         pipeline_schedule = PipelineScheduleModel(project_id=project_id, ref=ref)
         query = """
@@ -1360,6 +1591,9 @@ class GraphQL:
                 "active": active,
             }
         }
+        variables["input"] = {
+            k: v for k, v in variables["input"].items() if v is not None
+        }
         return self.execute_gql(query, variables=variables)
 
     @require_auth
@@ -1372,7 +1606,7 @@ class GraphQL:
         cron: Optional[str] = None,
         cron_timezone: Optional[str] = None,
         active: Optional[bool] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Update a pipeline schedule.
 
@@ -1386,7 +1620,7 @@ class GraphQL:
             active: Updated active status.
 
         Returns:
-            Response: Updated pipeline schedule.
+            Dict[str, Any]: Raw GraphQL response with updated pipeline schedule data.
         """
         query = """
         mutation ($input: PipelineScheduleUpdateInput!) {
@@ -1417,7 +1651,7 @@ class GraphQL:
     @require_auth
     def delete_pipeline_schedule(
         self, project_id: Union[int, str], pipeline_schedule_id: int
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Delete a pipeline schedule.
 
@@ -1426,7 +1660,7 @@ class GraphQL:
             pipeline_schedule_id: ID of the pipeline schedule.
 
         Returns:
-            Response: Result of the deletion.
+            Dict[str, Any]: Raw GraphQL response with deletion result.
         """
         query = """
         mutation ($input: PipelineScheduleDeleteInput!) {
@@ -1440,6 +1674,7 @@ class GraphQL:
         }
         return self.execute_gql(query, variables=variables)
 
+    # Projects
     @require_auth
     def get_projects(
         self,
@@ -1454,14 +1689,14 @@ class GraphQL:
         archived: Optional[str] = None,
         visibility_level: Optional[str] = None,
         min_access_level: Optional[int] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Fetch a list of projects visible to the current user.
 
         Args:
             project_model: Optional ProjectModel instance with filter parameters.
-            ids: Optional list of project IDs to filter by.
-            full_paths: Optional list of full paths to filter by (max 50).
+            ids: Optional list of project IDs.
+            full_paths: Optional list of full paths (max 50).
             search: Optional search query for name, path, or description.
             membership: Return only projects the user is a member of.
             sort: Sort order (e.g., 'id_desc', 'name_asc').
@@ -1472,7 +1707,7 @@ class GraphQL:
             min_access_level: Minimum access level for the user.
 
         Returns:
-            Response: List of projects wrapped in Response model.
+            Dict[str, Any]: Raw GraphQL response with project data.
         """
         if project_model:
             project = project_model
@@ -1499,7 +1734,6 @@ class GraphQL:
         }
         """
         variables = {"first": first, "sort": sort}
-
         if ids:
             variables["ids"] = [
                 f"gid://gitlab/Project/{id}" if isinstance(id, int) else id
@@ -1521,11 +1755,10 @@ class GraphQL:
             variables["visibilityLevel"] = visibility_level.upper()
         if min_access_level:
             variables["minAccessLevel"] = min_access_level
-
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_project(self, project_model: ProjectModel) -> Response:
+    def get_project(self, project_model: ProjectModel) -> Dict[str, Any]:
         """
         Fetch a single project by ID or full path.
 
@@ -1533,7 +1766,7 @@ class GraphQL:
             project_model: ProjectModel instance with project_id or full_path.
 
         Returns:
-            Response: Project data wrapped in Response model.
+            Dict[str, Any]: Raw GraphQL response with project data.
         """
         query = """
         query ($fullPath: ID!) {
@@ -1563,7 +1796,7 @@ class GraphQL:
         search: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Fetch a list of projects visible to admins (experimental).
 
@@ -1576,7 +1809,7 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of projects.
+            Dict[str, Any]: Raw GraphQL response with project data.
 
         Note: Admin-only; experimental in GitLab 18.4+.
         """
@@ -1603,7 +1836,6 @@ class GraphQL:
         }
         """
         variables = {"first": first}
-
         if ids:
             variables["ids"] = [
                 f"gid://gitlab/Project/{id}" if isinstance(id, int) else id
@@ -1617,7 +1849,6 @@ class GraphQL:
             variables["search"] = search
         if after:
             variables["after"] = after
-
         return self.execute_gql(query, variables=variables)
 
     # Jobs
@@ -1628,18 +1859,18 @@ class GraphQL:
         scope: Optional[List[str]] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get jobs for a project.
 
         Args:
             project_id: Project ID or full path.
-            scope: Optional list of job scopes (e.g., ['success', 'failed']).
+            scope: Optional list of job scopes (not supported in GraphQL).
             first: Number of jobs to fetch.
             after: Cursor for pagination.
 
         Returns:
-            Response: List of jobs.
+            Dict[str, Any]: Raw GraphQL response with job data.
         """
         job = JobModel(project_id=project_id)
         query = """
@@ -1665,7 +1896,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_job(self, project_id: Union[int, str], job_id: int) -> Response:
+    def get_job(self, project_id: Union[int, str], job_id: int) -> Dict[str, Any]:
         """
         Get a specific job.
 
@@ -1674,7 +1905,7 @@ class GraphQL:
             job_id: ID of the job.
 
         Returns:
-            Response: Job details.
+            Dict[str, Any]: Raw GraphQL response with job data.
         """
         job = JobModel(project_id=project_id)
         query = """
@@ -1695,7 +1926,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def retry_job(self, project_id: Union[int, str], job_id: int) -> Response:
+    def retry_job(self, project_id: Union[int, str], job_id: int) -> Dict[str, Any]:
         """
         Retry a job.
 
@@ -1704,7 +1935,7 @@ class GraphQL:
             job_id: ID of the job.
 
         Returns:
-            Response: Result of the retry operation.
+            Dict[str, Any]: Raw GraphQL response with retry result.
         """
         query = """
         mutation ($input: JobRetryInput!) {
@@ -1721,7 +1952,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def cancel_job(self, project_id: Union[int, str], job_id: int) -> Response:
+    def cancel_job(self, project_id: Union[int, str], job_id: int) -> Dict[str, Any]:
         """
         Cancel a job.
 
@@ -1730,7 +1961,7 @@ class GraphQL:
             job_id: ID of the job.
 
         Returns:
-            Response: Result of the cancel operation.
+            Dict[str, Any]: Raw GraphQL response with cancel result.
         """
         query = """
         mutation ($input: JobCancelInput!) {
@@ -1755,19 +1986,19 @@ class GraphQL:
         package_name: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get packages for a project.
 
         Args:
             project_id: Project ID or full path.
-            package_type: Optional package type filter.
-            package_name: Optional package name filter.
+            package_type: Optional package type filter (not supported in GraphQL).
+            package_name: Optional package name filter (not supported in GraphQL).
             first: Number of packages to fetch.
             after: Cursor for pagination.
 
         Returns:
-            Response: List of packages.
+            Dict[str, Any]: Raw GraphQL response with package data.
         """
         package = PackageModel(project_id=project_id)
         query = """
@@ -1793,7 +2024,9 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_package(self, project_id: Union[int, str], package_id: int) -> Response:
+    def get_package(
+        self, project_id: Union[int, str], package_id: int
+    ) -> Dict[str, Any]:
         """
         Get a specific package.
 
@@ -1802,7 +2035,7 @@ class GraphQL:
             package_id: ID of the package.
 
         Returns:
-            Response: Package details.
+            Dict[str, Any]: Raw GraphQL response with package data.
         """
         package = PackageModel(project_id=project_id)
         query = """
@@ -1823,7 +2056,9 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_package(self, project_id: Union[int, str], package_id: int) -> Response:
+    def delete_package(
+        self, project_id: Union[int, str], package_id: int
+    ) -> Dict[str, Any]:
         """
         Delete a package.
 
@@ -1832,7 +2067,7 @@ class GraphQL:
             package_id: ID of the package.
 
         Returns:
-            Response: Result of the deletion.
+            Dict[str, Any]: Raw GraphQL response with deletion result.
         """
         query = """
         mutation ($input: PackageDeleteInput!) {
@@ -1844,14 +2079,14 @@ class GraphQL:
         variables = {"input": {"id": f"gid://gitlab/Packages::Package/{package_id}"}}
         return self.execute_gql(query, variables=variables)
 
-    # Deploy Tokens (Note: Limited GraphQL support)
+    # Deploy Tokens
     @require_auth
     def get_deploy_tokens(
         self,
         project_id: Union[int, str],
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get deploy tokens for a project.
 
@@ -1861,10 +2096,10 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of deploy tokens.
+            Dict[str, Any]: Raw GraphQL response with deploy token data.
 
         Note:
-            Deploy tokens are not fully supported in GraphQL; consider using REST API.
+            Deploy tokens are not fully supported in GraphQL; use REST API.
         """
         raise NotImplementedError(
             "Deploy tokens not available in GitLab GraphQL; use REST API."
@@ -1878,7 +2113,7 @@ class GraphQL:
         scopes: List[str],
         expires_at: Optional[str] = None,
         username: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Create a deploy token.
 
@@ -1890,7 +2125,7 @@ class GraphQL:
             username: Optional username for the token.
 
         Returns:
-            Response: Created deploy token.
+            Dict[str, Any]: Raw GraphQL response with created deploy token data.
 
         Note:
             Deploy tokens are not supported in GraphQL; use REST API.
@@ -1902,7 +2137,7 @@ class GraphQL:
     @require_auth
     def delete_deploy_token(
         self, project_id: Union[int, str], deploy_token_id: int
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Delete a deploy token.
 
@@ -1911,7 +2146,7 @@ class GraphQL:
             deploy_token_id: ID of the deploy token.
 
         Returns:
-            Response: Result of the deletion.
+            Dict[str, Any]: Raw GraphQL response with deletion result.
 
         Note:
             Deploy tokens are not supported in GraphQL; use REST API.
@@ -1928,18 +2163,18 @@ class GraphQL:
         username: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get users.
 
         Args:
             search: Optional search term for users.
-            username: Optional specific username filter.
+            username: Optional specific username filter (not supported in GraphQL).
             first: Number of users to fetch.
             after: Cursor for pagination.
 
         Returns:
-            Response: List of users.
+            Dict[str, Any]: Raw GraphQL response with user data.
         """
         user = UserModel()
         query = """
@@ -1966,7 +2201,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_user(self, user_id: int) -> Response:
+    def get_user(self, user_id: int) -> Dict[str, Any]:
         """
         Get a specific user.
 
@@ -1974,7 +2209,7 @@ class GraphQL:
             user_id: ID of the user.
 
         Returns:
-            Response: User details.
+            Dict[str, Any]: Raw GraphQL response with user data.
         """
         user = UserModel(user_id=user_id)
         query = """
@@ -1999,19 +2234,19 @@ class GraphQL:
         search: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get members of a project.
 
         Args:
             project_id: Project ID or full path.
-            include_inherited: Include inherited members.
-            search: Optional search term.
+            include_inherited: Include inherited members (not supported in GraphQL).
+            search: Optional search term (not supported in GraphQL).
             first: Number of members to fetch.
             after: Cursor for pagination.
 
         Returns:
-            Response: List of members.
+            Dict[str, Any]: Raw GraphQL response with member data.
         """
         members = MembersModel(project_id=project_id)
         query = """
@@ -2047,7 +2282,7 @@ class GraphQL:
         user_id: int,
         access_level: str,
         expires_at: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Add a member to a project.
 
@@ -2058,7 +2293,7 @@ class GraphQL:
             expires_at: Optional expiration date.
 
         Returns:
-            Response: Added member details.
+            Dict[str, Any]: Raw GraphQL response with added member data.
         """
         members = MembersModel(project_id=project_id)
         query = """
@@ -2082,6 +2317,9 @@ class GraphQL:
                 "expiresAt": expires_at,
             }
         }
+        variables["input"] = {
+            k: v for k, v in variables["input"].items() if v is not None
+        }
         return self.execute_gql(query, variables=variables)
 
     @require_auth
@@ -2091,7 +2329,7 @@ class GraphQL:
         user_id: int,
         access_level: Optional[str] = None,
         expires_at: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Update a project member.
 
@@ -2102,7 +2340,7 @@ class GraphQL:
             expires_at: Updated expiration date.
 
         Returns:
-            Response: Updated member details.
+            Dict[str, Any]: Raw GraphQL response with updated member data.
         """
         query = """
         mutation ($input: ProjectMemberUpdateInput!) {
@@ -2130,7 +2368,9 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_member(self, project_id: Union[int, str], user_id: int) -> Response:
+    def delete_member(
+        self, project_id: Union[int, str], user_id: int
+    ) -> Dict[str, Any]:
         """
         Remove a member from a project.
 
@@ -2139,7 +2379,7 @@ class GraphQL:
             user_id: ID of the user to remove.
 
         Returns:
-            Response: Result of the deletion.
+            Dict[str, Any]: Raw GraphQL response with deletion result.
         """
         query = """
         mutation ($input: ProjectMemberDeleteInput!) {
@@ -2160,7 +2400,7 @@ class GraphQL:
         project_id: Union[int, str],
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get releases for a project.
 
@@ -2170,7 +2410,7 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of releases.
+            Dict[str, Any]: Raw GraphQL response with release data.
         """
         release = ReleaseModel(project_id=project_id)
         query = """
@@ -2196,7 +2436,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_release(self, project_id: Union[int, str], tag_name: str) -> Response:
+    def get_release(self, project_id: Union[int, str], tag_name: str) -> Dict[str, Any]:
         """
         Get a specific release.
 
@@ -2205,7 +2445,7 @@ class GraphQL:
             tag_name: Name of the release tag.
 
         Returns:
-            Response: Release details.
+            Dict[str, Any]: Raw GraphQL response with release data.
         """
         release = ReleaseModel(project_id=project_id)
         query = """
@@ -2222,6 +2462,7 @@ class GraphQL:
         variables = {"fullPath": str(project_id), "tagName": tag_name}
         return self.execute_gql(query, variables=variables)
 
+    # Releases
     @require_auth
     def create_release(
         self,
@@ -2230,7 +2471,7 @@ class GraphQL:
         name: Optional[str] = None,
         description: Optional[str] = None,
         ref: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Create a release.
 
@@ -2242,7 +2483,7 @@ class GraphQL:
             ref: Optional reference (commit SHA, branch).
 
         Returns:
-            Response: Created release.
+            Dict[str, Any]: Raw GraphQL response with created release data.
         """
         release = ReleaseModel(project_id=project_id)
         query = """
@@ -2277,7 +2518,7 @@ class GraphQL:
         tag_name: str,
         name: Optional[str] = None,
         description: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Update a release.
 
@@ -2288,7 +2529,7 @@ class GraphQL:
             description: Updated description.
 
         Returns:
-            Response: Updated release.
+            Dict[str, Any]: Raw GraphQL response with updated release data.
         """
         query = """
         mutation ($input: ReleaseUpdateInput!) {
@@ -2315,7 +2556,9 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_release(self, project_id: Union[int, str], tag_name: str) -> Response:
+    def delete_release(
+        self, project_id: Union[int, str], tag_name: str
+    ) -> Dict[str, Any]:
         """
         Delete a release.
 
@@ -2324,7 +2567,7 @@ class GraphQL:
             tag_name: Name of the release tag.
 
         Returns:
-            Response: Result of the deletion.
+            Dict[str, Any]: Raw GraphQL response with deletion result.
         """
         query = """
         mutation ($input: ReleaseDeleteInput!) {
@@ -2349,7 +2592,7 @@ class GraphQL:
         search: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get issues for a project.
 
@@ -2357,21 +2600,24 @@ class GraphQL:
             project_id: Project ID or full path.
             state: Optional issue state (e.g., 'opened', 'closed').
             labels: Optional list of labels.
-            milestone: Optional milestone title.
-            author_username: Optional author username.
+            milestone: Optional milestone title (not fully supported in GraphQL).
+            author_username: Optional author username (not supported in GraphQL).
             assignee_username: Optional assignee username.
             search: Optional search term.
             first: Number of issues to fetch.
             after: Cursor for pagination.
 
         Returns:
-            Response: List of issues.
+            Dict[str, Any]: Raw GraphQL response with issue data.
+
+        Note:
+            Some filters (e.g., author_username, milestone) are not fully supported in GitLab GraphQL.
         """
         issue = IssueModel(project_id=project_id)
         query = """
-        query ($fullPath: ID!, $state: IssueState, $first: Int, $after: String) {
+        query ($fullPath: ID!, $state: IssueState, $labels: [String!], $assigneeUsernames: [String!], $search: String, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
-                issues(state: $state, first: $first, after: $after) {
+                issues(state: $state, labels: $labels, assigneeUsernames: $assigneeUsernames, search: $search, first: $first, after: $after) {
                     nodes {
                         iid
                         title
@@ -2388,12 +2634,18 @@ class GraphQL:
         variables = {"fullPath": str(project_id), "first": first}
         if state:
             variables["state"] = state
+        if labels:
+            variables["labels"] = labels
+        if assignee_username:
+            variables["assigneeUsernames"] = [assignee_username]
+        if search:
+            variables["search"] = search
         if after:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_issue(self, project_id: Union[int, str], issue_iid: int) -> Response:
+    def get_issue(self, project_id: Union[int, str], issue_iid: int) -> Dict[str, Any]:
         """
         Get a specific issue.
 
@@ -2402,7 +2654,7 @@ class GraphQL:
             issue_iid: Internal ID of the issue.
 
         Returns:
-            Response: Issue details.
+            Dict[str, Any]: Raw GraphQL response with issue data.
         """
         issue = IssueModel(project_id=project_id)
         query = """
@@ -2426,7 +2678,7 @@ class GraphQL:
         title: str,
         description: Optional[str] = None,
         labels: Optional[List[str]] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Create an issue.
 
@@ -2437,7 +2689,7 @@ class GraphQL:
             labels: Optional list of labels.
 
         Returns:
-            Response: Created issue.
+            Dict[str, Any]: Raw GraphQL response with created issue data.
         """
         issue = IssueModel(project_id=project_id)
         query = """
@@ -2472,7 +2724,7 @@ class GraphQL:
         title: Optional[str] = None,
         description: Optional[str] = None,
         state_event: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Update an issue.
 
@@ -2484,7 +2736,7 @@ class GraphQL:
             state_event: Optional state change (e.g., 'CLOSE').
 
         Returns:
-            Response: Updated issue.
+            Dict[str, Any]: Raw GraphQL response with updated issue data.
         """
         query = """
         mutation ($input: IssueUpdateInput!) {
@@ -2513,7 +2765,9 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_issue(self, project_id: Union[int, str], issue_iid: int) -> Response:
+    def delete_issue(
+        self, project_id: Union[int, str], issue_iid: int
+    ) -> Dict[str, Any]:
         """
         Delete an issue.
 
@@ -2522,7 +2776,7 @@ class GraphQL:
             issue_iid: Internal ID of the issue.
 
         Returns:
-            Response: Result of the deletion.
+            Dict[str, Any]: Raw GraphQL response with deletion result.
         """
         query = """
         mutation ($input: IssueDeleteInput!) {
@@ -2543,24 +2797,27 @@ class GraphQL:
         type: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get to-dos for a user or project.
 
         Args:
-            project_id: Optional project ID or full path.
+            project_id: Optional project ID or full path (not supported in GraphQL).
             state: Optional to-do state (e.g., 'pending').
             type: Optional to-do type.
             first: Number of to-dos to fetch.
             after: Cursor for pagination.
 
         Returns:
-            Response: List of to-dos.
+            Dict[str, Any]: Raw GraphQL response with to-do data.
+
+        Note:
+            project_id is not supported in GitLab GraphQL for todos; included for REST parity.
         """
         query = """
-        query ($first: Int, $after: String) {
+        query ($state: TodoStateEnum, $type: TodoTargetTypeEnum, $first: Int, $after: String) {
             currentUser {
-                todos(first: $first, after: $after) {
+                todos(state: $state, type: $type, first: $first, after: $after) {
                     nodes {
                         id
                         state
@@ -2575,6 +2832,10 @@ class GraphQL:
         }
         """
         variables = {"first": first}
+        if state:
+            variables["state"] = state.upper()
+        if type:
+            variables["type"] = type.upper()
         if after:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
@@ -2588,7 +2849,7 @@ class GraphQL:
         search: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get environments for a project.
 
@@ -2600,12 +2861,12 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of environments.
+            Dict[str, Any]: Raw GraphQL response with environment data.
         """
         query = """
-        query ($fullPath: ID!, $name: String, $first: Int, $after: String) {
+        query ($fullPath: ID!, $name: String, $search: String, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
-                environments(name: $name, first: $first, after: $after) {
+                environments(name: $name, search: $search, first: $first, after: $after) {
                     nodes {
                         id
                         name
@@ -2622,6 +2883,8 @@ class GraphQL:
         variables = {"fullPath": str(project_id), "first": first}
         if name:
             variables["name"] = name
+        if search:
+            variables["search"] = search
         if after:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
@@ -2629,7 +2892,7 @@ class GraphQL:
     @require_auth
     def create_environment(
         self, project_id: Union[int, str], name: str, external_url: Optional[str] = None
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Create an environment.
 
@@ -2639,7 +2902,7 @@ class GraphQL:
             external_url: Optional external URL.
 
         Returns:
-            Response: Created environment.
+            Dict[str, Any]: Raw GraphQL response with created environment data.
         """
         query = """
         mutation ($input: EnvironmentCreateInput!) {
@@ -2671,7 +2934,7 @@ class GraphQL:
         environment_id: int,
         name: Optional[str] = None,
         external_url: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Update an environment.
 
@@ -2682,7 +2945,7 @@ class GraphQL:
             external_url: Updated external URL.
 
         Returns:
-            Response: Updated environment.
+            Dict[str, Any]: Raw GraphQL response with updated environment data.
         """
         query = """
         mutation ($input: EnvironmentUpdateInput!) {
@@ -2710,7 +2973,7 @@ class GraphQL:
     @require_auth
     def delete_environment(
         self, project_id: Union[int, str], environment_id: int
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Delete an environment.
 
@@ -2719,7 +2982,7 @@ class GraphQL:
             environment_id: ID of the environment.
 
         Returns:
-            Response: Result of the deletion.
+            Dict[str, Any]: Raw GraphQL response with deletion result.
         """
         query = """
         mutation ($input: EnvironmentDeleteInput!) {
@@ -2739,7 +3002,7 @@ class GraphQL:
         pipeline_id: Optional[int] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get test reports for a project or pipeline.
 
@@ -2750,7 +3013,7 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of test reports.
+            Dict[str, Any]: Raw GraphQL response with test report data.
         """
         query = """
         query ($fullPath: ID!, $pipelineId: CiPipelineID, $first: Int, $after: String) {
@@ -2786,7 +3049,7 @@ class GraphQL:
         search: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get namespaces.
 
@@ -2796,7 +3059,7 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of namespaces.
+            Dict[str, Any]: Raw GraphQL response with namespace data.
         """
         namespace = NamespaceModel()
         query = """
@@ -2822,7 +3085,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_namespace(self, namespace_id: Union[int, str]) -> Response:
+    def get_namespace(self, namespace_id: Union[int, str]) -> Dict[str, Any]:
         """
         Get a specific namespace.
 
@@ -2830,7 +3093,7 @@ class GraphQL:
             namespace_id: ID or full path of the namespace.
 
         Returns:
-            Response: Namespace details.
+            Dict[str, Any]: Raw GraphQL response with namespace data.
         """
         namespace = NamespaceModel(namespace_id=namespace_id)
         query = """
@@ -2852,7 +3115,7 @@ class GraphQL:
         search: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get groups.
 
@@ -2862,7 +3125,7 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of groups.
+            Dict[str, Any]: Raw GraphQL response with group data.
         """
         group = GroupModel()
         query = """
@@ -2888,7 +3151,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_group(self, group_id: Union[int, str]) -> Response:
+    def get_group(self, group_id: Union[int, str]) -> Dict[str, Any]:
         """
         Get a specific group.
 
@@ -2896,7 +3159,7 @@ class GraphQL:
             group_id: ID or full path of the group.
 
         Returns:
-            Response: Group details.
+            Dict[str, Any]: Raw GraphQL response with group data.
         """
         group = GroupModel(group_id=group_id)
         query = """
@@ -2918,7 +3181,7 @@ class GraphQL:
         project_id: Union[int, str],
         first: Optional[int] = 20,
         after: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Get wiki pages for a project.
 
@@ -2928,7 +3191,7 @@ class GraphQL:
             after: Cursor for pagination.
 
         Returns:
-            Response: List of wiki pages.
+            Dict[str, Any]: Raw GraphQL response with wiki page data.
         """
         wiki = WikiModel(project_id=project_id)
         query = """
@@ -2956,7 +3219,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_wiki_page(self, project_id: Union[int, str], slug: str) -> Response:
+    def get_wiki_page(self, project_id: Union[int, str], slug: str) -> Dict[str, Any]:
         """
         Get a specific wiki page.
 
@@ -2965,7 +3228,7 @@ class GraphQL:
             slug: Slug of the wiki page.
 
         Returns:
-            Response: Wiki page details.
+            Dict[str, Any]: Raw GraphQL response with wiki page data.
         """
         wiki = WikiModel(project_id=project_id, slug=slug)
         query = """
@@ -2991,7 +3254,7 @@ class GraphQL:
         title: str,
         content: str,
         format_type: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Create a wiki page.
 
@@ -3002,7 +3265,7 @@ class GraphQL:
             format_type: Optional format (e.g., 'markdown').
 
         Returns:
-            Response: Created wiki page.
+            Dict[str, Any]: Raw GraphQL response with created wiki page data.
         """
         wiki = WikiModel(project_id=project_id, title=title, content=content)
         query = """
@@ -3034,7 +3297,7 @@ class GraphQL:
         title: Optional[str] = None,
         content: Optional[str] = None,
         format_type: Optional[str] = None,
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Update a wiki page.
 
@@ -3046,7 +3309,7 @@ class GraphQL:
             format_type: Updated format.
 
         Returns:
-            Response: Updated wiki page.
+            Dict[str, Any]: Raw GraphQL response with updated wiki page data.
         """
         wiki = WikiModel(project_id=project_id, slug=slug)
         query = """
@@ -3075,7 +3338,9 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_wiki_page(self, project_id: Union[int, str], slug: str) -> Response:
+    def delete_wiki_page(
+        self, project_id: Union[int, str], slug: str
+    ) -> Dict[str, Any]:
         """
         Delete a wiki page.
 
@@ -3084,7 +3349,7 @@ class GraphQL:
             slug: Slug of the wiki page.
 
         Returns:
-            Response: Result of the deletion.
+            Dict[str, Any]: Raw GraphQL response with deletion result.
         """
         wiki = WikiModel(project_id=project_id, slug=slug)
         query = """
@@ -3100,7 +3365,7 @@ class GraphQL:
     @require_auth
     def upload_wiki_page_attachment(
         self, project_id: Union[int, str], file: str, branch: Optional[str] = None
-    ) -> Response:
+    ) -> Dict[str, Any]:
         """
         Upload an attachment to a wiki page.
 
@@ -3110,10 +3375,10 @@ class GraphQL:
             branch: Optional branch for the wiki.
 
         Returns:
-            Response: Result of the upload.
+            Dict[str, Any]: Raw GraphQL response with upload result.
 
         Note:
-            File uploads are not directly supported in GraphQL; use REST API.
+            File uploads are not directly supported in GitLab GraphQL; use REST API.
         """
         raise NotImplementedError(
             "Wiki attachment upload not available in GitLab GraphQL; use REST API."

@@ -3,57 +3,16 @@
 import logging
 import os
 import pickle
-from typing import Union, Any
+from typing import Any
 from alembic import command
 from alembic.config import Config
 from alembic.migration import MigrationContext
 from sqlalchemy import create_engine
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.engine import reflection
-import requests
 from concurrent.futures import ThreadPoolExecutor
 from sqlalchemy.orm import sessionmaker
 from multiprocessing import Pool
-
-from gitlab_api.gitlab_response_models import Response
-
-
-def process_response(response: requests.Response) -> Union[Response, requests.Response]:
-    try:
-        response.raise_for_status()
-    except Exception as response_error:
-        logging.error(f"Response Error: {response_error}")
-    try:
-        status_code = response.status_code
-    except Exception as e:
-        status_code = None
-        logging.error(f"Unable to get status code: {e}")
-    try:
-        raw_output = response.content
-    except Exception as e:
-        raw_output = None
-        logging.error(f"Unable to get raw output: {e}")
-    try:
-        headers = response.headers
-    except Exception as e:
-        headers = {}
-        logging.error(f"Unable to get headers: {e}")
-    try:
-        response = response.json()
-    except Exception as response_error:
-        logging.error(f"JSON Conversion Error: {response_error}")
-    try:
-        response = Response(
-            data=response,
-            status_code=status_code,
-            raw_output=raw_output,
-            json_output=response,
-            headers=headers,
-        )
-    except Exception as response_error:
-        logging.error(f"Response Model Application Error: {response_error}")
-
-    return response
 
 
 def remove_none_values(dictionary: dict) -> dict:
@@ -90,6 +49,11 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 6):
     parsed_schema = dict(schema)
     parsed_schema = remove_none_values(dictionary=parsed_schema)
     logging.debug(f"\n\nCleaned Schema: {parsed_schema}")
+    if parsed_schema.get("__pydantic_extra__"):
+        logging.warning(
+            f"Extra fields ignored in SQLAlchemy conversion: {parsed_schema['__pydantic_extra__']}"
+        )
+        parsed_schema.pop("__pydantic_extra__", None)
     if not parsed_schema:
         return parsed_schema
 
@@ -120,16 +84,6 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 6):
                 f"Error: {e}"
             )
             logging.error(error_msg)
-            # try:
-            #     pydantic_to_sqlalchemy_fallback(schema=parsed_schema)
-            # except AttributeError as e:
-            #     error_msg = (f"Fallback Function Failure\n"
-            #                  f"Nested Pydantic model in {schema.__class__} lacks Meta.orm_model. \n"
-            #                  #f"Parsed Schema: {parsed_schema}\n"
-            #                  f"Key: {key}, Value: {value}\n"
-            #                  f"Error: {e}")
-            #     logging.error(error_msg)
-            #     raise ValueError(error_msg)
             raise ValueError(error_msg)
     logging.debug(f"\nReturned Parsed Schema: {parsed_schema}")
     return parsed_schema
