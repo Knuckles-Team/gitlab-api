@@ -5,6 +5,7 @@ import os
 import argparse
 import sys
 import logging
+import requests
 from typing import Optional, List, Dict, Union
 from pydantic import Field
 from fastmcp import FastMCP, Context
@@ -78,9 +79,7 @@ def get_branches(
         response = client.get_branch(**kwargs)
     else:
         response = client.get_branches(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"})
@@ -118,9 +117,7 @@ def create_branch(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.create_branch(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response.model_dump()
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"})
@@ -145,7 +142,7 @@ async def delete_branch(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a branch or all merged branches in a GitLab project.
 
     - If delete_merged_branches=True, deletes all merged branches (excluding protected).
@@ -174,11 +171,9 @@ async def delete_branch(
         response = client.delete_merged_branches(**kwargs)
     else:
         response = client.delete_branch(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Deletion complete")
-    return response.data
+    return response
 
 
 # Commits Tools
@@ -232,9 +227,7 @@ def get_commits(
         response = client.get_commit(**kwargs)
     else:
         response = client.get_commits(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -263,7 +256,7 @@ def create_commit(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Create a new commit in a GitLab project."""
     if not project_id or not branch or not commit_message or not actions:
         raise ValueError("project_id, branch, commit_message, and actions are required")
@@ -279,9 +272,7 @@ def create_commit(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.create_commit(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -303,7 +294,7 @@ async def get_commit_diff(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> List:
+) -> requests.Response:
     """Get the diff of a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -323,11 +314,9 @@ async def get_commit_diff(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.get_commit_diff(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Diff retrieval complete")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -350,7 +339,7 @@ def revert_commit(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Revert a commit in a target branch in a GitLab project.
 
     - If dry_run=True, simulates the revert without applying changes.
@@ -373,9 +362,7 @@ def revert_commit(
     response = client.revert_commit(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -397,7 +384,7 @@ async def get_commit_comments(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve comments on a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -417,11 +404,9 @@ async def get_commit_comments(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.get_commit_comments(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Comments retrieval complete")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -453,7 +438,7 @@ async def create_commit_comment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Create a new comment on a specific commit in a GitLab project."""
     if not project_id or not commit_hash or not note:
         raise ValueError("project_id, commit_hash, and note are required")
@@ -475,11 +460,9 @@ async def create_commit_comment(
     response = client.create_commit_comment(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Comment creation complete")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -501,7 +484,7 @@ async def get_commit_discussions(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve discussions (threaded comments) on a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -521,11 +504,9 @@ async def get_commit_discussions(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.get_commit_discussions(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Discussions retrieval complete")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -560,7 +541,7 @@ async def get_commit_statuses(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve build/CI statuses for a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -582,11 +563,9 @@ async def get_commit_statuses(
     response = client.get_commit_statuses(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Statuses retrieval complete")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -628,7 +607,7 @@ async def post_build_status_to_commit(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Post a build/CI status to a specific commit in a GitLab project."""
     if not project_id or not commit_hash or not state:
         raise ValueError("project_id, commit_hash, and state are required")
@@ -650,11 +629,9 @@ async def post_build_status_to_commit(
     response = client.post_build_status_to_commit(
         project_id=project_id, commit_hash=commit_hash, **kwargs
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Build status posted successfully")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -676,7 +653,7 @@ async def get_commit_merge_requests(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve merge requests associated with a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -696,11 +673,9 @@ async def get_commit_merge_requests(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.get_commit_merge_requests(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Merge requests retrieval complete")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"})
@@ -722,7 +697,7 @@ async def get_commit_gpg_signature(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Retrieve the GPG signature for a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -742,11 +717,9 @@ async def get_commit_gpg_signature(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.get_commit_gpg_signature(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("GPG signature retrieval complete")
-    return response.data
+    return response
 
 
 # Deploy Tokens Tools
@@ -766,7 +739,7 @@ def get_deploy_tokens(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of all deploy tokens for the GitLab instance."""
     if not access_token:
         raise RuntimeError(
@@ -774,9 +747,7 @@ def get_deploy_tokens(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_deploy_tokens()
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -812,9 +783,7 @@ def get_project_deploy_tokens(
         )
     else:
         response = client.get_project_deploy_tokens(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -866,11 +835,9 @@ async def create_project_deploy_token(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.create_project_deploy_token(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Deploy token created")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -894,7 +861,7 @@ async def delete_project_deploy_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a specific deploy token for a GitLab project."""
     if not project_id or not token_id:
         raise ValueError("project_id and token_id are required")
@@ -906,11 +873,9 @@ async def delete_project_deploy_token(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_project_deploy_token(project_id=project_id, token=token_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Deploy token deleted")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -946,9 +911,7 @@ def get_group_deploy_tokens(
         response = client.get_group_deploy_token(group_id=group_id, token=token_id)
     else:
         response = client.get_group_deploy_tokens(group_id=group_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1000,11 +963,9 @@ async def create_group_deploy_token(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.create_group_deploy_token(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Deploy token created")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1028,7 +989,7 @@ async def delete_group_deploy_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a specific deploy token for a GitLab group."""
     if not group_id or not token_id:
         raise ValueError("group_id and token_id are required")
@@ -1040,11 +1001,9 @@ async def delete_group_deploy_token(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_group_deploy_token(group_id=group_id, token=token_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Deploy token deleted")
-    return response.data
+    return response
 
 
 # Environments Tools
@@ -1097,9 +1056,7 @@ def get_environments(
         )
     else:
         response = client.get_environments(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1152,11 +1109,9 @@ async def create_environment(
         ]
     }
     response = client.create_environment(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Environment created")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1217,11 +1172,9 @@ async def update_environment(
     response = client.update_environment(
         project_id=project_id, environment_id=environment_id, **kwargs
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Environment updated")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1245,7 +1198,7 @@ async def delete_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a specific environment in a GitLab project."""
     if not project_id or not environment_id:
         raise ValueError("project_id and environment_id are required")
@@ -1259,11 +1212,9 @@ async def delete_environment(
     response = client.delete_environment(
         project_id=project_id, environment_id=environment_id
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Environment deleted")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1287,7 +1238,7 @@ async def stop_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Stop a specific environment in a GitLab project."""
     if not project_id or not environment_id:
         raise ValueError("project_id and environment_id are required")
@@ -1301,11 +1252,9 @@ async def stop_environment(
     response = client.stop_environment(
         project_id=project_id, environment_id=environment_id
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Environment stopped")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1332,7 +1281,7 @@ async def stop_stale_environments(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Stop stale environments in a GitLab project, optionally filtered by older_than timestamp."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -1358,11 +1307,9 @@ async def stop_stale_environments(
         ]
     }
     response = client.stop_stale_environments(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Stale environments stopped")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1385,7 +1332,7 @@ async def delete_stopped_environments(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete stopped review app environments in a GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -1397,11 +1344,9 @@ async def delete_stopped_environments(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_stopped_environments(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Stopped review apps deleted")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1435,9 +1380,7 @@ def get_protected_environments(
         response = client.get_protected_environment(project_id=project_id, name=name)
     else:
         response = client.get_protected_environments(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1490,11 +1433,9 @@ async def protect_environment(
         ]
     }
     response = client.protect_environment(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Environment protected")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1551,11 +1492,9 @@ async def update_protected_environment(
         ]
     }
     response = client.update_protected_environment(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Protected environment updated")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -1579,7 +1518,7 @@ async def unprotect_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Unprotect a specific environment in a GitLab project."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -1591,11 +1530,9 @@ async def unprotect_environment(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.unprotect_environment(project_id=project_id, name=name)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Environment unprotected")
-    return response.data
+    return response
 
 
 # Groups Tools
@@ -1650,9 +1587,7 @@ def get_groups(
         response = client.get_group(group_id=group_id, **kwargs)
     else:
         response = client.get_groups(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
@@ -1711,11 +1646,9 @@ async def edit_group(
         ]
     }
     response = client.edit_group(group_id=group_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Group edited")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
@@ -1745,7 +1678,7 @@ def get_group_subgroups(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of subgroups for a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -1761,9 +1694,7 @@ def get_group_subgroups(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_subgroups(group_id=group_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
@@ -1795,7 +1726,7 @@ def get_group_descendant_groups(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of all descendant groups for a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -1811,9 +1742,7 @@ def get_group_descendant_groups(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_descendant_groups(group_id=group_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
@@ -1843,7 +1772,7 @@ def get_group_projects(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of projects associated with a specific GitLab group, optionally including subgroups."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -1859,9 +1788,7 @@ def get_group_projects(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_projects(group_id=group_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"})
@@ -1894,7 +1821,7 @@ def get_group_merge_requests(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of merge requests associated with a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -1910,9 +1837,7 @@ def get_group_merge_requests(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_merge_requests(group_id=group_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 # Jobs Tools
@@ -1960,9 +1885,7 @@ def get_project_jobs(
         response = client.get_project_job(project_id=project_id, job_id=job_id)
     else:
         response = client.get_project_jobs(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
@@ -1981,7 +1904,7 @@ def get_project_job_log(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Retrieve the log (trace) of a specific job in a GitLab project."""
     if not project_id or not job_id:
         raise ValueError("project_id and job_id are required")
@@ -1991,9 +1914,7 @@ def get_project_job_log(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_project_job_log(project_id=project_id, job_id=job_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
@@ -2015,7 +1936,7 @@ async def cancel_project_job(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Cancel a specific job in a GitLab project."""
     if not project_id or not job_id:
         raise ValueError("project_id and job_id are required")
@@ -2027,11 +1948,9 @@ async def cancel_project_job(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.cancel_project_job(project_id=project_id, job_id=job_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Job cancelled")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
@@ -2065,11 +1984,9 @@ async def retry_project_job(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.retry_project_job(project_id=project_id, job_id=job_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Job retried")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
@@ -2091,7 +2008,7 @@ async def erase_project_job(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Erase (delete artifacts and logs of) a specific job in a GitLab project."""
     if not project_id or not job_id:
         raise ValueError("project_id and job_id are required")
@@ -2103,11 +2020,9 @@ async def erase_project_job(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.erase_project_job(project_id=project_id, job_id=job_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Job erased")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
@@ -2141,11 +2056,9 @@ async def run_project_job(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.run_project_job(project_id=project_id, job_id=job_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Job started")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
@@ -2167,7 +2080,7 @@ def get_pipeline_jobs(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of jobs for a specific pipeline in a GitLab project, optionally filtered by scope."""
     if not project_id or not pipeline_id:
         raise ValueError("project_id and pipeline_id are required")
@@ -2193,9 +2106,7 @@ def get_pipeline_jobs(
     response = client.get_pipeline_jobs(
         project_id=project_id, pipeline_id=pipeline_id, **kwargs
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 # Members Tools
@@ -2226,7 +2137,7 @@ def get_group_members(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of members in a specific GitLab group, optionally filtered by query or user IDs."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -2242,9 +2153,7 @@ def get_group_members(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_members(group_id=group_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"})
@@ -2271,7 +2180,7 @@ def get_project_members(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of members in a specific GitLab project, optionally filtered by query or user IDs."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -2288,9 +2197,7 @@ def get_project_members(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_project_members(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 # Merge Request Tools
@@ -2361,11 +2268,9 @@ async def create_merge_request(
         ]
     }
     response = client.create_merge_request(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Merge request created")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2404,7 +2309,7 @@ def get_merge_requests(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of merge requests across all projects, optionally filtered by state, scope, or labels."""
     if not access_token:
         raise RuntimeError(
@@ -2418,9 +2323,7 @@ def get_merge_requests(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.get_merge_requests(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2477,9 +2380,7 @@ def get_project_merge_requests(
         )
     else:
         response = client.get_project_merge_requests(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2515,9 +2416,7 @@ def get_project_level_merge_request_approval_rules(
         )
     else:
         response = client.get_project_level_rule(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2579,11 +2478,9 @@ async def create_project_level_rule(
         ]
     }
     response = client.create_project_level_rule(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Approval rule created")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2654,11 +2551,9 @@ async def update_project_level_rule(
     response = client.update_project_level_rule(
         project_id=project_id, approval_rule_id=approval_rule_id, **kwargs
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Approval rule updated")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2682,7 +2577,7 @@ async def delete_project_level_rule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a project-level merge request approval rule."""
     if not project_id or not approval_rule_id:
         raise ValueError("project_id and approval_rule_id are required")
@@ -2698,11 +2593,9 @@ async def delete_project_level_rule(
     response = client.delete_project_level_rule(
         project_id=project_id, approval_rule_id=approval_rule_id
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Approval rule deleted")
-    return response.data
+    return response
 
 
 # Merge Rules Tools
@@ -2724,7 +2617,7 @@ def merge_request_level_approvals(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Retrieve approvals for a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
@@ -2736,9 +2629,7 @@ def merge_request_level_approvals(
     response = client.merge_request_level_approvals(
         project_id=project_id, merge_request_iid=merge_request_iid
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2759,7 +2650,7 @@ def get_approval_state_merge_requests(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Retrieve the approval state of a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
@@ -2771,9 +2662,7 @@ def get_approval_state_merge_requests(
     response = client.get_approval_state_merge_requests(
         project_id=project_id, merge_request_iid=merge_request_iid
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2794,7 +2683,7 @@ def get_merge_request_level_rules(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve merge request-level approval rules for a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
@@ -2806,9 +2695,7 @@ def get_merge_request_level_rules(
     response = client.get_merge_request_level_rules(
         project_id=project_id, merge_request_iid=merge_request_iid
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2832,7 +2719,7 @@ async def approve_merge_request(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Approve a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
@@ -2848,11 +2735,9 @@ async def approve_merge_request(
     response = client.approve_merge_request(
         project_id=project_id, merge_request_iid=merge_request_iid
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Merge request approved")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2876,7 +2761,7 @@ async def unapprove_merge_request(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Unapprove a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
@@ -2892,11 +2777,9 @@ async def unapprove_merge_request(
     response = client.unapprove_merge_request(
         project_id=project_id, merge_request_iid=merge_request_iid
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Merge request unapproved")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2916,7 +2799,7 @@ def get_group_level_rule(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Retrieve merge request approval settings for a specific GitLab group."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -2926,9 +2809,7 @@ def get_group_level_rule(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_group_level_rule(group_id=group_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -2963,7 +2844,7 @@ async def edit_group_level_rule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Edit merge request approval settings for a specific GitLab group."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -3000,11 +2881,9 @@ async def edit_group_level_rule(
         ]
     }
     response = client.edit_group_level_rule(group_id=group_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Approval settings edited")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3024,7 +2903,7 @@ def get_project_level_rule(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Retrieve merge request approval settings for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3034,9 +2913,7 @@ def get_project_level_rule(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_project_level_rule(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3071,7 +2948,7 @@ async def edit_project_level_rule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Edit merge request approval settings for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3108,11 +2985,9 @@ async def edit_project_level_rule(
         ]
     }
     response = client.edit_project_level_rule(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Approval settings edited")
-    return response.data
+    return response
 
 
 # Packages Tools
@@ -3134,7 +3009,7 @@ def get_repository_packages(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of repository packages for a specific GitLab project, optionally filtered by package type."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3151,9 +3026,7 @@ def get_repository_packages(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_repository_packages(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"})
@@ -3210,11 +3083,9 @@ async def publish_repository_package(
         ]
     }
     response = client.publish_repository_package(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Package published")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"})
@@ -3237,7 +3108,7 @@ def download_repository_package(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Download a repository package from a specific GitLab project."""
     if not project_id or not package_name or not package_version or not file_name:
         raise ValueError(
@@ -3254,9 +3125,7 @@ def download_repository_package(
         package_version=package_version,
         file_name=file_name,
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 # Pipeline Tools
@@ -3322,9 +3191,7 @@ def get_pipelines(
         response = client.get_pipeline(project_id=project_id, pipeline_id=pipeline_id)
     else:
         response = client.get_pipelines(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3372,11 +3239,9 @@ async def run_pipeline(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.run_pipeline(project_id=project_id, ref=ref, variables=variables)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Pipeline started")
-    return response.data
+    return response
 
 
 # Pipeline Schedules Tools
@@ -3398,7 +3263,7 @@ def get_pipeline_schedules(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List[Dict]:
+) -> requests.Response[Dict]:
     """Retrieve a list of pipeline schedules for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3408,9 +3273,7 @@ def get_pipeline_schedules(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_pipeline_schedules(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3444,9 +3307,7 @@ def get_pipeline_schedule(
     response = client.get_pipeline_schedule(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3468,7 +3329,7 @@ def get_pipelines_triggered_from_schedule(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve pipelines triggered by a specific pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
@@ -3480,9 +3341,7 @@ def get_pipelines_triggered_from_schedule(
     response = client.get_pipelines_triggered_from_schedule(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3549,11 +3408,9 @@ async def create_pipeline_schedule(
         cron_timezone=cron_timezone,
         active=active,
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Pipeline schedule created")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3626,11 +3483,9 @@ async def edit_pipeline_schedule(
         cron_timezone=cron_timezone,
         active=active,
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Pipeline schedule edited")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3655,7 +3510,7 @@ async def take_pipeline_schedule_ownership(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Take ownership of a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
@@ -3671,11 +3526,9 @@ async def take_pipeline_schedule_ownership(
     response = client.take_pipeline_schedule_ownership(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Ownership taken")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3700,7 +3553,7 @@ async def delete_pipeline_schedule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
@@ -3716,11 +3569,9 @@ async def delete_pipeline_schedule(
     response = client.delete_pipeline_schedule(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Pipeline schedule deleted")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3761,11 +3612,9 @@ async def run_pipeline_schedule(
     response = client.run_pipeline_schedule(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Pipeline schedule run started")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3795,7 +3644,7 @@ async def create_pipeline_schedule_variable(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Create a variable for a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id or not key or not value:
         raise ValueError(
@@ -3823,11 +3672,9 @@ async def create_pipeline_schedule_variable(
         value=value,
         variable_type=variable_type,
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Variable created")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -3853,7 +3700,7 @@ async def delete_pipeline_schedule_variable(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a variable from a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id or not key:
         raise ValueError("project_id, pipeline_schedule_id, and key are required")
@@ -3869,11 +3716,9 @@ async def delete_pipeline_schedule_variable(
     response = client.delete_pipeline_schedule_variable(
         project_id=project_id, pipeline_schedule_id=pipeline_schedule_id, key=key
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Variable deleted")
-    return response.data
+    return response
 
 
 # Projects Tools
@@ -3924,9 +3769,7 @@ def get_projects(
         response = client.get_project(project_id=project_id)
     else:
         response = client.get_projects(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
@@ -3944,7 +3787,7 @@ def get_nested_projects_by_group(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of nested projects within a GitLab group, including descendant groups."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -3954,9 +3797,7 @@ def get_nested_projects_by_group(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_nested_projects_by_group(group_id=group_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
@@ -3974,7 +3815,7 @@ def get_project_contributors(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of contributors to a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3984,9 +3825,7 @@ def get_project_contributors(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_project_contributors(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
@@ -4004,7 +3843,7 @@ def get_project_statistics(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Retrieve statistics for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4014,9 +3853,7 @@ def get_project_statistics(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_project_statistics(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
@@ -4075,11 +3912,9 @@ async def edit_project(
         ]
     }
     response = client.edit_project(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Project edited")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
@@ -4103,7 +3938,7 @@ def get_project_groups(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of groups associated with a specific GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4120,9 +3955,7 @@ def get_project_groups(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_project_groups(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
@@ -4143,7 +3976,7 @@ async def archive_project(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Archive a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4155,11 +3988,9 @@ async def archive_project(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.archive_project(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Project archived")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
@@ -4180,7 +4011,7 @@ async def unarchive_project(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Unarchive a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4192,11 +4023,9 @@ async def unarchive_project(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.unarchive_project(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Project unarchived")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
@@ -4217,7 +4046,7 @@ async def delete_project(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4229,11 +4058,9 @@ async def delete_project(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_project(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Project deleted")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"})
@@ -4288,11 +4115,9 @@ async def share_project(
         ]
     }
     response = client.share_project(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Project shared")
-    return response.data
+    return response
 
 
 # Protected Branches Tools
@@ -4330,9 +4155,7 @@ def get_protected_branches(
         response = client.get_protected_branch(project_id=project_id, branch=branch)
     else:
         response = client.get_protected_branches(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -4383,7 +4206,7 @@ async def protect_branch(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Protect a specific branch in a GitLab project with specified access levels."""
     if not project_id or not branch:
         raise ValueError("project_id and branch are required")
@@ -4422,11 +4245,9 @@ async def protect_branch(
         ]
     }
     response = client.protect_branch(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Branch protected")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -4453,7 +4274,7 @@ async def unprotect_branch(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Unprotect a specific branch in a GitLab project."""
     if not project_id or not branch:
         raise ValueError("project_id and branch are required")
@@ -4465,11 +4286,9 @@ async def unprotect_branch(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.unprotect_branch(project_id=project_id, branch=branch)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Branch unprotected")
-    return response.data
+    return response
 
 
 @mcp.tool(
@@ -4500,7 +4319,7 @@ async def require_code_owner_approvals_single_branch(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Require or disable code owner approvals for a specific branch in a GitLab project."""
     if not project_id or not branch or code_owner_approval_required is None:
         raise ValueError(
@@ -4520,11 +4339,9 @@ async def require_code_owner_approvals_single_branch(
         branch=branch,
         code_owner_approval_required=code_owner_approval_required,
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Code owner approval setting updated")
-    return response.data
+    return response
 
 
 # Release Tools
@@ -4552,7 +4369,7 @@ def get_releases(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of releases for a specific GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4569,9 +4386,7 @@ def get_releases(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_releases(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4599,9 +4414,7 @@ def get_latest_release(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_latest_release(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4629,9 +4442,7 @@ def get_latest_release_evidence(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_latest_release_evidence(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4652,7 +4463,7 @@ def get_latest_release_asset(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Retrieve a specific asset for the latest release in a GitLab project."""
     if not project_id or not direct_asset_path:
         raise ValueError("project_id and direct_asset_path are required")
@@ -4664,9 +4475,7 @@ def get_latest_release_asset(
     response = client.get_latest_release_asset(
         project_id=project_id, direct_asset_path=direct_asset_path
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4693,7 +4502,7 @@ def get_group_releases(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of releases for a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -4709,9 +4518,7 @@ def get_group_releases(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_releases(group_id=group_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4735,7 +4542,7 @@ def download_release_asset(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Download a release asset from a group's release in GitLab."""
     if not group_id or not tag_name or not direct_asset_path:
         raise ValueError("group_id, tag_name, and direct_asset_path are required")
@@ -4747,9 +4554,7 @@ def download_release_asset(
     response = client.download_release_asset(
         group_id=group_id, tag_name=tag_name, direct_asset_path=direct_asset_path
     )
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4780,9 +4585,7 @@ def get_release_by_tag(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_release_by_tag(project_id=project_id, tag_name=tag_name)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4843,11 +4646,9 @@ async def create_release(
         ]
     }
     response = client.create_release(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Release created")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4885,11 +4686,9 @@ async def create_release_evidence(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.create_release_evidence(project_id=project_id, tag_name=tag_name)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Release evidence created")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4954,11 +4753,9 @@ async def update_release(
         ]
     }
     response = client.update_release(project_id=project_id, tag_name=tag_name, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Release updated")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"})
@@ -4982,7 +4779,7 @@ async def delete_release(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a release in a GitLab project."""
     if not project_id or not tag_name:
         raise ValueError("project_id and tag_name are required")
@@ -4994,11 +4791,9 @@ async def delete_release(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_release(project_id=project_id, tag_name=tag_name)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Release deleted")
-    return response.data
+    return response
 
 
 # Runners Tools
@@ -5048,9 +4843,7 @@ def get_runners(
         response = client.get_runner(runner_id=runner_id)
     else:
         response = client.get_runners(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5092,7 +4885,7 @@ async def update_runner_details(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Update details for a specific GitLab runner."""
     if not runner_id:
         raise ValueError("runner_id is required")
@@ -5130,11 +4923,9 @@ async def update_runner_details(
         ]
     }
     response = client.update_runner_details(runner_id=runner_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Runner updated")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5161,7 +4952,7 @@ async def pause_runner(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Pause or unpause a specific GitLab runner."""
     if not runner_id or active is None:
         raise ValueError("runner_id and active are required")
@@ -5173,11 +4964,9 @@ async def pause_runner(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.pause_runner(runner_id=runner_id, active=active)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Runner status updated")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5203,7 +4992,7 @@ def get_runner_jobs(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve jobs for a specific GitLab runner, optionally filtered by status or sorted."""
     if not runner_id:
         raise ValueError("runner_id is required")
@@ -5220,9 +5009,7 @@ def get_runner_jobs(
         not in ["client", "gitlab_instance", "access_token", "verify", "runner_id"]
     }
     response = client.get_runner_jobs(runner_id=runner_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5243,7 +5030,7 @@ def get_project_runners(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of runners in a specific GitLab project, optionally filtered by scope."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -5260,9 +5047,7 @@ def get_project_runners(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_project_runners(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5296,11 +5081,9 @@ async def enable_project_runner(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.enable_project_runner(project_id=project_id, runner_id=runner_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Runner enabled")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5322,7 +5105,7 @@ async def delete_project_runner(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a runner from a specific GitLab project."""
     if not project_id or not runner_id:
         raise ValueError("project_id and runner_id are required")
@@ -5334,11 +5117,9 @@ async def delete_project_runner(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_project_runner(project_id=project_id, runner_id=runner_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Runner deleted")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5359,7 +5140,7 @@ def get_group_runners(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> requests.Response:
     """Retrieve a list of runners in a specific GitLab group, optionally filtered by scope."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -5375,9 +5156,7 @@ def get_group_runners(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
     }
     response = client.get_group_runners(group_id=group_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5428,11 +5207,9 @@ async def register_new_runner(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.register_new_runner(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Runner registered")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5458,7 +5235,7 @@ async def delete_runner(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a GitLab runner by ID or token."""
     if not runner_id and not token:
         raise ValueError("Either runner_id or token is required")
@@ -5476,11 +5253,9 @@ async def delete_runner(
         and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
     }
     response = client.delete_runner(**kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Runner deleted")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5501,7 +5276,7 @@ async def verify_runner_authentication(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Verify authentication for a GitLab runner using its token."""
     if not token:
         raise ValueError("token is required")
@@ -5513,11 +5288,9 @@ async def verify_runner_authentication(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.verify_runner_authentication(token=token)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Runner authentication verified")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5537,7 +5310,7 @@ async def reset_gitlab_runner_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Reset the GitLab runner registration token."""
     if ctx:
         await ctx.info("Resetting GitLab runner registration token")
@@ -5547,11 +5320,9 @@ async def reset_gitlab_runner_token(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.reset_gitlab_runner_token()
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Runner token reset")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5572,7 +5343,7 @@ async def reset_project_runner_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Reset the registration token for a project's runner in GitLab."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -5584,11 +5355,9 @@ async def reset_project_runner_token(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.reset_project_runner_token(project_id=project_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Project runner token reset")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5609,7 +5378,7 @@ async def reset_group_runner_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Reset the registration token for a group's runner in GitLab."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -5621,11 +5390,9 @@ async def reset_group_runner_token(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.reset_group_runner_token(group_id=group_id)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Group runner token reset")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"})
@@ -5649,7 +5416,7 @@ async def reset_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Reset the authentication token for a specific GitLab runner."""
     if not runner_id or not token:
         raise ValueError("runner_id and token are required")
@@ -5661,11 +5428,9 @@ async def reset_token(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.reset_token(runner_id=runner_id, token=token)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Runner authentication token reset")
-    return response.data
+    return response
 
 
 # Tags Tools
@@ -5713,9 +5478,7 @@ def get_tags(
         response = client.get_tag(project_id=project_id, name=name)
     else:
         response = client.get_tags(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
@@ -5746,7 +5509,7 @@ async def create_tag(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Create a new tag in a GitLab project."""
     if not project_id or not name or not ref:
         raise ValueError("project_id, name, and ref are required")
@@ -5772,11 +5535,9 @@ async def create_tag(
         ]
     }
     response = client.create_tag(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Tag created")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
@@ -5800,7 +5561,7 @@ async def delete_tag(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a specific tag in a GitLab project."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -5812,11 +5573,9 @@ async def delete_tag(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.delete_tag(project_id=project_id, name=name)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Tag deleted")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
@@ -5852,9 +5611,7 @@ def get_protected_tags(
         not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
     }
     response = client.get_protected_tags(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
@@ -5876,7 +5633,7 @@ def get_protected_tag(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> requests.Response:
     """Retrieve details of a specific protected tag in a GitLab project."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -5886,9 +5643,7 @@ def get_protected_tag(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.get_protected_tag(project_id=project_id, name=name)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
@@ -5919,7 +5674,7 @@ async def protect_tag(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Protect a specific tag in a GitLab project with specified access levels."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -5949,11 +5704,9 @@ async def protect_tag(
         ]
     }
     response = client.protect_tag(project_id=project_id, **kwargs)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Tag protected")
-    return response.data
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
@@ -5977,7 +5730,7 @@ async def unprotect_tag(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Unprotect a specific tag in a GitLab project."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -5989,11 +5742,9 @@ async def unprotect_tag(
         )
     client = Api(url=gitlab_instance, token=access_token, verify=verify)
     response = client.unprotect_tag(project_id=project_id, name=name)
-    if "error" in response.data:
-        raise RuntimeError(response.data["error"])
     if ctx:
         await ctx.info("Tag unprotected")
-    return response.data
+    return response
 
 
 def gitlab_mcp() -> None:

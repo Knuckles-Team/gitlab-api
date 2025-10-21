@@ -27,6 +27,7 @@ from gitlab_api.gitlab_input_models import (
     RunnerModel,
     UserModel,
     WikiModel,
+    DeployTokenModel,
 )
 from gitlab_api.gitlab_response_models import (
     Branch,
@@ -51,6 +52,7 @@ from gitlab_api.gitlab_response_models import (
     Tag,
     WikiPage,
     Namespace,
+    DeployToken,
 )
 from gitlab_api.decorators import require_auth
 from gitlab_api.exceptions import (
@@ -1217,6 +1219,305 @@ class Api(object):
             return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
+
+    ####################################################################################################################
+    #                                                Deploy Tokens API                                                 #
+    ####################################################################################################################
+    @require_auth
+    def get_deploy_tokens(self) -> List[DeployToken]:
+        """
+        Get all deploy tokens.
+
+        Returns:
+            List[DeployToken]: List of deploy tokens.
+
+        Raises:
+            ParameterError: If the request fails or returns invalid data.
+        """
+        try:
+            response = self._session.get(
+                url=f"{self.url}/deploy_tokens",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return [DeployToken(**item) for item in data]
+        except (requests.RequestException, ValidationError) as e:
+            raise ParameterError(f"Failed to get deploy tokens: {str(e)}")
+
+    @require_auth
+    def get_project_deploy_tokens(self, **kwargs) -> List[DeployToken]:
+        """
+        Get deploy tokens for a specific project.
+
+        Args:
+            **kwargs: Additional parameters for the request (e.g., project_id).
+
+        Returns:
+            List[DeployToken]: List of deploy tokens for the project.
+
+        Raises:
+            ParameterError: If invalid parameters are provided.
+            MissingParameterError: If required parameters are missing.
+        """
+        try:
+            deploy_token = DeployTokenModel(**kwargs)
+            if deploy_token.project_id is None:
+                raise MissingParameterError("project_id is required")
+            response = self._session.get(
+                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return [DeployToken(**item) for item in data]
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except requests.RequestException as e:
+            raise ParameterError(f"Failed to get project deploy tokens: {str(e)}")
+
+    @require_auth
+    def get_project_deploy_token(self, **kwargs) -> DeployToken:
+        """
+        Get a specific deploy token for a project.
+
+        Args:
+            **kwargs: Additional parameters for the request (e.g., project_id, token).
+
+        Returns:
+            DeployToken: The specific deploy token.
+
+        Raises:
+            ParameterError: If invalid parameters are provided.
+            MissingParameterError: If required parameters are missing.
+        """
+        try:
+            deploy_token = DeployTokenModel(**kwargs)
+            if deploy_token.project_id is None or deploy_token.token is None:
+                raise MissingParameterError("project_id and token are required")
+            response = self._session.get(
+                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return DeployToken(**data)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except requests.RequestException as e:
+            raise ParameterError(f"Failed to get project deploy token: {str(e)}")
+
+    @require_auth
+    def create_project_deploy_token(self, **kwargs) -> DeployToken:
+        """
+        Create a deploy token for a project.
+
+        Args:
+            **kwargs: Additional parameters for the request (e.g., project_id, name, scopes).
+
+        Returns:
+            DeployToken: The created deploy token.
+
+        Raises:
+            ParameterError: If invalid parameters are provided.
+            MissingParameterError: If required parameters are missing.
+        """
+        try:
+            deploy_token = DeployTokenModel(**kwargs)
+            if (
+                deploy_token.project_id is None
+                or deploy_token.name is None
+                or deploy_token.scopes is None
+            ):
+                raise MissingParameterError("project_id, name, and scopes are required")
+            response = self._session.post(
+                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens",
+                headers=self.headers,
+                json=deploy_token.model_dump(exclude_none=True),
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return DeployToken(**data)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except requests.RequestException as e:
+            raise ParameterError(f"Failed to create project deploy token: {str(e)}")
+
+    @require_auth
+    def delete_project_deploy_token(self, **kwargs) -> dict:
+        """
+        Delete a deploy token for a project.
+
+        Args:
+            **kwargs: Additional parameters for the request (e.g., project_id, token).
+
+        Returns:
+            dict: Empty dictionary (GitLab REST API returns no content on success).
+
+        Raises:
+            ParameterError: If invalid parameters are provided.
+            MissingParameterError: If required parameters are missing.
+        """
+        try:
+            deploy_token = DeployTokenModel(**kwargs)
+            if deploy_token.project_id is None or deploy_token.token is None:
+                raise MissingParameterError("project_id and token are required")
+            response = self._session.delete(
+                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            return {}
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except requests.RequestException as e:
+            raise ParameterError(f"Failed to delete project deploy token: {str(e)}")
+
+    @require_auth
+    def get_group_deploy_tokens(self, **kwargs) -> List[DeployToken]:
+        """
+        Get deploy tokens for a specific group.
+
+        Args:
+            **kwargs: Additional parameters for the request (e.g., group_id).
+
+        Returns:
+            List[DeployToken]: List of deploy tokens for the group.
+
+        Raises:
+            ParameterError: If invalid parameters are provided.
+            MissingParameterError: If required parameters are missing.
+        """
+        try:
+            deploy_token = DeployTokenModel(**kwargs)
+            if deploy_token.group_id is None:
+                raise MissingParameterError("group_id is required")
+            response = self._session.get(
+                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return [DeployToken(**item) for item in data]
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except requests.RequestException as e:
+            raise ParameterError(f"Failed to get group deploy tokens: {str(e)}")
+
+    @require_auth
+    def get_group_deploy_token(self, **kwargs) -> DeployToken:
+        """
+        Get a specific deploy token for a group.
+
+        Args:
+            **kwargs: Additional parameters for the request (e.g., group_id, token).
+
+        Returns:
+            DeployToken: The specific deploy token.
+
+        Raises:
+            ParameterError: If invalid parameters are provided.
+            MissingParameterError: If required parameters are missing.
+        """
+        try:
+            deploy_token = DeployTokenModel(**kwargs)
+            if deploy_token.group_id is None or deploy_token.token is None:
+                raise MissingParameterError("group_id and token are required")
+            response = self._session.get(
+                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.token}",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return DeployToken(**data)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except requests.RequestException as e:
+            raise ParameterError(f"Failed to get group deploy token: {str(e)}")
+
+    @require_auth
+    def create_group_deploy_token(self, **kwargs) -> DeployToken:
+        """
+        Create a deploy token for a group.
+
+        Args:
+            **kwargs: Additional parameters for the request (e.g., group_id, name, scopes).
+
+        Returns:
+            DeployToken: The created deploy token.
+
+        Raises:
+            ParameterError: If invalid parameters are provided.
+            MissingParameterError: If required parameters are missing.
+        """
+        try:
+            deploy_token = DeployTokenModel(**kwargs)
+            if (
+                deploy_token.group_id is None
+                or deploy_token.name is None
+                or deploy_token.scopes is None
+            ):
+                raise MissingParameterError("group_id, name, and scopes are required")
+            response = self._session.post(
+                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens",
+                headers=self.headers,
+                json=deploy_token.model_dump(exclude_none=True),
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            data = response.json()
+            return DeployToken(**data)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except requests.RequestException as e:
+            raise ParameterError(f"Failed to create group deploy token: {str(e)}")
+
+    @require_auth
+    def delete_group_deploy_token(self, **kwargs) -> dict:
+        """
+        Delete a deploy token for a group.
+
+        Args:
+            **kwargs: Additional parameters for the request (e.g., group_id, token).
+
+        Returns:
+            dict: Empty dictionary (GitLab REST API returns no content on success).
+
+        Raises:
+            ParameterError: If invalid parameters are provided.
+            MissingParameterError: If required parameters are missing.
+        """
+        try:
+            deploy_token = DeployTokenModel(**kwargs)
+            if deploy_token.group_id is None or deploy_token.token is None:
+                raise MissingParameterError("group_id and token are required")
+            response = self._session.delete(
+                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.token}",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            return {}
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except requests.RequestException as e:
+            raise ParameterError(f"Failed to delete group deploy token: {str(e)}")
 
     ####################################################################################################################
     #                                           Environments API                                                       #
