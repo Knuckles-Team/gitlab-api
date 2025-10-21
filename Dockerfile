@@ -48,7 +48,7 @@ ENV EUNOMIA_REMOTE_URL=${EUNOMIA_REMOTE_URL}
 ENV PATH="/usr/local/bin:${PATH}"
 
 RUN pip install uv \
-    && uv pip install --system --upgrade gitlab-api>=25.10.1
+    && uv pip install --system --upgrade gitlab-api>=25.10.2
 
 ENTRYPOINT exec gitlab-mcp \
     --transport "${TRANSPORT}" \
