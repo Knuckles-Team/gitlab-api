@@ -7,6 +7,24 @@ import sys
 import logging
 import requests
 from typing import Optional, List, Dict, Union
+
+from gitlab_api.gitlab_response_models import (
+    DeployToken,
+    Group,
+    MergeRequest,
+    Project,
+    Job,
+    Membership,
+    ApprovalRule,
+    Package,
+    Pipeline,
+    PipelineSchedule,
+    User,
+    Release,
+    Branch,
+    Runner,
+    Tag,
+)
 from pydantic import Field
 from fastmcp import FastMCP, Context
 from fastmcp.server.auth.oidc_proxy import OIDCProxy
@@ -739,7 +757,7 @@ def get_deploy_tokens(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[DeployToken]:
     """Retrieve a list of all deploy tokens for the GitLab instance."""
     if not access_token:
         raise RuntimeError(
@@ -817,7 +835,7 @@ async def create_project_deploy_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> DeployToken:
     """Create a deploy token for a GitLab project with specified name and scopes."""
     if not project_id or not name or not scopes:
         raise ValueError("project_id, name, and scopes are required")
@@ -861,7 +879,7 @@ async def delete_project_deploy_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Union[List, Dict]:
     """Delete a specific deploy token for a GitLab project."""
     if not project_id or not token_id:
         raise ValueError("project_id and token_id are required")
@@ -945,7 +963,7 @@ async def create_group_deploy_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> DeployToken:
     """Create a deploy token for a GitLab group with specified name and scopes."""
     if not group_id or not name or not scopes:
         raise ValueError("group_id, name, and scopes are required")
@@ -989,7 +1007,7 @@ async def delete_group_deploy_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Dict:
     """Delete a specific deploy token for a GitLab group."""
     if not group_id or not token_id:
         raise ValueError("group_id and token_id are required")
@@ -1083,7 +1101,7 @@ async def create_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Create a new environment in a GitLab project with a specified name and optional external URL."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -1141,7 +1159,7 @@ async def update_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Update an existing environment in a GitLab project with new name or external URL."""
     if not project_id or not environment_id:
         raise ValueError("project_id and environment_id are required")
@@ -1407,7 +1425,7 @@ async def protect_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Protect an environment in a GitLab project with optional approval count."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -1462,7 +1480,7 @@ async def update_protected_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Update a protected environment in a GitLab project with new approval count."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -1616,7 +1634,7 @@ async def edit_group(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Edit a specific GitLab group's details (name, path, description, or visibility)."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -1678,7 +1696,7 @@ def get_group_subgroups(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Group]:
     """Retrieve a list of subgroups for a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -1726,7 +1744,7 @@ def get_group_descendant_groups(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Group]:
     """Retrieve a list of all descendant groups for a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -1772,7 +1790,7 @@ def get_group_projects(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Project]:
     """Retrieve a list of projects associated with a specific GitLab group, optionally including subgroups."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -1821,7 +1839,7 @@ def get_group_merge_requests(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[MergeRequest]:
     """Retrieve a list of merge requests associated with a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -1936,7 +1954,7 @@ async def cancel_project_job(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Job:
     """Cancel a specific job in a GitLab project."""
     if not project_id or not job_id:
         raise ValueError("project_id and job_id are required")
@@ -1972,7 +1990,7 @@ async def retry_project_job(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Job:
     """Retry a specific job in a GitLab project."""
     if not project_id or not job_id:
         raise ValueError("project_id and job_id are required")
@@ -2008,7 +2026,7 @@ async def erase_project_job(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Job:
     """Erase (delete artifacts and logs of) a specific job in a GitLab project."""
     if not project_id or not job_id:
         raise ValueError("project_id and job_id are required")
@@ -2044,7 +2062,7 @@ async def run_project_job(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Job:
     """Run (play) a specific manual job in a GitLab project."""
     if not project_id or not job_id:
         raise ValueError("project_id and job_id are required")
@@ -2080,7 +2098,7 @@ def get_pipeline_jobs(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Job]:
     """Retrieve a list of jobs for a specific pipeline in a GitLab project, optionally filtered by scope."""
     if not project_id or not pipeline_id:
         raise ValueError("project_id and pipeline_id are required")
@@ -2137,7 +2155,7 @@ def get_group_members(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Membership]:
     """Retrieve a list of members in a specific GitLab group, optionally filtered by query or user IDs."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -2180,7 +2198,7 @@ def get_project_members(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Membership]:
     """Retrieve a list of members in a specific GitLab project, optionally filtered by query or user IDs."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -2240,7 +2258,7 @@ async def create_merge_request(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> MergeRequest:
     """Create a new merge request in a GitLab project with specified source and target branches."""
     if not project_id or not source_branch or not target_branch or not title:
         raise ValueError(
@@ -2309,7 +2327,7 @@ def get_merge_requests(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[MergeRequest]:
     """Retrieve a list of merge requests across all projects, optionally filtered by state, scope, or labels."""
     if not access_token:
         raise RuntimeError(
@@ -2401,7 +2419,7 @@ def get_project_level_merge_request_approval_rules(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> ApprovalRule:
     """Retrieve project-level merge request approval rules for a GitLab project details of a specific project-level merge request approval rule."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -2452,7 +2470,7 @@ async def create_project_level_rule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> ApprovalRule:
     """Create a new project-level merge request approval rule."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -2516,7 +2534,7 @@ async def update_project_level_rule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> ApprovalRule:
     """Update an existing project-level merge request approval rule."""
     if not project_id or not approval_rule_id:
         raise ValueError("project_id and approval_rule_id are required")
@@ -2683,7 +2701,7 @@ def get_merge_request_level_rules(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[ApprovalRule]:
     """Retrieve merge request-level approval rules for a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
@@ -2719,7 +2737,7 @@ async def approve_merge_request(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> MergeRequest:
     """Approve a specific merge request in a GitLab project."""
     if not project_id or not merge_request_iid:
         raise ValueError("project_id and merge_request_iid are required")
@@ -2799,7 +2817,7 @@ def get_group_level_rule(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> ApprovalRule:
     """Retrieve merge request approval settings for a specific GitLab group."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -2844,7 +2862,7 @@ async def edit_group_level_rule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> ApprovalRule:
     """Edit merge request approval settings for a specific GitLab group."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -2903,7 +2921,7 @@ def get_project_level_rule(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> ApprovalRule:
     """Retrieve merge request approval settings for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -2948,7 +2966,7 @@ async def edit_project_level_rule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> ApprovalRule:
     """Edit merge request approval settings for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3009,7 +3027,7 @@ def get_repository_packages(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Package]:
     """Retrieve a list of repository packages for a specific GitLab project, optionally filtered by package type."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3053,7 +3071,7 @@ async def publish_repository_package(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Package:
     """Publish a repository package to a specific GitLab project."""
     if not project_id or not package_name or not package_version or not file_name:
         raise ValueError(
@@ -3221,7 +3239,7 @@ async def run_pipeline(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Pipeline:
     """Run a pipeline for a specific GitLab project with a given reference (e.g., branch or tag)."""
     if not project_id or not ref:
         raise ValueError("project_id and ref are required")
@@ -3263,7 +3281,7 @@ def get_pipeline_schedules(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response[Dict]:
+) -> List[PipelineSchedule]:
     """Retrieve a list of pipeline schedules for a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3295,7 +3313,7 @@ def get_pipeline_schedule(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> PipelineSchedule:
     """Retrieve details of a specific pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
@@ -3329,7 +3347,7 @@ def get_pipelines_triggered_from_schedule(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Pipeline]:
     """Retrieve pipelines triggered by a specific pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
@@ -3381,7 +3399,7 @@ async def create_pipeline_schedule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> PipelineSchedule:
     """Create a pipeline schedule for a specific GitLab project."""
     if not project_id or not ref or not cron:
         raise ValueError("project_id, ref, and cron are required")
@@ -3451,7 +3469,7 @@ async def edit_pipeline_schedule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> PipelineSchedule:
     """Edit a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
@@ -3510,7 +3528,7 @@ async def take_pipeline_schedule_ownership(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> PipelineSchedule:
     """Take ownership of a pipeline schedule in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
@@ -3596,7 +3614,7 @@ async def run_pipeline_schedule(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Run a pipeline schedule immediately in a GitLab project."""
     if not project_id or not pipeline_schedule_id:
         raise ValueError("project_id and pipeline_schedule_id are required")
@@ -3787,7 +3805,7 @@ def get_nested_projects_by_group(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Project]:
     """Retrieve a list of nested projects within a GitLab group, including descendant groups."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -3815,7 +3833,7 @@ def get_project_contributors(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[User]:
     """Retrieve a list of contributors to a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3882,7 +3900,7 @@ async def edit_project(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Project:
     """Edit a specific GitLab project's details (name, description, or visibility)."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3938,7 +3956,7 @@ def get_project_groups(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Group]:
     """Retrieve a list of groups associated with a specific GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -3976,7 +3994,7 @@ async def archive_project(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Project:
     """Archive a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4011,7 +4029,7 @@ async def unarchive_project(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Project:
     """Unarchive a specific GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4089,7 +4107,7 @@ async def share_project(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Project:
     """Share a specific GitLab project with a group, specifying access level."""
     if not project_id or not group_id or not group_access:
         raise ValueError("project_id, group_id, and group_access are required")
@@ -4206,7 +4224,7 @@ async def protect_branch(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Branch:
     """Protect a specific branch in a GitLab project with specified access levels."""
     if not project_id or not branch:
         raise ValueError("project_id and branch are required")
@@ -4319,7 +4337,7 @@ async def require_code_owner_approvals_single_branch(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Branch:
     """Require or disable code owner approvals for a specific branch in a GitLab project."""
     if not project_id or not branch or code_owner_approval_required is None:
         raise ValueError(
@@ -4369,7 +4387,7 @@ def get_releases(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Release]:
     """Retrieve a list of releases for a specific GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4404,7 +4422,7 @@ def get_latest_release(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> Release:
     """Retrieve details of the latest release in a GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4432,7 +4450,7 @@ def get_latest_release_evidence(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Retrieve evidence for the latest release in a GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -4502,7 +4520,7 @@ def get_group_releases(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Release]:
     """Retrieve a list of releases for a specific GitLab group, optionally filtered."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -4575,7 +4593,7 @@ def get_release_by_tag(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> Release:
     """Retrieve details of a release by its tag in a GitLab project."""
     if not project_id or not tag_name:
         raise ValueError("project_id and tag_name are required")
@@ -4620,7 +4638,7 @@ async def create_release(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Release:
     """Create a new release in a GitLab project."""
     if not project_id or not name or not tag_name:
         raise ValueError("project_id, name, and tag_name are required")
@@ -4672,7 +4690,7 @@ async def create_release_evidence(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Create evidence for a release in a GitLab project."""
     if not project_id or not tag_name:
         raise ValueError("project_id and tag_name are required")
@@ -4722,7 +4740,7 @@ async def update_release(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Release:
     """Update a release in a GitLab project."""
     if not project_id or not tag_name:
         raise ValueError("project_id and tag_name are required")
@@ -4885,7 +4903,7 @@ async def update_runner_details(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Runner:
     """Update details for a specific GitLab runner."""
     if not runner_id:
         raise ValueError("runner_id is required")
@@ -4952,7 +4970,7 @@ async def pause_runner(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Runner:
     """Pause or unpause a specific GitLab runner."""
     if not runner_id or active is None:
         raise ValueError("runner_id and active are required")
@@ -4992,7 +5010,7 @@ def get_runner_jobs(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Job]:
     """Retrieve jobs for a specific GitLab runner, optionally filtered by status or sorted."""
     if not runner_id:
         raise ValueError("runner_id is required")
@@ -5030,7 +5048,7 @@ def get_project_runners(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Runner]:
     """Retrieve a list of runners in a specific GitLab project, optionally filtered by scope."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -5069,7 +5087,7 @@ async def enable_project_runner(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Runner:
     """Enable a runner in a specific GitLab project."""
     if not project_id or not runner_id:
         raise ValueError("project_id and runner_id are required")
@@ -5140,7 +5158,7 @@ def get_group_runners(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> List[Runner]:
     """Retrieve a list of runners in a specific GitLab group, optionally filtered by scope."""
     if not group_id:
         raise ValueError("group_id is required")
@@ -5189,7 +5207,7 @@ async def register_new_runner(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> Runner:
     """Register a new GitLab runner."""
     if not token:
         raise ValueError("token is required")
@@ -5416,7 +5434,7 @@ async def reset_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Runner:
     """Reset the authentication token for a specific GitLab runner."""
     if not runner_id or not token:
         raise ValueError("runner_id and token are required")
@@ -5458,7 +5476,7 @@ def get_tags(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> List[Tag]:
     """Retrieve a list of tags for a specific GitLab project, optionally filtered or sorted or Retrieve details of a specific tag in a GitLab project."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -5509,7 +5527,7 @@ async def create_tag(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Tag:
     """Create a new tag in a GitLab project."""
     if not project_id or not name or not ref:
         raise ValueError("project_id, name, and ref are required")
@@ -5594,7 +5612,7 @@ def get_protected_tags(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> List:
+) -> List[Tag]:
     """Retrieve a list of protected tags in a specific GitLab project, optionally filtered by name."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -5633,7 +5651,7 @@ def get_protected_tag(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> Tag:
     """Retrieve details of a specific protected tag in a GitLab project."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -5674,7 +5692,7 @@ async def protect_tag(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Tag:
     """Protect a specific tag in a GitLab project with specified access levels."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
