@@ -24,6 +24,12 @@ from gitlab_api.gitlab_response_models import (
     Branch,
     Runner,
     Tag,
+    Environment,
+    CommitSignature,
+    DetailedStatus,
+    Comment,
+    Diff,
+    Commit,
 )
 from pydantic import Field
 from fastmcp import FastMCP, Context
@@ -78,7 +84,7 @@ def get_branches(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> Union[List[Branch], Branch]:
     """Get branches in a GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -119,7 +125,7 @@ def create_branch(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Dict:
+) -> Branch:
     """Create a new branch in a GitLab project from a reference."""
     if not project_id or not branch or not ref:
         raise ValueError("project_id, branch, and ref are required")
@@ -135,7 +141,7 @@ def create_branch(
         and k not in ["client", "gitlab_instance", "access_token", "verify"]
     }
     response = client.create_branch(**kwargs)
-    return response.model_dump()
+    return response
 
 
 @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"})
@@ -226,7 +232,7 @@ def get_commits(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> List[Commit]:
     """Get commits in a GitLab project, optionally filtered."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -274,7 +280,7 @@ def create_commit(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> requests.Response:
+) -> Commit:
     """Create a new commit in a GitLab project."""
     if not project_id or not branch or not commit_message or not actions:
         raise ValueError("project_id, branch, commit_message, and actions are required")
@@ -312,7 +318,7 @@ async def get_commit_diff(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Diff:
     """Get the diff of a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -402,7 +408,7 @@ async def get_commit_comments(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> List[Comment]:
     """Retrieve comments on a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -502,7 +508,7 @@ async def get_commit_discussions(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> List[Comment]:
     """Retrieve discussions (threaded comments) on a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -559,7 +565,7 @@ async def get_commit_statuses(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> List[DetailedStatus]:
     """Retrieve build/CI statuses for a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -671,7 +677,7 @@ async def get_commit_merge_requests(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Union[List[MergeRequest], MergeRequest]:
     """Retrieve merge requests associated with a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -715,7 +721,7 @@ async def get_commit_gpg_signature(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> CommitSignature:
     """Retrieve the GPG signature for a specific commit in a GitLab project."""
     if not project_id or not commit_hash:
         raise ValueError("project_id and commit_hash are required")
@@ -879,7 +885,7 @@ async def delete_project_deploy_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Union[List, Dict]:
+) -> requests.Response:
     """Delete a specific deploy token for a GitLab project."""
     if not project_id or not token_id:
         raise ValueError("project_id and token_id are required")
@@ -1007,7 +1013,7 @@ async def delete_group_deploy_token(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> Dict:
+) -> requests.Response:
     """Delete a specific deploy token for a GitLab group."""
     if not group_id or not token_id:
         raise ValueError("group_id and token_id are required")
@@ -1053,7 +1059,7 @@ def get_environments(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> List[Environment]:
     """Retrieve a list of environments for a GitLab project, optionally filtered by name, search, or states or a single environment by id."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -1101,7 +1107,7 @@ async def create_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Environment:
     """Create a new environment in a GitLab project with a specified name and optional external URL."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -1159,7 +1165,7 @@ async def update_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Environment:
     """Update an existing environment in a GitLab project with new name or external URL."""
     if not project_id or not environment_id:
         raise ValueError("project_id and environment_id are required")
@@ -1385,7 +1391,7 @@ def get_protected_environments(
         description="Verify SSL certificate",
         default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
     ),
-) -> Union[List, Dict]:
+) -> Union[List[Environment], Environment]:
     """Retrieve protected environments in a GitLab project (list or single by name)."""
     if not project_id:
         raise ValueError("project_id is required")
@@ -1425,7 +1431,7 @@ async def protect_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Environment:
     """Protect an environment in a GitLab project with optional approval count."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")
@@ -1480,7 +1486,7 @@ async def update_protected_environment(
     ctx: Optional[Context] = Field(
         description="MCP context for progress", default=None
     ),
-) -> requests.Response:
+) -> Environment:
     """Update a protected environment in a GitLab project with new approval count."""
     if not project_id or not name:
         raise ValueError("project_id and name are required")

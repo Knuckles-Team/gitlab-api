@@ -389,7 +389,7 @@ class Api(object):
     #                                                 Commits API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_commits(self, **kwargs) -> requests.Response:
+    def get_commits(self, **kwargs) -> List[Commit]:
         """
         Get commits.
 
@@ -410,12 +410,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = [Commit(**item) for item in response.content]
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
-    def get_commit(self, **kwargs) -> requests.Response:
+    def get_commit(self, **kwargs) -> Commit:
         """
         Get a specific commit.
 
@@ -437,9 +439,11 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
     def get_commit_references(self, **kwargs) -> requests.Response:
@@ -469,7 +473,7 @@ class Api(object):
         return response
 
     @require_auth
-    def cherry_pick_commit(self, **kwargs) -> requests.Response:
+    def cherry_pick_commit(self, **kwargs) -> Commit:
         """
         Cherry-pick a commit into a new branch.
 
@@ -492,12 +496,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
-    def create_commit(self, **kwargs) -> requests.Response:
+    def create_commit(self, **kwargs) -> Commit:
         """
         Create a new commit.
 
@@ -519,9 +525,11 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
     def revert_commit(self, **kwargs) -> requests.Response:
@@ -552,7 +560,7 @@ class Api(object):
         return response
 
     @require_auth
-    def get_commit_diff(self, **kwargs) -> requests.Response:
+    def get_commit_diff(self, **kwargs) -> Diff:
         """
         Get the diff of a commit.
 
@@ -574,12 +582,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = Diff(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
-    def get_commit_comments(self, **kwargs) -> requests.Response:
+    def get_commit_comments(self, **kwargs) -> List[Comment]:
         """
         Get comments on a commit.
 
@@ -594,19 +604,20 @@ class Api(object):
         """
         commit = CommitModel(**kwargs)
         try:
-            response = self._session.get(
+            data = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}"
                 f"/repository/commits/{commit.commit_hash}/comments",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            parsed_data = [Comment(**item) for item in data.content]
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
-    def create_commit_comment(self, **kwargs) -> requests.Response:
+    def create_commit_comment(self, **kwargs) -> Comment:
         """
         Create a comment on a commit.
 
@@ -629,12 +640,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = Comment(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
-    def get_commit_discussions(self, **kwargs) -> requests.Response:
+    def get_commit_discussions(self, **kwargs) -> Commit:
         """
         Get discussions on a commit.
 
@@ -656,12 +669,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
-    def get_commit_statuses(self, **kwargs) -> requests.Response:
+    def get_commit_statuses(self, **kwargs) -> Commit:
         """
         Get statuses of a commit.
 
@@ -683,12 +698,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
-    def post_build_status_to_commit(self, **kwargs) -> requests.Response:
+    def post_build_status_to_commit(self, **kwargs) -> Commit:
         """
         Post build status to a commit.
 
@@ -711,12 +728,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
-    def get_commit_merge_requests(self, **kwargs) -> requests.Response:
+    def get_commit_merge_requests(self, **kwargs) -> MergeRequest:
         """
         Get merge requests associated with a commit.
 
@@ -738,12 +757,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = MergeRequest(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     @require_auth
-    def get_commit_gpg_signature(self, **kwargs) -> requests.Response:
+    def get_commit_gpg_signature(self, **kwargs) -> CommitSignature:
         """
         Get GPG signature of a commit.
 
@@ -765,9 +786,11 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
+            response.raise_for_status()
+            parsed_data = CommitSignature(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
 
     ####################################################################################################################
     #                                                 Commits API                                                      #
@@ -864,7 +887,7 @@ class Api(object):
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def cherry_pick_commit(self, **kwargs) -> requests.Response:
+    def cherry_pick_commit(self, **kwargs) -> Commit:
         """
         Cherry-pick a commit into a new branch.
 
@@ -893,13 +916,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_commit(self, **kwargs) -> requests.Response:
+    def create_commit(self, **kwargs) -> Commit:
         """
         Create a new commit.
 
@@ -929,8 +953,9 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -1352,7 +1377,7 @@ class Api(object):
             raise ParameterError(f"Failed to create project deploy token: {str(e)}")
 
     @require_auth
-    def delete_project_deploy_token(self, **kwargs) -> dict:
+    def delete_project_deploy_token(self, **kwargs) -> requests.Response:
         """
         Delete a deploy token for a project.
 
@@ -1377,7 +1402,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            return {}
+            return response
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
@@ -1488,7 +1513,7 @@ class Api(object):
             raise ParameterError(f"Failed to create group deploy token: {str(e)}")
 
     @require_auth
-    def delete_group_deploy_token(self, **kwargs) -> dict:
+    def delete_group_deploy_token(self, **kwargs) -> requests.Response:
         """
         Delete a deploy token for a group.
 
@@ -1513,7 +1538,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            return {}
+            return response
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
@@ -1585,7 +1610,7 @@ class Api(object):
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_environment(self, **kwargs) -> requests.Response:
+    def create_environment(self, **kwargs) -> Environment:
         """
         Create a new environment for a project.
 
@@ -1610,12 +1635,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = Environment(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def update_environment(self, **kwargs) -> requests.Response:
+    def update_environment(self, **kwargs) -> Environment:
         """
         Update an existing environment for a project.
 
@@ -1640,8 +1667,9 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            parsed_data = Environment(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -1830,7 +1858,7 @@ class Api(object):
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def protect_environment(self, **kwargs) -> requests.Response:
+    def protect_environment(self, **kwargs) -> Environment:
         """
         Protect an environment for a project.
 
@@ -1855,13 +1883,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            parsed_data = Environment(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def update_protected_environment(self, **kwargs) -> requests.Response:
+    def update_protected_environment(self, **kwargs) -> Environment:
         """
         Update a protected environment for a project.
 
@@ -1886,8 +1915,9 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            parsed_data = Environment(**response.json())
+            return parsed_data
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
