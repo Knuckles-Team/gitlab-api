@@ -6,7 +6,7 @@ import requests
 import urllib3
 import logging
 from base64 import b64encode
-from typing import Dict, Any, List, TypeVar
+from typing import Dict, Any, List, TypeVar, Tuple
 from pydantic import ValidationError
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -28,13 +28,13 @@ from gitlab_api.gitlab_input_models import (
     UserModel,
     WikiModel,
     DeployTokenModel,
+    TagModel,
 )
 from gitlab_api.gitlab_response_models import (
     Branch,
     Commit,
     Diff,
     Comment,
-    DetailedStatus,
     MergeRequest,
     CommitSignature,
     Environment,
@@ -53,6 +53,9 @@ from gitlab_api.gitlab_response_models import (
     WikiPage,
     Namespace,
     DeployToken,
+    Response,
+    MergeRequestRuleSettings,
+    PipelineVariable,
 )
 from gitlab_api.decorators import require_auth
 from gitlab_api.exceptions import (
@@ -175,12 +178,12 @@ class Api(object):
             verify=self.verify,
             proxies=self.proxies,
         )
-        data = response.json()
-        return data if isinstance(data, list) else []
+        page_data = response.json()
+        return page_data if isinstance(page_data, list) else []
 
     def _fetch_all_pages(
         self, endpoint: str, model: T, id_field: str = None, id_value: Any = None
-    ) -> List[dict]:
+    ) -> Tuple[requests.Response, List[dict]]:
         """Generic method to fetch all pages with parallelization"""
         if id_field and getattr(model, id_field) is None:
             raise MissingParameterError
@@ -208,7 +211,6 @@ class Api(object):
             model.max_pages = total_pages
 
         if model.max_pages > 1:
-
             with ThreadPoolExecutor(max_workers=len(headers_to_use)) as executor:
                 future_to_page = {}
                 header_idx = 0
@@ -230,13 +232,13 @@ class Api(object):
                             f"Error fetching page {future_to_page[future]}: {str(e)}"
                         )
 
-        return all_data
+        return total_pages_response, all_data
 
     ####################################################################################################################
     #                                                 Branches API                                                     #
     ####################################################################################################################
     @require_auth
-    def get_branches(self, **kwargs) -> List[Branch]:
+    def get_branches(self, **kwargs) -> Response:
         """
         Retrieve information about branches in a project.
 
@@ -251,19 +253,19 @@ class Api(object):
         """
         branch = BranchModel(**kwargs)
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{branch.project_id}/repository/branches",
                 model=branch,
                 id_field="project_id",
                 id_value=branch.project_id,
             )
             parsed_data = [Branch(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_branch(self, **kwargs) -> Branch:
+    def get_branch(self, **kwargs) -> Response:
         """
         Retrieve information about a specific branch in a project.
 
@@ -289,12 +291,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_branch(self, **kwargs) -> Branch:
+    def create_branch(self, **kwargs) -> Response:
         """
         Create a new branch in a project.
 
@@ -321,12 +323,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_branch(self, **kwargs) -> requests.Response:
+    def delete_branch(self, **kwargs) -> Response:
         """
         Delete a branch in a project.
 
@@ -351,12 +353,13 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            return response
+            parsed_data = Branch(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_merged_branches(self, **kwargs) -> requests.Response:
+    def delete_merged_branches(self, **kwargs) -> Response:
         """
         Delete all merged branches in a project.
 
@@ -381,7 +384,8 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            return response
+            parsed_data = Branch(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -389,460 +393,47 @@ class Api(object):
     #                                                 Commits API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_commits(self, **kwargs) -> List[Commit]:
+    def get_commits(self, **kwargs) -> Response:
         """
         Get commits.
 
         Args:
-        - **kwargs: Additional parameters for the request.
+            **kwargs: Additional parameters for the request.
 
         Returns:
-        - The response from the server.
+            Response: A wrapper containing the original response and a list of Commit models.
 
         Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}/repository/commits",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = [Commit(**item) for item in response.content]
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def get_commit(self, **kwargs) -> Commit:
-        """
-        Get a specific commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = Commit(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def get_commit_references(self, **kwargs) -> requests.Response:
-        """
-        Get references of a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/refs",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
-
-    @require_auth
-    def cherry_pick_commit(self, **kwargs) -> Commit:
-        """
-        Cherry-pick a commit into a new branch.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.post(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/cherry_pick",
-                headers=self.headers,
-                json=commit.data,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = Commit(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def create_commit(self, **kwargs) -> Commit:
-        """
-        Create a new commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.post(
-                url=f"{self.url}/projects/{commit.project_id}/repository/commits",
-                headers=self.headers,
-                json=commit.data,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = Commit(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def revert_commit(self, **kwargs) -> requests.Response:
-        """
-        Revert a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.post(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/revert",
-                headers=self.headers,
-                json=commit.data,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-        return response
-
-    @require_auth
-    def get_commit_diff(self, **kwargs) -> Diff:
-        """
-        Get the diff of a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/diff",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = Diff(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def get_commit_comments(self, **kwargs) -> List[Comment]:
-        """
-        Get comments on a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            data = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/comments",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            parsed_data = [Comment(**item) for item in data.content]
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def create_commit_comment(self, **kwargs) -> Comment:
-        """
-        Create a comment on a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.post(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/comments",
-                headers=self.headers,
-                json=commit.data,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = Comment(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def get_commit_discussions(self, **kwargs) -> Commit:
-        """
-        Get discussions on a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/discussions",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = Commit(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def get_commit_statuses(self, **kwargs) -> Commit:
-        """
-        Get statuses of a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/statuses",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = Commit(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def post_build_status_to_commit(self, **kwargs) -> Commit:
-        """
-        Post build status to a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.post(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/statuses/{commit.commit_hash}/",
-                headers=self.headers,
-                json=commit.data,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = Commit(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def get_commit_merge_requests(self, **kwargs) -> MergeRequest:
-        """
-        Get merge requests associated with a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/merge_requests",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = MergeRequest(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    @require_auth
-    def get_commit_gpg_signature(self, **kwargs) -> CommitSignature:
-        """
-        Get GPG signature of a commit.
-
-        Args:
-        - **kwargs: Additional parameters for the request.
-
-        Returns:
-        - The response from the server.
-
-        Raises:
-        - ParameterError: If invalid parameters are provided.
-        """
-        commit = CommitModel(**kwargs)
-        try:
-            response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}"
-                f"/repository/commits/{commit.commit_hash}/merge_requests",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
-            )
-            response.raise_for_status()
-            parsed_data = CommitSignature(**response.json())
-            return parsed_data
-        except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
-
-    ####################################################################################################################
-    #                                                 Commits API                                                      #
-    ####################################################################################################################
-    @require_auth
-    def get_commits(self, **kwargs) -> List[Commit]:
-        """
-        Get commits.
-
-        Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, ref).
-
-        Returns:
-            List[Commit]: A list of Commit models.
-
-        Raises:
-            MissingParameterError: If the project_id is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if commit.project_id is None:
-            raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{commit.project_id}/repository/commits",
                 model=commit,
                 id_field="project_id",
                 id_value=commit.project_id,
             )
             parsed_data = [Commit(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_commit(self, **kwargs) -> Commit:
+    def get_commit(self, **kwargs) -> Response:
         """
         Get a specific commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            Commit: The Commit model.
+            Response: A wrapper containing the original response and a Commit model.
 
         Raises:
-            MissingParameterError: If the project_id or commit_hash is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if commit.project_id is None or commit.commit_hash is None:
-            raise MissingParameterError
         try:
             response = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}",
@@ -852,428 +443,386 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Commit(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_commit_references(self, **kwargs) -> List[Commit]:
+    def get_commit_references(self, **kwargs) -> Response:
         """
         Get references of a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            List[Commit]: A list of Commit models.
+            Response: A wrapper containing the original response and a list of reference dictionaries.
 
         Raises:
-            MissingParameterError: If the project_id or commit_hash is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if commit.project_id is None or commit.commit_hash is None:
-            raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
-                endpoint=f"/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/refs",
-                model=commit,
-                id_field="project_id",
-                id_value=commit.project_id,
+            response = self._session.get(
+                url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/refs",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
             )
-            parsed_data = [Commit(**item) for item in data]
-            return parsed_data
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def cherry_pick_commit(self, **kwargs) -> Commit:
+    def cherry_pick_commit(self, **kwargs) -> Response:
         """
         Cherry-pick a commit into a new branch.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash, branch).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and a Commit model.
 
         Raises:
-            MissingParameterError: If the project_id, commit_hash, or branch is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if (
-            commit.project_id is None
-            or commit.commit_hash is None
-            or commit.branch is None
-        ):
-            raise MissingParameterError
         try:
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/cherry_pick",
                 headers=self.headers,
-                json=commit.data,
                 verify=self.verify,
                 proxies=self.proxies,
+                json=commit.data,
             )
             response.raise_for_status()
             parsed_data = Commit(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_commit(self, **kwargs) -> Commit:
+    def create_commit(self, **kwargs) -> Response:
         """
         Create a new commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, branch, message, actions).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and a Commit model.
 
         Raises:
-            MissingParameterError: If the project_id, branch, message, or actions is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if (
-            commit.project_id is None
-            or commit.branch is None
-            or commit.message is None
-            or commit.actions is None
-        ):
-            raise MissingParameterError
         try:
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits",
                 headers=self.headers,
-                json=commit.data,
                 verify=self.verify,
                 proxies=self.proxies,
+                json=commit.data,
             )
             response.raise_for_status()
             parsed_data = Commit(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def revert_commit(self, **kwargs) -> requests.Response:
+    def revert_commit(self, **kwargs) -> Response:
         """
         Revert a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash, branch).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and a Commit model.
 
         Raises:
-            MissingParameterError: If the project_id, commit_hash, or branch is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if (
-            commit.project_id is None
-            or commit.commit_hash is None
-            or commit.branch is None
-        ):
-            raise MissingParameterError
         try:
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/revert",
                 headers=self.headers,
-                json=commit.data,
                 verify=self.verify,
                 proxies=self.proxies,
+                json=commit.data,
             )
-
-            return response
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_commit_diff(self, **kwargs) -> List[Diff]:
+    def get_commit_diff(self, **kwargs) -> Response:
         """
         Get the diff of a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            List[Diff]: A list of Diff models.
+            Response: A wrapper containing the original response and a list of Diff models.
 
         Raises:
-            MissingParameterError: If the project_id or commit_hash is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if commit.project_id is None or commit.commit_hash is None:
-            raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
-                endpoint=f"/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/diff",
-                model=commit,
-                id_field="project_id",
-                id_value=commit.project_id,
+            response = self._session.get(
+                url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/diff",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
             )
-            parsed_data = [Diff(**item) for item in data]
-            return parsed_data
+            response.raise_for_status()
+            parsed_data = [Diff(**item) for item in response.json()]
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_commit_comments(self, **kwargs) -> List[Comment]:
+    def get_commit_comments(self, **kwargs) -> Response:
         """
         Get comments on a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            List[Comment]: A list of Comment models.
+            Response: A wrapper containing the original response and a list of Comment models.
 
         Raises:
-            MissingParameterError: If the project_id or commit_hash is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if commit.project_id is None or commit.commit_hash is None:
-            raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
-                endpoint=f"/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/comments",
-                model=commit,
-                id_field="project_id",
-                id_value=commit.project_id,
+            response = self._session.get(
+                url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/comments",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
             )
-            parsed_data = [Comment(**item) for item in data]
-            return parsed_data
+            response.raise_for_status()
+            parsed_data = [Comment(**item) for item in response.json()]
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_commit_comment(self, **kwargs) -> requests.Response:
+    def create_commit_comment(self, **kwargs) -> Response:
         """
         Create a comment on a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash, note).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and a Comment model.
 
         Raises:
-            MissingParameterError: If the project_id, commit_hash, or note is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if (
-            commit.project_id is None
-            or commit.commit_hash is None
-            or commit.note is None
-        ):
-            raise MissingParameterError
         try:
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/comments",
                 headers=self.headers,
-                json=commit.data,
                 verify=self.verify,
                 proxies=self.proxies,
+                json=commit.data,
             )
-
-            return response
+            response.raise_for_status()
+            parsed_data = Comment(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_commit_discussions(self, **kwargs) -> List[Comment]:
+    def get_commit_discussions(self, **kwargs) -> Response:
         """
         Get discussions on a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            List[Comment]: A list of Comment models (discussions are treated as comments).
+            Response: A wrapper containing the original response and a list of Discussion models.
 
         Raises:
-            MissingParameterError: If the project_id or commit_hash is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if commit.project_id is None or commit.commit_hash is None:
-            raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
-                endpoint=f"/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/discussions",
-                model=commit,
-                id_field="project_id",
-                id_value=commit.project_id,
+            response = self._session.get(
+                url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/discussions",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
             )
-            parsed_data = [Comment(**item) for item in data]
-            return parsed_data
+            response.raise_for_status()
+            parsed_data = [Comment(**item) for item in response.json()]
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_commit_statuses(self, **kwargs) -> List[DetailedStatus]:
+    def get_commit_statuses(self, **kwargs) -> Response:
         """
         Get statuses of a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash, ref, name).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            List[DetailedStatus]: A list of DetailedStatus models.
+            Response: A wrapper containing the original response and a list of Status models.
 
         Raises:
-            MissingParameterError: If the project_id or commit_hash is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if commit.project_id is None or commit.commit_hash is None:
-            raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
-                endpoint=f"/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/statuses",
-                model=commit,
-                id_field="project_id",
-                id_value=commit.project_id,
+            response = self._session.get(
+                url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/statuses",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
             )
-            parsed_data = [DetailedStatus(**item) for item in data]
-            return parsed_data
+            response.raise_for_status()
+            parsed_data = [Commit(**item) for item in response.json()]
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def post_build_status_to_commit(self, **kwargs) -> requests.Response:
+    def post_build_status_to_commit(self, **kwargs) -> Response:
         """
         Post build status to a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash, state).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and a Commit model.
 
         Raises:
-            MissingParameterError: If the project_id, commit_hash, or state is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if (
-            commit.project_id is None
-            or commit.commit_hash is None
-            or commit.state is None
-        ):
-            raise MissingParameterError
         try:
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/statuses/{commit.commit_hash}",
                 headers=self.headers,
-                json=commit.data,
                 verify=self.verify,
                 proxies=self.proxies,
+                json=commit.data,
             )
-
-            return response
+            response.raise_for_status()
+            parsed_data = Commit(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_commit_merge_requests(self, **kwargs) -> List[MergeRequest]:
+    def get_commit_merge_requests(self, **kwargs) -> Response:
         """
         Get merge requests associated with a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            List[MergeRequest]: A list of MergeRequest models.
+            Response: A wrapper containing the original response and a list of MergeRequest models.
 
         Raises:
-            MissingParameterError: If the project_id or commit_hash is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if commit.project_id is None or commit.commit_hash is None:
-            raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
-                endpoint=f"/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/merge_requests",
-                model=commit,
-                id_field="project_id",
-                id_value=commit.project_id,
+            response = self._session.get(
+                url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/merge_requests",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
             )
-            parsed_data = [MergeRequest(**item) for item in data]
-            return parsed_data
+            response.raise_for_status()
+            parsed_data = [MergeRequest(**item) for item in response.json()]
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_commit_gpg_signature(self, **kwargs) -> CommitSignature:
+    def get_commit_gpg_signature(self, **kwargs) -> Response:
         """
         Get GPG signature of a commit.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, commit_hash).
+            **kwargs: Additional parameters for the request.
 
         Returns:
-            CommitSignature: The CommitSignature model.
+            Response: A wrapper containing the original response and a CommitSignature model.
 
         Raises:
-            MissingParameterError: If the project_id or commit_hash is missing.
             ParameterError: If invalid parameters are provided.
         """
         commit = CommitModel(**kwargs)
-        if commit.project_id is None or commit.commit_hash is None:
-            raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/signature",
+                url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/signatures",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = CommitSignature(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     ####################################################################################################################
     #                                                Deploy Tokens API                                                 #
     ####################################################################################################################
+
     @require_auth
-    def get_deploy_tokens(self) -> List[DeployToken]:
+    def get_deploy_tokens(self, **kwargs) -> Response:
         """
         Get all deploy tokens.
 
+        Args:
+            **kwargs: Additional parameters for the request.
+
         Returns:
-            List[DeployToken]: List of deploy tokens.
+            Response: A wrapper containing the original response and a list of DeployToken models.
 
         Raises:
             ParameterError: If the request fails or returns invalid data.
         """
+        deploy_token = DeployTokenModel(**kwargs)
         try:
-            response = self._session.get(
-                url=f"{self.url}/deploy_tokens",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
+            response, data = self._fetch_all_pages(
+                endpoint="/deploy_tokens",
+                model=deploy_token,
+                id_field=None,
+                id_value=None,
             )
-            response.raise_for_status()
-            data = response.json()
-            return [DeployToken(**item) for item in data]
-        except (requests.RequestException, ValidationError) as e:
+            parsed_data = [DeployToken(**item) for item in data]
+            return Response(response=response, data=parsed_data)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except requests.RequestException as e:
             raise ParameterError(f"Failed to get deploy tokens: {str(e)}")
 
     @require_auth
-    def get_project_deploy_tokens(self, **kwargs) -> List[DeployToken]:
+    def get_project_deploy_tokens(self, **kwargs) -> Response:
         """
         Get deploy tokens for a specific project.
 
@@ -1281,65 +830,64 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[DeployToken]: List of deploy tokens for the project.
+            Response: A wrapper containing the original response and a list of DeployToken models.
 
         Raises:
             ParameterError: If invalid parameters are provided.
             MissingParameterError: If required parameters are missing.
         """
+        deploy_token = DeployTokenModel(**kwargs)
+        if deploy_token.project_id is None:
+            raise MissingParameterError("project_id is required")
         try:
-            deploy_token = DeployTokenModel(**kwargs)
-            if deploy_token.project_id is None:
-                raise MissingParameterError("project_id is required")
-            response = self._session.get(
-                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
+            response, data = self._fetch_all_pages(
+                endpoint=f"/projects/{deploy_token.project_id}/deploy_tokens",
+                model=deploy_token,
+                id_field="project_id",
+                id_value=deploy_token.project_id,
             )
-            response.raise_for_status()
-            data = response.json()
-            return [DeployToken(**item) for item in data]
+            parsed_data = [DeployToken(**item) for item in data]
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
             raise ParameterError(f"Failed to get project deploy tokens: {str(e)}")
 
     @require_auth
-    def get_project_deploy_token(self, **kwargs) -> DeployToken:
+    def get_project_deploy_token(self, **kwargs) -> Response:
         """
         Get a specific deploy token for a project.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, token).
+            **kwargs: Additional parameters for the request (e.g., project_id, deploy_token_id).
 
         Returns:
-            DeployToken: The specific deploy token.
+            Response: A wrapper containing the original response and a DeployToken model.
 
         Raises:
             ParameterError: If invalid parameters are provided.
             MissingParameterError: If required parameters are missing.
         """
+        deploy_token = DeployTokenModel(**kwargs)
+        if deploy_token.project_id is None or deploy_token.deploy_token_id is None:
+            raise MissingParameterError("project_id and deploy_token_id are required")
         try:
-            deploy_token = DeployTokenModel(**kwargs)
-            if deploy_token.project_id is None or deploy_token.token is None:
-                raise MissingParameterError("project_id and token are required")
             response = self._session.get(
-                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}",
+                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.deploy_token_id}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            data = response.json()
-            return DeployToken(**data)
+            parsed_data = DeployToken(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
             raise ParameterError(f"Failed to get project deploy token: {str(e)}")
 
     @require_auth
-    def create_project_deploy_token(self, **kwargs) -> DeployToken:
+    def create_project_deploy_token(self, **kwargs) -> Response:
         """
         Create a deploy token for a project.
 
@@ -1347,20 +895,20 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name, scopes).
 
         Returns:
-            DeployToken: The created deploy token.
+            Response: A wrapper containing the original response and a DeployToken model.
 
         Raises:
             ParameterError: If invalid parameters are provided.
             MissingParameterError: If required parameters are missing.
         """
+        deploy_token = DeployTokenModel(**kwargs)
+        if (
+            deploy_token.project_id is None
+            or deploy_token.name is None
+            or deploy_token.scopes is None
+        ):
+            raise MissingParameterError("project_id, name, and scopes are required")
         try:
-            deploy_token = DeployTokenModel(**kwargs)
-            if (
-                deploy_token.project_id is None
-                or deploy_token.name is None
-                or deploy_token.scopes is None
-            ):
-                raise MissingParameterError("project_id, name, and scopes are required")
             response = self._session.post(
                 url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens",
                 headers=self.headers,
@@ -1369,47 +917,47 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            data = response.json()
-            return DeployToken(**data)
+            parsed_data = DeployToken(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
             raise ParameterError(f"Failed to create project deploy token: {str(e)}")
 
     @require_auth
-    def delete_project_deploy_token(self, **kwargs) -> requests.Response:
+    def delete_project_deploy_token(self, **kwargs) -> Response:
         """
         Delete a deploy token for a project.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, token).
+            **kwargs: Additional parameters for the request (e.g., project_id, deploy_token_id).
 
         Returns:
-            dict: Empty dictionary (GitLab REST API returns no content on success).
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             ParameterError: If invalid parameters are provided.
             MissingParameterError: If required parameters are missing.
         """
+        deploy_token = DeployTokenModel(**kwargs)
+        if deploy_token.project_id is None or deploy_token.deploy_token_id is None:
+            raise MissingParameterError("project_id and deploy_token_id are required")
         try:
-            deploy_token = DeployTokenModel(**kwargs)
-            if deploy_token.project_id is None or deploy_token.token is None:
-                raise MissingParameterError("project_id and token are required")
             response = self._session.delete(
-                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.token}",
+                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.deploy_token_id}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            return response
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
             raise ParameterError(f"Failed to delete project deploy token: {str(e)}")
 
     @require_auth
-    def get_group_deploy_tokens(self, **kwargs) -> List[DeployToken]:
+    def get_group_deploy_tokens(self, **kwargs) -> Response:
         """
         Get deploy tokens for a specific group.
 
@@ -1417,65 +965,64 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            List[DeployToken]: List of deploy tokens for the group.
+            Response: A wrapper containing the original response and a list of DeployToken models.
 
         Raises:
             ParameterError: If invalid parameters are provided.
             MissingParameterError: If required parameters are missing.
         """
+        deploy_token = DeployTokenModel(**kwargs)
+        if deploy_token.group_id is None:
+            raise MissingParameterError("group_id is required")
         try:
-            deploy_token = DeployTokenModel(**kwargs)
-            if deploy_token.group_id is None:
-                raise MissingParameterError("group_id is required")
-            response = self._session.get(
-                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens",
-                headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
+            response, data = self._fetch_all_pages(
+                endpoint=f"/groups/{deploy_token.group_id}/deploy_tokens",
+                model=deploy_token,
+                id_field="group_id",
+                id_value=deploy_token.group_id,
             )
-            response.raise_for_status()
-            data = response.json()
-            return [DeployToken(**item) for item in data]
+            parsed_data = [DeployToken(**item) for item in data]
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
             raise ParameterError(f"Failed to get group deploy tokens: {str(e)}")
 
     @require_auth
-    def get_group_deploy_token(self, **kwargs) -> DeployToken:
+    def get_group_deploy_token(self, **kwargs) -> Response:
         """
         Get a specific deploy token for a group.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., group_id, token).
+            **kwargs: Additional parameters for the request (e.g., group_id, deploy_token_id).
 
         Returns:
-            DeployToken: The specific deploy token.
+            Response: A wrapper containing the original response and a DeployToken model.
 
         Raises:
             ParameterError: If invalid parameters are provided.
             MissingParameterError: If required parameters are missing.
         """
+        deploy_token = DeployTokenModel(**kwargs)
+        if deploy_token.group_id is None or deploy_token.deploy_token_id is None:
+            raise MissingParameterError("group_id and deploy_token_id are required")
         try:
-            deploy_token = DeployTokenModel(**kwargs)
-            if deploy_token.group_id is None or deploy_token.token is None:
-                raise MissingParameterError("group_id and token are required")
             response = self._session.get(
-                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.token}",
+                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.deploy_token_id}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            data = response.json()
-            return DeployToken(**data)
+            parsed_data = DeployToken(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
             raise ParameterError(f"Failed to get group deploy token: {str(e)}")
 
     @require_auth
-    def create_group_deploy_token(self, **kwargs) -> DeployToken:
+    def create_group_deploy_token(self, **kwargs) -> Response:
         """
         Create a deploy token for a group.
 
@@ -1483,20 +1030,20 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id, name, scopes).
 
         Returns:
-            DeployToken: The created deploy token.
+            Response: A wrapper containing the original response and a DeployToken model.
 
         Raises:
             ParameterError: If invalid parameters are provided.
             MissingParameterError: If required parameters are missing.
         """
+        deploy_token = DeployTokenModel(**kwargs)
+        if (
+            deploy_token.group_id is None
+            or deploy_token.name is None
+            or deploy_token.scopes is None
+        ):
+            raise MissingParameterError("group_id, name, and scopes are required")
         try:
-            deploy_token = DeployTokenModel(**kwargs)
-            if (
-                deploy_token.group_id is None
-                or deploy_token.name is None
-                or deploy_token.scopes is None
-            ):
-                raise MissingParameterError("group_id, name, and scopes are required")
             response = self._session.post(
                 url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens",
                 headers=self.headers,
@@ -1505,40 +1052,40 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            data = response.json()
-            return DeployToken(**data)
+            parsed_data = DeployToken(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
             raise ParameterError(f"Failed to create group deploy token: {str(e)}")
 
     @require_auth
-    def delete_group_deploy_token(self, **kwargs) -> requests.Response:
+    def delete_group_deploy_token(self, **kwargs) -> Response:
         """
         Delete a deploy token for a group.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., group_id, token).
+            **kwargs: Additional parameters for the request (e.g., group_id, deploy_token_id).
 
         Returns:
-            dict: Empty dictionary (GitLab REST API returns no content on success).
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             ParameterError: If invalid parameters are provided.
             MissingParameterError: If required parameters are missing.
         """
+        deploy_token = DeployTokenModel(**kwargs)
+        if deploy_token.group_id is None or deploy_token.deploy_token_id is None:
+            raise MissingParameterError("group_id and deploy_token_id are required")
         try:
-            deploy_token = DeployTokenModel(**kwargs)
-            if deploy_token.group_id is None or deploy_token.token is None:
-                raise MissingParameterError("group_id and token are required")
             response = self._session.delete(
-                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.token}",
+                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.deploy_token_id}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            return response
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except requests.RequestException as e:
@@ -1548,7 +1095,7 @@ class Api(object):
     #                                           Environments API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_environments(self, **kwargs) -> List[Environment]:
+    def get_environments(self, **kwargs) -> Response:
         """
         Get a list of environments for a project.
 
@@ -1556,7 +1103,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Environment]: A list of Environment models.
+            Response: A wrapper containing the original response and a list of Environment models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -1566,19 +1113,19 @@ class Api(object):
         if project.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{project.project_id}/environments",
                 model=project,
                 id_field="project_id",
                 id_value=project.project_id,
             )
             parsed_data = [Environment(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_environment(self, **kwargs) -> Environment:
+    def get_environment(self, **kwargs) -> Response:
         """
         Get details of a specific environment.
 
@@ -1586,7 +1133,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, environment_id).
 
         Returns:
-            Environment: The Environment model.
+            Response: A wrapper containing the original response and an Environment model.
 
         Raises:
             MissingParameterError: If the project_id or environment_id is missing.
@@ -1605,12 +1152,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_environment(self, **kwargs) -> Environment:
+    def create_environment(self, **kwargs) -> Response:
         """
         Create a new environment for a project.
 
@@ -1618,7 +1165,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and an Environment model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -1637,12 +1184,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def update_environment(self, **kwargs) -> Environment:
+    def update_environment(self, **kwargs) -> Response:
         """
         Update an existing environment for a project.
 
@@ -1650,7 +1197,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, environment_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and an Environment model.
 
         Raises:
             MissingParameterError: If the project_id or environment_id is missing.
@@ -1669,12 +1216,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_environment(self, **kwargs) -> requests.Response:
+    def delete_environment(self, **kwargs) -> Response:
         """
         Delete an environment for a project.
 
@@ -1682,7 +1229,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, environment_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id or environment_id is missing.
@@ -1698,13 +1245,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def stop_environment(self, **kwargs) -> requests.Response:
+    def stop_environment(self, **kwargs) -> Response:
         """
         Stop an environment for a project.
 
@@ -1712,7 +1259,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, environment_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and an Environment model.
 
         Raises:
             MissingParameterError: If the project_id or environment_id is missing.
@@ -1729,13 +1276,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            parsed_data = Environment(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def stop_stale_environments(self, **kwargs) -> requests.Response:
+    def stop_stale_environments(self, **kwargs) -> Response:
         """
         Stop stale environments for a project.
 
@@ -1743,7 +1291,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful operation).
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -1760,13 +1308,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_stopped_environments(self, **kwargs) -> requests.Response:
+    def delete_stopped_environments(self, **kwargs) -> Response:
         """
         Delete stopped environments (review apps) for a project.
 
@@ -1774,7 +1322,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -1791,13 +1339,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_protected_environments(self, **kwargs) -> List[Environment]:
+    def get_protected_environments(self, **kwargs) -> Response:
         """
         Get a list of protected environments for a project.
 
@@ -1805,7 +1353,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Environment]: A list of Environment models.
+            Response: A wrapper containing the original response and a list of Environment models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -1815,19 +1363,19 @@ class Api(object):
         if project.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{project.project_id}/protected_environments",
                 model=project,
                 id_field="project_id",
                 id_value=project.project_id,
             )
             parsed_data = [Environment(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_protected_environment(self, **kwargs) -> Environment:
+    def get_protected_environment(self, **kwargs) -> Response:
         """
         Get details of a specific protected environment.
 
@@ -1835,7 +1383,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            Environment: The Environment model.
+            Response: A wrapper containing the original response and an Environment model.
 
         Raises:
             MissingParameterError: If the project_id or name is missing.
@@ -1853,12 +1401,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def protect_environment(self, **kwargs) -> Environment:
+    def protect_environment(self, **kwargs) -> Response:
         """
         Protect an environment for a project.
 
@@ -1866,7 +1414,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and an Environment model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -1885,12 +1433,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def update_protected_environment(self, **kwargs) -> Environment:
+    def update_protected_environment(self, **kwargs) -> Response:
         """
         Update a protected environment for a project.
 
@@ -1898,7 +1446,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and an Environment model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -1917,12 +1465,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def unprotect_environment(self, **kwargs) -> requests.Response:
+    def unprotect_environment(self, **kwargs) -> Response:
         """
         Unprotect an environment for a project.
 
@@ -1930,7 +1478,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -1946,8 +1494,8 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -1955,7 +1503,7 @@ class Api(object):
     #                                                Groups API                                                        #
     ####################################################################################################################
     @require_auth
-    def get_groups(self, **kwargs) -> List[Group]:
+    def get_groups(self, **kwargs) -> Response:
         """
         Get a list of groups.
 
@@ -1963,26 +1511,26 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            List[Group]: A list of Group models.
+            Response: A wrapper containing the original response and a list of Group models.
 
         Raises:
             ParameterError: If invalid parameters are provided.
         """
         group = GroupModel(**kwargs)
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/groups",
                 model=group,
-                id_field="group_id",
-                id_value=group.group_id,
+                id_field=None,
+                id_value=None,
             )
             parsed_data = [Group(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_group(self, **kwargs) -> Group:
+    def get_group(self, **kwargs) -> Response:
         """
         Get details of a specific group.
 
@@ -1990,7 +1538,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            Group: The Group model.
+            Response: A wrapper containing the original response and a Group model.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -2008,12 +1556,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Group(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def edit_group(self, **kwargs) -> requests.Response:
+    def edit_group(self, **kwargs) -> Response:
         """
         Edit a specific group.
 
@@ -2021,7 +1569,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and a Group model.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -2038,12 +1586,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = Group(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_group_subgroups(self, **kwargs) -> List[Group]:
+    def get_group_subgroups(self, **kwargs) -> Response:
         """
         Get subgroups of a specific group.
 
@@ -2051,7 +1601,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            List[Group]: A list of Group models.
+            Response: A wrapper containing the original response and a list of Group models.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -2061,19 +1611,19 @@ class Api(object):
         if group.group_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/groups/{id}/subgroups",
                 model=group,
                 id_field="group_id",
                 id_value=group.group_id,
             )
             parsed_data = [Group(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_group_descendant_groups(self, **kwargs) -> List[Group]:
+    def get_group_descendant_groups(self, **kwargs) -> Response:
         """
         Get descendant groups of a specific group.
 
@@ -2081,7 +1631,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            List[Group]: A list of Group models.
+            Response: A wrapper containing the original response and a list of Group models.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -2091,19 +1641,19 @@ class Api(object):
         if group.group_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/groups/{id}/descendant_groups",
                 model=group,
                 id_field="group_id",
                 id_value=group.group_id,
             )
             parsed_data = [Group(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_group_projects(self, **kwargs) -> List[Project]:
+    def get_group_projects(self, **kwargs) -> Response:
         """
         Get projects associated with a specific group.
 
@@ -2111,7 +1661,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            List[Project]: A list of Project models.
+            Response: A wrapper containing the original response and a list of Project models.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -2121,19 +1671,19 @@ class Api(object):
         if group.group_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/groups/{id}/projects",
                 model=group,
                 id_field="group_id",
                 id_value=group.group_id,
             )
             parsed_data = [Project(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_group_merge_requests(self, **kwargs) -> List[MergeRequest]:
+    def get_group_merge_requests(self, **kwargs) -> Response:
         """
         Get merge requests associated with a specific group.
 
@@ -2141,7 +1691,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            List[MergeRequest]: A list of MergeRequest models.
+            Response: A wrapper containing the original response and a list of MergeRequest models.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -2151,14 +1701,14 @@ class Api(object):
         if group.group_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/groups/{id}/merge_requests",
                 model=group,
                 id_field="group_id",
                 id_value=group.group_id,
             )
             parsed_data = [MergeRequest(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -2166,7 +1716,7 @@ class Api(object):
     #                                                Jobs API                                                          #
     ####################################################################################################################
     @require_auth
-    def get_project_jobs(self, **kwargs) -> List[Job]:
+    def get_project_jobs(self, **kwargs) -> Response:
         """
         Get jobs associated with a specific project.
 
@@ -2174,7 +1724,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Job]: A list of Job models.
+            Response: A wrapper containing the original response and a list of Job models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -2184,19 +1734,19 @@ class Api(object):
         if job.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{job.project_id}/jobs",
                 model=job,
                 id_field="project_id",
                 id_value=job.project_id,
             )
             parsed_data = [Job(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_job(self, **kwargs) -> Job:
+    def get_project_job(self, **kwargs) -> Response:
         """
         Get details of a specific job within a project.
 
@@ -2204,7 +1754,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, job_id).
 
         Returns:
-            Job: The Job model.
+            Response: A wrapper containing the original response and a Job model.
 
         Raises:
             MissingParameterError: If the project_id or job_id is missing.
@@ -2222,12 +1772,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_job_log(self, **kwargs) -> requests.Response:
+    def get_project_job_log(self, **kwargs) -> Response:
         """
         Get the log of a specific job within a project.
 
@@ -2235,7 +1785,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, job_id).
 
         Returns:
-            requests.Response: The response from the server containing the job log.
+            Response: A wrapper containing the original response and the raw job log data.
 
         Raises:
             MissingParameterError: If the project_id or job_id is missing.
@@ -2251,12 +1801,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = response.text  # Job log is plain text, not JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def cancel_project_job(self, **kwargs) -> Job:
+    def cancel_project_job(self, **kwargs) -> Response:
         """
         Cancel a specific job within a project.
 
@@ -2264,7 +1816,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, job_id).
 
         Returns:
-            Job: The Job model representing the cancelled job.
+            Response: A wrapper containing the original response and a Job model.
 
         Raises:
             MissingParameterError: If the project_id or job_id is missing.
@@ -2282,12 +1834,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def retry_project_job(self, **kwargs) -> Job:
+    def retry_project_job(self, **kwargs) -> Response:
         """
         Retry a specific job within a project.
 
@@ -2295,7 +1847,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, job_id).
 
         Returns:
-            Job: The Job model representing the retried job.
+            Response: A wrapper containing the original response and a Job model.
 
         Raises:
             MissingParameterError: If the project_id or job_id is missing.
@@ -2313,12 +1865,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def erase_project_job(self, **kwargs) -> Job:
+    def erase_project_job(self, **kwargs) -> Response:
         """
         Erase a specific job within a project.
 
@@ -2326,7 +1878,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, job_id).
 
         Returns:
-            Job: The Job model representing the erased job.
+            Response: A wrapper containing the original response and a Job model.
 
         Raises:
             MissingParameterError: If the project_id or job_id is missing.
@@ -2344,12 +1896,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def run_project_job(self, **kwargs) -> Job:
+    def run_project_job(self, **kwargs) -> Response:
         """
         Run a specific job within a project.
 
@@ -2357,7 +1909,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, job_id).
 
         Returns:
-            Job: The Job model representing the run job.
+            Response: A wrapper containing the original response and a Job model.
 
         Raises:
             MissingParameterError: If the project_id or job_id is missing.
@@ -2376,12 +1928,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_pipeline_jobs(self, **kwargs) -> List[Job]:
+    def get_pipeline_jobs(self, **kwargs) -> Response:
         """
         Get jobs associated with a specific pipeline within a project.
 
@@ -2389,7 +1941,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_id).
 
         Returns:
-            List[Job]: A list of Job models.
+            Response: A wrapper containing the original response and a list of Job models.
 
         Raises:
             MissingParameterError: If the project_id or pipeline_id is missing.
@@ -2399,14 +1951,14 @@ class Api(object):
         if job.project_id is None or job.pipeline_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{job.project_id}/pipelines/{job.pipeline_id}/jobs",
                 model=job,
                 id_field="project_id",
                 id_value=job.project_id,
             )
             parsed_data = [Job(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -2414,7 +1966,7 @@ class Api(object):
     #                                               Members API                                                        #
     ####################################################################################################################
     @require_auth
-    def get_group_members(self, **kwargs) -> List[Membership]:
+    def get_group_members(self, **kwargs) -> Response:
         """
         Get members of a specific group.
 
@@ -2422,7 +1974,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            List[Membership]: A list of Membership models.
+            Response: A wrapper containing the original response and a list of Membership models.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -2432,19 +1984,19 @@ class Api(object):
         if members.group_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/groups/{members.group_id}/members",
                 model=members,
                 id_field="group_id",
                 id_value=members.group_id,
             )
             parsed_data = [Membership(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_members(self, **kwargs) -> List[Membership]:
+    def get_project_members(self, **kwargs) -> Response:
         """
         Get members of a specific project.
 
@@ -2452,7 +2004,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Membership]: A list of Membership models.
+            Response: A wrapper containing the original response and a list of Membership models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -2462,14 +2014,14 @@ class Api(object):
         if members.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{members.project_id}/members",
                 model=members,
                 id_field="project_id",
                 id_value=members.project_id,
             )
             parsed_data = [Membership(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -2477,7 +2029,7 @@ class Api(object):
     #                                            Merge Request API                                                     #
     ####################################################################################################################
     @require_auth
-    def create_merge_request(self, **kwargs) -> MergeRequest:
+    def create_merge_request(self, **kwargs) -> Response:
         """
         Create a new merge request.
 
@@ -2485,7 +2037,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, source_branch, target_branch, title).
 
         Returns:
-            MergeRequest: The MergeRequest model representing the created merge request.
+            Response: A wrapper containing the original response and a MergeRequest model.
 
         Raises:
             MissingParameterError: If the project_id, source_branch, target_branch, or title is missing.
@@ -2509,12 +2061,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = MergeRequest(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_merge_requests(self, **kwargs) -> List[MergeRequest]:
+    def get_merge_requests(self, **kwargs) -> Response:
         """
         Get a list of merge requests.
 
@@ -2522,26 +2074,26 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., state, scope).
 
         Returns:
-            List[MergeRequest]: A list of MergeRequest models.
+            Response: A wrapper containing the original response and a list of MergeRequest models.
 
         Raises:
             ParameterError: If invalid parameters are provided.
         """
         merge_request = MergeRequestModel(**kwargs)
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/merge_requests",
                 model=merge_request,
                 id_field=None,
                 id_value=None,
             )
             parsed_data = [MergeRequest(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_merge_requests(self, **kwargs) -> List[MergeRequest]:
+    def get_project_merge_requests(self, **kwargs) -> Response:
         """
         Get merge requests for a specific project.
 
@@ -2549,7 +2101,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[MergeRequest]: A list of MergeRequest models.
+            Response: A wrapper containing the original response and a list of MergeRequest models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -2559,45 +2111,45 @@ class Api(object):
         if merge_request.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{merge_request.project_id}/merge_requests",
                 model=merge_request,
                 id_field="project_id",
                 id_value=merge_request.project_id,
             )
             parsed_data = [MergeRequest(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_merge_request(self, **kwargs) -> MergeRequest:
+    def get_project_merge_request(self, **kwargs) -> Response:
         """
         Get details of a specific merge request in a project.
 
         Args:
-            **kwargs: Additional parameters for the request (e.g., project_id, merge_id).
+            **kwargs: Additional parameters for the request (e.g., project_id, merge_request_iid).
 
         Returns:
-            MergeRequest: The MergeRequest model.
+            Response: A wrapper containing the original response and a MergeRequest model.
 
         Raises:
-            MissingParameterError: If the project_id or merge_id is missing.
+            MissingParameterError: If the project_id or merge_request_iid is missing.
             ParameterError: If invalid parameters are provided.
         """
         merge_request = MergeRequestModel(**kwargs)
-        if merge_request.project_id is None or merge_request.merge_id is None:
+        if merge_request.project_id is None or merge_request.merge_request_iid is None:
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{merge_request.project_id}/merge_requests/{merge_request.merge_id}",
+                url=f"{self.url}/projects/{merge_request.project_id}/merge_requests/{merge_request.merge_request_iid}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequest(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -2605,7 +2157,7 @@ class Api(object):
     #                                            Merge Rules API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_project_level_merge_request_rules(self, **kwargs) -> List[ApprovalRule]:
+    def get_project_level_merge_request_rules(self, **kwargs) -> Response:
         """
         Get project-level merge request approval rules.
 
@@ -2613,7 +2165,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[ApprovalRule]: A list of ApprovalRule models.
+            Response: A wrapper containing the original response and a list of ApprovalRule models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -2623,19 +2175,19 @@ class Api(object):
         if merge_rule.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{merge_rule.project_id}/approval_rules",
                 model=merge_rule,
                 id_field="project_id",
                 id_value=merge_rule.project_id,
             )
             parsed_data = [ApprovalRule(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_level_merge_request_rule(self, **kwargs) -> ApprovalRule:
+    def get_project_level_merge_request_rule(self, **kwargs) -> Response:
         """
         Get details of a specific project-level merge request approval rule.
 
@@ -2643,7 +2195,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, approval_rule_id).
 
         Returns:
-            ApprovalRule: The ApprovalRule model.
+            Response: A wrapper containing the original response and an ApprovalRule model.
 
         Raises:
             MissingParameterError: If the project_id or approval_rule_id is missing.
@@ -2661,12 +2213,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = ApprovalRule(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_project_level_rule(self, **kwargs) -> ApprovalRule:
+    def create_project_level_rule(self, **kwargs) -> Response:
         """
         Create a new project-level merge request approval rule.
 
@@ -2674,7 +2226,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name, approvals_required).
 
         Returns:
-            ApprovalRule: The ApprovalRule model representing the created rule.
+            Response: A wrapper containing the original response and an ApprovalRule model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -2693,12 +2245,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = ApprovalRule(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def update_project_level_rule(self, **kwargs) -> ApprovalRule:
+    def update_project_level_rule(self, **kwargs) -> Response:
         """
         Update an existing project-level merge request approval rule.
 
@@ -2706,7 +2258,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, approval_rule_id).
 
         Returns:
-            ApprovalRule: The ApprovalRule model representing the updated rule.
+            Response: A wrapper containing the original response and an ApprovalRule model.
 
         Raises:
             MissingParameterError: If the project_id or approval_rule_id is missing.
@@ -2725,12 +2277,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = ApprovalRule(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_project_level_rule(self, **kwargs) -> requests.Response:
+    def delete_project_level_rule(self, **kwargs) -> Response:
         """
         Delete a project-level merge request approval rule.
 
@@ -2738,7 +2290,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, approval_rule_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id or approval_rule_id is missing.
@@ -2754,12 +2306,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def merge_request_level_approvals(self, **kwargs) -> requests.Response:
+    def merge_request_level_approvals(self, **kwargs) -> Response:
         """
         Get approvals for a specific merge request.
 
@@ -2767,7 +2320,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, merge_request_iid).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw approval data.
 
         Raises:
             MissingParameterError: If the project_id or merge_request_iid is missing.
@@ -2783,12 +2336,16 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = (
+                response.json()
+            )  # No specific Pydantic model for approvals, keeping as raw JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_approval_state_merge_requests(self, **kwargs) -> requests.Response:
+    def get_approval_state_merge_requests(self, **kwargs) -> Response:
         """
         Get the approval state of merge requests for a specific project.
 
@@ -2796,7 +2353,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, merge_request_iid).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw approval state data.
 
         Raises:
             MissingParameterError: If the project_id or merge_request_iid is missing.
@@ -2812,12 +2369,16 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = (
+                response.json()
+            )  # No specific Pydantic model for approval state, keeping as raw JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_merge_request_level_rules(self, **kwargs) -> List[ApprovalRule]:
+    def get_merge_request_level_rules(self, **kwargs) -> Response:
         """
         Get merge request-level approval rules for a specific project and merge request.
 
@@ -2825,7 +2386,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, merge_request_iid).
 
         Returns:
-            List[ApprovalRule]: A list of ApprovalRule models.
+            Response: A wrapper containing the original response and a list of ApprovalRule models.
 
         Raises:
             MissingParameterError: If the project_id or merge_request_iid is missing.
@@ -2835,19 +2396,19 @@ class Api(object):
         if merge_rule.project_id is None or merge_rule.merge_request_iid is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approval_rules",
                 model=merge_rule,
                 id_field="project_id",
                 id_value=merge_rule.project_id,
             )
             parsed_data = [ApprovalRule(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def approve_merge_request(self, **kwargs) -> MergeRequest:
+    def approve_merge_request(self, **kwargs) -> Response:
         """
         Approve a specific merge request.
 
@@ -2855,7 +2416,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, merge_request_iid).
 
         Returns:
-            MergeRequest: The MergeRequest model representing the approved merge request.
+            Response: A wrapper containing the original response and a MergeRequest model.
 
         Raises:
             MissingParameterError: If the project_id or merge_request_iid is missing.
@@ -2873,12 +2434,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = MergeRequest(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def unapprove_merge_request(self, **kwargs) -> requests.Response:
+    def unapprove_merge_request(self, **kwargs) -> Response:
         """
         Unapprove a specific merge request.
 
@@ -2886,7 +2447,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, merge_request_iid).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful operation).
 
         Raises:
             MissingParameterError: If the project_id or merge_request_iid is missing.
@@ -2902,7 +2463,8 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -2910,7 +2472,7 @@ class Api(object):
     #                                     Merge Rules Settings API                                                     #
     ####################################################################################################################
     @require_auth
-    def get_group_level_rule(self, **kwargs) -> ApprovalRule:
+    def get_group_level_rule(self, **kwargs) -> Response:
         """
         Get details of a group-level merge request approval setting.
 
@@ -2918,7 +2480,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            ApprovalRule: The ApprovalRule model.
+            Response: A wrapper containing the original response and a MergeRequestRuleSettings model.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -2936,13 +2498,13 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = ApprovalRule(**response.json())
-            return parsed_data
+            parsed_data = MergeRequestRuleSettings(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def edit_group_level_rule(self, **kwargs) -> ApprovalRule:
+    def edit_group_level_rule(self, **kwargs) -> Response:
         """
         Edit a group-level merge request approval setting.
 
@@ -2950,7 +2512,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            ApprovalRule: The ApprovalRule model representing the updated setting.
+            Response: A wrapper containing the original response and a MergeRequestRuleSettings model.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -2968,13 +2530,13 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = ApprovalRule(**response.json())
-            return parsed_data
+            parsed_data = MergeRequestRuleSettings(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_level_rule(self, **kwargs) -> ApprovalRule:
+    def get_project_level_rule(self, **kwargs) -> Response:
         """
         Get details of a project-level merge request approval setting.
 
@@ -2982,7 +2544,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            ApprovalRule: The ApprovalRule model.
+            Response: A wrapper containing the original response and a MergeRequestRuleSettings model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -2999,13 +2561,13 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = ApprovalRule(**response.json())
-            return parsed_data
+            parsed_data = MergeRequestRuleSettings(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def edit_project_level_rule(self, **kwargs) -> ApprovalRule:
+    def edit_project_level_rule(self, **kwargs) -> Response:
         """
         Edit a project-level merge request approval setting.
 
@@ -3013,7 +2575,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            ApprovalRule: The ApprovalRule model representing the updated setting.
+            Response: A wrapper containing the original response and a MergeRequestRuleSettings model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3031,8 +2593,8 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = ApprovalRule(**response.json())
-            return parsed_data
+            parsed_data = MergeRequestRuleSettings(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -3040,7 +2602,7 @@ class Api(object):
     #                                               Packages API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_repository_packages(self, **kwargs) -> List[Package]:
+    def get_repository_packages(self, **kwargs) -> Response:
         """
         Get information about repository packages for a specific project.
 
@@ -3048,7 +2610,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Package]: A list of Package models.
+            Response: A wrapper containing the original response and a list of Package models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3058,19 +2620,19 @@ class Api(object):
         if package.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{package.project_id}/packages",
                 model=package,
                 id_field="project_id",
                 id_value=package.project_id,
             )
             parsed_data = [Package(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def publish_repository_package(self, **kwargs) -> Package:
+    def publish_repository_package(self, **kwargs) -> Response:
         """
         Publish a repository package for a specific project.
 
@@ -3078,7 +2640,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, package_name, package_version, file_name).
 
         Returns:
-            Package: The Package model representing the published package.
+            Response: A wrapper containing the original response and a Package model.
 
         Raises:
             MissingParameterError: If the project_id, package_name, package_version, or file_name is missing.
@@ -3101,12 +2663,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Package(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def download_repository_package(self, **kwargs) -> requests.Response:
+    def download_repository_package(self, **kwargs) -> Response:
         """
         Download a repository package for a specific project.
 
@@ -3114,7 +2676,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, package_name, package_version, file_name).
 
         Returns:
-            requests.Response: The response from the server containing the package file.
+            Response: A wrapper containing the original response and the raw package file data.
 
         Raises:
             MissingParameterError: If the project_id, package_name, package_version, or file_name is missing.
@@ -3135,7 +2697,9 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = response.content  # Package file is binary data, not JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -3143,7 +2707,7 @@ class Api(object):
     #                                                Pipeline API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_pipelines(self, **kwargs) -> List[Pipeline]:
+    def get_pipelines(self, **kwargs) -> Response:
         """
         Get information about pipelines for a specific project.
 
@@ -3151,7 +2715,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Pipeline]: A list of Pipeline models.
+            Response: A wrapper containing the original response and a list of Pipeline models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3161,19 +2725,19 @@ class Api(object):
         if pipeline.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{pipeline.project_id}/pipelines",
                 model=pipeline,
                 id_field="project_id",
                 id_value=pipeline.project_id,
             )
             parsed_data = [Pipeline(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_pipeline(self, **kwargs) -> Pipeline:
+    def get_pipeline(self, **kwargs) -> Response:
         """
         Get information about a specific pipeline in a project.
 
@@ -3181,7 +2745,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_id).
 
         Returns:
-            Pipeline: The Pipeline model.
+            Response: A wrapper containing the original response and a Pipeline model.
 
         Raises:
             MissingParameterError: If the project_id or pipeline_id is missing.
@@ -3199,12 +2763,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Pipeline(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def run_pipeline(self, **kwargs) -> Pipeline:
+    def run_pipeline(self, **kwargs) -> Response:
         """
         Run a pipeline for a specific project.
 
@@ -3212,7 +2776,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, ref).
 
         Returns:
-            Pipeline: The Pipeline model representing the created pipeline.
+            Response: A wrapper containing the original response and a Pipeline model.
 
         Raises:
             MissingParameterError: If the project_id or ref is missing.
@@ -3231,7 +2795,7 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Pipeline(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -3239,7 +2803,7 @@ class Api(object):
     #                                          Pipeline Schedules API                                                  #
     ####################################################################################################################
     @require_auth
-    def get_pipeline_schedules(self, **kwargs) -> List[PipelineSchedule]:
+    def get_pipeline_schedules(self, **kwargs) -> Response:
         """
         Get pipeline schedules for a specific project.
 
@@ -3247,7 +2811,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[PipelineSchedule]: A list of PipelineSchedule models.
+            Response: A wrapper containing the original response and a list of PipelineSchedule models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3257,19 +2821,19 @@ class Api(object):
         if project.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/projects/{id}/pipeline_schedules",
                 model=project,
                 id_field="project_id",
                 id_value=project.project_id,
             )
             parsed_data = [PipelineSchedule(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_pipeline_schedule(self, **kwargs) -> PipelineSchedule:
+    def get_pipeline_schedule(self, **kwargs) -> Response:
         """
         Get information about a specific pipeline schedule in a project.
 
@@ -3277,7 +2841,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_schedule_id).
 
         Returns:
-            PipelineSchedule: The PipelineSchedule model.
+            Response: A wrapper containing the original response and a PipelineSchedule model.
 
         Raises:
             MissingParameterError: If the project_id or pipeline_schedule_id is missing.
@@ -3295,12 +2859,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = PipelineSchedule(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_pipelines_triggered_from_schedule(self, **kwargs) -> List[Pipeline]:
+    def get_pipelines_triggered_from_schedule(self, **kwargs) -> Response:
         """
         Get pipelines triggered from a specific pipeline schedule.
 
@@ -3308,7 +2872,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_schedule_id).
 
         Returns:
-            List[Pipeline]: A list of Pipeline models.
+            Response: A wrapper containing the original response and a list of Pipeline models.
 
         Raises:
             MissingParameterError: If the project_id or pipeline_schedule_id is missing.
@@ -3318,19 +2882,19 @@ class Api(object):
         if project.project_id is None or project.pipeline_schedule_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/pipelines",
                 model=project,
                 id_field="project_id",
                 id_value=project.project_id,
             )
             parsed_data = [Pipeline(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_pipeline_schedule(self, **kwargs) -> PipelineSchedule:
+    def create_pipeline_schedule(self, **kwargs) -> Response:
         """
         Create a pipeline schedule for a specific project.
 
@@ -3338,7 +2902,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            PipelineSchedule: The PipelineSchedule model representing the created schedule.
+            Response: A wrapper containing the original response and a PipelineSchedule model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3357,12 +2921,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = PipelineSchedule(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def edit_pipeline_schedule(self, **kwargs) -> PipelineSchedule:
+    def edit_pipeline_schedule(self, **kwargs) -> Response:
         """
         Edit a pipeline schedule for a specific project.
 
@@ -3370,7 +2934,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_schedule_id).
 
         Returns:
-            PipelineSchedule: The PipelineSchedule model representing the updated schedule.
+            Response: A wrapper containing the original response and a PipelineSchedule model.
 
         Raises:
             MissingParameterError: If the project_id or pipeline_schedule_id is missing.
@@ -3389,12 +2953,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = PipelineSchedule(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def take_pipeline_schedule_ownership(self, **kwargs) -> PipelineSchedule:
+    def take_pipeline_schedule_ownership(self, **kwargs) -> Response:
         """
         Take ownership of a pipeline schedule for a specific project.
 
@@ -3402,7 +2966,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_schedule_id).
 
         Returns:
-            PipelineSchedule: The PipelineSchedule model representing the updated schedule.
+            Response: A wrapper containing the original response and a PipelineSchedule model.
 
         Raises:
             MissingParameterError: If the project_id or pipeline_schedule_id is missing.
@@ -3420,12 +2984,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = PipelineSchedule(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_pipeline_schedule(self, **kwargs) -> requests.Response:
+    def delete_pipeline_schedule(self, **kwargs) -> Response:
         """
         Delete a pipeline schedule for a specific project.
 
@@ -3433,7 +2997,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_schedule_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id or pipeline_schedule_id is missing.
@@ -3449,12 +3013,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def run_pipeline_schedule(self, **kwargs) -> requests.Response:
+    def run_pipeline_schedule(self, **kwargs) -> Response:
         """
         Run a pipeline schedule for a specific project.
 
@@ -3462,7 +3027,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_schedule_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful operation).
 
         Raises:
             MissingParameterError: If the project_id or pipeline_schedule_id is missing.
@@ -3478,12 +3043,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_pipeline_schedule_variable(self, **kwargs) -> requests.Response:
+    def create_pipeline_schedule_variable(self, **kwargs) -> Response:
         """
         Create a variable for a pipeline schedule.
 
@@ -3491,7 +3057,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_schedule_id, key).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and a PipelineVariable model.
 
         Raises:
             MissingParameterError: If the project_id or pipeline_schedule_id is missing.
@@ -3508,12 +3074,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = PipelineVariable(**response.json())
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_pipeline_schedule_variable(self, **kwargs) -> requests.Response:
+    def delete_pipeline_schedule_variable(self, **kwargs) -> Response:
         """
         Delete a variable from a pipeline schedule.
 
@@ -3521,7 +3089,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, pipeline_schedule_id, key).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id, pipeline_schedule_id, or key is missing.
@@ -3541,7 +3109,8 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -3549,7 +3118,7 @@ class Api(object):
     #                                                Projects API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_projects(self, **kwargs) -> List[Project]:
+    def get_projects(self, **kwargs) -> Response:
         """
         Get information about projects.
 
@@ -3557,26 +3126,26 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., owned, membership).
 
         Returns:
-            List[Project]: A list of Project models.
+            Response: A wrapper containing the original response and a list of Project models.
 
         Raises:
             ParameterError: If invalid parameters are provided.
         """
         project = ProjectModel(**kwargs)
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/projects",
                 model=project,
                 id_field=None,
                 id_value=None,
             )
             parsed_data = [Project(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project(self, **kwargs) -> Project:
+    def get_project(self, **kwargs) -> Response:
         """
         Get information about a specific project.
 
@@ -3584,7 +3153,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            Project: The Project model.
+            Response: A wrapper containing the original response and a Project model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3602,12 +3171,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_nested_projects_by_group(self, **kwargs) -> List[Project]:
+    def get_nested_projects_by_group(self, **kwargs) -> Response:
         """
         Get information about nested projects within a group.
 
@@ -3615,7 +3184,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id, per_page).
 
         Returns:
-            List[Project]: A list of Project models.
+            Response: A wrapper containing the original response and a list of Project models.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -3629,16 +3198,20 @@ class Api(object):
             raise MissingParameterError
 
         try:
-            project_group = self.get_group(group_id=project.group_id)
-            all_groups.append(project_group)
+            # Fetch the specified group
+            group_response = self.get_group(group_id=project.group_id)
+            all_groups.append(group_response.data)
 
-            groups = self.get_group_descendant_groups(
+            # Fetch all descendant groups
+            groups_response = self.get_group_descendant_groups(
                 group_id=project.group_id, per_page=project.per_page
             )
-            all_groups.extend(groups)
+            all_groups.extend(groups_response.data)
 
+            # Fetch projects for each group
+            last_response = None
             for group in all_groups:
-                data = self._fetch_all_pages(
+                response, data = self._fetch_all_pages(
                     endpoint=f"/groups/{group.id}/projects",
                     model=project,
                     id_field="group_id",
@@ -3646,13 +3219,16 @@ class Api(object):
                 )
                 parsed_data = [Project(**item) for item in data]
                 all_projects.extend(parsed_data)
+                last_response = (
+                    response  # Keep track of the last response for the Response object
+                )
 
-            return all_projects
+            return Response(response=last_response, data=all_projects)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_contributors(self, **kwargs) -> List[User]:
+    def get_project_contributors(self, **kwargs) -> Response:
         """
         Get information about contributors to a project.
 
@@ -3660,7 +3236,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[User]: A list of User models.
+            Response: A wrapper containing the original response and a list of User models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3670,19 +3246,19 @@ class Api(object):
         if project.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{project.project_id}/repository/contributors",
                 model=project,
                 id_field="project_id",
                 id_value=project.project_id,
             )
             parsed_data = [User(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_statistics(self, **kwargs) -> requests.Response:
+    def get_project_statistics(self, **kwargs) -> Response:
         """
         Get statistics for a specific project.
 
@@ -3690,7 +3266,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw statistics data.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3706,12 +3282,16 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = (
+                response.json()
+            )  # No specific Pydantic model for statistics, keeping as raw JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def edit_project(self, **kwargs) -> Project:
+    def edit_project(self, **kwargs) -> Response:
         """
         Edit a specific project.
 
@@ -3719,7 +3299,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            Project: The Project model representing the updated project.
+            Response: A wrapper containing the original response and a Project model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3738,12 +3318,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_groups(self, **kwargs) -> List[Group]:
+    def get_project_groups(self, **kwargs) -> Response:
         """
         Get groups associated with a specific project.
 
@@ -3751,7 +3331,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Group]: A list of Group models.
+            Response: A wrapper containing the original response and a list of Group models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3761,19 +3341,19 @@ class Api(object):
         if project.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{project.project_id}/groups",
                 model=project,
                 id_field="project_id",
                 id_value=project.project_id,
             )
             parsed_data = [Group(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def archive_project(self, **kwargs) -> Project:
+    def archive_project(self, **kwargs) -> Response:
         """
         Archive a specific project.
 
@@ -3781,7 +3361,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            Project: The Project model representing the archived project.
+            Response: A wrapper containing the original response and a Project model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3799,12 +3379,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def unarchive_project(self, **kwargs) -> Project:
+    def unarchive_project(self, **kwargs) -> Response:
         """
         Unarchive a specific project.
 
@@ -3812,7 +3392,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            Project: The Project model representing the unarchived project.
+            Response: A wrapper containing the original response and a Project model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3830,12 +3410,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_project(self, **kwargs) -> requests.Response:
+    def delete_project(self, **kwargs) -> Response:
         """
         Delete a specific project.
 
@@ -3843,7 +3423,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3859,12 +3439,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def share_project(self, **kwargs) -> Project:
+    def share_project(self, **kwargs) -> Response:
         """
         Share a specific project with a group.
 
@@ -3872,7 +3453,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, group_id, group_access).
 
         Returns:
-            Project: The Project model representing the shared project.
+            Response: A wrapper containing the original response and a Project model.
 
         Raises:
             MissingParameterError: If the project_id, group_id, or group_access is missing.
@@ -3895,7 +3476,7 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -3903,7 +3484,7 @@ class Api(object):
     #                                       Protected Branches API                                                     #
     ####################################################################################################################
     @require_auth
-    def get_protected_branches(self, **kwargs) -> List[Branch]:
+    def get_protected_branches(self, **kwargs) -> Response:
         """
         Get information about protected branches in a project.
 
@@ -3911,7 +3492,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Branch]: A list of Branch models.
+            Response: A wrapper containing the original response and a list of Branch models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -3921,19 +3502,19 @@ class Api(object):
         if protected_branch.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{protected_branch.project_id}/protected_branches",
                 model=protected_branch,
                 id_field="project_id",
                 id_value=protected_branch.project_id,
             )
             parsed_data = [Branch(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_protected_branch(self, **kwargs) -> Branch:
+    def get_protected_branch(self, **kwargs) -> Response:
         """
         Get information about a specific protected branch in a project.
 
@@ -3941,7 +3522,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, branch).
 
         Returns:
-            Branch: The Branch model.
+            Response: A wrapper containing the original response and a Branch model.
 
         Raises:
             MissingParameterError: If the project_id or branch is missing.
@@ -3959,12 +3540,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def protect_branch(self, **kwargs) -> Branch:
+    def protect_branch(self, **kwargs) -> Response:
         """
         Protect a specific branch in a project.
 
@@ -3972,7 +3553,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, branch).
 
         Returns:
-            Branch: The Branch model representing the protected branch.
+            Response: A wrapper containing the original response and a Branch model.
 
         Raises:
             MissingParameterError: If the project_id or branch is missing.
@@ -3991,12 +3572,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def unprotect_branch(self, **kwargs) -> requests.Response:
+    def unprotect_branch(self, **kwargs) -> Response:
         """
         Unprotect a specific branch in a project.
 
@@ -4004,7 +3585,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, branch).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id or branch is missing.
@@ -4020,12 +3601,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def require_code_owner_approvals_single_branch(self, **kwargs) -> Branch:
+    def require_code_owner_approvals_single_branch(self, **kwargs) -> Response:
         """
         Require code owner approvals for a specific branch in a project.
 
@@ -4033,7 +3615,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, branch).
 
         Returns:
-            Branch: The Branch model representing the updated branch.
+            Response: A wrapper containing the original response and a Branch model.
 
         Raises:
             MissingParameterError: If the project_id or branch is missing.
@@ -4052,7 +3634,7 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -4060,7 +3642,7 @@ class Api(object):
     #                                                Release API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_releases(self, **kwargs) -> List[Release]:
+    def get_releases(self, **kwargs) -> Response:
         """
         Get information about releases in a project.
 
@@ -4068,7 +3650,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Release]: A list of Release models.
+            Response: A wrapper containing the original response and a list of Release models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -4078,19 +3660,19 @@ class Api(object):
         if release.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{release.project_id}/releases",
                 model=release,
                 id_field="project_id",
                 id_value=release.project_id,
             )
             parsed_data = [Release(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_latest_release(self, **kwargs) -> Release:
+    def get_latest_release(self, **kwargs) -> Response:
         """
         Get information about the latest release in a project.
 
@@ -4098,7 +3680,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            Release: The Release model.
+            Response: A wrapper containing the original response and a Release model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -4116,12 +3698,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Release(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_latest_release_evidence(self, **kwargs) -> requests.Response:
+    def get_latest_release_evidence(self, **kwargs) -> Response:
         """
         Get evidence for the latest release in a project.
 
@@ -4129,7 +3711,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw evidence data.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -4145,12 +3727,16 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = (
+                response.json()
+            )  # No specific Pydantic model for evidence, keeping as raw JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_latest_release_asset(self, **kwargs) -> requests.Response:
+    def get_latest_release_asset(self, **kwargs) -> Response:
         """
         Get the asset for the latest release in a project.
 
@@ -4158,7 +3744,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, direct_asset_path).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw asset data.
 
         Raises:
             MissingParameterError: If the project_id or direct_asset_path is missing.
@@ -4174,12 +3760,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = response.content  # Asset is binary data, not JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_group_releases(self, **kwargs) -> List[Release]:
+    def get_group_releases(self, **kwargs) -> Response:
         """
         Get information about releases in a group.
 
@@ -4187,7 +3775,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            List[Release]: A list of Release models.
+            Response: A wrapper containing the original response and a list of Release models.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -4197,19 +3785,19 @@ class Api(object):
         if release.group_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/groups/{release.group_id}/releases",
                 model=release,
                 id_field="group_id",
                 id_value=release.group_id,
             )
             parsed_data = [Release(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def download_release_asset(self, **kwargs) -> requests.Response:
+    def download_release_asset(self, **kwargs) -> Response:
         """
         Download a release asset from a group's release.
 
@@ -4217,7 +3805,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id, tag_name, direct_asset_path).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw asset data.
 
         Raises:
             MissingParameterError: If the group_id, tag_name, or direct_asset_path is missing.
@@ -4237,12 +3825,14 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = response.content  # Asset is binary data, not JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_release_by_tag(self, **kwargs) -> Release:
+    def get_release_by_tag(self, **kwargs) -> Response:
         """
         Get information about a release by its tag in a project.
 
@@ -4250,7 +3840,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, tag_name).
 
         Returns:
-            Release: The Release model.
+            Response: A wrapper containing the original response and a Release model.
 
         Raises:
             MissingParameterError: If the project_id or tag_name is missing.
@@ -4268,12 +3858,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Release(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_release(self, **kwargs) -> Release:
+    def create_release(self, **kwargs) -> Response:
         """
         Create a new release in a project.
 
@@ -4281,7 +3871,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, tag_name).
 
         Returns:
-            Release: The Release model representing the created release.
+            Response: A wrapper containing the original response and a Release model.
 
         Raises:
             MissingParameterError: If the project_id or tag_name is missing.
@@ -4300,12 +3890,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Release(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_release_evidence(self, **kwargs) -> requests.Response:
+    def create_release_evidence(self, **kwargs) -> Response:
         """
         Create evidence for a release in a project.
 
@@ -4313,7 +3903,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, tag_name).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful operation).
 
         Raises:
             MissingParameterError: If the project_id or tag_name is missing.
@@ -4329,12 +3919,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def update_release(self, **kwargs) -> Release:
+    def update_release(self, **kwargs) -> Response:
         """
         Update information about a release in a project.
 
@@ -4342,7 +3933,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, tag_name).
 
         Returns:
-            Release: The Release model representing the updated release.
+            Response: A wrapper containing the original response and a Release model.
 
         Raises:
             MissingParameterError: If the project_id or tag_name is missing.
@@ -4361,12 +3952,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Release(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_release(self, **kwargs) -> requests.Response:
+    def delete_release(self, **kwargs) -> Response:
         """
         Delete a release in a project.
 
@@ -4374,7 +3965,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, tag_name).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id or tag_name is missing.
@@ -4390,7 +3981,8 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -4398,7 +3990,7 @@ class Api(object):
     #                                                Runners API                                                       #
     ####################################################################################################################
     @require_auth
-    def get_runners(self, **kwargs) -> List[Runner]:
+    def get_runners(self, **kwargs) -> Response:
         """
         Get information about runners.
 
@@ -4406,26 +3998,26 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., scope, status).
 
         Returns:
-            List[Runner]: A list of Runner models.
+            Response: A wrapper containing the original response and a list of Runner models.
 
         Raises:
             ParameterError: If invalid parameters are provided.
         """
         runner = RunnerModel(**kwargs)
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/runners",
                 model=runner,
                 id_field=None,
                 id_value=None,
             )
             parsed_data = [Runner(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_runner(self, **kwargs) -> Runner:
+    def get_runner(self, **kwargs) -> Response:
         """
         Get information about a specific runner.
 
@@ -4433,7 +4025,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., runner_id).
 
         Returns:
-            Runner: The Runner model.
+            Response: A wrapper containing the original response and a Runner model.
 
         Raises:
             MissingParameterError: If the runner_id is missing.
@@ -4451,12 +4043,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def update_runner_details(self, **kwargs) -> Runner:
+    def update_runner_details(self, **kwargs) -> Response:
         """
         Update details for a specific runner.
 
@@ -4464,7 +4056,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., runner_id).
 
         Returns:
-            Runner: The Runner model representing the updated runner.
+            Response: A wrapper containing the original response and a Runner model.
 
         Raises:
             MissingParameterError: If the runner_id is missing.
@@ -4483,12 +4075,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def pause_runner(self, **kwargs) -> Runner:
+    def pause_runner(self, **kwargs) -> Response:
         """
         Pause or unpause a specific runner.
 
@@ -4496,7 +4088,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., runner_id, active).
 
         Returns:
-            Runner: The Runner model representing the updated runner.
+            Response: A wrapper containing the original response and a Runner model.
 
         Raises:
             MissingParameterError: If the runner_id or active status is missing.
@@ -4515,12 +4107,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_runner_jobs(self, **kwargs) -> List[Job]:
+    def get_runner_jobs(self, **kwargs) -> Response:
         """
         Get jobs for a specific runner.
 
@@ -4528,7 +4120,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., runner_id).
 
         Returns:
-            List[Job]: A list of Job models.
+            Response: A wrapper containing the original response and a list of Job models.
 
         Raises:
             MissingParameterError: If the runner_id is missing.
@@ -4538,19 +4130,19 @@ class Api(object):
         if runner.runner_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/runners/{runner.runner_id}/jobs",
                 model=runner,
                 id_field="runner_id",
                 id_value=runner.runner_id,
             )
             parsed_data = [Job(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_project_runners(self, **kwargs) -> List[Runner]:
+    def get_project_runners(self, **kwargs) -> Response:
         """
         Get information about runners in a project.
 
@@ -4558,7 +4150,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Runner]: A list of Runner models.
+            Response: A wrapper containing the original response and a list of Runner models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -4568,19 +4160,19 @@ class Api(object):
         if runner.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{runner.project_id}/runners",
                 model=runner,
                 id_field="project_id",
                 id_value=runner.project_id,
             )
             parsed_data = [Runner(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def enable_project_runner(self, **kwargs) -> Runner:
+    def enable_project_runner(self, **kwargs) -> Response:
         """
         Enable a runner in a project.
 
@@ -4588,7 +4180,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, runner_id).
 
         Returns:
-            Runner: The Runner model representing the enabled runner.
+            Response: A wrapper containing the original response and a Runner model.
 
         Raises:
             MissingParameterError: If the project_id or runner_id is missing.
@@ -4607,12 +4199,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_project_runner(self, **kwargs) -> requests.Response:
+    def delete_project_runner(self, **kwargs) -> Response:
         """
         Delete a runner from a project.
 
@@ -4620,7 +4212,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, runner_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id or runner_id is missing.
@@ -4636,12 +4228,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_group_runners(self, **kwargs) -> List[Runner]:
+    def get_group_runners(self, **kwargs) -> Response:
         """
         Get information about runners in a group.
 
@@ -4649,7 +4242,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            List[Runner]: A list of Runner models.
+            Response: A wrapper containing the original response and a list of Runner models.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -4659,19 +4252,19 @@ class Api(object):
         if runner.group_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/groups/{runner.group_id}/runners",
                 model=runner,
                 id_field="group_id",
                 id_value=runner.group_id,
             )
             parsed_data = [Runner(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def register_new_runner(self, **kwargs) -> Runner:
+    def register_new_runner(self, **kwargs) -> Response:
         """
         Register a new runner.
 
@@ -4679,7 +4272,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., token).
 
         Returns:
-            Runner: The Runner model representing the registered runner.
+            Response: A wrapper containing the original response and a Runner model.
 
         Raises:
             MissingParameterError: If the token is missing.
@@ -4698,12 +4291,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_runner(self, **kwargs) -> requests.Response:
+    def delete_runner(self, **kwargs) -> Response:
         """
         Delete a runner.
 
@@ -4711,7 +4304,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., runner_id, token).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the runner_id or token is missing.
@@ -4736,12 +4329,13 @@ class Api(object):
                     verify=self.verify,
                     proxies=self.proxies,
                 )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def verify_runner_authentication(self, **kwargs) -> requests.Response:
+    def verify_runner_authentication(self, **kwargs) -> Response:
         """
         Verify runner authentication.
 
@@ -4749,7 +4343,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., token).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful operation).
 
         Raises:
             MissingParameterError: If the token is missing.
@@ -4766,17 +4360,18 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def reset_gitlab_runner_token(self) -> requests.Response:
+    def reset_gitlab_runner_token(self) -> Response:
         """
         Reset GitLab runner registration token.
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw token data.
 
         Raises:
             ParameterError: If invalid parameters are provided.
@@ -4788,12 +4383,16 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = (
+                response.json()
+            )  # No specific Pydantic model for token, keeping as raw JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def reset_project_runner_token(self, **kwargs) -> requests.Response:
+    def reset_project_runner_token(self, **kwargs) -> Response:
         """
         Reset registration token for a project's runner.
 
@@ -4801,7 +4400,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw token data.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -4817,12 +4416,16 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = (
+                response.json()
+            )  # No specific Pydantic model for token, keeping as raw JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def reset_group_runner_token(self, **kwargs) -> requests.Response:
+    def reset_group_runner_token(self, **kwargs) -> Response:
         """
         Reset registration token for a group's runner.
 
@@ -4830,7 +4433,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., group_id).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw token data.
 
         Raises:
             MissingParameterError: If the group_id is missing.
@@ -4846,12 +4449,16 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            parsed_data = (
+                response.json()
+            )  # No specific Pydantic model for token, keeping as raw JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def reset_token(self, **kwargs) -> Runner:
+    def reset_token(self, **kwargs) -> Response:
         """
         Reset authentication token for a runner.
 
@@ -4859,7 +4466,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., runner_id, token).
 
         Returns:
-            Runner: The Runner model representing the updated runner.
+            Response: A wrapper containing the original response and a Runner model.
 
         Raises:
             MissingParameterError: If the runner_id or token is missing.
@@ -4878,7 +4485,7 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -4886,7 +4493,7 @@ class Api(object):
     #                                                 Tags API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_tags(self, **kwargs) -> List[Tag]:
+    def get_tags(self, **kwargs) -> Response:
         """
         Get information about tags in a project.
 
@@ -4894,29 +4501,29 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Tag]: A list of Tag models.
+            Response: A wrapper containing the original response and a list of Tag models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
             ParameterError: If invalid parameters are provided.
         """
-        project = ProjectModel(**kwargs)
-        if project.project_id is None:
+        tag = TagModel(**kwargs)
+        if tag.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
-                endpoint=f"/projects/{project.project_id}/repository/tags",
-                model=project,
+            response, data = self._fetch_all_pages(
+                endpoint=f"/projects/{tag.project_id}/repository/tags",
+                model=tag,
                 id_field="project_id",
-                id_value=project.project_id,
+                id_value=tag.project_id,
             )
             parsed_data = [Tag(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_tag(self, **kwargs) -> Tag:
+    def get_tag(self, **kwargs) -> Response:
         """
         Get information about a specific tag in a project.
 
@@ -4924,30 +4531,30 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            Tag: The Tag model.
+            Response: A wrapper containing the original response and a Tag model.
 
         Raises:
             MissingParameterError: If the project_id or name is missing.
             ParameterError: If invalid parameters are provided.
         """
-        project = ProjectModel(**kwargs)
-        if project.project_id is None or project.name is None:
+        tag = TagModel(**kwargs)
+        if tag.project_id is None or tag.name is None:
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{project.project_id}/repository/tags/{project.name}",
+                url=f"{self.url}/projects/{tag.project_id}/repository/tags/{tag.name}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Tag(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_tag(self, **kwargs) -> Tag:
+    def create_tag(self, **kwargs) -> Response:
         """
         Create a tag in a project.
 
@@ -4955,31 +4562,31 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            Tag: The Tag model representing the created tag.
+            Response: A wrapper containing the original response and a Tag model.
 
         Raises:
             MissingParameterError: If the project_id or name is missing.
             ParameterError: If invalid parameters are provided.
         """
-        project = ProjectModel(**kwargs)
-        if project.project_id is None or project.name is None:
+        tag = TagModel(**kwargs)
+        if tag.project_id is None or tag.name is None:
             raise MissingParameterError
         try:
             response = self._session.post(
-                url=f"{self.url}/projects/{project.project_id}/repository/tags",
-                json=project.data,
+                url=f"{self.url}/projects/{tag.project_id}/repository/tags",
+                json=tag.data,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Tag(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_tag(self, **kwargs) -> requests.Response:
+    def delete_tag(self, **kwargs) -> Response:
         """
         Delete a tag in a project.
 
@@ -4987,28 +4594,29 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id or name is missing.
             ParameterError: If invalid parameters are provided.
         """
-        project = ProjectModel(**kwargs)
-        if project.project_id is None or project.name is None:
+        tag = TagModel(**kwargs)
+        if tag.project_id is None or tag.name is None:
             raise MissingParameterError
         try:
             response = self._session.delete(
-                url=f"{self.url}/projects/{project.project_id}/repository/tags/{project.name}",
+                url=f"{self.url}/projects/{tag.project_id}/repository/tags/{tag.name}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_protected_tags(self, **kwargs) -> List[Tag]:
+    def get_protected_tags(self, **kwargs) -> Response:
         """
         Get information about protected tags in a project.
 
@@ -5016,29 +4624,29 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[Tag]: A list of Tag models.
+            Response: A wrapper containing the original response and a list of Tag models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
             ParameterError: If invalid parameters are provided.
         """
-        project = ProjectModel(**kwargs)
-        if project.project_id is None:
+        tag = TagModel(**kwargs)
+        if tag.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
-                endpoint=f"/projects/{project.project_id}/protected_tags",
-                model=project,
+            response, data = self._fetch_all_pages(
+                endpoint=f"/projects/{tag.project_id}/protected_tags",
+                model=tag,
                 id_field="project_id",
-                id_value=project.project_id,
+                id_value=tag.project_id,
             )
             parsed_data = [Tag(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_protected_tag(self, **kwargs) -> Tag:
+    def get_protected_tag(self, **kwargs) -> Response:
         """
         Get information about a specific protected tag in a project.
 
@@ -5046,30 +4654,30 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            Tag: The Tag model.
+            Response: A wrapper containing the original response and a Tag model.
 
         Raises:
             MissingParameterError: If the project_id or name is missing.
             ParameterError: If invalid parameters are provided.
         """
-        project = ProjectModel(**kwargs)
-        if project.project_id is None or project.name is None:
+        tag = TagModel(**kwargs)
+        if tag.project_id is None or tag.name is None:
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{project.project_id}/protected_tags/{project.name}",
+                url=f"{self.url}/projects/{tag.project_id}/protected_tags/{tag.name}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Tag(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def protect_tag(self, **kwargs) -> Tag:
+    def protect_tag(self, **kwargs) -> Response:
         """
         Protect a tag in a project.
 
@@ -5077,31 +4685,31 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            Tag: The Tag model representing the protected tag.
+            Response: A wrapper containing the original response and a Tag model.
 
         Raises:
             MissingParameterError: If the project_id or name is missing.
             ParameterError: If invalid parameters are provided.
         """
-        project = ProjectModel(**kwargs)
-        if project.project_id is None or project.name is None:
+        tag = TagModel(**kwargs)
+        if tag.project_id is None or tag.name is None:
             raise MissingParameterError
         try:
             response = self._session.post(
-                url=f"{self.url}/projects/{project.project_id}/protected_tags",
-                json=project.data,
+                url=f"{self.url}/projects/{tag.project_id}/protected_tags",
+                json=tag.data,
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Tag(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def unprotect_tag(self, **kwargs) -> requests.Response:
+    def unprotect_tag(self, **kwargs) -> Response:
         """
         Unprotect a tag in a project.
 
@@ -5109,23 +4717,24 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, name).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id or name is missing.
             ParameterError: If invalid parameters are provided.
         """
-        project = ProjectModel(**kwargs)
-        if project.project_id is None or project.name is None:
+        tag = TagModel(**kwargs)
+        if tag.project_id is None or tag.name is None:
             raise MissingParameterError
         try:
             response = self._session.delete(
-                url=f"{self.url}/projects/{project.project_id}/protected_tags/{project.name}",
+                url=f"{self.url}/projects/{tag.project_id}/protected_tags/{tag.name}",
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -5133,7 +4742,7 @@ class Api(object):
     #                                                Users API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_users(self, **kwargs) -> List[User]:
+    def get_users(self, **kwargs) -> Response:
         """
         Get information about users.
 
@@ -5141,26 +4750,26 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., per_page, page).
 
         Returns:
-            List[User]: A list of User models.
+            Response: A wrapper containing the original response and a list of User models.
 
         Raises:
             ParameterError: If invalid parameters are provided.
         """
         user = UserModel(**kwargs)
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/users",
                 model=user,
                 id_field=None,
                 id_value=None,
             )
             parsed_data = [User(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_user(self, **kwargs) -> User:
+    def get_user(self, **kwargs) -> Response:
         """
         Get information about a specific user.
 
@@ -5168,7 +4777,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., user_id).
 
         Returns:
-            User: The User model.
+            Response: A wrapper containing the original response and a User model.
 
         Raises:
             MissingParameterError: If the user_id is missing.
@@ -5186,7 +4795,7 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = User(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -5194,7 +4803,7 @@ class Api(object):
     #                                                 Wiki API                                                         #
     ####################################################################################################################
     @require_auth
-    def get_wiki_list(self, **kwargs) -> List[WikiPage]:
+    def get_wiki_list(self, **kwargs) -> Response:
         """
         Get a list of wiki pages for a project.
 
@@ -5202,7 +4811,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            List[WikiPage]: A list of WikiPage models.
+            Response: A wrapper containing the original response and a list of WikiPage models.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -5212,19 +4821,19 @@ class Api(object):
         if wiki.project_id is None:
             raise MissingParameterError
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint=f"/projects/{wiki.project_id}/wikis",
                 model=wiki,
                 id_field="project_id",
                 id_value=wiki.project_id,
             )
             parsed_data = [WikiPage(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_wiki_page(self, **kwargs) -> WikiPage:
+    def get_wiki_page(self, **kwargs) -> Response:
         """
         Get information about a specific wiki page.
 
@@ -5232,7 +4841,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, slug).
 
         Returns:
-            WikiPage: The WikiPage model.
+            Response: A wrapper containing the original response and a WikiPage model.
 
         Raises:
             MissingParameterError: If the project_id or slug is missing.
@@ -5250,12 +4859,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = WikiPage(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def create_wiki_page(self, **kwargs) -> WikiPage:
+    def create_wiki_page(self, **kwargs) -> Response:
         """
         Create a new wiki page for a project.
 
@@ -5263,7 +4872,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id).
 
         Returns:
-            WikiPage: The WikiPage model representing the created wiki page.
+            Response: A wrapper containing the original response and a WikiPage model.
 
         Raises:
             MissingParameterError: If the project_id is missing.
@@ -5282,12 +4891,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = WikiPage(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def update_wiki_page(self, **kwargs) -> WikiPage:
+    def update_wiki_page(self, **kwargs) -> Response:
         """
         Update an existing wiki page for a project.
 
@@ -5295,7 +4904,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, slug).
 
         Returns:
-            WikiPage: The WikiPage model representing the updated wiki page.
+            Response: A wrapper containing the original response and a WikiPage model.
 
         Raises:
             MissingParameterError: If the project_id or slug is missing.
@@ -5314,12 +4923,12 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = WikiPage(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def delete_wiki_page(self, **kwargs) -> requests.Response:
+    def delete_wiki_page(self, **kwargs) -> Response:
         """
         Delete a wiki page for a project.
 
@@ -5327,7 +4936,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, slug).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response (no data for successful deletion).
 
         Raises:
             MissingParameterError: If the project_id or slug is missing.
@@ -5343,12 +4952,13 @@ class Api(object):
                 verify=self.verify,
                 proxies=self.proxies,
             )
-            return response
+            response.raise_for_status()
+            return Response(response=response)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def upload_wiki_page_attachment(self, **kwargs) -> requests.Response:
+    def upload_wiki_page_attachment(self, **kwargs) -> Response:
         """
         Upload an attachment to a wiki page for a project.
 
@@ -5356,7 +4966,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., project_id, file, branch).
 
         Returns:
-            requests.Response: The response from the server.
+            Response: A wrapper containing the original response and the raw attachment data.
 
         Raises:
             MissingParameterError: If the project_id, file, or branch is missing.
@@ -5375,7 +4985,11 @@ class Api(object):
                 proxies=self.proxies,
                 files={"file": wiki.file},
             )
-            return response
+            response.raise_for_status()
+            parsed_data = (
+                response.json()
+            )  # No specific Pydantic model for attachment, keeping as raw JSON
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -5383,7 +4997,7 @@ class Api(object):
     #                                              Namespaces API                                                      #
     ####################################################################################################################
     @require_auth
-    def get_namespaces(self, **kwargs) -> List[Namespace]:
+    def get_namespaces(self, **kwargs) -> Response:
         """
         Get information about namespaces.
 
@@ -5391,26 +5005,26 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., per_page).
 
         Returns:
-            List[Namespace]: A list of Namespace models.
+            Response: A wrapper containing the original response and a list of Namespace models.
 
         Raises:
             ParameterError: If invalid parameters are provided.
         """
         namespace = NamespaceModel(**kwargs)
         try:
-            data = self._fetch_all_pages(
+            response, data = self._fetch_all_pages(
                 endpoint="/namespaces",
                 model=namespace,
                 id_field=None,
                 id_value=None,
             )
             parsed_data = [Namespace(**item) for item in data]
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
     @require_auth
-    def get_namespace(self, **kwargs) -> Namespace:
+    def get_namespace(self, **kwargs) -> Response:
         """
         Get information about a specific namespace.
 
@@ -5418,7 +5032,7 @@ class Api(object):
             **kwargs: Additional parameters for the request (e.g., namespace_id).
 
         Returns:
-            Namespace: The Namespace model.
+            Response: A wrapper containing the original response and a Namespace model.
 
         Raises:
             MissingParameterError: If the namespace_id is missing.
@@ -5436,7 +5050,7 @@ class Api(object):
             )
             response.raise_for_status()
             parsed_data = Namespace(**response.json())
-            return parsed_data
+            return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
@@ -5450,27 +5064,49 @@ class Api(object):
         endpoint: str,
         data: Dict[str, Any] = None,
         json: Dict[str, Any] = None,
-    ) -> requests.Response:
+    ) -> Response:
+        """
+        Make a custom API request to the GitLab server.
+
+        Args:
+            method: The HTTP method to use (GET, POST, PUT, DELETE).
+            endpoint: The API endpoint to call.
+            data: The data to send in the request body (for form data).
+            json: The JSON data to send in the request body.
+
+        Returns:
+            Response: A wrapper containing the original response and the response data (if applicable).
+
+        Raises:
+            ValueError: If an unsupported HTTP method is provided.
+            ParameterError: If invalid parameters are provided.
+            HTTPError: If the API request fails.
+        """
         if method.upper() not in ["GET", "POST", "PUT", "DELETE"]:
             raise ValueError(f"Unsupported HTTP method: {method.upper()}")
         try:
             request_func = getattr(self._session, method.lower())
             response = request_func(
-                url=f"{self.url}/{endpoint}",
+                url=f"{self.url}/{endpoint.lstrip('/')}",
                 headers=self.headers,
                 data=data,
                 json=json,
                 verify=self.verify,
                 proxies=self.proxies,
             )
-        except ValidationError or Exception as e:
-            print(f"Invalid parameters: {e.errors()}")
-            raise e
-        try:
             response.raise_for_status()
-        except Exception as response_error:
-            print(f"Response Error: {response_error}")
-        return response
+            parsed_data = (
+                response.json()
+                if response.content
+                and "application/json" in response.headers.get("Content-Type", "")
+                else None
+            )
+            return Response(response=response, data=parsed_data)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}")
+        except Exception as e:
+            print(f"Request Error: {str(e)}")
+            raise
 
 
 def extract_next_page(headers):

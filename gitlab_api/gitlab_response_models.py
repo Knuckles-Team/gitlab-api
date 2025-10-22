@@ -1,7 +1,9 @@
 #!/usr/bin/python
 # coding: utf-8
 
-from typing import Union, List, Dict, Optional, Any
+from typing import Union, List, Dict, Optional, Any, TypeVar
+
+import requests
 from pydantic import (
     BaseModel,
     Field,
@@ -12,20 +14,6 @@ from pydantic import (
     EmailStr,
 )
 from datetime import datetime
-
-try:
-    from gitlab_api.decorators import require_auth
-except ModuleNotFoundError:
-    pass
-try:
-    from gitlab_api.exceptions import (
-        AuthError,
-        UnauthorizedError,
-        ParameterError,
-        MissingParameterError,
-    )
-except ModuleNotFoundError:
-    pass
 
 from gitlab_api.gitlab_db_models import (
     AccessControlDBModel,
@@ -3857,3 +3845,22 @@ class Agents(BaseModel):
         default=None, description="Project associated with the agents"
     )
     user: User = Field(default=None, description="User associated with the agents")
+
+
+T = TypeVar("T")
+
+
+class Response:
+    """
+    A wrapper class to hold the original requests.Response along with the parsed Pydantic data.
+    This allows access to response metadata (e.g., status_code, headers) while providing
+    the parsed data in Pydantic models.
+    """
+
+    def __init__(
+        self,
+        response: requests.Response,
+        data: Optional[Union[T, List[T]]] = None,
+    ):
+        self.response = response
+        self.data = data

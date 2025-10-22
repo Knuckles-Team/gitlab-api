@@ -285,11 +285,11 @@ def run_migrations(
             revision = command.revision(
                 alembic_cfg, message=migration_message, autogenerate=True
             )
-            print(f"Generated migration: {revision.revision}")
+            print(f"Generated migration: {revision.revision}\nContext: {context}")
         except Exception as e:
             print(f"Failed to generate migration: {e}")
         try:
             command.upgrade(alembic_cfg, "head")
             print("Migrations applied successfully.")
         except Exception as e:
-            print(f"An error occurred during migration: {e}")
+            print(f"An error occurred during migration: {e}\nContext: {context}")

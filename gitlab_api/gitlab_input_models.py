@@ -12,22 +12,11 @@ from pydantic import (
     EmailStr,
 )
 
-try:
-    from gitlab_api.decorators import require_auth
-except ModuleNotFoundError:
-    pass
-try:
-    from gitlab_api.exceptions import (
-        AuthError,
-        UnauthorizedError,
-        ParameterError,
-        MissingParameterError,
-    )
-except ModuleNotFoundError:
-    from exceptions import (
-        ParameterError,
-        MissingParameterError,
-    )
+
+from gitlab_api.exceptions import (
+    ParameterError,
+    MissingParameterError,
+)
 
 
 class BranchModel(BaseModel):

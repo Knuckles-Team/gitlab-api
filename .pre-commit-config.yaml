@@ -30,9 +30,9 @@ repos:
     rev: v0.14.1
     hooks:
       - id: ruff
+        exclude: ^(test/|gitlab_api/gitlab_gql\.py$)
         types_or: [ python, pyi, jupyter ]
         args: ["--fix", "--ignore=E402"]
-        exclude: ^\.\/test/
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
