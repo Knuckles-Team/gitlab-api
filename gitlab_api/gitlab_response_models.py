@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
-from typing import Union, List, Dict, Optional, Any, TypeVar
+from typing import Union, List, Dict, Optional, Any, TypeVar, Generic
 
 import requests
 from pydantic import (
@@ -3850,17 +3850,18 @@ class Agents(BaseModel):
 T = TypeVar("T")
 
 
-class Response:
+class Response(BaseModel, Generic[T]):
     """
     A wrapper class to hold the original requests.Response along with the parsed Pydantic data.
     This allows access to response metadata (e.g., status_code, headers) while providing
     the parsed data in Pydantic models.
     """
 
-    def __init__(
-        self,
-        response: requests.Response,
-        data: Optional[Union[T, List[T]]] = None,
-    ):
-        self.response = response
-        self.data = data
+    model_config = ConfigDict(extra="forbid")
+    base_type: str = Field(default="Response")
+    response: requests.Response = Field(
+        default=None, description="The original requests.Response object"
+    )
+    data: Optional[Union[T, List[T]]] = Field(
+        default=None, description="The Pydantic models converted from the response"
+    )
