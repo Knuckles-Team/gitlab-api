@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import List
 
-from sqlalchemy import String, DateTime, ForeignKey, Text, Table, Column, Date
+from sqlalchemy import String, DateTime, ForeignKey, Text, Table, Column
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import (
     relationship,
@@ -1674,7 +1674,9 @@ class UserDBModel(BaseDBModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="User")
     extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
+    user: Mapped[str] = mapped_column(String, nullable=True)
     username: Mapped[str] = mapped_column(String, nullable=True)
+    email: Mapped[str] = mapped_column(String, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
     state: Mapped[str] = mapped_column(String, nullable=True)
     locked: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -1684,20 +1686,17 @@ class UserDBModel(BaseDBModel):
     is_admin: Mapped[bool] = mapped_column(Boolean, nullable=True)
     bio: Mapped[str] = mapped_column(String, nullable=True)
     location: Mapped[str] = mapped_column(String, nullable=True)
-    skype: Mapped[str] = mapped_column(
-        String, nullable=True
-    )  # From Pydantic, though not in docs
+    skype: Mapped[str] = mapped_column(String, nullable=True)
     linkedin: Mapped[str] = mapped_column(String, nullable=True)
     twitter: Mapped[str] = mapped_column(String, nullable=True)
     discord: Mapped[str] = mapped_column(String, nullable=True)
-    github: Mapped[str] = mapped_column(String, nullable=True)
     website_url: Mapped[str] = mapped_column(String, nullable=True)
     organization: Mapped[str] = mapped_column(String, nullable=True)
     job_title: Mapped[str] = mapped_column(String, nullable=True)
     last_sign_in_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     confirmed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     theme_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    last_activity_on: Mapped[datetime] = mapped_column(Date, nullable=True)
+    last_activity_on: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     color_scheme_id: Mapped[int] = mapped_column(Integer, nullable=True)
     projects_limit: Mapped[int] = mapped_column(Integer, nullable=True)
     current_sign_in_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -1709,10 +1708,6 @@ class UserDBModel(BaseDBModel):
     private_profile: Mapped[bool] = mapped_column(Boolean, nullable=True)
     current_sign_in_ip: Mapped[str] = mapped_column(String, nullable=True)
     last_sign_in_ip: Mapped[str] = mapped_column(String, nullable=True)
-    namespace_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    created_by_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=True
-    )
     email_reset_offered_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     access_level: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -1730,52 +1725,128 @@ class UserDBModel(BaseDBModel):
     extra_shared_runners_minutes_limit: Mapped[int] = mapped_column(
         Integer, nullable=True
     )
-    is_auditor: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    using_license_seat: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    provisioned_by_group_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    is_followed: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    plan: Mapped[str] = mapped_column(String, nullable=True)
-    trial: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    sign_in_count: Mapped[int] = mapped_column(Integer, nullable=True)
-    scim_identities = mapped_column(ARRAY(JSON), nullable=True)
-    # Relationships
-    created_by: Mapped["UserDBModel"] = relationship(remote_side=[id])
-    identities: Mapped[List["IdentityDBModel"]] = relationship(back_populates="user")
-    group_saml_identity: Mapped["GroupSamlIdentityDBModel"] = relationship(
-        back_populates="user"
+    membership_type: Mapped[str] = mapped_column(String, nullable=True)
+    removable: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    last_login_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
+    created_by_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=True,
     )
+    created_by: Mapped["UserDBModel"] = relationship(
+        "UserDBModel", remote_side=[id], back_populates="created_users"
+    )
+
+    created_users: Mapped[List["UserDBModel"]] = relationship(
+        "UserDBModel", back_populates="created_by"
+    )
+    group_saml_identity: Mapped[List["GroupSamlIdentityDBModel"]] = relationship(
+        "GroupSamlIdentityDBModel", back_populates="user"
+    )
+
+    namespace_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(
+            column="namespaces.id",
+            name="fk_user_namespace_id",
+        ),
+        nullable=True,
+    )
+    namespace: Mapped["NamespaceDBModel"] = relationship(
+        "NamespaceDBModel",
+        back_populates="user",
+        foreign_keys=[namespace_id],
+        remote_side="[NamespaceDBModel.id]",  # Specify the remote side of the relationship
+    )
+
     deploy_tokens: Mapped[List["DeployTokenDBModel"]] = relationship(
         back_populates="user"
     )
+
     todos: Mapped[List["ToDoDBModel"]] = relationship(back_populates="author")
-    merge_request_approvers: Mapped[List["MergeApprovalsDBModel"]] = relationship(
-        back_populates="approvers"
+    agents = relationship("AgentsDBModel", back_populates="user")
+    releases: Mapped[List["ReleaseDBModel"]] = relationship(back_populates="author")
+    access_levels: Mapped[List["AccessLevelDBModel"]] = relationship(
+        back_populates="user"
     )
+    approval_rules: Mapped[List["ApprovalRuleDBModel"]] = relationship(
+        "ApprovalRuleDBModel",
+        back_populates="eligible_approvers",
+        foreign_keys="[ApprovalRuleDBModel.eligible_approvers_id]",
+    )
+    # Relationships with MergeRequestDBModel
     authored_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        back_populates="author"
+        "MergeRequestDBModel",
+        back_populates="author",
+        primaryjoin="foreign(MergeRequestDBModel.author_id) == UserDBModel.id",
     )
-    assigned_merge_requests: Mapped["MergeRequestDBModel"] = relationship(
-        back_populates="assignee"
-    )  # For single assignee
-    assigned_merge_requests_list: Mapped[List["MergeRequestDBModel"]] = relationship(
-        secondary="merge_request_assignees", back_populates="assignees"
+
+    assigned_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+        "MergeRequestDBModel",
+        back_populates="assignee",
+        primaryjoin="foreign(MergeRequestDBModel.assignee_id) == UserDBModel.id",
     )
+
+    assignee_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+        "MergeRequestDBModel",
+        secondary=merge_request_assignees,  # Use the association table
+        back_populates="assignees",
+    )
+
     reviewed_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        secondary="merge_request_reviewers", back_populates="reviewers"
+        "MergeRequestDBModel",
+        back_populates="reviewer",
+        primaryjoin="foreign(MergeRequestDBModel.reviewer_id) == UserDBModel.id",
     )
+
+    reviewers_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+        "MergeRequestDBModel",
+        secondary=merge_request_reviewers,  # Use the association table
+        back_populates="reviewers",
+    )
+
     merged_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        back_populates="merged_by"
+        "MergeRequestDBModel",
+        back_populates="merged_by",
+        primaryjoin="foreign(MergeRequestDBModel.merged_by_id) == UserDBModel.id",
     )
+
     merge_user_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        back_populates="merge_user"
+        "MergeRequestDBModel",
+        back_populates="merge_user",
+        primaryjoin="foreign(MergeRequestDBModel.merge_user_id) == UserDBModel.id",
     )
+
+    approved_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+        "MergeRequestDBModel",
+        back_populates="approved_by",
+        primaryjoin="foreign(MergeRequestDBModel.approved_by_id) == UserDBModel.id",
+    )
+
     closed_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        back_populates="closed_by"
+        "MergeRequestDBModel",
+        back_populates="closed_by",
+        primaryjoin="foreign(MergeRequestDBModel.closed_by_id) == UserDBModel.id",
     )
-    owned_projects: Mapped[List["ProjectDBModel"]] = relationship(
-        back_populates="owner"
+
+    project_owner: Mapped[List["ProjectDBModel"]] = relationship(
+        "ProjectDBModel",
+        back_populates="owner",
+        primaryjoin="foreign(ProjectDBModel.owner_id) == UserDBModel.id",
     )
-    jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="user")
+
+    project_creator: Mapped[List["ProjectDBModel"]] = relationship(
+        "ProjectDBModel",
+        back_populates="creator",
+        primaryjoin="foreign(ProjectDBModel.creator_id) == UserDBModel.id",
+    )
+    pipeline_schedules: Mapped[list["PipelineScheduleDBModel"]] = relationship(
+        "PipelineScheduleDBModel",
+        back_populates="owner",
+        primaryjoin="foreign(PipelineScheduleDBModel.owner_id) == UserDBModel.id",
+    )
+    jobs = relationship("JobDBModel", back_populates="user")
     pipelines: Mapped[List["PipelineDBModel"]] = relationship(back_populates="user")
     comments: Mapped[List["CommentDBModel"]] = relationship(back_populates="author")
     commits: Mapped[List["CommitDBModel"]] = relationship(back_populates="author")
@@ -1788,12 +1859,39 @@ class UserDBModel(BaseDBModel):
     closed_issues: Mapped[List["IssueDBModel"]] = relationship(
         back_populates="closed_by", foreign_keys="[IssueDBModel.closed_by_id]"
     )
+    identities: Mapped[List["IdentityDBModel"]] = relationship(
+        back_populates="user", foreign_keys="[IdentityDBModel.user_id]"
+    )
+    merge_request_approvers: Mapped[List["MergeApprovalsDBModel"]] = relationship(
+        "MergeApprovalsDBModel",
+        primaryjoin="UserDBModel.id == foreign(MergeApprovalsDBModel.approvers_id)",
+        back_populates="approvers",
+    )
     deployments: Mapped[List["LastDeploymentDBModel"]] = relationship(
         back_populates="user"
     )
     deployables: Mapped[List["DeployableDBModel"]] = relationship(back_populates="user")
     cluster_agents_created: Mapped[List["ClusterAgentDBModel"]] = relationship(
         back_populates="created_by_user"
+    )
+    github: Mapped[str] = mapped_column(String, nullable=True)
+
+    namespace_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    is_auditor: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    using_license_seat: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    provisioned_by_group_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    is_followed: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    plan: Mapped[str] = mapped_column(String, nullable=True)
+    trial: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    sign_in_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    scim_identities = mapped_column(ARRAY(JSON), nullable=True)
+    # Relationships
+    assigned_merge_requests_list: Mapped[List["MergeRequestDBModel"]] = relationship(
+        secondary="merge_request_assignees", back_populates="assignees"
+    )
+
+    owned_projects: Mapped[List["ProjectDBModel"]] = relationship(
+        back_populates="owner"
     )
 
 

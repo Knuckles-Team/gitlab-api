@@ -2115,7 +2115,6 @@ class Project(BaseModel):
         return v
 
 
-
 class Runner(BaseModel):
     class Meta:
         orm_model = RunnerDBModel
