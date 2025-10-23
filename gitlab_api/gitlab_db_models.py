@@ -2104,7 +2104,6 @@ class ProjectDBModel(BaseDBModel):
     ci_allow_fork_pipelines_to_run_in_parent_project: Mapped[bool] = mapped_column(
         Boolean, nullable=True
     )
-    ci_id_token_sub_claim_components = mapped_column(ARRAY(String), nullable=True)
     ci_separated_caches: Mapped[bool] = mapped_column(Boolean, nullable=True)
     ci_restrict_pipeline_cancellation_role: Mapped[str] = mapped_column(
         String, nullable=True
@@ -2317,6 +2316,9 @@ class ProjectDBModel(BaseDBModel):
         back_populates="project"
     )
     compliance_frameworks: Mapped[List["ComplianceFrameworksDBModel"]] = relationship(
+        back_populates="project"
+    )
+    ci_id_token_sub_claim_components: Mapped[List["CIIDTokenComponentsDBModel"]] = relationship(
         back_populates="project"
     )
 
