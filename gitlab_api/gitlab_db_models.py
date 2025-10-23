@@ -107,7 +107,7 @@ class MilestoneDBModel(BaseDBModel):
         nullable=True,
     )
     merge_request: Mapped["MergeRequestDBModel"] = relationship(
-        back_populates="milestones"
+        back_populates="milestone"
     )
 
     issue_stats_id: Mapped[int] = mapped_column(
@@ -1439,11 +1439,12 @@ class MergeRequestDBModel(BaseDBModel):
         primaryjoin="foreign(MergeRequestDBModel.closed_by_id) == UserDBModel.id",
         back_populates="closed_merge_requests",
     )
-    milestone_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("milestones.id"), nullable=True
-    )
+
+    milestone_id: Mapped[int] = mapped_column(Integer, nullable=True)
     milestone: Mapped["MilestoneDBModel"] = relationship(
-        back_populates="merge_requests"
+        "MilestoneDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.milestone_id) == MilestoneDBModel.id",
+        back_populates="merge_request",
     )
 
 

@@ -3045,7 +3045,7 @@ class MergeRequest(BaseModel):
         default=None,
         description="Whether the merge request is a work in progress (deprecated: use draft)",
     )  # Deprecated
-    milestone: Optional[Dict[str, Any]] = Field(
+    milestone: Optional[Milestone] = Field(
         default=None, description="Milestone associated with the merge request"
     )
     auto_merge: Optional[bool] = Field(
