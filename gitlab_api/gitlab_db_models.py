@@ -1324,9 +1324,7 @@ class MergeRequestDBModel(BaseDBModel):
     change_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="diffs.id"), nullable=True
     )
-    changes: Mapped["DiffDBModel"] = relationship(
-        "DiffDBModel", back_populates="merge_requests", foreign_keys=[change_id]
-    )
+    changes: Mapped["DiffDBModel"] = relationship(back_populates="merge_requests")
 
     approval_rules_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="approval_rules.id"), nullable=True
@@ -3329,15 +3327,6 @@ class StatisticsDBModel(BaseDBModel):
 # Diff Model
 class DiffDBModel(BaseDBModel):
     __tablename__ = "diffs"
-
-    def __eq__(self, other):
-        if isinstance(other, DiffDBModel):
-            return self.id == other.id
-        return False
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Diff")
     extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
@@ -3357,11 +3346,8 @@ class DiffDBModel(BaseDBModel):
     renamed_file: Mapped[bool] = mapped_column(Boolean, nullable=True)
     deleted_file: Mapped[bool] = mapped_column(Boolean, nullable=True)
     generated_file: Mapped[bool] = mapped_column(Boolean, nullable=True)
-
     merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="changes",
-        foreign_keys="[MergeRequestDBModel.change_id]",
+        back_populates="changes"
     )
 
 
