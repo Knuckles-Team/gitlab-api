@@ -1853,7 +1853,8 @@ class UserDBModel(BaseDBModel):
         "NamespaceDBModel",
         back_populates="user",
         foreign_keys=[namespace_id],
-        primaryjoin="UserDBModel.namespace_id == NamespaceDBModel.id"
+        primaryjoin="UserDBModel.namespace_id == NamespaceDBModel.id",
+        uselist=False,
     )
 
     deploy_tokens: Mapped[List["DeployTokenDBModel"]] = relationship(
@@ -2034,7 +2035,7 @@ class NamespaceDBModel(BaseDBModel):
     user: Mapped["UserDBModel"] = relationship(
         back_populates="namespace",
         uselist=False,
-        primaryjoin="NamespaceDBModel.id == UserDBModel.namespace_id",
+        primaryjoin="NamespaceDBModel.id == UserDBModel.namespace_id"
     )
 
 
