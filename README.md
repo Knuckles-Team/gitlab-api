@@ -36,30 +36,30 @@ Additional Features:
 - Easily convert Pydantic to SQLAlchemy models for quick database insertion
 
 ### API Calls:
-- Branches
-- Commits
-- Deploy Tokens
-- Groups
-- Jobs
-- Members
-- Merge Request
-- Merge Request Rules
-- Merge Request Rule Settings
-- Namespaces
-- Packages
-- Pipeline
-- Pipeline Schedules
-- Projects
-- Protected Branches
-- Releases
-- Runners
-- Users
-- Wiki
-- Environments
-- Protected Environments
-- Tags
-- Protected Tags
-- Custom Endpoint
+- [Branches](https://docs.gitlab.com/api/branches)
+- [Commits](https://docs.gitlab.com/api/commits)
+- [Deploy Tokens](https://docs.gitlab.com/api/deploy_tokens)
+- [Groups](https://docs.gitlab.com/api/groups)
+- [Jobs](https://docs.gitlab.com/api/jobs)
+- [Members](https://docs.gitlab.com/api/members)
+- [Merge Request](https://docs.gitlab.com/api/merge_requests)
+- [Merge Request Rules](https://docs.gitlab.com/api/merge_request_approvals)
+- [Merge Request Rule Settings](https://docs.gitlab.com/api/merge_request_approval_settings)
+- [Namespaces](https://docs.gitlab.com/api/namespaces)
+- [Packages](https://docs.gitlab.com/api/packages)
+- [Pipeline](https://docs.gitlab.com/api/pipelines)
+- [Pipeline Schedules](https://docs.gitlab.com/api/pipeline_schedules)
+- [Projects](https://docs.gitlab.com/api/projects)
+- [Protected Branches](https://docs.gitlab.com/api/protected_branches)
+- [Releases](https://docs.gitlab.com/api/releases)
+- [Runners](https://docs.gitlab.com/api/runners)
+- [Users](https://docs.gitlab.com/api/users)
+- [Wiki](https://docs.gitlab.com/api/wikis)
+- [Environments](https://docs.gitlab.com/api/environments)
+- [Protected Environments](https://docs.gitlab.com/api/protected_environments)
+- [Tags](https://docs.gitlab.com/api/tags)
+- [Protected Tags](https://docs.gitlab.com/api/protected_tags)
+- [Custom Endpoint](https://docs.gitlab.com/api/api_resources)
 
 If your API call isn't supported, you can always run the standard custom API endpoint function to get/post/put/delete and endpoint
 

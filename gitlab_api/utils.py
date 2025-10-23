@@ -45,15 +45,18 @@ def pydantic_to_sqlalchemy(schema, max_workers: int = 6):
     Iterates through pydantic schema and parses nested schemas
     to a dictionary containing SQLAlchemy models.
     Only works if nested schemas have specified the Meta.orm_model.
+    Stores extra fields in the 'extras' JSONB column.
     """
     parsed_schema = dict(schema)
     parsed_schema = remove_none_values(dictionary=parsed_schema)
     logging.debug(f"\n\nCleaned Schema: {parsed_schema}")
-    if parsed_schema.get("__pydantic_extra__"):
-        logging.warning(
-            f"Extra fields ignored in SQLAlchemy conversion: {parsed_schema['__pydantic_extra__']}"
-        )
-        parsed_schema.pop("__pydantic_extra__", None)
+
+    # Capture extra fields for the extras column
+    extras = parsed_schema.pop("__pydantic_extra__", None)
+    if extras:
+        logging.info(f"Storing extra fields in extras column: {extras}")
+        parsed_schema["extras"] = extras  # Add to parsed_schema for SQLAlchemy
+
     if not parsed_schema:
         return parsed_schema
 
@@ -227,7 +230,8 @@ def upsert(model: Any, engine, batch_size: int = 1000):
             existing_model = existing_items_map[item.id]
             logging.debug(f"Found Existing Model: {existing_model}")
             for attr, value in vars(item).items():
-                setattr(existing_model, attr, value)
+                if attr != "_sa_instance_state":  # Skip SQLAlchemy internal state
+                    setattr(existing_model, attr, value)
             session.merge(existing_model)
         else:
             session.merge(item)

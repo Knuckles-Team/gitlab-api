@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import List
 
-from sqlalchemy import String, DateTime, ForeignKey, Text, Table, Column
+from sqlalchemy import String, DateTime, ForeignKey, Text, Table, Column, Date
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import (
     relationship,
@@ -11,10 +11,9 @@ from sqlalchemy.orm import (
     Mapped,
 )
 from sqlalchemy import Integer, Boolean
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, JSON
 from sqlalchemy import (
     Float,
-    JSON,
 )
 
 BaseDBModel = declarative_base()
@@ -34,6 +33,7 @@ class EvidenceDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Evidence")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     sha: Mapped[str] = mapped_column(String, nullable=True)
     filepath: Mapped[str] = mapped_column(String, nullable=True)
     collected_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -59,6 +59,7 @@ class IssueStatsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="IssueStats")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     total: Mapped[int] = mapped_column(Integer, nullable=True)
     closed: Mapped[int] = mapped_column(Integer, nullable=True)
     opened: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -81,6 +82,7 @@ class MilestoneDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Milestone")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     iid: Mapped[int] = mapped_column(Integer, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=True)
     description: Mapped[str] = mapped_column(String, nullable=True)
@@ -129,6 +131,7 @@ class DeployTokenDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="DeployToken")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     username: Mapped[str] = mapped_column(String, nullable=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -162,6 +165,7 @@ class RuleDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Rule")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     commit_committer_check: Mapped[bool] = mapped_column(Boolean, default=False)
     commit_committer_name_check: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -191,6 +195,7 @@ class AccessControlDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="AccessControl")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     access_level: Mapped[int] = mapped_column(Integer, nullable=True)
     member_role_id: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -210,6 +215,7 @@ class SourceDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Sources")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     format: Mapped[str] = mapped_column(String, nullable=True)
     url: Mapped[str] = mapped_column(String, nullable=True)
 
@@ -233,6 +239,7 @@ class LinkDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Links")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     self_link: Mapped[str] = mapped_column(String, nullable=True)
     issues: Mapped[str] = mapped_column(String, nullable=True)
     merge_requests: Mapped[str] = mapped_column(String, nullable=True)
@@ -285,6 +292,7 @@ class AssetsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Assets")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     count: Mapped[int] = mapped_column(Integer, nullable=True)
     sources: Mapped[List["SourceDBModel"]] = relationship(back_populates="assets")
     links: Mapped[List["LinkDBModel"]] = relationship(back_populates="assets")
@@ -306,6 +314,7 @@ class ReleaseLinksDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="ReleaseLinks")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     closed_issues_url: Mapped[str] = mapped_column(String, nullable=True)
     closed_merge_requests_url: Mapped[str] = mapped_column(String, nullable=True)
     edit_url: Mapped[str] = mapped_column(String, nullable=True)
@@ -332,11 +341,12 @@ class TokenDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Token")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     token: Mapped[str] = mapped_column(String, nullable=True)
     token_expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
 
-# ToDo Model
+# To-Do Model
 class ToDoDBModel(BaseDBModel):
     __tablename__ = "todos"
 
@@ -350,6 +360,7 @@ class ToDoDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="ToDo")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     action_name: Mapped[str] = mapped_column(String, nullable=True)
     target_type: Mapped[str] = mapped_column(String, nullable=True)
     target_url: Mapped[str] = mapped_column(String, nullable=True)
@@ -398,6 +409,7 @@ class WikiPageDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="WikiPage")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     content: Mapped[str] = mapped_column(String, nullable=True)
     format: Mapped[str] = mapped_column(String, nullable=True)
     slug: Mapped[str] = mapped_column(String, nullable=True)
@@ -419,6 +431,7 @@ class WikiAttachmentLinkDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="WikiAttachmentLink")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     url: Mapped[str] = mapped_column(String, nullable=True)
     markdown: Mapped[str] = mapped_column(String, nullable=True)
 
@@ -437,6 +450,7 @@ class PipelineVariableDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="PipelineVariable")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     key: Mapped[str] = mapped_column(String, nullable=True)
     variable_type: Mapped[str] = mapped_column(String, nullable=True)
     value: Mapped[str] = mapped_column(String, nullable=True)
@@ -466,6 +480,7 @@ class WikiAttachmentDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="WikiAttachment")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     file_name: Mapped[str] = mapped_column(String, nullable=True)
     file_path: Mapped[str] = mapped_column(String, nullable=True)
     branch: Mapped[str] = mapped_column(String, nullable=True)
@@ -492,6 +507,7 @@ class AgentDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Agent")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
 
     config_project_id: Mapped[int] = mapped_column(
         Integer,
@@ -517,6 +533,7 @@ class AgentsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="Agents")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
 
     job_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("jobs.id", name="fk_agents_jobs"), nullable=True
@@ -561,6 +578,7 @@ class ReleaseDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Release")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     tag_name: Mapped[str] = mapped_column(String, nullable=True)
     description: Mapped[str] = mapped_column(String, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
@@ -621,6 +639,7 @@ class AccessLevelDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="AccessLevel")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     access_level: Mapped[int] = mapped_column(Integer, nullable=True)
     access_level_description: Mapped[str] = mapped_column(String, nullable=True)
     environment_id: Mapped[int] = mapped_column(
@@ -676,6 +695,7 @@ class BranchDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Branch")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     merged: Mapped[bool] = mapped_column(Boolean, nullable=True)
     protected: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -755,6 +775,7 @@ class LabelDBModel(BaseDBModel):
         Integer, primary_key=True, autoincrement=True, nullable=False
     )
     base_type: Mapped[str] = mapped_column(String, default="Label")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     color: Mapped[str] = mapped_column(String, nullable=True)
     text_color: Mapped[str] = mapped_column(String, nullable=True)
@@ -786,6 +807,7 @@ class ComplianceFrameworksDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="ComplianceFrameworks")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     project_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("projects.id"), nullable=True
@@ -808,6 +830,7 @@ class CIIDTokenComponentsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="CIIDTokenComponents")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     project_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("projects.id"), nullable=True
@@ -830,6 +853,7 @@ class TopicDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="Topic")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=True)
     description: Mapped[str] = mapped_column(String, nullable=True)
@@ -864,7 +888,6 @@ class DeployableDBModel(BaseDBModel):
     started_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     finished_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     duration: Mapped[float] = mapped_column(Float, nullable=True)
-    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     commit_id: Mapped[str] = mapped_column(ForeignKey("commits.id"), nullable=True)
     pipeline_id: Mapped[int] = mapped_column(ForeignKey("pipelines.id"), nullable=True)
@@ -872,7 +895,6 @@ class DeployableDBModel(BaseDBModel):
     artifacts_expire_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=True)
     project: Mapped["ProjectDBModel"] = relationship(back_populates="deployables")
-    pipeline_id: Mapped[int] = mapped_column(ForeignKey("pipelines.id"), nullable=True)
     pipeline: Mapped["PipelineDBModel"] = relationship(back_populates="deployables")
     user: Mapped["UserDBModel"] = relationship(back_populates="deployables")
     commit: Mapped["CommitDBModel"] = relationship(back_populates="deployables")
@@ -942,6 +964,7 @@ class EnvironmentDBModel(BaseDBModel):
         Integer, primary_key=True, autoincrement=True, nullable=False
     )
     base_type: Mapped[str] = mapped_column(String, default="Environment")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     slug: Mapped[str] = mapped_column(String, nullable=True)
     description: Mapped[str] = mapped_column(String, nullable=True)
@@ -989,6 +1012,7 @@ class TagDBModel(BaseDBModel):
         Integer, primary_key=True, autoincrement=True, nullable=False
     )
     base_type: Mapped[str] = mapped_column(String, default="Tag")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     tag: Mapped[str] = mapped_column(String, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
 
@@ -1025,6 +1049,7 @@ class ApprovalRuleDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="ApprovalRule")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     rule_type: Mapped[str] = mapped_column(String, nullable=True)
     approvals_required: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -1099,6 +1124,7 @@ class SettingDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Setting")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     value: Mapped[bool] = mapped_column(Boolean, nullable=True)
     locked: Mapped[bool] = mapped_column(Boolean, nullable=True)
     inherited_from: Mapped[str] = mapped_column(String, nullable=True)
@@ -1120,6 +1146,7 @@ class MergeRequestRuleSettingsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="ApprovalRule")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
 
     allow_author_approval: Mapped["SettingDBModel"] = relationship(
         "SettingDBModel",
@@ -1195,7 +1222,6 @@ merge_request_reviewers = Table(
 )
 
 
-# MergeRequest Model
 class MergeRequestDBModel(BaseDBModel):
     __tablename__ = "merge_requests"
 
@@ -1209,33 +1235,35 @@ class MergeRequestDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="MergeRequest")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     iid: Mapped[int] = mapped_column(Integer, nullable=True)
+    project_id: Mapped[int] = mapped_column(Integer, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=True)
-    description: Mapped[str] = mapped_column(String, nullable=True)
+    description: Mapped[str] = mapped_column(Text, nullable=True)
     state: Mapped[str] = mapped_column(String, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    closed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    imported: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    imported_from: Mapped[str] = mapped_column(String, nullable=True)
     merged_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     merge_after: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    latest_build_started_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    latest_build_finished_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    first_deployed_to_production_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=True
-    )
     prepared_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    closed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     target_branch: Mapped[str] = mapped_column(String, nullable=True)
     source_branch: Mapped[str] = mapped_column(String, nullable=True)
     upvotes: Mapped[int] = mapped_column(Integer, nullable=True)
     downvotes: Mapped[int] = mapped_column(Integer, nullable=True)
+    source_project_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    target_project_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    labels = mapped_column(ARRAY(String), nullable=True)
+    draft: Mapped[bool] = mapped_column(Boolean, nullable=True)
     work_in_progress: Mapped[bool] = mapped_column(Boolean, nullable=True)
     merge_when_pipeline_succeeds: Mapped[bool] = mapped_column(Boolean, nullable=True)
     merge_status: Mapped[str] = mapped_column(String, nullable=True)
+    detailed_merge_status: Mapped[str] = mapped_column(String, nullable=True)
     sha: Mapped[str] = mapped_column(String, nullable=True)
     merge_commit_sha: Mapped[str] = mapped_column(String, nullable=True)
-    draft: Mapped[bool] = mapped_column(Boolean, nullable=True)
     squash_commit_sha: Mapped[str] = mapped_column(String, nullable=True)
-    squash_on_merge: Mapped[bool] = mapped_column(Boolean, nullable=True)
     user_notes_count: Mapped[int] = mapped_column(Integer, nullable=True)
     discussion_locked: Mapped[bool] = mapped_column(Boolean, nullable=True)
     should_remove_source_branch: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -1243,168 +1271,107 @@ class MergeRequestDBModel(BaseDBModel):
     allow_collaboration: Mapped[bool] = mapped_column(Boolean, nullable=True)
     allow_maintainer_to_push: Mapped[bool] = mapped_column(Boolean, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
-    reference: Mapped[str] = mapped_column(String, nullable=True)
     squash: Mapped[bool] = mapped_column(Boolean, nullable=True)
     has_conflicts: Mapped[bool] = mapped_column(Boolean, nullable=True)
     blocking_discussions_resolved: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    changes_count: Mapped[str] = mapped_column(String, nullable=True)
-    rebase_in_progress: Mapped[bool] = mapped_column(Boolean, nullable=True)
     approvals_before_merge: Mapped[int] = mapped_column(Integer, nullable=True)
-    imported: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    imported_from: Mapped[str] = mapped_column(String, nullable=True)
-    detailed_merge_status: Mapped[str] = mapped_column(String, nullable=True)
+    changes_count: Mapped[str] = mapped_column(String, nullable=True)
     subscribed: Mapped[bool] = mapped_column(Boolean, nullable=True)
     overflow: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    diverged_commits_count: Mapped[int] = mapped_column(Integer, nullable=True)
-    merge_error: Mapped[str] = mapped_column(String, nullable=True)
-    approvals_required: Mapped[int] = mapped_column(Integer, nullable=True)
-    approvals_left: Mapped[int] = mapped_column(Integer, nullable=True)
-    approval_rules_overwritten: Mapped[bool] = mapped_column(Boolean, nullable=True)
-
-    tag_list_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="tags.id"), nullable=True
+    # Relationships
+    author_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
     )
-    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="merge_requests")
-
-    labels: Mapped[List["LabelDBModel"]] = relationship(
-        "LabelDBModel",
-        secondary=merge_request_labels,  # Link to the association table
-        back_populates="merge_requests",
+    author: Mapped["UserDBModel"] = relationship(
+        back_populates="authored_merge_requests"
     )
-
+    assignee_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
+    assignee: Mapped["UserDBModel"] = relationship(
+        back_populates="assigned_merge_requests"
+    )
+    assignees = relationship(
+        "UserDBModel",
+        secondary="merge_request_assignees",
+        back_populates="assigned_merge_requests_list",
+    )
+    reviewers = relationship(
+        "UserDBModel",
+        secondary="merge_request_reviewers",
+        back_populates="reviewed_merge_requests",
+    )
+    milestone_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("milestones.id"), nullable=True
+    )
+    milestone: Mapped["MilestoneDBModel"] = relationship(
+        back_populates="merge_requests"
+    )
+    merged_by_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
+    merged_by: Mapped["UserDBModel"] = relationship(
+        back_populates="merged_merge_requests"
+    )
+    merge_user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
+    merge_user: Mapped["UserDBModel"] = relationship(
+        back_populates="merge_user_merge_requests"
+    )
+    closed_by_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
+    closed_by: Mapped["UserDBModel"] = relationship(
+        back_populates="closed_merge_requests"
+    )
     references_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="references.id"), nullable=True
+        Integer, ForeignKey("references.id"), nullable=True
     )
-
     references: Mapped["ReferencesDBModel"] = relationship(
-        "ReferencesDBModel", back_populates="merge_request_references"
+        back_populates="merge_requests"
     )
-
     time_stats_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="time_stats.id"), nullable=True
+        Integer, ForeignKey("time_stats.id"), nullable=True
     )
     time_stats: Mapped["TimeStatsDBModel"] = relationship(
         back_populates="merge_requests"
     )
-
     task_completion_status_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="task_completion_status.id"), nullable=True
+        Integer, ForeignKey("task_completion_statuses.id"), nullable=True
     )
     task_completion_status: Mapped["TaskCompletionStatusDBModel"] = relationship(
         back_populates="merge_requests"
     )
+    changes = relationship("DiffDBModel", back_populates="merge_requests")
+    project: Mapped["ProjectDBModel"] = relationship(back_populates="merge_requests")
 
-    change_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="diffs.id"), nullable=True
-    )
-    changes: Mapped["DiffDBModel"] = relationship(
-        "DiffDBModel", back_populates="merge_requests", foreign_keys=[change_id]
-    )
 
-    approval_rules_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="approval_rules.id"), nullable=True
-    )
-    approval_rules: Mapped["ApprovalRuleDBModel"] = relationship(
-        back_populates="merge_requests"
-    )
+class RootStorageStatisticsDBModel(BaseDBModel):
+    __tablename__ = "root_storage_statistics"
 
-    source_project_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    target_project_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    def __eq__(self, other):
+        if isinstance(other, RootStorageStatisticsDBModel):
+            return self.id == other.id
+        return False
 
-    source_project: Mapped["ProjectDBModel"] = relationship(
-        "ProjectDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.source_project_id) == ProjectDBModel.id",
-        back_populates="source_merge_requests",
-    )
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
-    target_project: Mapped["ProjectDBModel"] = relationship(
-        "ProjectDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.target_project_id) == ProjectDBModel.id",
-        back_populates="target_merge_requests",
-    )
-
-    pipeline_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    head_pipeline_id: Mapped[int] = mapped_column(Integer, nullable=True)
-
-    pipeline: Mapped["PipelineDBModel"] = relationship(
-        "PipelineDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.pipeline_id) == PipelineDBModel.id",
-        back_populates="merge_requests",
-    )
-    head_pipeline: Mapped["PipelineDBModel"] = relationship(
-        "PipelineDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.head_pipeline_id) == PipelineDBModel.id",
-        back_populates="merge_requests",
-    )
-
-    project_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    project: Mapped["ProjectDBModel"] = relationship(
-        "ProjectDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.project_id) == ProjectDBModel.id",
-        back_populates="merge_requests",
-    )
-
-    author_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    assignee_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    merged_by_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    merge_user_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    closed_by_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    reviewer_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    approved_by_id: Mapped[int] = mapped_column(Integer, nullable=True)
-
-    author: Mapped["UserDBModel"] = relationship(
-        "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.author_id) == UserDBModel.id",
-        back_populates="authored_merge_requests",
-    )
-
-    assignee: Mapped["UserDBModel"] = relationship(
-        "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.assignee_id) == UserDBModel.id",
-        back_populates="assigned_merge_requests",
-    )
-
-    assignees: Mapped[List["UserDBModel"]] = relationship(
-        "UserDBModel",
-        secondary=merge_request_assignees,  # Use the association table
-        back_populates="assignee_merge_requests",
-    )
-
-    reviewers: Mapped[List["UserDBModel"]] = relationship(
-        "UserDBModel",
-        secondary=merge_request_reviewers,  # Use the association table
-        back_populates="reviewers_merge_requests",
-    )
-
-    merged_by: Mapped["UserDBModel"] = relationship(
-        "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.merged_by_id) == UserDBModel.id",
-        back_populates="merged_merge_requests",
-    )
-
-    merge_user: Mapped["UserDBModel"] = relationship(
-        "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.merge_user_id) == UserDBModel.id",
-        back_populates="merge_user_merge_requests",
-    )
-
-    reviewer: Mapped["UserDBModel"] = relationship(
-        "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.reviewer_id) == UserDBModel.id",
-        back_populates="reviewed_merge_requests",
-    )
-
-    approved_by: Mapped["UserDBModel"] = relationship(
-        "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.approved_by_id) == UserDBModel.id",
-        back_populates="approved_merge_requests",
-    )
-
-    closed_by: Mapped["UserDBModel"] = relationship(
-        "UserDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.closed_by_id) == UserDBModel.id",
-        back_populates="closed_merge_requests",
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    base_type: Mapped[str] = mapped_column(String, default="RootStorageStatistics")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
+    storage_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    repository_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    wiki_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    lfs_objects_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    job_artifacts_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    pipeline_artifacts_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    packages_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    snippets_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    uploads_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    container_registry_size: Mapped[int] = mapped_column(Integer, nullable=True)
+    build_artifacts_size: Mapped[int] = mapped_column(Integer, nullable=True)
 
 
 # GroupAccess Model
@@ -1421,6 +1388,7 @@ class GroupAccessDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="GroupAccess")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     access_level: Mapped[int] = mapped_column(Integer, nullable=True)
     push_branch_protection_defaults: Mapped[
         list["DefaultBranchProtectionDefaultsDBModel"]
@@ -1517,6 +1485,7 @@ class GroupDBModel(BaseDBModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     group_id: Mapped[int] = mapped_column(Integer, nullable=True)
     base_type: Mapped[str] = mapped_column(String, default="Group")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     organization_id: Mapped[int] = mapped_column(Integer, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
     group_name: Mapped[str] = mapped_column(String, nullable=True)
@@ -1657,6 +1626,7 @@ class WebhookDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Webhook")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     url: Mapped[str] = mapped_column(String, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
     description: Mapped[str] = mapped_column(String, nullable=True)
@@ -1690,7 +1660,6 @@ class WebhookDBModel(BaseDBModel):
     group: Mapped["GroupDBModel"] = relationship(back_populates="webhooks")
 
 
-# User Model
 class UserDBModel(BaseDBModel):
     __tablename__ = "users"
 
@@ -1704,9 +1673,8 @@ class UserDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="User")
-    user: Mapped[str] = mapped_column(String, nullable=True)
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     username: Mapped[str] = mapped_column(String, nullable=True)
-    email: Mapped[str] = mapped_column(String, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
     state: Mapped[str] = mapped_column(String, nullable=True)
     locked: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -1716,17 +1684,20 @@ class UserDBModel(BaseDBModel):
     is_admin: Mapped[bool] = mapped_column(Boolean, nullable=True)
     bio: Mapped[str] = mapped_column(String, nullable=True)
     location: Mapped[str] = mapped_column(String, nullable=True)
-    skype: Mapped[str] = mapped_column(String, nullable=True)
+    skype: Mapped[str] = mapped_column(
+        String, nullable=True
+    )  # From Pydantic, though not in docs
     linkedin: Mapped[str] = mapped_column(String, nullable=True)
     twitter: Mapped[str] = mapped_column(String, nullable=True)
     discord: Mapped[str] = mapped_column(String, nullable=True)
+    github: Mapped[str] = mapped_column(String, nullable=True)
     website_url: Mapped[str] = mapped_column(String, nullable=True)
     organization: Mapped[str] = mapped_column(String, nullable=True)
     job_title: Mapped[str] = mapped_column(String, nullable=True)
     last_sign_in_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     confirmed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     theme_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    last_activity_on: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    last_activity_on: Mapped[datetime] = mapped_column(Date, nullable=True)
     color_scheme_id: Mapped[int] = mapped_column(Integer, nullable=True)
     projects_limit: Mapped[int] = mapped_column(Integer, nullable=True)
     current_sign_in_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -1738,6 +1709,10 @@ class UserDBModel(BaseDBModel):
     private_profile: Mapped[bool] = mapped_column(Boolean, nullable=True)
     current_sign_in_ip: Mapped[str] = mapped_column(String, nullable=True)
     last_sign_in_ip: Mapped[str] = mapped_column(String, nullable=True)
+    namespace_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    created_by_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
     email_reset_offered_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     access_level: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -1755,128 +1730,52 @@ class UserDBModel(BaseDBModel):
     extra_shared_runners_minutes_limit: Mapped[int] = mapped_column(
         Integer, nullable=True
     )
-    membership_type: Mapped[str] = mapped_column(String, nullable=True)
-    removable: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    last_login_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-
-    created_by_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("users.id"),
-        nullable=True,
+    is_auditor: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    using_license_seat: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    provisioned_by_group_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    is_followed: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    plan: Mapped[str] = mapped_column(String, nullable=True)
+    trial: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    sign_in_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    scim_identities = mapped_column(ARRAY(JSON), nullable=True)
+    # Relationships
+    created_by: Mapped["UserDBModel"] = relationship(remote_side=[id])
+    identities: Mapped[List["IdentityDBModel"]] = relationship(back_populates="user")
+    group_saml_identity: Mapped["GroupSamlIdentityDBModel"] = relationship(
+        back_populates="user"
     )
-    created_by: Mapped["UserDBModel"] = relationship(
-        "UserDBModel", remote_side=[id], back_populates="created_users"
-    )
-
-    created_users: Mapped[List["UserDBModel"]] = relationship(
-        "UserDBModel", back_populates="created_by"
-    )
-    group_saml_identity: Mapped[List["GroupSamlIdentityDBModel"]] = relationship(
-        "GroupSamlIdentityDBModel", back_populates="user"
-    )
-
-    namespace_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey(
-            column="namespaces.id",
-            name="fk_user_namespace_id",
-        ),
-        nullable=True,
-    )
-    namespace: Mapped["NamespaceDBModel"] = relationship(
-        "NamespaceDBModel",
-        back_populates="user",
-        foreign_keys=[namespace_id],
-        remote_side="[NamespaceDBModel.id]",  # Specify the remote side of the relationship
-    )
-
     deploy_tokens: Mapped[List["DeployTokenDBModel"]] = relationship(
         back_populates="user"
     )
-
     todos: Mapped[List["ToDoDBModel"]] = relationship(back_populates="author")
-    agents = relationship("AgentsDBModel", back_populates="user")
-    releases: Mapped[List["ReleaseDBModel"]] = relationship(back_populates="author")
-    access_levels: Mapped[List["AccessLevelDBModel"]] = relationship(
-        back_populates="user"
+    merge_request_approvers: Mapped[List["MergeApprovalsDBModel"]] = relationship(
+        back_populates="approvers"
     )
-    approval_rules: Mapped[List["ApprovalRuleDBModel"]] = relationship(
-        "ApprovalRuleDBModel",
-        back_populates="eligible_approvers",
-        foreign_keys="[ApprovalRuleDBModel.eligible_approvers_id]",
-    )
-    # Relationships with MergeRequestDBModel
     authored_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="author",
-        primaryjoin="foreign(MergeRequestDBModel.author_id) == UserDBModel.id",
+        back_populates="author"
     )
-
-    assigned_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="assignee",
-        primaryjoin="foreign(MergeRequestDBModel.assignee_id) == UserDBModel.id",
+    assigned_merge_requests: Mapped["MergeRequestDBModel"] = relationship(
+        back_populates="assignee"
+    )  # For single assignee
+    assigned_merge_requests_list: Mapped[List["MergeRequestDBModel"]] = relationship(
+        secondary="merge_request_assignees", back_populates="assignees"
     )
-
-    assignee_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        secondary=merge_request_assignees,  # Use the association table
-        back_populates="assignees",
-    )
-
     reviewed_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="reviewer",
-        primaryjoin="foreign(MergeRequestDBModel.reviewer_id) == UserDBModel.id",
+        secondary="merge_request_reviewers", back_populates="reviewers"
     )
-
-    reviewers_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        secondary=merge_request_reviewers,  # Use the association table
-        back_populates="reviewers",
-    )
-
     merged_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="merged_by",
-        primaryjoin="foreign(MergeRequestDBModel.merged_by_id) == UserDBModel.id",
+        back_populates="merged_by"
     )
-
     merge_user_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="merge_user",
-        primaryjoin="foreign(MergeRequestDBModel.merge_user_id) == UserDBModel.id",
+        back_populates="merge_user"
     )
-
-    approved_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="approved_by",
-        primaryjoin="foreign(MergeRequestDBModel.approved_by_id) == UserDBModel.id",
-    )
-
     closed_merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        back_populates="closed_by",
-        primaryjoin="foreign(MergeRequestDBModel.closed_by_id) == UserDBModel.id",
+        back_populates="closed_by"
     )
-
-    project_owner: Mapped[List["ProjectDBModel"]] = relationship(
-        "ProjectDBModel",
-        back_populates="owner",
-        primaryjoin="foreign(ProjectDBModel.owner_id) == UserDBModel.id",
+    owned_projects: Mapped[List["ProjectDBModel"]] = relationship(
+        back_populates="owner"
     )
-
-    project_creator: Mapped[List["ProjectDBModel"]] = relationship(
-        "ProjectDBModel",
-        back_populates="creator",
-        primaryjoin="foreign(ProjectDBModel.creator_id) == UserDBModel.id",
-    )
-    pipeline_schedules: Mapped[list["PipelineScheduleDBModel"]] = relationship(
-        "PipelineScheduleDBModel",
-        back_populates="owner",
-        primaryjoin="foreign(PipelineScheduleDBModel.owner_id) == UserDBModel.id",
-    )
-    jobs = relationship("JobDBModel", back_populates="user")
+    jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="user")
     pipelines: Mapped[List["PipelineDBModel"]] = relationship(back_populates="user")
     comments: Mapped[List["CommentDBModel"]] = relationship(back_populates="author")
     commits: Mapped[List["CommitDBModel"]] = relationship(back_populates="author")
@@ -1888,14 +1787,6 @@ class UserDBModel(BaseDBModel):
     )
     closed_issues: Mapped[List["IssueDBModel"]] = relationship(
         back_populates="closed_by", foreign_keys="[IssueDBModel.closed_by_id]"
-    )
-    identities: Mapped[List["IdentityDBModel"]] = relationship(
-        back_populates="user", foreign_keys="[IdentityDBModel.user_id]"
-    )
-    merge_request_approvers: Mapped[List["MergeApprovalsDBModel"]] = relationship(
-        "MergeApprovalsDBModel",
-        primaryjoin="UserDBModel.id == foreign(MergeApprovalsDBModel.approvers_id)",
-        back_populates="approvers",
     )
     deployments: Mapped[List["LastDeploymentDBModel"]] = relationship(
         back_populates="user"
@@ -1920,6 +1811,7 @@ class NamespaceDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Namespace")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     path: Mapped[str] = mapped_column(String, nullable=True)
     kind: Mapped[str] = mapped_column(String, nullable=True)
@@ -1950,7 +1842,6 @@ class NamespaceDBModel(BaseDBModel):
     )
 
 
-# Project Model
 class ProjectDBModel(BaseDBModel):
     __tablename__ = "projects"
 
@@ -1964,31 +1855,200 @@ class ProjectDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Project")
-    description: Mapped[str] = mapped_column(String, nullable=True)
-    description_html: Mapped[str] = mapped_column(String, nullable=True)
-    name: Mapped[str] = mapped_column(String, nullable=True)
-    name_with_namespace: Mapped[str] = mapped_column(String, nullable=True)
-    path: Mapped[str] = mapped_column(String, nullable=True)
-    path_with_namespace: Mapped[str] = mapped_column(String, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
+    description: Mapped[str] = mapped_column(Text, nullable=True)
+    description_html: Mapped[str] = mapped_column(Text, nullable=True)
     default_branch: Mapped[str] = mapped_column(String, nullable=True)
+    visibility: Mapped[str] = mapped_column(String, nullable=True)
     ssh_url_to_repo: Mapped[str] = mapped_column(String, nullable=True)
     http_url_to_repo: Mapped[str] = mapped_column(String, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
     readme_url: Mapped[str] = mapped_column(String, nullable=True)
-    avatar_url: Mapped[str] = mapped_column(String, nullable=True)
-    forks_count: Mapped[int] = mapped_column(Integer, nullable=True)
-    star_count: Mapped[int] = mapped_column(Integer, nullable=True)
-    last_activity_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    container_registry_image_prefix: Mapped[str] = mapped_column(String, nullable=True)
-    packages_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    empty_repo: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    archived: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    visibility: Mapped[str] = mapped_column(String, nullable=True)
+    tag_list = mapped_column(ARRAY(String), nullable=True)
+    topics = mapped_column(ARRAY(String), nullable=True)
+    name: Mapped[str] = mapped_column(String, nullable=True)
+    name_with_namespace: Mapped[str] = mapped_column(String, nullable=True)
+    path: Mapped[str] = mapped_column(String, nullable=True)
+    path_with_namespace: Mapped[str] = mapped_column(String, nullable=True)
+    repository_object_format: Mapped[str] = mapped_column(String, nullable=True)
+    issues_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    open_issues_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    merge_requests_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    jobs_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    wiki_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    snippets_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    can_create_merge_request_in: Mapped[bool] = mapped_column(Boolean, nullable=True)
     resolve_outdated_diff_discussions: Mapped[bool] = mapped_column(
         Boolean, nullable=True
     )
+    container_registry_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    container_registry_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    security_and_compliance_access_level: Mapped[str] = mapped_column(
+        String, nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    last_activity_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    creator_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    import_url: Mapped[str] = mapped_column(String, nullable=True)
+    import_type: Mapped[str] = mapped_column(String, nullable=True)
+    import_status: Mapped[str] = mapped_column(String, nullable=True)
+    import_error: Mapped[str] = mapped_column(String, nullable=True)
+    archived: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    avatar_url: Mapped[str] = mapped_column(String, nullable=True)
+    license_url: Mapped[str] = mapped_column(String, nullable=True)
+    shared_runners_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    group_runners_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    forks_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    star_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    runners_token: Mapped[str] = mapped_column(String, nullable=True)
+    ci_default_git_depth: Mapped[int] = mapped_column(Integer, nullable=True)
+    ci_forward_deployment_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    ci_forward_deployment_rollback_allowed: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    ci_allow_fork_pipelines_to_run_in_parent_project: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    ci_id_token_sub_claim_components = mapped_column(ARRAY(String), nullable=True)
+    ci_separated_caches: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    ci_restrict_pipeline_cancellation_role: Mapped[str] = mapped_column(
+        String, nullable=True
+    )
+    ci_pipeline_variables_minimum_override_role: Mapped[str] = mapped_column(
+        String, nullable=True
+    )
+    ci_push_repository_for_job_token_allowed: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    public_jobs: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    repository_storage: Mapped[str] = mapped_column(String, nullable=True)
+    only_allow_merge_if_pipeline_succeeds: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    allow_merge_on_skipped_pipeline: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    allow_pipeline_trigger_approve_deployment: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    restrict_user_defined_variables: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    only_allow_merge_if_all_discussions_are_resolved: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    remove_source_branch_after_merge: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    printing_merge_request_link_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    request_access_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    merge_method: Mapped[str] = mapped_column(String, nullable=True)
+    squash_option: Mapped[str] = mapped_column(String, nullable=True)
+    auto_devops_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    auto_devops_deploy_strategy: Mapped[str] = mapped_column(String, nullable=True)
+    approvals_before_merge: Mapped[int] = mapped_column(Integer, nullable=True)
+    mirror: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    mirror_user_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    mirror_trigger_builds: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    only_mirror_protected_branches: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    mirror_overwrites_diverged_branches: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    external_authorization_classification_label: Mapped[str] = mapped_column(
+        String, nullable=True
+    )
+    packages_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    service_desk_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    service_desk_address: Mapped[str] = mapped_column(String, nullable=True)
+    autoclose_referenced_issues: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    enforce_auth_checks_on_uploads: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    suggestion_commit_message: Mapped[str] = mapped_column(String, nullable=True)
+    merge_commit_template: Mapped[str] = mapped_column(String, nullable=True)
+    squash_commit_template: Mapped[str] = mapped_column(String, nullable=True)
+    issue_branch_template: Mapped[str] = mapped_column(String, nullable=True)
+    marked_for_deletion_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    marked_for_deletion_on: Mapped[str] = mapped_column(String, nullable=True)
+    compliance_frameworks = mapped_column(ARRAY(String), nullable=True)
+    warn_about_potentially_unwanted_characters: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    secret_push_protection_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    container_registry_image_prefix: Mapped[str] = mapped_column(String, nullable=True)
+    empty_repo: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    issues_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    repository_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    merge_requests_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    forking_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    wiki_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    builds_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    snippets_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    pages_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    analytics_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    emails_disabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    emails_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    lfs_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    build_timeout: Mapped[int] = mapped_column(Integer, nullable=True)
+    auto_cancel_pending_pipelines: Mapped[str] = mapped_column(String, nullable=True)
+    ci_config_path: Mapped[str] = mapped_column(String, nullable=True)
+    ci_job_token_scope_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    keep_latest_artifact: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    runner_token_expiration_interval: Mapped[str] = mapped_column(String, nullable=True)
+    requirements_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    security_and_compliance_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    only_allow_merge_if_all_status_checks_passed: Mapped[bool] = mapped_column(
+        Boolean, nullable=True
+    )
+    mr_default_target_self: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    package_registry_access_level: Mapped[str] = mapped_column(String, nullable=True)
+    shared_with_groups = mapped_column(ARRAY(JSON), nullable=True)
+    # Relationships
+    owner_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
+    owner: Mapped["UserDBModel"] = relationship(back_populates="owned_projects")
+    namespace_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("namespaces.id"), nullable=True
+    )
+    namespace: Mapped["NamespaceDBModel"] = relationship(back_populates="projects")
+    permissions_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("permissions.id"), nullable=True
+    )
+    permissions: Mapped["PermissionsDBModel"] = relationship(back_populates="projects")
+    statistics_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("statistics.id"), nullable=True
+    )
+    statistics: Mapped["StatisticsDBModel"] = relationship(back_populates="projects")
+    license_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("licenses.id"), nullable=True
+    )
+    license: Mapped["LicenseDBModel"] = relationship(back_populates="projects")
+    container_expiration_policy_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("container_expiration_policies.id"), nullable=True
+    )
+    container_expiration_policy: Mapped["ContainerExpirationPolicyDBModel"] = (
+        relationship(back_populates="project")
+    )
+    links_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("links.id"), nullable=True
+    )
+    links: Mapped["LinkDBModel"] = relationship(back_populates="projects_links")
+    forked_from_project_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("projects.id"), nullable=True
+    )
+    forked_from_project: Mapped["ProjectDBModel"] = relationship(remote_side=[id])
+    milestones: Mapped[List["MilestoneDBModel"]] = relationship(
+        back_populates="project"
+    )
+    todos: Mapped[List["ToDoDBModel"]] = relationship(back_populates="project")
+    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+        back_populates="project"
+    )
+    jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="project")
     releases_access_level: Mapped[str] = mapped_column(String, nullable=True)
     environments_access_level: Mapped[str] = mapped_column(String, nullable=True)
     feature_flags_access_level: Mapped[str] = mapped_column(String, nullable=True)
@@ -2000,238 +2060,48 @@ class ProjectDBModel(BaseDBModel):
     machine_learning_model_registry_access_level: Mapped[str] = mapped_column(
         String, nullable=True
     )
-    issues_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    merge_requests_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    wiki_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    jobs_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    snippets_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    container_registry_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    pre_receive_secret_detection_enabled: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    container_registry_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    security_and_compliance_access_level: Mapped[str] = mapped_column(
-        String, nullable=True
-    )
-    import_url: Mapped[str] = mapped_column(String, nullable=True)
-    import_type: Mapped[str] = mapped_column(String, nullable=True)
-    import_status: Mapped[str] = mapped_column(String, nullable=True)
-    import_error: Mapped[str] = mapped_column(String, nullable=True)
-    shared_runners_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    group_runners_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    lfs_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    ci_default_git_depth: Mapped[int] = mapped_column(Integer, nullable=True)
-    ci_forward_deployment_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    ci_forward_deployment_rollback_allowed: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    ci_allow_fork_pipelines_to_run_in_parent_project = mapped_column(
-        Boolean, nullable=True
-    )
-    ci_separated_caches: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    ci_restrict_pipeline_cancellation_role: Mapped[str] = mapped_column(
-        String, nullable=True
-    )
-    forked_from_project_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("projects.id"), nullable=True
-    )
-    forked_from_project = relationship(
-        "ProjectDBModel",
-        remote_side=[id],
-        foreign_keys=[forked_from_project_id],
-        uselist=False,
-    )
     forks = relationship(
         "ProjectDBModel",
         back_populates="forked_from_project",
         foreign_keys="ProjectDBModel.forked_from_project_id",
     )
-    mr_default_target_self: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    public_jobs: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    only_allow_merge_if_pipeline_succeeds: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    allow_merge_on_skipped_pipeline: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    restrict_user_defined_variables: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
     code_suggestions: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    only_allow_merge_if_all_discussions_are_resolved = mapped_column(
-        Boolean, nullable=True
-    )
-    remove_source_branch_after_merge: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    request_access_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
     merge_pipelines_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
     merge_trains_skip_train_allowed: Mapped[bool] = mapped_column(
         Boolean, nullable=True
     )
-    allow_pipeline_trigger_approve_deployment: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    repository_object_format: Mapped[str] = mapped_column(String, nullable=True)
-    merge_method: Mapped[str] = mapped_column(String, nullable=True)
-    squash_option: Mapped[str] = mapped_column(String, nullable=True)
-    enforce_auth_checks_on_uploads: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    suggestion_commit_message: Mapped[str] = mapped_column(String, nullable=True)
     issues_template: Mapped[str] = mapped_column(String, nullable=True)
     merge_requests_template: Mapped[str] = mapped_column(String, nullable=True)
     packages_relocation_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
     requirements_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
     build_git_strategy: Mapped[str] = mapped_column(String, nullable=True)
-    build_timeout: Mapped[int] = mapped_column(Integer, nullable=True)
-    auto_cancel_pending_pipelines: Mapped[str] = mapped_column(String, nullable=True)
     build_coverage_regex: Mapped[str] = mapped_column(String, nullable=True)
-    ci_config_path: Mapped[str] = mapped_column(String, nullable=True)
     shared_runners_minutes_limit: Mapped[int] = mapped_column(Integer, nullable=True)
     extra_shared_runners_minutes_limit: Mapped[int] = mapped_column(
         Integer, nullable=True
     )
-    printing_merge_request_link_enabled: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
     merge_trains_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
     has_open_issues: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    approvals_before_merge: Mapped[int] = mapped_column(Integer, nullable=True)
-    mirror: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    mirror_user_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    mirror_trigger_builds: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    only_mirror_protected_branches: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    mirror_overwrites_diverged_branches: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    service_desk_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    can_create_merge_request_in: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    repository_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    merge_requests_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    issues_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    forking_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    wiki_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    builds_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    snippets_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    pages_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    analytics_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    emails_disabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    emails_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    open_issues_count: Mapped[int] = mapped_column(Integer, nullable=True)
-    ci_job_token_scope_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    merge_commit_template: Mapped[str] = mapped_column(String, nullable=True)
-    squash_commit_template: Mapped[str] = mapped_column(String, nullable=True)
-    issue_branch_template: Mapped[str] = mapped_column(String, nullable=True)
-    auto_devops_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    auto_devops_deploy_strategy: Mapped[str] = mapped_column(String, nullable=True)
-    autoclose_referenced_issues: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    keep_latest_artifact: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    secret_push_protection_enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    runner_token_expiration_interval: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    external_authorization_classification_label: Mapped[str] = mapped_column(
-        String, nullable=True
-    )
-    requirements_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    security_and_compliance_enabled: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    warn_about_potentially_unwanted_characters: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    runners_token: Mapped[str] = mapped_column(String, nullable=True)
-    repository_storage: Mapped[str] = mapped_column(String, nullable=True)
-    service_desk_address: Mapped[str] = mapped_column(String, nullable=True)
-    marked_for_deletion_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    marked_for_deletion_on: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
     operations_access_level: Mapped[str] = mapped_column(String, nullable=True)
     ci_dockerfile: Mapped[str] = mapped_column(String, nullable=True)
     public: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    ci_pipeline_variables_minimum_override_role: Mapped[str] = mapped_column(
-        String, nullable=True
-    )
-    ci_push_repository_for_job_token_allowed: Mapped[bool] = mapped_column(
-        Boolean, nullable=True
-    )
-    tag_list: Mapped[List["TagDBModel"]] = relationship(
-        "TagDBModel", back_populates="project"
-    )
 
-    topics: Mapped[List["TopicDBModel"]] = relationship(
-        "TopicDBModel", back_populates="project"
-    )
-
-    compliance_frameworks: Mapped[List["ComplianceFrameworksDBModel"]] = relationship(
-        "ComplianceFrameworksDBModel", back_populates="project"
-    )
-
-    ci_id_token_sub_claim_components: Mapped[List["CIIDTokenComponentsDBModel"]] = (
-        relationship("CIIDTokenComponentsDBModel", back_populates="project")
-    )
-
-    owner_id: Mapped[int] = mapped_column(Integer, nullable=True)
-
-    owner: Mapped["UserDBModel"] = relationship(
-        "UserDBModel",
-        back_populates="project_owner",
-        primaryjoin="foreign(ProjectDBModel.owner_id) == UserDBModel.id",
-    )
-
-    creator_id: Mapped[int] = mapped_column(Integer, nullable=True)
     creator: Mapped["UserDBModel"] = relationship(
         "UserDBModel",
         back_populates="project_creator",
         primaryjoin="foreign(ProjectDBModel.creator_id) == UserDBModel.id",
     )
-    namespace_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    namespace: Mapped["NamespaceDBModel"] = relationship(
-        "NamespaceDBModel",
-        back_populates="projects",
-        primaryjoin="foreign(ProjectDBModel.namespace_id) == NamespaceDBModel.id",
-    )
 
-    container_expiration_policy: Mapped["ContainerExpirationPolicyDBModel"] = (
-        relationship(
-            "ContainerExpirationPolicyDBModel",
-            back_populates="project",
-            foreign_keys="[ContainerExpirationPolicyDBModel.project_id]",  # Specify the foreign key here
-        )
-    )
-    statistics_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="statistics.id"), nullable=True
-    )
-    statistics: Mapped["StatisticsDBModel"] = relationship(back_populates="projects")
-    links_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="links.id"), nullable=True
-    )
-    links: Mapped["LinkDBModel"] = relationship(
-        back_populates="projects_links", foreign_keys=[links_id]
-    )
     additional_links_id: Mapped[int] = mapped_column(
         Integer, ForeignKey(column="links.id"), nullable=True
     )
     additional_links: Mapped["LinkDBModel"] = relationship(
         back_populates="projects_additional_links", foreign_keys=[additional_links_id]
     )
-    permissions_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey(column="permissions.id"), nullable=True
-    )
-    permissions: Mapped["PermissionsDBModel"] = relationship(back_populates="projects")
 
     groups = relationship(
         "GroupDBModel", secondary=project_groups, back_populates="projects"
-    )
-    shared_with_groups = relationship(
-        "GroupDBModel",
-        secondary=project_shared_with_groups,
-        back_populates="shared_projects",
-    )
-    milestones: Mapped[List["MilestoneDBModel"]] = relationship(
-        back_populates="project"
-    )
-
-    todos: Mapped[List["ToDoDBModel"]] = relationship(
-        "ToDoDBModel", back_populates="project"
     )
 
     agents = relationship("AgentsDBModel", back_populates="project")
@@ -2247,13 +2117,6 @@ class ProjectDBModel(BaseDBModel):
         foreign_keys="[MergeRequestDBModel.target_project_id]",
         back_populates="target_project",
         primaryjoin="foreign(MergeRequestDBModel.target_project_id) == ProjectDBModel.id",
-    )
-
-    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
-        "MergeRequestDBModel",
-        foreign_keys="[MergeRequestDBModel.project_id]",
-        back_populates="project",
-        primaryjoin="foreign(MergeRequestDBModel.project_id) == ProjectDBModel.id",
     )
     runners: Mapped[List["RunnerDBModel"]] = relationship(back_populates="projects")
     issues: Mapped["IssueDBModel"] = relationship(back_populates="project")
@@ -2276,6 +2139,7 @@ class RunnerDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Runner")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     description: Mapped[str] = mapped_column(String, nullable=True)
     ip_address: Mapped[str] = mapped_column(String, nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -2309,7 +2173,6 @@ class RunnerDBModel(BaseDBModel):
     jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="runner")
 
 
-# Job Model
 class JobDBModel(BaseDBModel):
     __tablename__ = "jobs"
 
@@ -2323,8 +2186,10 @@ class JobDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Job")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     coverage: Mapped[float] = mapped_column(Float, nullable=True)
     archived: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    source: Mapped[str] = mapped_column(String, nullable=True)
     allow_failure: Mapped[bool] = mapped_column(Boolean, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     started_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -2333,6 +2198,7 @@ class JobDBModel(BaseDBModel):
     duration: Mapped[float] = mapped_column(Float, nullable=True)
     queued_duration: Mapped[float] = mapped_column(Float, nullable=True)
     artifacts_expire_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    tag_list = mapped_column(ARRAY(String), nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
     ref: Mapped[str] = mapped_column(String, nullable=True)
     stage: Mapped[str] = mapped_column(String, nullable=True)
@@ -2340,74 +2206,41 @@ class JobDBModel(BaseDBModel):
     failure_reason: Mapped[str] = mapped_column(String, nullable=True)
     tag: Mapped[bool] = mapped_column(Boolean, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
-
-    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="job")
-
-    commit_id: Mapped[str] = mapped_column(ForeignKey("commits.id"), nullable=True)
-    commit: Mapped["CommitDBModel"] = relationship(
-        "CommitDBModel", back_populates="jobs"
+    download_url: Mapped[str] = mapped_column(String, nullable=True)
+    # Relationships
+    commit_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("commits.id"), nullable=True
     )
-
-    runner_id = mapped_column(
-        Integer, ForeignKey("runners.id", name="fk_jobs_runners"), nullable=True
-    )
-    runner: Mapped["RunnerDBModel"] = relationship(
-        back_populates="jobs",
-        primaryjoin="RunnerDBModel.id == foreign(JobDBModel.runner_id)",
-    )
-
-    runner_manager_id: Mapped[int] = mapped_column(
-        ForeignKey(column="runner_managers.id"), nullable=True
-    )
-    runner_manager: Mapped["RunnerManagerDBModel"] = relationship(back_populates="jobs")
-
-    project_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("project_configs.primary_id"), nullable=True
-    )
-    project: Mapped["ProjectConfigDBModel"] = relationship(
-        "ProjectConfigDBModel",
-        back_populates="jobs",
-        primaryjoin="ProjectConfigDBModel.primary_id == foreign(JobDBModel.project_id)",
-    )
-
-    user_id: Mapped[int] = mapped_column(ForeignKey(column="users.id"), nullable=True)
-    user: Mapped["UserDBModel"] = relationship(
-        back_populates="jobs",
-        primaryjoin="UserDBModel.id == foreign(JobDBModel.user_id)",
-    )
-
-    pipeline_id: Mapped[int] = mapped_column(
-        ForeignKey(column="pipelines.id"), nullable=True
-    )
-    head_pipeline_id: Mapped[int] = mapped_column(
-        ForeignKey(column="pipelines.id"), nullable=True
-    )
-
-    downstream_pipeline_id: Mapped[int] = mapped_column(
-        ForeignKey(column="pipelines.id"), nullable=True
-    )
-    pipeline: Mapped["PipelineDBModel"] = relationship(
-        "PipelineDBModel",
-        primaryjoin="PipelineDBModel.id == foreign(JobDBModel.pipeline_id)",
-        back_populates="jobs",
-    )
-    head_pipeline: Mapped["PipelineDBModel"] = relationship(
-        "PipelineDBModel",
-        primaryjoin="PipelineDBModel.id == foreign(JobDBModel.head_pipeline_id)",
-        back_populates="jobs",
-    )
-    downstream_pipeline: Mapped["PipelineDBModel"] = relationship(
-        "PipelineDBModel",
-        primaryjoin="PipelineDBModel.id == foreign(JobDBModel.downstream_pipeline_id)",
-        back_populates="jobs",
-    )
-
+    commit: Mapped["CommitDBModel"] = relationship(back_populates="jobs")
     artifacts_file_id: Mapped[int] = mapped_column(
-        ForeignKey(column="artifacts_files.id"), nullable=True
+        Integer, ForeignKey("artifacts_files.id"), nullable=True
     )
     artifacts_file: Mapped["ArtifactsFileDBModel"] = relationship(back_populates="jobs")
-
-    artifacts: Mapped[List["ArtifactDBModel"]] = relationship(back_populates="job")
+    artifacts = relationship("ArtifactDBModel", back_populates="jobs")
+    pipeline_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("pipelines.id"), nullable=True
+    )
+    pipeline: Mapped["PipelineDBModel"] = relationship(back_populates="jobs")
+    runner_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("runners.id"), nullable=True
+    )
+    runner: Mapped["RunnerDBModel"] = relationship(back_populates="jobs")
+    runner_manager_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("runner_managers.id"), nullable=True
+    )
+    runner_manager: Mapped["RunnerManagerDBModel"] = relationship(back_populates="jobs")
+    project_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("projects.id"), nullable=True
+    )
+    project: Mapped["ProjectDBModel"] = relationship(back_populates="jobs")
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
+    user: Mapped["UserDBModel"] = relationship(back_populates="jobs")
+    downstream_pipeline_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("pipelines.id"), nullable=True
+    )
+    downstream_pipeline: Mapped["PipelineDBModel"] = relationship(
+        back_populates="upstream_jobs"
+    )
     agents = relationship("AgentsDBModel", back_populates="job")
 
 
@@ -2468,6 +2301,7 @@ class PipelineDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Pipeline")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     iid: Mapped[int] = mapped_column(Integer, nullable=True)
     ref: Mapped[str] = mapped_column(String, nullable=True)
     sha: Mapped[str] = mapped_column(String, nullable=True)
@@ -2540,6 +2374,7 @@ class PackageLinkDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="PackageLink")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     web_path: Mapped[str] = mapped_column(String, nullable=True)
     delete_api_path: Mapped[str] = mapped_column(String, nullable=True)
     packages: Mapped["PackageDBModel"] = relationship(
@@ -2555,6 +2390,7 @@ class PackageVersionDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="PackageVersion")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     version: Mapped[str] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
@@ -2583,6 +2419,7 @@ class PackageDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Package")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     version: Mapped[str] = mapped_column(String, nullable=True)
     package_type: Mapped[str] = mapped_column(String, nullable=True)
@@ -2626,6 +2463,7 @@ class ContributorDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Contributor")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     email: Mapped[str] = mapped_column(String, nullable=True)
     commits: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -2639,6 +2477,7 @@ class CommitStatsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="CommitStats")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     additions: Mapped[int] = mapped_column(Integer, nullable=True)
     deletions: Mapped[int] = mapped_column(Integer, nullable=True)
     total: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -2651,6 +2490,7 @@ class CommitSignatureDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="CommitSignature")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     signature_type: Mapped[str] = mapped_column(String, nullable=True)
     verification_status: Mapped[str] = mapped_column(String, nullable=True)
     commit_source: Mapped[str] = mapped_column(String, nullable=True)
@@ -2678,6 +2518,7 @@ class CommentDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Comment")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     type: Mapped[str] = mapped_column(String, nullable=True)
     body: Mapped[str] = mapped_column(String, nullable=True)
     note: Mapped[str] = mapped_column(String, nullable=True)
@@ -2710,11 +2551,29 @@ class CommentDBModel(BaseDBModel):
     )
 
 
+class LicenseDBModel(BaseDBModel):
+    __tablename__ = "licenses"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    base_type: Mapped[str] = mapped_column(String, default="License")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
+    nickname: Mapped[str] = mapped_column(String, nullable=True)
+    html_url: Mapped[str] = mapped_column(String, nullable=True)
+    source_url: Mapped[str] = mapped_column(String, nullable=True)
+
+    project: Mapped[List["ProjectDBModel"]] = relationship(
+        "ProjectDBModel",
+        back_populates="license",
+        primaryjoin="foreign(ProjectDBModel.license_id) == LicenseDBModel.id",
+    )
+
+
 class ParentIDDBModel(BaseDBModel):
     __tablename__ = "parent_ids"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="ParentID")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     parent_id: Mapped[str] = mapped_column(String, nullable=False)
     commit_id: Mapped[str] = mapped_column(ForeignKey("commits.id"), nullable=True)
     commit: Mapped["CommitDBModel"] = relationship(back_populates="parent_ids")
@@ -2734,6 +2593,7 @@ class CommitDBModel(BaseDBModel):
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Commit")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     short_id: Mapped[str] = mapped_column(String, nullable=True)
     started_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     finished_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -2805,6 +2665,7 @@ class MembershipDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Membership")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     source_id: Mapped[int] = mapped_column(Integer, nullable=True)
     source_full_name: Mapped[str] = mapped_column(String, nullable=True)
     source_members_url: Mapped[str] = mapped_column(String, nullable=True)
@@ -2827,6 +2688,7 @@ class IssueDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Issue")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     state: Mapped[str] = mapped_column(String, nullable=True)
     description: Mapped[str] = mapped_column(String, nullable=True)
     type: Mapped[str] = mapped_column(String, nullable=True)
@@ -2916,6 +2778,7 @@ class TimeStatsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="TimeStats")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     time_estimate: Mapped[int] = mapped_column(Integer, nullable=True)
     total_time_spent: Mapped[int] = mapped_column(Integer, nullable=True)
     human_time_estimate: Mapped[str] = mapped_column(String, nullable=True)
@@ -2931,6 +2794,7 @@ class TaskCompletionStatusDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="TaskCompletionStatus")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     count: Mapped[int] = mapped_column(Integer, nullable=True)
     completed_count: Mapped[int] = mapped_column(Integer, nullable=True)
     merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
@@ -2944,6 +2808,7 @@ class ReferencesDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="References")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     short: Mapped[str] = mapped_column(String, nullable=True)
     relative: Mapped[str] = mapped_column(String, nullable=True)
     full: Mapped[str] = mapped_column(String, nullable=True)
@@ -2958,6 +2823,7 @@ class ArtifactDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="Artifact")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     file_type: Mapped[str] = mapped_column(String, nullable=True)
     size: Mapped[int] = mapped_column(Integer, nullable=True)
     filename: Mapped[str] = mapped_column(String, nullable=True)
@@ -2984,6 +2850,7 @@ class ArtifactsFileDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="ArtifactsFile")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     filename: Mapped[str] = mapped_column(String, nullable=True)
     size: Mapped[int] = mapped_column(Integer, nullable=True)
     jobs: Mapped[List["JobDBModel"]] = relationship(back_populates="artifacts_file")
@@ -3003,6 +2870,7 @@ class RunnerManagerDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="RunnerManager")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     system_id: Mapped[str] = mapped_column(String, nullable=True)
     version: Mapped[str] = mapped_column(String, nullable=True)
     revision: Mapped[str] = mapped_column(String, nullable=True)
@@ -3029,6 +2897,7 @@ class ConfigurationDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Configuration")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     approvals_before_merge: Mapped[int] = mapped_column(Integer, nullable=True)
     reset_approvals_on_push: Mapped[bool] = mapped_column(Boolean, nullable=True)
     selective_code_owner_removals: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -3057,6 +2926,7 @@ class IterationDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Iteration")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     iid: Mapped[int] = mapped_column(Integer, nullable=True)
     sequence: Mapped[int] = mapped_column(Integer, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=True)
@@ -3095,6 +2965,7 @@ class IdentityDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Identity")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     provider: Mapped[str] = mapped_column(String, nullable=True)
     extern_uid: Mapped[str] = mapped_column(String, nullable=True)
 
@@ -3118,6 +2989,7 @@ class GroupSamlIdentityDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="GroupSamlIdentity")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     extern_uid: Mapped[str] = mapped_column(String, nullable=True)
     provider: Mapped[str] = mapped_column(String, nullable=True)
     saml_provider_id: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -3144,6 +3016,7 @@ class ContainerExpirationPolicyDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="ContainerExpirationPolicy")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     cadence: Mapped[str] = mapped_column(String, nullable=True)
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=True)
     keep_n: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -3177,6 +3050,7 @@ class PermissionsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Permissions")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     project_access: Mapped[dict] = mapped_column(JSON, nullable=True)
     group_access: Mapped[dict] = mapped_column(JSON, nullable=True)
 
@@ -3197,6 +3071,7 @@ class StatisticsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Statistics")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     commit_count: Mapped[int] = mapped_column(Integer, nullable=True)
     storage_size: Mapped[int] = mapped_column(Integer, nullable=True)
     repository_size: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -3228,6 +3103,7 @@ class DiffDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Diff")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     head_commit_sha: Mapped[str] = mapped_column(String, nullable=True)
     base_commit_sha: Mapped[str] = mapped_column(String, nullable=True)
     start_commit_sha: Mapped[str] = mapped_column(String, nullable=True)
@@ -3265,6 +3141,7 @@ class MergeApprovalsDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="MergeApprovals")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     approvals_before_merge: Mapped[int] = mapped_column(Integer, nullable=True)
     reset_approvals_on_push: Mapped[bool] = mapped_column(Boolean, nullable=True)
     selective_code_owner_removals: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -3311,6 +3188,7 @@ class DetailedStatusDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="DetailedStatus")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     icon: Mapped[str] = mapped_column(String, nullable=True)
     text: Mapped[str] = mapped_column(String, nullable=True)
     label: Mapped[str] = mapped_column(String, nullable=True)
@@ -3340,6 +3218,7 @@ class TestReportDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     base_type: Mapped[str] = mapped_column(String, default="TestReport")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     total_time: Mapped[int] = mapped_column(Integer, nullable=True)
     total_count: Mapped[int] = mapped_column(Integer, nullable=True)
     success_count: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -3380,6 +3259,7 @@ class ProjectConfigDBModel(BaseDBModel):
     primary_id = Column(Integer, primary_key=True, autoincrement=True)
     id: Mapped[int] = mapped_column(Integer, nullable=True, unique=True)
     base_type: Mapped[str] = mapped_column(String, default="ProjectConfig")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     description: Mapped[str] = mapped_column(String, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
     name_with_namespace: Mapped[str] = mapped_column(String, nullable=True)
@@ -3407,6 +3287,7 @@ class EpicDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="Epic")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     iid: Mapped[int] = mapped_column(Integer, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=True)
     url: Mapped[str] = mapped_column(String, nullable=True)
@@ -3435,6 +3316,7 @@ class TestCaseDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="TestCase")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     status: Mapped[str] = mapped_column(String, nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
     classname: Mapped[str] = mapped_column(String, nullable=True)
@@ -3466,6 +3348,7 @@ class TestSuiteDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="TestSuite")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     name: Mapped[str] = mapped_column(String, nullable=True)
     total_time: Mapped[float] = mapped_column(Float, nullable=True)
     total_count: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -3499,6 +3382,7 @@ class TestReportTotalDBModel(BaseDBModel):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     base_type: Mapped[str] = mapped_column(String, default="TestReportTotal")
+    extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     time: Mapped[int] = mapped_column(Integer, nullable=True)
     count: Mapped[int] = mapped_column(Integer, nullable=True)
     success: Mapped[int] = mapped_column(Integer, nullable=True)
