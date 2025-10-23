@@ -605,7 +605,7 @@ class ReleaseDBModel(BaseDBModel):
         back_populates="releases", foreign_keys=[author_id]
     )
 
-    commit_id: Mapped[int] = mapped_column(
+    commit_id: Mapped[str] = mapped_column(
         String,
         ForeignKey(column="commits.id", name="fk_release_commits"),
         nullable=True,
@@ -1440,11 +1440,13 @@ class MergeRequestDBModel(BaseDBModel):
         back_populates="closed_merge_requests",
     )
 
-    milestone_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    milestone_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(column="milestones.id", name="fk_merge_request_milestone"),
+        nullable=True,
+    )
     milestone: Mapped["MilestoneDBModel"] = relationship(
-        "MilestoneDBModel",
-        primaryjoin="foreign(MergeRequestDBModel.milestone_id) == MilestoneDBModel.id",
-        back_populates="merge_request",
+        back_populates="merge_request", foreign_keys=[milestone_id]
     )
 
 
