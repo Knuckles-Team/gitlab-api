@@ -2058,8 +2058,7 @@ class ProjectDBModel(BaseDBModel):
     http_url_to_repo: Mapped[str] = mapped_column(String, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
     readme_url: Mapped[str] = mapped_column(String, nullable=True)
-    tag_list = mapped_column(ARRAY(String), nullable=True)
-    topics = mapped_column(ARRAY(String), nullable=True)
+
     name: Mapped[str] = mapped_column(String, nullable=True)
     name_with_namespace: Mapped[str] = mapped_column(String, nullable=True)
     path: Mapped[str] = mapped_column(String, nullable=True)
@@ -2197,7 +2196,11 @@ class ProjectDBModel(BaseDBModel):
     )
     mr_default_target_self: Mapped[bool] = mapped_column(Boolean, nullable=True)
     package_registry_access_level: Mapped[str] = mapped_column(String, nullable=True)
-    shared_with_groups = mapped_column(ARRAY(JSON), nullable=True)
+    shared_with_groups = relationship(
+        "GroupDBModel",
+        secondary=project_shared_with_groups,
+        back_populates="shared_projects",
+    )
     # Relationships
     owner_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), nullable=True
@@ -2318,9 +2321,11 @@ class ProjectDBModel(BaseDBModel):
     compliance_frameworks: Mapped[List["ComplianceFrameworksDBModel"]] = relationship(
         back_populates="project"
     )
-    ci_id_token_sub_claim_components: Mapped[List["CIIDTokenComponentsDBModel"]] = relationship(
-        back_populates="project"
+    ci_id_token_sub_claim_components: Mapped[List["CIIDTokenComponentsDBModel"]] = (
+        relationship(back_populates="project")
     )
+    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="project")
+    topics: Mapped[List["TopicDBModel"]] = relationship(back_populates="project")
 
 
 # Runner Model
