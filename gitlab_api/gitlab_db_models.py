@@ -2165,7 +2165,6 @@ class ProjectDBModel(BaseDBModel):
     issue_branch_template: Mapped[str] = mapped_column(String, nullable=True)
     marked_for_deletion_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     marked_for_deletion_on: Mapped[str] = mapped_column(String, nullable=True)
-    compliance_frameworks = mapped_column(ARRAY(String), nullable=True)
     warn_about_potentially_unwanted_characters: Mapped[bool] = mapped_column(
         Boolean, nullable=True
     )
@@ -2315,6 +2314,9 @@ class ProjectDBModel(BaseDBModel):
     runners: Mapped[List["RunnerDBModel"]] = relationship(back_populates="projects")
     issues: Mapped["IssueDBModel"] = relationship(back_populates="project")
     deployables: Mapped[List["DeployableDBModel"]] = relationship(
+        back_populates="project"
+    )
+    compliance_frameworks: Mapped[List["ComplianceFrameworksDBModel"]] = relationship(
         back_populates="project"
     )
 
