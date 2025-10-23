@@ -1237,33 +1237,32 @@ class MergeRequestDBModel(BaseDBModel):
     base_type: Mapped[str] = mapped_column(String, default="MergeRequest")
     extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     iid: Mapped[int] = mapped_column(Integer, nullable=True)
-    project_id: Mapped[int] = mapped_column(Integer, nullable=True)
     title: Mapped[str] = mapped_column(String, nullable=True)
-    description: Mapped[str] = mapped_column(Text, nullable=True)
+    description: Mapped[str] = mapped_column(String, nullable=True)
     state: Mapped[str] = mapped_column(String, nullable=True)
-    imported: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    imported_from: Mapped[str] = mapped_column(String, nullable=True)
-    merged_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    merge_after: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    prepared_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    closed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    closed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    merged_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    merge_after: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    latest_build_started_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    latest_build_finished_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    first_deployed_to_production_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=True
+    )
+    prepared_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     target_branch: Mapped[str] = mapped_column(String, nullable=True)
     source_branch: Mapped[str] = mapped_column(String, nullable=True)
     upvotes: Mapped[int] = mapped_column(Integer, nullable=True)
     downvotes: Mapped[int] = mapped_column(Integer, nullable=True)
-    source_project_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    target_project_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    labels = mapped_column(ARRAY(String), nullable=True)
-    draft: Mapped[bool] = mapped_column(Boolean, nullable=True)
     work_in_progress: Mapped[bool] = mapped_column(Boolean, nullable=True)
     merge_when_pipeline_succeeds: Mapped[bool] = mapped_column(Boolean, nullable=True)
     merge_status: Mapped[str] = mapped_column(String, nullable=True)
-    detailed_merge_status: Mapped[str] = mapped_column(String, nullable=True)
     sha: Mapped[str] = mapped_column(String, nullable=True)
     merge_commit_sha: Mapped[str] = mapped_column(String, nullable=True)
+    draft: Mapped[bool] = mapped_column(Boolean, nullable=True)
     squash_commit_sha: Mapped[str] = mapped_column(String, nullable=True)
+    squash_on_merge: Mapped[bool] = mapped_column(Boolean, nullable=True)
     user_notes_count: Mapped[int] = mapped_column(Integer, nullable=True)
     discussion_locked: Mapped[bool] = mapped_column(Boolean, nullable=True)
     should_remove_source_branch: Mapped[bool] = mapped_column(Boolean, nullable=True)
@@ -1271,35 +1270,170 @@ class MergeRequestDBModel(BaseDBModel):
     allow_collaboration: Mapped[bool] = mapped_column(Boolean, nullable=True)
     allow_maintainer_to_push: Mapped[bool] = mapped_column(Boolean, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
+    reference: Mapped[str] = mapped_column(String, nullable=True)
     squash: Mapped[bool] = mapped_column(Boolean, nullable=True)
     has_conflicts: Mapped[bool] = mapped_column(Boolean, nullable=True)
     blocking_discussions_resolved: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    approvals_before_merge: Mapped[int] = mapped_column(Integer, nullable=True)
     changes_count: Mapped[str] = mapped_column(String, nullable=True)
+    rebase_in_progress: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    approvals_before_merge: Mapped[int] = mapped_column(Integer, nullable=True)
+    imported: Mapped[bool] = mapped_column(Boolean, nullable=True)
+    imported_from: Mapped[str] = mapped_column(String, nullable=True)
+    detailed_merge_status: Mapped[str] = mapped_column(String, nullable=True)
     subscribed: Mapped[bool] = mapped_column(Boolean, nullable=True)
     overflow: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    # Relationships
-    author_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=True
+    diverged_commits_count: Mapped[int] = mapped_column(Integer, nullable=True)
+    merge_error: Mapped[str] = mapped_column(String, nullable=True)
+    approvals_required: Mapped[int] = mapped_column(Integer, nullable=True)
+    approvals_left: Mapped[int] = mapped_column(Integer, nullable=True)
+    approval_rules_overwritten: Mapped[bool] = mapped_column(Boolean, nullable=True)
+
+    tag_list_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="tags.id"), nullable=True
     )
+    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="merge_requests")
+
+    labels: Mapped[List["LabelDBModel"]] = relationship(
+        "LabelDBModel",
+        secondary=merge_request_labels,  # Link to the association table
+        back_populates="merge_requests",
+    )
+
+    references_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="references.id"), nullable=True
+    )
+
+    references: Mapped["ReferencesDBModel"] = relationship(
+        "ReferencesDBModel", back_populates="merge_request_references"
+    )
+
+    time_stats_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="time_stats.id"), nullable=True
+    )
+    time_stats: Mapped["TimeStatsDBModel"] = relationship(
+        back_populates="merge_requests"
+    )
+
+    task_completion_status_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="task_completion_status.id"), nullable=True
+    )
+    task_completion_status: Mapped["TaskCompletionStatusDBModel"] = relationship(
+        back_populates="merge_requests"
+    )
+
+    change_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="diffs.id"), nullable=True
+    )
+    changes: Mapped["DiffDBModel"] = relationship(
+        "DiffDBModel", back_populates="merge_requests", foreign_keys=[change_id]
+    )
+
+    approval_rules_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="approval_rules.id"), nullable=True
+    )
+    approval_rules: Mapped["ApprovalRuleDBModel"] = relationship(
+        back_populates="merge_requests"
+    )
+
+    source_project_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    target_project_id: Mapped[int] = mapped_column(Integer, nullable=True)
+
+    source_project: Mapped["ProjectDBModel"] = relationship(
+        "ProjectDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.source_project_id) == ProjectDBModel.id",
+        back_populates="source_merge_requests",
+    )
+
+    target_project: Mapped["ProjectDBModel"] = relationship(
+        "ProjectDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.target_project_id) == ProjectDBModel.id",
+        back_populates="target_merge_requests",
+    )
+
+    pipeline_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    head_pipeline_id: Mapped[int] = mapped_column(Integer, nullable=True)
+
+    pipeline: Mapped["PipelineDBModel"] = relationship(
+        "PipelineDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.pipeline_id) == PipelineDBModel.id",
+        back_populates="merge_requests",
+    )
+    head_pipeline: Mapped["PipelineDBModel"] = relationship(
+        "PipelineDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.head_pipeline_id) == PipelineDBModel.id",
+        back_populates="merge_requests",
+    )
+
+    project_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    project: Mapped["ProjectDBModel"] = relationship(
+        "ProjectDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.project_id) == ProjectDBModel.id",
+        back_populates="merge_requests",
+    )
+
+    author_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    assignee_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    merged_by_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    merge_user_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    closed_by_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    reviewer_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    approved_by_id: Mapped[int] = mapped_column(Integer, nullable=True)
+
     author: Mapped["UserDBModel"] = relationship(
-        back_populates="authored_merge_requests"
+        "UserDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.author_id) == UserDBModel.id",
+        back_populates="authored_merge_requests",
     )
-    assignee_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=True
-    )
+
     assignee: Mapped["UserDBModel"] = relationship(
-        back_populates="assigned_merge_requests"
-    )
-    assignees = relationship(
         "UserDBModel",
-        secondary="merge_request_assignees",
-        back_populates="assigned_merge_requests_list",
+        primaryjoin="foreign(MergeRequestDBModel.assignee_id) == UserDBModel.id",
+        back_populates="assigned_merge_requests",
     )
-    reviewers = relationship(
+
+    assignees: Mapped[List["UserDBModel"]] = relationship(
         "UserDBModel",
-        secondary="merge_request_reviewers",
+        secondary=merge_request_assignees,  # Use the association table
+        back_populates="assignee_merge_requests",
+    )
+
+    reviewers: Mapped[List["UserDBModel"]] = relationship(
+        "UserDBModel",
+        secondary=merge_request_reviewers,  # Use the association table
+        back_populates="reviewers_merge_requests",
+    )
+
+    merged_by: Mapped["UserDBModel"] = relationship(
+        "UserDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.merged_by_id) == UserDBModel.id",
+        back_populates="merged_merge_requests",
+    )
+
+    merge_user: Mapped["UserDBModel"] = relationship(
+        "UserDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.merge_user_id) == UserDBModel.id",
+        back_populates="merge_user_merge_requests",
+    )
+
+    reviewer: Mapped["UserDBModel"] = relationship(
+        "UserDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.reviewer_id) == UserDBModel.id",
         back_populates="reviewed_merge_requests",
+    )
+
+    approved_by: Mapped["UserDBModel"] = relationship(
+        "UserDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.approved_by_id) == UserDBModel.id",
+        back_populates="approved_merge_requests",
+    )
+
+    closed_by: Mapped["UserDBModel"] = relationship(
+        "UserDBModel",
+        primaryjoin="foreign(MergeRequestDBModel.closed_by_id) == UserDBModel.id",
+        back_populates="closed_merge_requests",
+    )
+    change_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey(column="diffs.id"), nullable=True
     )
     milestone_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("milestones.id"), nullable=True
@@ -1307,44 +1441,6 @@ class MergeRequestDBModel(BaseDBModel):
     milestone: Mapped["MilestoneDBModel"] = relationship(
         back_populates="merge_requests"
     )
-    merged_by_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=True
-    )
-    merged_by: Mapped["UserDBModel"] = relationship(
-        back_populates="merged_merge_requests"
-    )
-    merge_user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=True
-    )
-    merge_user: Mapped["UserDBModel"] = relationship(
-        back_populates="merge_user_merge_requests"
-    )
-    closed_by_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id"), nullable=True
-    )
-    closed_by: Mapped["UserDBModel"] = relationship(
-        back_populates="closed_merge_requests"
-    )
-    references_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("references.id"), nullable=True
-    )
-    references: Mapped["ReferencesDBModel"] = relationship(
-        back_populates="merge_requests"
-    )
-    time_stats_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("time_stats.id"), nullable=True
-    )
-    time_stats: Mapped["TimeStatsDBModel"] = relationship(
-        back_populates="merge_requests"
-    )
-    task_completion_status_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("task_completion_statuses.id"), nullable=True
-    )
-    task_completion_status: Mapped["TaskCompletionStatusDBModel"] = relationship(
-        back_populates="merge_requests"
-    )
-    changes = relationship("DiffDBModel", back_populates="merge_requests")
-    project: Mapped["ProjectDBModel"] = relationship(back_populates="merge_requests")
 
 
 class RootStorageStatisticsDBModel(BaseDBModel):
@@ -2287,7 +2383,6 @@ class JobDBModel(BaseDBModel):
     extras: Mapped[JSON] = mapped_column(JSON, nullable=True, default={})
     coverage: Mapped[float] = mapped_column(Float, nullable=True)
     archived: Mapped[bool] = mapped_column(Boolean, nullable=True)
-    source: Mapped[str] = mapped_column(String, nullable=True)
     allow_failure: Mapped[bool] = mapped_column(Boolean, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     started_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -2296,7 +2391,6 @@ class JobDBModel(BaseDBModel):
     duration: Mapped[float] = mapped_column(Float, nullable=True)
     queued_duration: Mapped[float] = mapped_column(Float, nullable=True)
     artifacts_expire_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
-    tag_list = mapped_column(ARRAY(String), nullable=True)
     name: Mapped[str] = mapped_column(String, nullable=True)
     ref: Mapped[str] = mapped_column(String, nullable=True)
     stage: Mapped[str] = mapped_column(String, nullable=True)
@@ -2304,42 +2398,78 @@ class JobDBModel(BaseDBModel):
     failure_reason: Mapped[str] = mapped_column(String, nullable=True)
     tag: Mapped[bool] = mapped_column(Boolean, nullable=True)
     web_url: Mapped[str] = mapped_column(String, nullable=True)
-    download_url: Mapped[str] = mapped_column(String, nullable=True)
-    # Relationships
-    commit_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("commits.id"), nullable=True
+
+    tag_list: Mapped[List["TagDBModel"]] = relationship(back_populates="job")
+
+    commit_id: Mapped[str] = mapped_column(ForeignKey("commits.id"), nullable=True)
+    commit: Mapped["CommitDBModel"] = relationship(
+        "CommitDBModel", back_populates="jobs"
     )
-    commit: Mapped["CommitDBModel"] = relationship(back_populates="jobs")
-    artifacts_file_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("artifacts_files.id"), nullable=True
+
+    runner_id = mapped_column(
+        Integer, ForeignKey("runners.id", name="fk_jobs_runners"), nullable=True
     )
-    artifacts_file: Mapped["ArtifactsFileDBModel"] = relationship(back_populates="jobs")
-    artifacts = relationship("ArtifactDBModel", back_populates="jobs")
-    pipeline_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("pipelines.id"), nullable=True
+    runner: Mapped["RunnerDBModel"] = relationship(
+        back_populates="jobs",
+        primaryjoin="RunnerDBModel.id == foreign(JobDBModel.runner_id)",
     )
-    pipeline: Mapped["PipelineDBModel"] = relationship(back_populates="jobs")
-    runner_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("runners.id"), nullable=True
-    )
-    runner: Mapped["RunnerDBModel"] = relationship(back_populates="jobs")
+
     runner_manager_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("runner_managers.id"), nullable=True
+        ForeignKey(column="runner_managers.id"), nullable=True
     )
     runner_manager: Mapped["RunnerManagerDBModel"] = relationship(back_populates="jobs")
+
     project_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("projects.id"), nullable=True
+        Integer, ForeignKey("project_configs.primary_id"), nullable=True
     )
-    project: Mapped["ProjectDBModel"] = relationship(back_populates="jobs")
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=True)
-    user: Mapped["UserDBModel"] = relationship(back_populates="jobs")
+    project: Mapped["ProjectConfigDBModel"] = relationship(
+        "ProjectConfigDBModel",
+        back_populates="jobs",
+        primaryjoin="ProjectConfigDBModel.primary_id == foreign(JobDBModel.project_id)",
+    )
+
+    user_id: Mapped[int] = mapped_column(ForeignKey(column="users.id"), nullable=True)
+    user: Mapped["UserDBModel"] = relationship(
+        back_populates="jobs",
+        primaryjoin="UserDBModel.id == foreign(JobDBModel.user_id)",
+    )
+
+    pipeline_id: Mapped[int] = mapped_column(
+        ForeignKey(column="pipelines.id"), nullable=True
+    )
+    head_pipeline_id: Mapped[int] = mapped_column(
+        ForeignKey(column="pipelines.id"), nullable=True
+    )
+
     downstream_pipeline_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("pipelines.id"), nullable=True
+        ForeignKey(column="pipelines.id"), nullable=True
+    )
+    pipeline: Mapped["PipelineDBModel"] = relationship(
+        "PipelineDBModel",
+        primaryjoin="PipelineDBModel.id == foreign(JobDBModel.pipeline_id)",
+        back_populates="jobs",
+    )
+    head_pipeline: Mapped["PipelineDBModel"] = relationship(
+        "PipelineDBModel",
+        primaryjoin="PipelineDBModel.id == foreign(JobDBModel.head_pipeline_id)",
+        back_populates="jobs",
     )
     downstream_pipeline: Mapped["PipelineDBModel"] = relationship(
-        back_populates="upstream_jobs"
+        "PipelineDBModel",
+        primaryjoin="PipelineDBModel.id == foreign(JobDBModel.downstream_pipeline_id)",
+        back_populates="jobs",
     )
+
+    artifacts_file_id: Mapped[int] = mapped_column(
+        ForeignKey(column="artifacts_files.id"), nullable=True
+    )
+    artifacts_file: Mapped["ArtifactsFileDBModel"] = relationship(back_populates="jobs")
+
+    artifacts: Mapped[List["ArtifactDBModel"]] = relationship(back_populates="job")
     agents = relationship("AgentsDBModel", back_populates="job")
+    source: Mapped[str] = mapped_column(String, nullable=True)
+
+    download_url: Mapped[str] = mapped_column(String, nullable=True)
 
 
 class PipelineScheduleDBModel(BaseDBModel):
