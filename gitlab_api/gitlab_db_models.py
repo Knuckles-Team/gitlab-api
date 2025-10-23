@@ -68,7 +68,6 @@ class IssueStatsDBModel(BaseDBModel):
     )
 
 
-# Milestone Model
 class MilestoneDBModel(BaseDBModel):
     __tablename__ = "milestones"
 
@@ -101,15 +100,6 @@ class MilestoneDBModel(BaseDBModel):
     )
     project: Mapped["ProjectDBModel"] = relationship(back_populates="milestones")
 
-    merge_request_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey(column="merge_requests.id", name="fk_milestone_merge_request_id"),
-        nullable=True,
-    )
-    merge_request: Mapped["MergeRequestDBModel"] = relationship(
-        back_populates="milestone"
-    )
-
     issue_stats_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(column="issue_stats.id", name="fk_milestone_issue_stats"),
@@ -124,6 +114,10 @@ class MilestoneDBModel(BaseDBModel):
     )
     releases: Mapped["ReleaseDBModel"] = relationship(back_populates="milestones")
     issues: Mapped[List["IssueDBModel"]] = relationship(back_populates="milestone")
+
+    merge_requests: Mapped[List["MergeRequestDBModel"]] = relationship(
+        back_populates="milestone"
+    )
 
 
 # DeployToken Model
@@ -1446,7 +1440,7 @@ class MergeRequestDBModel(BaseDBModel):
         nullable=True,
     )
     milestone: Mapped["MilestoneDBModel"] = relationship(
-        back_populates="merge_request", foreign_keys=[milestone_id]
+        back_populates="merge_requests", foreign_keys=[milestone_id]
     )
 
 
