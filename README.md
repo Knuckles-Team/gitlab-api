@@ -20,20 +20,17 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.11.21*
+*Version: 25.12.0*
 
-Pythonic GitLab API Library
+Pythonic GitLab API Library and MCP Server for Agentic AI! Get started with Pip or Docker
 
-GitLab MCP Server for Agentic AI! Get started with Pip or Docker
-
-Includes a large portion of useful API calls to GitLab and SQLAlchemy Models to handle loading API calls directly to a database!
+Includes a large portion of useful API calls to GitLab.
 
 This repository is actively maintained - Contributions are welcome!
 
 Additional Features:
 - All responses are returned as native Pydantic models
 - Save Pydantic models to pickle files locally
-- Easily convert Pydantic to SQLAlchemy models for quick database insertion
 
 ### API Calls:
 - [Branches](https://docs.gitlab.com/api/branches)
