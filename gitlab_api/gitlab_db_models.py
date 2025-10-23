@@ -1853,6 +1853,7 @@ class UserDBModel(BaseDBModel):
         "NamespaceDBModel",
         back_populates="user",
         foreign_keys=[namespace_id],
+        primaryjoin="UserDBModel.namespace_id == NamespaceDBModel.id"
     )
 
     deploy_tokens: Mapped[List["DeployTokenDBModel"]] = relationship(
