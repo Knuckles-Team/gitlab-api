@@ -1841,7 +1841,6 @@ class UserDBModel(BaseDBModel):
     group_saml_identity: Mapped[List["GroupSamlIdentityDBModel"]] = relationship(
         "GroupSamlIdentityDBModel", back_populates="user"
     )
-
     namespace_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(
@@ -1854,7 +1853,6 @@ class UserDBModel(BaseDBModel):
         "NamespaceDBModel",
         back_populates="user",
         foreign_keys=[namespace_id],
-        remote_side="[NamespaceDBModel.id]",  # Specify the remote side of the relationship
     )
 
     deploy_tokens: Mapped[List["DeployTokenDBModel"]] = relationship(
@@ -2034,6 +2032,8 @@ class NamespaceDBModel(BaseDBModel):
 
     user: Mapped["UserDBModel"] = relationship(
         back_populates="namespace",
+        uselist=False,
+        primaryjoin="NamespaceDBModel.id == UserDBModel.namespace_id",
     )
 
 
