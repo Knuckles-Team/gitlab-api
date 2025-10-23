@@ -103,7 +103,7 @@ class MilestoneDBModel(BaseDBModel):
 
     merge_request_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey(column="merge_requests.id", name="fk_milestone_project_id"),
+        ForeignKey(column="merge_requests.id", name="fk_milestone_merge_request_id"),
         nullable=True,
     )
     merge_request: Mapped["MergeRequestDBModel"] = relationship(
