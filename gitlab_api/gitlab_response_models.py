@@ -2064,34 +2064,56 @@ class Project(BaseModel):
         if isinstance(v, list) and not v:
             return None
         if isinstance(v, list):
-            return v  # Simplified since tag_list is List[str]
+            tags = []
+            for item in v:
+                tags.append(Tag(tag=item))
+            return tags
         return v
 
     @field_validator("topics", mode="before")
     def validate_topics(cls, v):
         if isinstance(v, list) and not v:
             return None
-        return v  # Simplified since topics is List[str]
+        if isinstance(v, list):
+            topics = []
+            for item in v:
+                topics.append(Topic(name=item))
+            return topics
+        return v
 
     @field_validator("ci_id_token_sub_claim_components", mode="before")
     def validate_ci_id_token_sub_claim_components(cls, v):
         if isinstance(v, list) and not v:
             return None
-        return v  # Simplified since ci_id_token_sub_claim_components is List[str]
+        if isinstance(v, list):
+            ci_id_token_sub_claim_components = []
+            for item in v:
+                ci_id_token_sub_claim_components.append(CIIDTokenComponents(name=item))
+            return ci_id_token_sub_claim_components
+        return v
 
     @field_validator("compliance_frameworks", mode="before")
     def validate_compliance_frameworks(cls, v):
         if isinstance(v, list) and not v:
             return None
-        return v  # Simplified since compliance_frameworks is List[str]
+        if isinstance(v, list):
+            compliance_frameworks = []
+            for item in v:
+                compliance_frameworks.append(ComplianceFrameworks(name=item))
+            return compliance_frameworks
+        return v
 
     @field_validator("groups", "shared_with_groups", mode="before")
     def validate_groups(cls, v):
         if isinstance(v, list) and not v:
             return None
         if isinstance(v, list):
-            return [Group(**item) for item in v]
+            groups = []
+            for item in v:
+                groups.append(Group(**item))
+            return groups
         return v
+
 
 
 class Runner(BaseModel):
