@@ -21,7 +21,6 @@ dependencies = [
     "requests>=2.8.1",
     "urllib3>=2.2.2",
     "pydantic[email]>=2.8.2",
-    "tenacity>=9.0.0",
     "fastmcp>=2.12.4",
     "gql>=4.0.0",
 ]
