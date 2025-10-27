@@ -5880,6 +5880,67 @@ async def unprotect_tag(
     return response.data
 
 
+# Prompts
+@mcp.prompt
+def create_branch_prompt(
+    new_branch: str,
+    source_branch: str,
+    project_id: Union[str, int],
+) -> str:
+    """
+    Generates a prompt for creating a branch
+    """
+    return f"Create a branch called '{new_branch}' from the '{source_branch}' for project id {project_id}"
+
+
+@mcp.prompt
+def create_merge_request_prompt(
+    new_branch: str,
+    source_branch: str,
+    project_id: Union[str, int],
+    title: str,
+    description: str,
+) -> str:
+    """
+    Generates a prompt for creating a merge request
+    """
+    return (
+        f"Create a new merge request for project id {project_id} from the '{new_branch}' to the '{source_branch}' "
+        f"with a title: '{title}' and a description: '{description}'"
+    )
+
+
+@mcp.prompt
+def get_project_statistics_prompt(
+    project_id: Union[str, int],
+) -> str:
+    """
+    Generates a prompt for getting project statistics
+    """
+    return f"What are the details for project id: {project_id}"
+
+
+@mcp.prompt
+def trigger_pipeline_prompt(
+    branch: str,
+    project_id: Union[str, int],
+) -> str:
+    """
+    Generates a prompt for triggering a pipeline
+    """
+    return f"Run the pipeline for project: '{project_id}' on the '{branch}' branch"
+
+
+@mcp.prompt
+def get_latest_release_prompt(
+    project_id: Union[str, int],
+) -> str:
+    """
+    Generates a prompt for getting the latest gitlab release.
+    """
+    return f"What is the latest release for project id: {project_id}"
+
+
 def gitlab_mcp() -> None:
     """Run the GitLab MCP server with specified transport and connection parameters.
 
