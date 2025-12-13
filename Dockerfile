@@ -52,7 +52,7 @@ WORKDIR /app
 COPY . /app
 
 RUN pip install uv \
-    && uv pip install --system --upgrade gitlab-api[all]>=25.13.7
+    && uv pip install --system --upgrade gitlab-api[all]>=25.13.8
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
