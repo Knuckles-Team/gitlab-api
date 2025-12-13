@@ -6573,14 +6573,14 @@ def gitlab_mcp() -> None:
             logger.error("Failed to load Eunomia middleware", extra={"error": str(e)})
             sys.exit(1)
 
-    mcp = FastMCP("ServiceNow", auth=auth)
+    mcp = FastMCP("GitLab", auth=auth)
     register_tools(mcp)
     register_prompts(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
 
-    print("\nStarting ServiceNow MCP Server")
+    print("\nStarting GitLab MCP Server")
     print(f"  Transport: {args.transport.upper()}")
     print(f"  Auth: {args.auth_type}")
     print(f"  Delegation: {'ON' if config['enable_delegation'] else 'OFF'}")
