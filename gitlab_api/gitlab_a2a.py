@@ -157,7 +157,7 @@ def create_orchestrator(
             )
             try:
                 result = await _agent.run(task_description)
-                return result.data
+                return result.output
             except Exception as e:
                 return f"Error executing task with {_tag} specialist: {str(e)}"
 
@@ -197,13 +197,13 @@ agent = create_orchestrator()
 
 # Define Skills for Agent Card (High-level capabilities)
 skills = []
-for tag in TAGS:
+for mcp_tag in TAGS:
     skills.append(
         Skill(
-            id=f"gitlab_{tag}",
-            name=f"GitLab {tag.replace('_', ' ').title()}",
-            description=f"Manage and query GitLab {tag.replace('_', ' ')}.",
-            tags=[tag, "gitlab"],
+            id=f"gitlab_{mcp_tag}",
+            name=f"GitLab {mcp_tag.replace('_', ' ').title()}",
+            description=f"Manage and query GitLab {mcp_tag.replace('_', ' ')}.",
+            tags=[mcp_tag, "gitlab"],
             input_modes=["text"],
             output_modes=["text"],
         )
@@ -250,7 +250,7 @@ def agent_server():
 
     # Create A2A App
     cli_app = cli_agent.to_a2a(
-        name=AGENT_NAME, description=AGENT_DESCRIPTION, version="1.3.30", skills=skills
+        name=AGENT_NAME, description=AGENT_DESCRIPTION, version="25.13.6", skills=skills
     )
 
     uvicorn.run(
