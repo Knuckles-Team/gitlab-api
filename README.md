@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.13.4*
+*Version: 25.13.5*
 
 Pythonic GitLab API Library and MCP Server for Agentic AI! Get started with Pip or Docker
 
@@ -153,6 +153,45 @@ Available CLI options:
 - `--eunomia-type`: Eunomia authorization type (`none`, `embedded`, `remote`) [default: `none`]
 - `--eunomia-policy-file`: Policy file for embedded Eunomia [default: `mcp_policies.json`]
 - `--eunomia-remote-url`: URL for remote Eunomia server
+
+### Agent-to-Agent (A2A) Server
+
+The A2A Server exposes a multi-agent system where a parent orchestrator delegates tasks to specialized child agents based on GitLab tags.
+
+#### Run the A2A Server:
+```bash
+gitlab-a2a --provider openai --model-id qwen3:4b
+```
+
+#### A2A CLI Configuration
+
+| Flag          | Description                                             | Default             |
+|---------------|---------------------------------------------------------|---------------------|
+| --host        | Host to bind the server to                              | 0.0.0.0             |
+| --port        | Port to bind the server to                              | 9000                |
+| --reload      | Enable auto-reload                                      | False               |
+| --provider    | LLM Provider (openai, anthropic, google, huggingface)   | openai              |
+| --model-id    | LLM Model ID                                            | qwen3:4b            |
+| --base-url    | LLM Base URL (for OpenAI compatible providers)          | http://ollama.arpa/v1|
+| --api-key     | LLM API Key                                             | ollama              |
+| --mcp-url     | MCP Server URL to connect to                            | http://localhost:8000/mcp |
+
+#### Run using Docker
+You can run either the MCP server or the A2A server using the same Docker image.
+
+**Run MCP Server:**
+```bash
+docker run -d -p 8000:8000 --name gitlab-mcp gitlab-api:latest gitlab-mcp --transport http
+```
+
+**Run A2A Server:**
+```bash
+docker run -d -p 9000:9000 --name gitlab-a2a gitlab-api:latest gitlab-a2a \
+  --provider openai \
+  --model-id qwen3:4b \
+  --mcp-url http://host.docker.internal:8000/mcp
+```
+
 
 #### AI Prompt Examples
 **Prompt**: Get me the details of my GitLab project with ID 420.
