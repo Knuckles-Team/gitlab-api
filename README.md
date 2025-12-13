@@ -1,4 +1,4 @@
-# GitLab API
+# GitLab API - A2A & MCP Server
 
 ![PyPI - Version](https://img.shields.io/pypi/v/gitlab-api)
 ![PyPI - Downloads](https://img.shields.io/pypi/dd/gitlab-api)
@@ -22,9 +22,9 @@
 
 *Version: 25.13.5*
 
-Pythonic GitLab API Library and MCP Server for Agentic AI! Get started with Pip or Docker
+GitLab API + MCP Server + A2A
 
-Includes a large portion of useful API calls to GitLab.
+Includes a large portion of useful API calls to GitLab as well as a Model Context Protocol (MCP) server and an out of the box Agent2Agent (A2A) agent
 
 This repository is actively maintained - Contributions are welcome!
 
@@ -165,15 +165,15 @@ gitlab-a2a --provider openai --model-id qwen3:4b
 
 #### A2A CLI Configuration
 
-| Flag          | Description                                             | Default             |
-|---------------|---------------------------------------------------------|---------------------|
-| --host        | Host to bind the server to                              | 0.0.0.0             |
-| --port        | Port to bind the server to                              | 9000                |
-| --reload      | Enable auto-reload                                      | False               |
-| --provider    | LLM Provider (openai, anthropic, google, huggingface)   | openai              |
-| --model-id    | LLM Model ID                                            | qwen3:4b            |
-| --base-url    | LLM Base URL (for OpenAI compatible providers)          | http://ollama.arpa/v1|
-| --api-key     | LLM API Key                                             | ollama              |
+| Flag          | Description                                             | Default                   |
+|---------------|---------------------------------------------------------|---------------------------|
+| --host        | Host to bind the server to                              | 0.0.0.0                   |
+| --port        | Port to bind the server to                              | 9000                      |
+| --reload      | Enable auto-reload                                      | False                     |
+| --provider    | LLM Provider (openai, anthropic, google, huggingface)   | openai                    |
+| --model-id    | LLM Model ID                                            | qwen3:4b                  |
+| --base-url    | LLM Base URL (for OpenAI compatible providers)          | http://ollama.arpa/v1     |
+| --api-key     | LLM API Key                                             | ollama                    |
 | --mcp-url     | MCP Server URL to connect to                            | http://localhost:8000/mcp |
 
 #### Run using Docker
@@ -275,8 +275,6 @@ The merge request is currently in the "preparing" state and is ready for review.
 #!/usr/bin/python
 
 import gitlab_api
-from gitlab_api import pydantic_to_sqlalchemy, upsert, save_model, load_model
-from gitlab_api.gitlab_db_models import BaseDBModel as Base
 import urllib3
 import os
 from urllib.parse import quote_plus
@@ -352,93 +350,6 @@ if __name__ == "__main__":
                 f"Fetched for Project ({project.id}) - "
                 f"Status: {pipeline_job_response.status_code}\n"
             )
-
-    print("Saving Pydantic Models...")
-    user_file = save_model(model=user_response, file_name="user_model", file_path=".")
-    namespace_file = save_model(
-        model=namespace_response, file_name="namespace_model", file_path="."
-    )
-    project_file = save_model(
-        model=project_response, file_name="project_model", file_path="."
-    )
-    merge_request_file = save_model(
-        model=merge_request_response, file_name="merge_request_model", file_path="."
-    )
-    pipeline_job_file = save_model(
-        model=pipeline_job_response, file_name="pipeline_job_model", file_path="."
-    )
-    print("Models Saved")
-
-    print("Loading Pydantic Models...")
-    user_response = load_model(file=user_file)
-    namespace_response = load_model(file=namespace_file)
-    project_response = load_model(file=project_file)
-    merge_request_response = load_model(file=merge_request_file)
-    pipeline_job_response = load_model(file=pipeline_job_file)
-    print("Models Loaded")
-
-    print("Converting Pydantic to SQLAlchemy model...")
-    user_db_model = pydantic_to_sqlalchemy(schema=user_response)
-    print(f"Database Models: {user_db_model}\n")
-
-    print("Converting Pydantic to SQLAlchemy model...")
-    namespace_db_model = pydantic_to_sqlalchemy(schema=namespace_response)
-    print(f"Database Models: {namespace_db_model}\n")
-
-    print("Converting Pydantic to SQLAlchemy model...")
-    project_db_model = pydantic_to_sqlalchemy(schema=project_response)
-    print(f"Database Models: {project_db_model}\n")
-
-    print("Converting Pydantic to SQLAlchemy model...")
-    merge_request_db_model = pydantic_to_sqlalchemy(schema=merge_request_response)
-    print(f"Database Models: {merge_request_db_model}\n")
-
-    print("Converting Pydantic to SQLAlchemy model...")
-    pipeline_db_model = pydantic_to_sqlalchemy(schema=pipeline_job_response)
-    print(f"Database Models: {pipeline_db_model}\n")
-
-    print("Creating Engine")
-    engine = create_engine(
-        f"postgresql://{postgres_username}:{quote_plus(postgres_password)}@"
-        f"{postgres_db_host}:{postgres_port}/{postgres_db_name}"
-    )
-    print("Engine Created\n\n")
-
-    print("Creating Tables...")
-    Base.metadata.create_all(engine)
-    print("Tables Created\n\n")
-
-    print("Creating Session...")
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    print("Session Created\n\n")
-
-    print(f"Inserting ({len(user_response.data)}) Users Into Database...")
-    upsert(session=session, model=user_db_model)
-    print("Users Synchronization Complete!\n")
-
-    print(f"Inserting ({len(namespace_response.data)}) Namespaces Into Database...")
-    upsert(session=session, model=namespace_db_model)
-    print("Namespaces Synchronization Complete!\n")
-
-    print(f"Inserting ({len(project_response.data)}) Projects Into Database...\n")
-    upsert(session=session, model=project_db_model)
-    print("Projects Synchronization Complete!\n")
-
-    print(
-        f"Inserting ({len(merge_request_response.data)}) Merge Requests Into Database..."
-    )
-    upsert(session=session, model=merge_request_db_model)
-    print("Merge Request Synchronization Complete!\n")
-
-    print(
-        f"Inserting ({len(pipeline_job_response.data)}) Pipeline Jobs Into Database..."
-    )
-    upsert(session=session, model=pipeline_db_model)
-    print("Pipeline Jobs Synchronization Complete!\n")
-
-    session.close()
-    print("Session Closed")
 ```
 
 ### Experimental GraphQL Support
