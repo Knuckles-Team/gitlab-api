@@ -17,27 +17,30 @@ DEFAULT_OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "http://ollama.arpa/v1")
 DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
 DEFAULT_MCP_URL = "http://localhost:8000/mcp"
 
-# Detected tags from servicenow_mcp.py
+# Detected tags from gitlab_mcp.py
 TAGS = [
-    "application",
-    "cmdb",
-    "cicd",
-    "plugins",
-    "source_control",
-    "testing",
-    "update_sets",
-    "change_management",
-    "import_sets",
-    "incidents",
-    "knowledge_management",
-    "table_api",
-    "auth",
-    "custom_api",
+    "branches",
+    "commits",
+    "deploy_tokens",
+    "environments",
+    "groups",
+    "jobs",
+    "members",
+    "merge_requests",
+    "merge_rules",
+    "packages",
+    "pipeline_schedules",
+    "pipelines",
+    "projects",
+    "protected_branches",
+    "releases",
+    "runners",
+    "tags",
 ]
 
-AGENT_NAME = "ServiceNowOrchestrator"
+AGENT_NAME = "GitLabOrchestrator"
 AGENT_DESCRIPTION = (
-    "A multi-agent system for managing ServiceNow tasks via delegated specialists."
+    "A multi-agent system for managing GitLab tasks via delegated specialists."
 )
 
 
@@ -102,7 +105,7 @@ def create_child_agent(
     )
 
     system_prompt = (
-        f"You are a specialized ServiceNow agent focused on '{tag}' tasks. "
+        f"You are a specialized GitLab agent focused on '{tag}' tasks. "
         f"You have access to tools tagged with '{tag}'. "
         "Use them to fulfill the user's request efficiently. "
         "If a task is outside your scope, kindly indicate that."
@@ -111,7 +114,7 @@ def create_child_agent(
     return Agent(
         model,
         system_prompt=system_prompt,
-        name=f"ServiceNow_{tag}_Specialist",
+        name=f"GitLab_{tag}_Specialist",
         toolsets=[filtered_toolset],
     )
 
@@ -170,13 +173,13 @@ def create_orchestrator(
 
     # 4. Create Parent Agent
     system_prompt = (
-        "You are the ServiceNow Orchestrator Agent. "
+        "You are the GitLab Orchestrator Agent. "
         "Your goal is to assist the user by delegating tasks to specialized child agents. "
         "Analyze the user's request and determine which domain(s) it falls into "
-        "(e.g., incidents, change_management, cmdb). "
+        "(e.g., merge_requests, pipelines, projects). "
         "Then, call the appropriate delegation tool(s) with a specific task description. "
         "Synthesize the results from the child agents into a final helpful response. "
-        "Do not attempt to perform ServiceNow actions directly; always delegate."
+        "Do not attempt to perform GitLab actions directly; always delegate."
     )
 
     orchestrator = Agent(
@@ -197,10 +200,10 @@ skills = []
 for tag in TAGS:
     skills.append(
         Skill(
-            id=f"servicenow_{tag}",
-            name=f"ServiceNow {tag.replace('_', ' ').title()}",
-            description=f"Manage and query ServiceNow {tag.replace('_', ' ')}.",
-            tags=[tag, "servicenow"],
+            id=f"gitlab_{tag}",
+            name=f"GitLab {tag.replace('_', ' ').title()}",
+            description=f"Manage and query GitLab {tag.replace('_', ' ')}.",
+            tags=[tag, "gitlab"],
             input_modes=["text"],
             output_modes=["text"],
         )

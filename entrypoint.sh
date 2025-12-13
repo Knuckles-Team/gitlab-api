@@ -4,31 +4,37 @@ set -e
 # Default command logic:
 # 1. Use CMD environment variable if set (allows via docker run -e CMD=...)
 # 2. Else use first argument (allows via docker run image command ...)
-# 3. Default to servicenow-mcp (set in Dockerfile CMD, so $1 is usually this if no args)
+# 3. Default to gitlab-mcp (set in Dockerfile CMD, so $1 is usually this if no args)
 
-# If default CMD (servicenow-mcp) is passed and we have an env override, ignore the argument
-if [ -n "$CMD" ] && [ "$1" = "servicenow-mcp" ]; then
+# If default CMD (gitlab-mcp) is passed and we have an env override, ignore the argument
+if [ -n "$CMD" ] && [ "$1" = "gitlab-mcp" ]; then
     shift
 fi
 
 COMMAND="${CMD:-$1}"
 
-# If COMMAND starts with -, assume it's flags for the default tool (servicenow-mcp)
+# If COMMAND starts with -, assume it's flags for the default tool (gitlab-mcp)
 if [ "${COMMAND#-}" != "$COMMAND" ]; then
-    COMMAND="servicenow-mcp"
+    COMMAND="gitlab-mcp"
     # Don't shift, keep the flag in $@ (Wait, if COMMAND was $1, we need to not shift it out? Or explicitly set it?)
-    # If COMMAND was detected from $1 (which was --help), and we set COMMAND=servicenow-mcp.
+    # If COMMAND was detected from $1 (which was --help), and we set COMMAND=gitlab-mcp.
     # We want subsequent logic to see $1 as --help.
     # So we should NOT shift if we detected a flag.
 else
     # If we are taking the command from $1, shift it.
-    if [ -z "$CMD" ]; then
+    if [ -z "$CMD" ] && [ "$#" -gt 0 ]; then
         shift
     fi
+    # If CMD was used, we don't need to shift $1 because $1 wasn't used for COMMAND.
 fi
 
-if [ "$COMMAND" = "servicenow-mcp" ]; then
-    exec servicenow-mcp \
+# Fallback default if nothing
+if [ -z "$COMMAND" ]; then
+    COMMAND="gitlab-mcp"
+fi
+
+if [ "$COMMAND" = "gitlab-mcp" ]; then
+    exec gitlab-mcp \
     --transport "${TRANSPORT}" \
     --host "${HOST}" \
     --port "${PORT}" \
@@ -36,10 +42,6 @@ if [ "$COMMAND" = "servicenow-mcp" ]; then
     $( [ -n "${TOKEN_JWKS_URI}" ] && echo "--token-jwks-uri ${TOKEN_JWKS_URI}" ) \
     $( [ -n "${TOKEN_ISSUER}" ] && echo "--token-issuer ${TOKEN_ISSUER}" ) \
     $( [ -n "${TOKEN_AUDIENCE}" ] && echo "--token-audience ${TOKEN_AUDIENCE}" ) \
-    $( [ -n "${TOKEN_ALGORITHM}" ] && echo "--token-algorithm ${TOKEN_ALGORITHM}" ) \
-    $( [ -n "${TOKEN_SECRET}" ] && echo "--token-secret ${TOKEN_SECRET}" ) \
-    $( [ -n "${TOKEN_PUBLIC_KEY}" ] && echo "--token-public-key ${TOKEN_PUBLIC_KEY}" ) \
-    $( [ -n "${REQUIRED_SCOPES}" ] && echo "--required-scopes ${REQUIRED_SCOPES}" ) \
     $( [ -n "${OAUTH_UPSTREAM_AUTH_ENDPOINT}" ] && echo "--oauth-upstream-auth-endpoint ${OAUTH_UPSTREAM_AUTH_ENDPOINT}" ) \
     $( [ -n "${OAUTH_UPSTREAM_TOKEN_ENDPOINT}" ] && echo "--oauth-upstream-token-endpoint ${OAUTH_UPSTREAM_TOKEN_ENDPOINT}" ) \
     $( [ -n "${OAUTH_UPSTREAM_CLIENT_ID}" ] && echo "--oauth-upstream-client-id ${OAUTH_UPSTREAM_CLIENT_ID}" ) \
@@ -55,15 +57,11 @@ if [ "$COMMAND" = "servicenow-mcp" ]; then
     $( [ -n "${EUNOMIA_TYPE}" ] && echo "--eunomia-type ${EUNOMIA_TYPE}" ) \
     $( [ -n "${EUNOMIA_POLICY_FILE}" ] && echo "--eunomia-policy-file ${EUNOMIA_POLICY_FILE}" ) \
     $( [ -n "${EUNOMIA_REMOTE_URL}" ] && echo "--eunomia-remote-url ${EUNOMIA_REMOTE_URL}" ) \
-    $( [ -n "${OPENAPI_FILE}" ] && echo "--openapi-file ${OPENAPI_FILE}" ) \
-    $( [ -n "${ENABLE_DELEGATION}" ] && echo "--enable-delegation" ) \
-    $( [ -n "${SERVICENOW_AUDIENCE}" ] && echo "--audience ${SERVICENOW_AUDIENCE}" ) \
-    $( [ -n "${DELEGATED_SCOPES}" ] && echo "--delegated-scopes ${DELEGATED_SCOPES}" ) \
     "$@"
 
-elif [ "$COMMAND" = "servicenow-a2a" ]; then
+elif [ "$COMMAND" = "gitlab-a2a" ]; then
     # shift 1 # Already shifted
-    exec servicenow-a2a \
+    exec gitlab-a2a \
         --host "${HOST}" \
         --port "${PORT}" \
         $( [ -n "${PROVIDER}" ] && echo "--provider ${PROVIDER}" ) \
