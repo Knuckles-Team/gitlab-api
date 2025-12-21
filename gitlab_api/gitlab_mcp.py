@@ -5992,9 +5992,10 @@ def register_tools(mcp: FastMCP):
 
     # Custom API Tools
     @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"custom_api"},
     )
-    def api_request(
+    async def api_request(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -6018,14 +6019,23 @@ def register_tools(mcp: FastMCP):
         json: Optional[Dict[str, Any]] = Field(
             default=None, description="JSON data to include in the request body"
         ),
+        ctx: Optional[Context] = Field(
+            description="MCP context for progress", default=None
+        ),
     ) -> Response:
         """
-        Make a custom API request to a ServiceNow instance.
+        Make a custom API request to a GitLab instance.
         """
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
+            )
         client = get_client(instance=gitlab_instance, token=access_token, verify=verify)
         response = client.api_request(
             method=method, endpoint=endpoint, data=data, json=json
         )
+        if ctx:
+            await ctx.info("API Complete")
         return response
 
 
