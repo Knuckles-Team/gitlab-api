@@ -30,7 +30,8 @@ mcp = [
     "gql>=4.0.0",
 ]
 a2a = [
-    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a]>=1.32.0"
+    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a]>=1.32.0",
+    "graphiti-core[kuzu,falkordb,anthropic,groq,google-genai]>=0.24.3",
 ]
 gql = [
     "gql>=4.0.0",
@@ -39,6 +40,7 @@ all = [
     "fastmcp>=2.13.0.2",
     "eunomia-mcp>=0.3.10",
     "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a]>=1.32.0",
+    "graphiti-core[kuzu,falkordb,anthropic,groq,google-genai]>=0.24.3",
     "gql>=4.0.0",
 ]
 

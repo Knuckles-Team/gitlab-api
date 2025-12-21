@@ -6,7 +6,7 @@ import argparse
 import sys
 import logging
 import threading
-from typing import Optional, List, Dict, Union
+from typing import Optional, List, Dict, Union, Any
 
 import requests
 from pydantic import Field
@@ -23,38 +23,12 @@ from fastmcp.server.middleware.error_handling import ErrorHandlingMiddleware
 from fastmcp.utilities.logging import get_logger
 from gitlab_api.gitlab_api import Api
 from gitlab_api.gitlab_response_models import Response
+from gitlab_api.utils import to_boolean
 
 # Thread-local storage for user token
 local = threading.local()
 logger = get_logger(name="GitLab.TokenMiddleware")
 logger.setLevel(logging.DEBUG)
-
-
-def to_integer(string: Union[str, int] = None) -> int:
-    if isinstance(string, int):
-        return string
-    if not string:
-        return 0
-    try:
-        return int(string.strip())
-    except ValueError:
-        raise ValueError(f"Cannot convert '{string}' to integer")
-
-
-def to_boolean(string: Union[str, bool] = None) -> bool:
-    if isinstance(string, bool):
-        return string
-    if not string:
-        return False
-    normalized = str(string).strip().lower()
-    true_values = {"t", "true", "y", "yes", "1"}
-    false_values = {"f", "false", "n", "no", "0"}
-    if normalized in true_values:
-        return True
-    elif normalized in false_values:
-        return False
-    else:
-        raise ValueError(f"Cannot convert '{string}' to boolean")
 
 
 config = {
@@ -6015,6 +5989,44 @@ def register_tools(mcp: FastMCP):
         if ctx:
             await ctx.info("Tag unprotected")
         return response.data
+
+    # Custom API Tools
+    @mcp.tool(
+        tags={"custom_api"},
+    )
+    def api_request(
+        gitlab_instance: Optional[str] = Field(
+            description="URL of GitLab instance with /api/v4/ suffix",
+            default=os.environ.get("GITLAB_INSTANCE", None),
+        ),
+        access_token: Optional[str] = Field(
+            description="GitLab access token",
+            default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
+        ),
+        verify: Optional[bool] = Field(
+            description="Verify SSL certificate",
+            default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
+        ),
+        method: str = Field(
+            description="The HTTP method to use ('GET', 'POST', 'PUT', 'DELETE')"
+        ),
+        endpoint: str = Field(description="The API endpoint to send the request to"),
+        data: Optional[Dict[str, Any]] = Field(
+            default=None,
+            description="Data to include in the request body (for non-JSON payloads)",
+        ),
+        json: Optional[Dict[str, Any]] = Field(
+            default=None, description="JSON data to include in the request body"
+        ),
+    ) -> Response:
+        """
+        Make a custom API request to a ServiceNow instance.
+        """
+        client = get_client(instance=gitlab_instance, token=access_token, verify=verify)
+        response = client.api_request(
+            method=method, endpoint=endpoint, data=data, json=json
+        )
+        return response
 
 
 def register_prompts(mcp: FastMCP):

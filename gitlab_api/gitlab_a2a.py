@@ -1,5 +1,7 @@
 import os
 import argparse
+
+import requests
 import uvicorn
 from typing import Optional, Dict
 from pydantic_ai import Agent, RunContext
@@ -10,12 +12,58 @@ from pydantic_ai.models.huggingface import HuggingFaceModel
 from pydantic_ai.toolsets.fastmcp import FastMCPToolset
 from fasta2a import Skill
 
-# Default Configuration
-DEFAULT_PROVIDER = "openai"
-DEFAULT_MODEL_ID = "qwen3:4b"  # Or "gpt-4o" if using OpenAI
+os.getenv("GRAPHITI_TELEMETRY_ENABLED", "false")
+from graphiti_core import Graphiti
+from graphiti_core.driver.kuzu_driver import KuzuDriver
+from graphiti_core.driver.neo4j_driver import Neo4jDriver
+from graphiti_core.driver.falkordb_driver import FalkorDriver
+from gitlab_api.utils import to_integer
+
+DEFAULT_PROVIDER = os.getenv("PROVIDER", "openai")
+DEFAULT_MODEL_ID = os.getenv("MODEL_ID", "qwen3:4b")
 DEFAULT_OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "http://ollama.arpa/v1")
 DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
-DEFAULT_MCP_URL = "http://localhost:8000/mcp"
+DEFAULT_MCP_URL = os.getenv("MCP_URL", "http://localhost:8000/mcp")
+DEFAULT_GRAPHITI_BACKEND = os.getenv("GRAPHITI_BACKEND", "kuzu")
+DEFAULT_GRAPHITI_DB_PATH = os.getenv("GRAPHITI_DB_PATH", "graphiti.db")
+DEFAULT_GRAPHITI_MCP_URL = os.getenv("GRAPHITI_MCP_URL", "http://localhost:8001/mcp")
+DEFAULT_GRAPHITI_URI = os.getenv("DEFAULT_GRAPHITI_URI", "bolt://localhost:7687")
+DEFAULT_GRAPHITI_USER = os.getenv("DEFAULT_GRAPHITI_USER", "neo4j")
+DEFAULT_GRAPHITI_PASS = os.getenv("DEFAULT_GRAPHITI_PASS", "password")
+DEFAULT_GRAPHITI_HOST = os.getenv("DEFAULT_GRAPHITI_HOST", "localhost")
+DEFAULT_GRAPHITI_PORT = to_integer(string=os.getenv("DEFAULT_GRAPHITI_PORT", "6379"))
+
+# Initial doc URLs for ingestion
+INITIAL_DOC_URLS = [
+    "https://github.com/Knuckles-Team/gitlab-api/blob/main/README.md",
+    "https://docs.gitlab.com/api/branches",
+    "https://docs.gitlab.com/api/commits",
+    "https://docs.gitlab.com/api/deploy_tokens",
+    "https://docs.gitlab.com/api/groups",
+    "https://docs.gitlab.com/api/jobs",
+    "https://docs.gitlab.com/api/members",
+    "https://docs.gitlab.com/api/merge_requests",
+    "https://docs.gitlab.com/api/merge_request_approvals",
+    "https://docs.gitlab.com/api/merge_request_approval_settings",
+    "https://docs.gitlab.com/api/namespaces",
+    "https://docs.gitlab.com/api/packages",
+    "https://docs.gitlab.com/api/pipelines",
+    "https://docs.gitlab.com/api/pipeline_schedules",
+    "https://docs.gitlab.com/api/projects",
+    "https://docs.gitlab.com/api/protected_branches",
+    "https://docs.gitlab.com/api/releases",
+    "https://docs.gitlab.com/api/runners",
+    "https://docs.gitlab.com/api/users",
+    "https://docs.gitlab.com/api/wikis",
+    "https://docs.gitlab.com/api/environments",
+    "https://docs.gitlab.com/api/protected_environments",
+    "https://docs.gitlab.com/api/tags",
+    "https://docs.gitlab.com/api/protected_tags",
+    "https://docs.gitlab.com/api/api_resources",
+    "https://docs.gitlab.com/api/graphql/",
+    "https://docs.gitlab.com/api/graphql/reference/",
+    "https://docs.gitlab.com/api/graphql/getting_started/",
+]
 
 # Detected tags from gitlab_mcp.py
 TAGS = [
@@ -36,6 +84,7 @@ TAGS = [
     "releases",
     "runners",
     "tags",
+    "custom_api",
 ]
 
 AGENT_NAME = "GitLabOrchestrator"
@@ -53,8 +102,6 @@ def create_model(
     if provider == "openai":
         target_base_url = base_url or DEFAULT_OPENAI_BASE_URL
         target_api_key = api_key or DEFAULT_OPENAI_API_KEY
-        # Set env vars for the specialized agents if needed by the model init
-        # (Though we pass them explicitly usually, some libs fallback to env)
         if target_base_url:
             os.environ["OPENAI_BASE_URL"] = target_base_url
         if target_api_key:
@@ -81,6 +128,74 @@ def create_model(
         raise ValueError(f"Unsupported provider: {provider}")
 
 
+def initialize_graphiti_db(
+    backend: str,
+    db_path: str,
+    uri: str,
+    user: str,
+    password: str,
+    host: str,
+    port: int,
+    database: str,
+    force_reinit: bool = False,
+) -> Graphiti:
+    """
+    Initializes and returns a GraphitiClient for any backend.
+    Optionally seeds with initial docs if empty or forced.
+    """
+    if backend == "kuzu":
+        driver = KuzuDriver(db=db_path)
+        client = Graphiti(graph_driver=driver)
+        db_exists = os.path.exists(db_path) and os.path.getsize(db_path) > 0
+    elif backend == "neo4j":
+        driver = Neo4jDriver(uri=uri, user=user, password=password, database=database)
+        client = Graphiti(graph_driver=driver)
+        db_exists = True  # Assume remote exists
+    elif backend == "falkordb":
+        driver = FalkorDriver(
+            host=host, port=port, username=user, password=password, database=database
+        )
+        client = Graphiti(graph_driver=driver)
+        db_exists = True
+    else:
+        raise ValueError(f"Unsupported backend: {backend}")
+
+    # Check if graph is empty (simple heuristic)
+    try:
+        results = client.search("MATCH (n) RETURN count(n) AS count")
+        node_count = results[0]["count"] if results else 0
+        is_empty = node_count == 0
+    except Exception as e:
+        print(e)
+        is_empty = True  # Assume empty on error
+
+    should_init = force_reinit or (backend == "kuzu" and not db_exists) or is_empty
+
+    if should_init:
+        print(
+            f"Initializing {backend.upper()} Graphiti DB with initial documentation..."
+        )
+        for url in INITIAL_DOC_URLS:
+            try:
+                response = requests.get(url, timeout=10)
+                response.raise_for_status()
+                content = response.text
+                client.add_episode(
+                    episode_body=content,
+                    source=url,
+                    episode_date=response.headers.get(
+                        "Date", None
+                    ),  # Optional: preserve fetch time
+                )
+                print(f"Ingested: {url}")
+            except Exception as e:
+                print(f"Failed to ingest {url}: {e}")
+    else:
+        print(f"Using existing {backend.upper()} Graphiti DB (skip init)")
+
+    return client
+
+
 def create_child_agent(
     tag: str,
     mcp_url: str,
@@ -88,6 +203,9 @@ def create_child_agent(
     model_id: str,
     base_url: Optional[str] = None,
     api_key: Optional[str] = None,
+    graphiti_backend: str = DEFAULT_GRAPHITI_BACKEND,
+    graphiti_client: Optional[Graphiti] = None,  # Passed if Kuzu (embedded)
+    graphiti_mcp_url: Optional[str] = None,  # For server backends
 ) -> Agent:
     """
     Creates a specialized child agent for a specific tag.
@@ -111,11 +229,60 @@ def create_child_agent(
         "If a task is outside your scope, kindly indicate that."
     )
 
+    additional_tools = []
+    additional_toolsets = []
+
+    if graphiti_backend == "kuzu":
+        # Embedded Kuzu: Use custom tools wrapping GraphitiClient
+        if graphiti_client is None:
+            raise ValueError("GraphitiClient required for Kuzu backend")
+
+        async def ingest_to_graph(
+            ctx: RunContext, content: str, source: str = "user"
+        ) -> str:
+            try:
+                graphiti_client.add_episode(episode_body=content, source=source)
+                return "Ingested successfully into the knowledge graph."
+            except Exception as e:
+                return f"Error ingesting: {str(e)}"
+
+        ingest_to_graph.__name__ = "ingest_to_graph"
+        ingest_to_graph.__doc__ = "Ingest text content (e.g., docs, chat history) into the temporal knowledge graph as an episode."
+
+        additional_tools.append(ingest_to_graph)
+
+        async def query_graph(ctx: RunContext, query: str) -> str:
+            try:
+                results = graphiti_client.search(query)
+                return str(results)  # Or format as needed
+            except Exception as e:
+                return f"Error querying graph: {str(e)}"
+
+        query_graph.__name__ = "query_graph"
+        query_graph.__doc__ = "Query the temporal knowledge graph for context (e.g., hybrid search on entities/relationships)."
+
+        additional_tools.append(query_graph)
+        system_prompt += (
+            " Use ingest_to_graph and query_graph for knowledge graph interactions."
+        )
+
+    else:
+        # Server backends (Neo4j/FalkorDB): Use MCP
+        if graphiti_mcp_url is None:
+            raise ValueError("Graphiti MCP URL required for server backends")
+        graphiti_toolset = FastMCPToolset(client=graphiti_mcp_url)
+        filtered_graphiti = graphiti_toolset.filtered(
+            lambda ctx, tool_def: tag in (tool_def.tags or [])
+        )
+        additional_toolsets.append(filtered_graphiti)
+        system_prompt += " Use Graphiti MCP tools for querying/ingesting into the temporal knowledge graph."
+
     return Agent(
         model,
         system_prompt=system_prompt,
         name=f"GitLab_{tag}_Specialist",
-        toolsets=[filtered_toolset],
+        toolsets=[filtered_toolset] + additional_toolsets,
+        tools=additional_tools,
     )
 
 
@@ -125,19 +292,50 @@ def create_orchestrator(
     base_url: Optional[str] = None,
     api_key: Optional[str] = None,
     mcp_url: str = DEFAULT_MCP_URL,
+    graphiti_backend: str = DEFAULT_GRAPHITI_BACKEND,
+    graphiti_db_path: str = DEFAULT_GRAPHITI_DB_PATH,
+    graphiti_uri: str = DEFAULT_GRAPHITI_URI,
+    graphiti_user: str = DEFAULT_GRAPHITI_USER,
+    graphiti_pass: str = DEFAULT_GRAPHITI_PASS,
+    graphiti_host: str = DEFAULT_GRAPHITI_HOST,
+    graphiti_port: int = DEFAULT_GRAPHITI_PORT,
+    graphiti_mcp_url: str = DEFAULT_GRAPHITI_MCP_URL,
+    graphiti_force_reinit: bool = False,
 ) -> Agent:
     """
     Creates the parent Orchestrator agent with tools to delegate to children.
     """
+    graphiti_client = initialize_graphiti_db(
+        backend=graphiti_backend,
+        db_path=graphiti_db_path,
+        uri=graphiti_uri,
+        user=graphiti_user,
+        password=graphiti_pass,
+        host=graphiti_host,
+        port=graphiti_port,
+        database="graphiti",
+        force_reinit=graphiti_force_reinit,
+    )
+
     # 1. Create all child agents
     children: Dict[str, Agent] = {}
     for tag in TAGS:
         children[tag] = create_child_agent(
-            tag, mcp_url, provider, model_id, base_url, api_key
+            tag=tag,
+            mcp_url=mcp_url,
+            provider=provider,
+            model_id=model_id,
+            base_url=base_url,
+            api_key=api_key,
+            graphiti_backend=graphiti_backend,
+            graphiti_client=graphiti_client,
+            graphiti_mcp_url=graphiti_mcp_url,
         )
 
     # 2. Create Model for Parent
-    model = create_model(provider, model_id, base_url, api_key)
+    model = create_model(
+        provider=provider, model_id=model_id, base_url=base_url, api_key=api_key
+    )
 
     # 3. Create Delegation Tools
     # We create a list of callables that the parent can use as tools.
@@ -232,7 +430,52 @@ def agent_server():
     )
     parser.add_argument("--api-key", default=None, help="LLM API Key")
     parser.add_argument("--mcp-url", default=DEFAULT_MCP_URL, help="MCP Server URL")
-
+    # Graphiti args
+    parser.add_argument(
+        "--graphiti-backend",
+        default=DEFAULT_GRAPHITI_BACKEND,
+        choices=["kuzu", "neo4j", "falkordb"],
+        help="Graphiti backend (kuzu for local file)",
+    )
+    parser.add_argument(
+        "--graphiti-db-path",
+        default=DEFAULT_GRAPHITI_DB_PATH,
+        help="Path to Kuzu DB file",
+    )
+    parser.add_argument(
+        "--graphiti-uri", default=DEFAULT_GRAPHITI_URI, help="Neo4j URI"
+    )
+    parser.add_argument(
+        "--graphiti-user",
+        default=DEFAULT_GRAPHITI_USER,
+        help="Neo4j username",
+    )
+    parser.add_argument(
+        "--graphiti-pass",
+        default=DEFAULT_GRAPHITI_PASS,
+        help="Neo4j password",
+    )
+    parser.add_argument(
+        "--graphiti-host",
+        default=DEFAULT_GRAPHITI_HOST,
+        help="FalkorDB host",
+    )
+    parser.add_argument(
+        "--graphiti-port",
+        type=int,
+        default=DEFAULT_GRAPHITI_PORT,
+        help="FalkorDB port",
+    )
+    parser.add_argument(
+        "--graphiti-mcp-url",
+        default=DEFAULT_GRAPHITI_MCP_URL,
+        help="Graphiti MCP URL for server backends",
+    )
+    parser.add_argument(
+        "--graphiti-force-reinit",
+        action="store_true",
+        help="Force reinitialize Graphiti DB with initial docs",
+    )
     args = parser.parse_args()
 
     print(
@@ -246,6 +489,15 @@ def agent_server():
         base_url=args.base_url,
         api_key=args.api_key,
         mcp_url=args.mcp_url,
+        graphiti_backend=args.graphiti_backend,
+        graphiti_db_path=args.graphiti_db_path,
+        graphiti_uri=args.graphiti_uri,
+        graphiti_user=args.graphiti_user,
+        graphiti_pass=args.graphiti_pass,
+        graphiti_host=args.graphiti_host,
+        graphiti_port=args.graphiti_port,
+        graphiti_mcp_url=args.graphiti_mcp_url,
+        graphiti_force_reinit=args.graphiti_force_reinit,
     )
 
     # Create A2A App
