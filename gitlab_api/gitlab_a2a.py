@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any
 
 from fastmcp import Client
 from graphiti_core.nodes import EpisodeType
-from pydantic_ai import Agent, RunContext
+from pydantic_ai import Agent, RunContext, SkillsToolset
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.models.google import GoogleModel
@@ -47,6 +47,9 @@ logging.getLogger("fastmcp").setLevel(logging.DEBUG)  # Enable FastMCP logs
 logging.getLogger("httpx").setLevel(logging.INFO)  # Quieter HTTP logs
 logger = logging.getLogger(__name__)
 
+DEFAULT_HOST = os.getenv("HOST", "0.0.0.0")
+DEFAULT_PORT = os.getenv("PORT", 9000)
+DEFAULT_DEBUG = os.getenv("DEBUG", False)
 DEFAULT_PROVIDER = os.getenv("PROVIDER", "openai")
 DEFAULT_MODEL_ID = os.getenv("MODEL_ID", "qwen3:4b")
 DEFAULT_OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "http://ollama.arpa/v1")
@@ -54,6 +57,7 @@ DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
 DEFAULT_MCP_URL = os.getenv("MCP_URL", "http://localhost:8000/mcp")
 DEFAULT_GRAPHITI_BACKEND = os.getenv("GRAPHITI_BACKEND", "kuzu")
 DEFAULT_GRAPHITI_DB_PATH = os.getenv("GRAPHITI_DB_PATH", "graphiti.db")
+DEFAULT_GRAPHITI_DB_NAME = os.getenv("GRAPHITI_DB_NAME", "graphiti")
 DEFAULT_GRAPHITI_MCP_URL = os.getenv("GRAPHITI_MCP_URL", "http://localhost:8001/mcp")
 DEFAULT_GRAPHITI_URI = os.getenv("DEFAULT_GRAPHITI_URI", "bolt://localhost:7687")
 DEFAULT_GRAPHITI_USER = os.getenv("DEFAULT_GRAPHITI_USER", "neo4j")
@@ -160,11 +164,11 @@ async def initialize_graphiti_db(
     backend: str,
     db_path: str,
     uri: str,
-    user: str,
-    password: str,
     host: str,
     port: int,
     database: str,
+    user: str=None,
+    password: str=None,
     force_reinit: bool = False,
     base_url: Optional[str] = None,
     api_key: Optional[str] = None,
@@ -269,9 +273,14 @@ async def initialize_graphiti_db(
         client = Graphiti(graph_driver=driver, llm_client=llm_client, embedder=embedder, cross_encoder=cross_encoder)
         db_exists = True # Assume remote exists
     elif backend == "falkordb":
-        driver = FalkorDriver(
-            host=host, port=port, username=user, password=password, database=database
-        )
+        if user is None and password is None:
+            driver = FalkorDriver(
+                host=host, port=port, database=database
+            )
+        else:
+            driver = FalkorDriver(
+                host=host, port=port, database=database#, username=user, password=password
+            )
         client = Graphiti(graph_driver=driver, llm_client=llm_client, embedder=embedder, cross_encoder=cross_encoder)
         db_exists = True
     else:
@@ -301,8 +310,8 @@ async def initialize_graphiti_db(
                 await client.add_episode(
                     name=url,
                     episode_body=content,
-                    source=url,
-                    source_description="Initial documentation ingestion",
+                    source=EpisodeType.text,
+                    source_description=f"Initial documentation ingestion from {url}",
                     reference_time=datetime.now(timezone.utc)
                 )
                 print(f"Ingested: {url}")
@@ -422,6 +431,7 @@ async def create_orchestrator(
     mcp_url: str = DEFAULT_MCP_URL,
     graphiti_backend: str = DEFAULT_GRAPHITI_BACKEND,
     graphiti_db_path: str = DEFAULT_GRAPHITI_DB_PATH,
+    graphiti_db_name: str = DEFAULT_GRAPHITI_DB_NAME,
     graphiti_uri: str = DEFAULT_GRAPHITI_URI,
     graphiti_user: str = DEFAULT_GRAPHITI_USER,
     graphiti_pass: str = DEFAULT_GRAPHITI_PASS,
@@ -441,7 +451,7 @@ async def create_orchestrator(
         password=graphiti_pass,
         host=graphiti_host,
         port=graphiti_port,
-        database="graphiti",
+        database=graphiti_db_name,
         force_reinit=graphiti_force_reinit,
         base_url=base_url,
         api_key=api_key,
@@ -473,27 +483,27 @@ async def create_orchestrator(
     # We create a list of callables that the parent can use as tools.
     delegation_tools = []
 
-    for tag, child_agent in children.items():
-
-        # Define the tool function.
-        # CAUTION: Python closures capture variables by reference.
-        # We must bind 'child_agent' and 'tag' to the function scope using default args.
-        async def delegate_task(
-            ctx: RunContext, task_description: str, _agent=child_agent, _tag=tag
-        ) -> str:
-            # We don't have a docstring here yet, we'll set it below.
+    def create_delegation_tool(tag: str, agent: Agent):
+        """
+        Factory function to create a delegation tool for a specific agent.
+        Captures 'tag' and 'agent' in the closure scope, so they don't need to be
+        arguments to the tool function (which would cause pickling errors).
+        """
+        async def delegate_task(ctx: RunContext, task_description: str) -> str:
             print(
-                f"[Orchestrator] debug: Delegating task to {_tag} specialist: {task_description}"
+                f"[Orchestrator] debug: Delegating task to {tag} specialist: {task_description}"
             )
-            logging.debug(f"[Orchestrator] Delegating to {_tag}: {task_description}")
+            logging.debug(f"[Orchestrator] Delegating to {tag}: {task_description}")
             try:
-                print(f"[Orchestrator] Running child agent {_tag}...")
-                result = await _agent.run(task_description)
-                print(f"[Orchestrator] Child agent {_tag} returned: {result.output[:100]}...")
+                print(f"[Orchestrator] Running child agent {tag}...")
+                # Pass ctx.usage to track usage correctly
+                result = await agent.run(task_description, usage=ctx.usage)
+                logger.debug(f"Full child result for {tag}: {result.model_dump() if hasattr(result, 'model_dump') else result}")
+                print(f"[Orchestrator] Child agent {tag} returned: {result.output[:100]}...")
                 return result.output
             except Exception as e:
-                logging.exception(f"Error executing task with {_tag} specialist")
-                return f"Error executing task with {_tag} specialist: {str(e)}"
+                logging.exception(f"Error executing task with {tag} specialist")
+                return f"Error executing task with {tag} specialist: {str(e)}"
 
         # Set metadata for the tool
         delegate_task.__name__ = f"delegate_to_{tag}"
@@ -502,18 +512,22 @@ async def create_orchestrator(
             f"to the dedicated {tag} specialist agent. "
             f"Provide a clear, self-contained description of the subtask."
         )
+        return delegate_task
 
-        delegation_tools.append(delegate_task)
+    for tag, child_agent in children.items():
+        tool = create_delegation_tool(tag, child_agent)
+        delegation_tools.append(tool)
 
     # 4. Create Parent Agent
     system_prompt = (
         "You are the GitLab Orchestrator Agent. "
-        "Your goal is to assist the user by delegating tasks to specialized child agents. "
+        "Your goal is to assist the user. You should try finding a relevant specialized child agent to delegate the task to. "
         "Analyze the user's request and determine which domain(s) it falls into "
         "(e.g., merge_requests, pipelines, projects). "
         "Then, call the appropriate delegation tool(s) with a specific task description. "
         "Synthesize the results from the child agents into a final helpful response. "
-        "Do not attempt to perform GitLab actions directly; always delegate."
+        "Do not attempt to perform GitLab actions directly; always delegate. However, if there is no action that can be delegated,"
+        "please assist the user directly in those cases."
     )
 
     orchestrator = Agent(
@@ -545,9 +559,12 @@ for mcp_tag in TAGS:
 
 def agent_server():
     parser = argparse.ArgumentParser(description=f"Run the {AGENT_NAME} A2A Server")
-    parser.add_argument("--host", default="0.0.0.0", help="Host to bind the server to")
+    parser.add_argument("--host", default=DEFAULT_HOST, help="Host to bind the server to")
     parser.add_argument(
-        "--port", type=int, default=9000, help="Port to bind the server to"
+        "--port", type=int, default=DEFAULT_PORT, help="Port to bind the server to"
+    )
+    parser.add_argument(
+        "--debug", type=bool, default=DEFAULT_DEBUG, help="Debug mode"
     )
     parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
 
@@ -560,10 +577,10 @@ def agent_server():
     parser.add_argument("--model-id", default=DEFAULT_MODEL_ID, help="LLM Model ID")
     parser.add_argument(
         "--base-url",
-        default=None,
+        default=DEFAULT_OPENAI_BASE_URL,
         help="LLM Base URL (for OpenAI compatible providers)",
     )
-    parser.add_argument("--api-key", default=None, help="LLM API Key")
+    parser.add_argument("--api-key", default=DEFAULT_OPENAI_API_KEY, help="LLM API Key")
     parser.add_argument("--mcp-url", default=DEFAULT_MCP_URL, help="MCP Server URL")
     # Graphiti args
     parser.add_argument(
@@ -576,6 +593,11 @@ def agent_server():
         "--graphiti-db-path",
         default=DEFAULT_GRAPHITI_DB_PATH,
         help="Path to Kuzu DB file",
+    )
+    parser.add_argument(
+        "--graphiti-db-name",
+        default=DEFAULT_GRAPHITI_DB_NAME,
+        help="Name of database",
     )
     parser.add_argument(
         "--graphiti-uri", default=DEFAULT_GRAPHITI_URI, help="Neo4j URI"
@@ -643,15 +665,21 @@ def agent_server():
         graphiti_force_reinit=args.graphiti_force_reinit,
     ))
 
+    if args.debug:
+        import logfire
+        logfire.configure()  # Auto-detects token; or pass write_token="YOUR_TOKEN"
+        logfire.instrument_pydantic_ai()  # Enables tracing for all Pydantic AI operations
+        logfire.instrument_httpx(capture_all=True)
     # Create A2A App
     cli_app = cli_agent.to_a2a(
-        name=AGENT_NAME, description=AGENT_DESCRIPTION, version="25.13.8", skills=skills
+        name=AGENT_NAME, description=AGENT_DESCRIPTION, version="25.13.8", skills=skills, debug=args.debug
     )
     logger.info("Starting A2A server with provider=%s, model=%s, mcp_url=%s", args.provider, args.model_id, args.mcp_url)
     uvicorn.run(
         cli_app,
         host=args.host,
         port=args.port,
+        log_level="debug" if args.debug else "info",
     )
 
 
