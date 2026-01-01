@@ -19,9 +19,12 @@ services:
       - HOST=0.0.0.0 # Optional
       - PORT=8005 # Optional
       - TRANSPORT=http
-      - GITLAB_INSTANCE=${GITLAB_INSTANCE:-http://gitlab.arpa}
+      - GITLAB_INSTANCE=${GITLAB_INSTANCE:-http://gitlab.arpa/api/v4}
       - GITLAB_ACCESS_TOKEN=${GITLAB_ACCESS_TOKEN:-glpat-8xzQ8KCGC5-J7yjfyMPo}
       - GITLAB_VERIFY=False # Optional
+      - PROVIDER=openai
+      - OPENAI_BASE_URL=http://ollama:11434/v1
+      - OPENAI_API_KEY=ollama
 #      - AUTH_TYPE=oidc-proxy # Optional
 #      - OIDC_CONFIG_URL=https://provider.com/.well-known/openid-configuration # Optional
 #      - OIDC_CLIENT_ID=your-client-id # Optional
@@ -45,7 +48,7 @@ services:
     container_name: gitlab-a2a
     hostname: gitlab-a2a
     command: |
-      gitlab-a2a
+      gitlab-a2a --debug
     depends_on:
       - ollama
       - gitlab-mcp
@@ -63,6 +66,13 @@ services:
       - "OPENAI_BASE_URL=http://ollama:11434/v1"
       - "OPENAI_API_KEY=ollama"
       - "MODEL_ID=qwen3:4b"
+      - "GRAPHITI_BACKEND=falkordb"
+      - "GRAPHITI_HOST=falkordb"
+      - "GRAPHITI_PORT=6379"
+      # - "GRAPHITI_USER=falkordb"
+      # - "GRAPHITI_PASS=falkordb"
+      - "GRAPHITI_DB_NAME=falkordb"
+      
     ports:
       - "9000:9000"
 
@@ -84,8 +94,9 @@ services:
           sleep 1
         done
         echo "Ollama is ready!"
-        echo "Pulling qwen3:4b..."
+        echo "Pulling models..."
         ollama pull qwen3:4b
+        ollama pull nomic-embed-text
         echo "🟢 Model pulled and server ready"
         wait $$pid
     ports:
@@ -96,12 +107,15 @@ services:
       - "NVIDIA_VISIBLE_DEVICES=all"
       - "NVIDIA_DRIVER_CAPABILITIES=all"
 
+
+# Debug A2A Service
   a2a-inspector:
     build: https://github.com/a2aproject/a2a-inspector.git
     container_name: a2a-inspector
     ports:
       - "8080:8080"
 
+# Debug MCP Service
   mcp-inspector:
     image: ghcr.io/modelcontextprotocol/inspector:latest
     container_name: mcp-inspector

@@ -30,8 +30,8 @@ mcp = [
     "gql>=4.0.0",
 ]
 a2a = [
-    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a]>=1.32.0",
-    "graphiti-core[kuzu,falkordb,anthropic,groq,google-genai]>=0.24.3",
+    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a,logfire]>=1.32.0",
+    "pydantic-ai-skills",
 ]
 gql = [
     "gql>=4.0.0",
@@ -39,8 +39,8 @@ gql = [
 all = [
     "fastmcp>=2.13.0.2",
     "eunomia-mcp>=0.3.10",
-    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a]>=1.32.0",
-    "graphiti-core[kuzu,falkordb,anthropic,groq,google-genai]>=0.24.3",
+    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a,logfire]>=1.32.0",
+    "pydantic-ai-skills",
     "gql>=4.0.0",
 ]
 
@@ -48,9 +48,8 @@ all = [
 gitlab-mcp = "gitlab_api.gitlab_mcp:gitlab_mcp"
 gitlab-a2a = "gitlab_api.gitlab_a2a:agent_server"
 
+[tool.setuptools.package-data]
+"gitlab_api" = ["skills/**"]
+
 [tool.setuptools.packages.find]
 where = ["."]
-
-[tool.setuptools]
-include-package-data = true
-package-data = { "gitlab_api" = ["gitlab_api"] }

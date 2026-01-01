@@ -5,36 +5,19 @@ import os
 import argparse
 import logging
 import asyncio
-import requests
 import uvicorn
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from fastmcp import Client
-from graphiti_core.nodes import EpisodeType
-from pydantic_ai import Agent, RunContext, SkillsToolset
+from pydantic_ai import Agent, RunContext, FunctionToolset, ToolDefinition
+from pydantic_ai_skills import SkillsToolset
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.models.google import GoogleModel
 from pydantic_ai.models.huggingface import HuggingFaceModel
-from pydantic_ai.toolsets.fastmcp import FastMCPToolset
 from fasta2a import Skill
-os.getenv("GRAPHITI_TELEMETRY_ENABLED", "false")
-from graphiti_core import Graphiti
-from graphiti_core.driver.kuzu_driver import KuzuDriver
-from graphiti_core.driver.neo4j_driver import Neo4jDriver
-from graphiti_core.driver.falkordb_driver import FalkorDriver
-from openai import AsyncOpenAI
-from graphiti_core.llm_client.azure_openai_client import AzureOpenAILLMClient
-from graphiti_core.embedder.azure_openai import AzureOpenAIEmbedderClient
-from graphiti_core.llm_client.gemini_client import GeminiClient, LLMConfig
-from graphiti_core.embedder.gemini import GeminiEmbedder, GeminiEmbedderConfig
-from graphiti_core.cross_encoder.gemini_reranker_client import GeminiRerankerClient
-from graphiti_core.cross_encoder.openai_reranker_client import OpenAIRerankerClient
-from graphiti_core.llm_client.openai_client import OpenAIClient
-from graphiti_core.llm_client.openai_generic_client import OpenAIGenericClient
-from graphiti_core.embedder.openai import OpenAIEmbedder, OpenAIEmbedderConfig
-from gitlab_api.utils import to_integer
+from gitlab_api.utils import to_integer, to_boolean
+from importlib.resources import files, as_file
 
 logging.basicConfig(
     level=logging.DEBUG,  # Change from INFO to DEBUG
@@ -42,60 +25,23 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]  # Output to console
 )
 logging.getLogger("pydantic_ai").setLevel(logging.DEBUG)  # Enable pydantic-ai logs
-logging.getLogger("graphiti_core").setLevel(logging.DEBUG)  # Enable Graphiti logs
 logging.getLogger("fastmcp").setLevel(logging.DEBUG)  # Enable FastMCP logs
 logging.getLogger("httpx").setLevel(logging.INFO)  # Quieter HTTP logs
 logger = logging.getLogger(__name__)
 
+skills_dir = files('gitlab_api') / 'skills'
+with as_file(skills_dir) as path:
+    skills_path = str(path)
+
 DEFAULT_HOST = os.getenv("HOST", "0.0.0.0")
-DEFAULT_PORT = os.getenv("PORT", 9000)
-DEFAULT_DEBUG = os.getenv("DEBUG", False)
+DEFAULT_PORT = to_integer(string=os.getenv("PORT", "9000"))
+DEFAULT_DEBUG = to_boolean(string=os.getenv("DEBUG", "False"))
 DEFAULT_PROVIDER = os.getenv("PROVIDER", "openai")
 DEFAULT_MODEL_ID = os.getenv("MODEL_ID", "qwen3:4b")
-DEFAULT_OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "http://ollama.arpa/v1")
+DEFAULT_OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
 DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
 DEFAULT_MCP_URL = os.getenv("MCP_URL", "http://localhost:8000/mcp")
-DEFAULT_GRAPHITI_BACKEND = os.getenv("GRAPHITI_BACKEND", "kuzu")
-DEFAULT_GRAPHITI_DB_PATH = os.getenv("GRAPHITI_DB_PATH", "graphiti.db")
-DEFAULT_GRAPHITI_DB_NAME = os.getenv("GRAPHITI_DB_NAME", "graphiti")
-DEFAULT_GRAPHITI_MCP_URL = os.getenv("GRAPHITI_MCP_URL", "http://localhost:8001/mcp")
-DEFAULT_GRAPHITI_URI = os.getenv("DEFAULT_GRAPHITI_URI", "bolt://localhost:7687")
-DEFAULT_GRAPHITI_USER = os.getenv("DEFAULT_GRAPHITI_USER", "neo4j")
-DEFAULT_GRAPHITI_PASS = os.getenv("DEFAULT_GRAPHITI_PASS", "password")
-DEFAULT_GRAPHITI_HOST = os.getenv("DEFAULT_GRAPHITI_HOST", "localhost")
-DEFAULT_GRAPHITI_PORT = to_integer(string=os.getenv("DEFAULT_GRAPHITI_PORT", "6379"))
-
-# Initial doc URLs for ingestion
-INITIAL_DOC_URLS = [
-    "https://github.com/Knuckles-Team/gitlab-api/blob/main/README.md",
-    "https://docs.gitlab.com/api/branches",
-    "https://docs.gitlab.com/api/commits",
-    "https://docs.gitlab.com/api/deploy_tokens",
-    "https://docs.gitlab.com/api/groups",
-    "https://docs.gitlab.com/api/jobs",
-    "https://docs.gitlab.com/api/members",
-    "https://docs.gitlab.com/api/merge_requests",
-    "https://docs.gitlab.com/api/merge_request_approvals",
-    "https://docs.gitlab.com/api/merge_request_approval_settings",
-    "https://docs.gitlab.com/api/namespaces",
-    "https://docs.gitlab.com/api/packages",
-    "https://docs.gitlab.com/api/pipelines",
-    "https://docs.gitlab.com/api/pipeline_schedules",
-    "https://docs.gitlab.com/api/projects",
-    "https://docs.gitlab.com/api/protected_branches",
-    "https://docs.gitlab.com/api/releases",
-    "https://docs.gitlab.com/api/runners",
-    "https://docs.gitlab.com/api/users",
-    "https://docs.gitlab.com/api/wikis",
-    "https://docs.gitlab.com/api/environments",
-    "https://docs.gitlab.com/api/protected_environments",
-    "https://docs.gitlab.com/api/tags",
-    "https://docs.gitlab.com/api/protected_tags",
-    "https://docs.gitlab.com/api/api_resources",
-    "https://docs.gitlab.com/api/graphql/",
-    "https://docs.gitlab.com/api/graphql/reference/",
-    "https://docs.gitlab.com/api/graphql/getting_started/",
-]
+DEFAULT_SKILLS_DIRECTORY = os.getenv("SKILLS_DIRECTORY", skills_path)
 
 # Detected tags from gitlab_mcp.py
 TAGS = [
@@ -119,9 +65,9 @@ TAGS = [
     "custom_api",
 ]
 
-AGENT_NAME = "GitLabOrchestrator"
+AGENT_NAME = "GitLab"
 AGENT_DESCRIPTION = (
-    "A multi-agent system for managing GitLab tasks via delegated specialists."
+    "An agent built with Agent Skills and GitLab MCP tools to maximize GitLab interactivity."
 )
 
 
@@ -159,387 +105,92 @@ def create_model(
     else:
         raise ValueError(f"Unsupported provider: {provider}")
 
+class DynamicGitLabMCPToolset(FunctionToolset):
+    """Lightweight discovery layer for ALL GitLab MCP tools — no pre-filtering."""
+    def __init__(self, client: Client[Any]):
+        super().__init__()
+        self.client = client
+        self.add_function(self.list_gitlab_tools)
+        self.add_function(self.get_gitlab_tool_schema)
+        self.add_function(self.call_gitlab_tool)
 
-async def initialize_graphiti_db(
-    backend: str,
-    db_path: str,
-    uri: str,
-    host: str,
-    port: int,
-    database: str,
-    user: str=None,
-    password: str=None,
-    force_reinit: bool = False,
-    base_url: Optional[str] = None,
-    api_key: Optional[str] = None,
-    model_id: str = DEFAULT_MODEL_ID,
-    provider: str = DEFAULT_PROVIDER,
-    ) -> Graphiti:
-    """
-    Initializes and returns a GraphitiClient for any backend.
-    Optionally seeds with initial docs if empty or forced.
-    """
-    # Configure LLM and Embedder (Assuming OpenAI/Ollama for now based on context)
-    # Using OpenAIGenericClient as recommended for Ollama
+    async def __aenter__(self):
+        await self.client.__aenter__()
+        return self
 
-    target_base_url = base_url or DEFAULT_OPENAI_BASE_URL
-    target_api_key = api_key or DEFAULT_OPENAI_API_KEY
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        await self.client.__aexit__(exc_type, exc_value, traceback)
 
-    cross_encoder = None  # Default to None if not set
+    @property
+    def id(self) -> str:
+        return "gitlab-dynamic-mcp"
 
-    if provider == "google":
-        llm_config = LLMConfig(
-            api_key=target_api_key,
-            model=model_id,
-            small_model=model_id,
-        )
-        llm_client = GeminiClient(config=llm_config)
-        embedder_config = GeminiEmbedderConfig(
-            api_key=target_api_key,
-            embedding_model="embedding-001",
-        )
-        embedder = GeminiEmbedder(config=embedder_config)
-        cross_encoder = GeminiRerankerClient(
-            config=LLMConfig(
-                api_key=target_api_key,
-                model="gemini-1.5-flash-latest",
-            )
-        )
-    elif provider in ["openai", "azure"]:  # azure handled via base_url check
-        is_ollama = "ollama" in target_api_key.lower() or "11434" in target_base_url
-        is_azure = "azure" in target_base_url.lower()
-        is_standard_openai = not is_ollama and not is_azure
+    async def list_gitlab_tools(self, ctx: RunContext, tag_filter: str = None) -> List[Dict[str, Any]]:
+        """List available GitLab tools. Optionally filter by tag (e.g. 'merge_requests')."""
+        all_tools = await self.client.list_tools()
+        result = []
+        for tool in all_tools:
+            tool_tags = tool.meta.get('_fastmcp', {}).get('tags', []) if tool.meta else []
+            if not tag_filter or tag_filter in tool_tags:
+                result.append({
+                    "name": tool.name,
+                    "description": tool.description[:180] + "..." if len(tool.description) > 180 else tool.description,
+                    "tags": tool_tags
+                })
+        return result
 
-        llm_config = LLMConfig(
-            model=model_id,
-            small_model=model_id,
-            api_key=target_api_key,
-            base_url=target_base_url if is_ollama else None,
-        )
+    async def get_gitlab_tool_schema(self, ctx: RunContext, tool_name: str) -> Dict[str, Any]:
+        """Get full parameter schema for any GitLab tool when you decide to use it."""
+        tools = await self.client.list_tools()
+        for tool in tools:
+            if tool.name == tool_name:
+                return tool.inputSchema
+        raise ValueError(f"Tool '{tool_name}' not found.")
 
-        async_openai_client = AsyncOpenAI(
-            base_url=target_base_url,
-            api_key=target_api_key,
-        )
-
-        if is_ollama:
-            llm_client = OpenAIGenericClient(config=llm_config)
-            embedder = OpenAIEmbedder(
-                config=OpenAIEmbedderConfig(
-                    api_key=target_api_key,
-                    embedding_model="nomic-embed-text",
-                    embedding_dim=768,
-                    base_url=target_base_url,
-                )
-            )
-        elif is_azure:
-            llm_client = AzureOpenAILLMClient(
-                azure_client=async_openai_client,
-                config=llm_config
-            )
-            embedder = AzureOpenAIEmbedderClient(
-                azure_client=async_openai_client,
-                model="text-embedding-3-small"
-            )
-        else:  # standard openai
-            llm_client = OpenAIClient(
-                client=async_openai_client,
-                config=llm_config
-            )
-            embedder = OpenAIEmbedder(
-                config=OpenAIEmbedderConfig(
-                    api_key="ollama",  # Placeholder API key
-                    embedding_model="nomic-embed-text",
-                    embedding_dim=768,
-                    base_url="http://localhost:11434/v1",
-                )
-            )
-            # embedder = OpenAIEmbedderClient(
-            #     openai_client=async_openai_client,
-            #     model="text-embedding-3-small"
-            # )
-
-        cross_encoder = OpenAIRerankerClient(client=llm_client, config=llm_config)
-
-    else:
-        raise ValueError(f"Unsupported provider for Graphiti: {provider}")
-
-    if backend == "kuzu":
-        driver = KuzuDriver(db=db_path)
-        client = Graphiti(graph_driver=driver, llm_client=llm_client, embedder=embedder, cross_encoder=cross_encoder)
-        db_exists = os.path.exists(db_path) and os.path.getsize(db_path) > 0
-    elif backend == "neo4j":
-        driver = Neo4jDriver(uri=uri, user=user, password=password, database=database)
-        client = Graphiti(graph_driver=driver, llm_client=llm_client, embedder=embedder, cross_encoder=cross_encoder)
-        db_exists = True # Assume remote exists
-    elif backend == "falkordb":
-        if user is None and password is None:
-            driver = FalkorDriver(
-                host=host, port=port, database=database
-            )
-        else:
-            driver = FalkorDriver(
-                host=host, port=port, database=database#, username=user, password=password
-            )
-        client = Graphiti(graph_driver=driver, llm_client=llm_client, embedder=embedder, cross_encoder=cross_encoder)
-        db_exists = True
-    else:
-        raise ValueError(f"Unsupported backend: {backend}")
-
-    # Check if graph is empty (simple heuristic)
-    try:
-        results = await client.search("MATCH (n) RETURN count(n) AS count")
-        node_count = results[0]["count"] if results else 0
-        is_empty = node_count == 0
-        logger.debug("Graphiti DB has %d nodes (empty=%s)", node_count, is_empty)
-    except Exception as e:
-        print(e)
-        is_empty = True  # Assume empty on error
-
-    should_init = force_reinit or (backend == "kuzu" and not db_exists) or is_empty
-
-    if should_init:
-        print(
-            f"Initializing {backend.upper()} Graphiti DB with initial documentation..."
-        )
-        for url in INITIAL_DOC_URLS:
-            try:
-                response = requests.get(url, timeout=10)
-                response.raise_for_status()
-                content = response.text
-                await client.add_episode(
-                    name=url,
-                    episode_body=content,
-                    source=EpisodeType.text,
-                    source_description=f"Initial documentation ingestion from {url}",
-                    reference_time=datetime.now(timezone.utc)
-                )
-                print(f"Ingested: {url}")
-                logger.debug("Ingested doc: %s", url)
-            except Exception as e:
-                print(f"Failed to ingest {url}: {e}")
-    else:
-        print(f"Using existing {backend.upper()} Graphiti DB (skip init)")
-    logger.debug("Initializing Graphiti with backend=%s, db_path=%s", backend, db_path)
-    return client
+    async def call_gitlab_tool(self, ctx: RunContext, tool_name: str, arguments: Dict[str, Any]) -> Any:
+        """Execute any GitLab MCP tool with the provided arguments."""
+        return await self.client.call_tool(tool_name, arguments)
 
 
-def has_tag(tool_def, tag):
-    annotations = tool_def.metadata.get('annotations', {})
-    tags = annotations.get('tags', []) if isinstance(annotations, dict) else []
-    return tag in tags
-
-
-def create_child_agent(
-    tag: str,
-    mcp_url: str,
-    provider: str,
-    model_id: str,
-    base_url: Optional[str] = None,
-    api_key: Optional[str] = None,
-    graphiti_backend: str = DEFAULT_GRAPHITI_BACKEND,
-    graphiti_client: Optional[Graphiti] = None,  # Passed if Kuzu (embedded)
-    graphiti_mcp_url: Optional[str] = None,  # For server backends
+async def create_gitlab_agent(
+        provider: str = DEFAULT_PROVIDER,
+        model_id: str = DEFAULT_MODEL_ID,
+        base_url: Optional[str] = None,
+        api_key: Optional[str] = None,
+        mcp_url: str = DEFAULT_MCP_URL,
+        skills_directory: str = DEFAULT_SKILLS_DIRECTORY
 ) -> Agent:
-    """
-    Creates a specialized child agent for a specific tag.
-    """
     model = create_model(provider, model_id, base_url, api_key)
 
-    # Create toolset and filter by tag
-    toolset = FastMCPToolset(client=Client[Any](transport=mcp_url))
+    client = Client[Any](transport=mcp_url)  # add auth if needed: auth=...
 
-    # filtered returns a new toolset with only tools that match the predicate
-    # The predicate receives (context, tool_definition)
-    # We check if the 'tag' is present in tool_definition.tags
-    filtered_toolset = toolset.filtered(
-        lambda ctx, tool_def: has_tag(tool_def, tag)
-    )
+    dynamic_mcp_toolset = DynamicGitLabMCPToolset(client=client)
+
+    # Progressive instructions via skills (one folder per tag)
+    skills_toolset = SkillsToolset(directories=[skills_directory])
 
     system_prompt = (
-        f"You are a specialized GitLab agent focused on '{tag}' tasks. "
-        f"You have access to tools tagged with '{tag}'. "
-        "Use them to fulfill the user's request efficiently. "
-        "If a task is outside your scope, kindly indicate that."
+        "You are a comprehensive GitLab expert agent.\n"
+        "You have domain expertise available via skills:\n"
+        "  - Use skills toolset to discover and load instructions for specific areas (merge_requests, pipelines, projects, branches, etc.)\n"
+        "You have access to ALL GitLab API capabilities via dynamic tool discovery:\n"
+        "  1. Call 'list_gitlab_tools' (with optional tag_filter) to discover available tools\n"
+        "  2. Call 'get_gitlab_tool_schema' to learn parameters of any tool\n"
+        "  3. Call 'call_gitlab_tool' to execute it\n\n"
+        "Always start by loading domain knowledge through your skills, and then discovering relevant tools via tag.\n"
+        "Make a list of all the tools and skills you will require to use. \n"
+        "Next plan your entire workflow end to end first and explain your steps in the workflow as well as each tool usage.\n"
+        "Always be warm and friendly with the user while striving for truth and accuracy.\n"
+        "It is a fact that the user and you will sometimes be incorrect, but we strive for the truth together.\n"
+        "Handle issues gracefully."
     )
 
-    additional_tools = []
-    additional_toolsets = []
-
-    if graphiti_backend == "kuzu":
-        # Embedded Kuzu: Use custom tools wrapping GraphitiClient
-        if graphiti_client is None:
-            raise ValueError("GraphitiClient required for Kuzu backend")
-
-        async def ingest_to_graph(
-            ctx: RunContext, content: str, source: str = "user"
-        ) -> str:
-            try:
-                await graphiti_client.add_episode(
-                    name=f"Ingestion from {source}",
-                    episode_body=content,
-                    source=EpisodeType.text,
-                    source_description=f"Ingested content from {source}",
-                    reference_time=datetime.now(timezone.utc)
-                )
-                return "Ingested successfully into the knowledge graph."
-            except Exception as e:
-                return f"Error ingesting: {str(e)}"
-
-        ingest_to_graph.__name__ = "ingest_to_graph"
-        ingest_to_graph.__doc__ = "Ingest text content (e.g., docs, chat history) into the temporal knowledge graph as an episode."
-
-        additional_tools.append(ingest_to_graph)
-
-        async def query_graph(ctx: RunContext, query: str) -> str:
-            try:
-                results = graphiti_client.search(query)
-                return str(results)  # Or format as needed
-            except Exception as e:
-                return f"Error querying graph: {str(e)}"
-
-        query_graph.__name__ = "query_graph"
-        query_graph.__doc__ = "Query the temporal knowledge graph for context (e.g., hybrid search on entities/relationships)."
-
-        additional_tools.append(query_graph)
-        system_prompt += (
-            " Use ingest_to_graph and query_graph for knowledge graph interactions."
-        )
-
-    else:
-        # Server backends (Neo4j/FalkorDB): Use MCP
-        if graphiti_mcp_url is None:
-            raise ValueError("Graphiti MCP URL required for server backends")
-        graphiti_toolset = FastMCPToolset(client=Client[Any](transport=graphiti_mcp_url))
-        additional_toolsets.append(graphiti_toolset)
-        system_prompt += " Use Graphiti MCP tools for querying/ingesting into the temporal knowledge graph."
-    logger.debug("Created child agent for tag '%s' with MCP tools and Graphiti", tag)
     return Agent(
         model=model,
         system_prompt=system_prompt,
-        name=f"GitLab_{tag}_Specialist",
-        toolsets=[filtered_toolset] + additional_toolsets,
-        tools=additional_tools,
+        name="GitLab_Master_Agent",
+        toolsets=[dynamic_mcp_toolset, skills_toolset],
     )
-
-
-async def create_orchestrator(
-    provider: str = DEFAULT_PROVIDER,
-    model_id: str = DEFAULT_MODEL_ID,
-    base_url: Optional[str] = None,
-    api_key: Optional[str] = None,
-    mcp_url: str = DEFAULT_MCP_URL,
-    graphiti_backend: str = DEFAULT_GRAPHITI_BACKEND,
-    graphiti_db_path: str = DEFAULT_GRAPHITI_DB_PATH,
-    graphiti_db_name: str = DEFAULT_GRAPHITI_DB_NAME,
-    graphiti_uri: str = DEFAULT_GRAPHITI_URI,
-    graphiti_user: str = DEFAULT_GRAPHITI_USER,
-    graphiti_pass: str = DEFAULT_GRAPHITI_PASS,
-    graphiti_host: str = DEFAULT_GRAPHITI_HOST,
-    graphiti_port: int = DEFAULT_GRAPHITI_PORT,
-    graphiti_mcp_url: str = DEFAULT_GRAPHITI_MCP_URL,
-    graphiti_force_reinit: bool = False,
-) -> Agent:
-    """
-    Creates the parent Orchestrator agent with tools to delegate to children.
-    """
-    graphiti_client = await initialize_graphiti_db(
-        backend=graphiti_backend,
-        db_path=graphiti_db_path,
-        uri=graphiti_uri,
-        user=graphiti_user,
-        password=graphiti_pass,
-        host=graphiti_host,
-        port=graphiti_port,
-        database=graphiti_db_name,
-        force_reinit=graphiti_force_reinit,
-        base_url=base_url,
-        api_key=api_key,
-        model_id=model_id,
-        provider=provider,
-    )
-
-    # 1. Create all child agents
-    children: Dict[str, Agent] = {}
-    for tag in TAGS:
-        children[tag] = create_child_agent(
-            tag=tag,
-            mcp_url=mcp_url,
-            provider=provider,
-            model_id=model_id,
-            base_url=base_url,
-            api_key=api_key,
-            graphiti_backend=graphiti_backend,
-            graphiti_client=graphiti_client,
-            graphiti_mcp_url=graphiti_mcp_url,
-        )
-
-    # 2. Create Model for Parent
-    model = create_model(
-        provider=provider, model_id=model_id, base_url=base_url, api_key=api_key
-    )
-
-    # 3. Create Delegation Tools
-    # We create a list of callables that the parent can use as tools.
-    delegation_tools = []
-
-    def create_delegation_tool(tag: str, agent: Agent):
-        """
-        Factory function to create a delegation tool for a specific agent.
-        Captures 'tag' and 'agent' in the closure scope, so they don't need to be
-        arguments to the tool function (which would cause pickling errors).
-        """
-        async def delegate_task(ctx: RunContext, task_description: str) -> str:
-            print(
-                f"[Orchestrator] debug: Delegating task to {tag} specialist: {task_description}"
-            )
-            logging.debug(f"[Orchestrator] Delegating to {tag}: {task_description}")
-            try:
-                print(f"[Orchestrator] Running child agent {tag}...")
-                # Pass ctx.usage to track usage correctly
-                result = await agent.run(task_description, usage=ctx.usage)
-                logger.debug(f"Full child result for {tag}: {result.model_dump() if hasattr(result, 'model_dump') else result}")
-                print(f"[Orchestrator] Child agent {tag} returned: {result.output[:100]}...")
-                return result.output
-            except Exception as e:
-                logging.exception(f"Error executing task with {tag} specialist")
-                return f"Error executing task with {tag} specialist: {str(e)}"
-
-        # Set metadata for the tool
-        delegate_task.__name__ = f"delegate_to_{tag}"
-        delegate_task.__doc__ = (
-            f"Delegate a task related to '{tag}' (e.g., {tag} management, queries) "
-            f"to the dedicated {tag} specialist agent. "
-            f"Provide a clear, self-contained description of the subtask."
-        )
-        return delegate_task
-
-    for tag, child_agent in children.items():
-        tool = create_delegation_tool(tag, child_agent)
-        delegation_tools.append(tool)
-
-    # 4. Create Parent Agent
-    system_prompt = (
-        "You are the GitLab Orchestrator Agent. "
-        "Your goal is to assist the user. You should try finding a relevant specialized child agent to delegate the task to. "
-        "Analyze the user's request and determine which domain(s) it falls into "
-        "(e.g., merge_requests, pipelines, projects). "
-        "Then, call the appropriate delegation tool(s) with a specific task description. "
-        "Synthesize the results from the child agents into a final helpful response. "
-        "Do not attempt to perform GitLab actions directly; always delegate. However, if there is no action that can be delegated,"
-        "please assist the user directly in those cases."
-    )
-
-    orchestrator = Agent(
-        model=model,
-        system_prompt=system_prompt,
-        name=AGENT_NAME,
-        tools=delegation_tools,  # Register the wrapper functions as tools
-    )
-
-    logger.debug("Orchestrator created with %d delegation tools", len(delegation_tools))
-
-    return orchestrator
 
 
 # Define Skills for Agent Card (High-level capabilities)
@@ -582,57 +233,6 @@ def agent_server():
     )
     parser.add_argument("--api-key", default=DEFAULT_OPENAI_API_KEY, help="LLM API Key")
     parser.add_argument("--mcp-url", default=DEFAULT_MCP_URL, help="MCP Server URL")
-    # Graphiti args
-    parser.add_argument(
-        "--graphiti-backend",
-        default=DEFAULT_GRAPHITI_BACKEND,
-        choices=["kuzu", "neo4j", "falkordb"],
-        help="Graphiti backend (kuzu for local file)",
-    )
-    parser.add_argument(
-        "--graphiti-db-path",
-        default=DEFAULT_GRAPHITI_DB_PATH,
-        help="Path to Kuzu DB file",
-    )
-    parser.add_argument(
-        "--graphiti-db-name",
-        default=DEFAULT_GRAPHITI_DB_NAME,
-        help="Name of database",
-    )
-    parser.add_argument(
-        "--graphiti-uri", default=DEFAULT_GRAPHITI_URI, help="Neo4j URI"
-    )
-    parser.add_argument(
-        "--graphiti-user",
-        default=DEFAULT_GRAPHITI_USER,
-        help="Neo4j username",
-    )
-    parser.add_argument(
-        "--graphiti-pass",
-        default=DEFAULT_GRAPHITI_PASS,
-        help="Neo4j password",
-    )
-    parser.add_argument(
-        "--graphiti-host",
-        default=DEFAULT_GRAPHITI_HOST,
-        help="FalkorDB host",
-    )
-    parser.add_argument(
-        "--graphiti-port",
-        type=int,
-        default=DEFAULT_GRAPHITI_PORT,
-        help="FalkorDB port",
-    )
-    parser.add_argument(
-        "--graphiti-mcp-url",
-        default=DEFAULT_GRAPHITI_MCP_URL,
-        help="Graphiti MCP URL for server backends",
-    )
-    parser.add_argument(
-        "--graphiti-force-reinit",
-        action="store_true",
-        help="Force reinitialize Graphiti DB with initial docs",
-    )
     args = parser.parse_args()
 
     # Configure Logging
@@ -648,21 +248,12 @@ def agent_server():
     )
 
     # Create the agent with CLI args
-    cli_agent = asyncio.run(create_orchestrator(
+    cli_agent = asyncio.run(create_gitlab_agent(
         provider=args.provider,
         model_id=args.model_id,
         base_url=args.base_url,
         api_key=args.api_key,
         mcp_url=args.mcp_url,
-        graphiti_backend=args.graphiti_backend,
-        graphiti_db_path=args.graphiti_db_path,
-        graphiti_uri=args.graphiti_uri,
-        graphiti_user=args.graphiti_user,
-        graphiti_pass=args.graphiti_pass,
-        graphiti_host=args.graphiti_host,
-        graphiti_port=args.graphiti_port,
-        graphiti_mcp_url=args.graphiti_mcp_url,
-        graphiti_force_reinit=args.graphiti_force_reinit,
     ))
 
     if args.debug:

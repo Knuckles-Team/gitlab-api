@@ -50,8 +50,7 @@ ENV UV_HTTP_TIMEOUT=3600
 
 WORKDIR /app
 COPY . /app
-RUN python -m build \
-    && python -m pip install ./dist/*.whl[all]
+RUN pip install .[all]
 
 #RUN pip install uv \
 #    && uv pip install --system --upgrade gitlab-api[all]>=25.13.8

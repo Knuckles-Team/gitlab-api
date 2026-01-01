@@ -1882,6 +1882,35 @@ class PipelineModel(BaseModel):
     ref: Optional[str] = None
     variables: Optional[Dict] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    data: Optional[Dict] = Field(description="Data Payload", default=None)
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        """
+        Build API parameters.
+
+        Args:
+        - values: Dictionary of values.
+
+        Returns:
+        - The constructed API parameters string.
+
+        Raises:
+        - None.
+        """
+        data = {}
+
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+
+        # Remove None values
+        data = {k: v for k, v in data.items() if v is not None}
+
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+
+        return values
 
     def model_post_init(self, __context):
         """
