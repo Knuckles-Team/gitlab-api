@@ -18,25 +18,30 @@ CORE_MODULES = [
 
 # Optional modules – only import if their dependencies are installed
 OPTIONAL_MODULES = {
-    "gitlab_api.gitlab_gql": "gql",        # Requires gql
+    "gitlab_api.gitlab_gql": "gql",  # Requires gql
 }
+
 
 def _import_module_safely(module_name: str):
     """Try to import a module and return it, or None if not available."""
     try:
         return importlib.import_module(module_name)
-    except ImportError as e:
+    except ImportError:
         # Optional: log at debug level why it failed
         # import logging
         # logging.debug(f"Optional module {module_name} not imported: {e}")
         return None
 
+
 def _expose_members(module):
     """Expose public classes and functions from a module into globals and __all__."""
     for name, obj in inspect.getmembers(module):
-        if (inspect.isclass(obj) or inspect.isfunction(obj)) and not name.startswith("_"):
+        if (inspect.isclass(obj) or inspect.isfunction(obj)) and not name.startswith(
+            "_"
+        ):
             globals()[name] = obj
             __all__.append(name)
+
 
 # Always import core modules
 for module_name in CORE_MODULES:
@@ -54,7 +59,9 @@ for module_name, extra_name in OPTIONAL_MODULES.items():
         globals()[f"_{extra_name.upper()}_AVAILABLE"] = False
 
 # Optional: expose availability flags
-_MCP_AVAILABLE = OPTIONAL_MODULES.get("gitlab_api.gitlab_mcp") in [m.__name__ for m in globals().values() if hasattr(m, "__name__")]
+_MCP_AVAILABLE = OPTIONAL_MODULES.get("gitlab_api.gitlab_mcp") in [
+    m.__name__ for m in globals().values() if hasattr(m, "__name__")
+]
 _A2A_AVAILABLE = "gitlab_api.gitlab_a2a" in globals()
 _GQL_AVAILABLE = "gitlab_api.gitlab_gql" in globals()
 

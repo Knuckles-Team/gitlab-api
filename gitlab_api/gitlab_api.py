@@ -9,7 +9,7 @@ from base64 import b64encode
 from typing import Dict, Any, List, TypeVar, Tuple
 from pydantic import ValidationError
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 from gitlab_api.gitlab_input_models import (
     CommitModel,
@@ -94,7 +94,7 @@ class Api(object):
             raise MissingParameterError
 
         self._session = requests.Session()
-        self.url = urljoin(url.rstrip('/') + '/', 'api/v4/')
+        self.url = urljoin(url.rstrip("/") + "/", "api/v4/")
         self.headers = None
         self.headers_parallel = None
         self.verify = verify
@@ -146,7 +146,6 @@ class Api(object):
             elif response.status_code == 404:
                 print(f"Parameter Error: {response.content}")
                 raise ParameterError
-
 
     def switch_to_next_headers(self) -> bool:
         """

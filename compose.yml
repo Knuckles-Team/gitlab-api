@@ -65,14 +65,8 @@ services:
       - "PROVIDER=openai"
       - "OPENAI_BASE_URL=http://ollama:11434/v1"
       - "OPENAI_API_KEY=ollama"
-      - "MODEL_ID=qwen3:4b"
-      - "GRAPHITI_BACKEND=falkordb"
-      - "GRAPHITI_HOST=falkordb"
-      - "GRAPHITI_PORT=6379"
-      # - "GRAPHITI_USER=falkordb"
-      # - "GRAPHITI_PASS=falkordb"
-      - "GRAPHITI_DB_NAME=falkordb"
-      
+      - "MODEL_ID=maternion/fara:7b"
+
     ports:
       - "9000:9000"
 
@@ -95,8 +89,7 @@ services:
         done
         echo "Ollama is ready!"
         echo "Pulling models..."
-        ollama pull qwen3:4b
-        ollama pull nomic-embed-text
+        ollama pull maternion/fara:7b
         echo "🟢 Model pulled and server ready"
         wait $$pid
     ports:
