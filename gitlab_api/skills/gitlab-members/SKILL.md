@@ -6,9 +6,20 @@ description: "Manages GitLab members. Use for listing members in groups or proje
 ### Overview
 Handles membership queries.
 
-### Key Tools
-- `get_group_members`: Group members.
-- `get_project_members`: Project members.
+### Available Tools
+- `get_group_members`: Retrieve a list of members in a specific GitLab group, optionally filtered by query or user IDs.
+  - **Parameters**:
+    - `group_id` (str): Optional. - Group ID or path
+    - `query` (Optional[str]): Optional. - Filter members by search term in name or username
+    - `user_ids` (Optional[List[int]]): Optional. - Filter members by user IDs
+    - `skip_users` (Optional[List[int]]): Optional. - Exclude specified user IDs
+    - `show_seat_info` (Optional[bool]): Optional. - Include seat information for members
+- `get_project_members`: Retrieve a list of members in a specific GitLab project, optionally filtered by query or user IDs.
+  - **Parameters**:
+    - `project_id` (str): Optional. - Project ID or path
+    - `query` (Optional[str]): Optional. - Filter members by search term in name or username
+    - `user_ids` (Optional[List[int]]): Optional. - Filter members by user IDs
+    - `skip_users` (Optional[List[int]]): Optional. - Exclude specified user IDs
 
 ### Usage Instructions
 1. Filters: query, user_ids.
