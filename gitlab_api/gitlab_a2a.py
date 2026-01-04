@@ -11,6 +11,7 @@ from typing import Optional, Any
 from fastmcp import Client
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.tools import Tool
+from pydantic_ai.toolsets import FilteredToolset
 from pydantic_ai.toolsets.fastmcp import FastMCPToolset
 from pydantic_ai_skills import SkillsToolset
 from pydantic_ai.models.openai import OpenAIChatModel
@@ -106,34 +107,57 @@ def create_model(
         raise ValueError(f"Unsupported provider: {provider}")
 
 
-async def build_tools_by_tag_dict(
-    base_toolset: FastMCPToolset, model: Any
-) -> dict[str, list[Tool]]:
+from pathlib import Path
+from pydantic_ai.toolsets import FilteredToolset
+
+async def create_sub_agent(
+    model: Any,
+    base_toolset: Any,
+    tag: str,
+    system_prompt: str,
+    skills_directory: str,
+) -> Agent:
     """
-    Returns a dictionary: {tag: [Tool, Tool, ...]}
-    Works with FastMCPToolset and other compatible toolsets
+    Helper to create a specialized sub-agent for a specific GitLab tag.
     """
-    # We need a dummy context — doesn't have to be real
-    dummy_ctx = RunContext[None](usage=None, deps=None, model=model)
+    # 1. Skills Toolset: Specific to this tag (if directory exists)
+    tag_skills_dir = Path(skills_directory) / f"gitlab-{tag.replace('_', '-')}"
+    agent_toolsets = []
+    
+    if tag_skills_dir.exists():
+        logger.debug(f"Loading skills for {tag} from {tag_skills_dir}")
+        skills = SkillsToolset(directories=[str(tag_skills_dir)])
+        agent_toolsets.append(skills)
+        logger.info(f"Loaded skills for {tag} from {tag_skills_dir} - Agent Toolsets: {agent_toolsets}")
+    else:
+        logger.warning(f"No specific skills directory found for {tag} at {tag_skills_dir}")
 
-    # Get all available tools (this is async!)
-    all_tools = await base_toolset.get_tools(dummy_ctx)
+    # 2. MCP Tools: Filtered by tag from the base toolset
+    # We define the filter function to check the 'tags' metadata
+    def tool_filter(ctx, tool_def):
+        # Safely access metadata
+        metadata = getattr(tool_def, "metadata", {}) or {}
+        tool_tags = metadata.get("tags", set())
+        # Convert list to set if needed
+        if isinstance(tool_tags, list):
+            tool_tags = set(tool_tags)
+        logger.info(f"Tool tags for {tool_def}: {tool_tags}")
+        return tag in tool_tags
 
-    tools_by_tag: dict[str, list[Tool]] = {}
+    filtered_tools = FilteredToolset(base_toolset, tool_filter)
+    logger.info(f"Filtered tools for {tag}: {filtered_tools.get_tools(None)}")
+    agent_toolsets.append(filtered_tools)
+    logger.info(f"Agent toolsets for {tag}: {agent_toolsets}")
 
-    for tool in all_tools.values():  # .values() → list[Tool]
-        # Where FastMCP usually puts the tags (can be slightly different depending on version)
-        meta = tool.tool_def.metadata.get("meta", {})
-        fastmcp_meta = meta.get("_fastmcp", {})
-        tags = fastmcp_meta.get("tags", set())
-
-        for tag in tags:
-            if tag not in tools_by_tag:
-                tools_by_tag[tag] = []
-            tools_by_tag[tag].append(tool)
-
-    return tools_by_tag
-
+    # 3. Create Agent
+    logger.info(f"Creating agent: GitLab_{tag.capitalize()}_Agent")
+    return Agent(
+        model=model,
+        system_prompt=system_prompt,
+        toolsets=agent_toolsets,
+        name=f"GitLab_{tag.capitalize()}_Agent",
+        deps_type=Any, # Allow passing context if needed
+    )
 
 async def create_gitlab_agent(
     provider: str = DEFAULT_PROVIDER,
@@ -143,91 +167,230 @@ async def create_gitlab_agent(
     mcp_url: str = DEFAULT_MCP_URL,
     skills_directory: str = DEFAULT_SKILLS_DIRECTORY,
 ) -> Agent:
+    
+    # Load all GitLab MCP tools (connection)
+    # We create one base toolset to reuse connection/discovery
+    base_toolset = FastMCPToolset(Client[Any](transport=mcp_url))
+    logger.info(f"Connected to MCP at {mcp_url}")
 
-    skills_toolset = SkillsToolset(directories=[skills_directory])
-
-    # Base model configuration to reuse
+    # Create the Model
     model = create_model(provider, model_id, base_url, api_key)
 
-    base_toolset = FastMCPToolset(Client[Any](transport=mcp_url))
+    # --- Create Explicit Sub-Agents ---
+    
+    # 1. Branches
+    branch_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="branches",
+        system_prompt="You are the GitLab Branch Specialist. manage branches, list them, search them. "
+        "Use your skills and tools to handle all branch-related requests.",
+        skills_directory=skills_directory, 
+    )
 
-    tools_by_tag = await build_tools_by_tag_dict(base_toolset, model)
+    # 2. Commits
+    commit_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="commits",
+        system_prompt="You are the GitLab Commit Specialist. View details, diffs, blame, and commit history. "
+        "Analyze code changes and commit messages.",
+        skills_directory=skills_directory, 
+    )
 
-    # Create Sub-Agents and Delegation Tools
-    delegation_tools = []
-    sub_agents = {}
+    # 3. Deploy Tokens
+    deploy_tokens_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="deploy_tokens",
+        system_prompt="You are the GitLab Deploy Token Specialist. Manage project and group deploy tokens.",
+        skills_directory=skills_directory, 
+    )
 
-    for tag in TAGS:
-        if tag not in tools_by_tag or not tools_by_tag[tag]:
-            continue
+    # 4. Environments
+    environments_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="environments",
+        system_prompt="You are the GitLab Environment Specialist. Manage environments, stop them, delete them.",
+        skills_directory=skills_directory, 
+    )
 
-        tag_tools = tools_by_tag[tag]
+    # 5. Groups
+    groups_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="groups",
+        system_prompt="You are the GitLab Group Specialist. Manage groups, subgroups, and group settings.",
+        skills_directory=skills_directory, 
+    )
 
-        # Create filtered toolset for this tag (cleaner than passing list directly)
-        tag_toolset = base_toolset.filtered(
-            lambda ctx, defn: any(t.tool_def.name == defn.name for t in tag_tools)
-        )
+    # 6. Jobs
+    jobs_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="jobs",
+        system_prompt="You are the GitLab Job Specialist. Inspect pipeline jobs, trace logs, and artifacts.",
+        skills_directory=skills_directory, 
+    )
 
-        sub_agent = Agent(
-            model=model,
-            system_prompt=f"You are GitLab **{tag}** specialist...",
-            toolsets=[skills_toolset, tag_toolset],
-            name=f"GitLab_{tag.title()}Agent",
-        )
+    # 7. Members
+    members_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="members",
+        system_prompt="You are the GitLab Member Specialist. Manage project and group membership and permissions.",
+        skills_directory=skills_directory, 
+    )
 
-        sub_agents[tag] = sub_agent
+    # 8. Merge Requests
+    mr_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="merge_requests",
+        system_prompt="You are the GitLab Merge Request Specialist. Create, update, list, and approve merge requests. "
+        "Analyze MR diffs and comments.",
+        skills_directory=skills_directory, 
+    )
 
-        # Create delegation tool (closure-safe)
-        async def make_delegate(_tag: str):
-            async def delegate(ctx: RunContext, query: str) -> str:
-                agent = sub_agents.get(_tag)
-                if not agent:
-                    return f"No specialist for domain: {_tag}"
-                result = await agent.run(query, usage=ctx.usage)
-                return result.output
+    # 9. Merge Rules
+    merge_rules_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="merge_rules",
+        system_prompt="You are the GitLab Merge Rules Specialist. configuration of merge request approval rules.",
+        skills_directory=skills_directory, 
+    )
+    # 10. Packages
+    packages_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="packages",
+        system_prompt="You are the GitLab Package Specialist. Manage project and group packages.",
+        skills_directory=skills_directory, 
+    )
 
-            delegate.__name__ = f"delegate_to_{_tag}"
-            delegate.__doc__ = f"Delegate task to the GitLab {tag} specialist"
-            return delegate
+    # 11. Pipeline Schedules
+    schedules_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="pipeline_schedules",
+        system_prompt="You are the GitLab Pipeline Schedule Specialist. Manage scheduled pipelines.",
+        skills_directory=skills_directory, 
+    )
 
-        delegation_tools.append(await make_delegate(tag))
+    # 12. Pipelines
+    pipelines_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="pipelines",
+        system_prompt="You are the GitLab Pipeline Specialist. Create, list, retry, and cancel pipelines. "
+        "Debug pipeline failures.",
+        skills_directory=skills_directory, 
+    )
+
+    # 13. Projects
+    projects_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="projects",
+        system_prompt="You are the GitLab Project Specialist. create, edit, and manage project settings and visibility.",
+        skills_directory=skills_directory, 
+    )
+
+    # 14. Protected Branches
+    protected_branches_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="protected_branches",
+        system_prompt="You are the GitLab Protected Branch Specialist. Manage branch protection rules.",
+        skills_directory=skills_directory, 
+    )
+
+    # 15. Releases
+    releases_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="releases",
+        system_prompt="You are the GitLab Release Specialist. Manage project releases and tags associated with them.",
+        skills_directory=skills_directory, 
+    )
+
+    # 16. Runners
+    runners_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="runners",
+        system_prompt="You are the GitLab Runner Specialist. Manage and monitor CI/CD runners.",
+        skills_directory=skills_directory, 
+    )
+
+    # 17. Tags
+    tags_agent = await create_sub_agent(
+        model=model, 
+        base_toolset=base_toolset, 
+        tag="tags",
+        system_prompt="You are the GitLab Tag Specialist. Manage repository tags.",
+        skills_directory=skills_directory, 
+    )
+
+
+    # Create delegation tools wrapper
+    def create_delegation_tool(sub_agent: Agent, tag: str) -> Tool:
+        async def delegate(ctx: RunContext, query: str) -> str:
+            logger.info(f"Master Delegating to {sub_agent.name}: {query}")
+            # We assume sub-agents don't need special deps for now, or match Master's deps
+            # If sub-agents need deps, pass them here. 
+            result = await sub_agent.run(query)
+            return result.output
+            
+        delegate.__name__ = f"delegate_to_{tag}"
+        delegate.__doc__ = f"Delegate to the {sub_agent.name}. Use this for tasks related to {tag}."
+        return Tool(delegate)
+
+    # --- Master Orchestrator ---
+
+    logger.info("Initializing Master Orchestrator Agent")
 
     return Agent(
         model=model,
         system_prompt=(
             "You are the GitLab Master Orchestrator Agent.\n"
-            "You do NOT execute GitLab API calls directly. Instead, you delegate tasks to specialized sub-agents.\n"
+            "You do NOT execute GitLab API calls directly. Instead, you delegate tasks to your specialized sub-agents.\n"
             "Your responsibilities:\n"
             "1. Analyze the user's request.\n"
-            "2. Identify which domain (tag) the request belongs to (e.g., branches, merge_requests, pipelines).\n"
-            "3. Use the appropriate 'delegate_to_{tag}' tool to pass the request to the specialist.\n"
-            "4. Combine results if necessary, or pass the specialist's response back to the user.\n"
-            "5. If you need to look up documentation or patterns, use your skills toolset.\n\n"
-            "Available Domains:\n"
-            + "\n".join([f"- {tag}" for tag in TAGS if tools_by_tag.get(tag)])
-            + "\n\n"
-            "Always be warm and friendly. If a request spans multiple domains, break it down and delegate sequentially."
+            "2. Identify the domain (e.g., branches, commits, MRs) and select the appropriate specialist agent.\n"
+            "3. Delegating is your primary action. Do not try to answer questions that require tools yourself.\n"
+            "4. If a complicated task requires multiple specialists (e.g. 'check out branch X and verify the last commit'), "
+            "   orchestrate them sequentially: call the Branch Agent, then the Commit Agent.\n"
+            "5. Always be warm, professional, and helpful.\n"
+            "6. Explain your plan in detail before executing."
         ),
         name="GitLab_Master_Agent",
-        toolsets=[skills_toolset],  # Master also has skills
-        tools=delegation_tools,  # Tools to delegate
+        # Pass all specialized agents as tools
+        tools=[
+            create_delegation_tool(branch_agent, "branches"),
+            create_delegation_tool(commit_agent, "commits"),
+            create_delegation_tool(deploy_tokens_agent, "deploy_tokens"),
+            create_delegation_tool(environments_agent, "environments"),
+            create_delegation_tool(groups_agent, "groups"),
+            create_delegation_tool(jobs_agent, "jobs"),
+            create_delegation_tool(members_agent, "members"),
+            create_delegation_tool(mr_agent, "merge_requests"),
+            create_delegation_tool(merge_rules_agent, "merge_rules"),
+            create_delegation_tool(packages_agent, "packages"),
+            create_delegation_tool(schedules_agent, "pipeline_schedules"),
+            create_delegation_tool(pipelines_agent, "pipelines"),
+            create_delegation_tool(projects_agent, "projects"),
+            create_delegation_tool(protected_branches_agent, "protected_branches"),
+            create_delegation_tool(releases_agent, "releases"),
+            create_delegation_tool(runners_agent, "runners"),
+            create_delegation_tool(tags_agent, "tags"),
+        ],
+        # Master agent also gets the general skills (documentation, etc.) if needed. 
+        # For now, we only give it the sub-agents to force delegation.
+        deps_type=Any,
     )
-
-
-# Define Skills for Agent Card (High-level capabilities)
-skills = []
-for mcp_tag in TAGS:
-    skills.append(
-        Skill(
-            id=f"gitlab_{mcp_tag}",
-            name=f"GitLab {mcp_tag.replace('_', ' ').title()}",
-            description=f"Manage and query GitLab {mcp_tag.replace('_', ' ')}.",
-            tags=[mcp_tag, "gitlab"],
-            input_modes=["text"],
-            output_modes=["text"],
-        )
-    )
-
 
 def agent_server():
     parser = argparse.ArgumentParser(description=f"Run the {AGENT_NAME} A2A Server")
@@ -285,6 +448,20 @@ def agent_server():
         logfire.configure()  # Auto-detects token; or pass write_token="YOUR_TOKEN"
         logfire.instrument_pydantic_ai()  # Enables tracing for all Pydantic AI operations
         logfire.instrument_httpx(capture_all=True)
+
+    # Define Skills for Agent Card (High-level capabilities)
+    skills = []
+    for mcp_tag in TAGS:
+        skills.append(
+            Skill(
+                id=f"gitlab_{mcp_tag}",
+                name=f"GitLab {mcp_tag.replace('_', ' ').title()}",
+                description=f"Manage and query GitLab {mcp_tag.replace('_', ' ')}.",
+                tags=[mcp_tag, "gitlab"],
+                input_modes=["text"],
+                output_modes=["text"],
+            )
+        )
     # Create A2A App
     cli_app = cli_agent.to_a2a(
         name=AGENT_NAME,

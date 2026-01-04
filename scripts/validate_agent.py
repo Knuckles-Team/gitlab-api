@@ -34,8 +34,8 @@ async def main():
         # Define sample questions
         questions = [
             "Can you create a merge request for project id 171 with a title of 'Test Merge Request' from the 'validate' to 'main' branch? For the description please put 'this is a test merge request'.",
-            "Can you run the pipeline for project id 171 on the 'main' branch?",
-            "Can you create a branch called 'test' from the 'main' branch for project id 171?",
+            # "Can you run the pipeline for project id 171 on the 'main' branch?",
+            # "Can you create a branch called 'test' from the 'main' branch for project id 171?",
         ]
 
         print("\n--- Starting Sample Chat Validation ---\n")
@@ -44,6 +44,9 @@ async def main():
             print(f"\n\n\nUser: {q}")
             try:
                 result = await agent.run(q)
+                # async with agent.run_stream(q) as result:  
+                #     async for message in result.stream_text():  
+                #         print(message)
                 print(f"\n\nAgent Result: {result.output}\n")
                 if hasattr(agent, "tools"):
                     print(f"Agent Tools: {[t.__name__ for t in agent.tools]}")
