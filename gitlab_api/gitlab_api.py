@@ -94,7 +94,12 @@ class Api(object):
             raise MissingParameterError
 
         self._session = requests.Session()
-        self.url = urljoin(url.rstrip("/") + "/", "api/v4/")
+        self.url = url.rstrip('/')           # remove trailing slash
+        forbidden = ['/api/v4', '/api/v4/']
+        for end in forbidden:
+            if url.endswith(end):
+                self.url = url[:-len(end)]
+        self.url = self.url + '/api/v4/'
         self.headers = None
         self.headers_parallel = None
         self.verify = verify

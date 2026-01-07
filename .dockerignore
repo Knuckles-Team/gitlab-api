@@ -1,5 +1,6 @@
-.bumpversion.cfg
-.pre-commit-config.yaml
-pytest.ini
-./tests/
-Dockerfile
+ollama/
+venv/
+__pycache__/
+*.pyc
+.git/
+.env

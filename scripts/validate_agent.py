@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import asyncio
 import sys
+from gitlab_api.gitlab_a2a import stream_chat, node_chat, chat
 
 # Attempt to import assuming dependencies are installed
 import os
@@ -8,7 +9,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 try:
-    from gitlab_api.gitlab_a2a import create_gitlab_agent
+    from gitlab_api.gitlab_a2a import create_agent
 except ImportError as e:
     print(f"Import Error: {e}")
     print("Please install dependencies via `pip install .[all]`")
@@ -21,10 +22,10 @@ async def main():
         # Connect to real Ollama service
         # Using localhost because this script runs on the host (or same network stack)
         # where port 11434 is mapped.
-        agent = await create_gitlab_agent(
+        agent = create_agent(
             provider="openai",
-            model_id="qwen3:4b",
-            base_url="http://localhost:11434/v1",
+            model_id="qwen/qwen3-8b",
+            base_url="http://127.0.0.1:1234/v1",
             api_key="ollama",
             mcp_url="http://localhost:8005/mcp",
         )
@@ -43,11 +44,10 @@ async def main():
         for q in questions:
             print(f"\n\n\nUser: {q}")
             try:
-                result = await agent.run(q)
-                # async with agent.run_stream(q) as result:  
-                #     async for message in result.stream_text():  
-                #         print(message)
-                print(f"\n\nAgent Result: {result.output}\n")
+
+                await stream_chat(agent=agent, prompt=q)
+                #await chat(agent=agent, prompt=q)
+                #await node_chat(agent=agent, prompt=q)
                 if hasattr(agent, "tools"):
                     print(f"Agent Tools: {[t.__name__ for t in agent.tools]}")
                 elif hasattr(agent, "_tools"):
