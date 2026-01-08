@@ -250,30 +250,32 @@ The script initializes the graph on startup (ingesting docs if needed), creates 
 ### Architecture:
 
 ```mermaid
-graph TD
-    A[User Query] --> B[A2A Server - Uvicorn/FastAPI]
-    B --> C[Orchestrator Agent]
-    C --> D{Delegate by Tag}
-    D --> E1[Child Agent: merge requests]
-    D --> E2[Child Agent: pipelines]
-    D --> E3[Child Agent: change_management]
-    D --> En[... Other Child Agents]
-    E1 --> F1[Filtered MCP Tools - merge requests]
-    E1 --> G[Graphiti Knowledge Graph]
-    E2 --> F2[Filtered MCP Tools - pipelines]
-    E2 --> G
-    E3 --> F3[Filtered MCP Tools - change_management]
-    E3 --> G
-    Dn --> Fn[Filtered MCP Tools]
-    Dn --> G
-    G --> H[Ingested GitLab Docs Corpus]
-    F1 --> I[GitLab APIs via MCP]
-    F2 --> I
-    F3 --> I
-    Fn --> I
-    subgraph "Initialization"
-        J[Initialize Graphiti DB] --> G
-    end
+---
+config:
+  layout: dagre
+---
+flowchart TB
+ subgraph subGraph0["Agent Capabilities"]
+        C["Agent"]
+        B["A2A Server - Uvicorn/FastAPI"]
+        D["MCP Tools"]
+        F["Agent Skills"]
+  end
+    C --> D & F
+    A["User Query"] --> B
+    B --> C
+    D --> E["Platform API"]
+
+     C:::agent
+     B:::server
+     A:::server
+    classDef server fill:#f9f,stroke:#333
+    classDef agent fill:#bbf,stroke:#333,stroke-width:2px
+    style B stroke:#000000,fill:#FFD600
+    style D stroke:#000000,fill:#BBDEFB
+    style F fill:#BBDEFB
+    style A fill:#C8E6C9
+    style subGraph0 fill:#FFF9C4
 ```
 
 This diagram shows the flow from user input to delegation, tool execution, and knowledge retrieval. The orchestrator synthesizes results from children before responding.
@@ -327,30 +329,26 @@ This creates a dynamic corpus, allowing agents to "understand" APIs without hard
 sequenceDiagram
     participant User
     participant Server as A2A Server
-    participant Orch as Orchestrator
-    participant Child as Child Agent
+    participant Agent as Agent
+    participant Skill as Agent Skills
     participant MCP as MCP Tools
-    participant Graph as Graphiti KG
 
     User->>Server: Send Query
-    Server->>Orch: Invoke Orchestrator
-    Orch->>Orch: Analyze & Delegate
-    Orch->>Child: delegate_to_tag(task)
-    Child->>Graph: query_graph("API details...")
-    Graph-->>Child: Return Snippets/Entities
-    Child->>MCP: Invoke Filtered Tool
-    MCP-->>Child: API Response
-    Child-->>Orch: Return Result
-    Orch->>Orch: Synthesize
-    Orch-->>Server: Final Response
+    Server->>Agent: Invoke Agent
+    Agent->>Skill: Analyze Skills Available
+    Skill->>Agent: Provide Guidance on Next Steps
+    Agent->>MCP: Invoke Tool
+    MCP-->>Agent: Tool Response Returned
+    Agent-->>Agent: Return Results Summarized
+    Agent-->>Server: Final Response
     Server-->>User: Output
 ```
 
 This sequence highlights delegation, knowledge retrieval, and tool execution.
 
 ### Strengths
-- **Modularity & Scalability**: Tags allow easy addition of domains (e.g., new GitLab modules) by extending `TAGS` and MCP tools. Graphiti scales with more docs via incremental ingestion.
-- **Knowledge-Driven Reasoning**: By ingesting official docs, children can handle evolving APIs (e.g., Zurich bundle updates) without code changes—queries adapt to temporal data.
+- **Modularity & Scalability**: Tags allow easy addition of domains (e.g., new GitLab modules) by extending `TAGS` and MCP tools. 
+- **Knowledge-Driven Reasoning**: Agent Skills keep the agent accurate and precise in actions and tasks
 - **Efficiency**: Tool filtering prevents overload; delegation parallelizes tasks (though sequential in code, extensible to async).
 - **Flexibility**: Supports multiple LLMs/backends via args/envs; A2A enables integration with other systems.
 - **Minimal Setup**: Graph auto-initializes; defaults make it runnable out-of-box (assuming MCP/Graphiti servers).
