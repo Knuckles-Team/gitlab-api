@@ -5,6 +5,8 @@ import argparse
 import logging
 import uvicorn
 from typing import Optional, Any, List
+from pathlib import Path
+import yaml
 
 from fastmcp import Client
 from pydantic_ai import Agent
@@ -91,7 +93,7 @@ def create_agent(
     api_key: Optional[str] = None,
     mcp_url: str = DEFAULT_MCP_URL,
     mcp_config: str = DEFAULT_MCP_CONFIG,
-    skills_directory: str = DEFAULT_SKILLS_DIRECTORY,
+    skills_directory: Optional[str] = DEFAULT_SKILLS_DIRECTORY,
 ) -> Agent:
     agent_toolsets = []
 
@@ -159,8 +161,63 @@ async def stream_chat(agent: Agent, prompt: str) -> None:
         print("\nDone!")  # optional
 
 
+def load_skills_from_directory(directory: str) -> List[Skill]:
+    skills = []
+    base_path = Path(directory)
+
+    if not base_path.exists():
+        logger.warning(f"Skills directory not found: {directory}")
+        return skills
+
+    for item in base_path.iterdir():
+        if item.is_dir():
+            skill_file = item / "SKILL.md"
+            if skill_file.exists():
+                try:
+                    with open(skill_file, "r") as f:
+                        # Extract frontmatter
+                        content = f.read()
+                        if content.startswith("---"):
+                            _, frontmatter, _ = content.split("---", 2)
+                            data = yaml.safe_load(frontmatter)
+
+                            skill_id = item.name
+                            skill_name = data.get("name", skill_id)
+                            skill_desc = data.get(
+                                "description", f"Access to {skill_name} tools"
+                            )
+
+                            # Generate tags: "gitlab" + folder name without "gitlab-" prefix
+                            tag_name = skill_id.replace("gitlab-", "")
+                            tags = ["gitlab", tag_name]
+
+                            skills.append(
+                                Skill(
+                                    id=skill_id,
+                                    name=skill_name,
+                                    description=skill_desc,
+                                    tags=tags,
+                                    input_modes=["text"],
+                                    output_modes=["text"],
+                                )
+                            )
+                except Exception as e:
+                    logger.error(f"Error loading skill from {skill_file}: {e}")
+
+    return skills
+
+
 def create_a2a_server(
-    provider, model_id, base_url, api_key, mcp_url, mcp_config, debug, host, port
+    provider,
+    model_id,
+    base_url,
+    api_key,
+    mcp_url,
+    mcp_config,
+    debug,
+    host,
+    port,
+    skills_directory,
 ):
     print(
         f"Starting {AGENT_NAME} with provider={provider}, model={model_id}, mcp={mcp_url} | {mcp_config}"
@@ -172,24 +229,29 @@ def create_a2a_server(
         api_key=api_key,
         mcp_url=mcp_url,
         mcp_config=mcp_config,
+        skills_directory=skills_directory,
     )
 
     # Define Skills for Agent Card (High-level capabilities)
-    skills = [
-        Skill(
-            id="gitlab_agent",
-            name="GitLab Agent",
-            description="This GitLab skill grants access to all GitLab tools provided by the GitLab MCP Server",
-            tags=["gitlab"],
-            input_modes=["text"],
-            output_modes=["text"],
-        )
-    ]
+    if skills_directory and os.path.exists(skills_directory):
+        skills = load_skills_from_directory(skills_directory)
+        logger.info(f"Loaded {len(skills)} skills from {skills_directory}")
+    else:
+        skills = [
+            Skill(
+                id="gitlab_agent",
+                name="GitLab Agent",
+                description="This GitLab skill grants access to all GitLab tools provided by the GitLab MCP Server",
+                tags=["gitlab"],
+                input_modes=["text"],
+                output_modes=["text"],
+            )
+        ]
     # Create A2A App
     app = agent.to_a2a(
         name=AGENT_NAME,
         description=AGENT_DESCRIPTION,
-        version="25.14.0",
+        version="25.14.1",
         skills=skills,
         debug=debug,
     )
@@ -268,6 +330,9 @@ def agent_server():
         debug=args.debug,
         host=args.host,
         port=args.port,
+        skills_directory=os.getenv(
+            "SKILLS_DIRECTORY", str(files("gitlab_api") / "skills")
+        ),
     )
 
 
