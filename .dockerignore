@@ -4,3 +4,9 @@ __pycache__/
 *.pyc
 .git/
 .env
+scripts/
+test/
+gitlab_api.egg-info*
+models/
+.github/
+build/

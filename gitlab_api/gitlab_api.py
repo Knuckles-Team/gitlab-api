@@ -9,7 +9,6 @@ from base64 import b64encode
 from typing import Dict, Any, List, TypeVar, Tuple
 from pydantic import ValidationError
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.parse import urljoin
 
 from gitlab_api.gitlab_input_models import (
     CommitModel,
@@ -94,12 +93,12 @@ class Api(object):
             raise MissingParameterError
 
         self._session = requests.Session()
-        self.url = url.rstrip('/')           # remove trailing slash
-        forbidden = ['/api/v4', '/api/v4/']
+        self.url = url.rstrip("/")  # remove trailing slash
+        forbidden = ["/api/v4", "/api/v4/"]
         for end in forbidden:
             if url.endswith(end):
-                self.url = url[:-len(end)]
-        self.url = self.url + '/api/v4/'
+                self.url = url[: -len(end)]
+        self.url = self.url + "/api/v4/"
         self.headers = None
         self.headers_parallel = None
         self.verify = verify

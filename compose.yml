@@ -1,14 +1,12 @@
 ---
 services:
   gitlab-mcp:
-    # image: docker.io/knucklessg1/gitlab:latest
-    build: .
+    image: docker.io/knucklessg1/gitlab:latest
+    # build: . # Debug
     container_name: gitlab-mcp
     hostname: gitlab-mcp
     command: |
       gitlab-mcp
-    #depends_on:
-      #- ollama
     logging:
       driver: json-file
       options:
@@ -16,12 +14,12 @@ services:
         max-file: "3"
     restart: always
     environment:
-      - HOST=0.0.0.0 # Optional
-      - PORT=8005 # Optional
-      - TRANSPORT=streamable-http
-      - GITLAB_INSTANCE=${GITLAB_INSTANCE:-http://gitlab.arpa/api/v4}
-      - GITLAB_ACCESS_TOKEN=${GITLAB_ACCESS_TOKEN:-glpat-8xzQ8KCGC5-J7yjfyMPo}
-      - GITLAB_VERIFY=False # Optional
+      - "HOST=0.0.0.0"
+      - "PORT=8005"
+      - "TRANSPORT=streamable-http"
+      - "GITLAB_INSTANCE=${GITLAB_INSTANCE:-http://gitlab.arpa/api/v4}"
+      - "GITLAB_ACCESS_TOKEN=${GITLAB_ACCESS_TOKEN:-glpat-asdfa;sldkfj}"
+      - "GITLAB_VERIFY=False" # Optional
     #      - AUTH_TYPE=oidc-proxy # Optional
     #      - OIDC_CONFIG_URL=https://provider.com/.well-known/openid-configuration # Optional
     #      - OIDC_CLIENT_ID=your-client-id # Optional
@@ -36,18 +34,16 @@ services:
     #      - FASTMCP_SERVER_AUTH_JWT_ALGORITHM=HS256 # Optional
     #      - FASTMCP_SERVER_AUTH_JWT_PUBLIC_KEY=your-shared-secret # Optional
     #      - FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES=gitlab.read,gitlab.write # Optional
-    ports:
-      - "8005:8005"
+    network_mode: "host"
 
   gitlab-a2a:
-    # image: docker.io/knucklessg1/gitlab:latest
-    build: .
+    image: docker.io/knucklessg1/gitlab:latest
+    # build: . # Debug
     container_name: gitlab-a2a
     hostname: gitlab-a2a
     command: |
       gitlab-a2a --debug True
     depends_on:
-      #- ollama
       - gitlab-mcp
     logging:
       driver: json-file
@@ -58,58 +54,17 @@ services:
     environment:
       - "HOST=0.0.0.0"
       - "PORT=9000"
-      - "MCP_URL=http://gitlab-mcp:8005/mcp"
+      # - "MCP_CONFIG=./gitlab_api/mcp_config.json" # Optionally specify your own file - Default will use MCP_URL in the pre-packaged mcp_config.json
+      - "MCP_URL=http://localhost:8005/mcp"
       - "PROVIDER=openai"
-      - "OPENAI_BASE_URL=http://127.0.0.1:1234/v1"
-      - "OPENAI_API_KEY=ollama"
+      - "OPENAI_BASE_URL=http://localhost:1234/v1"
+      - "OPENAI_API_KEY=llama"
       - "MODEL_ID=qwen/qwen3-8b"
-    ports:
-      - "9000:9000"
-
-  # ollama:
-  #   image: docker.io/ollama/ollama:latest
-  #   hostname: ollama
-  #   container_name: ollama
-  #   restart: always
-  #   volumes:
-  #     - ./ollama:/root/.ollama
-  #   entrypoint:
-  #     - /bin/bash
-  #     - -c
-  #     - |
-  #       ollama serve &
-  #       pid=$$!
-  #       echo "Waiting for Ollama server to start..."
-  #       while ! ollama list > /dev/null 2>&1; do
-  #         sleep 1
-  #       done
-  #       echo "Ollama is ready!"
-  #       echo "Pulling models..."
-  #       ollama pull qwen3:8b
-  #       echo "🟢 Model pulled and server ready"
-  #       wait $$pid
-  #   ports:
-  #     - "11434:11434"
-  #   environment:
-  #     - "OLLAMA_HOST=0.0.0.0"
-  #     - "OLLAMA_KEEP_ALIVE=24h"
-  #     - "NVIDIA_VISIBLE_DEVICES=all"
-  #     - "NVIDIA_DRIVER_CAPABILITIES=all"
-  #     - OLLAMA_CONTEXT_LENGTH=32768
-
-  # Debug A2A Service
-  a2a-inspector:
-    build: https://github.com/a2aproject/a2a-inspector.git
-    container_name: a2a-inspector
-    ports:
-      - "8080:8080"
+    network_mode: "host"
 
   # Debug MCP Service
   mcp-inspector:
     image: mcpjam/mcp-inspector
     container_name: mcp-inspector
-    environment:
-      - "HOST=0.0.0.0"
     ports:
       - "6274:6274"
-      - "6277:6277"

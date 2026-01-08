@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import asyncio
 import sys
-from gitlab_api.gitlab_a2a import stream_chat, node_chat, chat
+from gitlab_api.gitlab_a2a import stream_chat, chat, node_chat
+
 
 # Attempt to import assuming dependencies are installed
 import os
@@ -19,15 +20,15 @@ except ImportError as e:
 async def main():
     print("Initializing GitlabA2A Agent...")
     try:
-        # Connect to real Ollama service
-        # Using localhost because this script runs on the host (or same network stack)
-        # where port 11434 is mapped.
         agent = create_agent(
             provider="openai",
-            model_id="qwen/qwen3-8b",
-            base_url="http://127.0.0.1:1234/v1",
-            api_key="ollama",
-            mcp_url="http://localhost:8005/mcp",
+            model_id=os.getenv("MODEL_ID", "qwen/qwen3-8b"),
+            base_url=os.getenv(
+                "OPENAI_BASE_URL", "http://localhost:1234/v1"
+            ),  # 127.0.0.1
+            api_key=os.getenv("OPENAI_API_KEY", "ollama"),
+            mcp_url=os.getenv("MCP_URL", "http://localhost:8005/mcp"),  # 127.0.0.1
+            mcp_config=None,
         )
 
         print("Agent initialized successfully.")
@@ -35,8 +36,8 @@ async def main():
         # Define sample questions
         questions = [
             "Can you create a merge request for project id 171 with a title of 'Test Merge Request' from the 'validate' to 'main' branch? For the description please put 'this is a test merge request'.",
-            # "Can you run the pipeline for project id 171 on the 'main' branch?",
-            # "Can you create a branch called 'test' from the 'main' branch for project id 171?",
+            "Can you run the pipeline for project id 171 on the 'main' branch?",
+            "Can you create a branch called 'test' from the 'main' branch for project id 171?",
         ]
 
         print("\n--- Starting Sample Chat Validation ---\n")
@@ -44,10 +45,10 @@ async def main():
         for q in questions:
             print(f"\n\n\nUser: {q}")
             try:
-
+                # Only run one to test
                 await stream_chat(agent=agent, prompt=q)
-                #await chat(agent=agent, prompt=q)
-                #await node_chat(agent=agent, prompt=q)
+                await chat(agent=agent, prompt=q)
+                await node_chat(agent=agent, prompt=q)
                 if hasattr(agent, "tools"):
                     print(f"Agent Tools: {[t.__name__ for t in agent.tools]}")
                 elif hasattr(agent, "_tools"):
