@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.14.1*
+*Version: 25.14.2*
 
 ## Overview
 

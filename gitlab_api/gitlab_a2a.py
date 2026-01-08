@@ -208,16 +208,16 @@ def load_skills_from_directory(directory: str) -> List[Skill]:
 
 
 def create_a2a_server(
-    provider,
-    model_id,
-    base_url,
-    api_key,
-    mcp_url,
-    mcp_config,
-    debug,
-    host,
-    port,
-    skills_directory,
+    provider: str = DEFAULT_PROVIDER,
+    model_id: str = DEFAULT_MODEL_ID,
+    base_url: Optional[str] = None,
+    api_key: Optional[str] = None,
+    mcp_url: str = DEFAULT_MCP_URL,
+    mcp_config: str = DEFAULT_MCP_CONFIG,
+    skills_directory: Optional[str] = DEFAULT_SKILLS_DIRECTORY,
+    debug: Optional[bool] = DEFAULT_DEBUG,
+    host: Optional[str] = DEFAULT_HOST,
+    port: Optional[int] = DEFAULT_PORT,
 ):
     print(
         f"Starting {AGENT_NAME} with provider={provider}, model={model_id}, mcp={mcp_url} | {mcp_config}"
@@ -251,16 +251,17 @@ def create_a2a_server(
     app = agent.to_a2a(
         name=AGENT_NAME,
         description=AGENT_DESCRIPTION,
-        version="25.14.1",
+        version="25.14.2",
         skills=skills,
         debug=debug,
     )
 
     logger.info(
-        "Starting A2A server with provider=%s, model=%s, mcp_url=%s",
+        "Starting A2A server with provider=%s, model=%s, mcp_url=%s, mcp_config=%s",
         provider,
         model_id,
         mcp_url,
+        mcp_config,
     )
 
     uvicorn.run(
@@ -330,9 +331,6 @@ def agent_server():
         debug=args.debug,
         host=args.host,
         port=args.port,
-        skills_directory=os.getenv(
-            "SKILLS_DIRECTORY", str(files("gitlab_api") / "skills")
-        ),
     )
 
 
