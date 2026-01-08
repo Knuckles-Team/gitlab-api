@@ -73,9 +73,7 @@ def test_create_branch():
     # However, for testing, we can often POST to the message handler if exposed.
     # Let's assume `http://localhost:8005/mcp/messages` or just `/mcp` handles POST.
 
-    response = requests.post(
-        "http://localhost:8005/mcp", json=payload, headers=HEADERS
-    )
+    response = requests.post("http://localhost:8005/mcp", json=payload, headers=HEADERS)
     if response.status_code == 405:  # Method Not Allowed -> Maybe only SSE?
         logger.warning("MCP might be SSE only. Cannot validate via simple POST.")
         return
