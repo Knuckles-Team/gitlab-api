@@ -1,37 +1,37 @@
 #!/usr/bin/python
 # coding: utf-8
-import json
 import os
 import argparse
 import logging
-import asyncio
 import uvicorn
 from typing import Optional, Any, List
-import traceback
-from starlette.responses import JSONResponse
 
 from fastmcp import Client
 from pydantic_ai import Agent
+from pydantic_ai.mcp import load_mcp_servers
 from pydantic_ai.toolsets.fastmcp import FastMCPToolset
 from pydantic_ai_skills import SkillsToolset
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.models.google import GoogleModel
 from pydantic_ai.models.huggingface import HuggingFaceModel
-# from pydantic_ai.builtin_tools import CodeExecutionTool
 from fasta2a import Skill
 from gitlab_api.utils import to_integer, to_boolean
 from importlib.resources import files, as_file
 
 logging.basicConfig(
-    level=logging.DEBUG,  # Change from INFO to DEBUG
+    level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler()],  # Output to console
 )
-logging.getLogger("pydantic_ai").setLevel(logging.DEBUG)  # Enable pydantic-ai logs
-logging.getLogger("fastmcp").setLevel(logging.DEBUG)  # Enable FastMCP logs
-logging.getLogger("httpx").setLevel(logging.INFO)  # Quieter HTTP logs
+logging.getLogger("pydantic_ai").setLevel(logging.INFO)
+logging.getLogger("fastmcp").setLevel(logging.INFO)
+logging.getLogger("httpx").setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
+
+mcp_config_file = files("gitlab_api") / "mcp_config.json"
+with as_file(mcp_config_file) as path:
+    mcp_config_path = str(path)
 
 skills_dir = files("gitlab_api") / "skills"
 with as_file(skills_dir) as path:
@@ -44,30 +44,9 @@ DEFAULT_PROVIDER = os.getenv("PROVIDER", "openai")
 DEFAULT_MODEL_ID = os.getenv("MODEL_ID", "qwen/qwen3-8b")
 DEFAULT_OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "http://127.0.0.1:1234/v1")
 DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
-DEFAULT_MCP_URL = os.getenv("MCP_URL", "http://localhost:8000/mcp")
+DEFAULT_MCP_URL = os.getenv("MCP_URL", None)
+DEFAULT_MCP_CONFIG = os.getenv("MCP_CONFIG", mcp_config_path)
 DEFAULT_SKILLS_DIRECTORY = os.getenv("SKILLS_DIRECTORY", skills_path)
-
-# Detected tags from gitlab_mcp.py
-TAGS = [
-    "branches",
-    "commits",
-    "deploy_tokens",
-    "environments",
-    "groups",
-    "jobs",
-    "members",
-    "merge_requests",
-    "merge_rules",
-    "packages",
-    "pipeline_schedules",
-    "pipelines",
-    "projects",
-    "protected_branches",
-    "releases",
-    "runners",
-    "tags",
-    # "custom_api",
-]
 
 AGENT_NAME = "GitLab"
 AGENT_DESCRIPTION = "An agent built with Agent Skills and GitLab MCP tools to maximize GitLab interactivity."
@@ -111,27 +90,30 @@ def create_agent(
     base_url: Optional[str] = None,
     api_key: Optional[str] = None,
     mcp_url: str = DEFAULT_MCP_URL,
-    #skills_directory: str = DEFAULT_SKILLS_DIRECTORY,
+    mcp_config: str = DEFAULT_MCP_CONFIG,
+    skills_directory: str = DEFAULT_SKILLS_DIRECTORY,
 ) -> Agent:
-    # tools = [CodeExecutionTool()] 
     agent_toolsets = []
 
-    base_toolset = FastMCPToolset(
-        Client[Any](mcp_url, timeout=3600)
-    )
-    agent_toolsets.append(base_toolset)
-    logger.info(f"Connected to MCP at {mcp_url}")
+    if mcp_config:
+        mcp_toolset = load_mcp_servers(mcp_config)
+        agent_toolsets.extend(mcp_toolset)
+        logger.info(f"Connected to MCP Config JSON: {mcp_toolset}")
+    elif mcp_url:
+        fastmcp_toolset = FastMCPToolset(Client[Any](mcp_url, timeout=3600))
+        agent_toolsets.append(fastmcp_toolset)
+        logger.info(f"Connected to MCP Server: {mcp_url}")
 
-    # logger.info(f"Loaded Skills at {skills_directory}")
-    # if os.path.exists(skills_directory):
-    #     logger.debug(f"Loading skills {skills_directory}")
-    #     skills = SkillsToolset(directories=[str(skills_directory)])
-    #     agent_toolsets.append(skills)
+    if skills_directory and os.path.exists(skills_directory):
+        logger.debug(f"Loading skills {skills_directory}")
+        skills = SkillsToolset(directories=[str(skills_directory)])
+        agent_toolsets.append(skills)
+        logger.info(f"Loaded Skills at {skills_directory}")
 
     # Create the Model
     model = create_model(provider, model_id, base_url, api_key)
 
-    logger.info("Initializing Agent")
+    logger.info("Initializing Agent...")
 
     return Agent(
         model=model,
@@ -148,18 +130,12 @@ def create_agent(
             "6. Explain your plan in detail before executing."
         ),
         name="GitLab_Agent",
-        # tools=tools, # Removed invalid tool
         toolsets=agent_toolsets,
         deps_type=Any,
     )
 
 
-async def chat(agent: Agent, prompt: str, skills):
-    # Add skills system prompt (includes skill descriptions and usage)
-    @agent.system_prompt
-    async def add_skills_prompt() -> str:
-        return skills.get_skills_system_prompt()
-
+async def chat(agent: Agent, prompt: str):
     result = await agent.run(prompt)
     print(f"Response:\n\n{result.output}")
 
@@ -173,9 +149,9 @@ async def node_chat(agent: Agent, prompt: str) -> List:
     return nodes
 
 
-async def stream_chat(agent: Agent, query: str) -> None:
+async def stream_chat(agent: Agent, prompt: str) -> None:
     # Option A: Easiest & most common - just stream the final text output
-    async with agent.run_stream(query) as result:
+    async with agent.run_stream(prompt) as result:
         async for text_chunk in result.stream_text(
             delta=True
         ):  # ← streams partial text deltas
@@ -184,10 +160,10 @@ async def stream_chat(agent: Agent, query: str) -> None:
 
 
 def create_a2a_server(
-    provider, model_id, base_url, api_key, mcp_url, debug, host, port
+    provider, model_id, base_url, api_key, mcp_url, mcp_config, debug, host, port
 ):
     print(
-        f"Starting {AGENT_NAME} with provider={provider}, model={model_id}, mcp={mcp_url}"
+        f"Starting {AGENT_NAME} with provider={provider}, model={model_id}, mcp={mcp_url} | {mcp_config}"
     )
     agent = create_agent(
         provider=provider,
@@ -195,34 +171,28 @@ def create_a2a_server(
         base_url=base_url,
         api_key=api_key,
         mcp_url=mcp_url,
+        mcp_config=mcp_config,
     )
 
     # Define Skills for Agent Card (High-level capabilities)
-    skills = []
-    for mcp_tag in TAGS:
-        skills.append(
-            Skill(
-                id=f"gitlab_{mcp_tag}",
-                name=f"GitLab {mcp_tag.replace('_', ' ').title()}",
-                description=f"Manage and query GitLab {mcp_tag.replace('_', ' ')}.",
-                tags=[mcp_tag, "gitlab"],
-                input_modes=["text"],
-                output_modes=["text"],
-            )
+    skills = [
+        Skill(
+            id="gitlab_agent",
+            name="GitLab Agent",
+            description="This GitLab skill grants access to all GitLab tools provided by the GitLab MCP Server",
+            tags=["gitlab"],
+            input_modes=["text"],
+            output_modes=["text"],
         )
+    ]
     # Create A2A App
     app = agent.to_a2a(
         name=AGENT_NAME,
         description=AGENT_DESCRIPTION,
-        version="25.13.8",
+        version="25.14.0",
         skills=skills,
         debug=debug,
     )
-    
-    @app.exception_handler(Exception)
-    async def global_exception_handler(request, exc):
-        logger.error(f"Global Exception: {exc}\n{traceback.format_exc()}")
-        return JSONResponse(status_code=500, content={"error": str(exc), "traceback": traceback.format_exc()})
 
     logger.info(
         "Starting A2A server with provider=%s, model=%s, mcp_url=%s",
@@ -264,14 +234,28 @@ def agent_server():
     )
     parser.add_argument("--api-key", default=DEFAULT_OPENAI_API_KEY, help="LLM API Key")
     parser.add_argument("--mcp-url", default=DEFAULT_MCP_URL, help="MCP Server URL")
+    parser.add_argument(
+        "--mcp-config", default=DEFAULT_MCP_CONFIG, help="MCP Server Config"
+    )
     args = parser.parse_args()
 
-    # Configure Logging
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
-    logging.getLogger("httpx").setLevel(logging.INFO)
+    if args.debug:
+        # Force reconfiguration of logging
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)
+
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            handlers=[logging.StreamHandler()],  # Output to console
+            force=True,
+        )
+        logging.getLogger("pydantic_ai").setLevel(logging.DEBUG)
+        logging.getLogger("fastmcp").setLevel(logging.DEBUG)
+        logging.getLogger("httpcore").setLevel(logging.DEBUG)
+        logging.getLogger("httpx").setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
+        logger.debug("Debug mode enabled")
 
     # Create the agent with CLI args
     create_a2a_server(
@@ -280,6 +264,7 @@ def agent_server():
         base_url=args.base_url,
         api_key=args.api_key,
         mcp_url=args.mcp_url,
+        mcp_config=args.mcp_config,
         debug=args.debug,
         host=args.host,
         port=args.port,

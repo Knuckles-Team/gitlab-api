@@ -48,13 +48,14 @@ ENV EUNOMIA_REMOTE_URL=${EUNOMIA_REMOTE_URL}
 ENV PATH="/usr/local/bin:${PATH}"
 ENV UV_HTTP_TIMEOUT=3600
 
-WORKDIR /app
-COPY . /app
-RUN pip install .[all]
+# For local debugging
+#WORKDIR /app
+#COPY . /app
+#RUN pip install .[all]
 
-#RUN pip install uv \
-#    && uv pip install --system --upgrade gitlab-api[all]>=25.13.8
-
+# For production
+RUN pip install uv \
+    && uv pip install --system --upgrade gitlab-api[all]>=25.14.0
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
