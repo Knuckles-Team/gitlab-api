@@ -1,7 +1,6 @@
 import requests
 import logging
 import sys
-import json
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,7 +21,7 @@ def test_mcp_server_up():
         response = requests.post(f"{BASE_URL}/messages", json=payload, headers=HEADERS)
         if response.status_code == 404:  # Try root if /mcp/messages not valid
             response = requests.post(
-                f"http://localhost:8005/mcp", json=payload, headers=HEADERS
+                "http://localhost:8005/mcp", json=payload, headers=HEADERS
             )
 
         if response.status_code != 200:
@@ -75,7 +74,7 @@ def test_create_branch():
     # Let's assume `http://localhost:8005/mcp/messages` or just `/mcp` handles POST.
 
     response = requests.post(
-        f"http://localhost:8005/mcp", json=payload, headers=HEADERS
+        "http://localhost:8005/mcp", json=payload, headers=HEADERS
     )
     if response.status_code == 405:  # Method Not Allowed -> Maybe only SSE?
         logger.warning("MCP might be SSE only. Cannot validate via simple POST.")
