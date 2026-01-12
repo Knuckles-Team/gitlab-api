@@ -42,7 +42,7 @@ services:
     container_name: gitlab-a2a
     hostname: gitlab-a2a
     command: |
-      gitlab-a2a --debug True
+      gitlab-a2a
     depends_on:
       - gitlab-mcp
     logging:
