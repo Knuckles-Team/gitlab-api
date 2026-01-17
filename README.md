@@ -1,6 +1,7 @@
 # GitLab API - A2A & MCP Server
 
 ![PyPI - Version](https://img.shields.io/pypi/v/gitlab-api)
+![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
 ![PyPI - Downloads](https://img.shields.io/pypi/dd/gitlab-api)
 ![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/gitlab-api)
 ![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/gitlab-api)
@@ -20,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.14.3*
+*Version: 25.14.4*
 
 ## Overview
 
@@ -347,7 +348,7 @@ sequenceDiagram
 This sequence highlights delegation, knowledge retrieval, and tool execution.
 
 ### Strengths
-- **Modularity & Scalability**: Tags allow easy addition of domains (e.g., new GitLab modules) by extending `TAGS` and MCP tools. 
+- **Modularity & Scalability**: Tags allow easy addition of domains (e.g., new GitLab modules) by extending `TAGS` and MCP tools.
 - **Knowledge-Driven Reasoning**: Agent Skills keep the agent accurate and precise in actions and tasks
 - **Efficiency**: Tool filtering prevents overload; delegation parallelizes tasks (though sequential in code, extensible to async).
 - **Flexibility**: Supports multiple LLMs/backends via args/envs; A2A enables integration with other systems.
