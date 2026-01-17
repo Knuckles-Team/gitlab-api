@@ -5,8 +5,7 @@ services:
     # build: . # Debug
     container_name: gitlab-mcp
     hostname: gitlab-mcp
-    command: |
-      gitlab-mcp
+    command: ["gitlab-mcp"]
     logging:
       driver: json-file
       options:
@@ -15,7 +14,7 @@ services:
     restart: always
     environment:
       - "HOST=0.0.0.0"
-      - "PORT=8005"
+      - "PORT=8016"
       - "TRANSPORT=streamable-http"
       - "GITLAB_INSTANCE=${GITLAB_INSTANCE:-http://gitlab.arpa/api/v4}"
       - "GITLAB_ACCESS_TOKEN=${GITLAB_ACCESS_TOKEN:-glpat-asdfa;sldkfj}"
@@ -34,15 +33,15 @@ services:
     #      - FASTMCP_SERVER_AUTH_JWT_ALGORITHM=HS256 # Optional
     #      - FASTMCP_SERVER_AUTH_JWT_PUBLIC_KEY=your-shared-secret # Optional
     #      - FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES=gitlab.read,gitlab.write # Optional
-    network_mode: "host"
+    ports:
+      - "8016:8016"
 
   gitlab-a2a:
     image: docker.io/knucklessg1/gitlab:latest
     # build: . # Debug
     container_name: gitlab-a2a
     hostname: gitlab-a2a
-    command: |
-      gitlab-a2a
+    command: ["gitlab-a2a"]
     depends_on:
       - gitlab-mcp
     logging:
@@ -53,18 +52,12 @@ services:
     restart: always
     environment:
       - "HOST=0.0.0.0"
-      - "PORT=9000"
+      - "PORT=9016"
       # - "MCP_CONFIG=./gitlab_api/mcp_config.json" # Optionally specify your own file - Default will use MCP_URL in the pre-packaged mcp_config.json
-      - "MCP_URL=http://localhost:8005/mcp"
+      - "MCP_URL=http://gitlab-mcp:8016/mcp"
       - "PROVIDER=openai"
       - "OPENAI_BASE_URL=http://localhost:1234/v1"
       - "OPENAI_API_KEY=llama"
       - "MODEL_ID=qwen/qwen3-8b"
-    network_mode: "host"
-
-  # Debug MCP Service
-  mcp-inspector:
-    image: mcpjam/mcp-inspector
-    container_name: mcp-inspector
     ports:
-      - "6274:6274"
+      - "9016:9016"

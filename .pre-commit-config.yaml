@@ -27,10 +27,10 @@ repos:
     hooks:
     - id: black
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.14.13
     hooks:
       - id: ruff
-        exclude: ^(test/|gitlab_api/gitlab_gql\.py$)
+        exclude: ^(test/|tests/|gitlab_api/gitlab_gql\.py$)
         types_or: [ python, pyi, jupyter ]
         args: ["--fix", "--ignore=E402"]
   - repo: https://github.com/codespell-project/codespell
@@ -40,10 +40,11 @@ repos:
         args: ["-L", "ans,linar,nam,tread,ot,"]
         exclude: |
             (?x)^(
-              \./test/.*
+              \./test/.*|
+              \./tests/.*
             )$
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.9.1
     hooks:
       - id: nbqa-black
-        exclude: ^\.\/test/
+        exclude: ^(\.\/test/|\./tests/)
