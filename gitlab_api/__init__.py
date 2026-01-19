@@ -62,7 +62,7 @@ for module_name, extra_name in OPTIONAL_MODULES.items():
 _MCP_AVAILABLE = OPTIONAL_MODULES.get("gitlab_api.gitlab_mcp") in [
     m.__name__ for m in globals().values() if hasattr(m, "__name__")
 ]
-_A2A_AVAILABLE = "gitlab_api.gitlab_a2a" in globals()
+_A2A_AVAILABLE = "gitlab_api.gitlab_agent" in globals()
 _GQL_AVAILABLE = "gitlab_api.gitlab_gql" in globals()
 
 __all__.extend(["_MCP_AVAILABLE", "_A2A_AVAILABLE", "_GQL_AVAILABLE"])

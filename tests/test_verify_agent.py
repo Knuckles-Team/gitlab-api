@@ -9,8 +9,8 @@ import subprocess
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-BASE_URL = "http://localhost:9000"
-ENDPOINT = "/"
+BASE_URL = "http://localhost:9016"
+ENDPOINT = "/a2a/"
 
 
 def send_rpc(method, params, id=1):
@@ -18,8 +18,12 @@ def send_rpc(method, params, id=1):
     try:
         response = requests.post(f"{BASE_URL}{ENDPOINT}", json=payload)
         # response.raise_for_status()
-        # We might want to see the error in the response content if 500
-        return response.json()
+        # We might want to see the error in the response content if 400/500
+        try:
+             return response.json()
+        except Exception:
+             logger.error(f"Response text: {response.text}")
+             raise
     except Exception as e:
         logger.error(f"RPC {method} failed: {e}")
         return None

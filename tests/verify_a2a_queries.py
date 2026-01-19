@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     # 2. Validate Create Branch (Delegation)
     timestamp = int(time.time())
-    branch_name = f"test-a2a-{timestamp}"
+    branch_name = f"test-agent-{timestamp}"
     run_query(
         f"Create a branch called '{branch_name}' in project id 202 from 'main'.",
         "Validating Create Branch (Delegation)",

@@ -1,4 +1,4 @@
-# GitLab API - A2A & MCP Server
+# GitLab API - A2A | AG-UI | MCP
 
 ![PyPI - Version](https://img.shields.io/pypi/v/gitlab-api)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
@@ -561,10 +561,14 @@ Available CLI options:
 ### Agent-to-Agent (A2A) Server
 
 The A2A Server exposes a multi-agent system where a parent orchestrator delegates tasks to specialized child agents based on GitLab tags.
+#### Endpoints
+- **Web UI**: `http://localhost:8000/` (if enabled)
+- **A2A**: `http://localhost:8000/a2a` (Discovery: `/a2a/.well-known/agent.json`)
+- **AG-UI**: `http://localhost:8000/ag-ui` (POST)
 
 #### Run the A2A Server:
 ```bash
-gitlab-a2a --provider openai --model-id qwen3:4b
+gitlab-agent --provider openai --model-id qwen3:4b
 ```
 
 #### A2A CLI Configuration
@@ -579,6 +583,7 @@ gitlab-a2a --provider openai --model-id qwen3:4b
 | --base-url    | LLM Base URL (for OpenAI compatible providers)          | http://ollama.arpa/v1     |
 | --api-key     | LLM API Key                                             | ollama                    |
 | --mcp-url     | MCP Server URL to connect to                            | http://localhost:8000/mcp |
+| --web         | Enable Pydantic AI Web UI                               | False (Env: ENABLE_WEB_UI) |
 
 #### Run using Docker
 You can run either the MCP server or the A2A server using the same Docker image.
@@ -590,7 +595,7 @@ docker run -d -p 8000:8000 --name gitlab-mcp gitlab-api:latest gitlab-mcp --tran
 
 **Run A2A Server:**
 ```bash
-docker run -d -p 9000:9000 --name gitlab-a2a gitlab-api:latest gitlab-a2a \
+docker run -d -p 9000:9000 --name gitlab-agent gitlab-api:latest gitlab-agent \
   --provider openai \
   --model-id qwen3:4b \
   --mcp-url http://host.docker.internal:8000/mcp
