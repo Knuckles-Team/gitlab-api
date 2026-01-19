@@ -52,4 +52,3 @@ RUN pip install uv \
     && uv pip install --system --upgrade gitlab-api[all]>=25.14.5
 
 CMD ["gitlab-mcp"]
-

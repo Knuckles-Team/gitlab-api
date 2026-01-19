@@ -20,10 +20,10 @@ def send_rpc(method, params, id=1):
         # response.raise_for_status()
         # We might want to see the error in the response content if 400/500
         try:
-             return response.json()
+            return response.json()
         except Exception:
-             logger.error(f"Response text: {response.text}")
-             raise
+            logger.error(f"Response text: {response.text}")
+            raise
     except Exception as e:
         logger.error(f"RPC {method} failed: {e}")
         return None
