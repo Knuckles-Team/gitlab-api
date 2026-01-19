@@ -215,7 +215,7 @@ def create_agent_server(
     a2a_app = agent.to_a2a(
         name=AGENT_NAME,
         description=AGENT_DESCRIPTION,
-        version="25.14.4",
+        version="25.14.5",
         skills=skills,
         debug=debug,
     )
