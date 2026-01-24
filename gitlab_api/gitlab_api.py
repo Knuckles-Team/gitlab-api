@@ -208,7 +208,13 @@ class Api(object):
             proxies=self.proxies,
         )
         total_pages = int(total_pages_response.headers.get("X-Total-Pages", 1))
-        initial_data = total_pages_response.json()
+        try:
+            initial_data = total_pages_response.json()
+        except Exception:
+            logging.error(f"Failed to decode JSON from {self.url}{initial_endpoint}")
+            logging.error(f"Status Code: {total_pages_response.status_code}")
+            logging.error(f"Response Content: {total_pages_response.text}")
+            raise
         if isinstance(initial_data, list):
             all_data.extend(initial_data)
 

@@ -10,3 +10,9 @@ gitlab_api.egg-info*
 models/
 .github/
 build/
+.bumpversion.cfg
+.pre-commit-config.yaml
+pytest.ini
+./tests/
+Dockerfile
+debug.Dockerfile

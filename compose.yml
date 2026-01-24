@@ -1,11 +1,11 @@
 ---
 services:
   gitlab-mcp:
-    image: docker.io/knucklessg1/gitlab:latest
-    # build: . # Debug
+    # image: docker.io/knucklessg1/gitlab:latest
+    build: . # Debug
     container_name: gitlab-mcp
     hostname: gitlab-mcp
-    command: ["gitlab-mcp"]
+    command: [ "gitlab-mcp" ]
     extra_hosts:
       - "host.docker.internal:host-gateway"
     logging:
@@ -37,13 +37,19 @@ services:
     #      - FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES=gitlab.read,gitlab.write # Optional
     ports:
       - "8016:8016"
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8016/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   gitlab-agent:
-    image: docker.io/knucklessg1/gitlab:latest
-    # build: . # Debug
+    # image: docker.io/knucklessg1/gitlab:latest
+    build: . # Debug
     container_name: gitlab-agent
     hostname: gitlab-agent
-    command: ["gitlab-agent"]
+    command: [ "gitlab-agent" ]
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -67,3 +73,9 @@ services:
       - "ENABLE_WEB_UI=True"
     ports:
       - "9016:9016"
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9016/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

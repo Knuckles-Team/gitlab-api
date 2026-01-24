@@ -38,6 +38,11 @@ class BranchModel(BaseModel):
     branch: Optional[str] = None
     ref: Optional[str] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Pagination page", default=1)
+    per_page: Optional[int] = Field(description="Results per page", default=100)
 
     def model_post_init(self, __context):
         """
@@ -48,6 +53,10 @@ class BranchModel(BaseModel):
             self.api_parameters["branch"] = self.branch
         if self.ref:
             self.api_parameters["ref"] = self.ref
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
 
 
 class CommitModel(BaseModel):
@@ -121,7 +130,41 @@ class CommitModel(BaseModel):
     report_type: Optional[str] = None
     rule_type: Optional[str] = None
     user_ids: Optional[list] = None
+    user_ids: Optional[list] = None
+    since: Optional[str] = None
+    until: Optional[str] = None
+    all: Optional[bool] = None
+    with_stats: Optional[bool] = None
+    ref_name: Optional[str] = None
     data: Optional[Dict] = Field(description="Data Payload", default=None)
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Pagination page", default=1)
+    per_page: Optional[int] = Field(description="Results per page", default=100)
+
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+        if self.since:
+            self.api_parameters["since"] = self.since
+        if self.until:
+            self.api_parameters["until"] = self.until
+        if self.path:
+            self.api_parameters["path"] = self.path
+        if self.all:
+            self.api_parameters["all"] = self.all
+        if self.with_stats:
+            self.api_parameters["with_stats"] = self.with_stats
+        if self.ref_name:
+            self.api_parameters["ref_name"] = self.ref_name
 
     @field_validator("dry_run", "stats", "force")
     def validate_bool_fields(cls, v):
@@ -358,6 +401,19 @@ class TagModel(BaseModel):
         description="Reference (branch, tag, or commit SHA) to create the tag from",
     )
     message: Optional[str] = Field(None, description="Tag message")
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Pagination page", default=1)
+    per_page: Optional[int] = Field(description="Results per page", default=100)
+
+    def model_post_init(self, __context):
+        self.api_parameters = {}
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
 
     @field_validator("project_id")
     def validate_project_id(cls, v):
@@ -469,7 +525,24 @@ class DeployTokenModel(BaseModel):
     name: Optional[str] = None
     expires_at: Optional[str] = None
     username: Optional[str] = None
+    username: Optional[str] = None
     scopes: Optional[str] = None
+    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    max_pages: Optional[int] = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: Optional[int] = Field(description="Pagination page", default=1)
+    per_page: Optional[int] = Field(description="Results per page", default=100)
+
+    def model_post_init(self, __context):
+        """
+        Build the API parameters
+        """
+        self.api_parameters = {}
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
 
     @field_validator("expires_at")
     def validate_expires_at(cls, v):
@@ -2499,6 +2572,13 @@ class ProtectedBranchModel(BaseModel):
             self.api_parameters["merge_access_level"] = self.merge_access_level
         if self.unprotect_access_level:
             self.api_parameters["unprotect_access_level"] = self.unprotect_access_level
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+        if self.argument:
+            # Handle argument string like "state=opened"
+            pass
 
     @model_validator(mode="before")
     def build_data(cls, values):

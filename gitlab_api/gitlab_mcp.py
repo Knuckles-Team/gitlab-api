@@ -26,6 +26,8 @@ from gitlab_api.middlewares import (
     JWTClaimsLoggingMiddleware,
     get_client,
 )
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -52,6 +54,10 @@ DEFAULT_PORT = to_integer(string=os.getenv("PORT", "8000"))
 
 
 def register_tools(mcp: FastMCP):
+    @mcp.custom_route("/health", methods=["GET"])
+    async def health_check(request: Request) -> JSONResponse:
+        return JSONResponse({"status": "OK"})
+
     # Branches Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
@@ -96,9 +102,10 @@ def register_tools(mcp: FastMCP):
         }
         if branch:
             response = client.get_branch(**kwargs)
+            return response.data
         else:
             response = client.get_branches(**kwargs)
-        return response.data
+            return {"branches": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
@@ -256,9 +263,10 @@ def register_tools(mcp: FastMCP):
         }
         if commit_hash:
             response = client.get_commit(**kwargs)
+            return response.data
         else:
             response = client.get_commits(**kwargs)
-        return response.data
+            return {"commits": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
@@ -822,7 +830,7 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_deploy_tokens()
-        return response.data
+        return {"deploy_tokens": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
@@ -858,9 +866,10 @@ def register_tools(mcp: FastMCP):
             response = client.get_project_deploy_token(
                 project_id=project_id, token=token_id
             )
+            return response.data
         else:
             response = client.get_project_deploy_tokens(project_id=project_id)
-        return response.data
+            return {"deploy_tokens": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
@@ -994,9 +1003,10 @@ def register_tools(mcp: FastMCP):
         )
         if token_id:
             response = client.get_group_deploy_token(group_id=group_id, token=token_id)
+            return response.data
         else:
             response = client.get_group_deploy_tokens(group_id=group_id)
-        return response.data
+            return {"deploy_tokens": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
@@ -1147,9 +1157,10 @@ def register_tools(mcp: FastMCP):
             response = client.get_environment(
                 project_id=project_id, environment_id=environment_id
             )
+            return response.data
         else:
             response = client.get_environments(**kwargs)
-        return response.data
+            return {"environments": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
@@ -1495,9 +1506,10 @@ def register_tools(mcp: FastMCP):
             response = client.get_protected_environment(
                 project_id=project_id, name=name
             )
+            return response.data
         else:
             response = client.get_protected_environments(project_id=project_id)
-        return response.data
+            return {"protected_environments": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
@@ -1719,9 +1731,10 @@ def register_tools(mcp: FastMCP):
         }
         if group_id:
             response = client.get_group(group_id=group_id, **kwargs)
+            return response.data
         else:
             response = client.get_groups(**kwargs)
-        return response.data
+            return {"groups": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
@@ -1835,7 +1848,7 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
         }
         response = client.get_group_subgroups(group_id=group_id, **kwargs)
-        return response.data
+        return {"subgroups": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
@@ -1887,7 +1900,7 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
         }
         response = client.get_group_descendant_groups(group_id=group_id, **kwargs)
-        return response.data
+        return {"descendant_groups": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
@@ -1937,7 +1950,7 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
         }
         response = client.get_group_projects(group_id=group_id, **kwargs)
-        return response.data
+        return {"projects": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
@@ -1990,7 +2003,7 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
         }
         response = client.get_group_merge_requests(group_id=group_id, **kwargs)
-        return response.data
+        return {"merge_requests": response.data}
 
     # Jobs Tools
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
@@ -2038,9 +2051,10 @@ def register_tools(mcp: FastMCP):
         }
         if job_id:
             response = client.get_project_job(project_id=project_id, job_id=job_id)
+            return response.data
         else:
             response = client.get_project_jobs(**kwargs)
-        return response.data
+            return {"jobs": response.data}
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     def get_project_job_log(
@@ -2267,7 +2281,7 @@ def register_tools(mcp: FastMCP):
         response = client.get_pipeline_jobs(
             project_id=project_id, pipeline_id=pipeline_id, **kwargs
         )
-        return response.data
+        return {"jobs": response.data}
 
     # Members Tools
     @mcp.tool(
@@ -2319,7 +2333,7 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
         }
         response = client.get_group_members(group_id=group_id, **kwargs)
-        return response.data
+        return {"members": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
@@ -2367,7 +2381,7 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
         }
         response = client.get_project_members(project_id=project_id, **kwargs)
-        return response.data
+        return {"members": response.data}
 
     # Merge Request Tools
     @mcp.tool(
@@ -2497,7 +2511,7 @@ def register_tools(mcp: FastMCP):
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
         }
         response = client.get_merge_requests(**kwargs)
-        return response.data
+        return {"merge_requests": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
@@ -2554,11 +2568,12 @@ def register_tools(mcp: FastMCP):
             response = client.get_project_merge_request(
                 project_id=project_id, merge_id=merge_id
             )
+            return response.data
         else:
             response = client.get_project_merge_requests(
                 project_id=project_id, **kwargs
             )
-        return response.data
+            return {"merge_requests": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
@@ -2590,12 +2605,15 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         if approval_rule_id:
-            response = client.get_project_level_rule(
+            response = client.get_project_level_merge_request_rule(
                 project_id=project_id, approval_rule_id=approval_rule_id
             )
+            return response.data
         else:
-            response = client.get_project_level_rule(project_id=project_id)
-        return response.data
+            response = client.get_project_level_merge_request_rules(
+                project_id=project_id
+            )
+            return {"approval_rules": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
@@ -3224,7 +3242,7 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
         }
         response = client.get_repository_packages(project_id=project_id, **kwargs)
-        return response.data
+        return {"packages": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
@@ -4014,9 +4032,10 @@ def register_tools(mcp: FastMCP):
         }
         if project_id:
             response = client.get_project(project_id=project_id)
+            return response.data
         else:
             response = client.get_projects(**kwargs)
-        return response.data
+            return {"projects": response.data}
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
@@ -5860,9 +5879,10 @@ def register_tools(mcp: FastMCP):
         }
         if name:
             response = client.get_tag(project_id=project_id, name=name)
+            return response.data
         else:
             response = client.get_tags(project_id=project_id, **kwargs)
-        return response.data
+            return {"tags": response.data}
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     async def create_tag(
