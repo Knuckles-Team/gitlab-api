@@ -1,8 +1,10 @@
 ---
 services:
   gitlab-mcp:
-    # image: docker.io/knucklessg1/gitlab:latest
-    build: . # Debug
+    image: docker.io/knucklessg1/gitlab:latest
+#    build:
+#      context: . # Debug
+#      dockerfile: debug.Dockerfile
     container_name: gitlab-mcp
     hostname: gitlab-mcp
     command: [ "gitlab-mcp" ]
@@ -14,13 +16,15 @@ services:
         max-size: "10m"
         max-file: "3"
     restart: always
+    env_file:
+      - .env
     environment:
       - "HOST=0.0.0.0"
       - "PORT=8016"
       - "TRANSPORT=streamable-http"
-      - "GITLAB_INSTANCE=${GITLAB_INSTANCE:-http://gitlab.arpa/api/v4}"
-      - "GITLAB_ACCESS_TOKEN=${GITLAB_ACCESS_TOKEN:-glpat-asdfa;sldkfj}"
-      - "GITLAB_VERIFY=False" # Optional
+      - "GITLAB_INSTANCE=${GITLAB_INSTANCE}"
+      - "GITLAB_ACCESS_TOKEN=${GITLAB_ACCESS_TOKEN}"
+      - "GITLAB_VERIFY=${GITLAB_VERIFY}" # Optional
     #      - AUTH_TYPE=oidc-proxy # Optional
     #      - OIDC_CONFIG_URL=https://provider.com/.well-known/openid-configuration # Optional
     #      - OIDC_CLIENT_ID=your-client-id # Optional
@@ -45,8 +49,10 @@ services:
       start_period: 10s
 
   gitlab-agent:
-    # image: docker.io/knucklessg1/gitlab:latest
-    build: . # Debug
+    image: docker.io/knucklessg1/gitlab:latest
+    #    build:
+    #      context: . # Debug
+    #      dockerfile: debug.Dockerfile
     container_name: gitlab-agent
     hostname: gitlab-agent
     command: [ "gitlab-agent" ]
