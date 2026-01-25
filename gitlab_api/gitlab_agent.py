@@ -5,25 +5,21 @@ import os
 import argparse
 import logging
 import uvicorn
-from contextlib import asynccontextmanager
 from typing import Optional, Any, List
+from contextlib import asynccontextmanager
 
-from fastmcp import Client
-from pydantic_ai import Agent, ModelSettings
-from pydantic_ai.mcp import load_mcp_servers
-from pydantic_ai.toolsets.fastmcp import FastMCPToolset
+from pydantic_ai import Agent, ModelSettings, RunContext
+from pydantic_ai.mcp import load_mcp_servers, MCPServerStreamableHTTP, MCPServerSSE
 from pydantic_ai_skills import SkillsToolset
-from pydantic_ai.models.openai import OpenAIChatModel
-from pydantic_ai.models.anthropic import AnthropicModel
-from pydantic_ai.models.google import GoogleModel
-from pydantic_ai.models.huggingface import HuggingFaceModel
 from fasta2a import Skill
 from gitlab_api.utils import (
     to_integer,
     to_boolean,
-    load_skills_from_directory,
-    get_skills_path,
     get_mcp_config_path,
+    get_skills_path,
+    load_skills_from_directory,
+    create_model,
+    tool_in_tag,
 )
 
 from fastapi import FastAPI, Request
@@ -42,7 +38,6 @@ logging.getLogger("fastmcp").setLevel(logging.INFO)
 logging.getLogger("httpx").setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 DEFAULT_HOST = os.getenv("HOST", "0.0.0.0")
 DEFAULT_PORT = to_integer(string=os.getenv("PORT", "9000"))
 DEFAULT_DEBUG = to_boolean(string=os.getenv("DEBUG", "False"))
@@ -58,51 +53,239 @@ DEFAULT_SKILLS_DIRECTORY = os.getenv("SKILLS_DIRECTORY", get_skills_path())
 DEFAULT_ENABLE_WEB_UI = to_boolean(os.getenv("ENABLE_WEB_UI", "False"))
 
 AGENT_NAME = "GitLab"
-AGENT_DESCRIPTION = "An agent built with Agent Skills and GitLab MCP tools to maximize GitLab interactivity."
-AGENT_SYSTEM_PROMPT = (
-    "You are the GitLab Agent.\n"
-    "You have access to all GitLab skills and toolsets to interact with the API.\n"
-    "Your responsibilities:\n"
-    "1. Analyze the user's request.\n"
-    "2. Identify the domain (e.g., branches, commits, MRs) and select the appropriate skills.\n"
-    "3. Use the skills to reference the tools you will need to search for using the tool_search skill.\n"
-    "4. If a complicated task requires multiple skills (e.g. 'check out branch X and verify the last commit'), "
-    "   orchestrate them sequentially: call the Branch skill, then the Commit skill.\n"
-    "5. Always be warm, professional, and helpful.\n"
-    "6. Explain your plan in detail before executing."
+AGENT_DESCRIPTION = (
+    "A multi-agent system for managing GitLab resources via delegated specialists."
 )
 
+# -------------------------------------------------------------------------
+# 1. System Prompts
+# -------------------------------------------------------------------------
 
-def create_model(
-    provider: str = DEFAULT_PROVIDER,
-    model_id: str = DEFAULT_MODEL_ID,
-    base_url: Optional[str] = DEFAULT_OPENAI_BASE_URL,
-    api_key: Optional[str] = DEFAULT_OPENAI_API_KEY,
-):
-    if provider == "openai":
-        target_base_url = base_url or DEFAULT_OPENAI_BASE_URL
-        target_api_key = api_key or DEFAULT_OPENAI_API_KEY
-        if target_base_url:
-            os.environ["OPENAI_BASE_URL"] = target_base_url
-        if target_api_key:
-            os.environ["OPENAI_API_KEY"] = target_api_key
-        return OpenAIChatModel(model_id, provider="openai")
+SUPERVISOR_SYSTEM_PROMPT = os.environ.get(
+    "SUPERVISOR_SYSTEM_PROMPT",
+    default=(
+        "You are the GitLab Supervisor Agent.\n"
+        "Your goal is to assist the user by assigning tasks to specialized child agents through your available toolset.\n"
+        "Analyze the user's request and determine which domain(s) it falls into (e.g., branches, commits, merge_requests, issues, etc.).\n"
+        "Then, call the appropriate tool(s) to delegate the task.\n"
+        "Synthesize the results from the child agents into a final helpful response.\n"
+        "Always be warm, professional, and helpful."
+        "Note: The final response should contain all the relevant information from the tool executions. Never leave out any relevant information or leave it to the user to find it. "
+        "You are the final authority on the user's request and the final communicator to the user. Present information as logically and concisely as possible. "
+        "Explore using organized output with headers, sections, lists, and tables to make the information easy to navigate. "
+        "If there are gaps in the information, clearly state that information is missing. Do not make assumptions or invent placeholder information, only use the information which is available."
+    ),
+)
 
-    elif provider == "anthropic":
-        if api_key:
-            os.environ["ANTHROPIC_API_KEY"] = api_key
-        return AnthropicModel(model_id)
+BRANCHES_AGENT_PROMPT = os.environ.get(
+    "BRANCHES_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Branches Agent.\n"
+        "Your goal is to manage branches.\n"
+        "You can:\n"
+        "- CRUD: `create_branch`, `delete_branch`\n"
+        "- List: `get_branches`\n"
+        "Always specify the project ID."
+    ),
+)
 
-    elif provider == "google":
-        if api_key:
-            os.environ["GEMINI_API_KEY"] = api_key
-            os.environ["GOOGLE_API_KEY"] = api_key
-        return GoogleModel(model_id)
+COMMITS_AGENT_PROMPT = os.environ.get(
+    "COMMITS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Commits Agent.\n"
+        "Your goal is to manage commits.\n"
+        "You can:\n"
+        "- CRUD: `create_commit`, `revert_commit`\n"
+        "- Read: `get_commits`, `get_commit_diff`, `get_commit_gpg_signature`\n"
+        "- Comments: `get_commit_comments`, `create_commit_comment`, `get_commit_discussions`\n"
+        "- Status: `get_commit_statuses`, `post_build_status_to_commit`\n"
+        "- MRs: `get_commit_merge_requests`"
+    ),
+)
 
-    elif provider == "huggingface":
-        if api_key:
-            os.environ["HF_TOKEN"] = api_key
-        return HuggingFaceModel(model_id)
+CUSTOM_API_AGENT_PROMPT = os.environ.get(
+    "CUSTOM_API_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Custom API Agent.\n"
+        "Your goal is to handle arbitrary API requests.\n"
+        "Use `api_request` for endpoints not covered by other agents."
+    ),
+)
+
+DEPLOY_TOKENS_AGENT_PROMPT = os.environ.get(
+    "DEPLOY_TOKENS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Deploy Tokens Agent.\n"
+        "Your goal is to manage deploy tokens.\n"
+        "You can:\n"
+        "- CRUD: `create_deploy_token`, `delete_deploy_token`\n"
+        "- List: `list_deploy_tokens`"
+    ),
+)
+
+ENVIRONMENTS_AGENT_PROMPT = os.environ.get(
+    "ENVIRONMENTS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Environments Agent.\n"
+        "Your goal is to manage environments.\n"
+        "You can:\n"
+        "- CRUD: `create_environment`, `get_environment`, `update_environment`, `delete_environment`\n"
+        "- List: `list_environments`"
+    ),
+)
+
+GROUPS_AGENT_PROMPT = os.environ.get(
+    "GROUPS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Groups Agent.\n"
+        "Your goal is to manage groups.\n"
+        "You can:\n"
+        "- CRUD: `create_group`, `get_group`, `update_group`, `delete_group`\n"
+        "- List: `list_groups`"
+    ),
+)
+
+JOBS_AGENT_PROMPT = os.environ.get(
+    "JOBS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Jobs Agent.\n"
+        "Your goal is to manage CI/CD jobs.\n"
+        "You can:\n"
+        "- Actions: `cancel_job`, `retry_job`, `play_job`\n"
+        "- Read: `list_jobs`, `get_job`"
+    ),
+)
+
+MEMBERS_AGENT_PROMPT = os.environ.get(
+    "MEMBERS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Members Agent.\n"
+        "Your goal is to manage members.\n"
+        "You can:\n"
+        "- CRUD: `add_member`, `edit_member`, `remove_member`\n"
+        "- List: `list_members`\n"
+        "Works for both projects and groups."
+    ),
+)
+
+MERGE_REQUESTS_AGENT_PROMPT = os.environ.get(
+    "MERGE_REQUESTS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Merge Requests Agent.\n"
+        "Your goal is to manage merge requests (MRs).\n"
+        "You can:\n"
+        "- CRUD: `create_merge_request`, `get_merge_request`, `update_merge_request`, `delete_merge_request`\n"
+        "- List: `list_merge_requests`\n"
+        "Use this to review and merge code."
+    ),
+)
+
+MERGE_RULES_AGENT_PROMPT = os.environ.get(
+    "MERGE_RULES_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Merge Rules Agent.\n"
+        "Your goal is to manage MR approval rules.\n"
+        "You can:\n"
+        "- CRUD: `create_merge_request_approval_rule`, `update_merge_request_approval_rule`, `delete_merge_request_approval_rule`\n"
+        "- Read: `get_merge_request_approval_rules`"
+    ),
+)
+
+PACKAGES_AGENT_PROMPT = os.environ.get(
+    "PACKAGES_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Packages Agent.\n"
+        "Your goal is to manage the package registry.\n"
+        "You can:\n"
+        "- Read: `list_packages`, `get_package`\n"
+        "- Delete: `delete_package`"
+    ),
+)
+
+PIPELINE_SCHEDULES_AGENT_PROMPT = os.environ.get(
+    "PIPELINE_SCHEDULES_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Pipeline Schedules Agent.\n"
+        "Your goal is to manage scheduled pipelines.\n"
+        "You can:\n"
+        "- CRUD: `create_pipeline_schedule`, `update_pipeline_schedule`, `delete_pipeline_schedule`\n"
+        "- List: `list_pipeline_schedules`"
+    ),
+)
+
+PIPELINES_AGENT_PROMPT = os.environ.get(
+    "PIPELINES_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Pipelines Agent.\n"
+        "Your goal is to manage CI/CD pipelines.\n"
+        "You can:\n"
+        "- Create: `create_pipeline`\n"
+        "- Read: `list_pipelines`, `get_pipeline`\n"
+        "- Delete: `delete_pipeline`"
+    ),
+)
+
+PROJECTS_AGENT_PROMPT = os.environ.get(
+    "PROJECTS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Projects Agent.\n"
+        "Your goal is to manage projects.\n"
+        "You can:\n"
+        "- CRUD: `create_project`, `get_project`, `update_project`, `delete_project`\n"
+        "- List: `list_projects`"
+    ),
+)
+
+PROTECTED_BRANCHES_AGENT_PROMPT = os.environ.get(
+    "PROTECTED_BRANCHES_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Protected Branches Agent.\n"
+        "Your goal is to manage branch protection.\n"
+        "You can:\n"
+        "- Protect: `protect_branch`\n"
+        "- Unprotect: `unprotect_branch`\n"
+        "- List: `list_protected_branches`"
+    ),
+)
+
+RELEASES_AGENT_PROMPT = os.environ.get(
+    "RELEASES_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Releases Agent.\n"
+        "Your goal is to manage releases.\n"
+        "You can:\n"
+        "- CRUD: `create_release`, `get_release`, `update_release`, `delete_release`\n"
+        "- List: `list_releases`"
+    ),
+)
+
+RUNNERS_AGENT_PROMPT = os.environ.get(
+    "RUNNERS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Runners Agent.\n"
+        "Your goal is to manage CI runners.\n"
+        "You can:\n"
+        "- Manage: `update_runner_details`, `pause_runner`, `delete_runner`\n"
+        "- Register/Reset: `register_new_runner`, `reset_token`\n"
+        "- List: `get_runners`"
+    ),
+)
+
+TAGS_AGENT_PROMPT = os.environ.get(
+    "TAGS_AGENT_PROMPT",
+    default=(
+        "You are the GitLab Tags Agent.\n"
+        "Your goal is to manage tags.\n"
+        "You can:\n"
+        "- CRUD: `create_tag`, `delete_tag`\n"
+        "- List: `get_tags`\n"
+        "- Protection: `protect_tag`, `unprotect_tag`"
+    ),
+)
+
+# -------------------------------------------------------------------------
+# 2. Agent Creation Logic
+# -------------------------------------------------------------------------
 
 
 def create_agent(
@@ -114,38 +297,237 @@ def create_agent(
     mcp_config: str = DEFAULT_MCP_CONFIG,
     skills_directory: Optional[str] = DEFAULT_SKILLS_DIRECTORY,
 ) -> Agent:
-    agent_toolsets = []
+    """
+    Creates the Supervisor Agent with sub-agents registered as tools.
+    """
+    logger.info("Initializing Multi-Agent System for GitLab...")
 
+    model = create_model(provider, model_id, base_url, api_key)
+    settings = ModelSettings(timeout=3600.0)
+
+    # Load master toolsets
+    master_toolsets = []
     if mcp_config:
         mcp_toolset = load_mcp_servers(mcp_config)
-        agent_toolsets.extend(mcp_toolset)
+        master_toolsets.extend(mcp_toolset)
         logger.info(f"Connected to MCP Config JSON: {mcp_toolset}")
     elif mcp_url:
-        fastmcp_toolset = FastMCPToolset(Client[Any](mcp_url, timeout=3600))
-        agent_toolsets.append(fastmcp_toolset)
+        if "sse" in mcp_url.lower():
+            server = MCPServerSSE(mcp_url)
+        else:
+            server = MCPServerStreamableHTTP(mcp_url)
+        master_toolsets.append(server)
         logger.info(f"Connected to MCP Server: {mcp_url}")
 
     if skills_directory and os.path.exists(skills_directory):
-        logger.debug(f"Loading skills {skills_directory}")
-        skills = SkillsToolset(directories=[str(skills_directory)])
-        agent_toolsets.append(skills)
-        logger.info(f"Loaded Skills at {skills_directory}")
+        master_toolsets.append(SkillsToolset(directories=[str(skills_directory)]))
 
-    # Create the Model
-    model = create_model(provider, model_id, base_url, api_key)
+    # Define Tag -> Prompt map
+    agent_defs = {
+        "branches": (BRANCHES_AGENT_PROMPT, "GitLab_Branches_Agent"),
+        "commits": (COMMITS_AGENT_PROMPT, "GitLab_Commits_Agent"),
+        "custom_api": (CUSTOM_API_AGENT_PROMPT, "GitLab_Custom_Api_Agent"),
+        "deploy_tokens": (DEPLOY_TOKENS_AGENT_PROMPT, "GitLab_Deploy_Tokens_Agent"),
+        "environments": (ENVIRONMENTS_AGENT_PROMPT, "GitLab_Environments_Agent"),
+        "groups": (GROUPS_AGENT_PROMPT, "GitLab_Groups_Agent"),
+        "jobs": (JOBS_AGENT_PROMPT, "GitLab_Jobs_Agent"),
+        "members": (MEMBERS_AGENT_PROMPT, "GitLab_Members_Agent"),
+        "merge_requests": (MERGE_REQUESTS_AGENT_PROMPT, "GitLab_Merge_Requests_Agent"),
+        "merge_rules": (MERGE_RULES_AGENT_PROMPT, "GitLab_Merge_Rules_Agent"),
+        "packages": (PACKAGES_AGENT_PROMPT, "GitLab_Packages_Agent"),
+        "pipeline_schedules": (
+            PIPELINE_SCHEDULES_AGENT_PROMPT,
+            "GitLab_Pipeline_Schedules_Agent",
+        ),
+        "pipelines": (PIPELINES_AGENT_PROMPT, "GitLab_Pipelines_Agent"),
+        "projects": (PROJECTS_AGENT_PROMPT, "GitLab_Projects_Agent"),
+        "protected_branches": (
+            PROTECTED_BRANCHES_AGENT_PROMPT,
+            "GitLab_Protected_Branches_Agent",
+        ),
+        "releases": (RELEASES_AGENT_PROMPT, "GitLab_Releases_Agent"),
+        "runners": (RUNNERS_AGENT_PROMPT, "GitLab_Runners_Agent"),
+        "tags": (TAGS_AGENT_PROMPT, "GitLab_Tags_Agent"),
+    }
 
-    logger.info("Initializing Agent...")
+    child_agents = {}
 
-    settings = ModelSettings(timeout=3600.0)
+    for tag, (system_prompt, agent_name) in agent_defs.items():
+        tag_toolsets = []
+        for ts in master_toolsets:
 
-    return Agent(
+            def filter_func(ctx, tool_def, t=tag):
+                return tool_in_tag(tool_def, t)
+
+            if hasattr(ts, "filtered"):
+                filtered_ts = ts.filtered(filter_func)
+                tag_toolsets.append(filtered_ts)
+            else:
+                pass
+
+        agent = Agent(
+            model=model,
+            system_prompt=system_prompt,
+            name=agent_name,
+            toolsets=tag_toolsets,
+            model_settings=settings,
+        )
+        child_agents[tag] = agent
+
+    # Create Supervisor
+    supervisor = Agent(
         model=model,
-        system_prompt=AGENT_SYSTEM_PROMPT,
-        name="GitLab_Agent",
-        toolsets=agent_toolsets,
-        deps_type=Any,
+        system_prompt=SUPERVISOR_SYSTEM_PROMPT,
         model_settings=settings,
+        name=AGENT_NAME,
+        deps_type=Any,
     )
+
+    # Define delegation tools
+
+    @supervisor.tool
+    async def assign_task_to_branches_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to branches to the Branches Agent."""
+        return (
+            await child_agents["branches"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_commits_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to commits to the Commits Agent."""
+        return (
+            await child_agents["commits"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_custom_api_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to custom_api to the Custom Api Agent."""
+        return (
+            await child_agents["custom_api"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_deploy_tokens_agent(
+        ctx: RunContext[Any], task: str
+    ) -> str:
+        """Assign a task related to deploy_tokens to the Deploy Tokens Agent."""
+        return (
+            await child_agents["deploy_tokens"].run(
+                task, usage=ctx.usage, deps=ctx.deps
+            )
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_environments_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to environments to the Environments Agent."""
+        return (
+            await child_agents["environments"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_groups_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to groups to the Groups Agent."""
+        return (
+            await child_agents["groups"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_jobs_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to jobs to the Jobs Agent."""
+        return (
+            await child_agents["jobs"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_members_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to members to the Members Agent."""
+        return (
+            await child_agents["members"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_merge_requests_agent(
+        ctx: RunContext[Any], task: str
+    ) -> str:
+        """Assign a task related to merge_requests to the Merge Requests Agent."""
+        return (
+            await child_agents["merge_requests"].run(
+                task, usage=ctx.usage, deps=ctx.deps
+            )
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_merge_rules_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to merge_rules to the Merge Rules Agent."""
+        return (
+            await child_agents["merge_rules"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_packages_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to packages to the Packages Agent."""
+        return (
+            await child_agents["packages"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_pipeline_schedules_agent(
+        ctx: RunContext[Any], task: str
+    ) -> str:
+        """Assign a task related to pipeline_schedules to the Pipeline Schedules Agent."""
+        return (
+            await child_agents["pipeline_schedules"].run(
+                task, usage=ctx.usage, deps=ctx.deps
+            )
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_pipelines_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to pipelines to the Pipelines Agent."""
+        return (
+            await child_agents["pipelines"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_projects_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to projects to the Projects Agent."""
+        return (
+            await child_agents["projects"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_protected_branches_agent(
+        ctx: RunContext[Any], task: str
+    ) -> str:
+        """Assign a task related to protected_branches to the Protected Branches Agent."""
+        return (
+            await child_agents["protected_branches"].run(
+                task, usage=ctx.usage, deps=ctx.deps
+            )
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_releases_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to releases to the Releases Agent."""
+        return (
+            await child_agents["releases"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_runners_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to runners to the Runners Agent."""
+        return (
+            await child_agents["runners"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    @supervisor.tool
+    async def assign_task_to_tags_agent(ctx: RunContext[Any], task: str) -> str:
+        """Assign a task related to tags (git tags) to the Tags Agent."""
+        return (
+            await child_agents["tags"].run(task, usage=ctx.usage, deps=ctx.deps)
+        ).output
+
+    return supervisor
 
 
 async def chat(agent: Agent, prompt: str):
@@ -163,13 +545,10 @@ async def node_chat(agent: Agent, prompt: str) -> List:
 
 
 async def stream_chat(agent: Agent, prompt: str) -> None:
-    # Option A: Easiest & most common - just stream the final text output
     async with agent.run_stream(prompt) as result:
-        async for text_chunk in result.stream_text(
-            delta=True
-        ):  # ← streams partial text deltas
+        async for text_chunk in result.stream_text(delta=True):
             print(text_chunk, end="", flush=True)
-        print("\nDone!")  # optional
+        print("\nDone!")
 
 
 def create_agent_server(
@@ -198,7 +577,6 @@ def create_agent_server(
         skills_directory=skills_directory,
     )
 
-    # Define Skills for Agent Card (High-level capabilities)
     if skills_directory and os.path.exists(skills_directory):
         skills = load_skills_from_directory(skills_directory)
         logger.info(f"Loaded {len(skills)} skills from {skills_directory}")
@@ -213,26 +591,23 @@ def create_agent_server(
                 output_modes=["text"],
             )
         ]
-    # Create A2A app explicitly before main app to bind lifespan
+
     a2a_app = agent.to_a2a(
         name=AGENT_NAME,
         description=AGENT_DESCRIPTION,
-        version="25.14.7",
+        version="25.14.8",
         skills=skills,
         debug=debug,
     )
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        # Trigger A2A (sub-app) startup/shutdown events
-        # This is critical for TaskManager initialization in A2A
         if hasattr(a2a_app, "router"):
             async with a2a_app.router.lifespan_context(a2a_app):
                 yield
         else:
             yield
 
-    # Create main FastAPI app
     app = FastAPI(
         title=f"{AGENT_NAME} - A2A + AG-UI Server",
         description=AGENT_DESCRIPTION,
@@ -244,15 +619,12 @@ def create_agent_server(
     async def health_check():
         return {"status": "OK"}
 
-    # Mount A2A as sub-app at /a2a
     app.mount("/a2a", a2a_app)
 
-    # Add AG-UI endpoint (POST to /ag-ui)
     @app.post("/ag-ui")
     async def ag_ui_endpoint(request: Request) -> Response:
         accept = request.headers.get("accept", SSE_CONTENT_TYPE)
         try:
-            # Parse incoming AG-UI RunAgentInput from request body
             run_input = AGUIAdapter.build_run_input(await request.body())
         except ValidationError as e:
             return Response(
@@ -261,19 +633,17 @@ def create_agent_server(
                 status_code=422,
             )
 
-        # Create adapter and run the agent → stream AG-UI events
         adapter = AGUIAdapter(agent=agent, run_input=run_input, accept=accept)
-        event_stream = adapter.run_stream()  # Runs agent, yields events
-        sse_stream = adapter.encode_stream(event_stream)  # Encodes to SSE
+        event_stream = adapter.run_stream()
+        sse_stream = adapter.encode_stream(event_stream)
 
         return StreamingResponse(
             sse_stream,
             media_type=accept,
         )
 
-    # Mount Web UI if enabled
     if enable_web_ui:
-        web_ui = agent.to_web(instructions=AGENT_SYSTEM_PROMPT)
+        web_ui = agent.to_web(instructions=SUPERVISOR_SYSTEM_PROMPT)
         app.mount("/", web_ui)
         logger.info(
             "Starting server on %s:%s (A2A at /a2a, AG-UI at /ag-ui, Web UI: %s)",
@@ -286,7 +656,7 @@ def create_agent_server(
         app,
         host=host,
         port=port,
-        timeout_keep_alive=1800,  # 30 minute timeout
+        timeout_keep_alive=1800,
         timeout_graceful_shutdown=60,
         log_level="debug" if debug else "info",
     )
@@ -331,14 +701,13 @@ def agent_server():
     args = parser.parse_args()
 
     if args.debug:
-        # Force reconfiguration of logging
         for handler in logging.root.handlers[:]:
             logging.root.removeHandler(handler)
 
         logging.basicConfig(
             level=logging.DEBUG,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[logging.StreamHandler()],  # Output to console
+            handlers=[logging.StreamHandler()],
             force=True,
         )
         logging.getLogger("pydantic_ai").setLevel(logging.DEBUG)
@@ -348,8 +717,6 @@ def agent_server():
         logger.setLevel(logging.DEBUG)
         logger.debug("Debug mode enabled")
 
-    # Create the agent with CLI args
-    # Create the agent with CLI args
     create_agent_server(
         provider=args.provider,
         model_id=args.model_id,
