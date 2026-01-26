@@ -49,6 +49,6 @@ ENV PATH="/usr/local/bin:${PATH}"
 ENV UV_HTTP_TIMEOUT=3600
 
 RUN pip install uv \
-    && uv pip install --system --upgrade gitlab-api[all]>=25.14.8
+    && uv pip install --system --upgrade gitlab-api[all]>=25.14.9
 
 CMD ["gitlab-mcp"]
