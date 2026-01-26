@@ -62,7 +62,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
-    def get_branches(
+    async def get_branches(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -110,7 +110,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
-    def create_branch(
+    async def create_branch(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -214,7 +214,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    def get_commits(
+    async def get_commits(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -271,7 +271,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    def create_commit(
+    async def create_commit(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -368,7 +368,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    def revert_commit(
+    async def revert_commit(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -389,6 +389,9 @@ def register_tools(mcp: FastMCP):
             description="Verify SSL certificate",
             default=to_boolean(os.environ.get("GITLAB_VERIFY", "True")),
         ),
+        ctx: Optional[Context] = Field(
+            description="MCP context for progress", default=None
+        ),
     ) -> Response:
         """Revert a commit in a target branch in a GitLab project.
 
@@ -397,6 +400,13 @@ def register_tools(mcp: FastMCP):
         """
         if not project_id or not commit_hash or not branch:
             raise ValueError("project_id, commit_hash, and branch are required")
+
+        if not dry_run and ctx:
+            message = f"Are you sure you want to REVERT commit {commit_hash} in branch {branch} of project {project_id}?"
+            result = await ctx.elicit(message, response_type=bool)
+            if result.action != "accept" or not result.data:
+                return "Operation cancelled by user."
+
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -415,6 +425,7 @@ def register_tools(mcp: FastMCP):
                 "access_token",
                 "verify",
                 "commit_hash",
+                "ctx",
             ]
         }
         response = client.revert_commit(
@@ -807,7 +818,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    def get_deploy_tokens(
+    async def get_deploy_tokens(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -836,7 +847,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    def get_project_deploy_tokens(
+    async def get_project_deploy_tokens(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -973,7 +984,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    def get_group_deploy_tokens(
+    async def get_group_deploy_tokens(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1109,7 +1120,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    def get_environments(
+    async def get_environments(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1474,7 +1485,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    def get_protected_environments(
+    async def get_protected_environments(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1679,7 +1690,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    def get_groups(
+    async def get_groups(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1803,7 +1814,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    def get_group_subgroups(
+    async def get_group_subgroups(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1853,7 +1864,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    def get_group_descendant_groups(
+    async def get_group_descendant_groups(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1905,7 +1916,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    def get_group_projects(
+    async def get_group_projects(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1955,7 +1966,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    def get_group_merge_requests(
+    async def get_group_merge_requests(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2007,7 +2018,7 @@ def register_tools(mcp: FastMCP):
 
     # Jobs Tools
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    def get_project_jobs(
+    async def get_project_jobs(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2057,7 +2068,7 @@ def register_tools(mcp: FastMCP):
             return {"jobs": response.data}
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    def get_project_job_log(
+    async def get_project_job_log(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2235,7 +2246,7 @@ def register_tools(mcp: FastMCP):
         return response.data
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    def get_pipeline_jobs(
+    async def get_pipeline_jobs(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2287,7 +2298,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
     )
-    def get_group_members(
+    async def get_group_members(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2338,7 +2349,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
     )
-    def get_project_members(
+    async def get_project_members(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2462,7 +2473,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"merge_requests"},
     )
-    def get_merge_requests(
+    async def get_merge_requests(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2517,7 +2528,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"merge_requests"},
     )
-    def get_project_merge_requests(
+    async def get_project_merge_requests(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2578,7 +2589,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    def get_project_level_merge_request_approval_rules(
+    async def get_project_level_merge_request_approval_rules(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2801,7 +2812,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    def merge_request_level_approvals(
+    async def merge_request_level_approvals(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2835,7 +2846,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    def get_approval_state_merge_requests(
+    async def get_approval_state_merge_requests(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2869,7 +2880,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    def get_merge_request_level_rules(
+    async def get_merge_request_level_rules(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2989,7 +3000,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    def get_group_level_rule(
+    async def get_group_level_rule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3097,7 +3108,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    def get_project_level_rule(
+    async def get_project_level_rule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3206,7 +3217,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
-    def get_repository_packages(
+    async def get_repository_packages(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3312,7 +3323,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
-    def download_repository_package(
+    async def download_repository_package(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3358,7 +3369,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
     )
-    def get_pipelines(
+    async def get_pipelines(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3481,7 +3492,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    def get_pipeline_schedules(
+    async def get_pipeline_schedules(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3513,7 +3524,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    def get_pipeline_schedule(
+    async def get_pipeline_schedule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3550,7 +3561,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    def get_pipelines_triggered_from_schedule(
+    async def get_pipelines_triggered_from_schedule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3984,7 +3995,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    def get_projects(
+    async def get_projects(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4040,7 +4051,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    def get_nested_projects_by_group(
+    async def get_nested_projects_by_group(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4071,7 +4082,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    def get_project_contributors(
+    async def get_project_contributors(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4102,7 +4113,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    def get_project_statistics(
+    async def get_project_statistics(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4199,7 +4210,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    def get_project_groups(
+    async def get_project_groups(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4421,7 +4432,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"protected_branches"},
     )
-    def get_protected_branches(
+    async def get_protected_branches(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4649,7 +4660,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    def get_releases(
+    async def get_releases(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4696,7 +4707,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    def get_latest_release(
+    async def get_latest_release(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4727,7 +4738,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    def get_latest_release_evidence(
+    async def get_latest_release_evidence(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4758,7 +4769,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    def get_latest_release_asset(
+    async def get_latest_release_asset(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4794,7 +4805,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    def get_group_releases(
+    async def get_group_releases(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4841,7 +4852,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    def download_release_asset(
+    async def download_release_asset(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4880,7 +4891,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    def get_release_by_tag(
+    async def get_release_by_tag(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5147,7 +5158,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    def get_runners(
+    async def get_runners(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5329,7 +5340,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    def get_runner_jobs(
+    async def get_runner_jobs(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5376,7 +5387,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    def get_project_runners(
+    async def get_project_runners(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5499,7 +5510,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    def get_group_runners(
+    async def get_group_runners(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5836,7 +5847,7 @@ def register_tools(mcp: FastMCP):
 
     # Tags Tools
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    def get_tags(
+    async def get_tags(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5984,7 +5995,7 @@ def register_tools(mcp: FastMCP):
         return response.data
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    def get_protected_tags(
+    async def get_protected_tags(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -6021,7 +6032,7 @@ def register_tools(mcp: FastMCP):
         return response.data
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    def get_protected_tag(
+    async def get_protected_tag(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
