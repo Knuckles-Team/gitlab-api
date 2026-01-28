@@ -52,6 +52,6 @@ ENV HOST=${HOST} \
 
 RUN apt-get update \
    && apt-get install -y curl nano \
-    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages gitlab-api[all]>=25.14.10
+    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages gitlab-api[all]>=25.14.11
 
 CMD ["gitlab-mcp"]
