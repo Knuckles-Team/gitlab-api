@@ -50,7 +50,8 @@ ENV HOST=${HOST} \
     UV_SYSTEM_PYTHON=1 \
     UV_COMPILE_BYTECODE=1
 
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
+RUN apt-get update \
+   && apt-get install -y curl nano \
     && uv pip install --system --upgrade --verbose --no-cache --break-system-packages gitlab-api[all]>=25.14.10
 
 CMD ["gitlab-mcp"]
