@@ -53,8 +53,8 @@ ENV HOST=${HOST} \
 WORKDIR /app
 COPY . /app
 RUN apt-get update \
-   && apt-get install -y curl nano \
-   && curl -LsSf https://astral.sh/uv/install.sh | sh \
+    && apt-get install -y curl nano \
+    && curl -LsSf https://astral.sh/uv/install.sh | sh \
     && uv pip install --system --upgrade --verbose --no-cache --break-system-packages .[all]
 
 CMD ["gitlab-mcp"]
