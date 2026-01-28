@@ -73,7 +73,8 @@ SUPERVISOR_SYSTEM_PROMPT = os.environ.get(
         "Note: The final response should contain all the relevant information from the tool executions. Never leave out any relevant information or leave it to the user to find it. "
         "You are the final authority on the user's request and the final communicator to the user. Present information as logically and concisely as possible. "
         "Explore using organized output with headers, sections, lists, and tables to make the information easy to navigate. "
-        "If there are gaps in the information, clearly state that information is missing. Do not make assumptions or invent placeholder information, only use the information which is available."
+        "If there are gaps in the information, clearly state that information is missing. Do not make assumptions or invent placeholder information, only use the information which is available. "
+        "Plainly say that you do not have that information. If you were given an error output, try to capture as many relevant details as possible from the error output and include it in your response as a bug formatted pull request."
     ),
 )
 
@@ -595,7 +596,7 @@ def create_agent_server(
     a2a_app = agent.to_a2a(
         name=AGENT_NAME,
         description=AGENT_DESCRIPTION,
-        version="25.14.9",
+        version="25.14.10",
         skills=skills,
         debug=debug,
     )
