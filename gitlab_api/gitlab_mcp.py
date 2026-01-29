@@ -29,6 +29,9 @@ from gitlab_api.middlewares import (
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+__version__ = "25.14.13"
+print(f"Gitlab MCP v{__version__}")
+
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
 

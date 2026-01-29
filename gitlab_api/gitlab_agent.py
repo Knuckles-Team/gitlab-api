@@ -28,6 +28,8 @@ from pydantic import ValidationError
 from pydantic_ai.ui import SSE_CONTENT_TYPE
 from pydantic_ai.ui.ag_ui import AGUIAdapter
 
+__version__ = "25.14.13"
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -596,7 +598,7 @@ def create_agent_server(
     a2a_app = agent.to_a2a(
         name=AGENT_NAME,
         description=AGENT_DESCRIPTION,
-        version="25.14.12",
+        version=__version__,
         skills=skills,
         debug=debug,
     )
@@ -664,6 +666,7 @@ def create_agent_server(
 
 
 def agent_server():
+    print(f"gitlab_agent v{__version__}")
     parser = argparse.ArgumentParser(
         description=f"Run the {AGENT_NAME} A2A + AG-UI Server"
     )
