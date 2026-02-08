@@ -59,7 +59,8 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
-      - gitlab-mcp
+      gitlab-mcp:
+        condition: service_healthy
     logging:
       driver: json-file
       options:
