@@ -53,6 +53,6 @@ ENV HOST=${HOST} \
 RUN apt-get update \
     && apt-get install -y curl nano \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow gitlab-api[all]>=25.14.19
+    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow gitlab-api[all]>=25.15.0
 
 CMD ["gitlab-mcp"]
