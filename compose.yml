@@ -73,7 +73,7 @@ services:
       # - "MCP_CONFIG=./gitlab_api/mcp_config.json" # Optionally specify your own file - Default will use MCP_URL in the pre-packaged mcp_config.json
       - "MCP_URL=http://gitlab-mcp:8016/mcp"
       - "PROVIDER=openai"
-      - "LLM_BASE_URL=http://host.docker.internal:1234/v1"
+      - "LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:1234/v1}"
       - "LLM_API_KEY=llama"
       - "MODEL_ID=${MODEL_ID:-qwen/qwen3-coder-next}"
       - "DEBUG=False"
