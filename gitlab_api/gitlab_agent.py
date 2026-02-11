@@ -11,7 +11,11 @@ from typing import Optional, Any, List
 from contextlib import asynccontextmanager
 
 from pydantic_ai import Agent, ModelSettings, RunContext
-from pydantic_ai.mcp import load_mcp_servers, MCPServerStreamableHTTP, MCPServerSSE
+from pydantic_ai.mcp import (
+    load_mcp_servers,
+    MCPServerStreamableHTTP,
+    MCPServerSSE,
+)
 from pydantic_ai_skills import SkillsToolset
 from fasta2a import Skill
 from gitlab_api.utils import (
@@ -34,7 +38,7 @@ from pydantic import ValidationError
 from pydantic_ai.ui import SSE_CONTENT_TYPE
 from pydantic_ai.ui.ag_ui import AGUIAdapter
 
-__version__ = "25.15.1"
+__version__ = "25.15.2"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -50,18 +54,17 @@ DEFAULT_HOST = os.getenv("HOST", "0.0.0.0")
 DEFAULT_PORT = to_integer(string=os.getenv("PORT", "9000"))
 DEFAULT_DEBUG = to_boolean(string=os.getenv("DEBUG", "False"))
 DEFAULT_PROVIDER = os.getenv("PROVIDER", "openai")
-DEFAULT_MODEL_ID = os.getenv("MODEL_ID", "qwen/qwen3-4b-2507")
-DEFAULT_OPENAI_BASE_URL = os.getenv(
-    "OPENAI_BASE_URL", "http://host.docker.internal:1234/v1"
-)
-DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
+DEFAULT_MODEL_ID = os.getenv("MODEL_ID", "qwen/qwen3-coder-next")
+DEFAULT_LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://host.docker.internal:1234/v1")
+DEFAULT_LLM_API_KEY = os.getenv("LLM_API_KEY", "ollama")
 DEFAULT_MCP_URL = os.getenv("MCP_URL", None)
 DEFAULT_MCP_CONFIG = os.getenv("MCP_CONFIG", get_mcp_config_path())
 DEFAULT_SKILLS_DIRECTORY = os.getenv("SKILLS_DIRECTORY", get_skills_path())
 DEFAULT_ENABLE_WEB_UI = to_boolean(os.getenv("ENABLE_WEB_UI", "False"))
+DEFAULT_SSL_VERIFY = to_boolean(os.getenv("SSL_VERIFY", "True"))
 
 # Model Settings
-DEFAULT_MAX_TOKENS = to_integer(os.getenv("MAX_TOKENS", "8192"))
+DEFAULT_MAX_TOKENS = to_integer(os.getenv("MAX_TOKENS", "16384"))
 DEFAULT_TEMPERATURE = to_float(os.getenv("TEMPERATURE", "0.7"))
 DEFAULT_TOP_P = to_float(os.getenv("TOP_P", "1.0"))
 DEFAULT_TIMEOUT = to_float(os.getenv("TIMEOUT", "32400.0"))
@@ -320,13 +323,20 @@ def create_agent(
     mcp_url: str = DEFAULT_MCP_URL,
     mcp_config: str = DEFAULT_MCP_CONFIG,
     skills_directory: Optional[str] = DEFAULT_SKILLS_DIRECTORY,
+    ssl_verify: bool = DEFAULT_SSL_VERIFY,
 ) -> Agent:
     """
     Creates the Supervisor Agent with sub-agents registered as tools.
     """
     logger.info("Initializing Multi-Agent System for GitLab...")
 
-    model = create_model(provider, model_id, base_url, api_key)
+    model = create_model(
+        provider=provider,
+        model_id=model_id,
+        base_url=base_url,
+        api_key=api_key,
+        ssl_verify=ssl_verify,
+    )
     settings = ModelSettings(
         max_tokens=DEFAULT_MAX_TOKENS,
         temperature=DEFAULT_TEMPERATURE,
@@ -343,21 +353,21 @@ def create_agent(
     )
 
     # Load master toolsets
-    master_toolsets = []
-    if mcp_config:
-        mcp_toolset = load_mcp_servers(mcp_config)
-        master_toolsets.extend(mcp_toolset)
-        logger.info(f"Connected to MCP Config JSON: {mcp_toolset}")
-    elif mcp_url:
+    agent_toolsets = []
+    if mcp_url:
         if "sse" in mcp_url.lower():
             server = MCPServerSSE(mcp_url)
         else:
             server = MCPServerStreamableHTTP(mcp_url)
-        master_toolsets.append(server)
+        agent_toolsets.append(server)
         logger.info(f"Connected to MCP Server: {mcp_url}")
+    elif mcp_config:
+        mcp_toolset = load_mcp_servers(mcp_config)
+        agent_toolsets.extend(mcp_toolset)
+        logger.info(f"Connected to MCP Config JSON: {mcp_toolset}")
 
     if skills_directory and os.path.exists(skills_directory):
-        master_toolsets.append(SkillsToolset(directories=[str(skills_directory)]))
+        agent_toolsets.append(SkillsToolset(directories=[str(skills_directory)]))
 
     # Define Tag -> Prompt map
     agent_defs = {
@@ -391,7 +401,7 @@ def create_agent(
 
     for tag, (system_prompt, agent_name) in agent_defs.items():
         tag_toolsets = []
-        for ts in master_toolsets:
+        for ts in agent_toolsets:
 
             def filter_func(ctx, tool_def, t=tag):
                 return tool_in_tag(tool_def, t)
@@ -601,6 +611,7 @@ def create_agent_server(
     host: Optional[str] = DEFAULT_HOST,
     port: Optional[int] = DEFAULT_PORT,
     enable_web_ui: bool = DEFAULT_ENABLE_WEB_UI,
+    ssl_verify: bool = DEFAULT_SSL_VERIFY,
 ):
     print(
         f"Starting {AGENT_NAME} with provider={provider}, model={model_id}, mcp={mcp_url} | {mcp_config}"
@@ -613,6 +624,7 @@ def create_agent_server(
         mcp_url=mcp_url,
         mcp_config=mcp_config,
         skills_directory=skills_directory,
+        ssl_verify=ssl_verify,
     )
 
     if skills_directory and os.path.exists(skills_directory):
@@ -727,10 +739,10 @@ def agent_server():
     parser.add_argument("--model-id", default=DEFAULT_MODEL_ID, help="LLM Model ID")
     parser.add_argument(
         "--base-url",
-        default=DEFAULT_OPENAI_BASE_URL,
+        default=DEFAULT_LLM_BASE_URL,
         help="LLM Base URL (for OpenAI compatible providers)",
     )
-    parser.add_argument("--api-key", default=DEFAULT_OPENAI_API_KEY, help="LLM API Key")
+    parser.add_argument("--api-key", default=DEFAULT_LLM_API_KEY, help="LLM API Key")
     parser.add_argument("--mcp-url", default=DEFAULT_MCP_URL, help="MCP Server URL")
     parser.add_argument(
         "--mcp-config", default=DEFAULT_MCP_CONFIG, help="MCP Server Config"
@@ -779,6 +791,7 @@ def agent_server():
         host=args.host,
         port=args.port,
         enable_web_ui=args.web,
+        ssl_verify=not args.insecure,
     )
 
 
