@@ -4,43 +4,22 @@ import httpx
 import json
 import uuid
 
-# Configuration
-A2A_URL = (
-    "http://localhost:9016/a2a/"  # Discovered endpoint is POST / based on 405 on GET /
-)
+A2A_URL = "http://localhost:9016/a2a/"
 
 
 async def main():
     print(f"Validating A2A Agent at {A2A_URL}...")
 
     questions = [
-        # "Can you get me the project details for project id 171?"
-        # "Can you create a merge request for project id 171 with a title of 'Test Merge Request' from the 'validate' to 'main' branch? For the description please put 'this is a test merge request'.",
-        # "Can you run the pipeline for project id 171 on the 'main' branch?",
-        # "Can you create a branch called 'test' from the 'main' branch for project id 171?",
-        # "Can you get me the tags for project id 171?",
-        # "Can you get me the branches for project id 171?",
         "Can you get me the commits for project id 171?",
-        # "Can you give me the deploy tokens for project id 171?",
-        # "Can you give me the environments for project id 171?",
-        # "Can you give me the protected environments for project id 171?", # Validated manually or skipped if no protected envs
-        # "Can you give me the groups for group id 5?", # Group ID 5 might not exist, using project 171 context mostly
-        # "Can you give me the subgroups for group id 5?",
-        # "Can you give me the descendent groups for group id 5?",
-        # "Can you give me the projects for group id 5?",
-        # "Can you give me the merge requests for group id 5?",
-        # "Can you give me the project jobs for project id 171?",
-        # "Can you give me the project merge requests for project id 171?",
     ]
 
     async with httpx.AsyncClient(timeout=10000.0) as client:
-        # First, let's verify connectivity and maybe infer output schema
 
         for q in questions:
             print(f"\n\n\nUser: {q}")
             print("--- Sending Request ---")
 
-            # Construct JSON-RPC payload
             payload = {
                 "jsonrpc": "2.0",
                 "method": "message/send",
@@ -56,7 +35,6 @@ async def main():
             }
 
             try:
-                # Attempt POST to root
                 url = A2A_URL
                 print(f"Trying POST {url} with JSON-RPC (message/send)...")
                 resp = await client.post(
@@ -75,9 +53,8 @@ async def main():
                                 f"\nTask Submitted with ID: {task_id}. Polling for result..."
                             )
 
-                            # Poll tasks/get
                             while True:
-                                await asyncio.sleep(2)  # Wait a bit
+                                await asyncio.sleep(2)
                                 poll_payload = {
                                     "jsonrpc": "2.0",
                                     "method": "tasks/get",
@@ -98,16 +75,14 @@ async def main():
                                             "submitted",
                                             "running",
                                             "working",
-                                        ]:  # Assuming terminal states
+                                        ]:
                                             print(
                                                 f"\nTask Finished with state: {state}"
                                             )
 
-                                            # Extract final result
                                             if "history" in poll_data["result"]:
                                                 history = poll_data["result"]["history"]
                                                 if history:
-                                                    # Find last non-user message
                                                     last_msg = None
                                                     for msg in reversed(history):
                                                         if msg.get("role") != "user":

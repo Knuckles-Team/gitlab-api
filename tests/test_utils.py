@@ -69,11 +69,9 @@ from gitlab_api.gitlab_models import (
 )
 from gitlab_api.utils import pydantic_to_sqlalchemy
 
-# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Create an in-memory SQLite database for testing
 engine = create_engine("sqlite:///:memory:")
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -100,8 +98,6 @@ def milestone_fixture():
         due_date="2023-02-01",
         start_date="2023-01-01",
         web_url="http://example.com",
-        # issue_stats={"total":10, "closed":5, "opened":5},
-        # issue_stats=IssueStats(total=10, closed=5, opened=5),
     )
 
 
@@ -882,15 +878,6 @@ def merge_request_fixture():
         pipeline=None,
         head_pipeline=None,
         diff_refs=None,
-        # user={
-        #     "base_type": "User",
-        #     "id": 2202,
-        #     "username": "test",
-        #     "user": None,
-        #     "email": None,
-        #     "state": "active",
-        #     "last_login_at": None,
-        # },
         user=User(
             base_type="User",
             id=2202,
@@ -1234,7 +1221,6 @@ def agent_fixture():
     )
 
 
-# Test function to validate the conversion for each model
 @pytest.mark.parametrize(
     "fixture",
     [

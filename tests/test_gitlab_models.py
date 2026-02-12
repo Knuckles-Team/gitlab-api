@@ -6200,7 +6200,6 @@ def test_merge_request_response_3():
     reason=reason,
 )
 def test_merge_request_response_4():
-    # Users Model
     example_data = [
         {
             "id": 1,
@@ -6228,7 +6227,6 @@ def test_merge_request_response_4():
     reason=reason,
 )
 def test_merge_request_response_5():
-    # Reviewers
     example_data = [
         {
             "user": {
@@ -6264,7 +6262,6 @@ def test_merge_request_response_5():
     reason=reason,
 )
 def test_merge_request_response_6():
-    # Commits
     example_data = [
         {
             "id": "ed899a2f4b50b4370feeea94676502b42383c746",
@@ -6295,7 +6292,6 @@ def test_merge_request_response_6():
     reason=reason,
 )
 def test_merge_request_response_7():
-    # Changes
     example_data = {
         "id": 21,
         "iid": 1,
@@ -6410,7 +6406,6 @@ def test_merge_request_response_7():
     reason=reason,
 )
 def test_merge_request_response_8():
-    # Diff
     example_data = [
         {
             "old_path": "README",
@@ -6444,7 +6439,6 @@ def test_merge_request_response_8():
     reason=reason,
 )
 def test_merge_request_response_9():
-    # Pipelines
     example_data = [
         {
             "id": 77,
@@ -6462,7 +6456,6 @@ def test_merge_request_response_9():
     reason=reason,
 )
 def test_merge_request_response_10():
-    # Merge Request
     example_data = {
         "id": 1,
         "iid": 1,
@@ -6914,7 +6907,6 @@ def test_merge_request_response_16():
     reason=reason,
 )
 def test_merge_request_response_17():
-    # Issues
     example_data = [
         {
             "state": "opened",
@@ -6966,7 +6958,6 @@ def test_merge_request_response_17():
     reason=reason,
 )
 def test_merge_request_response_18():
-    # Comments on Merge Request
     example_data = [
         {
             "state": "opened",
@@ -7018,7 +7009,6 @@ def test_merge_request_response_18():
     reason=reason,
 )
 def test_merge_request_response_19():
-    # Time tracking for Merge Request
     example_data = {
         "human_time_estimate": "2h",
         "human_total_time_spent": "1h",
@@ -7049,7 +7039,6 @@ def test_merge_request_response_20():
     reason=reason,
 )
 def test_merge_request_response_21():
-    # Merge diff versions
     example_data = [
         {
             "id": 110,
@@ -8683,7 +8672,6 @@ def test_group_response_4():
     reason=reason,
 )
 def test_group_response_5():
-    # List groups
     example_data = [
         {
             "id": 9,
@@ -8733,7 +8721,6 @@ def test_group_response_5():
     reason=reason,
 )
 def test_group_response_6():
-    # Groups shared projects
     example_data = [
         {
             "id": 8,
@@ -8848,7 +8835,6 @@ def test_group_response_6():
     reason=reason,
 )
 def test_group_response_7():
-    # Details of a group
     example_data = {
         "id": 4,
         "name": "Twitter",
@@ -9019,7 +9005,6 @@ def test_group_response_7():
     reason=reason,
 )
 def test_group_response_8():
-    # Details of a group
     example_data = {
         "id": 4,
         "description": "Aliquid qui quis dignissimos distinctio ut commodi voluptas est.",
@@ -9040,7 +9025,6 @@ def test_group_response_8():
     reason=reason,
 )
 def test_group_response_9():
-    # Details of a group
     example_data = {
         "id": 4,
         "name": "Twitter",
@@ -9065,7 +9049,6 @@ def test_group_response_9():
     reason=reason,
 )
 def test_group_response_10():
-    # Get groups to which a user can transfer a group
     example_data = [
         {
             "id": 27,
@@ -9093,7 +9076,6 @@ def test_group_response_10():
     reason=reason,
 )
 def test_group_response_11():
-    # Update group
     example_data = {
         "id": 5,
         "name": "Experimental",
@@ -9165,7 +9147,6 @@ def test_group_response_11():
     reason=reason,
 )
 def test_group_response_12():
-    # Search for a group
     example_data = [
         {
             "id": 1,
@@ -9183,7 +9164,6 @@ def test_group_response_12():
     reason=reason,
 )
 def test_group_response_13():
-    # List provisioned users
     example_data = [
         {
             "id": 66,
@@ -9236,7 +9216,6 @@ def test_group_response_13():
     reason=reason,
 )
 def test_group_response_14():
-    # List group users
     example_data = [
         {
             "id": 66,
@@ -9289,7 +9268,6 @@ def test_group_response_14():
     reason=reason,
 )
 def test_group_response_15():
-    # Create Service Account User
     example_data = {
         "id": 57,
         "username": "service_account_group_345_6018816a18e515214e0c34c2b33523fc",
@@ -9304,7 +9282,6 @@ def test_group_response_15():
     reason=reason,
 )
 def test_group_response_16():
-    # Create Personal Access Token for Service Account User
     example_data = {
         "id": 6,
         "name": "service_accounts_token",
@@ -9326,7 +9303,6 @@ def test_group_response_16():
     reason=reason,
 )
 def test_group_response_17():
-    # Rotate a Personal Access Token for Service Account User
     example_data = {
         "id": 7,
         "name": "service_accounts_token",
@@ -9348,7 +9324,6 @@ def test_group_response_17():
     reason=reason,
 )
 def test_group_response_18():
-    # Get group hook
     example_data = {
         "id": 1,
         "url": "http://example.com/hook",
@@ -9388,7 +9363,6 @@ def test_group_response_18():
     reason=reason,
 )
 def test_group_response_19():
-    # Push Rules
     example_data = {
         "id": 2,
         "created_at": "2020-08-17T19:09:19.580Z",
@@ -9414,7 +9388,6 @@ def test_group_response_19():
     reason=reason,
 )
 def test_group_response_20():
-    # Add SAML group link
     example_data = {"name": "saml-group-1", "access_level": 10, "member_role_id": 12}
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "AccessControl"
@@ -9425,7 +9398,6 @@ def test_group_response_20():
     reason=reason,
 )
 def test_group_response_21():
-    # Get saml group link
     example_data = {"name": "saml-group-1", "access_level": 10, "member_role_id": 12}
     response = Response(data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "AccessControl"
@@ -9798,7 +9770,6 @@ def test_group_response_23():
     reason=reason,
 )
 def test_jobs_response_1():
-    # List project jobs
     example_data = [
         {
             "commit": {
@@ -9974,7 +9945,6 @@ def test_jobs_response_1():
     reason=reason,
 )
 def test_jobs_response_2():
-    # List pipeline jobs
     example_data = [
         {
             "commit": {
@@ -10149,7 +10119,6 @@ def test_jobs_response_2():
     reason=reason,
 )
 def test_jobs_response_3():
-    # List pipeline trigger jobs
     example_data = [
         {
             "commit": {
@@ -10225,7 +10194,6 @@ def test_jobs_response_3():
     reason=reason,
 )
 def test_jobs_response_4():
-    # Get job token’s job
     example_data = {
         "commit": {
             "author_email": "admin@example.com",
@@ -10292,7 +10260,6 @@ def test_jobs_response_4():
     reason=reason,
 )
 def test_jobs_response_5():
-    # Get GitLab agent by CI_JOB_TOKEN
     example_data = {
         "allowed_agents": [
             {
@@ -10395,7 +10362,6 @@ def test_jobs_response_6():
     reason=reason,
 )
 def test_jobs_response_7():
-    # Cancel a job
     example_data = {
         "commit": {
             "author_email": "admin@example.com",
@@ -10437,7 +10403,6 @@ def test_jobs_response_7():
     reason=reason,
 )
 def test_jobs_response_8():
-    # Retry a job
     example_data = {
         "commit": {
             "author_email": "admin@example.com",
@@ -10479,7 +10444,6 @@ def test_jobs_response_8():
     reason=reason,
 )
 def test_jobs_response_9():
-    # Run a job
     example_data = {
         "commit": {
             "author_email": "admin@example.com",
@@ -10521,7 +10485,6 @@ def test_jobs_response_9():
     reason=reason,
 )
 def test_member_response_1():
-    # List all members of a group or project
     example_data = [
         {
             "id": 1,
@@ -10578,7 +10541,6 @@ def test_member_response_1():
     reason=reason,
 )
 def test_member_response_2():
-    # List all members of a group or project including inherited and invited members
     example_data = [
         {
             "id": 1,
@@ -10655,7 +10617,6 @@ def test_member_response_2():
     reason=reason,
 )
 def test_member_response_3():
-    # Get a member of a group or project
     example_data = {
         "id": 1,
         "username": "raymond_smith",
@@ -10686,7 +10647,6 @@ def test_member_response_3():
     reason=reason,
 )
 def test_member_response_4():
-    # Get a member of a group or project, including inherited and invited members
     example_data = {
         "id": 1,
         "username": "raymond_smith",
@@ -10717,7 +10677,6 @@ def test_member_response_4():
     reason=reason,
 )
 def test_member_response_5():
-    #
     example_data = [
         {
             "id": 1,
@@ -10769,7 +10728,6 @@ def test_member_response_5():
     reason=reason,
 )
 def test_member_response_6():
-    # List memberships for a billable member of a group
     example_data = [
         {
             "id": 168,
@@ -10799,7 +10757,6 @@ def test_member_response_6():
     reason=reason,
 )
 def test_member_response_7():
-    # Add a member to a group or project
     example_data = {
         "id": 1,
         "username": "raymond_smith",
@@ -10830,7 +10787,6 @@ def test_member_response_7():
     reason=reason,
 )
 def test_member_response_8():
-    # List pending members of a group and its subgroups and projects
     example_data = [
         {
             "id": 168,
@@ -10866,7 +10822,6 @@ def test_member_response_8():
     reason=reason,
 )
 def test_approval_rule_response_1():
-    # Get group-level approval rules
     example_data = [
         {
             "id": 2,
@@ -10902,7 +10857,6 @@ def test_approval_rule_response_1():
     reason=reason,
 )
 def test_approval_rule_response_2():
-    # Create group-level approval rules
     example_data = {
         "id": 5,
         "name": "security",
@@ -10952,7 +10906,6 @@ def test_approval_rule_response_2():
     reason=reason,
 )
 def test_approval_rule_response_3():
-    # Update group-level approval rules
     example_data = {
         "id": 5,
         "name": "security2",
@@ -11002,7 +10955,6 @@ def test_approval_rule_response_3():
     reason=reason,
 )
 def test_approval_rule_response_4():
-    # Change configuration
     example_data = {
         "approvals_before_merge": 2,
         "reset_approvals_on_push": True,
@@ -11021,7 +10973,6 @@ def test_approval_rule_response_4():
     reason=reason,
 )
 def test_approval_rule_response_5():
-    # Project-level MR approvals
     example_data = {
         "approvers": [],
         "approver_groups": [],
@@ -11042,7 +10993,6 @@ def test_approval_rule_response_5():
     reason=reason,
 )
 def test_approval_rule_response_6():
-    # Get project-level rules
     example_data = [
         {
             "id": 1,
@@ -11130,7 +11080,6 @@ def test_approval_rule_response_6():
     reason=reason,
 )
 def test_approval_rule_response_7():
-    # Get a single project-level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -11216,7 +11165,6 @@ def test_approval_rule_response_7():
     reason=reason,
 )
 def test_approval_rule_response_8():
-    # Create project-level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -11302,7 +11250,6 @@ def test_approval_rule_response_8():
     reason=reason,
 )
 def test_approval_rule_response_9():
-    # Update Project level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -11388,7 +11335,6 @@ def test_approval_rule_response_9():
     reason=reason,
 )
 def test_approval_rule_response_10():
-    # Merge request-level MR approvals
     example_data = {
         "id": 5,
         "iid": 5,
@@ -11423,7 +11369,6 @@ def test_approval_rule_response_10():
     reason=reason,
 )
 def test_approval_rule_response_11():
-    # Get the approval state of merge requests
     example_data = {
         "approval_rules_overwritten": True,
         "rules": [
@@ -11479,7 +11424,6 @@ def test_approval_rule_response_11():
     reason=reason,
 )
 def test_approval_rule_response_12():
-    # Get merge request level rules
     example_data = [
         {
             "id": 1,
@@ -11546,7 +11490,6 @@ def test_approval_rule_response_12():
     reason=reason,
 )
 def test_approval_rule_response_13():
-    # Get a single merge request level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -11611,7 +11554,6 @@ def test_approval_rule_response_13():
     reason=reason,
 )
 def test_approval_rule_response_14():
-    # Create merge request level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -11676,7 +11618,6 @@ def test_approval_rule_response_14():
     reason=reason,
 )
 def test_approval_rule_response_15():
-    # Approve merge request
     example_data = {
         "id": 5,
         "iid": 5,
@@ -11721,7 +11662,6 @@ def test_approval_rule_response_15():
     reason=reason,
 )
 def test_protected_branch_response_1():
-    # Get group-level approval rules
     example_data = [
         {
             "id": 2,
@@ -11757,7 +11697,6 @@ def test_protected_branch_response_1():
     reason=reason,
 )
 def test_protected_branch_response_2():
-    # Create group-level approval rules
     example_data = {
         "id": 5,
         "name": "security",
@@ -11807,7 +11746,6 @@ def test_protected_branch_response_2():
     reason=reason,
 )
 def test_protected_branch_response_3():
-    # Update group-level approval rules
     example_data = {
         "id": 5,
         "name": "security2",
@@ -11857,7 +11795,6 @@ def test_protected_branch_response_3():
     reason=reason,
 )
 def test_protected_branch_response_4():
-    # Change configuration
     example_data = {
         "approvals_before_merge": 2,
         "reset_approvals_on_push": True,
@@ -11876,7 +11813,6 @@ def test_protected_branch_response_4():
     reason=reason,
 )
 def test_protected_branch_response_5():
-    # Project-level MR approvals
     example_data = {
         "approvers": [],
         "approver_groups": [],
@@ -11897,7 +11833,6 @@ def test_protected_branch_response_5():
     reason=reason,
 )
 def test_protected_branch_response_6():
-    # Get project-level rules
     example_data = [
         {
             "id": 1,
@@ -11985,7 +11920,6 @@ def test_protected_branch_response_6():
     reason=reason,
 )
 def test_protected_branch_response_7():
-    # Get a single project-level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -12071,7 +12005,6 @@ def test_protected_branch_response_7():
     reason=reason,
 )
 def test_protected_branch_response_8():
-    # Create project-level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -12157,7 +12090,6 @@ def test_protected_branch_response_8():
     reason=reason,
 )
 def test_protected_branch_response_9():
-    # Update Project level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -12243,7 +12175,6 @@ def test_protected_branch_response_9():
     reason=reason,
 )
 def test_protected_branch_response_10():
-    # Merge request-level MR approvals
     example_data = {
         "id": 5,
         "iid": 5,
@@ -12278,7 +12209,6 @@ def test_protected_branch_response_10():
     reason=reason,
 )
 def test_protected_branch_response_11():
-    # Get the approval state of merge requests
     example_data = {
         "approval_rules_overwritten": True,
         "rules": [
@@ -12334,7 +12264,6 @@ def test_protected_branch_response_11():
     reason=reason,
 )
 def test_protected_branch_response_12():
-    # Get merge request level rules
     example_data = [
         {
             "id": 1,
@@ -12401,7 +12330,6 @@ def test_protected_branch_response_12():
     reason=reason,
 )
 def test_protected_branch_response_13():
-    # Get a single merge request level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -12466,7 +12394,6 @@ def test_protected_branch_response_13():
     reason=reason,
 )
 def test_protected_branch_response_14():
-    # Create merge request level rule
     example_data = {
         "id": 1,
         "name": "security",
@@ -12531,7 +12458,6 @@ def test_protected_branch_response_14():
     reason=reason,
 )
 def test_protected_branch_response_15():
-    # Approve merge request
     example_data = {
         "id": 5,
         "iid": 5,
@@ -12576,7 +12502,6 @@ def test_protected_branch_response_15():
     reason=reason,
 )
 def test_package_response_1():
-    # List packages
     example_data = [
         {
             "id": 1,
@@ -12616,7 +12541,6 @@ def test_package_response_1():
 )
 def test_package_response_2():
 
-    # Package for a group
     example_data = [
         {
             "id": 1,
@@ -12681,7 +12605,6 @@ def test_package_response_2():
 )
 def test_package_response_3():
 
-    # Get a project package
     example_data = {
         "id": 1,
         "name": "com/mycompany/my-app",
@@ -12741,7 +12664,6 @@ def test_package_response_3():
 )
 def test_package_response_4():
 
-    # List package files
     example_data = [
         {
             "id": 25,
@@ -12799,7 +12721,6 @@ def test_package_response_4():
 )
 def test_package_response_5():
 
-    # List package pipelines
     example_data = [
         {
             "id": 1,
@@ -12851,7 +12772,6 @@ def test_package_response_5():
     reason=reason,
 )
 def test_release_response_1():
-    # List Releases
     example_data = [
         {
             "tag_name": "v0.2",
@@ -13035,7 +12955,6 @@ def test_release_response_1():
     reason=reason,
 )
 def test_release_response_2():
-    # Get a Release by a tag name
     example_data = {
         "tag_name": "v0.1",
         "description": "## CHANGELOG\r\n\r\n- Remove limit of 100 when searching repository code. !8671\r\n- Show error message when attempting to reopen an MR and there is an open MR for the same branch. !16447 (Akos Gyimesi)\r\n- Fix a bug where internal email pattern wasn't respected. !22516",
@@ -13151,7 +13070,6 @@ def test_release_response_2():
     reason=reason,
 )
 def test_release_response_3():
-    # Create a release
     example_data = {
         "tag_name": "v0.3",
         "description": "Super nice release",
@@ -13253,7 +13171,6 @@ def test_release_response_3():
     reason=reason,
 )
 def test_release_response_4():
-    # Update a release
     example_data = {
         "tag_name": "v0.1",
         "description": "## CHANGELOG\r\n\r\n- Remove limit of 100 when searching repository code. !8671\r\n- Show error message when attempting to reopen an MR and there is an open MR for the same branch. !16447 (Akos Gyimesi)\r\n- Fix a bug where internal email pattern wasn't respected. !22516",
@@ -13334,7 +13251,6 @@ def test_release_response_4():
     reason=reason,
 )
 def test_release_response_5():
-    # Delete a Release
     example_data = {
         "tag_name": "v0.1",
         "description": "## CHANGELOG\r\n\r\n- Remove limit of 100 when searching repository code. !8671\r\n- Show error message when attempting to reopen an MR and there is an open MR for the same branch. !16447 (Akos Gyimesi)\r\n- Fix a bug where internal email pattern wasn't respected. !22516",
@@ -13399,7 +13315,6 @@ def test_release_response_5():
     reason=reason,
 )
 def test_runner_response_1():
-    # List owned runners
     example_data = [
         {
             "active": True,
@@ -13435,7 +13350,6 @@ def test_runner_response_1():
     reason=reason,
 )
 def test_runner_response_2():
-    # List all runners
     example_data = [
         {
             "active": True,
@@ -13495,7 +13409,6 @@ def test_runner_response_2():
     reason=reason,
 )
 def test_runner_response_3():
-    # Get runner details
     example_data = {
         "active": True,
         "paused": False,
@@ -13535,7 +13448,6 @@ def test_runner_response_3():
     reason=reason,
 )
 def test_runner_response_4():
-    # List jobs processed by a runner
     example_data = [
         {
             "id": 2,
@@ -13610,7 +13522,6 @@ def test_runner_response_4():
     reason=reason,
 )
 def test_runner_response_5():
-    # List project’s runners
     example_data = [
         {
             "active": True,
@@ -13646,7 +13557,6 @@ def test_runner_response_5():
     reason=reason,
 )
 def test_runner_response_6():
-    # Enable runner for project
     example_data = {
         "active": True,
         "description": "test-2016-02-01",
@@ -13667,7 +13577,6 @@ def test_runner_response_6():
     reason=reason,
 )
 def test_runner_response_7():
-    # Create an instance runner
     example_data = {
         "id": 12345,
         "token": "6337ff461c94fd3fa32ba3b1ff4125",
@@ -13682,7 +13591,6 @@ def test_runner_response_7():
     reason=reason,
 )
 def test_runner_response_8():
-    # Verify authentication for a registered runner
     example_data = {
         "id": 12345,
         "token": "glrt-6337ff461c94fd3fa32ba3b1ff4125",
@@ -13697,7 +13605,6 @@ def test_runner_response_8():
     reason=reason,
 )
 def test_runner_response_9():
-    # Reset runner’s authentication token by using the runner ID
     example_data = {
         "token": "6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
@@ -13711,7 +13618,6 @@ def test_runner_response_9():
     reason=reason,
 )
 def test_runner_response_10():
-    # Reset runner’s authentication token by using the current token
     example_data = {
         "token": "6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
@@ -13725,7 +13631,6 @@ def test_runner_response_10():
     reason=reason,
 )
 def test_wiki_response_1():
-    # List wiki pages
     example_data = [
         {
             "content": "Here is an instruction how to deploy this project.",
@@ -13758,7 +13663,6 @@ def test_wiki_response_1():
     reason=reason,
 )
 def test_wiki_response_2():
-    # Get a wiki page
     example_data = {
         "content": "home page",
         "format": "markdown",
@@ -13775,7 +13679,6 @@ def test_wiki_response_2():
     reason=reason,
 )
 def test_wiki_response_3():
-    # Create a new wiki page
     example_data = {
         "content": "Hello world",
         "format": "markdown",
@@ -13792,7 +13695,6 @@ def test_wiki_response_3():
     reason=reason,
 )
 def test_wiki_response_4():
-    # Upload an attachment to the wiki repository
     example_data = {
         "file_name": "dk.png",
         "file_path": "uploads/6a061c4cf9f1c28cb22c384b4b8d4e3c/dk.png",
@@ -13811,7 +13713,6 @@ def test_wiki_response_4():
     reason=reason,
 )
 def test_wiki_response_5():
-    # List wiki pages
     example_data = [
         {
             "content": "Here is an instruction how to deploy this project.",

@@ -18,11 +18,8 @@ else:
 
 reason = "do not run on MacOS or windows OR dependency is not installed OR " + reason
 
-# gitlab url
 gitlab_url = "http://gitlab.arpa/api/v4"
-# get token from env vars
 token = os.environ.get("GITLAB_TOKEN", default="NA")
-# create client
 client = gitlab_api.Api(url=gitlab_url, token=token, verify=False)
 
 
@@ -31,7 +28,6 @@ client = gitlab_api.Api(url=gitlab_url, token=token, verify=False)
     reason=reason,
 )
 def test_get_nested_projects():
-    # Get nested projects
     group_id = 2
     projects = client.get_nested_projects_by_group(group_id=group_id, per_page=3)
     assert len(projects.data) > 0
@@ -47,7 +43,6 @@ def test_get_nested_projects():
     reason=reason,
 )
 def test_get_projects():
-    # Get nested projects
     group_id = 6
     projects = client.get_projects(group_id=group_id, per_page=3)
     assert len(projects.data) > 0
@@ -59,7 +54,6 @@ def test_get_projects():
     reason=reason,
 )
 def test_create_branch():
-    # Create branch
     project = 79
     response = client.create_branch(
         project_id=project, branch="test_branch", reference="main"
@@ -72,7 +66,6 @@ def test_create_branch():
     reason=reason,
 )
 def test_create_project_rule():
-    # Create branch
     project = 79
     response = client.create_project_level_rule(
         project_id=project, name="Test_Rule", approvals_required=9
@@ -85,7 +78,6 @@ def test_create_project_rule():
     reason=reason,
 )
 def test_get_project_rules():
-    # Create branch
     project = 79
     response = client.get_project_level_rules(project_id=project)
     assert response.status_code == 200
@@ -96,7 +88,6 @@ def test_get_project_rules():
     reason=reason,
 )
 def test_edit_group():
-    # Get nested projects
     group_id = 6
     group = client.edit_group(group_id=group_id, visibility="internal")
     assert group.data.visibility == "internal"
@@ -107,7 +98,6 @@ def test_edit_group():
     reason=reason,
 )
 def test_edit_project():
-    # Get nested projects
     group_id = 6
     group = client.edit_group(group_id=group_id, visibility="internal")
     group_id = 179
@@ -122,7 +112,6 @@ def test_edit_project():
     reason=reason,
 )
 def test_get_project_jobs():
-    # Get project jobs
     group_id = 2
     projects = client.get_nested_projects_by_group(group_id=group_id, per_page=100)
     all_jobs = []

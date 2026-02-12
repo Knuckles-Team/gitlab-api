@@ -6,7 +6,6 @@ from fastmcp.server.middleware import MiddlewareContext, Middleware
 from fastmcp.utilities.logging import get_logger
 from gitlab_api.gitlab_api import Api
 
-# Thread-local storage for user token
 local = threading.local()
 logger = get_logger(name="TokenMiddleware")
 
@@ -23,9 +22,8 @@ class UserTokenMiddleware(Middleware):
             if auth and auth.startswith("Bearer "):
                 token = auth.split(" ")[1]
                 local.user_token = token
-                local.user_claims = None  # Will be populated by JWTVerifier
+                local.user_claims = None
 
-                # Extract claims if JWTVerifier already validated
                 if hasattr(context, "auth") and hasattr(context.auth, "claims"):
                     local.user_claims = context.auth.claims
                     logger.info(
@@ -81,7 +79,6 @@ def get_client(
             },
         )
 
-        # Perform token exchange
         exchange_data = {
             "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
             "subject_token": user_token,

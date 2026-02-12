@@ -93,7 +93,7 @@ class Api(object):
             raise MissingParameterError
 
         self._session = requests.Session()
-        self.url = url.rstrip("/")  # remove trailing slash
+        self.url = url.rstrip("/")
         forbidden = ["/api/v4", "/api/v4/"]
         for end in forbidden:
             if url.endswith(end):
@@ -162,7 +162,6 @@ class Api(object):
             logging.debug("No parallel headers available to switch to.")
             return False
 
-        # Increment index and wrap around if at the end
         self._current_header_index = (self._current_header_index + 1) % len(
             self.headers_parallel
         )
@@ -245,9 +244,6 @@ class Api(object):
 
         return total_pages_response, all_data
 
-    ####################################################################################################################
-    #                                                 Branches API                                                     #
-    ####################################################################################################################
     @require_auth
     def get_branches(self, **kwargs) -> Response:
         """
@@ -400,9 +396,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                 Commits API                                                      #
-    ####################################################################################################################
     @require_auth
     def get_commits(self, **kwargs) -> Response:
         """
@@ -799,10 +792,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                Deploy Tokens API                                                 #
-    ####################################################################################################################
-
     @require_auth
     def get_deploy_tokens(self, **kwargs) -> Response:
         """
@@ -1102,9 +1091,6 @@ class Api(object):
         except requests.RequestException as e:
             raise ParameterError(f"Failed to delete group deploy token: {str(e)}")
 
-    ####################################################################################################################
-    #                                           Environments API                                                       #
-    ####################################################################################################################
     @require_auth
     def get_environments(self, **kwargs) -> Response:
         """
@@ -1510,9 +1496,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                Groups API                                                        #
-    ####################################################################################################################
     @require_auth
     def get_groups(self, **kwargs) -> Response:
         """
@@ -1723,9 +1706,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                Jobs API                                                          #
-    ####################################################################################################################
     @require_auth
     def get_project_jobs(self, **kwargs) -> Response:
         """
@@ -1813,7 +1793,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = response.text  # Job log is plain text, not JSON
+            parsed_data = response.text
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -1973,9 +1953,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                               Members API                                                        #
-    ####################################################################################################################
     @require_auth
     def get_group_members(self, **kwargs) -> Response:
         """
@@ -2036,9 +2013,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                            Merge Request API                                                     #
-    ####################################################################################################################
     @require_auth
     def create_merge_request(self, **kwargs) -> Response:
         """
@@ -2164,9 +2138,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                            Merge Rules API                                                       #
-    ####################################################################################################################
     @require_auth
     def get_project_level_merge_request_rules(self, **kwargs) -> Response:
         """
@@ -2348,9 +2319,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = (
-                response.json()
-            )  # No specific Pydantic model for approvals, keeping as raw JSON
+            parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2381,9 +2350,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = (
-                response.json()
-            )  # No specific Pydantic model for approval state, keeping as raw JSON
+            parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -2479,9 +2446,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                     Merge Rules Settings API                                                     #
-    ####################################################################################################################
     @require_auth
     def get_group_level_rule(self, **kwargs) -> Response:
         """
@@ -2609,9 +2573,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                               Packages API                                                       #
-    ####################################################################################################################
     @require_auth
     def get_repository_packages(self, **kwargs) -> Response:
         """
@@ -2709,14 +2670,11 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = response.content  # Package file is binary data, not JSON
+            parsed_data = response.content
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                Pipeline API                                                      #
-    ####################################################################################################################
     @require_auth
     def get_pipelines(self, **kwargs) -> Response:
         """
@@ -2810,9 +2768,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                          Pipeline Schedules API                                                  #
-    ####################################################################################################################
     @require_auth
     def get_pipeline_schedules(self, **kwargs) -> Response:
         """
@@ -3125,9 +3080,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                Projects API                                                      #
-    ####################################################################################################################
     @require_auth
     def get_projects(self, **kwargs) -> Response:
         """
@@ -3209,17 +3161,14 @@ class Api(object):
             raise MissingParameterError
 
         try:
-            # Fetch the specified group
             group_response = self.get_group(group_id=project.group_id)
             all_groups.append(group_response.data)
 
-            # Fetch all descendant groups
             groups_response = self.get_group_descendant_groups(
                 group_id=project.group_id, per_page=project.per_page
             )
             all_groups.extend(groups_response.data)
 
-            # Fetch projects for each group
             last_response = None
             for group in all_groups:
                 response, data = self._fetch_all_pages(
@@ -3230,9 +3179,7 @@ class Api(object):
                 )
                 parsed_data = [Project(**item) for item in data]
                 all_projects.extend(parsed_data)
-                last_response = (
-                    response  # Keep track of the last response for the Response object
-                )
+                last_response = response
 
             return Response(response=last_response, data=all_projects)
         except ValidationError as e:
@@ -3294,9 +3241,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = (
-                response.json()
-            )  # No specific Pydantic model for statistics, keeping as raw JSON
+            parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3491,9 +3436,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                       Protected Branches API                                                     #
-    ####################################################################################################################
     @require_auth
     def get_protected_branches(self, **kwargs) -> Response:
         """
@@ -3649,9 +3591,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                Release API                                                       #
-    ####################################################################################################################
     @require_auth
     def get_releases(self, **kwargs) -> Response:
         """
@@ -3739,9 +3678,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = (
-                response.json()
-            )  # No specific Pydantic model for evidence, keeping as raw JSON
+            parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3772,7 +3709,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = response.content  # Asset is binary data, not JSON
+            parsed_data = response.content
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3837,7 +3774,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = response.content  # Asset is binary data, not JSON
+            parsed_data = response.content
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -3997,9 +3934,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                Runners API                                                       #
-    ####################################################################################################################
     @require_auth
     def get_runners(self, **kwargs) -> Response:
         """
@@ -4395,9 +4329,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = (
-                response.json()
-            )  # No specific Pydantic model for token, keeping as raw JSON
+            parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -4428,9 +4360,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = (
-                response.json()
-            )  # No specific Pydantic model for token, keeping as raw JSON
+            parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -4461,9 +4391,7 @@ class Api(object):
                 proxies=self.proxies,
             )
             response.raise_for_status()
-            parsed_data = (
-                response.json()
-            )  # No specific Pydantic model for token, keeping as raw JSON
+            parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
@@ -4500,9 +4428,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                 Tags API                                                         #
-    ####################################################################################################################
     @require_auth
     def get_tags(self, **kwargs) -> Response:
         """
@@ -4749,9 +4674,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                Users API                                                         #
-    ####################################################################################################################
     @require_auth
     def get_users(self, **kwargs) -> Response:
         """
@@ -4810,9 +4732,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                 Wiki API                                                         #
-    ####################################################################################################################
     @require_auth
     def get_wiki_list(self, **kwargs) -> Response:
         """
@@ -4997,16 +4916,11 @@ class Api(object):
                 files={"file": wiki.file},
             )
             response.raise_for_status()
-            parsed_data = (
-                response.json()
-            )  # No specific Pydantic model for attachment, keeping as raw JSON
+            parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                              Namespaces API                                                      #
-    ####################################################################################################################
     @require_auth
     def get_namespaces(self, **kwargs) -> Response:
         """
@@ -5065,9 +4979,6 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
 
-    ####################################################################################################################
-    #                                                 Custom API                                                       #
-    ####################################################################################################################
     @require_auth
     def api_request(
         self,

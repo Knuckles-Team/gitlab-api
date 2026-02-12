@@ -805,7 +805,6 @@ class GroupModel(BaseModel):
             if field_name in cls.__annotations__ and value is not None:
                 data[field_name] = value
 
-        # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
         if "data" not in values or values["data"] is None:
@@ -1631,7 +1630,6 @@ class MergeRequestRuleModel(BaseModel):
         if "usernames" in values:
             data["usernames"] = values.get("usernames")
 
-        # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
         if "data" not in values or values["data"] is None:
@@ -1749,7 +1747,6 @@ class MergeRequestRuleSettingsModel(BaseModel):
             if field_name in cls.__annotations__ and value is not None:
                 data[field_name] = value
 
-        # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
         if "data" not in values or values["data"] is None:
@@ -1807,7 +1804,6 @@ class NamespaceModel(BaseModel):
             if field_name in cls.__annotations__ and value is not None:
                 data[field_name] = value
 
-        # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
         if "data" not in values or values["data"] is None:
@@ -1977,7 +1973,6 @@ class PipelineModel(BaseModel):
             if field_name in cls.__annotations__ and value is not None:
                 data[field_name] = value
 
-        # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
         if "data" not in values or values["data"] is None:
@@ -2211,7 +2206,7 @@ class ProjectModel(BaseModel):
     active: Optional[bool] = Field(
         description="The activation of pipeline schedule. "
         "If false is set, the pipeline schedule is initially deactivated.",
-        default=True,  # Default as per table
+        default=True,
     )
     key: Optional[str] = Field(
         description="The key of a variable",
@@ -2326,7 +2321,6 @@ class ProjectModel(BaseModel):
             if field_name in cls.__annotations__ and value is not None:
                 data[field_name] = value
 
-        # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
         if "data" not in values or values["data"] is None:
@@ -2577,7 +2571,6 @@ class ProtectedBranchModel(BaseModel):
         if self.per_page:
             self.api_parameters["per_page"] = self.per_page
         if self.argument:
-            # Handle argument string like "state=opened"
             pass
 
     @model_validator(mode="before")
@@ -2600,7 +2593,6 @@ class ProtectedBranchModel(BaseModel):
             if field_name in cls.__annotations__ and value is not None:
                 data[field_name] = value
 
-        # Remove None values
         data = {k: v for k, v in data.items() if v is not None}
 
         if "data" not in values or values["data"] is None:

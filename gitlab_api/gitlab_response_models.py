@@ -1816,7 +1816,6 @@ class Project(BaseModel):
         default=None,
         description="Whether read-only access is allowed to fetch security policy configurations (Ultimate only).",
     )
-    # New fields added based on documentation
     license: Optional[License] = Field(
         default=None, description="License details for the project."
     )
@@ -2026,7 +2025,7 @@ class Job(BaseModel):
     )
     source: Optional[str] = Field(
         default=None, description="Source of the job (e.g., push, web, schedule)"
-    )  # Added missing field
+    )
     allow_failure: Optional[bool] = Field(
         default=None, description="Indicates if the job is allowed to fail"
     )
@@ -2061,14 +2060,14 @@ class Job(BaseModel):
         default=None,
         description="List of tags associated with the job",
         alias="tag_list",
-    )  # Renamed from tag_list
+    )
     pipeline: Optional[Pipeline] = Field(
         default=None, description="Details of the pipeline associated with the job"
     )
     ref: Optional[str] = Field(default=None, description="Reference of the job")
     download_url: Optional[str] = Field(
         default=None, description="URL to download job artifacts, if available"
-    )  # Added missing field
+    )
     runner: Optional[Runner] = Field(
         default=None, description="Details of the runner that executed the job"
     )
@@ -2765,11 +2764,11 @@ class MergeRequest(BaseModel):
     )
     assignees: Optional[List[User]] = Field(
         default=None, description="List of users assigned to the merge request"
-    )  # Replaced assignee
+    )
     assignee: Optional[User] = Field(
         default=None,
         description="Assignee of the merge request (deprecated: use assignees)",
-    )  # Deprecated
+    )
     source_project_id: Optional[int] = Field(
         default=None, description="ID of the source project"
     )
@@ -2778,33 +2777,33 @@ class MergeRequest(BaseModel):
     )
     labels: Optional[List[Label]] = Field(
         default=None, description="List of labels assigned to the merge request"
-    )  # Replaced tag_list
+    )
     tag_list: Optional[List[Tag]] = Field(
         default=None,
         description="List of tags associated with the merge request (deprecated: use labels)",
-    )  # Deprecated
+    )
     draft: Optional[bool] = Field(
         default=None, description="Draft state of the merge request"
-    )  # Replaced work_in_progress
+    )
     work_in_progress: Optional[bool] = Field(
         default=None,
         description="Whether the merge request is a work in progress (deprecated: use draft)",
-    )  # Deprecated
+    )
     milestone: Optional[Milestone] = Field(
         default=None, description="Milestone associated with the merge request"
     )
     auto_merge: Optional[bool] = Field(
         default=None,
         description="Whether to merge automatically when conditions are met",
-    )  # Replaced merge_when_pipeline_succeeds
+    )
     merge_when_pipeline_succeeds: Optional[bool] = Field(
         default=None,
         description="Whether to merge when the pipeline succeeds (deprecated: use auto_merge)",
-    )  # Deprecated
+    )
     merge_status: Optional[str] = Field(
         default=None,
         description="Merge status of the merge request (deprecated: use detailed_merge_status)",
-    )  # Deprecated
+    )
     detailed_merge_status: Optional[str] = Field(
         default=None, description="Detailed status of the merge request mergeability"
     )
@@ -2836,17 +2835,17 @@ class MergeRequest(BaseModel):
     allow_maintainer_to_push: Optional[bool] = Field(
         default=None,
         description="Whether the maintainer can push (deprecated: alias for allow_collaboration)",
-    )  # Deprecated
+    )
     web_url: Optional[Union[HttpUrl, str]] = Field(
         default=None, description="Web URL of the merge request"
     )
     references: Optional[References] = Field(
         default=None, description="References associated with the merge request"
-    )  # Replaced reference
+    )
     reference: Optional[str] = Field(
         default=None,
         description="Reference associated with the merge request (deprecated: use references)",
-    )  # Deprecated
+    )
     time_stats: Optional[TimeStats] = Field(
         default=None, description="Time statistics for the merge request"
     )
@@ -2862,14 +2861,14 @@ class MergeRequest(BaseModel):
     changes: Optional[List[Diff]] = Field(
         default=None,
         description="List of changes (diffs) in the merge request (deprecated: use /diffs endpoint)",
-    )  # Deprecated
+    )
     merge_user: Optional[User] = Field(
         default=None, description="User who merged the merge request"
-    )  # Replaced merged_by
+    )
     merged_by: Optional[User] = Field(
         default=None,
         description="Merger of the merge request (deprecated: use merge_user)",
-    )  # Deprecated
+    )
     merged_at: Optional[datetime] = Field(
         default=None, description="Date when the merge request was merged"
     )
@@ -2893,17 +2892,15 @@ class MergeRequest(BaseModel):
     )
     head_pipeline: Optional[Pipeline] = Field(
         default=None, description="Head pipeline associated with the merge request"
-    )  # Replaced pipeline
+    )
     pipeline: Optional[Pipeline] = Field(
         default=None,
         description="Pipeline associated with the merge request (deprecated: use head_pipeline)",
-    )  # Deprecated
+    )
     diff_refs: Optional[DiffRefs] = Field(
         default=None, description="Diff references associated with the merge request"
-    )  # Typed submodel
-    user: Optional[User] = Field(
-        default=None, description="User-specific information"
-    )  # Typed submodel
+    )
+    user: Optional[User] = Field(default=None, description="User-specific information")
     changes_count: Optional[str] = Field(
         default=None, description="Count of changes in the merge request"
     )
@@ -2913,7 +2910,7 @@ class MergeRequest(BaseModel):
     approvals_before_merge: Optional[int] = Field(
         default=None,
         description="Number of approvals required before merging (deprecated: use Approvals API)",
-    )  # Deprecated
+    )
     imported: Optional[bool] = Field(
         default=None, description="Indicates if the merge request was imported"
     )
@@ -2925,11 +2922,11 @@ class MergeRequest(BaseModel):
     )
     reviewers: Optional[List[User]] = Field(
         default=None, description="List of users reviewing the merge request"
-    )  # Replaced reviewer
+    )
     reviewer: Optional[List[User]] = Field(
         default=None,
         description="List of reviewers for the merge request (deprecated: use reviewers)",
-    )  # Deprecated
+    )
     review: Optional[Dict[str, Any]] = Field(
         default=None, description="Review information associated with the merge request"
     )

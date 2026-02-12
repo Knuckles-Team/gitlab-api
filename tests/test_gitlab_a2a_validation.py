@@ -3,7 +3,6 @@ import time
 import pytest
 import logging
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -36,17 +35,13 @@ def test_b_respond_to_query():
     """Validate B) The A2A Agent is able to respond to a query"""
     logger.info("Verifying A2A Agent Response...")
 
-    # Skip openapi.json check if it failed
-    # FastA2A requires JSON-RPC 2.0 with specific methods found in logs
     endpoint = "/"
     success = False
 
-    # Correct method from logs
     method = "message/send"
 
     logger.info(f"Trying JSON-RPC method: {method}")
     try:
-        # Try different param structures for message/send
         param_options = [
             {
                 "message": {
@@ -95,13 +90,8 @@ def test_c_d_e_f_full_flow():
     endpoint = "/"
     method = "message/send"
 
-    # Queries that require delegation AND MCP/Knowledge
     doc_query = "What is the correct API endpoint for 'deploy_tokens' according to the documentation?"
 
-    # Using the param format that is likely to work based on test_b
-    # We'll use {"content": doc_query} as a safe bet if test_b passes.
-    # But since we run this as script, we can't depend on test_b results dynamically here easily.
-    # I'll use {"messages": ...} which is robust for chat agents.
     payload = {
         "jsonrpc": "2.0",
         "method": method,
@@ -122,13 +112,11 @@ def test_c_d_e_f_full_flow():
     body = response.json()
     assert "error" not in body, f"JSON-RPC Error: {body.get('error')}"
 
-    # Extract taskId and poll
     result = body.get("result", {})
     task_id = result.get("id")
     if task_id:
         logger.info(f"Task submitted with ID: {task_id}. Polling for result...")
-        # Polling loop
-        for _ in range(10):  # Try for 10 seconds? Maybe longer if agent is slow.
+        for _ in range(10):
             time.sleep(2)
             poll_payload = {
                 "jsonrpc": "2.0",

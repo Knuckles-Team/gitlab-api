@@ -3,7 +3,6 @@ import asyncio
 import sys
 from gitlab_api.gitlab_agent import stream_chat, chat, node_chat
 
-# Attempt to import assuming dependencies are installed
 import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -22,17 +21,14 @@ async def main():
         agent = create_agent(
             provider="openai",
             model_id=os.getenv("MODEL_ID", "qwen/qwen3-coder-next"),
-            base_url=os.getenv(
-                "LLM_BASE_URL", "http://host.docker.internal:1234/v1"
-            ),  # 127.0.0.1
+            base_url=os.getenv("LLM_BASE_URL", "http://host.docker.internal:1234/v1"),
             api_key=os.getenv("LLM_API_KEY", "ollama"),
-            mcp_url=os.getenv("MCP_URL", "http://localhost:8005/mcp"),  # 127.0.0.1
+            mcp_url=os.getenv("MCP_URL", "http://localhost:8005/mcp"),
             mcp_config=None,
         )
 
         print("Agent initialized successfully.")
 
-        # Define sample questions
         questions = [
             "Can you create a merge request for project id 171 with a title of 'Test Merge Request' from the 'validate' to 'main' branch? For the description please put 'this is a test merge request'.",
             "Can you run the pipeline for project id 171 on the 'main' branch?",
@@ -44,7 +40,6 @@ async def main():
         for q in questions:
             print(f"\n\n\nUser: {q}")
             try:
-                # Only run one to test
                 await stream_chat(agent=agent, prompt=q)
                 await chat(agent=agent, prompt=q)
                 await node_chat(agent=agent, prompt=q)

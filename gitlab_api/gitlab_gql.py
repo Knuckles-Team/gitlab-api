@@ -54,13 +54,11 @@ class GraphQL:
         self.verify = verify
         self.debug = debug
 
-        # Configure logging
         logging.basicConfig(
             level=logging.DEBUG if debug else logging.ERROR,
             format="%(asctime)s - %(levelname)s - %(message)s",
         )
 
-        # Set up gql transport with auth
         headers = {"Authorization": f"Bearer {token}"}
         self.transport = RequestsHTTPTransport(
             url=self.url,
@@ -103,7 +101,6 @@ class GraphQL:
             logging.error(f"GraphQL execution failed: {str(e)}")
             raise ParameterError(f"Query execution failed: {str(e)}")
 
-    # Branches Tools
     @require_auth
     def get_branches(
         self,
@@ -371,7 +368,6 @@ class GraphQL:
             variables["search"] = search
         return self.execute_gql(query, variables=variables)
 
-    # Tags Tools
     @require_auth
     def get_tags(
         self,
@@ -662,7 +658,6 @@ class GraphQL:
         }
         return self.execute_gql(query, variables=variables)
 
-    # Commit Tools
     @require_auth
     def get_commits(
         self,
@@ -1004,7 +999,6 @@ class GraphQL:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
 
-    # Merge Request Tools
     @require_auth
     def get_merge_requests(
         self,
@@ -1298,7 +1292,6 @@ class GraphQL:
         }
         return self.execute_gql(query, variables=variables)
 
-    # Pipeline Tools
     @require_auth
     def get_pipelines(
         self,
@@ -1469,7 +1462,6 @@ class GraphQL:
         variables = {"input": {"id": f"gid://gitlab/Ci::Pipeline/{pipeline_id}"}}
         return self.execute_gql(query, variables=variables)
 
-    # Pipeline Schedules
     @require_auth
     def get_pipeline_schedules(
         self,
@@ -1674,7 +1666,6 @@ class GraphQL:
         }
         return self.execute_gql(query, variables=variables)
 
-    # Projects
     @require_auth
     def get_projects(
         self,
@@ -1851,7 +1842,6 @@ class GraphQL:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
 
-    # Jobs
     @require_auth
     def get_jobs(
         self,
@@ -1977,7 +1967,6 @@ class GraphQL:
         variables = {"input": {"id": f"gid://gitlab/Ci::Job/{job_id}"}}
         return self.execute_gql(query, variables=variables)
 
-    # Packages
     @require_auth
     def get_packages(
         self,
@@ -2079,7 +2068,6 @@ class GraphQL:
         variables = {"input": {"id": f"gid://gitlab/Packages::Package/{package_id}"}}
         return self.execute_gql(query, variables=variables)
 
-    # Deploy Tokens
     @require_auth
     def get_deploy_tokens(
         self,
@@ -2155,7 +2143,6 @@ class GraphQL:
             "Deploy token deletion not available in GitLab GraphQL; use REST API."
         )
 
-    # Users
     @require_auth
     def get_users(
         self,
@@ -2225,7 +2212,6 @@ class GraphQL:
         variables = {"id": f"gid://gitlab/User/{user_id}"}
         return self.execute_gql(query, variables=variables)
 
-    # Memberships
     @require_auth
     def get_members(
         self,
@@ -2393,7 +2379,6 @@ class GraphQL:
         }
         return self.execute_gql(query, variables=variables)
 
-    # Releases
     @require_auth
     def get_releases(
         self,
@@ -2462,7 +2447,6 @@ class GraphQL:
         variables = {"fullPath": str(project_id), "tagName": tag_name}
         return self.execute_gql(query, variables=variables)
 
-    # Releases
     @require_auth
     def create_release(
         self,
@@ -2579,7 +2563,6 @@ class GraphQL:
         variables = {"input": {"projectPath": str(project_id), "tagName": tag_name}}
         return self.execute_gql(query, variables=variables)
 
-    # Issues
     @require_auth
     def get_issues(
         self,
@@ -2788,7 +2771,6 @@ class GraphQL:
         variables = {"input": {"projectPath": str(project_id), "iid": str(issue_iid)}}
         return self.execute_gql(query, variables=variables)
 
-    # To-Dos
     @require_auth
     def get_to_dos(
         self,
@@ -2840,7 +2822,6 @@ class GraphQL:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
 
-    # Environments
     @require_auth
     def get_environments(
         self,
@@ -2994,7 +2975,6 @@ class GraphQL:
         variables = {"input": {"id": f"gid://gitlab/Environment/{environment_id}"}}
         return self.execute_gql(query, variables=variables)
 
-    # Test Reports
     @require_auth
     def get_test_reports(
         self,
@@ -3042,7 +3022,6 @@ class GraphQL:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
 
-    # Namespaces
     @require_auth
     def get_namespaces(
         self,
@@ -3108,7 +3087,6 @@ class GraphQL:
         variables = {"fullPath": str(namespace_id)}
         return self.execute_gql(query, variables=variables)
 
-    # Groups
     @require_auth
     def get_groups(
         self,
@@ -3174,7 +3152,6 @@ class GraphQL:
         variables = {"fullPath": str(group_id)}
         return self.execute_gql(query, variables=variables)
 
-    # Wikis
     @require_auth
     def get_wiki_pages(
         self,

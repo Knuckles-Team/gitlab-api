@@ -5,7 +5,8 @@ import time
 import logging
 import subprocess
 
-# Configure logging
+import httpx
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,6 @@ def send_rpc(method, params, id=1):
     payload = {"jsonrpc": "2.0", "method": method, "params": params, "id": id}
     try:
         response = requests.post(f"{BASE_URL}{ENDPOINT}", json=payload)
-        # response.raise_for_status()
-        # We might want to see the error in the response content if 400/500
         try:
             return response.json()
         except Exception:
@@ -52,7 +51,6 @@ def run_query_and_wait(query, description):
     logger.info(f"\n--- {description} ---")
     logger.info(f"Query: {query}")
 
-    # Construct FastA2A compatible message
     message = {
         "kind": "message",
         "role": "user",
@@ -101,8 +99,6 @@ def check_container_logs(container_name):
 
         logs = result.stdout + result.stderr
         errors = []
-        # Filter for relevant error keywords
-        # We look for "Traceback", "Error", "Exception" but exclude some common noise if any
         for line in logs.splitlines():
             lower_line = line.lower()
             if (
@@ -110,14 +106,10 @@ def check_container_logs(container_name):
                 or "exception" in lower_line
                 or ("error" in lower_line and "debug" not in lower_line)
             ):
-                # Basic filter, might need refinement based on actual logs
                 errors.append(line)
         return errors
     except Exception as e:
         return [f"Exception checking logs: {e}"]
-
-
-# --- Tests ---
 
 
 def test_graphiti_ingestion():
@@ -125,7 +117,6 @@ def test_graphiti_ingestion():
         "Does the documentation saying anything about how to create a branch? Please summarize.",
         "Validating Graphiti Ingestion",
     )
-    # Check if we got a valid response
     text = get_assistant_text(result)
     assert (
         text is not None
@@ -134,7 +125,6 @@ def test_graphiti_ingestion():
 
 
 def test_branch_creation_flow():
-    # 1. Create
     result_create = run_query_and_wait(
         "Create a branch called 'test-a2a' in project id 202 from 'main'.",
         "Validating Create Branch (Delegation)",
@@ -145,7 +135,6 @@ def test_branch_creation_flow():
     ), f"No response text from assistant. Result: {json.dumps(result_create, indent=2)}"
     logger.info(f"Create Branch Result: {text_create}")
 
-    # 2. Verify
     result_verify = run_query_and_wait(
         "List branches for project id 202 and check if 'test-a2a' exists.",
         "Verifying Branch Creation",
@@ -158,7 +147,6 @@ def test_branch_creation_flow():
 
 
 def test_pipeline_flow():
-    # 1. Run Pipeline
     result_run = run_query_and_wait(
         "Run a pipeline for project id 202 on the 'main' branch.",
         "Validating Run Pipeline",
@@ -169,7 +157,6 @@ def test_pipeline_flow():
     ), f"No response text from assistant. Result: {json.dumps(result_run, indent=2)}"
     logger.info(f"Run Pipeline Result: {text_run}")
 
-    # 2. Verify
     result_verify = run_query_and_wait(
         "List the most recent pipelines for project id 202.",
         "Verifying Pipeline Execution",
