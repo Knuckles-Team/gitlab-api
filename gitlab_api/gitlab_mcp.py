@@ -29,7 +29,7 @@ from gitlab_api.middlewares import (
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-__version__ = "25.15.4"
+__version__ = "25.15.5"
 print(f"Gitlab MCP v{__version__}")
 
 logger = get_logger(name="TokenMiddleware")
@@ -39,7 +39,7 @@ config = {
     "enable_delegation": to_boolean(os.environ.get("ENABLE_DELEGATION", "False")),
     "audience": os.environ.get("AUDIENCE", None),
     "delegated_scopes": os.environ.get("DELEGATED_SCOPES", "api"),
-    "token_endpoint": None,  # Will be fetched dynamically from OIDC config
+    "token_endpoint": None,
     "oidc_client_id": os.environ.get("OIDC_CLIENT_ID", None),
     "oidc_client_secret": os.environ.get("OIDC_CLIENT_SECRET", None),
     "oidc_config_url": os.environ.get("OIDC_CONFIG_URL", None),
@@ -61,7 +61,6 @@ def register_tools(mcp: FastMCP):
     async def health_check(request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
-    # Branches Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
@@ -213,7 +212,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Deletion complete")
         return response.data
 
-    # Commits Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
@@ -816,7 +814,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("GPG signature retrieval complete")
         return response.data
 
-    # Deploy Tokens Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
@@ -1118,7 +1115,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Deploy token deleted")
         return response.data
 
-    # Environments Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
@@ -1689,7 +1685,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Environment unprotected")
         return response.data
 
-    # Groups Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
@@ -2019,7 +2014,6 @@ def register_tools(mcp: FastMCP):
         response = client.get_group_merge_requests(group_id=group_id, **kwargs)
         return {"merge_requests": response.data}
 
-    # Jobs Tools
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     async def get_project_jobs(
         gitlab_instance: Optional[str] = Field(
@@ -2297,7 +2291,6 @@ def register_tools(mcp: FastMCP):
         )
         return {"jobs": response.data}
 
-    # Members Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
     )
@@ -2397,7 +2390,6 @@ def register_tools(mcp: FastMCP):
         response = client.get_project_members(project_id=project_id, **kwargs)
         return {"members": response.data}
 
-    # Merge Request Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"merge_requests"},
@@ -2811,7 +2803,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Approval rule deleted")
         return response.data
 
-    # Merge Rules Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
@@ -3216,7 +3207,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Approval settings edited")
         return response.data
 
-    # Packages Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
@@ -3368,7 +3358,6 @@ def register_tools(mcp: FastMCP):
         )
         return response.data
 
-    # Pipeline Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
     )
@@ -3490,7 +3479,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Pipeline started")
         return response.data
 
-    # Pipeline Schedules Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
@@ -3994,7 +3982,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Variable deleted")
         return response.data
 
-    # Projects Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
@@ -4430,7 +4417,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Project shared")
         return response.data
 
-    # Protected Branches Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"protected_branches"},
@@ -4659,7 +4645,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Code owner approval setting updated")
         return response.data
 
-    # Release Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
@@ -5157,7 +5142,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Release deleted")
         return response.data
 
-    # Runners Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
@@ -5848,7 +5832,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Runner authentication token reset")
         return response.data
 
-    # Tags Tools
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     async def get_tags(
         gitlab_instance: Optional[str] = Field(
@@ -6171,7 +6154,6 @@ def register_tools(mcp: FastMCP):
             await ctx.info("Tag unprotected")
         return response.data
 
-    # Custom API Tools
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"custom_api"},
@@ -6223,7 +6205,6 @@ def register_tools(mcp: FastMCP):
 
 
 def register_prompts(mcp: FastMCP):
-    # Prompts
     @mcp.prompt
     def create_branch_prompt(
         new_branch: str,
@@ -6316,7 +6297,6 @@ def gitlab_mcp() -> None:
         choices=["none", "static", "jwt", "oauth-proxy", "oidc-proxy", "remote-oauth"],
         help="Authentication type for MCP server: 'none' (disabled), 'static' (internal), 'jwt' (external token verification), 'oauth-proxy', 'oidc-proxy', 'remote-oauth' (external) (default: none)",
     )
-    # JWT/Token params
     parser.add_argument(
         "--token-jwks-uri", default=None, help="JWKS URI for JWT verification"
     )
@@ -6357,7 +6337,6 @@ def gitlab_mcp() -> None:
         default=os.getenv("FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES"),
         help="Comma-separated list of required scopes (e.g., gitlab.read,gitlab.write).",
     )
-    # OAuth Proxy params
     parser.add_argument(
         "--oauth-upstream-auth-endpoint",
         default=None,
@@ -6381,14 +6360,12 @@ def gitlab_mcp() -> None:
     parser.add_argument(
         "--oauth-base-url", default=None, help="Base URL for OAuth Proxy"
     )
-    # OIDC Proxy params
     parser.add_argument(
         "--oidc-config-url", default=None, help="OIDC configuration URL"
     )
     parser.add_argument("--oidc-client-id", default=None, help="OIDC client ID")
     parser.add_argument("--oidc-client-secret", default=None, help="OIDC client secret")
     parser.add_argument("--oidc-base-url", default=None, help="Base URL for OIDC Proxy")
-    # Remote OAuth params
     parser.add_argument(
         "--remote-auth-servers",
         default=None,
@@ -6397,13 +6374,11 @@ def gitlab_mcp() -> None:
     parser.add_argument(
         "--remote-base-url", default=None, help="Base URL for Remote OAuth"
     )
-    # Common
     parser.add_argument(
         "--allowed-client-redirect-uris",
         default=None,
         help="Comma-separated list of allowed client redirect URIs",
     )
-    # Eunomia params
     parser.add_argument(
         "--eunomia-type",
         default="none",
@@ -6418,7 +6393,6 @@ def gitlab_mcp() -> None:
     parser.add_argument(
         "--eunomia-remote-url", default=None, help="URL for remote Eunomia server"
     )
-    # Delegation params
     parser.add_argument(
         "--enable-delegation",
         action="store_true",
@@ -6489,7 +6463,6 @@ def gitlab_mcp() -> None:
         print(f"Error: Port {args.port} is out of valid range (0-65535).")
         sys.exit(1)
 
-    # Update config with CLI arguments
     config["enable_delegation"] = args.enable_delegation
     config["audience"] = args.audience or config["audience"]
     config["delegated_scopes"] = args.delegated_scopes or config["delegated_scopes"]
@@ -6499,7 +6472,6 @@ def gitlab_mcp() -> None:
         args.oidc_client_secret or config["oidc_client_secret"]
     )
 
-    # Configure delegation if enabled
     if config["enable_delegation"]:
         if args.auth_type != "oidc-proxy":
             logger.error("Token delegation requires auth-type=oidc-proxy")
@@ -6519,7 +6491,6 @@ def gitlab_mcp() -> None:
             )
             sys.exit(1)
 
-        # Fetch OIDC configuration to get token_endpoint
         try:
             logger.info(
                 "Fetching OIDC configuration",
@@ -6544,7 +6515,6 @@ def gitlab_mcp() -> None:
             )
             sys.exit(1)
 
-    # Set auth based on type
     auth = None
     allowed_uris = (
         args.allowed_client_redirect_uris.split(",")
@@ -6562,7 +6532,6 @@ def gitlab_mcp() -> None:
             }
         )
     elif args.auth_type == "jwt":
-        # Fallback to env vars if not provided via CLI
         jwks_uri = args.token_jwks_uri or os.getenv("FASTMCP_SERVER_AUTH_JWT_JWKS_URI")
         issuer = args.token_issuer or os.getenv("FASTMCP_SERVER_AUTH_JWT_ISSUER")
         audience = args.token_audience or os.getenv("FASTMCP_SERVER_AUTH_JWT_AUDIENCE")
@@ -6579,7 +6548,6 @@ def gitlab_mcp() -> None:
             logger.error("JWT requires --token-issuer and --token-audience")
             sys.exit(1)
 
-        # Load static public key from file if path is given
         if args.token_public_key and os.path.isfile(args.token_public_key):
             try:
                 with open(args.token_public_key, "r") as f:
@@ -6590,15 +6558,13 @@ def gitlab_mcp() -> None:
                 logger.error(f"Failed to read public key file: {e}")
                 sys.exit(1)
         elif args.token_public_key:
-            public_key_pem = args.token_public_key  # Inline PEM
+            public_key_pem = args.token_public_key
 
-        # Validation: Conflicting options
         if jwks_uri and (algorithm or secret_or_key):
             logger.warning(
                 "JWKS mode ignores --token-algorithm and --token-secret/--token-public-key"
             )
 
-        # HMAC mode
         if algorithm and algorithm.startswith("HS"):
             if not secret_or_key:
                 logger.error(f"HMAC algorithm {algorithm} requires --token-secret")
@@ -6610,7 +6576,6 @@ def gitlab_mcp() -> None:
         else:
             public_key = public_key_pem
 
-        # Required scopes
         required_scopes = None
         if args.required_scopes:
             required_scopes = [
@@ -6747,7 +6712,6 @@ def gitlab_mcp() -> None:
             base_url=args.remote_base_url,
         )
 
-    # === 2. Build Middleware List ===
     middlewares: List[
         Union[
             UserTokenMiddleware,
@@ -6766,7 +6730,7 @@ def gitlab_mcp() -> None:
         JWTClaimsLoggingMiddleware(),
     ]
     if config["enable_delegation"] or args.auth_type == "jwt":
-        middlewares.insert(0, UserTokenMiddleware(config=config))  # Must be first
+        middlewares.insert(0, UserTokenMiddleware(config=config))
 
     if args.eunomia_type in ["embedded", "remote"]:
         try:
