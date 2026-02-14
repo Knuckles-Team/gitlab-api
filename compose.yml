@@ -1,13 +1,15 @@
 ---
 services:
   gitlab-mcp:
-    image: docker.io/knucklessg1/gitlab:latest
-#    build:
-#      context: . # Debug
-#      dockerfile: debug.Dockerfile
+    # image: docker.io/knucklessg1/gitlab:latest
+    build:
+      context: . # Debug
+      dockerfile: debug.Dockerfile
     container_name: gitlab-mcp
     hostname: gitlab-mcp
     command: [ "gitlab-mcp" ]
+    dns:
+      - "${IP_DNS:-1.1.1.1}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     logging:
@@ -19,8 +21,9 @@ services:
     env_file:
       - .env
     environment:
+      - "PYTHONUNBUFFERED=1"
       - "HOST=0.0.0.0"
-      - "PORT=8016"
+      - "PORT=8017"
       - "TRANSPORT=streamable-http"
       - "GITLAB_INSTANCE=${GITLAB_INSTANCE}"
       - "GITLAB_ACCESS_TOKEN=${GITLAB_ACCESS_TOKEN}"
@@ -40,24 +43,26 @@ services:
     #      - FASTMCP_SERVER_AUTH_JWT_PUBLIC_KEY=your-shared-secret # Optional
     #      - FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES=gitlab.read,gitlab.write # Optional
     ports:
-      - "8016:8016"
+      - "8017:8017"
     healthcheck:
-      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8016/health')" ]
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8017/health')" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
 
   gitlab-agent:
-    image: docker.io/knucklessg1/gitlab:latest
-    #    build:
-    #      context: . # Debug
-    #      dockerfile: debug.Dockerfile
+    # image: docker.io/knucklessg1/gitlab:latest
+    build:
+      context: . # Debug
+      dockerfile: debug.Dockerfile
     container_name: gitlab-agent
     hostname: gitlab-agent
     command: [ "gitlab-agent" ]
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    dns:
+      - "${IP_DNS:-1.1.1.1}"
     depends_on:
       gitlab-mcp:
         condition: service_healthy
@@ -70,10 +75,11 @@ services:
     env_file:
       - .env
     environment:
+      - "PYTHONUNBUFFERED=1"
       - "HOST=0.0.0.0"
-      - "PORT=9016"
+      - "PORT=9017"
       # - "MCP_CONFIG=./gitlab_api/mcp_config.json" # Optionally specify your own file - Default will use MCP_URL in the pre-packaged mcp_config.json
-      - "MCP_URL=http://gitlab-mcp:8016/mcp"
+      - "MCP_URL=http://gitlab-mcp:8017/mcp"
       - "PROVIDER=openai"
       - "LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:1234/v1}"
       - "LLM_API_KEY=${LLM_API_KEY:-llama}"
@@ -81,9 +87,9 @@ services:
       - "DEBUG=False"
       - "ENABLE_WEB_UI=True"
     ports:
-      - "9016:9016"
+      - "9017:9017"
     healthcheck:
-      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9016/health')" ]
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9017/health')" ]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -98,7 +98,7 @@ class Api(object):
         for end in forbidden:
             if url.endswith(end):
                 self.url = url[: -len(end)]
-        self.url = self.url + "/api/v4/"
+        self.url = self.url + "/api/v4"
         self.headers = None
         self.headers_parallel = None
         self.verify = verify

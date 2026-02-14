@@ -2078,6 +2078,21 @@ class ProjectModel(BaseModel):
     merge_requests_template: Optional[str] = None
     merge_trains_enabled: Optional[bool] = None
     mirror_overwrites_diverged_branches: Optional[bool] = None
+
+    @field_validator("project_id", "group_id")
+    def validate_project_id(cls, v):
+        """
+        Validate project_id and group_id.
+        Strips quotes and converts to string.
+        """
+        if v is None:
+            return v
+        if isinstance(v, int):
+            return str(v)
+        if isinstance(v, str):
+            return v.strip("'\"")
+        return str(v)
+
     mirror_trigger_builds: Optional[bool] = None
     mirror_user_id: Optional[Union[int, str]] = None
     mirror: Optional[bool] = None
