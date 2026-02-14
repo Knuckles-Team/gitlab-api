@@ -29,10 +29,10 @@ from gitlab_api.middlewares import (
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-__version__ = "25.15.7"
+__version__ = "25.15.8"
 print(f"Gitlab MCP v{__version__}")
 
-logger = get_logger(name="TokenMiddleware")
+logger = get_logger(name="gitlab_mcp")
 logger.setLevel(logging.DEBUG)
 
 config = {
@@ -58,13 +58,13 @@ DEFAULT_PORT = to_integer(string=os.getenv("PORT", "8000"))
 
 def register_tools(mcp: FastMCP):
     @mcp.custom_route("/health", methods=["GET"])
-    async def health_check(request: Request) -> JSONResponse:
+    def health_check(request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
-    async def get_branches(
+    def get_branches(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -104,7 +104,7 @@ def register_tools(mcp: FastMCP):
         }
         if branch:
             response = client.get_branch(**kwargs)
-            return response.data
+            return response
         else:
             response = client.get_branches(**kwargs)
             return {"branches": response.data}
@@ -112,7 +112,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
-    async def create_branch(
+    def create_branch(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -148,12 +148,12 @@ def register_tools(mcp: FastMCP):
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
         }
         response = client.create_branch(**kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
-    async def delete_branch(
+    def delete_branch(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -188,7 +188,7 @@ def register_tools(mcp: FastMCP):
         if not delete_merged_branches and not branch:
             raise ValueError("branch is required when delete_merged_branches=False")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Deleting {'merged branches' if delete_merged_branches else f'branch {branch}'} in project {project_id}"
             )
         if not access_token:
@@ -209,13 +209,13 @@ def register_tools(mcp: FastMCP):
         else:
             response = client.delete_branch(**kwargs)
         if ctx:
-            await ctx.info("Deletion complete")
-        return response.data
+            ctx.info("Deletion complete")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def get_commits(
+    def get_commits(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -264,7 +264,7 @@ def register_tools(mcp: FastMCP):
         }
         if commit_hash:
             response = client.get_commit(**kwargs)
-            return response.data
+            return response
         else:
             response = client.get_commits(**kwargs)
             return {"commits": response.data}
@@ -272,7 +272,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def create_commit(
+    def create_commit(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -317,12 +317,12 @@ def register_tools(mcp: FastMCP):
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
         }
         response = client.create_commit(**kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def get_commit_diff(
+    def get_commit_diff(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -345,9 +345,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not commit_hash:
             raise ValueError("project_id and commit_hash are required")
         if ctx:
-            await ctx.info(
-                f"Fetching diff for commit {commit_hash} in project {project_id}"
-            )
+            ctx.info(f"Fetching diff for commit {commit_hash} in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -363,13 +361,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.get_commit_diff(**kwargs)
         if ctx:
-            await ctx.info("Diff retrieval complete")
-        return response.data
+            ctx.info("Diff retrieval complete")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def revert_commit(
+    def revert_commit(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -404,7 +402,7 @@ def register_tools(mcp: FastMCP):
 
         if not dry_run and ctx:
             message = f"Are you sure you want to REVERT commit {commit_hash} in branch {branch} of project {project_id}?"
-            result = await ctx.elicit(message, response_type=bool)
+            result = ctx.elicit(message, response_type=bool)
             if result.action != "accept" or not result.data:
                 return "Operation cancelled by user."
 
@@ -432,12 +430,12 @@ def register_tools(mcp: FastMCP):
         response = client.revert_commit(
             project_id=project_id, commit_hash=commit_hash, **kwargs
         )
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def get_commit_comments(
+    def get_commit_comments(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -460,7 +458,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not commit_hash:
             raise ValueError("project_id and commit_hash are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Fetching comments for commit {commit_hash} in project {project_id}"
             )
         if not access_token:
@@ -478,13 +476,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.get_commit_comments(**kwargs)
         if ctx:
-            await ctx.info("Comments retrieval complete")
-        return response.data
+            ctx.info("Comments retrieval complete")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def create_commit_comment(
+    def create_commit_comment(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -517,7 +515,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not commit_hash or not note:
             raise ValueError("project_id, commit_hash, and note are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Creating comment on commit {commit_hash} in project {project_id}"
             )
         if not access_token:
@@ -537,13 +535,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, commit_hash=commit_hash, **kwargs
         )
         if ctx:
-            await ctx.info("Comment creation complete")
-        return response.data
+            ctx.info("Comment creation complete")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def get_commit_discussions(
+    def get_commit_discussions(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -566,7 +564,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not commit_hash:
             raise ValueError("project_id and commit_hash are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Fetching discussions for commit {commit_hash} in project {project_id}"
             )
         if not access_token:
@@ -584,13 +582,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.get_commit_discussions(**kwargs)
         if ctx:
-            await ctx.info("Discussions retrieval complete")
-        return response.data
+            ctx.info("Discussions retrieval complete")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def get_commit_statuses(
+    def get_commit_statuses(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -626,7 +624,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not commit_hash:
             raise ValueError("project_id and commit_hash are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Fetching statuses for commit {commit_hash} in project {project_id}"
             )
         if not access_token:
@@ -646,13 +644,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, commit_hash=commit_hash, **kwargs
         )
         if ctx:
-            await ctx.info("Statuses retrieval complete")
-        return response.data
+            ctx.info("Statuses retrieval complete")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def post_build_status_to_commit(
+    def post_build_status_to_commit(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -697,7 +695,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not commit_hash or not state:
             raise ValueError("project_id, commit_hash, and state are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Posting build status for commit {commit_hash} in project {project_id}"
             )
         if not access_token:
@@ -717,13 +715,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, commit_hash=commit_hash, **kwargs
         )
         if ctx:
-            await ctx.info("Build status posted successfully")
-        return response.data
+            ctx.info("Build status posted successfully")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def get_commit_merge_requests(
+    def get_commit_merge_requests(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -746,7 +744,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not commit_hash:
             raise ValueError("project_id and commit_hash are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Fetching merge requests for commit {commit_hash} in project {project_id}"
             )
         if not access_token:
@@ -764,13 +762,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.get_commit_merge_requests(**kwargs)
         if ctx:
-            await ctx.info("Merge requests retrieval complete")
-        return response.data
+            ctx.info("Merge requests retrieval complete")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
-    async def get_commit_gpg_signature(
+    def get_commit_gpg_signature(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -793,7 +791,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not commit_hash:
             raise ValueError("project_id and commit_hash are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Fetching GPG signature for commit {commit_hash} in project {project_id}"
             )
         if not access_token:
@@ -811,14 +809,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.get_commit_gpg_signature(**kwargs)
         if ctx:
-            await ctx.info("GPG signature retrieval complete")
-        return response.data
+            ctx.info("GPG signature retrieval complete")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    async def get_deploy_tokens(
+    def get_deploy_tokens(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -847,7 +845,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    async def get_project_deploy_tokens(
+    def get_project_deploy_tokens(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -877,7 +875,7 @@ def register_tools(mcp: FastMCP):
             response = client.get_project_deploy_token(
                 project_id=project_id, token=token_id
             )
-            return response.data
+            return response
         else:
             response = client.get_project_deploy_tokens(project_id=project_id)
             return {"deploy_tokens": response.data}
@@ -886,7 +884,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    async def create_project_deploy_token(
+    def create_project_deploy_token(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -919,7 +917,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not name or not scopes:
             raise ValueError("project_id, name, and scopes are required")
         if ctx:
-            await ctx.info(f"Creating deploy token '{name}' for project {project_id}")
+            ctx.info(f"Creating deploy token '{name}' for project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -935,14 +933,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.create_project_deploy_token(**kwargs)
         if ctx:
-            await ctx.info("Deploy token created")
-        return response.data
+            ctx.info("Deploy token created")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    async def delete_project_deploy_token(
+    def delete_project_deploy_token(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -965,7 +963,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not token_id:
             raise ValueError("project_id and token_id are required")
         if ctx:
-            await ctx.info(f"Deleting deploy token {token_id} for project {project_id}")
+            ctx.info(f"Deleting deploy token {token_id} for project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -977,14 +975,14 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, token=token_id
         )
         if ctx:
-            await ctx.info("Deploy token deleted")
-        return response.data
+            ctx.info("Deploy token deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    async def get_group_deploy_tokens(
+    def get_group_deploy_tokens(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1014,7 +1012,7 @@ def register_tools(mcp: FastMCP):
         )
         if token_id:
             response = client.get_group_deploy_token(group_id=group_id, token=token_id)
-            return response.data
+            return response
         else:
             response = client.get_group_deploy_tokens(group_id=group_id)
             return {"deploy_tokens": response.data}
@@ -1023,7 +1021,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    async def create_group_deploy_token(
+    def create_group_deploy_token(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1056,7 +1054,7 @@ def register_tools(mcp: FastMCP):
         if not group_id or not name or not scopes:
             raise ValueError("group_id, name, and scopes are required")
         if ctx:
-            await ctx.info(f"Creating deploy token '{name}' for group {group_id}")
+            ctx.info(f"Creating deploy token '{name}' for group {group_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1072,14 +1070,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.create_group_deploy_token(**kwargs)
         if ctx:
-            await ctx.info("Deploy token created")
-        return response.data
+            ctx.info("Deploy token created")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
     )
-    async def delete_group_deploy_token(
+    def delete_group_deploy_token(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1102,7 +1100,7 @@ def register_tools(mcp: FastMCP):
         if not group_id or not token_id:
             raise ValueError("group_id and token_id are required")
         if ctx:
-            await ctx.info(f"Deleting deploy token {token_id} for group {group_id}")
+            ctx.info(f"Deleting deploy token {token_id} for group {group_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1112,14 +1110,14 @@ def register_tools(mcp: FastMCP):
         )
         response = client.delete_group_deploy_token(group_id=group_id, token=token_id)
         if ctx:
-            await ctx.info("Deploy token deleted")
-        return response.data
+            ctx.info("Deploy token deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def get_environments(
+    def get_environments(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1167,7 +1165,7 @@ def register_tools(mcp: FastMCP):
             response = client.get_environment(
                 project_id=project_id, environment_id=environment_id
             )
-            return response.data
+            return response
         else:
             response = client.get_environments(**kwargs)
             return {"environments": response.data}
@@ -1176,7 +1174,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def create_environment(
+    def create_environment(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1202,7 +1200,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not name:
             raise ValueError("project_id and name are required")
         if ctx:
-            await ctx.info(f"Creating environment '{name}' for project {project_id}")
+            ctx.info(f"Creating environment '{name}' for project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1226,14 +1224,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.create_environment(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Environment created")
-        return response.data
+            ctx.info("Environment created")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def update_environment(
+    def update_environment(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1264,9 +1262,7 @@ def register_tools(mcp: FastMCP):
         if not name and not external_url:
             raise ValueError("At least one of name or external_url must be provided")
         if ctx:
-            await ctx.info(
-                f"Updating environment {environment_id} in project {project_id}"
-            )
+            ctx.info(f"Updating environment {environment_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1293,14 +1289,14 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, environment_id=environment_id, **kwargs
         )
         if ctx:
-            await ctx.info("Environment updated")
-        return response.data
+            ctx.info("Environment updated")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def delete_environment(
+    def delete_environment(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1323,9 +1319,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not environment_id:
             raise ValueError("project_id and environment_id are required")
         if ctx:
-            await ctx.info(
-                f"Deleting environment {environment_id} in project {project_id}"
-            )
+            ctx.info(f"Deleting environment {environment_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1337,14 +1331,14 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, environment_id=environment_id
         )
         if ctx:
-            await ctx.info("Environment deleted")
-        return response.data
+            ctx.info("Environment deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def stop_environment(
+    def stop_environment(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1367,9 +1361,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not environment_id:
             raise ValueError("project_id and environment_id are required")
         if ctx:
-            await ctx.info(
-                f"Stopping environment {environment_id} in project {project_id}"
-            )
+            ctx.info(f"Stopping environment {environment_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1381,14 +1373,14 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, environment_id=environment_id
         )
         if ctx:
-            await ctx.info("Environment stopped")
-        return response.data
+            ctx.info("Environment stopped")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def stop_stale_environments(
+    def stop_stale_environments(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1414,7 +1406,7 @@ def register_tools(mcp: FastMCP):
         if not project_id:
             raise ValueError("project_id is required")
         if ctx:
-            await ctx.info(f"Stopping stale environments in project {project_id}")
+            ctx.info(f"Stopping stale environments in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1438,14 +1430,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.stop_stale_environments(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Stale environments stopped")
-        return response.data
+            ctx.info("Stale environments stopped")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def delete_stopped_environments(
+    def delete_stopped_environments(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1467,7 +1459,7 @@ def register_tools(mcp: FastMCP):
         if not project_id:
             raise ValueError("project_id is required")
         if ctx:
-            await ctx.info(f"Deleting stopped review apps in project {project_id}")
+            ctx.info(f"Deleting stopped review apps in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1477,14 +1469,14 @@ def register_tools(mcp: FastMCP):
         )
         response = client.delete_stopped_environments(project_id=project_id)
         if ctx:
-            await ctx.info("Stopped review apps deleted")
-        return response.data
+            ctx.info("Stopped review apps deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def get_protected_environments(
+    def get_protected_environments(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1516,7 +1508,7 @@ def register_tools(mcp: FastMCP):
             response = client.get_protected_environment(
                 project_id=project_id, name=name
             )
-            return response.data
+            return response
         else:
             response = client.get_protected_environments(project_id=project_id)
             return {"protected_environments": response.data}
@@ -1525,7 +1517,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def protect_environment(
+    def protect_environment(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1553,7 +1545,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not name:
             raise ValueError("project_id and name are required")
         if ctx:
-            await ctx.info(f"Protecting environment '{name}' in project {project_id}")
+            ctx.info(f"Protecting environment '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1577,14 +1569,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.protect_environment(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Environment protected")
-        return response.data
+            ctx.info("Environment protected")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def update_protected_environment(
+    def update_protected_environment(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1614,9 +1606,7 @@ def register_tools(mcp: FastMCP):
         if not required_approval_count:
             raise ValueError("required_approval_count must be provided")
         if ctx:
-            await ctx.info(
-                f"Updating protected environment '{name}' in project {project_id}"
-            )
+            ctx.info(f"Updating protected environment '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1640,14 +1630,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.update_protected_environment(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Protected environment updated")
-        return response.data
+            ctx.info("Protected environment updated")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
     )
-    async def unprotect_environment(
+    def unprotect_environment(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1672,7 +1662,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not name:
             raise ValueError("project_id and name are required")
         if ctx:
-            await ctx.info(f"Unprotecting environment '{name}' in project {project_id}")
+            ctx.info(f"Unprotecting environment '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1682,13 +1672,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.unprotect_environment(project_id=project_id, name=name)
         if ctx:
-            await ctx.info("Environment unprotected")
-        return response.data
+            ctx.info("Environment unprotected")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    async def get_groups(
+    def get_groups(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1740,7 +1730,7 @@ def register_tools(mcp: FastMCP):
         }
         if group_id:
             response = client.get_group(group_id=group_id, **kwargs)
-            return response.data
+            return response
         else:
             response = client.get_groups(**kwargs)
             return {"groups": response.data}
@@ -1748,7 +1738,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    async def edit_group(
+    def edit_group(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1782,7 +1772,7 @@ def register_tools(mcp: FastMCP):
                 "At least one of name, path, description, or visibility must be provided"
             )
         if ctx:
-            await ctx.info(f"Editing group {group_id}")
+            ctx.info(f"Editing group {group_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -1806,13 +1796,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.edit_group(group_id=group_id, **kwargs)
         if ctx:
-            await ctx.info("Group edited")
-        return response.data
+            ctx.info("Group edited")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    async def get_group_subgroups(
+    def get_group_subgroups(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1862,7 +1852,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    async def get_group_descendant_groups(
+    def get_group_descendant_groups(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1914,7 +1904,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    async def get_group_projects(
+    def get_group_projects(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -1964,7 +1954,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
-    async def get_group_merge_requests(
+    def get_group_merge_requests(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2015,7 +2005,7 @@ def register_tools(mcp: FastMCP):
         return {"merge_requests": response.data}
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def get_project_jobs(
+    def get_project_jobs(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2059,13 +2049,13 @@ def register_tools(mcp: FastMCP):
         }
         if job_id:
             response = client.get_project_job(project_id=project_id, job_id=job_id)
-            return response.data
+            return response
         else:
             response = client.get_project_jobs(**kwargs)
             return {"jobs": response.data}
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def get_project_job_log(
+    def get_project_job_log(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2092,10 +2082,10 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_project_job_log(project_id=project_id, job_id=job_id)
-        return response.data
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def cancel_project_job(
+    def cancel_project_job(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2118,7 +2108,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not job_id:
             raise ValueError("project_id and job_id are required")
         if ctx:
-            await ctx.info(f"Cancelling job {job_id} in project {project_id}")
+            ctx.info(f"Cancelling job {job_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -2128,11 +2118,11 @@ def register_tools(mcp: FastMCP):
         )
         response = client.cancel_project_job(project_id=project_id, job_id=job_id)
         if ctx:
-            await ctx.info("Job cancelled")
-        return response.data
+            ctx.info("Job cancelled")
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def retry_project_job(
+    def retry_project_job(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2155,7 +2145,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not job_id:
             raise ValueError("project_id and job_id are required")
         if ctx:
-            await ctx.info(f"Retrying job {job_id} in project {project_id}")
+            ctx.info(f"Retrying job {job_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -2165,11 +2155,11 @@ def register_tools(mcp: FastMCP):
         )
         response = client.retry_project_job(project_id=project_id, job_id=job_id)
         if ctx:
-            await ctx.info("Job retried")
-        return response.data
+            ctx.info("Job retried")
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def erase_project_job(
+    def erase_project_job(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2192,7 +2182,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not job_id:
             raise ValueError("project_id and job_id are required")
         if ctx:
-            await ctx.info(f"Erasing job {job_id} in project {project_id}")
+            ctx.info(f"Erasing job {job_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -2202,11 +2192,11 @@ def register_tools(mcp: FastMCP):
         )
         response = client.erase_project_job(project_id=project_id, job_id=job_id)
         if ctx:
-            await ctx.info("Job erased")
-        return response.data
+            ctx.info("Job erased")
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def run_project_job(
+    def run_project_job(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2229,7 +2219,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not job_id:
             raise ValueError("project_id and job_id are required")
         if ctx:
-            await ctx.info(f"Running job {job_id} in project {project_id}")
+            ctx.info(f"Running job {job_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -2239,11 +2229,11 @@ def register_tools(mcp: FastMCP):
         )
         response = client.run_project_job(project_id=project_id, job_id=job_id)
         if ctx:
-            await ctx.info("Job started")
-        return response.data
+            ctx.info("Job started")
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def get_pipeline_jobs(
+    def get_pipeline_jobs(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2294,7 +2284,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
     )
-    async def get_group_members(
+    def get_group_members(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2345,7 +2335,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
     )
-    async def get_project_members(
+    def get_project_members(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2394,7 +2384,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"merge_requests"},
     )
-    async def create_merge_request(
+    def create_merge_request(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2437,7 +2427,7 @@ def register_tools(mcp: FastMCP):
                 "project_id, source_branch, target_branch, and title are required"
             )
         if ctx:
-            await ctx.info(f"Creating merge request '{title}' in project {project_id}")
+            ctx.info(f"Creating merge request '{title}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -2461,14 +2451,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.create_merge_request(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Merge request created")
-        return response.data
+            ctx.info("Merge request created")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"merge_requests"},
     )
-    async def get_merge_requests(
+    def get_merge_requests(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2523,7 +2513,7 @@ def register_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"merge_requests"},
     )
-    async def get_project_merge_requests(
+    def get_project_merge_requests(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2574,7 +2564,7 @@ def register_tools(mcp: FastMCP):
             response = client.get_project_merge_request(
                 project_id=project_id, merge_id=merge_id
             )
-            return response.data
+            return response
         else:
             response = client.get_project_merge_requests(
                 project_id=project_id, **kwargs
@@ -2584,7 +2574,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def get_project_level_merge_request_approval_rules(
+    def get_project_level_merge_request_approval_rules(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2614,7 +2604,7 @@ def register_tools(mcp: FastMCP):
             response = client.get_project_level_merge_request_rule(
                 project_id=project_id, approval_rule_id=approval_rule_id
             )
-            return response.data
+            return response
         else:
             response = client.get_project_level_merge_request_rules(
                 project_id=project_id
@@ -2624,7 +2614,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def create_project_level_rule(
+    def create_project_level_rule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2659,7 +2649,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not name:
             raise ValueError("project_id and name are required")
         if ctx:
-            await ctx.info(f"Creating approval rule '{name}' for project {project_id}")
+            ctx.info(f"Creating approval rule '{name}' for project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -2683,13 +2673,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.create_project_level_rule(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Approval rule created")
-        return response.data
+            ctx.info("Approval rule created")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def update_project_level_rule(
+    def update_project_level_rule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2728,7 +2718,7 @@ def register_tools(mcp: FastMCP):
                 "At least one of name, approvals_required, user_ids, or group_ids must be provided"
             )
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Updating approval rule {approval_rule_id} in project {project_id}"
             )
         if not access_token:
@@ -2757,13 +2747,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, approval_rule_id=approval_rule_id, **kwargs
         )
         if ctx:
-            await ctx.info("Approval rule updated")
-        return response.data
+            ctx.info("Approval rule updated")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def delete_project_level_rule(
+    def delete_project_level_rule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2786,7 +2776,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not approval_rule_id:
             raise ValueError("project_id and approval_rule_id are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Deleting approval rule {approval_rule_id} in project {project_id}"
             )
         if not access_token:
@@ -2800,13 +2790,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, approval_rule_id=approval_rule_id
         )
         if ctx:
-            await ctx.info("Approval rule deleted")
-        return response.data
+            ctx.info("Approval rule deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def merge_request_level_approvals(
+    def merge_request_level_approvals(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2835,12 +2825,12 @@ def register_tools(mcp: FastMCP):
         response = client.merge_request_level_approvals(
             project_id=project_id, merge_request_iid=merge_request_iid
         )
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def get_approval_state_merge_requests(
+    def get_approval_state_merge_requests(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2869,12 +2859,12 @@ def register_tools(mcp: FastMCP):
         response = client.get_approval_state_merge_requests(
             project_id=project_id, merge_request_iid=merge_request_iid
         )
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def get_merge_request_level_rules(
+    def get_merge_request_level_rules(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2903,12 +2893,12 @@ def register_tools(mcp: FastMCP):
         response = client.get_merge_request_level_rules(
             project_id=project_id, merge_request_iid=merge_request_iid
         )
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def approve_merge_request(
+    def approve_merge_request(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2931,7 +2921,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not merge_request_iid:
             raise ValueError("project_id and merge_request_iid are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Approving merge request {merge_request_iid} in project {project_id}"
             )
         if not access_token:
@@ -2945,13 +2935,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, merge_request_iid=merge_request_iid
         )
         if ctx:
-            await ctx.info("Merge request approved")
-        return response.data
+            ctx.info("Merge request approved")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def unapprove_merge_request(
+    def unapprove_merge_request(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -2974,7 +2964,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not merge_request_iid:
             raise ValueError("project_id and merge_request_iid are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Unapproving merge request {merge_request_iid} in project {project_id}"
             )
         if not access_token:
@@ -2988,13 +2978,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, merge_request_iid=merge_request_iid
         )
         if ctx:
-            await ctx.info("Merge request unapproved")
-        return response.data
+            ctx.info("Merge request unapproved")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def get_group_level_rule(
+    def get_group_level_rule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3020,12 +3010,12 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_group_level_rule(group_id=group_id)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def edit_group_level_rule(
+    def edit_group_level_rule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3072,7 +3062,7 @@ def register_tools(mcp: FastMCP):
                 "At least one of allow_author_approval, allow_committer_approval, allow_overrides_to_approver_list, or minimum_approvals must be provided"
             )
         if ctx:
-            await ctx.info(f"Editing approval settings for group {group_id}")
+            ctx.info(f"Editing approval settings for group {group_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -3096,13 +3086,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.edit_group_level_rule(group_id=group_id, **kwargs)
         if ctx:
-            await ctx.info("Approval settings edited")
-        return response.data
+            ctx.info("Approval settings edited")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def get_project_level_rule(
+    def get_project_level_rule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3128,12 +3118,12 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_project_level_rule(project_id=project_id)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
-    async def edit_project_level_rule(
+    def edit_project_level_rule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3180,7 +3170,7 @@ def register_tools(mcp: FastMCP):
                 "At least one of allow_author_approval, allow_committer_approval, allow_overrides_to_approver_list, or minimum_approvals must be provided"
             )
         if ctx:
-            await ctx.info(f"Editing approval settings for project {project_id}")
+            ctx.info(f"Editing approval settings for project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -3204,13 +3194,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.edit_project_level_rule(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Approval settings edited")
-        return response.data
+            ctx.info("Approval settings edited")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
-    async def get_repository_packages(
+    def get_repository_packages(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3251,7 +3241,7 @@ def register_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
-    async def publish_repository_package(
+    def publish_repository_package(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3284,7 +3274,7 @@ def register_tools(mcp: FastMCP):
                 "project_id, package_name, package_version, and file_name are required"
             )
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Publishing package {package_name}/{package_version} to project {project_id}"
             )
         if not access_token:
@@ -3310,13 +3300,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.publish_repository_package(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Package published")
-        return response.data
+            ctx.info("Package published")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
-    async def download_repository_package(
+    def download_repository_package(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3356,12 +3346,12 @@ def register_tools(mcp: FastMCP):
             package_version=package_version,
             file_name=file_name,
         )
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
     )
-    async def get_pipelines(
+    def get_pipelines(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3424,12 +3414,12 @@ def register_tools(mcp: FastMCP):
             )
         else:
             response = client.get_pipelines(project_id=project_id, **kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
     )
-    async def run_pipeline(
+    def run_pipeline(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3458,7 +3448,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not ref:
             raise ValueError("project_id and ref are required")
         if ctx:
-            await ctx.info(f"Running pipeline for project {project_id} on ref {ref}")
+            ctx.info(f"Running pipeline for project {project_id} on ref {ref}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -3476,14 +3466,14 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, ref=ref, variables=variables
         )
         if ctx:
-            await ctx.info("Pipeline started")
-        return response.data
+            ctx.info("Pipeline started")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def get_pipeline_schedules(
+    def get_pipeline_schedules(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3509,13 +3499,13 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_pipeline_schedules(project_id=project_id)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def get_pipeline_schedule(
+    def get_pipeline_schedule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3546,13 +3536,13 @@ def register_tools(mcp: FastMCP):
         response = client.get_pipeline_schedule(
             project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
         )
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def get_pipelines_triggered_from_schedule(
+    def get_pipelines_triggered_from_schedule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3583,13 +3573,13 @@ def register_tools(mcp: FastMCP):
         response = client.get_pipelines_triggered_from_schedule(
             project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
         )
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def create_pipeline_schedule(
+    def create_pipeline_schedule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3627,7 +3617,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not ref or not cron:
             raise ValueError("project_id, ref, and cron are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Creating pipeline schedule '{description or 'no description'}' for project {project_id}"
             )
         if not access_token:
@@ -3652,14 +3642,14 @@ def register_tools(mcp: FastMCP):
             active=active,
         )
         if ctx:
-            await ctx.info("Pipeline schedule created")
-        return response.data
+            ctx.info("Pipeline schedule created")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def edit_pipeline_schedule(
+    def edit_pipeline_schedule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3705,7 +3695,7 @@ def register_tools(mcp: FastMCP):
                 "At least one of description, ref, cron, cron_timezone, or active must be provided"
             )
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Editing pipeline schedule {pipeline_schedule_id} in project {project_id}"
             )
         if not access_token:
@@ -3731,14 +3721,14 @@ def register_tools(mcp: FastMCP):
             active=active,
         )
         if ctx:
-            await ctx.info("Pipeline schedule edited")
-        return response.data
+            ctx.info("Pipeline schedule edited")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def take_pipeline_schedule_ownership(
+    def take_pipeline_schedule_ownership(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3763,7 +3753,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not pipeline_schedule_id:
             raise ValueError("project_id and pipeline_schedule_id are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Taking ownership of pipeline schedule {pipeline_schedule_id} in project {project_id}"
             )
         if not access_token:
@@ -3777,14 +3767,14 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
         )
         if ctx:
-            await ctx.info("Ownership taken")
-        return response.data
+            ctx.info("Ownership taken")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def delete_pipeline_schedule(
+    def delete_pipeline_schedule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3809,7 +3799,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not pipeline_schedule_id:
             raise ValueError("project_id and pipeline_schedule_id are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Deleting pipeline schedule {pipeline_schedule_id} in project {project_id}"
             )
         if not access_token:
@@ -3823,14 +3813,14 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
         )
         if ctx:
-            await ctx.info("Pipeline schedule deleted")
-        return response.data
+            ctx.info("Pipeline schedule deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def run_pipeline_schedule(
+    def run_pipeline_schedule(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3855,7 +3845,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not pipeline_schedule_id:
             raise ValueError("project_id and pipeline_schedule_id are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Running pipeline schedule {pipeline_schedule_id} in project {project_id}"
             )
         if not access_token:
@@ -3869,14 +3859,14 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
         )
         if ctx:
-            await ctx.info("Pipeline schedule run started")
-        return response.data
+            ctx.info("Pipeline schedule run started")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def create_pipeline_schedule_variable(
+    def create_pipeline_schedule_variable(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3908,7 +3898,7 @@ def register_tools(mcp: FastMCP):
                 "project_id, pipeline_schedule_id, key, and value are required"
             )
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Creating variable '{key}' for pipeline schedule {pipeline_schedule_id} in project {project_id}"
             )
         if not access_token:
@@ -3932,14 +3922,14 @@ def register_tools(mcp: FastMCP):
             variable_type=variable_type,
         )
         if ctx:
-            await ctx.info("Variable created")
-        return response.data
+            ctx.info("Variable created")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
     )
-    async def delete_pipeline_schedule_variable(
+    def delete_pipeline_schedule_variable(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3965,7 +3955,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not pipeline_schedule_id or not key:
             raise ValueError("project_id, pipeline_schedule_id, and key are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Deleting variable '{key}' from pipeline schedule {pipeline_schedule_id} in project {project_id}"
             )
         if not access_token:
@@ -3979,13 +3969,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, pipeline_schedule_id=pipeline_schedule_id, key=key
         )
         if ctx:
-            await ctx.info("Variable deleted")
-        return response.data
+            ctx.info("Variable deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def get_projects(
+    def get_projects(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -3994,7 +3984,7 @@ def register_tools(mcp: FastMCP):
             description="GitLab access token",
             default=os.environ.get("GITLAB_ACCESS_TOKEN", None),
         ),
-        project_id: Optional[str] = Field(
+        project_id: Optional[Union[int, str]] = Field(
             description="Project ID or path", default=None
         ),
         owned: Optional[bool] = Field(
@@ -4017,31 +4007,49 @@ def register_tools(mcp: FastMCP):
         ),
     ) -> Response:
         """Retrieve a list of projects, optionally filtered by ownership, search, sort, or visibility or Retrieve details of a specific GitLab project."""
+        logger.info(
+            f"get_projects called with parameters: project_id={project_id}, owned={owned}, search={search}, sort={sort}, visibility={visibility}"
+        )
 
         if not access_token:
+            logger.error("No Access Token supplied")
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
             )
-        client = get_client(
-            instance=gitlab_instance, token=access_token, verify=verify, config=config
-        )
-        kwargs = {
-            k: v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify"]
-        }
-        if project_id:
-            response = client.get_project(project_id=project_id)
-            return response.data
-        else:
-            response = client.get_projects(**kwargs)
-            return {"projects": response.data}
+
+        try:
+            client = get_client(gitlab_instance, access_token, verify, config=config)
+            kwargs = {}
+
+            if owned:
+                kwargs["owned"] = owned
+            if search:
+                kwargs["search"] = search
+            if sort:
+                kwargs["sort"] = sort
+            if visibility:
+                kwargs["visibility"] = visibility
+
+            if project_id:
+                logger.info(f"Fetching specific project: {project_id}")
+                response = client.get_project(project_id=project_id)
+                logger.info(f"Successfully retrieved project: {project_id}")
+                return response
+            else:
+                logger.info(f"Fetching projects with kwargs: {kwargs}")
+                response = client.get_projects(**kwargs)
+                logger.info(
+                    f"Successfully retrieved {len(response.data) if hasattr(response, 'data') and isinstance(response.data, list) else 'unknown number of'} projects"
+                )
+                return response
+        except Exception as e:
+            logger.error(f"Error in get_projects: {str(e)}", exc_info=True)
+            raise
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def get_nested_projects_by_group(
+    def get_nested_projects_by_group(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4067,12 +4075,12 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_nested_projects_by_group(group_id=group_id)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def get_project_contributors(
+    def get_project_contributors(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4098,12 +4106,12 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_project_contributors(project_id=project_id)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def get_project_statistics(
+    def get_project_statistics(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4129,12 +4137,12 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_project_statistics(project_id=project_id)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def edit_project(
+    def edit_project(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4170,7 +4178,7 @@ def register_tools(mcp: FastMCP):
                 "At least one of name, description, or visibility must be provided"
             )
         if ctx:
-            await ctx.info(f"Editing project {project_id}")
+            ctx.info(f"Editing project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -4194,13 +4202,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.edit_project(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Project edited")
-        return response.data
+            ctx.info("Project edited")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def get_project_groups(
+    def get_project_groups(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4239,12 +4247,12 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
         }
         response = client.get_project_groups(project_id=project_id, **kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def archive_project(
+    def archive_project(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4266,7 +4274,7 @@ def register_tools(mcp: FastMCP):
         if not project_id:
             raise ValueError("project_id is required")
         if ctx:
-            await ctx.info(f"Archiving project {project_id}")
+            ctx.info(f"Archiving project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -4276,13 +4284,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.archive_project(project_id=project_id)
         if ctx:
-            await ctx.info("Project archived")
-        return response.data
+            ctx.info("Project archived")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def unarchive_project(
+    def unarchive_project(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4304,7 +4312,7 @@ def register_tools(mcp: FastMCP):
         if not project_id:
             raise ValueError("project_id is required")
         if ctx:
-            await ctx.info(f"Unarchiving project {project_id}")
+            ctx.info(f"Unarchiving project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -4314,13 +4322,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.unarchive_project(project_id=project_id)
         if ctx:
-            await ctx.info("Project unarchived")
-        return response.data
+            ctx.info("Project unarchived")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def delete_project(
+    def delete_project(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4342,7 +4350,7 @@ def register_tools(mcp: FastMCP):
         if not project_id:
             raise ValueError("project_id is required")
         if ctx:
-            await ctx.info(f"Deleting project {project_id}")
+            ctx.info(f"Deleting project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -4352,13 +4360,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.delete_project(project_id=project_id)
         if ctx:
-            await ctx.info("Project deleted")
-        return response.data
+            ctx.info("Project deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
-    async def share_project(
+    def share_project(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4390,7 +4398,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not group_id or not group_access:
             raise ValueError("project_id, group_id, and group_access are required")
         if ctx:
-            await ctx.info(f"Sharing project {project_id} with group {group_id}")
+            ctx.info(f"Sharing project {project_id} with group {group_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -4414,14 +4422,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.share_project(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Project shared")
-        return response.data
+            ctx.info("Project shared")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"protected_branches"},
     )
-    async def get_protected_branches(
+    def get_protected_branches(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4453,13 +4461,13 @@ def register_tools(mcp: FastMCP):
             response = client.get_protected_branch(project_id=project_id, branch=branch)
         else:
             response = client.get_protected_branches(project_id=project_id)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"protected_branches"},
     )
-    async def protect_branch(
+    def protect_branch(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4522,7 +4530,7 @@ def register_tools(mcp: FastMCP):
         ):
             raise ValueError("At least one protection parameter must be provided")
         if ctx:
-            await ctx.info(f"Protecting branch '{branch}' in project {project_id}")
+            ctx.info(f"Protecting branch '{branch}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -4546,14 +4554,14 @@ def register_tools(mcp: FastMCP):
         }
         response = client.protect_branch(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Branch protected")
-        return response.data
+            ctx.info("Branch protected")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"protected_branches"},
     )
-    async def unprotect_branch(
+    def unprotect_branch(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4578,7 +4586,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not branch:
             raise ValueError("project_id and branch are required")
         if ctx:
-            await ctx.info(f"Unprotecting branch '{branch}' in project {project_id}")
+            ctx.info(f"Unprotecting branch '{branch}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -4588,14 +4596,14 @@ def register_tools(mcp: FastMCP):
         )
         response = client.unprotect_branch(project_id=project_id, branch=branch)
         if ctx:
-            await ctx.info("Branch unprotected")
-        return response.data
+            ctx.info("Branch unprotected")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"protected_branches"},
     )
-    async def require_code_owner_approvals_single_branch(
+    def require_code_owner_approvals_single_branch(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4626,7 +4634,7 @@ def register_tools(mcp: FastMCP):
                 "project_id, branch, and code_owner_approval_required are required"
             )
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Setting code owner approval requirement for branch '{branch}' in project {project_id}"
             )
         if not access_token:
@@ -4642,13 +4650,13 @@ def register_tools(mcp: FastMCP):
             code_owner_approval_required=code_owner_approval_required,
         )
         if ctx:
-            await ctx.info("Code owner approval setting updated")
-        return response.data
+            ctx.info("Code owner approval setting updated")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def get_releases(
+    def get_releases(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4690,12 +4698,12 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
         }
         response = client.get_releases(project_id=project_id, **kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def get_latest_release(
+    def get_latest_release(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4721,12 +4729,12 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_latest_release(project_id=project_id)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def get_latest_release_evidence(
+    def get_latest_release_evidence(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4752,12 +4760,12 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_latest_release_evidence(project_id=project_id)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def get_latest_release_asset(
+    def get_latest_release_asset(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4788,12 +4796,12 @@ def register_tools(mcp: FastMCP):
         response = client.get_latest_release_asset(
             project_id=project_id, direct_asset_path=direct_asset_path
         )
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def get_group_releases(
+    def get_group_releases(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4835,12 +4843,12 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
         }
         response = client.get_group_releases(group_id=group_id, **kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def download_release_asset(
+    def download_release_asset(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4874,12 +4882,12 @@ def register_tools(mcp: FastMCP):
         response = client.download_release_asset(
             group_id=group_id, tag_name=tag_name, direct_asset_path=direct_asset_path
         )
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def get_release_by_tag(
+    def get_release_by_tag(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4908,12 +4916,12 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_release_by_tag(project_id=project_id, tag_name=tag_name)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def create_release(
+    def create_release(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -4949,7 +4957,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not name or not tag_name:
             raise ValueError("project_id, name, and tag_name are required")
         if ctx:
-            await ctx.info(f"Creating release '{name}' for project {project_id}")
+            ctx.info(f"Creating release '{name}' for project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -4973,13 +4981,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.create_release(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Release created")
-        return response.data
+            ctx.info("Release created")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def create_release_evidence(
+    def create_release_evidence(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5004,7 +5012,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not tag_name:
             raise ValueError("project_id and tag_name are required")
         if ctx:
-            await ctx.info(
+            ctx.info(
                 f"Creating release evidence for tag '{tag_name}' in project {project_id}"
             )
         if not access_token:
@@ -5018,13 +5026,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, tag_name=tag_name
         )
         if ctx:
-            await ctx.info("Release evidence created")
-        return response.data
+            ctx.info("Release evidence created")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def update_release(
+    def update_release(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5066,9 +5074,7 @@ def register_tools(mcp: FastMCP):
                 "At least one of name, description, released_at, or assets must be provided"
             )
         if ctx:
-            await ctx.info(
-                f"Updating release for tag '{tag_name}' in project {project_id}"
-            )
+            ctx.info(f"Updating release for tag '{tag_name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5095,13 +5101,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, tag_name=tag_name, **kwargs
         )
         if ctx:
-            await ctx.info("Release updated")
-        return response.data
+            ctx.info("Release updated")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    async def delete_release(
+    def delete_release(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5127,9 +5133,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not tag_name:
             raise ValueError("project_id and tag_name are required")
         if ctx:
-            await ctx.info(
-                f"Deleting release for tag '{tag_name}' in project {project_id}"
-            )
+            ctx.info(f"Deleting release for tag '{tag_name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5139,13 +5143,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.delete_release(project_id=project_id, tag_name=tag_name)
         if ctx:
-            await ctx.info("Release deleted")
-        return response.data
+            ctx.info("Release deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def get_runners(
+    def get_runners(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5192,12 +5196,12 @@ def register_tools(mcp: FastMCP):
             response = client.get_runner(runner_id=runner_id)
         else:
             response = client.get_runners(**kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def update_runner_details(
+    def update_runner_details(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5253,7 +5257,7 @@ def register_tools(mcp: FastMCP):
         ):
             raise ValueError("At least one update parameter must be provided")
         if ctx:
-            await ctx.info(f"Updating runner {runner_id}")
+            ctx.info(f"Updating runner {runner_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5277,13 +5281,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.update_runner_details(runner_id=runner_id, **kwargs)
         if ctx:
-            await ctx.info("Runner updated")
-        return response.data
+            ctx.info("Runner updated")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def pause_runner(
+    def pause_runner(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5311,7 +5315,7 @@ def register_tools(mcp: FastMCP):
         if not runner_id or active is None:
             raise ValueError("runner_id and active are required")
         if ctx:
-            await ctx.info(f"Setting runner {runner_id} active status to {active}")
+            ctx.info(f"Setting runner {runner_id} active status to {active}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5321,13 +5325,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.pause_runner(runner_id=runner_id, active=active)
         if ctx:
-            await ctx.info("Runner status updated")
-        return response.data
+            ctx.info("Runner status updated")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def get_runner_jobs(
+    def get_runner_jobs(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5369,12 +5373,12 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "runner_id"]
         }
         response = client.get_runner_jobs(runner_id=runner_id, **kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def get_project_runners(
+    def get_project_runners(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5410,12 +5414,12 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
         }
         response = client.get_project_runners(project_id=project_id, **kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def enable_project_runner(
+    def enable_project_runner(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5438,7 +5442,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not runner_id:
             raise ValueError("project_id and runner_id are required")
         if ctx:
-            await ctx.info(f"Enabling runner {runner_id} for project {project_id}")
+            ctx.info(f"Enabling runner {runner_id} for project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5450,13 +5454,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, runner_id=runner_id
         )
         if ctx:
-            await ctx.info("Runner enabled")
-        return response.data
+            ctx.info("Runner enabled")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def delete_project_runner(
+    def delete_project_runner(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5479,7 +5483,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not runner_id:
             raise ValueError("project_id and runner_id are required")
         if ctx:
-            await ctx.info(f"Deleting runner {runner_id} from project {project_id}")
+            ctx.info(f"Deleting runner {runner_id} from project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5491,13 +5495,13 @@ def register_tools(mcp: FastMCP):
             project_id=project_id, runner_id=runner_id
         )
         if ctx:
-            await ctx.info("Runner deleted")
-        return response.data
+            ctx.info("Runner deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def get_group_runners(
+    def get_group_runners(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5533,12 +5537,12 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
         }
         response = client.get_group_runners(group_id=group_id, **kwargs)
-        return response.data
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def register_new_runner(
+    def register_new_runner(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5574,7 +5578,7 @@ def register_tools(mcp: FastMCP):
         if not token:
             raise ValueError("token is required")
         if ctx:
-            await ctx.info("Registering new runner with token")
+            ctx.info("Registering new runner with token")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5590,13 +5594,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.register_new_runner(**kwargs)
         if ctx:
-            await ctx.info("Runner registered")
-        return response.data
+            ctx.info("Runner registered")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def delete_runner(
+    def delete_runner(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5623,7 +5627,7 @@ def register_tools(mcp: FastMCP):
         if not runner_id and not token:
             raise ValueError("Either runner_id or token is required")
         if ctx:
-            await ctx.info(f"Deleting runner with ID {runner_id or 'token'}")
+            ctx.info(f"Deleting runner with ID {runner_id or 'token'}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5639,13 +5643,13 @@ def register_tools(mcp: FastMCP):
         }
         response = client.delete_runner(**kwargs)
         if ctx:
-            await ctx.info("Runner deleted")
-        return response.data
+            ctx.info("Runner deleted")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def verify_runner_authentication(
+    def verify_runner_authentication(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5667,7 +5671,7 @@ def register_tools(mcp: FastMCP):
         if not token:
             raise ValueError("token is required")
         if ctx:
-            await ctx.info("Verifying runner authentication")
+            ctx.info("Verifying runner authentication")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5677,13 +5681,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.verify_runner_authentication(token=token)
         if ctx:
-            await ctx.info("Runner authentication verified")
-        return response.data
+            ctx.info("Runner authentication verified")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def reset_gitlab_runner_token(
+    def reset_gitlab_runner_token(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5702,7 +5706,7 @@ def register_tools(mcp: FastMCP):
     ) -> Response:
         """Reset the GitLab runner registration token."""
         if ctx:
-            await ctx.info("Resetting GitLab runner registration token")
+            ctx.info("Resetting GitLab runner registration token")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5712,13 +5716,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.reset_gitlab_runner_token()
         if ctx:
-            await ctx.info("Runner token reset")
-        return response.data
+            ctx.info("Runner token reset")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def reset_project_runner_token(
+    def reset_project_runner_token(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5740,7 +5744,7 @@ def register_tools(mcp: FastMCP):
         if not project_id:
             raise ValueError("project_id is required")
         if ctx:
-            await ctx.info(f"Resetting runner token for project {project_id}")
+            ctx.info(f"Resetting runner token for project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5750,13 +5754,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.reset_project_runner_token(project_id=project_id)
         if ctx:
-            await ctx.info("Project runner token reset")
-        return response.data
+            ctx.info("Project runner token reset")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def reset_group_runner_token(
+    def reset_group_runner_token(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5778,7 +5782,7 @@ def register_tools(mcp: FastMCP):
         if not group_id:
             raise ValueError("group_id is required")
         if ctx:
-            await ctx.info(f"Resetting runner token for group {group_id}")
+            ctx.info(f"Resetting runner token for group {group_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5788,13 +5792,13 @@ def register_tools(mcp: FastMCP):
         )
         response = client.reset_group_runner_token(group_id=group_id)
         if ctx:
-            await ctx.info("Group runner token reset")
-        return response.data
+            ctx.info("Group runner token reset")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def reset_token(
+    def reset_token(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5819,7 +5823,7 @@ def register_tools(mcp: FastMCP):
         if not runner_id or not token:
             raise ValueError("runner_id and token are required")
         if ctx:
-            await ctx.info(f"Resetting authentication token for runner {runner_id}")
+            ctx.info(f"Resetting authentication token for runner {runner_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5829,11 +5833,11 @@ def register_tools(mcp: FastMCP):
         )
         response = client.reset_token(runner_id=runner_id, token=token)
         if ctx:
-            await ctx.info("Runner authentication token reset")
-        return response.data
+            ctx.info("Runner authentication token reset")
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def get_tags(
+    def get_tags(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5876,13 +5880,13 @@ def register_tools(mcp: FastMCP):
         }
         if name:
             response = client.get_tag(project_id=project_id, name=name)
-            return response.data
+            return response
         else:
             response = client.get_tags(project_id=project_id, **kwargs)
             return {"tags": response.data}
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def create_tag(
+    def create_tag(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5914,7 +5918,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not name or not ref:
             raise ValueError("project_id, name, and ref are required")
         if ctx:
-            await ctx.info(f"Creating tag '{name}' in project {project_id}")
+            ctx.info(f"Creating tag '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5938,11 +5942,11 @@ def register_tools(mcp: FastMCP):
         }
         response = client.create_tag(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Tag created")
-        return response.data
+            ctx.info("Tag created")
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def delete_tag(
+    def delete_tag(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -5967,7 +5971,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not name:
             raise ValueError("project_id and name are required")
         if ctx:
-            await ctx.info(f"Deleting tag '{name}' in project {project_id}")
+            ctx.info(f"Deleting tag '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -5977,11 +5981,11 @@ def register_tools(mcp: FastMCP):
         )
         response = client.delete_tag(project_id=project_id, name=name)
         if ctx:
-            await ctx.info("Tag deleted")
-        return response.data
+            ctx.info("Tag deleted")
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def get_protected_tags(
+    def get_protected_tags(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -6015,10 +6019,10 @@ def register_tools(mcp: FastMCP):
             not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
         }
         response = client.get_protected_tags(project_id=project_id, **kwargs)
-        return response.data
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def get_protected_tag(
+    def get_protected_tag(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -6048,10 +6052,10 @@ def register_tools(mcp: FastMCP):
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         response = client.get_protected_tag(project_id=project_id, name=name)
-        return response.data
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def protect_tag(
+    def protect_tag(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -6088,7 +6092,7 @@ def register_tools(mcp: FastMCP):
                 "At least one of create_access_level or allowed_to_create must be provided"
             )
         if ctx:
-            await ctx.info(f"Protecting tag '{name}' in project {project_id}")
+            ctx.info(f"Protecting tag '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -6112,11 +6116,11 @@ def register_tools(mcp: FastMCP):
         }
         response = client.protect_tag(project_id=project_id, **kwargs)
         if ctx:
-            await ctx.info("Tag protected")
-        return response.data
+            ctx.info("Tag protected")
+        return response
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def unprotect_tag(
+    def unprotect_tag(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -6141,7 +6145,7 @@ def register_tools(mcp: FastMCP):
         if not project_id or not name:
             raise ValueError("project_id and name are required")
         if ctx:
-            await ctx.info(f"Unprotecting tag '{name}' in project {project_id}")
+            ctx.info(f"Unprotecting tag '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_ACCESS_TOKEN]\nAccess Token Supplied: {access_token}"
@@ -6151,14 +6155,14 @@ def register_tools(mcp: FastMCP):
         )
         response = client.unprotect_tag(project_id=project_id, name=name)
         if ctx:
-            await ctx.info("Tag unprotected")
-        return response.data
+            ctx.info("Tag unprotected")
+        return response
 
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"custom_api"},
     )
-    async def api_request(
+    def api_request(
         gitlab_instance: Optional[str] = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_INSTANCE", None),
@@ -6200,7 +6204,7 @@ def register_tools(mcp: FastMCP):
             method=method, endpoint=endpoint, data=data, json=json
         )
         if ctx:
-            await ctx.info("API Complete")
+            ctx.info("API Complete")
         return response
 
 
