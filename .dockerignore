@@ -14,5 +14,7 @@ build/
 .pre-commit-config.yaml
 pytest.ini
 ./tests/
+
 Dockerfile
 debug.Dockerfile
+compose.yml
