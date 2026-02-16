@@ -45,6 +45,7 @@ ENV HOST=${HOST} \
     EUNOMIA_TYPE=${EUNOMIA_TYPE} \
     EUNOMIA_POLICY_FILE=${EUNOMIA_POLICY_FILE} \
     EUNOMIA_REMOTE_URL=${EUNOMIA_REMOTE_URL} \
+    PYTHONUNBUFFERED=1 \
     PATH="/root/.local/bin:/usr/local/bin:${PATH}" \
     UV_HTTP_TIMEOUT=3600 \
     UV_SYSTEM_PYTHON=1 \
@@ -53,6 +54,6 @@ ENV HOST=${HOST} \
 RUN apt-get update \
     && apt-get install -y curl nano \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow gitlab-api[all]>=25.15.8
+    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow gitlab-api[all]>=25.15.9
 
 CMD ["gitlab-mcp"]
