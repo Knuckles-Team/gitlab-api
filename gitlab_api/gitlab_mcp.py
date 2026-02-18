@@ -29,7 +29,7 @@ from gitlab_api.middlewares import (
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-__version__ = "25.15.12"
+__version__ = "25.15.13"
 print(f"Gitlab MCP v{__version__}")
 
 logger = get_logger(name="gitlab_mcp")
