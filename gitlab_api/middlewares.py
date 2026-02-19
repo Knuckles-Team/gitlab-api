@@ -1,3 +1,4 @@
+import os
 import threading
 from typing import Optional
 
@@ -5,6 +6,7 @@ import requests
 from fastmcp.server.middleware import MiddlewareContext, Middleware
 from fastmcp.utilities.logging import get_logger
 from gitlab_api.gitlab_api import Api
+from gitlab_api.utils import to_boolean
 
 local = threading.local()
 logger = get_logger(name="TokenMiddleware")
@@ -56,10 +58,10 @@ class JWTClaimsLoggingMiddleware(Middleware):
 
 
 def get_client(
-    instance: str,
-    token: Optional[str],
-    verify: bool,
     config: dict,
+    instance: str = os.getenv("GITLAB_INSTANCE", "https://gitlab.com"),
+    token: Optional[str] = os.getenv("GITLAB_ACCESS_TOKEN", None),
+    verify: bool = to_boolean(string=os.getenv("GITLAB_VERIFY", "True")),
 ) -> Api:
     """
     Factory function to create the Api client, either with fixed credentials or delegated token.
