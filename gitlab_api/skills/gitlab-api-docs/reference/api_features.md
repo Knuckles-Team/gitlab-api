@@ -130,7 +130,7 @@ GET /features
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/features"
 ```
 
@@ -190,7 +190,7 @@ GET /features/definitions
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/features/definitions"
 ```
 
@@ -236,7 +236,7 @@ shell
 ```
 curl --request POST \
   --data "value=30" \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/features/new_library"
 ```
 
@@ -270,7 +270,7 @@ json
 ### Set percentage of actors rollout[](https://docs.gitlab.com/api/features/#set-percentage-of-actors-rollout "Permalink")
 Rollout to percentage of actors.
 ```
-POST https://gitlab.example.com/api/v4/features/my_user_feature?private_token=<your_access_token>
+POST https://gitlab.example.com/api/v4/features/my_user_feature?private_token=YOUR_TOKEN
 Content-Type: application/x-www-form-urlencoded
 value=42&key=percentage_of_actors&
 ```
@@ -357,7 +357,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fgeo_sites%2F&_biz_t=1771981525440&_biz_i=Geo%20sites%20API%20%7C%20GitLab%20Docs&_biz_n=51&rnd=314609&cdn_o=a&_biz_z=1771981525625)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fgeo_nodes%2F&_biz_t=1771981525490&_biz_i=Geo%20Nodes%20API%20\(deprecated\)%20%7C%20GitLab%20Docs&_biz_n=52&rnd=629355&cdn_o=a&_biz_z=1771981525626)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Ffreeze_periods%2F&_biz_t=1771981525518&_biz_i=Freeze%20Periods%20API%20%7C%20GitLab%20Docs&_biz_n=53&rnd=677111&cdn_o=a&_biz_z=1771981525626)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Ffeatures%2F&_biz_t=1771981525625&_biz_i=Feature%20flags%20API%20%7C%20GitLab%20Docs&_biz_n=54&rnd=692628&cdn_o=a&_biz_z=1771981525626)
+%20%7C%20GitLab%20Docs&_biz_n=52&rnd=629355&cdn_o=a&_biz_z=1771981525626)
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

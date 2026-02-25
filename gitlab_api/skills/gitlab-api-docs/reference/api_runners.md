@@ -268,7 +268,7 @@ Requesting `offline` runners might also return `stale` runners because `stale` i
 `version_prefix` | string | no | The prefix of the version of the runners to return. For example, `15.0`, `14`, `16.1.241`
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/runners"
 ```
 
 Deprecations:
@@ -339,7 +339,7 @@ Requesting `offline` runners might also return `stale` runners because `stale` i
 `version_prefix` | string | no | The prefix of the version of the runners to return. For example, `15.0`, `16.1.241`
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/all"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/runners/all"
 ```
 
 Deprecations:
@@ -424,7 +424,7 @@ Attribute | Type | Required | Description
 `id` | integer | yes | The ID of a runner
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/6"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/runners/6"
 ```
 
 Deprecations:
@@ -499,7 +499,7 @@ Attribute | Type | Required | Description
 `maintenance_note` | string | no | Free-form maintenance notes for the runner (1024 characters)
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/6" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/runners/6" \
      --form "description=test-1-20150125-test" --form "tag_list=ruby,mysql,tag1,tag2"
 ```
 
@@ -572,13 +572,13 @@ Attribute | Type | Required | Description
 `runner_id` | integer | yes | The ID of a runner
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --form "paused=true"  "https://gitlab.example.com/api/v4/runners/6"
 
 # --or--
 
 # Deprecated: removal planned in 16.0
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --form "active=false"  "https://gitlab.example.com/api/v4/runners/6"
 ```
 
@@ -598,7 +598,7 @@ Attribute | Type | Required | Description
 `sort` | string | no | Sort jobs in `asc` or `desc` order (default: `desc`). If `sort` is specified, `order_by` must be specified as well
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/1/jobs?status=running"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/runners/1/jobs?status=running"
 ```
 
 Example response:
@@ -681,7 +681,7 @@ Attribute | Type | Required | Description
 `id` | integer | yes | The ID of a runner
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/1/managers"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/runners/1/managers"
 ```
 
 Example response:
@@ -743,7 +743,7 @@ Requesting `offline` runners might also return `stale` runners because `stale` i
 `version_prefix` | string | no | The prefix of the version of the runners to return. For example, `15.0`, `14`, `16.1.241`
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/9/runners"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/projects/9/runners"
 ```
 
 Deprecations:
@@ -801,7 +801,7 @@ Attribute | Type | Required | Description
 `runner_id` | integer | yes | The ID of a runner
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/9/runners" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/projects/9/runners" \
      --form "runner_id=9"
 ```
 
@@ -842,7 +842,7 @@ Attribute | Type | Required | Description
 `runner_id` | integer | yes | The ID of a runner
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/9/runners/9"
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/projects/9/runners/9"
 ```
 
 ## List all of a group’s runners[](https://docs.gitlab.com/api/runners/#list-all-of-a-groups-runners "Permalink")
@@ -880,7 +880,7 @@ Deprecations:
 
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/9/runners"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/groups/9/runners"
 ```
 
 The `ip_address` attribute in the response is deprecated [in GitLab 16.1](https://gitlab.com/gitlab-org/gitlab/-/issues/415159) and is scheduled for removal in [a future version of the REST API](https://gitlab.com/gitlab-org/gitlab/-/issues/351109). In GitLab, the attribute returns an empty string. The `ipAddress` attribute can be found inside the respective runner manager. It is only available through the GraphQL [`CiRunnerManager` type](https://docs.gitlab.com/api/graphql/reference/#cirunnermanager).
@@ -998,7 +998,7 @@ Attribute | Type | Required | Description
 `id` | integer | yes | The ID of a runner. The ID is visible in the UI under **Settings** > **CI/CD**. Expand **Runners** , and below **Remove Runner** is an ID preceded by the pound sign, for example, `#6`.
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/6"
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/runners/6"
 ```
 
 ### Delete a runner by authentication token[](https://docs.gitlab.com/api/runners/#delete-a-runner-by-authentication-token "Permalink")
@@ -1061,7 +1061,7 @@ POST /runners/reset_registration_token
 
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      "https://gitlab.example.com/api/v4/runners/reset_registration_token"
 ```
 
@@ -1074,7 +1074,7 @@ POST /projects/:id/runners/reset_registration_token
 
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      "https://gitlab.example.com/api/v4/projects/9/runners/reset_registration_token"
 ```
 
@@ -1087,7 +1087,7 @@ POST /groups/:id/runners/reset_registration_token
 
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      "https://gitlab.example.com/api/v4/groups/9/runners/reset_registration_token"
 ```
 
@@ -1111,7 +1111,7 @@ Attribute | Type | Required | Description
 `id` | integer | yes | The ID of a runner
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      "https://gitlab.example.com/api/v4/runners/1/reset_authentication_token"
 ```
 
@@ -1253,7 +1253,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Frunners%2F&_biz_t=1771981704500&_biz_i=Runners%20API%20%7C%20GitLab%20Docs&_biz_n=160&rnd=31157&cdn_o=a&_biz_z=1771981704501)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

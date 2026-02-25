@@ -245,7 +245,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/deploy_keys?public=true"
 ```
 
@@ -330,7 +330,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request POST \ --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST \ --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --data "{"title": "My deploy key", "key": "ssh-rsa AAAA...", "expired_at": "2024-12-31T08:00:00Z"}" \
      --url "https://gitlab.example.com/api/v4/deploy_keys/"
@@ -363,7 +363,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/deploy_keys"
 ```
 
@@ -435,7 +435,7 @@ json
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/users/20/project_deploy_keys"
 ```
 
@@ -469,7 +469,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/deploy_keys/11"
 ```
 
@@ -504,7 +504,7 @@ Attribute | Type | Required | Description
 `expires_at` | datetime | no | Expiration date for the deploy key. Does not expire if no value is provided. Expected in ISO 8601 format (`2019-03-15T08:00:00Z`)
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --data "{"title": "My deploy key", "key": "ssh-rsa AAAA...", "can_push": "true"}" \
      --url "https://gitlab.example.com/api/v4/projects/5/deploy_keys/"
@@ -536,7 +536,7 @@ Attribute | Type | Required | Description
 `title` | string | no | New deploy key’s title
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --data "{"title": "New deploy key", "can_push": true}" \
      --url "https://gitlab.example.com/api/v4/projects/5/deploy_keys/11"
@@ -568,7 +568,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --url "https://gitlab.example.com/api/v4/projects/5/deploy_keys/13"
 ```
 
@@ -585,7 +585,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --url "https://gitlab.example.com/api/v4/projects/5/deploy_keys/12/enable"
 ```
 
@@ -607,7 +607,7 @@ First, find the ID of the projects you’re interested in, by either listing all
 shell
 ```
 curl --request GET \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --url "https://gitlab.example.com/api/v4/projects"
 ```
 
@@ -615,7 +615,7 @@ Or finding the ID of a group:
 shell
 ```
 curl --request GET \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --url "https://gitlab.example.com/api/v4/groups"
 ```
 
@@ -623,7 +623,7 @@ Then listing all projects in that group (for example, group 1234):
 shell
 ```
 curl --request GET \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --url "https://gitlab.example.com/api/v4/groups/1234"
 ```
 
@@ -631,7 +631,7 @@ With those IDs, add the same deploy key to all:
 shell
 ```
 for project_id in 321 456 987; do
-    curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+    curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
          --header "Content-Type: application/json" \
          --data "{"title": "my key", "key": "ssh-rsa AAAA..."}" \
          "https://gitlab.example.com/api/v4/projects/${project_id}/deploy_keys"
@@ -692,7 +692,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fdeploy_keys%2F&_biz_t=1771981499655&_biz_i=Deploy%20keys%20API%20%7C%20GitLab%20Docs&_biz_n=32&rnd=856415&cdn_o=a&_biz_z=1771981499656)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

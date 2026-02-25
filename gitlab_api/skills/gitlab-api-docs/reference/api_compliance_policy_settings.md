@@ -232,7 +232,7 @@ GET /admin/security/compliance_policy_settings
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/admin/security/compliance_policy_settings"
 ```
 
@@ -264,7 +264,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"csp_namespace_id": 42}' \
   --url "https://gitlab.example.com/api/v4/admin/security/compliance_policy_settings"
@@ -323,7 +323,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fcontainer_registry%2F&_biz_t=1771981486405&_biz_i=Container%20registry%20API%20%7C%20GitLab%20Docs&_biz_n=20&rnd=71871&cdn_o=a&_biz_z=1771981486572)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fcommits%2F&_biz_t=1771981486431&_biz_i=Commits%20API%20%7C%20GitLab%20Docs&_biz_n=21&rnd=791926&cdn_o=a&_biz_z=1771981486573)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fcontainer_registry_protection_tag_rules%2F&_biz_t=1771981486478&_biz_i=Container%20registry%20protection%20tag%20rules%20API%20%7C%20GitLab%20Docs&_biz_n=22&rnd=235753&cdn_o=a&_biz_z=1771981486573)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fcompliance_policy_settings%2F&_biz_t=1771981486572&_biz_i=Compliance%20and%20policy%20settings%20API%20%7C%20GitLab%20Docs&_biz_n=23&rnd=821641&cdn_o=a&_biz_z=1771981486573)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

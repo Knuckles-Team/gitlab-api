@@ -255,7 +255,7 @@ Attribute | Type | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/discussions"
 ```
 
@@ -359,7 +359,7 @@ If successful, returns [`200 OK`](https://docs.gitlab.com/api/rest/troubleshooti
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/discussions/<discussion_id>"
 ```
 
@@ -381,7 +381,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/discussions?body=comment"
 ```
 
@@ -405,7 +405,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/discussions/<discussion_id>/notes?body=comment"
 ```
 
@@ -428,7 +428,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/discussions/<discussion_id>/notes/1108?body=comment"
 ```
 
@@ -450,7 +450,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/discussions/636"
 ```
 
@@ -470,7 +470,7 @@ If successful, returns [`200 OK`](https://docs.gitlab.com/api/rest/troubleshooti
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/11/discussions"
 ```
 
@@ -574,7 +574,7 @@ If successful, returns [`200 OK`](https://docs.gitlab.com/api/rest/troubleshooti
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/11/discussions/<discussion_id>"
 ```
 
@@ -596,7 +596,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/11/discussions?body=comment"
 ```
 
@@ -619,7 +619,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/11/discussions/<discussion_id>/notes?body=comment"
 ```
 
@@ -642,7 +642,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/11/discussions/<discussion_id>/notes/1108?body=comment"
 ```
 
@@ -664,7 +664,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/11/discussions/636"
 ```
 
@@ -695,7 +695,7 @@ If successful, returns [`200 OK`](https://docs.gitlab.com/api/rest/troubleshooti
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/discussions"
 ```
 
@@ -800,7 +800,7 @@ If successful, returns [`200 OK`](https://docs.gitlab.com/api/rest/troubleshooti
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/discussions/<discussion_id>"
 ```
 
@@ -822,7 +822,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/discussions?body=comment"
 ```
 
@@ -845,7 +845,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/discussions/<discussion_id>/notes?body=comment"
 ```
 
@@ -868,7 +868,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/discussions/<discussion_id>/notes/1108?body=comment"
 ```
 
@@ -890,7 +890,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/discussions/636"
 ```
 
@@ -932,7 +932,7 @@ Diff comments also contain position information:
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/discussions"
 ```
 
@@ -1117,7 +1117,7 @@ If successful, returns [`200 OK`](https://docs.gitlab.com/api/rest/troubleshooti
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/discussions/<discussion_id>"
 ```
 
@@ -1154,7 +1154,7 @@ If successful, returns [`201 Created`](https://docs.gitlab.com/api/rest/troubles
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/discussions?body=comment"
 ```
 
@@ -1170,7 +1170,7 @@ To create a new thread:
   1. [Get the latest merge request version](https://docs.gitlab.com/api/merge_requests/#retrieve-merge-request-diff-versions):
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/versions"
 ```
 
@@ -1196,7 +1196,7 @@ json
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form 'position[position_type]=text' \
   --form 'position[base_sha]=<use base_commit_sha from the versions response>' \
   --form 'position[head_sha]=<use head_commit_sha from the versions response>' \
@@ -1236,7 +1236,7 @@ For example, if a commit (`<COMMIT_ID>`) deletes line 463 in the README, you can
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form "note=Very clever to remove this unnecessary line!" \
   --form "path=README" \
   --form "line=463" \
@@ -1248,7 +1248,7 @@ If a commit (`<COMMIT_ID>`) adds line 157 to `hello.rb`, you can comment on the 
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form "note=This is brilliant!" \
   --form "path=hello.rb" \
   --form "line=157" \
@@ -1278,7 +1278,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/discussions/<discussion_id>?resolved=true"
 ```
 
@@ -1301,7 +1301,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/discussions/<discussion_id>/notes?body=comment"
 ```
 
@@ -1325,7 +1325,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/discussions/<discussion_id>/notes/1108?body=comment"
 ```
 
@@ -1333,7 +1333,7 @@ Resolving a note:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/discussions/<discussion_id>/notes/1108?resolved=true"
 ```
 
@@ -1355,7 +1355,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/discussions/636"
 ```
 
@@ -1375,7 +1375,7 @@ If successful, returns [`200 OK`](https://docs.gitlab.com/api/rest/troubleshooti
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/<commit_id>/discussions"
 ```
 
@@ -1525,7 +1525,7 @@ If successful, returns [`200 OK`](https://docs.gitlab.com/api/rest/troubleshooti
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/<commit_id>/discussions/<discussion_id>"
 ```
 
@@ -1560,7 +1560,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/<commit_id>/discussions?body=comment"
 ```
 
@@ -1589,7 +1589,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/<commit_id>/discussions/<discussion_id>/notes?body=comment"
 ```
 
@@ -1612,7 +1612,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/<commit_id>/discussions/<discussion_id>/notes/1108?body=comment"
 ```
 
@@ -1620,7 +1620,7 @@ Resolving a note:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/<commit_id>/discussions/<discussion_id>/notes/1108?resolved=true"
 ```
 
@@ -1642,7 +1642,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/<commit_id>/discussions/<discussion_id>/notes/636"
 ```
 
@@ -1731,7 +1731,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fdiscussions%2F&_biz_t=1771981499504&_biz_i=Discussions%20API%20%7C%20GitLab%20Docs&_biz_n=30&rnd=65556&cdn_o=a&_biz_z=1771981499505)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

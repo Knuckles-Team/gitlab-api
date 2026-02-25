@@ -63,7 +63,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/admin/clusters"
 ```
 
@@ -147,7 +147,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/admin/clusters/9"
 ```
 
@@ -208,7 +208,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Accept: application/json" \
   --header "Content-Type: application/json" \
   --data '{"name":"cluster-3", "environment_scope":"production", "platform_kubernetes_attributes":{"api_url":"https://example.com", "token":"12345", "ca_cert":"-----BEGIN CERTIFICATE-----qpoeiXXZafCM0ZDJkZjM...-----END CERTIFICATE-----"}}' \
@@ -273,7 +273,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"name":"update-cluster-name", "platform_kubernetes_attributes":{"api_url":"https://new-example.com","token":"new-token"}}' \
   --url "http://gitlab.example.com/api/v4/admin/clusters/9"
@@ -327,7 +327,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/admin/clusters/11"
 ```
 
@@ -379,7 +379,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Finstance_clusters%2F&_biz_t=1771981560016&_biz_i=Instance%20clusters%20API%20\(certificate-based\)%20\(deprecated\)%20%7C%20GitLab%20Docs&_biz_n=73&rnd=785642&cdn_o=a&_biz_z=1771981560017)
+%20\(deprecated\)%20%7C%20GitLab%20Docs&_biz_n=73&rnd=785642&cdn_o=a&_biz_z=1771981560017)
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

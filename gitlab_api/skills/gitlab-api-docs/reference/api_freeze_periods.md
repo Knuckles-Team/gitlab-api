@@ -229,7 +229,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/19/freeze_periods"
 ```
 
@@ -266,7 +266,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/19/freeze_periods/1"
 ```
 
@@ -304,7 +304,7 @@ shell
 ```
 curl --request POST \
   --header 'Content-Type: application/json' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --data '{ "freeze_start": "0 23 * * 5", "freeze_end": "0 7 * * 1", "cron_timezone": "UTC" }' \
   --url "https://gitlab.example.com/api/v4/projects/19/freeze_periods"
 ```
@@ -344,7 +344,7 @@ shell
 ```
 curl --request PUT \
   --header 'Content-Type: application/json' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --data '{ "freeze_end": "0 8 * * 1" }' \
   --url "https://gitlab.example.com/api/v4/projects/19/freeze_periods/1"
 ```
@@ -380,7 +380,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/19/freeze_periods/1"
 ```
 
@@ -432,7 +432,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fgeo_sites%2F&_biz_t=1771981525440&_biz_i=Geo%20sites%20API%20%7C%20GitLab%20Docs&_biz_n=51&rnd=314609&cdn_o=a&_biz_z=1771981525518)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fgeo_nodes%2F&_biz_t=1771981525490&_biz_i=Geo%20Nodes%20API%20\(deprecated\)%20%7C%20GitLab%20Docs&_biz_n=52&rnd=629355&cdn_o=a&_biz_z=1771981525519)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Ffreeze_periods%2F&_biz_t=1771981525518&_biz_i=Freeze%20Periods%20API%20%7C%20GitLab%20Docs&_biz_n=53&rnd=677111&cdn_o=a&_biz_z=1771981525519)
+%20%7C%20GitLab%20Docs&_biz_n=52&rnd=629355&cdn_o=a&_biz_z=1771981525519)
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

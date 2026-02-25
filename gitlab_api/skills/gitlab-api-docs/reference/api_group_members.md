@@ -264,7 +264,7 @@ Attribute | Type | Required | Description
 `show_seat_info` | boolean | no | Show seat information for users.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members"
 ```
 
@@ -351,7 +351,7 @@ Attribute | Type | Required | Description
 `state` | string | no | Filter results by member state, one of `awaiting` or `active`. Premium and Ultimate only.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/all"
 ```
 
@@ -439,7 +439,7 @@ Attribute | Type | Required | Description
 `user_id` | integer | yes | The user ID of the member.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/:user_id"
 ```
 
@@ -448,7 +448,7 @@ shell
 ```
 # Updates a group membership
 curl --request PUT --header "Content-Type: application/json" \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --data '{"member_role_id": null, "access_level": 10}' "https://gitlab.example.com/api/v4/groups/<group_id>/members/<user_id>"
 ```
 
@@ -498,7 +498,7 @@ Attribute | Type | Required | Description
 `user_id` | integer | yes | The user ID of the member.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/all/:user_id"
 ```
 
@@ -561,7 +561,7 @@ Value | Description
 `last_activity_on_desc` | Last active date, descending
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/billable_members"
 ```
 
@@ -632,7 +632,7 @@ Attribute | Type | Required | Description
 `user_id` | integer | yes | The user ID of the billable member.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/billable_members/:user_id/memberships"
 ```
 
@@ -694,7 +694,7 @@ Attribute | Type | Required | Description
 `user_id` | integer | yes | The user ID of the billable member.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/billable_members/:user_id/indirect"
 ```
 
@@ -731,7 +731,7 @@ Attribute | Type | Required | Description
 `user_id` | integer | yes | The user ID of the member.
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/billable_members/:user_id"
 ```
 
@@ -749,7 +749,7 @@ Attribute | Type | Required | Description
 `state` | string | yes | The new state for the user. State is either `awaiting` or `active`.
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/:user_id/state?state=active"
 ```
 
@@ -778,7 +778,7 @@ Attribute | Type | Required | Description
 `member_role_id` | integer | no | Ultimate only. The ID of a custom member role.
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --data "user_id=1&access_level=30" "https://gitlab.example.com/api/v4/groups/:id/members"
 ```
 
@@ -813,7 +813,7 @@ To enable **Manage Non-Billable Promotions** , you must first enable the `enable
 Example of queueing a single user:
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --data "user_id=1&access_level=30" "https://gitlab.example.com/api/v4/groups/:id/members"
 ```
 
@@ -829,9 +829,9 @@ json
 Example of queueing multiple users:
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --data "user_id=1,2&access_level=30" "https://gitlab.example.com/api/v4/groups/:id/members"
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --data "user_id=1,2&access_level=30" "https://gitlab.example.com/api/v4/projects/:id/members"
 ```
 
@@ -861,7 +861,7 @@ Attribute | Type | Required | Description
 `member_role_id` | integer | no | Ultimate only. The ID of a custom member role. If no value is specified, removes all roles.
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/:user_id?access_level=40"
 ```
 
@@ -915,7 +915,7 @@ Attribute | Type | Required | Description
 `user_id` | integer | yes | The user ID of the member.
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/:user_id/override"
 ```
 
@@ -957,7 +957,7 @@ Attribute | Type | Required | Description
 `user_id` | integer | yes | The user ID of the member.
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/:user_id/override"
 ```
 
@@ -1003,9 +1003,9 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/:user_id"
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/:id/members/:user_id"
 ```
 
@@ -1022,7 +1022,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/:member_id/approve"
 ```
 
@@ -1038,7 +1038,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/members/approve_all"
 ```
 
@@ -1061,7 +1061,7 @@ Attribute | Type | Required | Description
 `id` | integer or string | yes | The ID or [URL-encoded path](https://docs.gitlab.com/api/rest/#namespaced-paths) of the group.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/pending_members"
 ```
 
@@ -1157,7 +1157,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fgroup_members%2F&_biz_t=1771981543007&_biz_i=Groups%20members%20API%20%7C%20GitLab%20Docs&_biz_n=69&rnd=342925&cdn_o=a&_biz_z=1771981543008)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

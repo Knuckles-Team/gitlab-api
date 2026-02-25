@@ -242,11 +242,11 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/invitations" \
   --data "email=test@example.com&user_id=1&access_level=30"
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/:id/invitations" \
   --data "email=test@example.com&user_id=1&access_level=30"
 ```
@@ -299,9 +299,9 @@ Attribute | Type | Required | Description
 `query` | string | no | A query string to search for invited members by invite email. Query text must match email address exactly. When empty, returns all invitations.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/invitations?query=member@example.org"
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/:id/invitations?query=member@example.org"
 ```
 
@@ -337,10 +337,10 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/55/invitations/email@example.org?access_level=40"
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/55/invitations/email@example.org?access_level=40"
 ```
 
@@ -367,10 +367,10 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/55/invitations/email@example.org"
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/55/invitations/email@example.org"
 ```
 
@@ -427,7 +427,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fgroups%2F&_biz_t=1771981560093&_biz_i=Groups%20API%20%7C%20GitLab%20Docs&_biz_n=74&rnd=530963&cdn_o=a&_biz_z=1771981560153)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Finvitations%2F&_biz_t=1771981560152&_biz_i=Invitations%20API%20%7C%20GitLab%20Docs&_biz_n=75&rnd=145881&cdn_o=a&_biz_z=1771981560154)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

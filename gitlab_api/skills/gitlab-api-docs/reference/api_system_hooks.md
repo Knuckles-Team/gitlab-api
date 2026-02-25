@@ -226,7 +226,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/hooks"
 ```
 
@@ -263,7 +263,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/hooks/1"
 ```
 
@@ -308,7 +308,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/hooks?url=https://gitlab.example.com/hook"
 ```
 
@@ -363,7 +363,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/hooks/1"
 ```
 
@@ -393,7 +393,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/hooks/2"
 ```
 
@@ -471,7 +471,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fsystem_hooks%2F&_biz_t=1771981722810&_biz_i=System%20hooks%20API%20%7C%20GitLab%20Docs&_biz_n=174&rnd=95920&cdn_o=a&_biz_z=1771981722811)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

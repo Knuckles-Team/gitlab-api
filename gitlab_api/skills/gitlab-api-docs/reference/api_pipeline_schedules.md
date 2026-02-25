@@ -225,7 +225,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules"
 ```
 
@@ -278,7 +278,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13"
 ```
 
@@ -352,7 +352,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13/pipelines"
 ```
 
@@ -411,7 +411,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules" \
   --form "description=Build packages" \
   --form "ref=main" \
@@ -449,7 +449,7 @@ Example request with `inputs`:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules" \
   --form "description=Build packages" \
   --form "ref=main" \
@@ -480,7 +480,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13" \
   --form "cron=0 2 * * *"
 ```
@@ -519,7 +519,7 @@ Example request with `inputs`:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13" \
   --form "cron=0 2 * * *" \
   --form "inputs[][name]=deploy_strategy" \
@@ -541,7 +541,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13/take_ownership"
 ```
 
@@ -587,7 +587,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13"
 ```
 
@@ -634,7 +634,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/42/pipeline_schedules/1/play"
 ```
 
@@ -662,7 +662,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13/variables" \
   --form "key=NEW_VARIABLE" \
   --form "value=new value"
@@ -702,7 +702,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13/variables/NEW_VARIABLE"
 ```
 
@@ -732,7 +732,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13/variables/NEW_VARIABLE" \
   --form "value=updated value"
 ```
@@ -760,7 +760,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/29/pipeline_schedules/13/variables/NEW_VARIABLE"
 ```
 
@@ -835,7 +835,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fpipeline_schedules%2F&_biz_t=1771981640018&_biz_i=Pipeline%20schedules%20API%20%7C%20GitLab%20Docs&_biz_n=125&rnd=718609&cdn_o=a&_biz_z=1771981640019)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

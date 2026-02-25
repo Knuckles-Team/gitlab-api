@@ -243,7 +243,7 @@ Attribute | Type | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/pages/domains"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/pages/domains"
 ```
 
 Example response:
@@ -294,7 +294,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains"
 ```
 
@@ -356,7 +356,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains/ssl.domain.example"
 ```
 
@@ -412,7 +412,7 @@ Create a new Pages domain with a certificate from a `.pem` file:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains" \
   --form "domain=ssl.domain.example" \
   --form "certificate=@/path/to/cert.pem" \
@@ -423,7 +423,7 @@ Create a new Pages domain by using a variable containing the certificate:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains" \
   --form "domain=ssl.domain.example" \
   --form "certificate=$CERT_PEM" \
@@ -433,7 +433,7 @@ curl --request POST \
 Create a new Pages domain with an [automatic certificate](https://docs.gitlab.com/user/project/pages/custom_domains_ssl_tls_certification/lets_encrypt_integration/#enabling-lets-encrypt-integration-for-your-custom-domain):
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --form "domain=ssl.domain.example" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" --form "domain=ssl.domain.example" \
      --form "auto_ssl_enabled=true" "https://gitlab.example.com/api/v4/projects/5/pages/domains"
 ```
 
@@ -486,7 +486,7 @@ Add a certificate for a Pages domain from a `.pem` file:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains/ssl.domain.example" \
   --form "certificate=@/path/to/cert.pem" \
   --form "key=@/path/to/key.pem"
@@ -496,7 +496,7 @@ Add a certificate for a Pages domain by using a variable containing the certific
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains/ssl.domain.example" \
   --form "certificate=$CERT_PEM" \
   --form "key=$KEY_PEM"
@@ -522,7 +522,7 @@ json
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains/ssl.domain.example" \
   --form "auto_ssl_enabled=true"
 ```
@@ -542,7 +542,7 @@ To remove the SSL certificate attached to the Pages domain, run:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains/ssl.domain.example" \
   --form "certificate=" \
   --form "key="
@@ -591,7 +591,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains/ssl.domain.example/verify"
 ```
 
@@ -624,7 +624,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/pages/domains/ssl.domain.example"
 ```
 
@@ -681,7 +681,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fpages_domains%2F&_biz_t=1771981640144&_biz_i=Pages%20domains%20API%20%7C%20GitLab%20Docs&_biz_n=126&rnd=722796&cdn_o=a&_biz_z=1771981640145)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

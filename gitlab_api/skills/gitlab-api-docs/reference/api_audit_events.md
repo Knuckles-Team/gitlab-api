@@ -245,7 +245,7 @@ Read more on [pagination](https://docs.gitlab.com/api/rest/#pagination).
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://primary.example.com/api/v4/audit_events"
 ```
 
@@ -345,7 +345,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://primary.example.com/api/v4/audit_events/1"
 ```
 
@@ -404,7 +404,7 @@ Read more on [pagination](https://docs.gitlab.com/api/rest/#pagination).
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://primary.example.com/api/v4/groups/60/audit_events"
 ```
 
@@ -462,7 +462,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://primary.example.com/api/v4/groups/60/audit_events/2"
 ```
 
@@ -512,7 +512,7 @@ Read more on [pagination](https://docs.gitlab.com/api/rest/#pagination).
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://primary.example.com/api/v4/projects/7/audit_events"
 ```
 
@@ -574,7 +574,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://primary.example.com/api/v4/projects/7/audit_events/5"
 ```
 
@@ -654,7 +654,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fapplications%2F&_biz_t=1771981473119&_biz_i=Applications%20API%20%7C%20GitLab%20Docs&_biz_n=12&rnd=389384&cdn_o=a&_biz_z=1771981473237)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Faudit_events%2F&_biz_t=1771981473236&_biz_i=Audit%20events%20API%20%7C%20GitLab%20Docs&_biz_n=13&rnd=691974&cdn_o=a&_biz_z=1771981473237)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

@@ -315,7 +315,7 @@ json
 
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/notes"
 ```
 
@@ -333,7 +333,7 @@ Attribute | Type | Required | Description
 `note_id` | integer | yes | The ID of an issue note
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/notes/1"
 ```
 
@@ -354,7 +354,7 @@ Attribute | Type | Required | Description
 `created_at` | string | no | Date time string, ISO 8601 formatted. It must be after 1970-01-01. Example: `2016-03-11T03:45:40Z` (requires administrator or project/group owner rights)
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/notes?body=note"
 ```
 
@@ -374,7 +374,7 @@ Attribute | Type | Required | Description
 `confidential` | boolean | no |  **Deprecated** : Scheduled to be removed in GitLab 16.0. The confidential flag of a note. Default is false.
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/notes/636?body=note"
 ```
 
@@ -392,7 +392,7 @@ Attribute | Type | Required | Description
 `note_id` | integer | yes | The ID of a note
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/issues/11/notes/636"
 ```
 
@@ -413,7 +413,7 @@ Attribute | Type | Required | Description
 `order_by` | string | no | Return snippet notes ordered by `created_at` or `updated_at` fields. Default is `created_at`
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/11/notes"
 ```
 
@@ -459,7 +459,7 @@ json
 
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/11/notes/11"
 ```
 
@@ -478,7 +478,7 @@ Attribute | Type | Required | Description
 `created_at` | string | no | Date time string, ISO 8601 formatted. Example: `2016-03-11T03:45:40Z` (requires administrator or project/group owner rights)
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippet/11/notes?body=note"
 ```
 
@@ -497,7 +497,7 @@ Attribute | Type | Required | Description
 `body` | string | yes | The content of a note. Limited to 1,000,000 characters.
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/11/notes/1659?body=note"
 ```
 
@@ -515,7 +515,7 @@ Attribute | Type | Required | Description
 `note_id` | integer | yes | The ID of a note
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/snippets/52/notes/1659"
 ```
 
@@ -535,7 +535,7 @@ Attribute | Type | Required | Description
 `order_by` | string | no | Return merge request notes ordered by `created_at` or `updated_at` fields. Default is `created_at`
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/notes"
 ```
 
@@ -579,7 +579,7 @@ json
 
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/notes/1"
 ```
 
@@ -601,7 +601,7 @@ Attribute | Type | Required | Description
 `merge_request_diff_head_sha` | string | no | Required for the [`/merge` quick action](https://docs.gitlab.com/user/project/quick_actions/#merge). The SHA of the head commit, which ensures the merge request wasn’t updated after the API request was sent.
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/notes?body=note"
 ```
 
@@ -621,7 +621,7 @@ Attribute | Type | Required | Description
 `confidential` | boolean | no |  **Deprecated** : Scheduled to be removed in GitLab 16.0. The confidential flag of a note. Default is false.
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/11/notes/1?body=note"
 ```
 
@@ -639,7 +639,7 @@ Attribute | Type | Required | Description
 `note_id` | integer | yes | The ID of a note
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/merge_requests/7/notes/1602"
 ```
 
@@ -665,7 +665,7 @@ Attribute | Type | Required | Description
 `order_by` | string | no | Return epic notes ordered by `created_at` or `updated_at` fields. Default is `created_at`
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/notes"
 ```
 
@@ -711,7 +711,7 @@ json
 
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/notes/1"
 ```
 
@@ -731,7 +731,7 @@ Attribute | Type | Required | Description
 `internal` | boolean | no | The internal flag of a note. Overrides `confidential` when both parameters are submitted. Default is `false`.
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/notes?body=note"
 ```
 
@@ -751,7 +751,7 @@ Attribute | Type | Required | Description
 `confidential` | boolean | no |  **Deprecated** : Scheduled to be removed in GitLab 16.0. The confidential flag of a note. Default is false.
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/11/notes/1?body=note"
 ```
 
@@ -769,7 +769,7 @@ Attribute | Type | Required | Description
 `note_id` | integer | yes | The ID of a note
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/epics/52/notes/1659"
 ```
 
@@ -791,7 +791,7 @@ Attribute | Type | Required | Description
 `order_by` | string | no | Return wiki page notes ordered by `created_at` or `updated_at` fields. Default is `created_at`
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/wiki_pages/35/notes"
 ```
 
@@ -839,7 +839,7 @@ json
 
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/wiki_pages/35/notes/1218"
 ```
 
@@ -857,7 +857,7 @@ Attribute | Type | Required | Description
 `id` | integer or string | yes | The ID or [URL-encoded path of the project](https://docs.gitlab.com/api/rest/#namespaced-paths)
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/wiki_pages/35/notes?body=note"
 ```
 
@@ -876,7 +876,7 @@ Attribute | Type | Required | Description
 `body` | string | yes | The content of a note. Limited to 1,000,000 characters.
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/wiki_pages/35/notes/1218?body=note"
 ```
 
@@ -894,7 +894,7 @@ Attribute | Type | Required | Description
 `note_id` | integer | yes | The ID of a note
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/wiki_pages/35/notes/1218"
 ```
 
@@ -919,7 +919,7 @@ Attribute | Type | Required | Description
 `order_by` | string | no | Return wiki page notes ordered by `created_at` or `updated_at` fields. Default is `created_at`
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/wiki_pages/35/notes"
 ```
 
@@ -967,7 +967,7 @@ json
 
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/wiki_pages/35/notes/1218"
 ```
 
@@ -985,7 +985,7 @@ Attribute | Type | Required | Description
 `id` | integer or string | yes | The ID or [URL-encoded path](https://docs.gitlab.com/api/rest/#namespaced-paths) of the group
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/wiki_pages/35/notes?body=note"
 ```
 
@@ -1004,7 +1004,7 @@ Attribute | Type | Required | Description
 `body` | string | yes | The content of a note. Limited to 1,000,000 characters.
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/wiki_pages/35/notes/1218?body=note"
 ```
 
@@ -1022,7 +1022,7 @@ Attribute | Type | Required | Description
 `note_id` | integer | yes | The ID of a note
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/wiki_pages/35/notes/1218"
 ```
 
@@ -1108,7 +1108,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fnotes%2F&_biz_t=1771981606152&_biz_i=Notes%20API%20%7C%20GitLab%20Docs&_biz_n=101&rnd=611&cdn_o=a&_biz_z=1771981606152)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

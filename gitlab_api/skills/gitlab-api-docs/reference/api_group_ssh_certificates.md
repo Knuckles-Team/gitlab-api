@@ -266,7 +266,7 @@ By default, `GET` requests return 20 results at a time because the API results a
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://primary.example.com/api/v4/groups/90/ssh_certificates"
 ```
 
@@ -305,7 +305,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/ssh_certificates?title=newtitle&key=ssh-rsa+REDACTED+example%40gitlab.com"
 ```
 
@@ -335,7 +335,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5/ssh_certificates/12345"
 ```
 
@@ -385,7 +385,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fgroup_ssh_certificates%2F&_biz_t=1771981560426&_biz_i=Group%20SSH%20certificates%20API%20%7C%20GitLab%20Docs&_biz_n=77&rnd=362369&cdn_o=a&_biz_z=1771981560426)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

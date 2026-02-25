@@ -227,7 +227,7 @@ Attribute | Type | Required | Description
 `id` | integer | yes | The ID or [URL-encoded path of the project](https://docs.gitlab.com/api/rest/#namespaced-paths)
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/error_tracking/settings"
 ```
 
@@ -263,7 +263,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PUT --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/error_tracking/settings?active=true&integrated=true"
 ```
 
@@ -292,7 +292,7 @@ Attribute | Type | Required | Description
 `integrated` | boolean | no | Pass `true` to enable the integrated error tracking backend.
 shell
 ```
-curl --request PATCH --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PATCH --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/error_tracking/settings?active=true"
 ```
 
@@ -319,7 +319,7 @@ Attribute | Type | Required | Description
 `id` | integer or string | yes | The ID or [URL-encoded path of the project](https://docs.gitlab.com/api/rest/#namespaced-paths).
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/error_tracking/client_keys"
 ```
 
@@ -354,7 +354,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --url "https://gitlab.example.com/api/v4/projects/5/error_tracking/client_keys"
 ```
@@ -382,7 +382,7 @@ Attribute | Type | Required | Description
 `key_id` | integer | yes | The ID of the client key.
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/error_tracking/client_keys/13"
 ```
 
@@ -435,7 +435,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Ferror_tracking%2F&_biz_t=1771981513146&_biz_i=Error%20Tracking%20API%20%7C%20GitLab%20Docs&_biz_n=47&rnd=81724&cdn_o=a&_biz_z=1771981513147)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

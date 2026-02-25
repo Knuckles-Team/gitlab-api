@@ -224,7 +224,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Feditor_extensions%2F&_biz_t=1771981755529&_biz_i=Editor%20extensions%20%7C%20GitLab%20Docs&_biz_n=191&rnd=888029&cdn_o=a&_biz_z=1771981755749)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fwikis%2F&_biz_t=1771981755645&_biz_i=Project%20wikis%20API%20%7C%20GitLab%20Docs&_biz_n=192&rnd=157717&cdn_o=a&_biz_z=1771981755750)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fcli%2F&_biz_t=1771981755748&_biz_i=GitLab%20CLI%20\(glab\)%20%7C%20GitLab%20Docs&_biz_n=193&rnd=725887&cdn_o=a&_biz_z=1771981755750)
+%20%7C%20GitLab%20Docs&_biz_n=193&rnd=725887&cdn_o=a&_biz_z=1771981755750)
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

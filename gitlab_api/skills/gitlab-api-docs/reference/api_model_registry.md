@@ -230,14 +230,14 @@ If successful, returns [`200 OK`](https://docs.gitlab.com/api/rest/troubleshooti
 Example request:
 shell
 ```
-curl --header "Authorization: Bearer <your_access_token>" \
+curl --header "Authorization: Bearer YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/packages/ml_models/2/files/foo.txt"
 ```
 
 Example request with a directory path:
 shell
 ```
-curl --header "Authorization: Bearer <your_access_token>" \
+curl --header "Authorization: Bearer YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/packages/ml_models/2/files/my_dir/foo.txt"
 ```
 
@@ -261,7 +261,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/packages/ml_models/2/files/model.pkl/authorize"
 ```
 
@@ -284,7 +284,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --form "file=@model.pkl" \
   --url "https://gitlab.example.com/api/v4/projects/1/packages/ml_models/2/files/model.pkl"
 ```
@@ -293,7 +293,7 @@ Example request with a directory path:
 shell
 ```
 curl --request PUT \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --form "file=@model.pkl" \
   --url "https://gitlab.example.com/api/v4/projects/1/packages/ml_models/2/files/my_dir/model.pkl"
 ```
@@ -303,14 +303,14 @@ The `:model_version_id` attribute accepts either a model version ID or a candida
 To find the model version ID, check the URL of the model version page. For example, in `https://gitlab.example.com/my-namespace/my-project/-/ml/models/1/versions/5`, the model version ID is `5`.
 shell
 ```
-curl --header "Authorization: Bearer <your_access_token>" \
+curl --header "Authorization: Bearer YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/packages/ml_models/5/files/model.pkl"
 ```
 
 To use a candidate run ID, prepend the internal ID of the candidate with `candidate:`. For example, in `https://gitlab.example.com/my-namespace/my-project/-/ml/candidates/5`, the value for `:model_version_id` is `candidate:5`.
 shell
 ```
-curl --header "Authorization: Bearer <your_access_token>" \
+curl --header "Authorization: Bearer YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/packages/ml_models/candidate:5/files/model.pkl"
 ```
 
@@ -362,7 +362,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fmodel_registry%2F&_biz_t=1771981589805&_biz_i=Model%20registry%20API%20%7C%20GitLab%20Docs&_biz_n=97&rnd=711498&cdn_o=a&_biz_z=1771981589806)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

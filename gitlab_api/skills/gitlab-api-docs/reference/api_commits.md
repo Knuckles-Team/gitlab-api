@@ -264,7 +264,7 @@ Attribute | Type | Description
 `web_url` | string | Web URL of the commit.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits"
 ```
 
@@ -413,7 +413,7 @@ PAYLOAD=$(cat << 'JSON'
 JSON
 )
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data "$PAYLOAD" \
   --url "https://gitlab.example.com/api/v4/projects/1/repository/commits"
@@ -469,7 +469,7 @@ curl --request POST \
      --form "actions[][action]=chmod" \
      --form "actions[][file_path]=foo/bar5" \
      --form "actions[][execute_filemode]=true" \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --url "https://gitlab.example.com/api/v4/projects/1/repository/commits"
 ```
 
@@ -506,7 +506,7 @@ Attribute | Type | Description
 `web_url` | string | Web URL of the commit.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/main"
 ```
 
@@ -563,7 +563,7 @@ Attribute | Type | Description
 `type` | string | Type of reference (`branch` or `tag`).
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/5937ac0a7beb003549fc5fd26fc247adbce4a52e/refs?type=all"
 ```
 
@@ -614,7 +614,7 @@ Attribute | Type | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/5937ac0a7beb003549fc5fd26fc247adbce4a52e/sequence"
 ```
 
@@ -659,7 +659,7 @@ Attribute | Type | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form "branch=main" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/main/cherry_pick"
 ```
@@ -737,7 +737,7 @@ Attribute | Type | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form "branch=main" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/a738f717824ff53aebad8b090c1b79a14f2bd9e8/revert"
 ```
@@ -815,7 +815,7 @@ Attribute | Type | Description
 `too_large` | boolean | File diffs are excluded and cannot be retrieved.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/main/diff"
 ```
 
@@ -856,7 +856,7 @@ Attribute | Type | Description
 `note` | string | The comment text.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/main/comments"
 ```
 
@@ -913,7 +913,7 @@ Attribute | Type | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form "note=Nice picture\!" \
   --form "path=README.md" \
   --form "line=11" \
@@ -960,7 +960,7 @@ Attribute | Type | Description
 `notes` | array | Array of notes in the discussion.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/4604744a1c64de00ff62e1e8a6766919923d2b41/discussions"
 ```
 
@@ -1040,7 +1040,7 @@ Attribute | Type | Description
 `target_url` | string | Target URL associated with the status.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/17/repository/commits/18f3e63d05582537db6d183d9d557be09e1f90c8/statuses"
 ```
 
@@ -1144,7 +1144,7 @@ Attribute | Type | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/17/statuses/18f3e63d05582537db6d183d9d557be09e1f90c8?state=success"
 ```
 
@@ -1226,7 +1226,7 @@ Attribute | Type | Description
 `work_in_progress` | boolean | If `true`, the merge request is set as work in progress.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/repository/commits/af5b13261899fb2c0db30abdd0af8b07cb44fdc5/merge_requests?state=opened"
 ```
 
@@ -1308,7 +1308,7 @@ Attribute | Type | Description
 `x509_certificate` | object | X.509 certificate information (for X.509 signatures).
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/repository/commits/da738facbc19eb2fc2cef57c49be0e6038570352/signature"
 ```
 
@@ -1438,7 +1438,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fcontainer_registry%2F&_biz_t=1771981486405&_biz_i=Container%20registry%20API%20%7C%20GitLab%20Docs&_biz_n=20&rnd=71871&cdn_o=a&_biz_z=1771981486431)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fcommits%2F&_biz_t=1771981486431&_biz_i=Commits%20API%20%7C%20GitLab%20Docs&_biz_n=21&rnd=791926&cdn_o=a&_biz_z=1771981486432)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

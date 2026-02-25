@@ -241,7 +241,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/groups/5/-/virtual_registries/container/registries"
 ```
@@ -277,7 +277,7 @@ Example request:
 shell
 ```
 curl --request POST \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --header "Accept: application/json" \
      --data '{"name": "my-container-virtual-registry", "description": "My container virtual registry"}' \
@@ -310,7 +310,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/registries/1"
 ```
@@ -351,7 +351,7 @@ Example request:
 shell
 ```
 curl --request PATCH \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --data '{"name": "my-container-virtual-registry", "description": "My container virtual registry"}' \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/registries/1"
@@ -371,7 +371,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/registries/1"
 ```
@@ -394,7 +394,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/registries/1/cache"
 ```
@@ -418,7 +418,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/groups/5/-/virtual_registries/container/upstreams"
 ```
@@ -474,10 +474,10 @@ Example request:
 shell
 ```
 curl --request POST \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --url "https://gitlab.example.com/api/v4/groups/5/-/virtual_registries/container/upstreams/test"
-     --data '{"url": "https://registry-1.docker.io", "username": "<your_username>", "password": "<your_password>"}' \
+     --data '{"url": "https://registry-1.docker.io", "username": "YOUR_TOKEN", "password": "YOUR_TOKEN"}' \
 ```
 
 Example response:
@@ -502,7 +502,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/registries/1/upstreams"
 ```
@@ -555,9 +555,9 @@ You can add a maximum of 5 upstream registries to each virtual registry.
 Example request:
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
-     --data '{"url": "https://registry-1.docker.io", "name": "Docker Hub", "description": "Docker Hub registry", "username": "<your_username>", "password": "<your_password>", "cache_validity_hours": 48}' \
+     --data '{"url": "https://registry-1.docker.io", "name": "Docker Hub", "description": "Docker Hub registry", "username": "YOUR_TOKEN", "password": "YOUR_TOKEN", "cache_validity_hours": 48}' \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/registries/1/upstreams"
 ```
 
@@ -595,7 +595,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/upstreams/1"
 ```
@@ -643,7 +643,7 @@ The `username` and `password` must be provided together, or not at all. If not s
 Example request:
 shell
 ```
-curl --request PATCH --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PATCH --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --data '{"cache_validity_hours": 72}' \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/upstreams/1"
@@ -663,7 +663,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request PATCH --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PATCH --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --data '{"position": 5}' \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/registry_upstreams/1"
@@ -682,7 +682,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/upstreams/1"
 ```
@@ -703,7 +703,7 @@ Example request:
 shell
 ```
 curl --request POST \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --header "Accept: application/json" \
      --data '{"registry_id": 1, "upstream_id": 2}' \
@@ -734,7 +734,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/registry_upstreams/1"
@@ -758,7 +758,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/upstreams/1/cache"
 ```
@@ -805,7 +805,7 @@ Example request (test existing configuration):
 shell
 ```
 curl --request POST \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/upstreams/1/test"
 ```
@@ -814,7 +814,7 @@ Example request (test with URL override and no credentials):
 shell
 ```
 curl --request POST \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --data '{"url": "https://registry-1.docker.io"}' \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/upstreams/1/test"
@@ -824,7 +824,7 @@ Example request (test with URL and credential override):
 shell
 ```
 curl --request POST \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --data '{"url": "https://registry-1.docker.io", "username": "<newuser>", "password": "<newpass>"}' \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/upstreams/1/test"
@@ -834,7 +834,7 @@ Example request (test with credential override):
 shell
 ```
 curl --request POST \
-     --header "PRIVATE-TOKEN: <your_access_token>" \
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --data '{"username": "<newuser>", "password": "<newpass>"}' \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/upstreams/1/test"
@@ -866,7 +866,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/upstreams/1/cache_entries?search=library/nginx"
 ```
@@ -906,7 +906,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Accept: application/json" \
      --url "https://gitlab.example.com/api/v4/virtual_registries/container/cache_entries/bGlicmFyeS9uZ2lueC9tYW5pZmVzdHMvbGF0ZXN0"
 ```
@@ -980,7 +980,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fcontainer_virtual_registries%2F&_biz_t=1771981486810&_biz_i=Container%20virtual%20registry%20API%20%7C%20GitLab%20Docs&_biz_n=25&rnd=762801&cdn_o=a&_biz_z=1771981486811)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

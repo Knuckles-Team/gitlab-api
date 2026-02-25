@@ -233,7 +233,7 @@ Attribute | Type | Required | Description
 `id` | string | Conditionally | The project ID or full project path. Required only for the project endpoint.
 shell
 ```
-curl --user <username>:<your_access_token> \
+curl --user <username>:YOUR_TOKEN \
      --url "https://gitlab.example.com/api/v4/packages/conan/v1/users/authenticate"
 ```
 
@@ -277,7 +277,7 @@ Attribute | Type | Required | Description
 `q` | string | yes | Search query. You can use `*` as a wildcard.
 shell
 ```
-curl --user <username>:<your_access_token> \
+curl --user <username>:YOUR_TOKEN \
      --url "https://gitlab.example.com/api/v4/packages/conan/v1/conans/search?q=Hello*"
 ```
 
@@ -700,7 +700,7 @@ Provide the file context in the request body:
 shell
 ```
 curl --request PUT \
-     --user <username>:<your_access_token> \
+     --user <username>:YOUR_TOKEN \
      --upload-file path/to/conaninfo.txt \
      --url "https://gitlab.example.com/api/v4/packages/conan/v1/files/my-package/1.0/my-group+my-project/stable/0/package/103f6067a947f366ef91fc1b7da351c588d1827f/0/conaninfo.txt"
 ```
@@ -854,7 +854,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fpackages%2Fdebian%2F&_biz_t=1771981606982&_biz_i=Debian%20API%20%7C%20GitLab%20Docs&_biz_n=108&rnd=590429&cdn_o=a&_biz_z=1771981607118)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fpackages%2Fconan_v1%2F&_biz_t=1771981607117&_biz_i=Conan%20v1%20API%20%7C%20GitLab%20Docs&_biz_n=109&rnd=676236&cdn_o=a&_biz_z=1771981607118)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

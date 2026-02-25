@@ -258,7 +258,7 @@ Attribute | Type | Required | Description
 `with_content` | boolean | No | Include pages’ content.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/wikis?with_content=1"
 ```
 
@@ -303,7 +303,7 @@ Attribute | Type | Required | Description
 `version` | string | No | Wiki page version SHA.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/wikis/home"
 ```
 
@@ -334,7 +334,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --data "format=rdoc&title=Hello&content=Hello world" \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/wikis"
 ```
 
@@ -355,7 +355,7 @@ For example, create a file named `content.md` with your wiki content, then run:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --data-urlencode "title=Page with Complex Content" \
   --data-urlencode "content@content.md" \
   --url "https://gitlab.example.com/api/v4/projects/1/wikis"
@@ -391,7 +391,7 @@ shell
 ```
 curl --request PUT \
   --data "format=rdoc&content=documentation&title=Docs" \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/wikis/foo"
 ```
 
@@ -420,7 +420,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/wikis/foo"
 ```
 
@@ -440,7 +440,7 @@ To upload a file from your file system, use the `--form` argument. This causes c
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form "file=@dk.png" \
   --url "https://gitlab.example.com/api/v4/projects/1/wikis/attachments"
 ```
@@ -508,7 +508,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Feditor_extensions%2F&_biz_t=1771981755529&_biz_i=Editor%20extensions%20%7C%20GitLab%20Docs&_biz_n=191&rnd=888029&cdn_o=a&_biz_z=1771981755646)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fwikis%2F&_biz_t=1771981755645&_biz_i=Project%20wikis%20API%20%7C%20GitLab%20Docs&_biz_n=192&rnd=157717&cdn_o=a&_biz_z=1771981755646)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

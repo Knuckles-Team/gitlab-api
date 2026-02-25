@@ -248,7 +248,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines"
 ```
 
@@ -305,7 +305,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines/46"
 ```
 
@@ -374,7 +374,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines/latest"
 ```
 
@@ -439,7 +439,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines/46/variables"
 ```
 
@@ -474,7 +474,7 @@ Sample request:
 shell
 ```
 curl \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines/46/test_report"
 ```
 
@@ -527,7 +527,7 @@ Sample request:
 shell
 ```
 curl \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines/46/test_report_summary"
 ```
 
@@ -583,7 +583,7 @@ Basic example:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipeline?ref=main"
 ```
 
@@ -591,7 +591,7 @@ Example request with [inputs](https://docs.gitlab.com/ci/inputs/):
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"inputs": {"environment": "environment", "scan_security": false, "level": 3}}' \
   --url "https://gitlab.example.com/api/v4/projects/1/pipeline?ref=main"
@@ -648,7 +648,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines/46/retry"
 ```
 
@@ -699,7 +699,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines/46/cancel"
 ```
 
@@ -751,7 +751,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines/46"
 ```
 
@@ -770,7 +770,7 @@ Sample request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"name": "Some new pipeline name"}' \
   --url "https://gitlab.example.com/api/v4/projects/1/pipelines/46/metadata"
@@ -865,7 +865,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fpipelines%2F&_biz_t=1771981639518&_biz_i=Pipelines%20API%20%7C%20GitLab%20Docs&_biz_n=120&rnd=866101&cdn_o=a&_biz_z=1771981639518)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

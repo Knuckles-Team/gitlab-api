@@ -279,7 +279,7 @@ Attribute | Type | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/24/releases"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/projects/24/releases"
 ```
 
 Example response:
@@ -498,7 +498,7 @@ Attribute | Type | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
 ```
 
 Example response:
@@ -638,7 +638,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --location --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1/downloads/bin/asset.exe"
+curl --location --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1/downloads/bin/asset.exe"
 ```
 
 ### Get the latest release[](https://docs.gitlab.com/api/releases/#get-the-latest-release "Permalink")
@@ -689,7 +689,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --data '{ "name": "New release", "tag_name": "v0.3", "description": "Super nice release", "milestones": ["v1.0", "v1.0-rc"], "assets": { "links": [{ "name": "hoge", "url": "https://google.com", "direct_asset_path": "/binaries/linux-amd64", "link_type":"other" }] } }' \
      --request POST "https://gitlab.example.com/api/v4/projects/24/releases"
 ```
@@ -822,7 +822,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1/evidence"
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1/evidence"
 ```
 
 Example response:
@@ -853,7 +853,7 @@ Example request:
 shell
 ```
 curl --header 'Content-Type: application/json' --request PUT --data '{"name": "new name", "milestones": ["v1.2"]}' \
-     --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
+     --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
 ```
 
 Example response:
@@ -952,7 +952,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
 ```
 
 Example response:
@@ -1085,7 +1085,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Frepository_files%2F&_biz_t=1771981671846&_biz_i=Repository%20files%20API%20%7C%20GitLab%20Docs&_biz_n=144&rnd=603974&cdn_o=a&_biz_z=1771981671975)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Freleases%2F&_biz_t=1771981671974&_biz_i=Project%20release%20API%20%7C%20GitLab%20Docs&_biz_n=145&rnd=306152&cdn_o=a&_biz_z=1771981671976)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

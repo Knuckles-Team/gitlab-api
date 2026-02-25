@@ -226,7 +226,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request POST --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form 'file=@/path/to/file.png' \
   --form 'url=http://example.com' \
   --form 'url_text=Example website' \
@@ -259,7 +259,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/alert_management_alerts/93/metric_images"
 ```
 
@@ -302,7 +302,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --request PUT  --form 'url=http://example.com' \
   --form 'url_text=Example website' \
   --url "https://gitlab.example.com/api/v4/projects/5/alert_management_alerts/93/metric_images/1"
@@ -336,7 +336,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url  "https://gitlab.example.com/api/v4/projects/5/alert_management_alerts/93/metric_images/1"
 ```
 
@@ -392,7 +392,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fapplications%2F&_biz_t=1771981473119&_biz_i=Applications%20API%20%7C%20GitLab%20Docs&_biz_n=12&rnd=389384&cdn_o=a&_biz_z=1771981473355)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Faudit_events%2F&_biz_t=1771981473236&_biz_i=Audit%20events%20API%20%7C%20GitLab%20Docs&_biz_n=13&rnd=691974&cdn_o=a&_biz_z=1771981473355)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Falert_management_alerts%2F&_biz_t=1771981473354&_biz_i=Alert%20management%20alerts%20API%20%7C%20GitLab%20Docs&_biz_n=14&rnd=54583&cdn_o=a&_biz_z=1771981473355)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

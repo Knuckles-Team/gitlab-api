@@ -230,7 +230,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/usage_data/service_ping"
 ```
 
@@ -300,7 +300,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/usage_data/queries"
 ```
 
@@ -364,7 +364,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/usage_data/non_sql_metrics"
 ```
 
@@ -418,7 +418,7 @@ To track events to Snowplow, set the `send_to_snowplow` parameter to `true`.
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --request POST \
      --data '{
@@ -436,7 +436,7 @@ curl --header "PRIVATE-TOKEN: <your_access_token>" \
 If multiple events tracking is required, send an array of events to the `/track_events` endpoint:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
      --header "Content-Type: application/json" \
      --request POST \
      --data '{
@@ -511,7 +511,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fusers%2F&_biz_t=1771981740749&_biz_i=Users%20API%20%7C%20GitLab%20Docs&_biz_n=180&rnd=712426&cdn_o=a&_biz_z=1771981740853)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fusage_data%2F&_biz_t=1771981740853&_biz_i=Service%20Ping%20API%20%7C%20GitLab%20Docs&_biz_n=181&rnd=561775&cdn_o=a&_biz_z=1771981740854)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

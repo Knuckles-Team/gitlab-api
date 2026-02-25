@@ -293,7 +293,7 @@ Attribute | Type | Description
 In the following example request, the project ID is `5`.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/protected_branches"
 ```
 
@@ -434,7 +434,7 @@ Attribute | Type | Description
 In the following example request, the project ID is `5` and branch name is `main`:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/protected_branches/main"
 ```
 
@@ -552,7 +552,7 @@ In the following example request, the project ID is `5` and branch name is `*-st
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/protected_branches?name=*-stable&push_access_level=30&merge_access_level=30&unprotect_access_level=40"
 ```
 
@@ -649,7 +649,7 @@ The following example request creates a protected branch with user push access a
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/protected_branches?name=*-stable&allowed_to_push%5B%5D%5Buser_id%5D=2&allowed_to_merge%5B%5D%5Bgroup_id%5D=3"
 ```
 
@@ -711,7 +711,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/protected_branches?name=*-stable&allowed_to_push[][deploy_key_id]=1"
 ```
 
@@ -773,7 +773,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "main",
@@ -848,7 +848,7 @@ To create a protected branch where only a specific group can unprotect the branc
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "production",
@@ -863,7 +863,7 @@ To allow multiple types of users to unprotect a branch:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "name": "main",
@@ -898,7 +898,7 @@ In the following example request, the project ID is `5` and branch name is `*-st
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/protected_branches/*-stable"
 ```
 
@@ -953,7 +953,7 @@ Example request:
 shell
 ```
 curl --request PATCH \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/protected_branches/feature-branch?allow_force_push=true&code_owner_approval_required=true"
 ```
 
@@ -971,7 +971,7 @@ shell
 ```
 curl --header 'Content-Type: application/json' --request PATCH \
   --data '{"allowed_to_push": [{"access_level": 40}]}' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/22034114/protected_branches/main"
 ```
 
@@ -997,7 +997,7 @@ shell
 ```
 curl --header 'Content-Type: application/json' --request PATCH \
   --data '{"allowed_to_push": [{"id": 12, "access_level": 0}]}' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/22034114/protected_branches/main"
 ```
 
@@ -1023,7 +1023,7 @@ shell
 ```
 curl --header 'Content-Type: application/json' --request PATCH \
   --data '{"allowed_to_push": [{"id": 12, "_destroy": true}]}' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/22034114/protected_branches/main"
 ```
 
@@ -1047,7 +1047,7 @@ To modify who can unprotect an existing protected branch, include the `id` of th
 shell
 ```
 curl --request PATCH \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{
     "allowed_to_unprotect": [
@@ -1122,7 +1122,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fprojects%2F&_biz_t=1771981672087&_biz_i=Projects%20API%20%7C%20GitLab%20Docs&_biz_n=146&rnd=928261&cdn_o=a&_biz_z=1771981672107)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fprotected_branches%2F&_biz_t=1771981672107&_biz_i=Protected%20branches%20API%20%7C%20GitLab%20Docs&_biz_n=147&rnd=689953&cdn_o=a&_biz_z=1771981672108)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

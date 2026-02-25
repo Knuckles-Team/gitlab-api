@@ -273,7 +273,7 @@ Can return the following status codes:
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/7/packages/protection/rules"
 ```
 
@@ -328,7 +328,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --url "https://gitlab.example.com/api/v4/projects/7/packages/protection/rules" \
   --data '{
@@ -368,7 +368,7 @@ Example request:
 shell
 ```
 curl --request PATCH \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --url "https://gitlab.example.com/api/v4/projects/7/packages/protection/rules/32" \
   --data '{
@@ -399,7 +399,7 @@ Can return the following status codes:
 Example request:
 shell
 ```
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request DELETE --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/7/packages/protection/rules/32"
 ```
 
@@ -450,7 +450,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fproject_members%2F&_biz_t=1771981656334&_biz_i=Projects%20members%20API%20%7C%20GitLab%20Docs&_biz_n=132&rnd=509521&cdn_o=a&_biz_z=1771981656508)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fproject_import_export%2F&_biz_t=1771981656401&_biz_i=Project%20import%20and%20export%20API%20%7C%20GitLab%20Docs&_biz_n=133&rnd=505756&cdn_o=a&_biz_z=1771981656509)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fproject_packages_protection_rules%2F&_biz_t=1771981656507&_biz_i=Protected%20packages%20API%20%7C%20GitLab%20Docs&_biz_n=134&rnd=369992&cdn_o=a&_biz_z=1771981656509)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

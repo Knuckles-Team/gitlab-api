@@ -363,7 +363,7 @@ json
 Example cURL request:
 shell
 ```
-echo 'grant_type=password&username=<your_username>&password=<your_password>' > auth.txt
+echo 'grant_type=password&username=YOUR_TOKEN&password=YOUR_TOKEN' > auth.txt
 curl --request POST \
   --url "https://gitlab.example.com/oauth/token" \
   --data "@auth.txt"
@@ -372,7 +372,7 @@ curl --request POST \
 You can also use this grant flow with registered OAuth applications, by using HTTP Basic Authentication with the application’s `client_id` and `client_secret`:
 shell
 ```
-echo 'grant_type=password&username=<your_username>&password=<your_password>' > auth.txt
+echo 'grant_type=password&username=YOUR_TOKEN&password=YOUR_TOKEN' > auth.txt
 curl --request POST \
   --url "https://gitlab.example.com/oauth/token" \
   --data "@auth.txt" \
@@ -413,7 +413,7 @@ curl --header "Authorization: Bearer OAUTH-TOKEN" "https://gitlab.example.com/ap
 ## Access Git over HTTPS with `access token`[](https://docs.gitlab.com/api/oauth2/#access-git-over-https-with-access-token "Permalink")
 A token with [scope](https://docs.gitlab.com/integration/oauth_provider/#view-all-authorized-applications) `read_repository` or `write_repository` can access Git over HTTPS. Use the token as the password. You can set the username to any string value. You should use `oauth2`:
 ```
-https://oauth2:<your_access_token>@gitlab.example.com/project_path/project_name.git
+https://oauth2:YOUR_TOKEN@gitlab.example.com/project_path/project_name.git
 ```
 
 Alternatively, you can use a [Git credential helper](https://docs.gitlab.com/user/profile/account/two_factor_authentication/#oauth-credential-helpers) to authenticate to GitLab with OAuth. This handles OAuth token refresh automatically.
@@ -522,7 +522,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fnotes%2F&_biz_t=1771981606152&_biz_i=Notes%20API%20%7C%20GitLab%20Docs&_biz_n=101&rnd=611&cdn_o=a&_biz_z=1771981606233)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fpackages%2F&_biz_t=1771981606181&_biz_i=Packages%20API%20%7C%20GitLab%20Docs&_biz_n=102&rnd=284190&cdn_o=a&_biz_z=1771981606234)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Foauth2%2F&_biz_t=1771981606232&_biz_i=OAuth%202.0%20identity%20provider%20API%20%7C%20GitLab%20Docs&_biz_n=103&rnd=827691&cdn_o=a&_biz_z=1771981606234)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

@@ -250,7 +250,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/member_roles"
 ```
 
@@ -326,7 +326,7 @@ shell
 ```
 curl --request POST \
   --header "Content-Type: application/json" \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --data '{"name" : "Custom guest (instance)", "base_access_level" : 10, "read_code" : true}' \
   --url "https://gitlab.example.com/api/v4/member_roles"
 ```
@@ -379,7 +379,7 @@ shell
 ```
 curl --request DELETE \
   --header "Content-Type: application/json" \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/member_roles/1"
 ```
 
@@ -405,7 +405,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/84/member_roles"
 ```
 
@@ -509,7 +509,7 @@ shell
 ```
 curl --request POST \
   --header "Content-Type: application/json" \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --data '{"name" : "Custom guest", "base_access_level" : 10, "read_code" : true}' \
   --url "https://gitlab.example.com/api/v4/groups/84/member_roles"
 ```
@@ -567,7 +567,7 @@ shell
 ```
 curl --request DELETE \
   --header "Content-Type: application/json" \
-  --header "Authorization: Bearer <your_access_token>" \
+  --header "Authorization: Bearer YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/84/member_roles/1"
 ```
 
@@ -622,7 +622,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fmember_roles%2F&_biz_t=1771981589564&_biz_i=Member%20roles%20API%20%7C%20GitLab%20Docs&_biz_n=96&rnd=351400&cdn_o=a&_biz_z=1771981589566)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

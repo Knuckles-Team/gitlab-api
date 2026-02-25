@@ -257,7 +257,7 @@ Attribute | Type | Required | Description
 The `projects` and `shared_projects` attributes in the response are deprecated and [scheduled for removal in API v5](https://gitlab.com/gitlab-org/gitlab/-/issues/213797). To get the details of all projects within a group, use either the [list a group’s projects](https://docs.gitlab.com/api/groups/#list-projects) or the [list a group’s shared projects](https://docs.gitlab.com/api/groups/#list-shared-projects) endpoint.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/4"
 ```
 
@@ -471,7 +471,7 @@ json
 When adding the parameter `with_projects=false`, projects aren’t returned.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/4?with_projects=false"
 ```
 
@@ -939,7 +939,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/saml_users"
 ```
 
@@ -1488,7 +1488,7 @@ This is similar to creating a [New group](https://docs.gitlab.com/api/groups/#cr
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --data '{"path": "<subgroup_path>", "name": "<subgroup_name>", "parent_id": <parent_group_id> }' \
   --url "https://gitlab.example.com/api/v4/groups/"
@@ -1524,7 +1524,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Accept: application/json" \
   --url "https://gitlab.example.com/api/v4/groups/:id"
 ```
@@ -1556,13 +1556,13 @@ shell
 ```
 # Schedule a group for deletion
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Accept: application/json" \
   --url "https://gitlab.example.com/api/v4/groups/:id"
 
 # Permanently delete a group scheduled for deletion
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Accept: application/json" \
   --data '{"full_path": <full_path>, "permanently_remove": "true"}' \
   --url "https://gitlab.example.com/api/v4/groups/:id"
@@ -1765,7 +1765,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/4/transfer?group_id=7"
 ```
 
@@ -1832,7 +1832,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/4/projects/56"
 ```
 
@@ -1937,7 +1937,7 @@ The `projects` and `shared_projects` attributes in the response are deprecated a
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/5?name=Experimental"
 ```
 
@@ -2048,7 +2048,7 @@ To upload an avatar file from your file system, use the `--form` argument. This 
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form "avatar=@/tmp/example.png" \
   --url "https://gitlab.example.com/api/v4/groups/22"
 ```
@@ -2059,7 +2059,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --data "avatar=" \
   --url "https://gitlab.example.com/api/v4/groups/22"
 ```
@@ -2236,7 +2236,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/1/manage/personal_access_tokens/<personal_access_token_id>"
 ```
 
@@ -2259,7 +2259,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/1/manage/resource_access_tokens/<personal_access_token_id>"
 ```
 
@@ -2300,7 +2300,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/manage/personal_access_tokens/<personal_access_token_id>/rotate"
 ```
 
@@ -2348,7 +2348,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/:id/manage/resource_access_tokens/<resource_access_token_id>/rotate"
 ```
 
@@ -2472,7 +2472,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fgroups%2F&_biz_t=1771981560093&_biz_i=Groups%20API%20%7C%20GitLab%20Docs&_biz_n=74&rnd=530963&cdn_o=a&_biz_z=1771981560094)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

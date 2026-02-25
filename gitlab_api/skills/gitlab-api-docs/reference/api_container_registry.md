@@ -233,7 +233,7 @@ See the [container registry visibility permissions](https://docs.gitlab.com/user
 shell
 ```
 curl --request PUT "https://gitlab.example.com/api/v4/projects/5/" \
-  --header 'PRIVATE-TOKEN: <your_access_token>' \
+  --header 'PRIVATE-TOKEN: YOUR_TOKEN' \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --data-raw '{
@@ -267,7 +267,7 @@ Attribute | Type | Required | Description
 `tags_count` | boolean | no | If the parameter is included as true, each repository includes `"tags_count"` in the response .
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories"
 ```
 
@@ -314,7 +314,7 @@ Attribute | Type | Required | Description
 `id` | integer or string | yes | The ID or [URL-encoded path](https://docs.gitlab.com/api/rest/#namespaced-paths) of the group accessible by the authenticated user.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/2/registry/repositories"
 ```
 
@@ -357,7 +357,7 @@ Attribute | Type | Required | Description
 `size` | boolean | no | If the parameter is included as `true`, the response includes `"size"`. This is the deduplicated size of all images within the repository. Deduplication eliminates extra copies of identical data. For example, if you upload the same image twice, the container registry stores only one copy. This field is only available on GitLab.com for repositories created after `2021-11-04`.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/registry/repositories/2?tags=true&tags_count=true&size=true"
 ```
 
@@ -399,7 +399,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories/2"
 ```
 
@@ -422,7 +422,7 @@ Attribute | Type | Required | Description
 `repository_id` | integer | yes | The ID of registry repository.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories/2/tags"
 ```
 
@@ -456,7 +456,7 @@ Attribute | Type | Required | Description
 `tag_name` | string | yes | The name of tag.
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories/2/tags/v10.0.0"
 ```
 
@@ -490,7 +490,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories/2/tags/v10.0.0"
 ```
 
@@ -532,7 +532,7 @@ curl --request DELETE \
   --data 'name_regex_delete=[0-9a-z]{40}' \
   --data 'keep_n=5' \
   --data 'older_than=2d' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories/2/tags"
 ```
 
@@ -542,7 +542,7 @@ shell
 curl --request DELETE \
   --data 'name_regex_delete=.*' \
   --data 'keep_n=5' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories/2/tags"
 ```
 
@@ -552,7 +552,7 @@ shell
 curl --request DELETE \
   --data 'name_regex_delete=.*' \
   --data 'name_regex_keep=stable.*' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories/2/tags"
 ```
 
@@ -562,7 +562,7 @@ shell
 curl --request DELETE \
   --data 'name_regex_delete=.*' \
   --data 'older_than=1month' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories/2/tags"
 ```
 
@@ -574,7 +574,7 @@ shell
 ```
 curl --request DELETE \
   --data-urlencode 'name_regex_delete=dev-.+' \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/5/registry/repositories/2/tags"
 ```
 
@@ -693,7 +693,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fcontainer_registry%2F&_biz_t=1771981486405&_biz_i=Container%20registry%20API%20%7C%20GitLab%20Docs&_biz_n=20&rnd=71871&cdn_o=a&_biz_z=1771981486406)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

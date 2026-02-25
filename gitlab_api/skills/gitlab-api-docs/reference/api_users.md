@@ -992,7 +992,7 @@ GET /user/status
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/user/status"
 ```
 
@@ -1063,7 +1063,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --data "clear_status_after=1_day" \
   --data "emoji=coffee" \
   --data "message=I crave coffee" --data "availability=busy" \
@@ -1162,7 +1162,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --form "avatar=@/path/to/your/avatar.png" \
   --url "https://gitlab.example.com/api/v4/user/avatar"
 ```
@@ -1201,7 +1201,7 @@ GET /user_counts
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/user_counts"
 ```
 
@@ -1275,7 +1275,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/user/activities"
 ```
 
@@ -1335,7 +1335,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/users/:user_id/memberships"
 ```
 
@@ -1391,7 +1391,7 @@ Attribute | Type | Required | Description
 Example request:
 shell
 ```
-curl --request PATCH --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --request PATCH --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/users/1/disable_two_factor"
 ```
 
@@ -1438,7 +1438,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --data "runner_type=instance_type" \
   --url "https://gitlab.example.com/api/v4/user/runners"
 ```
@@ -1494,7 +1494,7 @@ Example request:
 shell
 ```
 curl --request POST |
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/user/support_pin"
 ```
 
@@ -1528,7 +1528,7 @@ GET /user/support_pin
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/user/support_pin"
 ```
 
@@ -1562,7 +1562,7 @@ GET /users/:id/support_pin
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/users/1234/support_pin"
 ```
 
@@ -1601,7 +1601,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/users/1234/support_pin/revoke"
 ```
 
@@ -1683,7 +1683,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fusers%2F&_biz_t=1771981740749&_biz_i=Users%20API%20%7C%20GitLab%20Docs&_biz_n=180&rnd=712426&cdn_o=a&_biz_z=1771981740750)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

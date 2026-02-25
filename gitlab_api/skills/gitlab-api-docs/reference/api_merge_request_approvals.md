@@ -309,7 +309,7 @@ Attribute | Type | Required | Description
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/76/merge_requests/1/reset_approvals"
 ```
 
@@ -757,7 +757,7 @@ To increase the default number of 0 required approvers:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{"name": "Any name", "rule_type": "any_approver", "approvals_required": 2}' \
   --url "https://gitlab.example.com/api/v4/projects/<project_id>/approval_rules"
@@ -767,7 +767,7 @@ Another example is to create a user-specific rule:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header 'Content-Type: application/json' \
   --data '{"name": "Name of your rule", "approvals_required": 3, "user_ids": [123, 456, 789]}' \
   --url "https://gitlab.example.com/api/v4/projects/<project_id>/approval_rules"
@@ -1400,7 +1400,7 @@ Example request:
 shell
 ```
 curl --request GET \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/29/approval_rules"
 ```
 
@@ -1475,7 +1475,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/29/approval_rules?name=security&approvals_required=2"
 ```
 
@@ -1555,7 +1555,7 @@ Example request:
 shell
 ```
 curl --request PUT \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/groups/29/approval_rules/5?name=security2&approvals_required=1"
 ```
 
@@ -1671,7 +1671,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fmerge_request_approvals%2F&_biz_t=1771981589164&_biz_i=Merge%20request%20approvals%20API%20%7C%20GitLab%20Docs&_biz_n=92&rnd=513368&cdn_o=a&_biz_z=1771981589165)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center

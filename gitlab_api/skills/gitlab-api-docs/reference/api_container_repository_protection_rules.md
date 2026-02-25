@@ -239,7 +239,7 @@ Can return the following status codes:
 Example request:
 shell
 ```
-curl --header "PRIVATE-TOKEN: <your_access_token>" \
+curl --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/7/registry/protection/repository/rules"
 ```
 
@@ -295,7 +295,7 @@ Example request:
 shell
 ```
 curl --request POST \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --url "https://gitlab.example.com/api/v4/projects/7/registry/protection/repository/rules" \
   --data '{
@@ -337,7 +337,7 @@ Example request:
 shell
 ```
 curl --request PATCH \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --header "Content-Type: application/json" \
   --url "https://gitlab.example.com/api/v4/projects/7/registry/protection/repository/rules/32" \
   --data '{
@@ -373,7 +373,7 @@ Example request:
 shell
 ```
 curl --request DELETE \
-  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --header "PRIVATE-TOKEN: YOUR_TOKEN" \
   --url "https://gitlab.example.com/api/v4/projects/7/registry/protection/repository/rules/1"
 ```
 
@@ -424,7 +424,7 @@ Resources
   * Cookie Preferences
 
 
-![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fcontainer_repository_protection_rules%2F&_biz_t=1771981487178&_biz_i=Container%20repository%20protection%20rules%20API%20%7C%20GitLab%20Docs&_biz_n=28&rnd=973980&cdn_o=a&_biz_z=1771981487178)
+
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center
