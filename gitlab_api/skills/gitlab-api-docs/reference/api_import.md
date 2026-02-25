@@ -256,7 +256,7 @@ curl --request POST \
   --header "content-type: application/json" \
   --header "Authorization: Bearer <your_access_token>" \
   --data '{
-    "personal_access_token": "aBc123abC12aBc123abC12abC123+_A/c123",
+    "personal_access_token": "",
     "repo_id": "12345",
     "target_namespace": "group/subgroup",
     "new_name": "NEW-NAME",
