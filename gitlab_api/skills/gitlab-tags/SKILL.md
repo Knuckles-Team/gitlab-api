@@ -1,6 +1,7 @@
 ---
 name: gitlab-tags
 description: "Manages GitLab tags. Use for creating, deleting, protecting tags. Triggers: versioning."
+tags: [tags]
 ---
 
 ### Overview

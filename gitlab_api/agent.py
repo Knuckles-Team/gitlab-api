@@ -12,7 +12,7 @@ from agent_utilities import (
 from agent_utilities.agent_utilities import create_agent_parser, get_mcp_config_path
 from agent_utilities.base_utilities import to_integer, to_boolean
 
-__version__ = "0.1.17"
+__version__ = "25.15.16"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -85,7 +85,7 @@ def agent_server():
         ssl_verify=not args.insecure,
         name=DEFAULT_AGENT_NAME,
         system_prompt=DEFAULT_AGENT_SYSTEM_PROMPT,
-        agent_defs=CHILD_AGENT_DEFS if CHILD_AGENT_DEFS else None,
+        agent_definitions=CHILD_AGENT_DEFS if CHILD_AGENT_DEFS else None,
     )
 
 

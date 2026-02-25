@@ -5,8 +5,6 @@ import time
 import logging
 import subprocess
 
-import httpx
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

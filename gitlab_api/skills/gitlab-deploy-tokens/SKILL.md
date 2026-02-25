@@ -1,6 +1,7 @@
 ---
 name: gitlab-deploy-tokens
 description: "Manages GitLab deploy tokens. Use for creating, listing, or deleting tokens at instance, project, or group levels. Triggers: deploy keys, access tokens."
+tags: [deploy-tokens]
 ---
 
 ### Overview

@@ -1,6 +1,7 @@
 ---
 name: gitlab-releases
 description: "Manages GitLab releases. Use for creating, updating, deleting releases and assets. Triggers: versioning, deployments."
+tags: [releases]
 ---
 
 ### Overview

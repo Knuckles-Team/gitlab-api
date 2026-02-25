@@ -1,6 +1,7 @@
 ---
 name: gitlab-pipelines
 description: "Manages GitLab pipelines. Use for listing, running pipelines. Triggers: CI triggers."
+tags: [pipelines]
 ---
 
 ### Overview

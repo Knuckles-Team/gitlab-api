@@ -57,8 +57,8 @@ from gitlab_api.gitlab_response_models import (
     MergeRequestRuleSettings,
     PipelineVariable,
 )
-from gitlab_api.decorators import require_auth
-from gitlab_api.exceptions import (
+from agent_utilities.decorators import require_auth
+from agent_utilities.exceptions import (
     AuthError,
     UnauthorizedError,
     ParameterError,

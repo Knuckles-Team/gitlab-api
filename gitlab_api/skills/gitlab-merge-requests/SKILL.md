@@ -1,6 +1,7 @@
 ---
 name: gitlab-merge-requests
 description: "Manages GitLab merge requests. Use for creating, listing MRs across projects or groups. Triggers: PRs, code reviews."
+tags: [merge-requests]
 ---
 
 ### Overview

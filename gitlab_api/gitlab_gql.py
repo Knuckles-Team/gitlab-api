@@ -6,8 +6,8 @@ from typing import Dict, Any, Optional, Union, List
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
-from gitlab_api.exceptions import ParameterError, MissingParameterError
-from gitlab_api.decorators import require_auth
+from agent_utilities.exceptions import ParameterError, MissingParameterError
+from agent_utilities.decorators import require_auth
 from gitlab_api.gitlab_input_models import (
     ProjectModel,
     BranchModel,

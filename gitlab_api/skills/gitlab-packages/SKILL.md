@@ -1,6 +1,7 @@
 ---
 name: gitlab-packages
 description: "Manages GitLab packages. Use for listing, publishing, or downloading packages. Triggers: artifact registry."
+tags: [packages]
 ---
 
 ### Overview

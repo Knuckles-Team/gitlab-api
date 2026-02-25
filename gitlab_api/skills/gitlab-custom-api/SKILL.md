@@ -1,6 +1,7 @@
 ---
 name: gitlab-custom-api
 description: "Handles custom GitLab API requests. Use for any endpoint not covered by other skills. Triggers: advanced API calls, extensions."
+tags: [custom-api]
 ---
 
 ### Overview

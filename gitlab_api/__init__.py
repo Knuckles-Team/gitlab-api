@@ -1,12 +1,11 @@
 import importlib
+import sys
 import inspect
 from typing import List
 
 __all__: List[str] = []
 
 CORE_MODULES = [
-    "gitlab_api.decorators",
-    "gitlab_api.exceptions",
     "gitlab_api.gitlab_input_models",
     "gitlab_api.gitlab_response_models",
     "gitlab_api.gitlab_api",
@@ -15,6 +14,8 @@ CORE_MODULES = [
 
 OPTIONAL_MODULES = {
     "gitlab_api.gitlab_gql": "gql",
+    "gitlab_api.agent": "agent",
+    "gitlab_api.mcp": "mcp",
 }
 
 
@@ -48,13 +49,11 @@ for module_name, extra_name in OPTIONAL_MODULES.items():
     else:
         globals()[f"_{extra_name.upper()}_AVAILABLE"] = False
 
-_MCP_AVAILABLE = OPTIONAL_MODULES.get("gitlab_api.gitlab_mcp") in [
-    m.__name__ for m in globals().values() if hasattr(m, "__name__")
-]
-_A2A_AVAILABLE = "gitlab_api.gitlab_agent" in globals()
+_MCP_AVAILABLE = "gitlab_api.mcp" in globals() or "gitlab_api.mcp" in sys.modules
+_AGENT_AVAILABLE = "gitlab_api.agent" in globals()
 _GQL_AVAILABLE = "gitlab_api.gitlab_gql" in globals()
 
-__all__.extend(["_MCP_AVAILABLE", "_A2A_AVAILABLE", "_GQL_AVAILABLE"])
+__all__.extend(["_MCP_AVAILABLE", "_AGENT_AVAILABLE", "_GQL_AVAILABLE"])
 
 """
 GitLab API - A Python Wrapper for GitLab

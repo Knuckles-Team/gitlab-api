@@ -1,6 +1,7 @@
 ---
 name: gitlab-projects
 description: "Manages GitLab projects. Use for listing, editing, archiving, sharing projects. Triggers: repo management."
+tags: [projects]
 ---
 
 ### Overview

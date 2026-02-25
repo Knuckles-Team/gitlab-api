@@ -1,6 +1,7 @@
 ---
 name: gitlab-commits
 description: "Manages GitLab commits. Use for listing, creating, reverting, or querying commit details/diffs/comments. Triggers: commit history, changes, reversions."
+tags: [commits]
 ---
 
 ### Overview

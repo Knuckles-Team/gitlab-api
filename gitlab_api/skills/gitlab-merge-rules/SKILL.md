@@ -1,6 +1,7 @@
 ---
 name: gitlab-merge-rules
 description: "Manages GitLab merge approval rules. Use for approvals, rules at project/group levels. Triggers: code reviews, approvals."
+tags: [merge-rules]
 ---
 
 ### Overview

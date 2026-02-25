@@ -1,6 +1,7 @@
 ---
 name: gitlab-runners
 description: "Manages GitLab runners. Use for registering, updating, deleting runners at various levels. Triggers: CI infrastructure."
+tags: [runners]
 ---
 
 ### Overview

@@ -1,6 +1,7 @@
 ---
 name: gitlab-groups
 description: "Manages GitLab groups. Use for listing, editing groups, subgroups, projects, or merge requests. Triggers: group management, namespaces."
+tags: [groups]
 ---
 
 ### Overview

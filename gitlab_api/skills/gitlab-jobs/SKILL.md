@@ -1,6 +1,7 @@
 ---
 name: gitlab-jobs
 description: "Manages GitLab CI jobs. Use for listing, logs, canceling, retrying, or erasing jobs. Triggers: CI builds, job status."
+tags: [jobs]
 ---
 
 ### Overview

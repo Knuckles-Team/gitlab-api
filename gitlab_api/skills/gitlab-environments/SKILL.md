@@ -1,6 +1,7 @@
 ---
 name: gitlab-environments
 description: "Manages GitLab environments. Use for creating, updating, deleting, or protecting deployment environments. Triggers: CI/CD environments, deployments."
+tags: [environments]
 ---
 
 ### Overview

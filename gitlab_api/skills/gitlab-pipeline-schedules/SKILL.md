@@ -1,6 +1,7 @@
 ---
 name: gitlab-pipeline-schedules
 description: "Manages GitLab pipeline schedules. Use for creating, editing, running scheduled pipelines. Triggers: cron jobs, automation."
+tags: [pipeline-schedules]
 ---
 
 ### Overview

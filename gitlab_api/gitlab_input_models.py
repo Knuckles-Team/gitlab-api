@@ -13,7 +13,7 @@ from pydantic import (
 )
 
 
-from gitlab_api.exceptions import (
+from agent_utilities.exceptions import (
     ParameterError,
     MissingParameterError,
 )

@@ -1,6 +1,7 @@
 ---
 name: gitlab-members
 description: "Manages GitLab members. Use for listing members in groups or projects. Triggers: user access, permissions."
+tags: [members]
 ---
 
 ### Overview

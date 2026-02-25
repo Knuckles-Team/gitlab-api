@@ -1,6 +1,7 @@
 ---
 name: gitlab-protected-branches
 description: "Manages protected branches in GitLab. Use for protecting/unprotecting branches, code owner approvals. Triggers: branch protection."
+tags: [protected-branches]
 ---
 
 ### Overview

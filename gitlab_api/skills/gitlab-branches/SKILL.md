@@ -1,6 +1,7 @@
 ---
 name: gitlab-branches
 description: "Manages GitLab branches. Use for listing, creating, deleting, or querying branches in projects. Triggers: branch operations, git branching."
+tags: [branches]
 ---
 
 ### Overview
