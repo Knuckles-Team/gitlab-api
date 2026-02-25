@@ -256,7 +256,7 @@ curl --request POST \
   --header "content-type: application/json" \
   --header "Authorization: Bearer <your_access_token>" \
   --data '{
-    "personal_access_token": "",
+    "personal_access_token": "<your_github_personal_access_token>",
     "repo_id": "12345",
     "target_namespace": "group/subgroup",
     "new_name": "NEW-NAME",
@@ -400,7 +400,7 @@ curl --request POST \
   --data '{
     "bitbucket_server_url": "http://bitbucket.example.com",
     "bitbucket_server_username": "root",
-    "personal_access_token": "",
+    "personal_access_token": "<your_github_personal_access_token>",
     "bitbucket_server_project": "NEW",
     "bitbucket_server_repo": "my-repo",
     "new_name": "NEW-NAME"
