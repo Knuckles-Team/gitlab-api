@@ -3,12 +3,12 @@ import threading
 from typing import Optional
 
 import requests
-from fastmcp.server.middleware import MiddlewareContext, Middleware
 from agent_utilities.base_utilities import to_boolean, get_logger
 from gitlab_api.gitlab_api import Api
 
 local = threading.local()
 logger = get_logger(__name__)
+
 
 def get_client(
     config: dict,
