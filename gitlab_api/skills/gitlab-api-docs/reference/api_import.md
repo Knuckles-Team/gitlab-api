@@ -400,7 +400,7 @@ curl --request POST \
   --data '{
     "bitbucket_server_url": "http://bitbucket.example.com",
     "bitbucket_server_username": "root",
-    "personal_access_token": "Nzk4MDcxODY4MDAyOiP8y410zF3tGAyLnHRv/E0+3xYs",
+    "personal_access_token": "",
     "bitbucket_server_project": "NEW",
     "bitbucket_server_repo": "my-repo",
     "new_name": "NEW-NAME"

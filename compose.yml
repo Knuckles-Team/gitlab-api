@@ -27,21 +27,7 @@ services:
       - "TRANSPORT=streamable-http"
       - "GITLAB_INSTANCE=${GITLAB_INSTANCE}"
       - "GITLAB_ACCESS_TOKEN=${GITLAB_ACCESS_TOKEN}"
-      - "GITLAB_VERIFY=${GITLAB_VERIFY}" # Optional
-    #      - AUTH_TYPE=oidc-proxy # Optional
-    #      - OIDC_CONFIG_URL=https://provider.com/.well-known/openid-configuration # Optional
-    #      - OIDC_CLIENT_ID=your-client-id # Optional
-    #      - OIDC_CLIENT_SECRET=your-client-secret # Optional
-    #      - OIDC_BASE_URL=https://your-server.com # Optional
-    #      - ALLOWED_CLIENT_REDIRECT_URIS=http://localhost:*,https://*.example.com/* # Optional
-    #      - ENABLE_DELEGATION=True # Optional
-    #      - AUDIENCE=https://yourinstance.gitlab.com # Optional
-    #      - DELEGATED_SCOPES='api user_impersonation' # Optional
-    #      - EUNOMIA_TYPE=embedded # Optional
-    #      - EUNOMIA_POLICY_FILE=/app/mcp_policies.json # Optional
-    #      - FASTMCP_SERVER_AUTH_JWT_ALGORITHM=HS256 # Optional
-    #      - FASTMCP_SERVER_AUTH_JWT_PUBLIC_KEY=your-shared-secret # Optional
-    #      - FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES=gitlab.read,gitlab.write # Optional
+      - "GITLAB_VERIFY=${GITLAB_VERIFY}"
     ports:
       - "8017:8017"
     healthcheck:
