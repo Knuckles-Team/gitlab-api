@@ -1,0 +1,1184 @@
+[Skip to main content](https://docs.gitlab.com/api/settings/#skipTarget) [Go to GitLab Docs homepage](https://docs.gitlab.com/)
+`/`
+[What's new?](https://about.gitlab.com/releases/whats-new/)
+English
+  * Language
+  * English
+  * 日本語
+
+
+v18.10
+  *     * [18.10 (not yet released)](https://docs.gitlab.com/api/settings/)
+  *     * [18.9 (recently released)](https://docs.gitlab.com/18.9/api/settings/)
+    * [18.8](https://docs.gitlab.com/18.8/api/settings/)
+    * [18.7](https://archives.docs.gitlab.com/18.7/api/settings/)
+  *     * [17.11](https://archives.docs.gitlab.com/17.11/api/settings/)
+    * [16.11](https://archives.docs.gitlab.com/16.11/ee/api/settings.html)
+  *     * [Archives](https://docs.gitlab.com/archives)
+
+
+Select theme and layout
+  * Light mode
+  * Dark mode
+  * Auto
+
+
+  * Fixed width
+  * Fluid width
+
+
+[What's new?](https://about.gitlab.com/releases/whats-new/) [Get free trial](https://gitlab.com/-/trial_registrations/new?glm_source=docs.gitlab.com&amp;glm_content=navigation-cta-docs)
+Toggle menu
+  * [Use GitLab](https://docs.gitlab.com/user/)
+  * [GitLab Duo](https://docs.gitlab.com/user/gitlab_duo/)
+  * [Extend](https://docs.gitlab.com/api/)
+  * [Install](https://docs.gitlab.com/install/)
+  * [Administer](https://docs.gitlab.com/administration/)
+  * [Subscribe](https://docs.gitlab.com/subscriptions/)
+  * [Contribute](https://docs.gitlab.com/development/)
+  * [Solutions](https://docs.gitlab.com/solutions/)
+
+
+Select a topicUse GitLab GitLab Duo Extend Install Administer Subscribe Contribute Solutions
+[Getting started](https://docs.gitlab.com/api/get_started/get_started_extending/)
+[Tutorials](https://docs.gitlab.com/tutorials/develop/)
+[Integrations](https://docs.gitlab.com/integration/)
+[Webhooks](https://docs.gitlab.com/user/project/integrations/webhooks/)
+[REST API](https://docs.gitlab.com/api/rest/)
+[Resources](https://docs.gitlab.com/api/api_resources/)
+[.gitignore (templates)](https://docs.gitlab.com/api/templates/gitignores/)
+[.gitlab-ci.yml (templates)](https://docs.gitlab.com/api/templates/gitlab_ci_ymls/)
+[Access requests](https://docs.gitlab.com/api/access_requests/)
+[Agent for Kubernetes](https://docs.gitlab.com/api/cluster_agents/)
+[AI Catalog admin](https://docs.gitlab.com/api/admin/ai_catalog/)
+[Alert management](https://docs.gitlab.com/api/alert_management_alerts/)
+[Application appearance](https://docs.gitlab.com/api/appearance/)
+[Application settings](https://docs.gitlab.com/api/settings/)
+[Application statistics](https://docs.gitlab.com/api/statistics/)
+[Applications](https://docs.gitlab.com/api/applications/)
+[Attestations](https://docs.gitlab.com/api/attestations/)
+[Audit events](https://docs.gitlab.com/api/audit_events/)
+[Avatar](https://docs.gitlab.com/api/avatar/)
+[Branches](https://docs.gitlab.com/api/branches/)
+[Broadcast messages](https://docs.gitlab.com/api/broadcast_messages/)
+[Cluster discovery (certificate-based) (deprecated)](https://docs.gitlab.com/api/cluster_discovery/)
+[Code Suggestions](https://docs.gitlab.com/api/code_suggestions/)
+[Commits](https://docs.gitlab.com/api/commits/)
+[Compliance and policy settings](https://docs.gitlab.com/api/compliance_policy_settings/)
+[Composer](https://docs.gitlab.com/api/packages/composer/)
+[Conan v1](https://docs.gitlab.com/api/packages/conan_v1/)
+[Conan v2](https://docs.gitlab.com/api/packages/conan_v2/)
+[Container registry](https://docs.gitlab.com/api/container_registry/)
+[Container repository protection rules](https://docs.gitlab.com/api/container_repository_protection_rules/)
+[Container registry protection tag rules](https://docs.gitlab.com/api/container_registry_protection_tag_rules/)
+[Container virtual registry](https://docs.gitlab.com/api/container_virtual_registries/)
+[Custom attributes](https://docs.gitlab.com/api/custom_attributes/)
+[Database migrations](https://docs.gitlab.com/api/database_migrations/)
+[Data management](https://docs.gitlab.com/api/admin/data_management/)
+[Debian](https://docs.gitlab.com/api/packages/debian/)
+[Debian group distributions](https://docs.gitlab.com/api/packages/debian_group_distributions/)
+[Debian project distributions](https://docs.gitlab.com/api/packages/debian_project_distributions/)
+[Dependencies](https://docs.gitlab.com/api/dependencies/)
+[Dependency list export](https://docs.gitlab.com/api/dependency_list_export/)
+[Dependency Proxy](https://docs.gitlab.com/api/dependency_proxy/)
+[Deploy keys](https://docs.gitlab.com/api/deploy_keys/)
+[Deploy tokens](https://docs.gitlab.com/api/deploy_tokens/)
+[Deployments](https://docs.gitlab.com/api/deployments/)
+[Discussions](https://docs.gitlab.com/api/discussions/)
+[Dockerfile (templates)](https://docs.gitlab.com/api/templates/dockerfiles/)
+[DORA4 metrics](https://docs.gitlab.com/api/dora/metrics/)
+[Emoji reactions](https://docs.gitlab.com/api/emoji_reactions/)
+[Environments](https://docs.gitlab.com/api/environments/)
+[Epics (deprecated)](https://docs.gitlab.com/api/epics/)
+[Error tracking](https://docs.gitlab.com/api/error_tracking/)
+[Events](https://docs.gitlab.com/api/events/)
+[Experiments](https://docs.gitlab.com/api/experiments/)
+[External status checks](https://docs.gitlab.com/api/status_checks/)
+[Feature flags](https://docs.gitlab.com/api/feature_flags/)
+[Feature flag user lists](https://docs.gitlab.com/api/feature_flag_user_lists/)
+[Freeze periods](https://docs.gitlab.com/api/freeze_periods/)
+[Geo nodes (deprecated)](https://docs.gitlab.com/api/geo_nodes/)
+[Geo sites](https://docs.gitlab.com/api/geo_sites/)
+[GitLab Duo Chat completions](https://docs.gitlab.com/api/chat/)
+[GitLab Pages](https://docs.gitlab.com/api/pages/)
+[GLQL](https://docs.gitlab.com/api/glql/)
+[Go Proxy](https://docs.gitlab.com/api/packages/go_proxy/)
+[Google Cloud integration](https://docs.gitlab.com/api/google_cloud_integration/)
+[Groups](https://docs.gitlab.com/api/groups/)
+[Helm](https://docs.gitlab.com/api/packages/helm/)
+[Import](https://docs.gitlab.com/api/import/)
+[Instance CI/CD variables](https://docs.gitlab.com/api/instance_level_ci_variables/)
+[Invitations](https://docs.gitlab.com/api/invitations/)
+[Issues](https://docs.gitlab.com/api/issues/)
+[Issues (epic) (deprecated)](https://docs.gitlab.com/api/epic_issues/)
+[Issues statistics](https://docs.gitlab.com/api/issues_statistics/)
+[Jobs](https://docs.gitlab.com/api/jobs/)
+[Job artifacts](https://docs.gitlab.com/api/job_artifacts/)
+[Job token scopes](https://docs.gitlab.com/api/project_job_token_scopes/)
+[Keys](https://docs.gitlab.com/api/keys/)
+[License](https://docs.gitlab.com/api/license/)
+[Licenses (templates)](https://docs.gitlab.com/api/templates/licenses/)
+[Linked epics (deprecated)](https://docs.gitlab.com/api/linked_epics/)
+[Links (issue)](https://docs.gitlab.com/api/issue_links/)
+[Links (epic) (deprecated)](https://docs.gitlab.com/api/epic_links/)
+[Lint .gitlab-ci.yml](https://docs.gitlab.com/api/lint/)
+[Markdown](https://docs.gitlab.com/api/markdown/)
+[Maven](https://docs.gitlab.com/api/packages/maven/)
+[Maven virtual registry](https://docs.gitlab.com/api/maven_virtual_registries/)
+[Member roles](https://docs.gitlab.com/api/member_roles/)
+[Merge request approvals](https://docs.gitlab.com/api/merge_request_approvals/)
+[Merge request approval settings](https://docs.gitlab.com/api/merge_request_approval_settings/)
+[Merge request context commits](https://docs.gitlab.com/api/merge_request_context_commits/)
+[Merge requests](https://docs.gitlab.com/api/merge_requests/)
+[Merge trains](https://docs.gitlab.com/api/merge_trains/)
+[Metadata](https://docs.gitlab.com/api/metadata/)
+[Model registry](https://docs.gitlab.com/api/model_registry/)
+[Namespaces](https://docs.gitlab.com/api/namespaces/)
+[Notes (comments)](https://docs.gitlab.com/api/notes/)
+[Notification settings](https://docs.gitlab.com/api/notification_settings/)
+[npm](https://docs.gitlab.com/api/packages/npm/)
+[NuGet](https://docs.gitlab.com/api/packages/nuget/)
+[Organizations](https://docs.gitlab.com/api/organizations/)
+[Packages](https://docs.gitlab.com/api/packages/)
+[Pages domains](https://docs.gitlab.com/api/pages_domains/)
+[Personal access tokens](https://docs.gitlab.com/api/personal_access_tokens/)
+[Pipeline schedules](https://docs.gitlab.com/api/pipeline_schedules/)
+[Pipeline trigger tokens](https://docs.gitlab.com/api/pipeline_triggers/)
+[Pipelines](https://docs.gitlab.com/api/pipelines/)
+[Plan limits](https://docs.gitlab.com/api/plan_limits/)
+[Product analytics](https://docs.gitlab.com/api/product_analytics/)
+[Projects](https://docs.gitlab.com/api/projects/)
+[PyPI](https://docs.gitlab.com/api/packages/pypi/)
+[Repositories](https://docs.gitlab.com/api/repositories/)
+[Repository files](https://docs.gitlab.com/api/repository_files/)
+[Repository submodules](https://docs.gitlab.com/api/repository_submodules/)
+[Resource group](https://docs.gitlab.com/api/resource_groups/)
+[Resource iteration events](https://docs.gitlab.com/api/resource_iteration_events/)
+[Resource label events](https://docs.gitlab.com/api/resource_label_events/)
+[Resource milestone events](https://docs.gitlab.com/api/resource_milestone_events/)
+[Resource state events](https://docs.gitlab.com/api/resource_state_events/)
+[Resource weight events](https://docs.gitlab.com/api/resource_weight_events/)
+[Ruby gems](https://docs.gitlab.com/api/packages/rubygems/)
+[Runners](https://docs.gitlab.com/api/runners/)
+[Runner controllers](https://docs.gitlab.com/api/runner_controllers/)
+[Runner controller tokens](https://docs.gitlab.com/api/runner_controller_tokens/)
+[Search](https://docs.gitlab.com/api/search/)
+[Search migrations](https://docs.gitlab.com/api/search_admin/)
+[Secure files](https://docs.gitlab.com/api/secure_files/)
+[Service accounts](https://docs.gitlab.com/api/service_accounts/)
+[Service Ping](https://docs.gitlab.com/api/usage_data/)
+[Sidekiq metrics](https://docs.gitlab.com/api/sidekiq_metrics/)
+[Sidekiq queues](https://docs.gitlab.com/api/admin_sidekiq_queues/)
+[Snippet repository storage moves](https://docs.gitlab.com/api/snippet_repository_storage_moves/)
+[Snippets](https://docs.gitlab.com/api/snippets/)
+[Suggestions](https://docs.gitlab.com/api/suggestions/)
+[System hooks](https://docs.gitlab.com/api/system_hooks/)
+[Tags](https://docs.gitlab.com/api/tags/)
+[Terraform registry](https://docs.gitlab.com/api/packages/terraform-modules/)
+[To-Do List](https://docs.gitlab.com/api/todos/)
+[Token information](https://docs.gitlab.com/api/admin/token/)
+[Topics](https://docs.gitlab.com/api/topics/)
+[Users](https://docs.gitlab.com/api/users/)
+[Version](https://docs.gitlab.com/api/version/)
+[Virtual registries cleanup policies](https://docs.gitlab.com/api/virtual_registries_cleanup_policies/)
+[Vulnerabilities](https://docs.gitlab.com/api/vulnerabilities/)
+[Vulnerability archive export](https://docs.gitlab.com/api/vulnerability_archive_exports/)
+[Vulnerability export](https://docs.gitlab.com/api/vulnerability_exports/)
+[Vulnerability findings](https://docs.gitlab.com/api/vulnerability_findings/)
+[Web commits](https://docs.gitlab.com/api/web_commits/)
+[Authentication](https://docs.gitlab.com/api/rest/authentication/)
+[Third-party clients](https://docs.gitlab.com/api/rest/third_party_clients/)
+[Deprecations and removals](https://docs.gitlab.com/api/rest/deprecations/)
+[OpenAPI](https://docs.gitlab.com/api/openapi/openapi_interactive/)
+[Automate storage management](https://docs.gitlab.com/user/storage_management_automation/)
+[Troubleshooting](https://docs.gitlab.com/api/rest/troubleshooting/)
+[GraphQL API](https://docs.gitlab.com/api/graphql/)
+[OAuth 2.0 identity provider API](https://docs.gitlab.com/api/oauth2/)
+[GitLab Duo CLI (duo)](https://docs.gitlab.com/user/gitlab_duo_cli/)
+[GitLab CLI (glab)](https://docs.gitlab.com/cli/)
+[Editor and IDE extensions](https://docs.gitlab.com/editor_extensions/)
+/
+  1. [GitLab Docs](https://docs.gitlab.com/)
+  2. [Extend](https://docs.gitlab.com/api/)
+  3. [REST API](https://docs.gitlab.com/api/rest/)
+  4. [Resources](https://docs.gitlab.com/api/api_resources/)
+  5. [Application settings](https://docs.gitlab.com/api/settings/)
+
+
+* * *
+# Application settings API
+  * Tier: Free, Premium, Ultimate
+  * Offering: GitLab Self-Managed, GitLab Dedicated
+
+
+Use this API to interact with the [application settings](https://docs.gitlab.com/api/settings/#available-settings) for your GitLab instance.
+Changes to your application settings are subject to caching and might not immediately take effect. By default, GitLab caches application settings for 60 seconds. For information on how to control the application settings cache for an instance, see [Application cache interval](https://docs.gitlab.com/administration/application_settings_cache/).
+Prerequisites:
+  * You must have administrator access to the instance.
+
+
+## Get details on current application settings[](https://docs.gitlab.com/api/settings/#get-details-on-current-application-settings "Permalink")
+History
+  * `always_perform_delayed_deletion` feature flag [enabled](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/113332) in GitLab 15.11.
+  * `delayed_project_deletion` and `delayed_group_deletion` attributes removed in GitLab 16.0.
+  * `in_product_marketing_emails_enabled` attribute [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/418137) in GitLab 16.6.
+  * `repository_storages` attribute [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/429675) in GitLab 16.6.
+  * `user_email_lookup_limit` attribute [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/136886) in GitLab 16.7.
+  * `allow_all_integrations` and `allowed_integrations` attributes [added](https://gitlab.com/gitlab-org/gitlab/-/issues/500610) in GitLab 17.6.
+
+
+Gets details on the current [application settings](https://docs.gitlab.com/api/settings/#available-settings) for this GitLab instance.
+```
+GET /application/settings
+```
+
+shell
+```
+curl --request GET \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/application/settings"
+```
+
+Example response:
+json
+```
+{
+  "default_projects_limit" : 100000,
+  "signup_enabled" : true,
+  "id" : 1,
+  "default_branch_protection" : 2,
+  "default_branch_protection_defaults": {
+        "allowed_to_push": [
+            {
+                "access_level": 40
+            }
+        ],
+        "allow_force_push": false,
+        "allowed_to_merge": [
+            {
+                "access_level": 40
+            }
+        ]
+    },
+  "default_preferred_language" : "en",
+  "deletion_adjourned_period": 7,
+  "failed_login_attempts_unlock_period_in_minutes": 30,
+  "restricted_visibility_levels" : [],
+  "sign_in_restrictions": {},
+  "password_authentication_enabled_for_web" : true,
+  "after_sign_out_path" : null,
+  "max_attachment_size" : 100,
+  "max_decompressed_archive_size": 25600,
+  "max_export_size": 50,
+  "max_import_size": 50,
+  "max_import_remote_file_size": 10240,
+  "max_login_attempts": 3,
+  "user_oauth_applications" : true,
+  "updated_at" : "2016-01-04T15:44:55.176Z",
+  "session_expire_delay" : 10080,
+  "home_page_url" : null,
+  "default_snippet_visibility" : "private",
+  "outbound_local_requests_whitelist": [],
+  "domain_allowlist" : [],
+  "domain_denylist_enabled" : false,
+  "domain_denylist" : [],
+  "created_at" : "2016-01-04T15:44:55.176Z",
+  "default_ci_config_path" : null,
+  "default_project_visibility" : "private",
+  "default_group_visibility" : "private",
+  "gravatar_enabled" : true,
+  "container_expiration_policies_enable_historic_entries": true,
+  "container_registry_cleanup_tags_service_max_list_size": 200,
+  "container_registry_delete_tags_service_timeout": 250,
+  "container_registry_expiration_policies_caching": true,
+  "container_registry_expiration_policies_worker_capacity": 4,
+  "container_registry_token_expire_delay": 5,
+  "decompress_archive_file_timeout": 210,
+  "repository_storages_weighted": {"default": 100},
+  "plantuml_enabled": false,
+  "plantuml_url": null,
+  "diagramsnet_enabled": true,
+  "diagramsnet_url": "https://embed.diagrams.net",
+  "kroki_enabled": false,
+  "kroki_url": null,
+  "terminal_max_session_time": 0,
+  "polling_interval_multiplier": 1.0,
+  "rsa_key_restriction": 0,
+  "dsa_key_restriction": 0,
+  "ecdsa_key_restriction": 0,
+  "ed25519_key_restriction": 0,
+  "ecdsa_sk_key_restriction": 0,
+  "ed25519_sk_key_restriction": 0,
+  "first_day_of_week": 0,
+  "enforce_terms": true,
+  "terms": "Hello world!",
+  "inactive_resource_access_tokens_delete_after_days": 30,
+  "performance_bar_allowed_group_id": 42,
+  "user_show_add_ssh_key_message": true,
+  "allow_account_deletion": true,
+  "updating_name_disabled_for_users": false,
+  "local_markdown_version": 0,
+  "allow_local_requests_from_hooks_and_services": true,
+  "allow_local_requests_from_web_hooks_and_services": true,
+  "allow_local_requests_from_system_hooks": false,
+  "asset_proxy_enabled": true,
+  "asset_proxy_url": "https://assets.example.com",
+  "asset_proxy_whitelist": ["example.com", "*.example.com", "your-instance.com"],
+  "asset_proxy_allowlist": ["example.com", "*.example.com", "your-instance.com"],
+  "maven_package_requests_forwarding": true,
+  "npm_package_requests_forwarding": true,
+  "pypi_package_requests_forwarding": true,
+  "snippet_size_limit": 52428800,
+  "issues_create_limit": 300,
+  "raw_blob_request_limit": 300,
+  "wiki_page_max_content_bytes": 5242880,
+  "require_admin_approval_after_user_signup": false,
+  "require_personal_access_token_expiry": true,
+  "personal_access_token_prefix": "glpat-",
+  "rate_limiting_response_text": null,
+  "keep_latest_artifact": true,
+  "admin_mode": false,
+  "floc_enabled": false,
+  "external_pipeline_validation_service_timeout": null,
+  "external_pipeline_validation_service_token": null,
+  "external_pipeline_validation_service_url": null,
+  "jira_connect_application_key": null,
+  "jira_connect_public_key_storage_enabled": false,
+  "jira_connect_proxy_url": null,
+  "jira_connect_additional_audience_url": null,
+  "silent_mode_enabled": false,
+  "package_registry_allow_anyone_to_pull_option": true,
+  "bulk_import_max_download_file_size": 5120,
+  "project_jobs_api_rate_limit": 600,
+  "runner_jobs_request_api_limit": 2000,
+  "runner_jobs_patch_trace_api_limit": 200,
+  "runner_jobs_endpoints_api_limit": 200,
+  "security_txt_content": null,
+  "bulk_import_concurrent_pipeline_batch_limit": 25,
+  "concurrent_relation_batch_export_limit": 25,
+  "relation_export_batch_size": 50,
+  "concurrent_github_import_jobs_limit": 1000,
+  "concurrent_bitbucket_import_jobs_limit": 100,
+  "concurrent_bitbucket_server_import_jobs_limit": 100,
+  "silent_admin_exports_enabled": false,
+  "top_level_group_creation_enabled": true,
+  "disable_invite_members": false,
+  "enforce_pipl_compliance": true,
+  "model_prompt_cache_enabled": true,
+  "lock_model_prompt_cache_enabled": false
+}
+```
+
+Users on [GitLab Premium or Ultimate](https://about.gitlab.com/pricing/) may also see these parameters:
+  * `allow_all_integrations`
+  * `allowed_integrations`
+  * `default_project_deletion_protection`
+  * `delete_unconfirmed_users`
+  * `dependency_scanning_sbom_scan_api_download_limit`
+  * `dependency_scanning_sbom_scan_api_upload_limit`
+  * `disable_personal_access_tokens`
+  * `duo_features_enabled`
+  * `elasticsearch_index_settings`
+  * `file_template_project_id`
+  * `geo_node_allowed_ips`
+  * `geo_status_timeout`
+  * `group_owners_can_manage_default_branch_protection`
+  * `lock_duo_features_enabled`
+  * `scan_execution_policies_action_limit`
+  * `scan_execution_policies_schedule_limit`
+  * `secret_push_protection_available`
+  * `security_approval_policies_limit`
+  * `security_policy_global_group_approvers_enabled`
+  * `unconfirmed_users_delete_after_days`
+  * `use_clickhouse_for_analytics`
+  * `virtual_registries_endpoints_api_limit`
+  * `project_secrets_limit`
+  * `group_secrets_limit`
+
+
+json
+```
+{
+  "allow_all_integrations": true,
+  "allowed_integrations": [],
+  "default_project_deletion_protection": false,
+  "disable_personal_access_tokens": false,
+  "duo_features_enabled": true,
+  "elasticsearch_index_settings": [
+    {
+      "alias_name": "gitlab-production",
+      "number_of_shards": 5,
+      "number_of_replicas": 1
+    }
+  ],
+  "file_template_project_id": 1,
+  "geo_node_allowed_ips": "0.0.0.0/0, ::/0",
+  "group_owners_can_manage_default_branch_protection": true,
+  "id": 1,
+  "lock_duo_features_enabled": false,
+  "signup_enabled": true,
+  "virtual_registries_endpoints_api_limit": 1000,
+  "project_secrets_limit": 100,
+  "group_secrets_limit": 500
+  ...
+}
+```
+
+## Update application settings[](https://docs.gitlab.com/api/settings/#update-application-settings "Permalink")
+History
+  * `always_perform_delayed_deletion` feature flag [enabled](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/113332) in GitLab 15.11.
+  * `delayed_project_deletion` and `delayed_group_deletion` attributes removed in GitLab 16.0.
+  * `always_perform_delayed_deletion` feature flag [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/120476) in GitLab 16.1.
+  * `user_email_lookup_limit` attribute [removed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/136886) in GitLab 16.7.
+  * `default_branch_protection` [deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/408314) in GitLab 17.0. Use `default_branch_protection_defaults` instead.
+  * `throttle_unauthenticated_git_http_enabled`, `throttle_unauthenticated_git_http_period_in_seconds`, and `throttle_unauthenticated_git_http_requests_per_period` attributes [added](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/147112) in GitLab 17.0.
+  * `allow_all_integrations` and `allowed_integrations` attributes [added](https://gitlab.com/gitlab-org/gitlab/-/issues/500610) in GitLab 17.6.
+  * `throttle_authenticated_git_http_enabled`, `throttle_authenticated_git_http_period_in_seconds`, and `throttle_authenticated_git_http_requests_per_period` attributes [added](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/191552) in GitLab 18.1 [with a flag](https://docs.gitlab.com/administration/feature_flags/) named `git_authenticated_http_limit`. Disabled by default.
+  * `git_authenticated_http_limit` feature flag [enabled](https://gitlab.com/gitlab-org/gitlab/-/issues/543768) in GitLab 18.3.
+  * `git_authenticated_http_limit` feature flag [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/561577) in GitLab 18.4.
+
+
+Updates the current [application settings](https://docs.gitlab.com/api/settings/#available-settings) for this GitLab instance.
+```
+PUT /application/settings
+```
+
+shell
+```
+curl --request PUT \
+  --header "PRIVATE-TOKEN: <your_access_token>" \
+  --url "https://gitlab.example.com/api/v4/application/settings" \
+  --data "signup_enabled=false" \
+  --data "default_project_visibility=internal"
+```
+
+Example response:
+json
+```
+{
+  "id": 1,
+  "default_projects_limit": 100000,
+  "default_preferred_language": "en",
+  "failed_login_attempts_unlock_period_in_minutes": 30,
+  "signup_enabled": false,
+  "password_authentication_enabled_for_web": true,
+  "gravatar_enabled": true,
+  "created_at": "2015-06-12T15:51:55.432Z",
+  "updated_at": "2015-06-30T13:22:42.210Z",
+  "home_page_url": "",
+  "default_branch_protection": 2,
+  "default_branch_protection_defaults": {
+    "allowed_to_push": [
+        {
+            "access_level": 40
+        }
+    ],
+    "allow_force_push": false,
+    "allowed_to_merge": [
+        {
+            "access_level": 40
+        }
+    ]
+  },
+  "restricted_visibility_levels": [],
+  "sign_in_restrictions": {},
+  "max_attachment_size": 100,
+  "max_decompressed_archive_size": 25600,
+  "max_export_size": 50,
+  "max_import_size": 50,
+  "max_import_remote_file_size": 10240,
+  "max_login_attempts": 3,
+  "session_expire_delay": 10080,
+  "default_ci_config_path" : null,
+  "default_project_visibility": "internal",
+  "default_snippet_visibility": "private",
+  "default_group_visibility": "private",
+  "outbound_local_requests_whitelist": [],
+  "domain_allowlist": [],
+  "domain_denylist_enabled" : false,
+  "domain_denylist" : [],
+  "external_authorization_service_enabled": true,
+  "external_authorization_service_url": "https://authorize.me",
+  "external_authorization_service_default_label": "default",
+  "external_authorization_service_timeout": 0.5,
+  "user_oauth_applications": true,
+  "after_sign_out_path": "",
+  "container_expiration_policies_enable_historic_entries": true,
+  "container_registry_cleanup_tags_service_max_list_size": 200,
+  "container_registry_delete_tags_service_timeout": 250,
+  "container_registry_expiration_policies_caching": true,
+  "container_registry_expiration_policies_worker_capacity": 4,
+  "container_registry_token_expire_delay": 5,
+  "decompress_archive_file_timeout": 210,
+  "package_registry_cleanup_policies_worker_capacity": 2,
+  "plantuml_enabled": false,
+  "plantuml_url": null,
+  "diagramsnet_enabled": true,
+  "diagramsnet_url": "https://embed.diagrams.net",
+  "terminal_max_session_time": 0,
+  "polling_interval_multiplier": 1.0,
+  "rsa_key_restriction": 0,
+  "dsa_key_restriction": 0,
+  "ecdsa_key_restriction": 0,
+  "ed25519_key_restriction": 0,
+  "ecdsa_sk_key_restriction": 0,
+  "ed25519_sk_key_restriction": 0,
+  "first_day_of_week": 0,
+  "enforce_terms": true,
+  "terms": "Hello world!",
+  "inactive_resource_access_tokens_delete_after_days": 30,
+  "performance_bar_allowed_group_id": 42,
+  "user_show_add_ssh_key_message": true,
+  "file_template_project_id": 1,
+  "local_markdown_version": 0,
+  "asset_proxy_enabled": true,
+  "asset_proxy_url": "https://assets.example.com",
+  "asset_proxy_allowlist": ["example.com", "*.example.com", "your-instance.com"],
+  "globally_allowed_ips": "",
+  "geo_node_allowed_ips": "0.0.0.0/0, ::/0",
+  "allow_local_requests_from_hooks_and_services": true,
+  "allow_local_requests_from_web_hooks_and_services": true,
+  "allow_local_requests_from_system_hooks": false,
+  "maven_package_requests_forwarding": true,
+  "npm_package_requests_forwarding": true,
+  "pypi_package_requests_forwarding": true,
+  "snippet_size_limit": 52428800,
+  "issues_create_limit": 300,
+  "raw_blob_request_limit": 300,
+  "wiki_page_max_content_bytes": 5242880,
+  "require_admin_approval_after_user_signup": false,
+  "require_personal_access_token_expiry": true,
+  "personal_access_token_prefix": "glpat-",
+  "rate_limiting_response_text": null,
+  "keep_latest_artifact": true,
+  "admin_mode": false,
+  "external_pipeline_validation_service_timeout": null,
+  "external_pipeline_validation_service_token": null,
+  "external_pipeline_validation_service_url": null,
+  "can_create_group": false,
+  "jira_connect_application_key": "123",
+  "jira_connect_public_key_storage_enabled": true,
+  "jira_connect_proxy_url": "http://gitlab.example.com",
+  "user_defaults_to_private_profile": true,
+  "projects_api_rate_limit_unauthenticated": 400,
+  "runner_jobs_request_api_limit": 2000,
+  "runner_jobs_patch_trace_api_limit": 200,
+  "runner_jobs_endpoints_api_limit": 200,
+  "users_api_limit_followers": 100,
+  "users_api_limit_following": 100,
+  "users_api_limit_status": 240,
+  "users_api_limit_ssh_keys": 120,
+  "users_api_limit_ssh_key": 120,
+  "users_api_limit_gpg_keys": 120,
+  "users_api_limit_gpg_key": 120,
+  "silent_mode_enabled": false,
+  "security_policy_global_group_approvers_enabled": true,
+  "security_approval_policies_limit": 5,
+  "scan_execution_policies_action_limit": 0,
+  "scan_execution_policies_schedule_limit": 0,
+  "package_registry_allow_anyone_to_pull_option": true,
+  "bulk_import_max_download_file_size": 5120,
+  "project_jobs_api_rate_limit": 600,
+  "security_txt_content": null,
+  "bulk_import_concurrent_pipeline_batch_limit": 25,
+  "concurrent_relation_batch_export_limit": 25,
+  "relation_export_batch_size": 50,
+  "downstream_pipeline_trigger_limit_per_project_user_sha": 0,
+  "concurrent_github_import_jobs_limit": 1000,
+  "concurrent_bitbucket_import_jobs_limit": 100,
+  "concurrent_bitbucket_server_import_jobs_limit": 100,
+  "silent_admin_exports_enabled": false,
+  "enforce_pipl_compliance": true
+}
+```
+
+Users on [GitLab Premium or Ultimate](https://about.gitlab.com/pricing/) may also see these parameters:
+  * `allow_all_integrations`
+  * `allowed_integrations`
+  * `group_owners_can_manage_default_branch_protection`
+  * `file_template_project_id`
+  * `geo_node_allowed_ips`
+  * `geo_status_timeout`
+  * `default_project_deletion_protection`
+  * `disable_personal_access_tokens`
+  * `security_policy_global_group_approvers_enabled`
+  * `security_approval_policies_limit`
+  * `scan_execution_policies_action_limit`
+  * `scan_execution_policies_schedule_limit`
+  * `delete_unconfirmed_users`
+  * `unconfirmed_users_delete_after_days`
+  * `duo_features_enabled`
+  * `lock_duo_features_enabled`
+  * `use_clickhouse_for_analytics`
+  * `virtual_registries_endpoints_api_limit`
+  * `lock_memberships_to_saml`
+
+
+Example responses:
+json
+```
+  "file_template_project_id": 1,
+  "geo_node_allowed_ips": "0.0.0.0/0, ::/0",
+  "duo_features_enabled": true,
+  "lock_duo_features_enabled": false,
+  "allow_all_integrations": true,
+  "allowed_integrations": [],
+  "virtual_registries_endpoints_api_limit": 1000
+```
+
+## Available settings[](https://docs.gitlab.com/api/settings/#available-settings "Permalink")
+History
+  * `housekeeping_full_repack_period`, `housekeeping_gc_period`, and `housekeeping_incremental_repack_period` [deprecated](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/106963) in GitLab 15.8. Use `housekeeping_optimize_repository_period` instead.
+  * `allow_account_deletion` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/412411) in GitLab 16.1.
+  * `allow_project_creation_for_guest_and_below` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/134625) in GitLab 16.8.
+  * `silent_admin_exports_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/148918) in GitLab 17.0.
+  * `require_personal_access_token_expiry` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/470192) in GitLab 17.3.
+  * `receptive_cluster_agents_enabled` [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/463427) in GitLab 17.4.
+  * `allow_all_integrations` and `allowed_integrations` [added](https://gitlab.com/gitlab-org/gitlab/-/issues/500610) in GitLab 17.6.
+  * `iframe_rendering_enabled`, `iframe_rendering_allowlist`, and `iframe_rendering_allowlist_raw` introduced in GitLab 18.6.
+
+
+In general, all settings are optional. When enabling some settings, you might also need to configure other related settings. These requirements are `Required` column of the following table.
+Attribute | Type | Required | Description
+---|---|---|---
+`admin_mode` | boolean | no | Require administrators to enable Admin Mode by re-authenticating for administrative tasks.
+`admin_notification_email` | string | no | Deprecated: Use `abuse_notification_email` instead. If set, [abuse reports](https://docs.gitlab.com/administration/review_abuse_reports/) are sent to this address. Abuse reports are always available in the **Admin** area.
+`abuse_notification_email` | string | no | If set, [abuse reports](https://docs.gitlab.com/administration/review_abuse_reports/) are sent to this address. Abuse reports are always available in the **Admin** area.
+`notify_on_unknown_sign_in` | boolean | no | Enable sending notification if sign in from unknown IP address happens.
+`after_sign_out_path` | string | no | Where to redirect users after logout.
+`email_restrictions_enabled` | boolean | no | Enable restriction for sign-up by email.
+`email_restrictions` | string | required by: `email_restrictions_enabled` | Regular expression that is checked against the email used during registration.
+`after_sign_up_text` | string | no | Text shown to the user after signing up.
+`akismet_api_key` | string | required by: `akismet_enabled` | API key for Akismet spam protection.
+`akismet_enabled` | boolean | no | (**If enabled, requires** : `akismet_api_key`) Enable or disable Akismet spam protection.
+`allow_all_integrations` | boolean | no | When `false`, only integrations in `allowed_integrations` are allowed on the instance. Ultimate only.
+`allowed_integrations` | array of strings | no | When `allow_all_integrations` is `false`, only integrations in this list are allowed on the instance. Ultimate only.
+`allow_account_deletion` | boolean | no | Set to `true` to allow users to delete their accounts. Premium and Ultimate only.
+`allow_group_owners_to_manage_ldap` | boolean | no | Set to `true` to allow group owners to manage LDAP. Premium and Ultimate only.
+`allow_local_requests_from_hooks_and_services` | boolean | no | (Deprecated: Use `allow_local_requests_from_web_hooks_and_services` instead) Allow requests to the local network from webhooks and integrations.
+`allow_local_requests_from_system_hooks` | boolean | no | Allow requests to the local network from system hooks.
+`allow_local_requests_from_web_hooks_and_services` | boolean | no | Allow requests to the local network from webhooks and integrations.
+`allow_project_creation_for_guest_and_below` | boolean | no | Indicates whether users assigned up to the Guest role can create groups and personal projects. Defaults to `true`.
+`allow_runner_registration_token` | boolean | no | Allow using a registration token to create a runner. Defaults to `true`.
+`archive_builds_in_human_readable` | string | no | Set the duration for which the jobs are considered as old and expired. After that time passes, the jobs are archived and no longer able to be retried. Make it empty to never expire jobs. It has to be no less than 1 day, for example: `15 days`, `1 month`, `2 years`.
+`asset_proxy_enabled` | boolean | no | (**If enabled, requires** : `asset_proxy_url`) Enable proxying of assets. GitLab restart is required to apply changes.
+`asset_proxy_secret_key` | string | no | Shared secret with the asset proxy server. GitLab restart is required to apply changes.
+`asset_proxy_url` | string | no | URL of the asset proxy server. GitLab restart is required to apply changes.
+`asset_proxy_whitelist` | string or array of strings | no | (Deprecated: Use `asset_proxy_allowlist` instead) Assets that match these domains are **not** proxied. Wildcards allowed. Your GitLab installation URL is automatically allowlisted. GitLab restart is required to apply changes.
+`asset_proxy_allowlist` | string or array of strings | no | Assets that match these domains are **not** proxied. Wildcards allowed. Your GitLab installation URL is automatically allowlisted. GitLab restart is required to apply changes.
+`authorized_keys_enabled` | boolean | no | By default, the `authorized_keys` file supports Git over SSH without additional configuration. GitLab can be optimized to authenticate SSH keys via the database file. Only disable this if you have configured your OpenSSH server to use the AuthorizedKeysCommand.
+`auto_devops_domain` | string | no | Specify a domain to use by default for every project’s Auto Review Apps and Auto Deploy stages.
+`auto_devops_enabled` | boolean | no | Enable Auto DevOps for projects by default. It automatically builds, tests, and deploys applications based on a predefined CI/CD configuration.
+`autocomplete_users` | integer | no | Maximum number of authenticated requests per minute to the `GET /autocomplete/users` endpoint.
+`autocomplete_users_unauthenticated` | integer | no | Maximum number of unauthenticated requests per minute to the `GET /autocomplete/users` endpoint.
+`automatic_purchased_storage_allocation` | boolean | no | Enabling this permits automatic allocation of purchased storage in a namespace. Relevant only to EE distributions.
+`bulk_import_enabled` | boolean | no | Enable migrating GitLab groups by direct transfer. Setting also [available](https://docs.gitlab.com/administration/settings/import_and_export_settings/#enable-migration-of-groups-and-projects-by-direct-transfer) in the **Admin** area.
+`bulk_import_max_download_file_size` | integer | no | Maximum download file size when importing from source GitLab instances by direct transfer. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/384976) in GitLab 16.3.
+`allow_bypass_placeholder_confirmation` | boolean | no | Skip confirmation when administrators reassign placeholder users. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/534330) in GitLab 18.0.
+`allow_s3_compatible_storage_for_offline_transfer` | boolean | no | Allow S3-compatible object storage for offline transfer. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/work_items/579705) in GitLab 18.9.
+`can_create_group` | boolean | no | Indicates whether users can create top-level groups. Defaults to `true`.
+`check_namespace_plan` | boolean | no | Enabling this makes only licensed EE features available to projects if the project namespace’s plan includes the feature or if the project is public. Premium and Ultimate only.
+`ci_delete_pipelines_in_seconds_limit_human_readable` | string | no | Maximum value that is allowed for configuring pipeline retention. Defaults to `1 year`.
+`ci_job_live_trace_enabled` | boolean | no | Turns on incremental logging for job logs. When turned on, archived job logs are incrementally uploaded to object storage. Object storage must be configured. You can also configure this setting in the [**Admin** area](https://docs.gitlab.com/administration/settings/continuous_integration/#access-job-log-settings).
+`git_push_pipeline_limit` | integer | no | Set the maximum number of tag or branch pipelines that can be triggered by a single Git push. For more information about this limit, see [number of pipelines per Git push](https://docs.gitlab.com/administration/instance_limits/#number-of-pipelines-per-git-push).
+`ci_max_total_yaml_size_bytes` | integer | no | The maximum amount of memory, in bytes, that can be allocated for the pipeline configuration, with all included YAML configuration files.
+`ci_max_includes` | integer | no | The [maximum number of includes](https://docs.gitlab.com/administration/settings/continuous_integration/#set-maximum-includes) per pipeline. Default is `150`.
+`ci_partitions_size_limit` | integer | no | The maximum amount of disk space, in bytes, that can be used by a database partition for the CI tables before creating new partitions. Default is `100 GB`.
+`concurrent_github_import_jobs_limit` | integer | no | Maximum number of simultaneous import jobs for the GitHub importer. Default is 1000. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/143875) in GitLab 16.11.
+`concurrent_bitbucket_import_jobs_limit` | integer | no | Maximum number of simultaneous import jobs for the Bitbucket Cloud importer. Default is 100. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/143875) in GitLab 16.11.
+`concurrent_bitbucket_server_import_jobs_limit` | integer | no | Maximum number of simultaneous import jobs for the Bitbucket Server importer. Default is 100. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/143875) in GitLab 16.11.
+`commit_email_hostname` | string | no | Custom hostname (for private commit emails).
+`container_expiration_policies_enable_historic_entries` | boolean | no | Enable [cleanup policies](https://docs.gitlab.com/user/packages/container_registry/reduce_container_registry_storage/#enable-the-cleanup-policy) for all projects.
+`container_registry_cleanup_tags_service_max_list_size` | integer | no | The maximum number of tags that can be deleted in a single execution of [cleanup policies](https://docs.gitlab.com/user/packages/container_registry/reduce_container_registry_storage/#set-cleanup-limits-to-conserve-resources).
+`container_registry_delete_tags_service_timeout` | integer | no | The maximum time, in seconds, that the cleanup process can take to delete a batch of tags for [cleanup policies](https://docs.gitlab.com/user/packages/container_registry/reduce_container_registry_storage/#set-cleanup-limits-to-conserve-resources).
+`container_registry_expiration_policies_caching` | boolean | no | Caching during the execution of [cleanup policies](https://docs.gitlab.com/user/packages/container_registry/reduce_container_registry_storage/#set-cleanup-limits-to-conserve-resources).
+`container_registry_expiration_policies_worker_capacity` | integer | no | Number of workers for [cleanup policies](https://docs.gitlab.com/user/packages/container_registry/reduce_container_registry_storage/#set-cleanup-limits-to-conserve-resources).
+`container_registry_token_expire_delay` | integer | no | Container registry token duration in minutes.
+`package_registry_cleanup_policies_worker_capacity` | integer | no | Number of workers assigned to the packages cleanup policies.
+`updating_name_disabled_for_users` | boolean | no |  [Disable user profile name changes](https://docs.gitlab.com/administration/settings/account_and_limit_settings/#disable-user-profile-name-changes).
+`allow_account_deletion` | boolean | no | Enable [users to delete their accounts](https://docs.gitlab.com/administration/settings/account_and_limit_settings/#prevent-users-from-deleting-their-accounts).
+`deactivate_dormant_users` | boolean | no | Enable [automatic deactivation of dormant users](https://docs.gitlab.com/administration/moderate_users/#automatically-deactivate-dormant-users).
+`deactivate_dormant_users_period` | integer | no | Length of time (in days) after which a user is considered dormant.
+`decompress_archive_file_timeout` | integer | no | Default timeout for decompressing archived files, in seconds. Set to 0 to disable timeouts. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/129161) in GitLab 16.4.
+`default_artifacts_expire_in` | string | no | Set the default expiration time for each job’s artifacts.
+`default_branch_name` | string | no |  [Set the initial branch name](https://docs.gitlab.com/user/project/repository/branches/default/#change-the-default-branch-name-for-new-projects-in-an-instance) for all projects in an instance.
+`default_branch_protection` | integer | no |  [Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/408314) in GitLab 17.0. Use `default_branch_protection_defaults` instead.
+`default_branch_protection_defaults` | hash | no |  [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/408314) in GitLab 17.0. For available options, see [Options for `default_branch_protection_defaults`](https://docs.gitlab.com/api/groups/#options-for-default_branch_protection_defaults).
+`default_ci_config_path` | string | no | Default CI/CD configuration file and path for new projects (`.gitlab-ci.yml` if not set).
+`default_group_visibility` | string | no | What visibility level new groups receive. Can take `private`, `internal` and `public` as a parameter. Default is `private`. [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/131203) in GitLab 16.4: cannot be set to any levels in `restricted_visibility_levels`.
+`default_preferred_language` | string | no | Default preferred language for users who are not logged in.
+`default_project_creation` | integer | no | Default minimum role required to create projects. Can take: `0` _(No one)_ , `1` _(Maintainers)_ , `2` _(Developers)_ , `3` _(Administrators)_ or `4` _(Owners)_.
+`default_project_visibility` | string | no | What visibility level new projects receive. Can take `private`, `internal` and `public` as a parameter. Default is `private`. [Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/131203) in GitLab 16.4: cannot be set to any levels in `restricted_visibility_levels`.
+`default_projects_limit` | integer | no | Project limit per user. Default is `100000`.
+`default_snippet_visibility` | string | no | What visibility level new snippets receive. Can take `private`, `internal` and `public` as a parameter. Default is `private`.
+`default_syntax_highlighting_theme` | integer | no | Default syntax highlighting theme for users who are new or not signed in. See [IDs of available themes](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/themes.rb#L16).
+`default_dark_syntax_highlighting_theme` | integer | no | Default dark mode syntax highlighting theme for users who are new or not signed in. See [IDs of available themes](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/themes.rb#L16).
+`default_project_deletion_protection` | boolean | no | Enable default project deletion protection so only administrators can delete projects. Default is `false`. GitLab Self-Managed, Premium and Ultimate only.
+`delete_unconfirmed_users` | boolean | no | Specifies whether users who have not confirmed their email should be deleted. Default is `false`. When set to `true`, unconfirmed users are deleted after `unconfirmed_users_delete_after_days` days. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/352514) in GitLab 16.1. GitLab Self-Managed, Premium and Ultimate only.
+`deletion_adjourned_period` | integer | no | Number of days to wait before deleting a project or group that is marked for deletion. Value must be between `1` and `90`. Defaults to `30`.
+`diagramsnet_enabled` | boolean | no | (If enabled, requires `diagramsnet_url`) Enable [Diagrams.net integration](https://docs.gitlab.com/administration/integration/diagrams_net/). Default is `true`.
+`diagramsnet_url` | string | required by: `diagramsnet_enabled` | The Diagrams.net instance URL for integration.
+`diff_max_patch_bytes` | integer | no | Maximum [diff patch size](https://docs.gitlab.com/administration/diff_limits/), in bytes.
+`diff_max_files` | integer | no | Maximum [files in a diff](https://docs.gitlab.com/administration/diff_limits/).
+`diff_max_lines` | integer | no | Maximum [lines in a diff](https://docs.gitlab.com/administration/diff_limits/).
+`disable_admin_oauth_scopes` | boolean | no | Stops administrators from connecting their GitLab accounts to non-trusted OAuth 2.0 applications that have the `api`, `read_api`, `read_repository`, `write_repository`, `read_registry`, `write_registry`, or `sudo` scopes.
+`disable_feed_token` | boolean | no | Disable display of RSS/Atom and calendar feed tokens.
+`disable_personal_access_tokens` | boolean | no | Disable personal access tokens. GitLab Self-Managed, Premium and Ultimate only. There is no method available to enable a personal access token that’s been disabled through the API. This is a [known issue](https://gitlab.com/gitlab-org/gitlab/-/issues/399233). For more information about available workarounds, see [Workaround](https://gitlab.com/gitlab-org/gitlab/-/issues/399233#workaround).
+`disabled_oauth_sign_in_sources` | array of strings | no | Disabled OAuth sign-in sources.
+`disable_password_authentication_for_users_with_sso_identities` | boolean | no | Disable password authentication in the web interface for users with an SSO identity. This does not affect Git operations over HTTP(S). Default is `false`.
+`dns_rebinding_protection_enabled` | boolean | no | Enforce DNS-rebinding attack protection.
+`domain_denylist_enabled` | boolean | no | (**If enabled, requires** : `domain_denylist`) Allows blocking sign-ups from emails from specific domains.
+`domain_denylist` | array of strings | no | Users with email addresses that match these domains **cannot** sign up. Wildcards allowed. Enter multiple entries on separate lines. For example: `domain.com`, `*.domain.com`.
+`domain_allowlist` | array of strings | no | Force people to use only corporate emails for sign-up. Default is `null`, meaning there is no restriction.
+`downstream_pipeline_trigger_limit_per_project_user_sha` | integer | no |  [Maximum downstream pipeline trigger rate](https://docs.gitlab.com/administration/settings/continuous_integration/#limit-downstream-pipeline-trigger-rate). Default: `0` (no restriction). [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/144077) in GitLab 16.10.
+`dsa_key_restriction` | integer | no | The minimum allowed bit length of an uploaded DSA key. Default is `0` (no restriction). `-1` disables DSA keys.
+`ecdsa_key_restriction` | integer | no | The minimum allowed curve size (in bits) of an uploaded ECDSA key. Default is `0` (no restriction). `-1` disables ECDSA keys.
+`ecdsa_sk_key_restriction` | integer | no | The minimum allowed curve size (in bits) of an uploaded ECDSA_SK key. Default is `0` (no restriction). `-1` disables ECDSA_SK keys.
+`ed25519_key_restriction` | integer | no | The minimum allowed curve size (in bits) of an uploaded ED25519 key. Default is `0` (no restriction). `-1` disables ED25519 keys.
+`ed25519_sk_key_restriction` | integer | no | The minimum allowed curve size (in bits) of an uploaded ED25519_SK key. Default is `0` (no restriction). `-1` disables ED25519_SK keys.
+`eks_access_key_id` | string | no | AWS IAM access key ID.
+`eks_account_id` | string | no | Amazon account ID.
+`eks_integration_enabled` | boolean | no | Enable integration with Amazon EKS.
+`eks_secret_access_key` | string | no | AWS IAM secret access key.
+`elasticsearch_aws_access_key` | string | no | AWS IAM access key. Premium and Ultimate only.
+`elasticsearch_aws_region` | string | no | The AWS region the Elasticsearch domain is configured. Premium and Ultimate only.
+`elasticsearch_aws_secret_access_key` | string | no | AWS IAM secret access key. Premium and Ultimate only.
+`elasticsearch_aws` | boolean | no | Enable the use of AWS hosted Elasticsearch. Premium and Ultimate only.
+`elasticsearch_client_adapter` | string | no | The Faraday adapter used by the Elasticsearch Ruby Client. Defaults to `typhoeus`. Possible values are `typhoeus` and `net_http`. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/550805) in GitLab 18.5. Premium and Ultimate only.
+`elasticsearch_indexed_field_length_limit` | integer | no | Maximum size of text fields to index by Elasticsearch. 0 value means no limit. This does not apply to repository and wiki indexing. Premium and Ultimate only.
+`elasticsearch_indexed_file_size_limit_kb` | integer | no | Maximum size of repository and wiki files that are indexed by Elasticsearch. Premium and Ultimate only.
+`elasticsearch_indexing` | boolean | no | Turn on indexing for advanced search. Premium and Ultimate only.
+`elasticsearch_requeue_workers` | boolean | no | Enable automatic requeuing of indexing workers. This improves non-code indexing throughput by enqueuing Sidekiq jobs until all documents are processed. Premium and Ultimate only.
+`elasticsearch_limit_indexing` | boolean | no | Limit Elasticsearch to index certain namespaces and projects. Premium and Ultimate only.
+`elasticsearch_max_bulk_concurrency` | integer | no | Maximum concurrency of Elasticsearch bulk requests per indexing operation. This only applies to repository indexing operations. Premium and Ultimate only.
+`elasticsearch_max_code_indexing_concurrency` | integer | no | Maximum concurrency of Elasticsearch code indexing background jobs. This only applies to repository indexing operations. Premium and Ultimate only.
+`elasticsearch_worker_number_of_shards` | integer | no | Number of indexing worker shards. This improves non-code indexing throughput by enqueuing more parallel Sidekiq jobs. Default is `2`. Premium and Ultimate only.
+`elasticsearch_max_bulk_size_mb` | integer | no | Maximum size of Elasticsearch bulk indexing requests in MB. This only applies to repository indexing operations. Premium and Ultimate only.
+`elasticsearch_namespace_ids` | array of integers | no | The namespaces to index via Elasticsearch if `elasticsearch_limit_indexing` is enabled. Premium and Ultimate only.
+`elasticsearch_project_ids` | array of integers | no | The projects to index via Elasticsearch if `elasticsearch_limit_indexing` is enabled. Premium and Ultimate only.
+`elasticsearch_search` | boolean | no | Enable Elasticsearch search. Premium and Ultimate only.
+`elasticsearch_url` | string or array of strings | no | The URL to use for connecting to Elasticsearch. Use a comma-separated list or an array to support cluster (for example, `http://localhost:9200, http://localhost:9201` or `["http://localhost:9200", "http://localhost:9201"]`). Premium and Ultimate only.
+`elasticsearch_username` | string | no | The `username` of your Elasticsearch instance. Premium and Ultimate only.
+`elasticsearch_password` | string | no | The password of your Elasticsearch instance. Premium and Ultimate only.
+`elasticsearch_prefix` | string | no | Custom prefix for Elasticsearch index names. Defaults to `gitlab`. Must be 1-100 characters, contain only lowercase alphanumeric characters, hyphens, and underscores, and cannot start or end with a hyphen or underscore. Premium and Ultimate only.
+`elasticsearch_retry_on_failure` | integer | no | Maximum number of possible retries for Elasticsearch search requests. Premium and Ultimate only.
+`elasticsearch_shards` | integer or object | Yes, if `elasticsearch_replicas` is defined as an object | Number of shards for Elasticsearch indices. Use an integer to set all indices to the same value. Use an object to set per-index values. For example: `{"gitlab-production": 5, "gitlab-production-notes": 3}`.
+When using an object, you must provide both `elasticsearch_shards` and `elasticsearch_replicas` for each index. If either value is missing for an index, that index is skipped. Premium and Ultimate only.
+`elasticsearch_replicas` | integer or object | Yes, if `elasticsearch_shards` is defined as an object | Number of replicas for Elasticsearch indices. Use an integer to set all indices to the same value. Use an object to set per-index values. For example: `{"gitlab-production": 1, "gitlab-production-notes": 2}`.
+When using an object, you must provide both `elasticsearch_shards` and `elasticsearch_replicas` for each index. If either value is missing for an index, that index is skipped. Premium and Ultimate only.
+`email_additional_text` | string | no | Additional text added to the bottom of every email for legal/auditing/compliance reasons. Premium and Ultimate only.
+`email_author_in_body` | boolean | no | Some email servers do not support overriding the email sender name. Enable this option to include the name of the author of the issue, merge request or comment in the email body instead.
+`email_confirmation_setting` | string | no | Specifies whether users must confirm their email before sign in. Possible values are `off`, `soft`, and `hard`.
+`custom_http_clone_url_root` | string | no | Set a custom Git clone URL for HTTP(S).
+`enabled_git_access_protocol` | string | no | Enabled protocols for Git access. Allowed values are: `ssh`, `http`, and `all` to allow both protocols. `all` value [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/12944) in GitLab 16.9.
+`enforce_namespace_storage_limit` | boolean | no | Enabling this permits enforcement of namespace storage limits.
+`enforce_terms` | boolean | no | (**If enabled, requires** : `terms`) Enforce application ToS to all users.
+`external_auth_client_cert` | string | no | (**If enabled, requires** : `external_auth_client_key`) The certificate to use to authenticate with the external authorization service.
+`external_auth_client_key_pass` | string | no | Passphrase to use for the private key when authenticating with the external service this is encrypted when stored.
+`external_auth_client_key` | string | required by: `external_auth_client_cert` | Private key for the certificate when authentication is required for the external authorization service, this is encrypted when stored.
+`external_authorization_service_default_label` | string | required by:
+`external_authorization_service_enabled` | The default classification label to use when requesting authorization and no classification label has been specified on the project.
+`external_authorization_service_enabled` | boolean | no | (**If enabled, requires** : `external_authorization_service_default_label`, `external_authorization_service_timeout` and `external_authorization_service_url`) Enable using an external authorization service for accessing projects.
+`external_authorization_service_timeout` | float | required by:
+`external_authorization_service_enabled` | The timeout after which an authorization request is aborted, in seconds. When a request times out, access is denied to the user. (min: 0.001, max: 10, step: 0.001).
+`external_authorization_service_url` | string | required by:
+`external_authorization_service_enabled` | URL to which authorization requests are directed.
+`external_pipeline_validation_service_url` | string | no | URL to use for pipeline validation requests.
+`external_pipeline_validation_service_token` | string | no | Optional. Token to include as the `X-Gitlab-Token` header in requests to the URL in `external_pipeline_validation_service_url`.
+`external_pipeline_validation_service_timeout` | integer | no | How long to wait for a response from the pipeline validation service. Assumes `OK` if it times out.
+`static_objects_external_storage_url` | string | no | URL to an external storage for repository static objects.
+`static_objects_external_storage_auth_token` | string | required by: `static_objects_external_storage_url` | Authentication token for the external storage linked in `static_objects_external_storage_url`.
+`failed_login_attempts_unlock_period_in_minutes` | integer | no | Time period in minutes after which the user is unlocked when maximum number of failed sign-in attempts reached.
+`file_template_project_id` | integer | no | The ID of a project to load custom file templates from. Premium and Ultimate only.
+`first_day_of_week` | integer | no | Start day of the week for calendar views and date pickers. Valid values are `0` (default) for Sunday, `1` for Monday, and `6` for Saturday.
+`globally_allowed_ips` | string | no | Comma-separated list of IP addresses and CIDRs always allowed for inbound traffic. For example, `1.1.1.1, 2.2.2.0/24`.
+`geo_node_allowed_ips` | string | yes | Comma-separated list of IPs and CIDRs of allowed secondary nodes. For example, `1.1.1.1, 2.2.2.0/24`. GitLab Self-Managed, Premium and Ultimate only.
+`geo_status_timeout` | integer | no | The amount of seconds after which a request to get a secondary node status times out. GitLab Self-Managed, Premium and Ultimate only.
+`git_two_factor_session_expiry` | integer | no | Maximum duration (in minutes) of a session for Git operations when 2FA is enabled. Premium and Ultimate only.
+`gitaly_timeout_default` | integer | no | Default Gitaly timeout, in seconds. This timeout is not enforced for Git fetch/push operations or Sidekiq jobs. Set to `0` to disable timeouts.
+`gitaly_timeout_fast` | integer | no | Gitaly fast operation timeout, in seconds. Some Gitaly operations are expected to be fast. If they exceed this threshold, there may be a problem with a storage shard and ‘failing fast’ can help maintain the stability of the GitLab instance. Set to `0` to disable timeouts.
+`gitaly_timeout_medium` | integer | no | Medium Gitaly timeout, in seconds. This should be a value between the Fast and the Default timeout. Set to `0` to disable timeouts.
+`gitlab_dedicated_instance` | boolean | no | Indicates whether the instance was provisioned for GitLab Dedicated.
+`gitlab_environment_toolkit_instance` | boolean | no | Indicates whether the instance was provisioned with the GitLab Environment Toolkit for Service Ping reporting.
+`gitlab_shell_operation_limit` | integer | no | Maximum number of Git operations per minute a user can perform. Default: `600`. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/412088) in GitLab 16.2.
+`grafana_enabled` | boolean | no | Enable Grafana.
+`grafana_url` | string | no | Grafana URL.
+`gravatar_enabled` | boolean | no | Enable Gravatar.
+`group_owners_can_manage_default_branch_protection` | boolean | no | Prevent overrides of default branch protection. GitLab Self-Managed, Premium and Ultimate only.
+`hashed_storage_enabled` | boolean | no | Create new projects using hashed storage paths: Enable immutable, hash-based paths and repository names to store repositories on disk. This prevents repositories from having to be moved or renamed when the Project URL changes and may improve disk I/O performance. (Always enabled in GitLab versions 13.0 and later, configuration is scheduled for removal in 14.0)
+`help_page_hide_commercial_content` | boolean | no | Hide marketing-related entries from help.
+`help_page_support_url` | string | no | Alternate support URL for help page and help dropdown list.
+`help_page_documentation_base_url` | string | no | Alternate documentation pages URL.
+`help_page_text` | string | no | Custom text displayed on the help page.
+`hide_third_party_offers` | boolean | no | Do not display offers from third parties in GitLab.
+`home_page_url` | string | no | Redirect to this URL when not logged in.
+`housekeeping_bitmaps_enabled` | boolean | no | Deprecated. Git packfile bitmap creation is always enabled and cannot be changed via API and UI. Always returns `true`.
+`housekeeping_enabled` | boolean | no | Enable or disable Git housekeeping. Requires additional fields to be set.
+`housekeeping_full_repack_period` | integer | no | Deprecated. Number of Git pushes after which an incremental `git repack` is run. Use `housekeeping_optimize_repository_period` instead.
+`housekeeping_gc_period` | integer | no | Deprecated. Number of Git pushes after which `git gc` is run. Use `housekeeping_optimize_repository_period` instead.
+`housekeeping_incremental_repack_period` | integer | no | Deprecated. Number of Git pushes after which an incremental `git repack` is run. Use `housekeeping_optimize_repository_period` instead.
+`housekeeping_optimize_repository_period` | integer | no | Number of Git pushes after which an incremental `git repack` is run.
+`html_emails_enabled` | boolean | no | Enable HTML emails.
+`import_sources` | array of strings | no | Sources to allow project import from, possible values: `github`, `bitbucket`, `bitbucket_server`, `fogbugz`, `git`, `gitlab_project`, `gitea`, and `manifest`.
+`invisible_captcha_enabled` | boolean | no | Enable Invisible CAPTCHA spam detection during sign-up. Disabled by default.
+`issues_create_limit` | integer | no | Max number of issue creation requests per minute per user. Disabled by default.
+`jira_connect_application_key` | string | no | ID of the OAuth application used to authenticate with the GitLab for Jira Cloud app.
+`jira_connect_public_key_storage_enabled` | boolean | no | Enable public key storage for the GitLab for Jira Cloud app.
+`jira_connect_proxy_url` | string | no | URL of the GitLab instance used as a proxy for the GitLab for Jira Cloud app.
+`keep_latest_artifact` | boolean | no | Prevent the deletion of the artifacts from the most recent successful jobs, regardless of the expiry time. Enabled by default.
+`local_markdown_version` | integer | no | Increase this value when any cached Markdown should be invalidated.
+`lock_memberships_to_saml` | boolean | no | Enforce a [global lock on SAML group memberships](https://docs.gitlab.com/user/group/saml_sso/group_sync/#global-saml-group-memberships-lock).
+`mailgun_signing_key` | string | no | The Mailgun HTTP webhook signing key for receiving events from webhook.
+`mailgun_events_enabled` | boolean | no | Enable Mailgun event receiver.
+`maintenance_mode_message` | string | no | Message displayed when instance is in maintenance mode. Premium and Ultimate only.
+`maintenance_mode` | boolean | no | When instance is in maintenance mode, non-administrative users can sign in with read-only access and make read-only API requests. Premium and Ultimate only.
+`max_artifacts_size` | integer | no | Maximum artifacts size in MB.
+`max_attachment_size` | integer | no | Limit attachment size in MB.
+`max_decompressed_archive_size` | integer | no | Maximum decompressed file size for imported archives in MB. Set to `0` for unlimited. Default is `25600`.
+`max_export_size` | integer | no | Maximum export size in MB. 0 for unlimited. Default = 0 (unlimited).
+`max_github_response_size_limit` | integer | no | Maximum allowed GitHub API response size in MB. 0 for unlimited.
+`max_github_response_json_value_count` | integer | no | Maximum allowed value count for GitHub API responses. 0 for unlimited. Count is an estimate based on the number of `:`, `,`, `{` and `[` occurrences in the response.
+`max_http_decompressed_size` | integer | no | Maximum allowed size in MiB for Gzip-compressed HTTP responses from outbound requests after decompression. 0 for unlimited.
+`max_http_response_json_depth` | integer | no | Maximum allowed nesting depth in JSON HTTP responses from outbound requests.
+`max_http_response_json_structural_chars` | integer | no | Maximum allowed object count in JSON HTTP responses from outbound requests. Count is an estimate based on the number of `:`, `,`, `{` and `[` occurrences in the response. Introduced in GitLab 18.4.
+`max_http_response_xml_structural_chars` | integer | no | Maximum allowed object count in XML HTTP responses from outbound requests. Count is an estimate based on the number of `<`, and `=` occurrences in the response. Introduced in GitLab 18.4.
+`max_http_response_csv_structural_chars` | integer | no | Maximum allowed object count in CSV HTTP responses from outbound requests. Count is an estimate based on the number of `,`, `;`, `\t` and `\n` occurrences in the response. Introduced in GitLab 18.4.
+`max_http_response_size_limit` | integer | no | Maximum allowed size in MiB for HTTP responses from outbound requests. 0 for unlimited. Applicable for integrations, importers and webhooks. Introduced in GitLab 18.4.
+`max_import_size` | integer | no | Maximum import size in MB. 0 for unlimited. Default = 0 (unlimited).
+`max_import_remote_file_size` | integer | no | Maximum remote file size for imports from external object storages. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/384976) in GitLab 16.3.
+`max_login_attempts` | integer | no | Maximum number of sign-in attempts before locking out the user.
+`max_pages_size` | integer | no | Maximum size of pages repositories in MB.
+`max_personal_access_token_lifetime` | integer | no | Maximum allowable lifetime for access tokens in days. When left blank, default value of 365 is applied. When set, value must be 365 or less. When changed, existing access tokens with an expiration date beyond the maximum allowable lifetime are revoked. GitLab Self-Managed, Ultimate only. In GitLab 17.6 or later, the maximum lifetime limit can be [extended to 400 days](https://gitlab.com/gitlab-org/gitlab/-/issues/461901) by enabling a [feature flag](https://docs.gitlab.com/administration/feature_flags/) named `buffered_token_expiration_limit`.
+`max_ssh_key_lifetime` | integer | no | Maximum allowable lifetime for SSH keys in days. GitLab Self-Managed, Ultimate only. In GitLab 17.6 or later, the maximum lifetime limit can be [extended to 400 days](https://gitlab.com/gitlab-org/gitlab/-/issues/461901) by enabling a [feature flag](https://docs.gitlab.com/administration/feature_flags/) named `buffered_token_expiration_limit`.
+`max_terraform_state_size_bytes` | integer | no | Maximum size in bytes of the [Terraform state](https://docs.gitlab.com/administration/terraform_state/) files. Set this to 0 for unlimited file size.
+`metrics_method_call_threshold` | integer | no | A method call is only tracked when it takes longer than the given amount of milliseconds.
+`max_number_of_repository_downloads` | integer | no | Maximum number of unique repositories a user can download in the specified time period before they are banned. Default: 0, Maximum: 10,000 repositories. GitLab Self-Managed, Ultimate only.
+`max_number_of_repository_downloads_within_time_period` | integer | no | Reporting time period (in seconds). Default: 0, Maximum: 864000 seconds (10 days). GitLab Self-Managed, Ultimate only.
+`max_yaml_depth` | integer | no | The maximum depth of nested CI/CD configuration added with the [`include` keyword](https://docs.gitlab.com/ci/yaml/#include). Default: `100`.
+`max_yaml_size_bytes` | integer | no | The maximum size in bytes of a single CI/CD configuration file. Default: `2097152`.
+`git_rate_limit_users_allowlist` | array of strings | no | List of usernames excluded from Git anti-abuse rate limits. Default: `[]`, Maximum: 100 usernames. GitLab Self-Managed, Ultimate only.
+`git_rate_limit_users_alertlist` | array of integers | no | List of user IDs that are emailed when the Git abuse rate limit is exceeded. Default: `[]`, Maximum: 100 user IDs. GitLab Self-Managed, Ultimate only.
+`auto_ban_user_on_excessive_projects_download` | boolean | no | When enabled, users will get automatically banned from the application when they download more than the maximum number of unique projects in the time period specified by `max_number_of_repository_downloads` and `max_number_of_repository_downloads_within_time_period`. GitLab Self-Managed, Ultimate only.
+`mirror_available` | boolean | no | Allow repository mirroring to configured by project Maintainers. If disabled, only Administrators can configure repository mirroring.
+`mirror_capacity_threshold` | integer | no | Minimum capacity to be available before scheduling more mirrors preemptively. Premium and Ultimate only.
+`mirror_max_capacity` | integer | no | Maximum number of mirrors that can be synchronizing at the same time. Premium and Ultimate only.
+`mirror_max_delay` | integer | no | Maximum time (in minutes) between updates that a mirror can have when scheduled to synchronize. Premium and Ultimate only.
+`maven_package_requests_forwarding` | boolean | no | Use repo.maven.apache.org as a default remote repository when the package is not found in the GitLab package registry for Maven. Premium and Ultimate only.
+`npm_package_requests_forwarding` | boolean | no | Use npmjs.org as a default remote repository when the package is not found in the GitLab package registry for npm. Premium and Ultimate only.
+`pypi_package_requests_forwarding` | boolean | no | Use pypi.org as a default remote repository when the package is not found in the GitLab package registry for PyPI. Premium and Ultimate only.
+`outbound_local_requests_whitelist` | array of strings | no | Define a list of trusted domains or IP addresses to which local requests are allowed when local requests for webhooks and integrations are disabled. Currently, this attribute can not be updated. For details, see [issue 569729](https://gitlab.com/gitlab-org/gitlab/-/issues/569729).
+`package_registry_allow_anyone_to_pull_option` | boolean | no | Enable to [allow anyone to pull from package registry](https://docs.gitlab.com/user/packages/package_registry/#allow-anyone-to-pull-from-package-registry) visible and changeable.
+`package_metadata_purl_types` | array of integers | no | List of [package registry metadata to sync](https://docs.gitlab.com/administration/settings/security_and_compliance/#choose-package-registry-metadata-to-sync). See [the list](https://gitlab.com/gitlab-org/gitlab/-/blob/ace16c20d5da7c4928dd03fb139692638b557fe3/app/models/concerns/enums/package_metadata.rb#L5) of the available values. GitLab Self-Managed, Ultimate only.
+`pages_domain_verification_enabled` | boolean | no | Require users to prove ownership of custom domains. Domain verification is an essential security measure for public GitLab sites. Users are required to demonstrate they control a domain before it is enabled.
+`pages_unique_domain_default_enabled` | boolean | no | Enable unique domains by default for Pages sites to avoid cookie sharing between sites under a given namespace. Default is `true`.
+`password_authentication_enabled_for_git` | boolean | no | Enable authentication for Git over HTTP(S) via a GitLab account password. Default is `true`.
+`password_authentication_enabled_for_web` | boolean | no | Enable authentication for the web interface via a GitLab account password. Default is `true`.
+`minimum_password_length` | integer | no | Indicates whether passwords require a minimum length. Premium and Ultimate only.
+`password_number_required` | boolean | no | Indicates whether passwords require at least one number. Premium and Ultimate only.
+`password_symbol_required` | boolean | no | Indicates whether passwords require at least one symbol character. Premium and Ultimate only.
+`password_uppercase_required` | boolean | no | Indicates whether passwords require at least one uppercase letter. Premium and Ultimate only.
+`password_lowercase_required` | boolean | no | Indicates whether passwords require at least one lowercase letter. Premium and Ultimate only.
+`performance_bar_allowed_group_id` | string | no | (Deprecated: Use `performance_bar_allowed_group_path` instead) Path of the group that is allowed to toggle the performance bar.
+`performance_bar_allowed_group_path` | string | no | Path of the group that is allowed to toggle the performance bar.
+`performance_bar_enabled` | boolean | no | (Deprecated: Pass `performance_bar_allowed_group_path: nil` instead) Allow enabling the performance bar.
+`personal_access_token_prefix` | string | no | Prefix for all generated personal access tokens.
+`pipeline_limit_per_project_user_sha` | integer | no | Maximum number of pipeline creation requests per minute per user and commit. Disabled by default.
+`pipeline_limit_per_user` | integer | no | Maximum number of pipeline creation requests per minute per user.
+`gitpod_enabled` | boolean | no | (**If enabled, requires** : `gitpod_url`) Enable [Ona integration](https://docs.gitlab.com/integration/gitpod/). Default is `false`.
+`gitpod_url` | string | required by: `gitpod_enabled` | The Ona instance URL for integration.
+`inactive_resource_access_tokens_delete_after_days` | integer | no | Specifies retention period for inactive project and group access tokens. Default is `30`.
+`kroki_enabled` | boolean | no | (**If enabled, requires** : `kroki_url`) Enable [Kroki integration](https://docs.gitlab.com/administration/integration/kroki/). Default is `false`.
+`kroki_url` | string | required by: `kroki_enabled` | The Kroki instance URL for integration.
+`kroki_formats` | object | no | Additional formats supported by the Kroki instance. Possible values are `true` or `false` for formats `bpmn`, `blockdiag`, `excalidraw`, and `mermaid` in the format `<format>: true` or `<format>: false`.
+`plantuml_enabled` | boolean | no | (**If enabled, requires** : `plantuml_url`) Enable [PlantUML integration](https://docs.gitlab.com/administration/integration/plantuml/). Default is `false`.
+`plantuml_url` | string | required by: `plantuml_enabled` | The PlantUML instance URL for integration.
+`polling_interval_multiplier` | float | no | Interval multiplier used by endpoints that perform polling. Set to `0` to disable polling.
+`project_export_enabled` | boolean | no | Enable project export.
+`project_jobs_api_rate_limit` | integer | no | Maximum authenticated requests to `/project/:id/jobs` per minute. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/129319) in GitLab 16.5. Default: 600.
+`projects_api_rate_limit_unauthenticated` | integer | no | Max number of requests per 10 minutes per IP address for unauthenticated requests to the [list all projects API](https://docs.gitlab.com/api/projects/#list-all-projects). Default: 400. To disable throttling, set to 0.
+`runner_jobs_request_api_limit` | integer | no | Max number of requests per minute per runner token for requests to the `/jobs/request` runner jobs API endpoint. Default: 2000. To disable throttling, set to 0. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/462537) in GitLab 18.5.
+`runner_jobs_patch_trace_api_limit` | integer | no | Max number of requests per minute per runner token for requests to the `PATCH /jobs/:id/trace` runner jobs API endpoint. Default: 2000. To disable throttling, set to 0. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/462537) in GitLab 18.5.
+`runner_jobs_endpoints_api_limit` | integer | no | Max number of requests per minute per job token for requests to `/jobs/*` requests to the runner jobs API endpoints. Default: 200. To disable throttling, set to 0. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/462537) in GitLab 18.5.
+`users_api_limit_following` | integer | no | Max number of requests per minute, per user or IP address. Default: 100. Set to `0` to disable limits. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/181054) in GitLab 17.10.
+`users_api_limit_followers` | integer | no | Max number of requests per minute, per user or IP address. Default: 100. Set to `0` to disable limits. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/181054) in GitLab 17.10.
+`users_api_limit_status` | integer | no | Max number of requests per minute, per user or IP address. Default: 240. Set to `0` to disable limits. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/181054) in GitLab 17.10.
+`users_api_limit_keys` | integer | no | Max number of requests per minute, per user or IP address. Default: 120. Set to `0` to disable limits. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/181054) in GitLab 17.10.
+`users_api_limit_key` | integer | no | Max number of requests per minute, per user or IP address. Default: 120. Set to `0` to disable limits. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/181054) in GitLab 17.10.
+`users_api_limit_gpg_keys` | integer | no | Max number of requests per minute, per user or IP address. Default: 120. Set to `0` to disable limits. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/181054) in GitLab 17.10.
+`users_api_limit_gpg_key` | integer | no | Max number of requests per minute, per user or IP address. Default: 120. Set to `0` to disable limits. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/181054) in GitLab 17.10.
+`virtual_registries_endpoints_api_limit` | integer | no | Max number of requests on virtual registries endpoints, per IP address, per 15 seconds. Default: 1000. To disable limits, set to `0`. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/521692) in GitLab 17.11.
+`project_secrets_limit` | integer | no | Maximum number of secrets allowed per project in Secrets Manager. Default: 100. To disable the limit, set to `0`. Ultimate only. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/219436) in GitLab 18.9.
+`group_secrets_limit` | integer | no | Maximum number of secrets allowed per group in Secrets Manager. Default: 500. To disable the limit, set to `0`. Ultimate only. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/219436) in GitLab 18.9.
+`prometheus_metrics_enabled` | boolean | no | Enable Prometheus metrics.
+`protected_ci_variables` | boolean | no | CI/CD variables are protected by default.
+`disable_overriding_approvers_per_merge_request` | boolean | no | Prevent editing approval rules in projects and merge requests
+`prevent_merge_requests_author_approval` | boolean | no | Prevent approval by merge request creator (author)
+`prevent_merge_requests_committers_approval` | boolean | no | Prevent approval by committers to merge requests
+`push_event_activities_limit` | integer | no | Maximum number of changes (branches or tags) in a single push above which a [bulk push event is created](https://docs.gitlab.com/administration/settings/push_event_activities_limit/). Setting to `0` does not disable throttling.
+`push_event_hooks_limit` | integer | no | Maximum number of changes (branches or tags) in a single push above which webhooks and integrations are not triggered. Setting to `0` does not disable throttling. Default: `3`.
+`rate_limiting_response_text` | string | no | When rate limiting is enabled via the `throttle_*` settings, send this plain text response when a rate limit is exceeded. ‘Retry later’ is sent if this is blank.
+`raw_blob_request_limit` | integer | no | Maximum number of requests per minute for each raw path (default is `300`). Set to `0` to disable throttling.
+`search_rate_limit` | integer | no | Max number of requests per minute for performing a search while authenticated. Default: 30. To disable throttling, set to 0.
+`search_rate_limit_unauthenticated` | integer | no | Max number of requests per minute for performing a search while unauthenticated. Default: 10. To disable throttling, set to 0.
+`recaptcha_enabled` | boolean | no | (**If enabled, requires** : `recaptcha_private_key` and `recaptcha_site_key`) Enable reCAPTCHA.
+`login_recaptcha_protection_enabled` | boolean | no | Enable reCAPTCHA for login.
+`recaptcha_private_key` | string | required by: `recaptcha_enabled` | Private key for reCAPTCHA.
+`recaptcha_site_key` | string | required by: `recaptcha_enabled` | Site key for reCAPTCHA.
+`receptive_cluster_agents_enabled` | boolean | no | Enable receptive mode for GitLab agents for Kubernetes.
+`receive_max_input_size` | integer | no | Maximum push size (MB).
+`relation_export_batch_size` | integer | no | The size of each batch when exporting batched relations. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/194607) in GitLab 18.2.
+`remember_me_enabled` | boolean | no | Enable [**Remember me** setting](https://docs.gitlab.com/administration/settings/account_and_limit_settings/#configure-the-remember-me-option). Introduced in GitLab 16.0.
+`repository_checks_enabled` | boolean | no | GitLab periodically runs `git fsck` in all project and wiki repositories to look for silent disk corruption issues.
+`repository_size_limit` | integer | no | Size limit per repository (MB). Premium and Ultimate only.
+`repository_storages_weighted` | hash of strings to integers | no | Hash of names of taken from `gitlab.yml` to [weights](https://docs.gitlab.com/administration/repository_storage_paths/#configure-where-new-repositories-are-stored). New projects are created in one of these stores, chosen by a weighted random selection.
+`require_admin_approval_after_user_signup` | boolean | no | When enabled, any user that signs up for an account using the registration form is placed under a **Pending approval** state and has to be explicitly [approved](https://docs.gitlab.com/administration/moderate_users/) by an administrator.
+`require_email_verification_on_account_locked` | boolean | no | If `true`, all users on the instance must verify their identity after suspicious sign-in activity is detected.
+`require_personal_access_token_expiry` | boolean | no | When enabled, users must set an expiration date when creating a group or project access token, or a personal access token owned by a non-service account.
+`require_two_factor_authentication` | boolean | no | (**If enabled, requires** : `two_factor_grace_period`) Require all users to set up two-factor authentication.
+`resource_usage_limits` | hash | no | Definition for resource usage limits enforced in Sidekiq workers. This setting is available for GitLab.com only.
+`restricted_visibility_levels` | array of strings | no | Selected levels cannot be used by non-Administrator users for groups, projects or snippets. Can take `private`, `internal` and `public` as a parameter. Default is `null` which means there is no restriction.[Changed](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/131203) in GitLab 16.4: cannot select levels that are set as `default_project_visibility` and `default_group_visibility`.
+`rsa_key_restriction` | integer | no | The minimum allowed bit length of an uploaded RSA key. Default is `0` (no restriction). `-1` disables RSA keys.
+`session_expire_delay` | integer | no | Session duration in minutes. GitLab restart is required to apply changes.
+`session_expire_from_init` | boolean | no | If `true`, sessions expire a number of minutes after the session was created rather than after the last activity. This lifetime of a session is defined by `session_expire_delay`.
+`security_policy_global_group_approvers_enabled` | boolean | no | Whether to look up merge request approval policy approval groups globally or within project hierarchies.
+`security_approval_policies_limit` | integer | no | Maximum number of active merge request approval policies per security policy project. Default: 5. Maximum: 20
+`scan_execution_policies_action_limit` | integer | no | Maximum number of `actions` per scan execution policy. Default: 0. Maximum: 20
+`scan_execution_policies_schedule_limit` | integer | no | Maximum number of `type: schedule` rules per scan execution policy. Default: 0. Maximum: 20
+`security_txt_content` | string | no |  [Public security contact information](https://docs.gitlab.com/administration/settings/security_contact_information/). [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/433210) in GitLab 16.7.
+`service_access_tokens_expiration_enforced` | boolean | no | Flag to indicate if token expiry date can be optional for service account users
+`shared_runners_enabled` | boolean | no | (**If enabled, requires** : `shared_runners_text` and `shared_runners_minutes`) Enable instance runners for new projects.
+`shared_runners_minutes` | integer | required by: `shared_runners_enabled` | Set the maximum number of compute minutes that a group can use on instance runners per month. Premium and Ultimate only.
+`shared_runners_text` | string | required by: `shared_runners_enabled` | Instance runners text.
+`runner_token_expiration_interval` | integer | no | Set the expiration time (in seconds) of authentication tokens of newly registered instance runners. Minimum value is 7200 seconds. For more information, see [Automatically rotate authentication tokens](https://docs.gitlab.com/ci/runners/configure_runners/#automatically-rotate-runner-authentication-tokens).
+`group_runner_token_expiration_interval` | integer | no | Set the expiration time (in seconds) of authentication tokens of newly registered group runners. Minimum value is 7200 seconds. For more information, see [Automatically rotate authentication tokens](https://docs.gitlab.com/ci/runners/configure_runners/#automatically-rotate-runner-authentication-tokens).
+`project_runner_token_expiration_interval` | integer | no | Set the expiration time (in seconds) of authentication tokens of newly registered project runners. Minimum value is 7200 seconds. For more information, see [Automatically rotate authentication tokens](https://docs.gitlab.com/ci/runners/configure_runners/#automatically-rotate-runner-authentication-tokens).
+`sidekiq_job_limiter_mode` | string | no |  `track` or `compress`. Sets the behavior for [Sidekiq job size limits](https://docs.gitlab.com/administration/settings/sidekiq_job_limits/). Default: ‘compress’.
+`sidekiq_job_limiter_compression_threshold_bytes` | integer | no | The threshold in bytes at which Sidekiq jobs are compressed before being stored in Redis. Default: 100,000 bytes (100 KB).
+`sidekiq_job_limiter_limit_bytes` | integer | no | The threshold in bytes at which Sidekiq jobs are rejected. Default: 0 bytes (doesn’t reject any job).
+`signin_enabled` | string | no | (Deprecated: Use `password_authentication_enabled_for_web` instead) Flag indicating if password authentication is enabled for the web interface.
+`sign_in_restrictions` | hash | no | Application sign in restrictions.
+`signup_enabled` | boolean | no | Enable registration. Default is `true`.
+`silent_admin_exports_enabled` | boolean | no | Enable [Silent admin exports](https://docs.gitlab.com/administration/settings/import_and_export_settings/#enable-silent-admin-exports). Default is `false`.
+`silent_mode_enabled` | boolean | no | Enable [Silent mode](https://docs.gitlab.com/administration/silent_mode/). Default is `false`.
+`slack_app_enabled` | boolean | no | (**If enabled, requires** : `slack_app_id`, `slack_app_secret`, `slack_app_signing_secret`, and `slack_app_verification_token`) Enable the GitLab for Slack app.
+`slack_app_id` | string | required by: `slack_app_enabled` | The client ID of the GitLab for Slack app.
+`slack_app_secret` | string | required by: `slack_app_enabled` | The client secret of the GitLab for Slack app. Used for authenticating OAuth requests from the app.
+`slack_app_signing_secret` | string | required by: `slack_app_enabled` | The signing secret of the GitLab for Slack app. Used for authenticating API requests from the app.
+`slack_app_verification_token` | string | required by: `slack_app_enabled` | The verification token of the GitLab for Slack app. This method of authentication is deprecated by Slack and used only for authenticating slash commands from the app.
+`snippet_size_limit` | integer | no | Max snippet content size in **bytes**. Default: 52428800 Bytes (50 MB).
+`snowplow_app_id` | string | no | The Snowplow site name / application ID. (for example, `gitlab`)
+`snowplow_collector_hostname` | string | required by: `snowplow_enabled` | The Snowplow collector hostname. (for example, `snowplowprd.trx.gitlab.net`)
+`snowplow_database_collector_hostname` | string | no | The Snowplow collector for database events hostname. (for example, `db-snowplow.trx.gitlab.net`)
+`snowplow_cookie_domain` | string | no | The Snowplow cookie domain. (for example, `.gitlab.com`)
+`snowplow_enabled` | boolean | no | Enable snowplow tracking.
+`sourcegraph_enabled` | boolean | no | Enables Sourcegraph integration. Default is `false`. **If enabled, requires** `sourcegraph_url`.
+`sourcegraph_public_only` | boolean | no | Blocks Sourcegraph from being loaded on private and internal projects. Default is `true`.
+`sourcegraph_url` | string | required by: `sourcegraph_enabled` | The Sourcegraph instance URL for integration.
+`spam_check_endpoint_enabled` | boolean | no | Enables spam checking using external Spam Check API endpoint. Default is `false`.
+`spam_check_endpoint_url` | string | no | URL of the external Spamcheck service endpoint. Valid URI schemes are `grpc` or `tls`. Specifying `tls` forces communication to be encrypted.
+`spam_check_api_key` | string | no | API key used by GitLab for accessing the Spam Check service endpoint.
+`suggest_pipeline_enabled` | boolean | no | Enable pipeline suggestion banner.
+`enable_artifact_external_redirect_warning_page` | boolean | no | Show the external redirect page that warns you about user-generated content in GitLab Pages.
+`terminal_max_session_time` | integer | no | Maximum time for web terminal websocket connection (in seconds). Set to `0` for unlimited time.
+`terms` | text | required by: `enforce_terms` | (**Required by** : `enforce_terms`) Markdown content for the ToS.
+`throttle_authenticated_api_enabled` | boolean | no | (**If enabled, requires** : `throttle_authenticated_api_period_in_seconds` and `throttle_authenticated_api_requests_per_period`) Enable authenticated API request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots).
+`throttle_authenticated_api_period_in_seconds` | integer | required by:
+`throttle_authenticated_api_enabled` | Rate limit period (in seconds).
+`throttle_authenticated_api_requests_per_period` | integer | required by:
+`throttle_authenticated_api_enabled` | Maximum requests per period per user.
+`throttle_authenticated_git_http_enabled` | boolean | conditionally | If `true`, enforces the authenticated Git HTTP request rate limit. Default value: `false`.
+`throttle_authenticated_git_http_period_in_seconds` | integer | no | Rate limit period in seconds. `throttle_authenticated_git_http_enabled` must be `true`. Default value: `3600`.
+`throttle_authenticated_git_http_requests_per_period` | integer | no | Maximum requests per period per user. `throttle_authenticated_git_http_enabled` must be `true`. Default value: `3600`.
+`throttle_authenticated_packages_api_enabled` | boolean | no | (**If enabled, requires** : `throttle_authenticated_packages_api_period_in_seconds` and `throttle_authenticated_packages_api_requests_per_period`) Enable authenticated API request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots). View [package registry rate limits](https://docs.gitlab.com/administration/settings/package_registry_rate_limits/) for more details.
+`throttle_authenticated_packages_api_period_in_seconds` | integer | required by:
+`throttle_authenticated_packages_api_enabled` | Rate limit period (in seconds). View [package registry rate limits](https://docs.gitlab.com/administration/settings/package_registry_rate_limits/) for more details.
+`throttle_authenticated_packages_api_requests_per_period` | integer | required by:
+`throttle_authenticated_packages_api_enabled` | Maximum requests per period per user. View [package registry rate limits](https://docs.gitlab.com/administration/settings/package_registry_rate_limits/) for more details.
+`throttle_authenticated_web_enabled` | boolean | no | (**If enabled, requires** : `throttle_authenticated_web_period_in_seconds` and `throttle_authenticated_web_requests_per_period`) Enable authenticated web request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots).
+`throttle_authenticated_web_period_in_seconds` | integer | required by:
+`throttle_authenticated_web_enabled` | Rate limit period (in seconds).
+`throttle_authenticated_web_requests_per_period` | integer | required by:
+`throttle_authenticated_web_enabled` | Maximum requests per period per user.
+`throttle_unauthenticated_enabled` | boolean | no | ([Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/335300) in GitLab 14.3. Use `throttle_unauthenticated_web_enabled` or `throttle_unauthenticated_api_enabled` instead.) (**If enabled, requires** : `throttle_unauthenticated_period_in_seconds` and `throttle_unauthenticated_requests_per_period`) Enable unauthenticated web request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots).
+`throttle_unauthenticated_period_in_seconds` | integer | required by:
+`throttle_unauthenticated_enabled` | ([Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/335300) in GitLab 14.3. Use `throttle_unauthenticated_web_period_in_seconds` or `throttle_unauthenticated_api_period_in_seconds` instead.) Rate limit period in seconds.
+`throttle_unauthenticated_requests_per_period` | integer | required by:
+`throttle_unauthenticated_enabled` | ([Deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/335300) in GitLab 14.3. Use `throttle_unauthenticated_web_requests_per_period` or `throttle_unauthenticated_api_requests_per_period` instead.) Max requests per period per IP.
+`throttle_unauthenticated_api_enabled` | boolean | no | (**If enabled, requires** : `throttle_unauthenticated_api_period_in_seconds` and `throttle_unauthenticated_api_requests_per_period`) Enable unauthenticated API request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots).
+`throttle_unauthenticated_api_period_in_seconds` | integer | required by:
+`throttle_unauthenticated_api_enabled` | Rate limit period in seconds.
+`throttle_unauthenticated_api_requests_per_period` | integer | required by:
+`throttle_unauthenticated_api_enabled` | Max requests per period per IP.
+`throttle_unauthenticated_git_http_enabled` | boolean | conditionally | If `true`, enforces the unauthenticated Git HTTP request rate limit. Default value: `false`.
+`throttle_unauthenticated_git_http_period_in_seconds` | integer | no | Rate limit period in seconds. `throttle_unauthenticated_git_http_enabled` must be `true`. Default value: `3600`.
+`throttle_unauthenticated_git_http_requests_per_period` | integer | no | Maximum requests per period per user. `throttle_unauthenticated_git_http_enabled` must be `true`. Default value: `3600`.
+`throttle_unauthenticated_packages_api_enabled` | boolean | no | (**If enabled, requires** : `throttle_unauthenticated_packages_api_period_in_seconds` and `throttle_unauthenticated_packages_api_requests_per_period`) Enable authenticated API request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots). View [package registry rate limits](https://docs.gitlab.com/administration/settings/package_registry_rate_limits/) for more details.
+`throttle_unauthenticated_packages_api_period_in_seconds` | integer | required by:
+`throttle_unauthenticated_packages_api_enabled` | Rate limit period (in seconds). View [package registry rate limits](https://docs.gitlab.com/administration/settings/package_registry_rate_limits/) for more details.
+`throttle_unauthenticated_packages_api_requests_per_period` | integer | required by:
+`throttle_unauthenticated_packages_api_enabled` | Maximum requests per period per user. View [package registry rate limits](https://docs.gitlab.com/administration/settings/package_registry_rate_limits/) for more details.
+`throttle_unauthenticated_web_enabled` | boolean | no | (**If enabled, requires** : `throttle_unauthenticated_web_period_in_seconds` and `throttle_unauthenticated_web_requests_per_period`) Enable unauthenticated web request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots).
+`throttle_unauthenticated_web_period_in_seconds` | integer | required by:
+`throttle_unauthenticated_web_enabled` | Rate limit period in seconds.
+`throttle_unauthenticated_web_requests_per_period` | integer | required by:
+`throttle_unauthenticated_web_enabled` | Max requests per period per IP.
+`time_tracking_limit_to_hours` | boolean | no | Limit display of time tracking units to hours. Default is `false`.
+`top_level_group_creation_enabled` | boolean | no | Allows a user to create top-level-groups. Default is `true`.
+`two_factor_grace_period` | integer | required by: `require_two_factor_authentication` | Amount of time (in hours) that users are allowed to skip forced configuration of two-factor authentication.
+`unconfirmed_users_delete_after_days` | integer | no | Specifies how many days after sign-up to delete users who have not confirmed their email. Only applicable if `delete_unconfirmed_users` is set to `true`. Must be `1` or greater. Default is `7`. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/352514) in GitLab 16.1. GitLab Self-Managed, Premium and Ultimate only.
+`unique_ips_limit_enabled` | boolean | no | (**If enabled, requires** : `unique_ips_limit_per_user` and `unique_ips_limit_time_window`) Limit sign in from multiple IPs.
+`unique_ips_limit_per_user` | integer | required by: `unique_ips_limit_enabled` | Maximum number of IPs per user.
+`unique_ips_limit_time_window` | integer | required by: `unique_ips_limit_enabled` | How many seconds an IP is counted towards the limit.
+`update_runner_versions_enabled` | boolean | no | Fetch GitLab Runner release version data from GitLab.com. For more information, see how to [determine which runners need to be upgraded](https://docs.gitlab.com/ci/runners/runners_scope/#determine-which-runners-need-to-be-upgraded).
+`usage_ping_enabled` | boolean | no | Every week GitLab reports license usage back to GitLab, Inc.
+`gitlab_product_usage_data_enabled` | boolean | no | Indicates if product usage data collection is enabled. When the `GITLAB_PRODUCT_USAGE_DATA_ENABLED` environment variable is set, the API returns the effective value from the environment variable.
+`gitlab_product_usage_data_source` | string | no | Read-only. Indicates the source of the `gitlab_product_usage_data_enabled` setting. Returns `environment` if the `GITLAB_PRODUCT_USAGE_DATA_ENABLED` environment variable is set, otherwise returns `database`.
+`use_clickhouse_for_analytics` | boolean | no | Enables ClickHouse as a data source for analytics reports. ClickHouse must be configured for this setting to take effect. Available on Premium and Ultimate only.
+`include_optional_metrics_in_service_ping` | boolean | no | Whether or not optional metrics are enabled in Service Ping. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/141540) in GitLab 16.10.
+`user_deactivation_emails_enabled` | boolean | no | Send an email to users upon account deactivation.
+`user_default_external` | boolean | no | Newly registered users are external by default.
+`user_default_internal_regex` | string | no | Specify an email address regex pattern to identify default internal users.
+`user_defaults_to_private_profile` | boolean | no | Newly created users have private profile by default. Defaults to `false`.
+`user_oauth_applications` | boolean | no | Allow users to register any application to use GitLab as an OAuth provider. This setting does not affect group-level OAuth applications.
+`user_show_add_ssh_key_message` | boolean | no | When set to `false` disable the `You won't be able to pull or push project code via SSH` warning shown to users with no uploaded SSH key.
+`version_check_enabled` | boolean | no | Let GitLab inform you when an update is available.
+`valid_runner_registrars` | array of strings | no | List of types which are allowed to register a GitLab Runner. Can be `[]`, `['group']`, `['project']` or `['group', 'project']`.
+`vscode_extension_marketplace` | hash | no | Settings for VS Code Extension Marketplace. Used by [Web IDE](https://docs.gitlab.com/user/project/web_ide/) and [Workspaces](https://docs.gitlab.com/user/workspace/).
+`whats_new_variant` | string | no | What’s new variant, possible values: `all_tiers`, `current_tier`, and `disabled`.
+`wiki_page_max_content_bytes` | integer | no | Maximum wiki page content size in **bytes**. Default: 5242880 Bytes (5 MB). The minimum value is 1024 bytes.
+`bulk_import_concurrent_pipeline_batch_limit` | integer | no | Maximum simultaneous direct transfer batch exports to process.
+`concurrent_relation_batch_export_limit` | integer | no | Maximum number of simultaneous batch export jobs to process. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/169122) in GitLab 17.6.
+`asciidoc_max_includes` | integer | no | Maximum limit of AsciiDoc include directives being processed in any one document. Default: 32. Maximum: 64.
+`duo_features_enabled` | boolean | no | Indicates whether GitLab Duo features are enabled for this instance. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/144931) in GitLab 16.10. GitLab Self-Managed, Premium and Ultimate only.
+`lock_duo_features_enabled` | boolean | no | Indicates whether the GitLab Duo features enabled setting is enforced for all subgroups. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/144931) in GitLab 16.10. GitLab Self-Managed, Premium and Ultimate only.
+`nuget_skip_metadata_url_validation` | boolean | no | Indicates whether to skip metadata URL validation for the NuGet package. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/145887) in GitLab 17.0.
+`helm_max_packages_count` | integer | no | Maximum number of Helm packages that can be listed per channel. Must be at least 1. Default is 1000.
+`require_admin_two_factor_authentication` | boolean | no | Allow administrators to require 2FA for all administrators on the instance.
+`secret_push_protection_available` | boolean | no | Allow projects to enable secret push protection. This does not enable secret push protection. Ultimate only.
+`disable_invite_members` | boolean | no | Disable invite members functionality for group.
+`enforce_pipl_compliance` | boolean | no | Sets whether pipl compliance is enforced for the saas application or not
+`iframe_rendering_enabled` | boolean | no | Allow rendering of iframes in Markdown. Disabled by default.
+`iframe_rendering_allowlist` | array of strings | no | List of allowed iframe `src` host[:port] entries used for Content Security Policy and sanitization.
+`iframe_rendering_allowlist_raw` | string | no | Raw newline- or comma-separated list of allowed iframe `src` host[:port] entries.
+`usage_billing` | object | no | Usage Billing Settings. Check `ee/app/validators/json_schemas/usage_billing_settings.json` for schema definition
+### Dormant project settings[](https://docs.gitlab.com/api/settings/#dormant-project-settings "Permalink")
+You can configure dormant projects deletion or turn it off.
+Attribute | Type | Required | Description
+---|---|---|---
+`delete_inactive_projects` | boolean | no | Enable [dormant project deletion](https://docs.gitlab.com/administration/dormant_project_deletion/). Default is `false`. [Became operational without feature flag](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/96803) in GitLab 15.4.
+`inactive_projects_delete_after_months` | integer | no | If `delete_inactive_projects` is `true`, the time (in months) to wait before deleting dormant projects. Default is `2`. [Became operational](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/85689) in GitLab 15.0.
+`inactive_projects_min_size_mb` | integer | no | If `delete_inactive_projects` is `true`, the minimum repository size for projects to be checked for inactivity. Default is `0`. [Became operational](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/85689) in GitLab 15.0.
+`inactive_projects_send_warning_email_after_months` | integer | no | If `delete_inactive_projects` is `true`, sets the time (in months) to wait before emailing Maintainers that the project is scheduled be deleted because it is dormant. Default is `1`. [Became operational](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/85689) in GitLab 15.0.
+### Package registry settings: Package file size limits[](https://docs.gitlab.com/api/settings/#package-registry-settings-package-file-size-limits "Permalink")
+The package file size limits are not part of the Application settings API. Instead, these settings can be accessed using the [Plan limits API](https://docs.gitlab.com/api/plan_limits/).
+## Related topics[](https://docs.gitlab.com/api/settings/#related-topics "Permalink")
+  * [Options for `default_branch_protection_defaults`](https://docs.gitlab.com/api/groups/#options-for-default_branch_protection_defaults)
+
+
+Was this page helpful?YesNo
+Edit this page
+  *     * [ Open in Web IDE`.`Quickly and easily edit multiple files. ](https://gitlab.com/-/ide/project/gitlab-org/gitlab/edit/master/-/doc/api/settings.md)
+    * [ View page sourceEdit this file only. ](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/api/settings.md)
+    * [ Create an issueSuggest improvements. ](https://gitlab.com/gitlab-org/gitlab/-/issues/new?issuable_template=Documentation)
+
+
+  * [Get details on current application settings](https://docs.gitlab.com/api/settings/#get-details-on-current-application-settings)
+  * [Update application settings](https://docs.gitlab.com/api/settings/#update-application-settings)
+  * [Available settings](https://docs.gitlab.com/api/settings/#available-settings)
+  * [Dormant project settings](https://docs.gitlab.com/api/settings/#dormant-project-settings)
+  * [Package registry settings: Package file size limits](https://docs.gitlab.com/api/settings/#package-registry-settings-package-file-size-limits)
+  * [Related topics](https://docs.gitlab.com/api/settings/#related-topics)
+
+
+[![GitLab Docs logo](https://docs.gitlab.com/gitlab-logo-footer.svg)](https://docs.gitlab.com/)
+  * [Facebook](https://www.facebook.com/gitlab)
+  * [LinkedIn](https://www.linkedin.com/company/gitlab-com)
+  * [Twitter](https://twitter.com/gitlab)
+  * [YouTube](https://www.youtube.com/channel/UCnMGQ8QHMAnVIsI3xJrihhg)
+
+[![Creative Commons License](https://docs.gitlab.com/by-sa.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
+Company
+  * [About GitLab](https://about.gitlab.com/company/)
+  * [View pricing](https://about.gitlab.com/pricing/)
+  * [Try GitLab for free](https://about.gitlab.com/free-trial/)
+
+
+Feedback
+  * [View page source](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/api/settings.md)
+  * [Edit in Web IDE](https://gitlab.com/-/ide/project/gitlab-org/gitlab/edit/master/-/doc/api/settings.md)
+  * [Contribute to GitLab](https://about.gitlab.com/community/contribute/)
+  * [Suggest updates](https://gitlab.com/gitlab-org/gitlab/-/issues/new?issuable_template=Documentation)
+
+
+Help & Community
+  * [Get certified](https://university.gitlab.com/pages/certifications)
+  * [Get support](https://about.gitlab.com/support/)
+  * [Post on the GitLab forum](https://forum.gitlab.com/new-topic?title=topic%20title&body=topic%20body&tags=docs-feedback)
+
+
+Resources
+  * [Terms](https://about.gitlab.com/terms/)
+  * [Privacy statement](https://about.gitlab.com/privacy/)
+  * [Use of generative AI](https://docs.gitlab.com/legal/use_generative_ai/)
+  * [Acceptable use of user licenses](https://docs.gitlab.com/legal/licensing_policy/)
+  * Cookie Preferences
+
+
+![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Frunners%2F&_biz_t=1771981704500&_biz_i=Runners%20API%20%7C%20GitLab%20Docs&_biz_n=160&rnd=31157&cdn_o=a&_biz_z=1771981704833)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Frunner_controllers%2F&_biz_t=1771981704613&_biz_i=Runner%20controllers%20API%20%7C%20GitLab%20Docs&_biz_n=161&rnd=495628&cdn_o=a&_biz_z=1771981704834)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fservice_accounts%2F&_biz_t=1771981704730&_biz_i=Service%20accounts%20API%20%7C%20GitLab%20Docs&_biz_n=162&rnd=577845&cdn_o=a&_biz_z=1771981704834)![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=6cd0908ec84a42fec9a17ce4b3f900fc&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fapi%2Fsettings%2F&_biz_t=1771981704832&_biz_i=Application%20settings%20API%20%7C%20GitLab%20Docs&_biz_n=163&rnd=43405&cdn_o=a&_biz_z=1771981704834)
+![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
+## Privacy Preference Center
+## Privacy Preference Center
+  * ### Your Privacy
+  * ### Strictly Necessary Cookies
+  * ### Functionality Cookies
+  * ### Performance and Analytics Cookies
+  * ### Targeting and Advertising Cookies
+  * ### Ad User Data
+  * ### Ad Personalization
+
+
+#### Your Privacy
+When you visit any website, it may store or retrieve information on your browser, mostly in the form of cookies. This information might be about you, your preferences or your device and is mostly used to make the site work as you expect it to. The information does not usually directly identify you, but it can give you a more personalized web experience. Because we respect your right to privacy, you can choose not to allow some types of cookies. Click on the different category headings to find out more and change our default settings. However, blocking some types of cookies may impact your experience of the site and the services we are able to offer.
+[Cookie Policy](https://about.gitlab.com/privacy/cookies/)
+**User ID:** d8a8ce5a-8fe2-4380-9852-3ffbac7eb562
+_This User ID will be used as a unique identifier while storing and accessing your preferences for future._
+**Timestamp:** --
+#### Strictly Necessary Cookies
+Always Active
+These cookies are necessary for the website to function and cannot be switched off in our systems. They are usually only set in response to actions made by you which amount to a request for services, such as setting your privacy preferences, enabling you to securely log into the site, filling in forms, or using the customer checkout. GitLab processes any personal data collected through these cookies on the basis of our legitimate interest.
+Cookies Details
+#### Functionality Cookies
+Functionality Cookies
+These cookies enable helpful but non-essential website functions that improve your website experience. By recognizing you when you return to our website, they may, for example, allow us to personalize our content for you or remember your preferences. If you do not allow these cookies then some or all of these services may not function properly. GitLab processes any personal data collected through these cookies on the basis of your consent
+Cookies Details
+#### Performance and Analytics Cookies
+Performance and Analytics Cookies
+These cookies allow us and our third-party service providers to recognize and count the number of visitors on our websites and to see how visitors move around our websites when they are using it. This helps us improve our products and ensures that users can easily find what they need on our websites. These cookies usually generate aggregate statistics that are not associated with an individual. To the extent any personal data is collected through these cookies, GitLab processes that data on the basis of your consent.
+Cookies Details
+#### Targeting and Advertising Cookies
+Targeting and Advertising Cookies
+These cookies enable different advertising related functions. They may allow us to record information about your visit to our websites, such as pages visited, links followed, and videos viewed so we can make our websites and the advertising displayed on it more relevant to your interests. They may be set through our website by our advertising partners. They may be used by those companies to build a profile of your interests and show you relevant advertisements on other websites. GitLab processes any personal data collected through these cookies on the basis of your consent.
+Cookies Details
+#### Ad User Data
+Ad User Data
+Sets consent for sending user data to Google for advertising purposes.
+Cookies Details
+#### Ad Personalization
+Ad Personalization
+Sets consent for personalized advertising.
+Cookies Details
+Back Button
+### Cookie List
+Filter Button
+Consent Leg.Interest
+checkbox label label
+checkbox label label
+checkbox label label
+Clear
+  * checkbox label label
+
+
+Apply Cancel
+Confirm My Choices
+Allow All
+[![Powered by Onetrust](https://cdn.cookielaw.org/logos/static/powered_by_logo.svg)](https://www.onetrust.com/products/cookie-consent/)
