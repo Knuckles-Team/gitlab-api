@@ -9,7 +9,6 @@ CORE_MODULES = [
     "gitlab_api.gitlab_input_models",
     "gitlab_api.gitlab_response_models",
     "gitlab_api.gitlab_api",
-    "gitlab_api.utils",
 ]
 
 OPTIONAL_MODULES = {

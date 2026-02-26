@@ -15,7 +15,6 @@ from pydantic import (
 
 from agent_utilities.exceptions import (
     ParameterError,
-    MissingParameterError,
 )
 
 
@@ -43,6 +42,16 @@ class BranchModel(BaseModel):
     )
     page: Optional[int] = Field(description="Pagination page", default=1)
     per_page: Optional[int] = Field(description="Results per page", default=100)
+
+    @field_validator("project_id")
+    def validate_project_id(cls, v):
+        """
+        Validate project_id.
+        Strips quotes and converts to string.
+        """
+        if v is None:
+            return v
+        return str(v).strip("'\"")
 
     def model_post_init(self, __context):
         """
@@ -143,6 +152,16 @@ class CommitModel(BaseModel):
     )
     page: Optional[int] = Field(description="Pagination page", default=1)
     per_page: Optional[int] = Field(description="Results per page", default=100)
+
+    @field_validator("project_id", "pipeline_id", "start_project")
+    def validate_ids(cls, v):
+        """
+        Validate ID fields.
+        Strips quotes and converts to string.
+        """
+        if v is None:
+            return v
+        return str(v).strip("'\"")
 
     def model_post_init(self, __context):
         """
@@ -419,18 +438,12 @@ class TagModel(BaseModel):
     def validate_project_id(cls, v):
         if not v:
             raise ValueError("Project ID or path cannot be empty")
-        return str(v)
+        return str(v).strip("'\"")
 
     @field_validator("tag")
     def validate_tag(cls, v):
         if v and not v.strip():
             raise ValueError("Tag name cannot be empty or whitespace")
-        return v
-
-    @field_validator("ref")
-    def validate_ref(cls, v):
-        if v and not v.strip():
-            raise ValueError("Ref cannot be empty or whitespace")
         return v
 
 
@@ -481,7 +494,7 @@ class IssueModel(BaseModel):
     def validate_project_id(cls, v):
         if not v:
             raise ValueError("Project ID or path cannot be empty")
-        return str(v)
+        return str(v).strip("'\"")
 
     @field_validator("title")
     def validate_title(cls, v):
@@ -497,9 +510,9 @@ class IssueModel(BaseModel):
 
     @field_validator("issue_iid")
     def validate_issue_iid(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError("Issue IID must be a positive integer")
-        return v
+        if v is None:
+            return v
+        return str(v).strip("'\"")
 
 
 class DeployTokenModel(BaseModel):
@@ -565,24 +578,12 @@ class DeployTokenModel(BaseModel):
     @field_validator("project_id", "group_id", "token")
     def validate_optional_parameters(cls, v, values):
         """
-        Validate optional parameters to ensure they are provided only when 'project_id' or 'group_id' is provided.
-
-        Args:
-        - v: The value of the parameter.
-        - values: Dictionary of all values.
-
-        Returns:
-        - Any: The validated parameter value.
-
-        Raises:
-        - MissingParameterError: If the parameter is provided and 'project_id' and 'group_id' are None.
+        Validate optional parameters.
+        Strips quotes and converts to string.
         """
-        if (
-            "project_id" in values.lower() or "group_id" in values.lower()
-        ) and v is not None:
-            return v.lower()
-        else:
-            raise MissingParameterError
+        if v is None:
+            return v
+        return str(v).strip("'\"")
 
     @field_validator("name", "username", "scopes")
     def validate_string_parameters(cls, v):
@@ -873,23 +874,15 @@ class GroupModel(BaseModel):
             raise ValueError("Invalid visibility")
         return value.lower()
 
-    @field_validator("group_id")
-    def validate_group_id(cls, v):
+    @field_validator("group_id", "file_template_project_id")
+    def validate_ids(cls, v):
         """
-        Validate the 'group_id' parameter to ensure it is provided.
-
-        Args:
-        - v: The value of 'group_id'.
-
-        Returns:
-        - Union[int, str]: The validated 'group_id' value.
-
-        Raises:
-        - MissingParameterError: If 'group_id' is None.
+        Validate ID fields.
+        Strips quotes and converts to string.
         """
         if v is None:
-            raise MissingParameterError
-        return v
+            return v
+        return str(v).strip("'\"")
 
     def model_post_init(self, __context):
         """
@@ -941,6 +934,16 @@ class JobModel(BaseModel):
     include_retried: Optional[bool] = None
     job_variable_attributes: Optional[Dict] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+
+    @field_validator("project_id", "pipeline_id", "job_id")
+    def validate_ids(cls, v):
+        """
+        Validate ID fields.
+        Strips quotes and converts to string.
+        """
+        if v is None:
+            return v
+        return str(v).strip("'\"")
 
     @field_validator("per_page", "page")
     def validate_positive_integer(cls, v):
@@ -1070,6 +1073,16 @@ class MembersModel(BaseModel):
     per_page: Optional[int] = Field(description="Results per page", default=100)
     page: Optional[int] = Field(description="Pagination page", default=1)
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+
+    @field_validator("project_id", "group_id")
+    def validate_ids(cls, v):
+        """
+        Validate ID fields.
+        Strips quotes and converts to string.
+        """
+        if v is None:
+            return v
+        return str(v).strip("'\"")
 
     @field_validator("per_page", "page")
     def validate_positive_integer(cls, v):
@@ -1469,28 +1482,22 @@ class MergeRequestModel(BaseModel):
             raise ParameterError
         return v
 
-    @field_validator("assignee_id", "milestone_id", "target_project_id")
-    def validate_positive_integer(cls, v):
+    @field_validator(
+        "assignee_id",
+        "milestone_id",
+        "target_project_id",
+        "project_id",
+        "author_id",
+        "reviewer_id",
+    )
+    def validate_ids(cls, v):
         """
-        Validate positive integer fields.
-
-        Args:
-        - v: The value of the positive integer field.
-
-        Returns:
-        - The validated value if valid.
-
-        Raises:
-        - ParameterError: If 'v' is not a valid positive integer.
+        Validate ID fields.
+        Strips quotes and converts to string.
         """
-        if isinstance(v, str):
-            try:
-                v = int(v)
-            except Exception as e:
-                raise e
-        if not isinstance(v, int) or v < 0:
-            raise ParameterError
-        return v
+        if v is None:
+            return v
+        return str(v).strip("'\"")
 
     @field_validator("assignee_ids", "reviewer_ids")
     def validate_list_of_integers(cls, v):
