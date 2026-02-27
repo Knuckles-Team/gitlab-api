@@ -141,7 +141,7 @@ Configure project templates |  |  |  |  |  | ✓
 Configure [SAML SSO](https://docs.gitlab.com/user/group/saml_sso/) 4 |  |  |  |  |  | ✓
 Disable notification emails |  |  |  |  |  | ✓
 Import [project](https://docs.gitlab.com/user/project/settings/import_export/) |  |  |  |  | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. Developers and Maintainers can view events based on their individual actions only. For more information, see the [prerequisites](https://docs.gitlab.com/user/compliance/audit_events/#prerequisites).
   2. Developers, Maintainers and Owners: Only if the project creation role is set [for the instance](https://docs.gitlab.com/administration/settings/visibility_and_access_controls/#define-which-roles-can-create-projects) or [for the group](https://docs.gitlab.com/user/group/#specify-who-can-add-projects-to-a-group).
 Developers: Developers can push commits to the default branch of a new project only if the [default branch protection](https://docs.gitlab.com/user/group/manage/#change-the-default-branch-protection-of-a-group) is set to “Partially protected” or “Not protected”.
@@ -192,7 +192,7 @@ View [compliance center](https://docs.gitlab.com/user/compliance/compliance_cent
 Manage [compliance frameworks](https://docs.gitlab.com/user/compliance/compliance_frameworks/) |  |  |  |  |  | ✓
 Assign [compliance frameworks](https://docs.gitlab.com/user/compliance/compliance_frameworks/) to projects |  |  |  |  |  | ✓
 Manage [audit streams](https://docs.gitlab.com/user/compliance/audit_event_streaming/) |  |  |  |  |  | ✓
-**Footnotes**
+**Footnotes** :
   1. Users can view events based on their individual actions only. For more details, see the [prerequisites](https://docs.gitlab.com/user/compliance/audit_events/#prerequisites).
 
 
@@ -205,7 +205,7 @@ Configure [GitLab Duo feature availability](https://docs.gitlab.com/user/gitlab_
 Configure [GitLab Duo Self Hosted](https://docs.gitlab.com/administration/gitlab_duo_self_hosted/configure_duo_features/) |  |  |  |  |  |  | ✓
 Enable [beta and experimental features](https://docs.gitlab.com/user/gitlab_duo/turn_on_off/#turn-on-beta-and-experimental-features) |  |  |  |  |  |  | ✓
 Purchase [GitLab Duo seats](https://docs.gitlab.com/subscriptions/subscription-add-ons/#purchase-additional-gitlab-duo-seats) |  |  |  |  |  |  | ✓
-**Footnotes**
+**Footnotes** :
   1. If the user has GitLab Duo Pro or Enterprise, the [user must be assigned a seat to gain access to that GitLab Duo add-on](https://docs.gitlab.com/subscriptions/subscription-add-ons/#assign-gitlab-duo-seats). If the user has GitLab Duo Core, there are no other requirements.
 
 
@@ -218,7 +218,7 @@ Pull container images with the dependency proxy | ✓ | ✓ | ✓ | ✓ | ✓ | 
 Delete container registry images |  |  |  | ✓ | ✓ | ✓
 Configure a virtual registry |  |  |  |  | ✓ | ✓
 Pull an artifact from a virtual registry | ✓ |  | ✓ | ✓ | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. Guests can only view events based on their individual actions.
 
 
@@ -248,7 +248,7 @@ Create epics |  | ✓ | ✓ | ✓ | ✓ | ✓
 Update epic details |  | ✓ | ✓ | ✓ | ✓ | ✓
 Manage [epic boards](https://docs.gitlab.com/user/group/epics/epic_boards/) |  | ✓ | ✓ | ✓ | ✓ | ✓
 Delete epics 5 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. You must have permission to [view the epic](https://docs.gitlab.com/user/group/epics/manage_epics/#who-can-view-an-epic).
   2. You must have permission to [view the epic](https://docs.gitlab.com/user/group/epics/manage_epics/#who-can-view-an-epic) and edit the issue.
   3. You must have permission to [view](https://docs.gitlab.com/user/group/epics/manage_epics/#who-can-view-an-epic) the parent and child epics.
@@ -264,7 +264,7 @@ View group wiki 1 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
 Create group wiki pages |  | ✓ |  | ✓ | ✓ | ✓
 Edit group wiki pages |  | ✓ |  | ✓ | ✓ | ✓
 Delete group wiki pages |  | ✓ |  | ✓ | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. Guests: In addition, if your group is public or internal, all users who can see the group can also see group wiki pages.
   2. Guests: In addition, if your group is public or internal, all users who can see the group can also search group wiki pages.
 
@@ -340,7 +340,7 @@ Change project visibility level |  |  |  |  |  | ✓
 Delete project |  |  |  |  |  | ✓
 Disable notification emails |  |  |  |  |  | ✓
 Transfer project |  |  |  |  |  | ✓
-**Footnotes**
+**Footnotes** :
   1. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must be given explicit access (at least the **Reporter** role) even if the project is internal. Users with the Guest role on GitLab.com are only able to perform this action on public projects because internal visibility is not available.
   2. Applies only to comments on [Design Management](https://docs.gitlab.com/user/project/issues/design_management/) designs.
   3. Guest users can access GitLab [**Releases**](https://docs.gitlab.com/user/project/releases/) for downloading assets but are not allowed to download the source code nor see [repository information like commits and release evidence](https://docs.gitlab.com/user/project/releases/#view-a-release-and-download-assets).
@@ -389,7 +389,7 @@ Change vulnerability status 1 |  |  |  |  | ✓ | ✓
 Create [security policy project](https://docs.gitlab.com/user/application_security/policies/) |  |  |  |  |  | ✓
 Assign [security policy project](https://docs.gitlab.com/user/application_security/policies/) |  |  |  |  |  | ✓
 Manage [security configurations](https://docs.gitlab.com/user/application_security/detect/security_configuration/) |  |  |  |  | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. The `admin_vulnerability` permission was [removed](https://gitlab.com/gitlab-org/gitlab/-/issues/412693) from the Developer role in GitLab 17.0.
 
 
@@ -447,7 +447,7 @@ Delete own pipeline schedules |  |  |  |  | ✓ | ✓
 Run pipeline schedules manually 13 |  |  |  |  | ✓ | ✓
 Take ownership of pipeline schedules |  |  |  |  |  | ✓
 Delete others’ pipeline schedules |  |  |  |  |  | ✓
-**Footnotes**
+**Footnotes** :
   1. Non-members and guests: Only if the project is public.
   2. Non-members: Only if the project is public and **Project-based pipeline visibility** is enabled.
 Guests: Only if **Project-based pipeline visibility** is enabled.
@@ -481,7 +481,7 @@ Pull container images from public projects | ✓ | ✓
 Pull container images from internal projects 1 | ✓ | ✓
 Pull container images from private projects 2 | ✓ | ✓
 Push container images to current project 3 | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. Developers and Maintainers: Only if the triggering user is not an external user.
   2. Only if the triggering user is a member of the project. See also [Usage of private Docker images with `if-not-present` pull policy](https://docs.gitlab.com/runner/security/#usage-of-private-docker-images-with-if-not-present-pull-policy).
   3. You cannot push container images to other projects.
@@ -495,7 +495,7 @@ View [allowed and denied licenses in MR](https://docs.gitlab.com/user/compliance
 View [audit events](https://docs.gitlab.com/user/compliance/audit_events/) 2 |  |  |  | ✓ | ✓ | ✓
 View licenses in [dependency list](https://docs.gitlab.com/user/application_security/dependency_list/) |  |  |  | ✓ | ✓ | ✓
 Manage [audit streams](https://docs.gitlab.com/user/compliance/audit_event_streaming/) |  |  |  |  |  | ✓
-**Footnotes**
+**Footnotes** :
   1. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must have the Reporter, Developer, Maintainer, or Owner role, even if the project is internal. Users with the Guest role on GitLab.com are able to perform this action only on public projects because internal visibility is not available.
   2. Users can only view events based on their individual actions. For more details, see the [prerequisites](https://docs.gitlab.com/user/compliance/audit_events/#prerequisites).
 
@@ -506,7 +506,7 @@ Action | Non-member | Guest | Planner | Reporter | Developer | Maintainer | Owne
 ---|---|---|---|---|---|---|---
 Use GitLab Duo features 1 |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
 Configure [GitLab Duo feature availability](https://docs.gitlab.com/user/gitlab_duo/turn_on_off/#for-a-project) |  |  |  |  |  | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. Code Suggestions requires a [user being assigned a seat to gain access to a GitLab Duo add-on](https://docs.gitlab.com/subscriptions/subscription-add-ons/#assign-gitlab-duo-seats).
 
 
@@ -525,7 +525,7 @@ Update merge request details 5 |  |  |  | ✓ | ✓ | ✓
 Manage [merge request settings](https://docs.gitlab.com/user/project/merge_requests/approvals/settings/) |  |  |  |  | ✓ | ✓
 Manage [merge request approval rules](https://docs.gitlab.com/user/project/merge_requests/approvals/rules/) |  |  |  |  | ✓ | ✓
 Delete merge request |  |  |  |  |  | ✓
-**Footnotes**
+**Footnotes** :
   1. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must be given explicit access (at least the **Reporter** role) even if the project is internal. Users with the Guest role on GitLab.com are only able to perform this action on public projects because internal visibility is not available.
   2. Users with the Planner role can not use advanced search for merge requests and comments on merge requests. For more information, see [epic &17674](https://gitlab.com/groups/gitlab-org/-/work_items/17674).
   3. Approval from Planner and Reporter roles is available only if [enabled for the project](https://docs.gitlab.com/user/project/merge_requests/approvals/rules/#enable-approval-permissions-for-additional-users).
@@ -545,7 +545,7 @@ Delete models, versions, and artifacts |  |  |  | ✓ | ✓ | ✓
 Create experiments and candidates |  |  |  | ✓ | ✓ | ✓
 Edit experiments and candidates |  |  |  | ✓ | ✓ | ✓
 Delete experiments and candidates |  |  |  | ✓ | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. Non-members can only view models and versions in public projects with the **Everyone with access** visibility level. Non-members can’t view internal projects, even if they’re logged in.
   2. Non-members can only view model experiments in public projects with the **Everyone with access** visibility level. Non-members can’t view internal projects, even if they’re logged in.
   3. You can also upload and download artifacts with the package registry API, which uses a different set of permissions.
@@ -591,7 +591,7 @@ Pull packages 1 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
 Publish packages |  |  |  | ✓ | ✓ | ✓
 Delete packages |  |  |  |  | ✓ | ✓
 Delete files associated with a package |  |  |  |  | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must be given explicit access (at least the **Reporter** role) even if the project is internal. Users with the Guest role on GitLab.com are only able to perform this action on public projects because internal visibility is not available.
 
 
@@ -622,7 +622,7 @@ Reopen [test cases](https://docs.gitlab.com/ci/test_cases/) |  | ✓ | ✓ | ✓
 [Export](https://docs.gitlab.com/user/project/issues/csv_export/) issues to a CSV file | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
 Delete issues 5 |  | ✓ | ✓ | ✓ | ✓ | ✓
 Manage [Feature flags](https://docs.gitlab.com/operations/feature_flags/) |  |  |  | ✓ | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. Metadata includes labels, assignees, milestones, epics, weight, confidentiality, time tracking, and more. Guest users can only set metadata when creating an issue. They cannot change the metadata on existing issues. Guest users can modify the title and description of issues that they authored or are assigned to.
   2. Guest users can close and reopen issues that they authored or are assigned to.
   3. Guest users can archive and reopen issues that they authored or are assigned to.
@@ -643,7 +643,7 @@ Convert to another item type |  | ✓ | ✓ | ✓ | ✓ | ✓
 Remove from issue | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
 Add internal note |  | ✓ | ✓ | ✓ | ✓ | ✓
 Delete tasks 2 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
-**Footnotes**
+**Footnotes** :
   1. Guest users can modify the title and description that they authored or are assigned to.
   2. Users who don’t have the Planner or Owner role can only delete the tasks they authored.
 
@@ -674,12 +674,12 @@ Project permissions for [repository](https://docs.gitlab.com/user/project/reposi
 Action | Guest | Planner | Reporter | Developer | Maintainer | Owner
 ---|---|---|---|---|---|---
 View project code 1 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
-[Search](https://docs.gitlab.com/user/search/) project code 2 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
-[Search](https://docs.gitlab.com/user/search/) commits and comments 3 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
-Pull project code 4 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
+[Search](https://docs.gitlab.com/user/search/) project code 1 2 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
+[Search](https://docs.gitlab.com/user/search/) commits and comments 1 2 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
+Pull project code 3 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓
 View commit status |  |  | ✓ | ✓ | ✓ | ✓
-Create commit status 5 |  |  |  | ✓ | ✓ | ✓
-Update commit status 5 |  |  |  | ✓ | ✓ | ✓
+Create commit status 4 |  |  |  | ✓ | ✓ | ✓
+Update commit status 4 |  |  |  | ✓ | ✓ | ✓
 Create [Git tags](https://docs.gitlab.com/user/project/repository/tags/) |  |  |  | ✓ | ✓ | ✓
 Delete [Git tags](https://docs.gitlab.com/user/project/repository/tags/) |  |  |  | ✓ | ✓ | ✓
 Create new [branches](https://docs.gitlab.com/user/project/repository/branches/) |  |  |  | ✓ | ✓ | ✓
@@ -687,19 +687,18 @@ Push to non-protected branches |  |  |  | ✓ | ✓ | ✓
 Force push to non-protected branches |  |  |  | ✓ | ✓ | ✓
 Delete non-protected branches |  |  |  | ✓ | ✓ | ✓
 Manage [protected branches](https://docs.gitlab.com/user/project/repository/branches/protected/) |  |  |  |  | ✓ | ✓
-Push to protected branches 5 |  |  |  |  | ✓ | ✓
+Push to protected branches 4 |  |  |  |  | ✓ | ✓
 Delete protected branches |  |  |  |  | ✓ | ✓
 Manage [protected tags](https://docs.gitlab.com/user/project/protected_tags/) |  |  |  |  | ✓ | ✓
 Manage [push rules](https://docs.gitlab.com/user/project/repository/push_rules/) |  |  |  |  | ✓ | ✓
 Remove fork relationship |  |  |  |  |  | ✓
-Force push to protected branches 6 |  |  |  |  |  |
-**Footnotes**
-  1. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must be given explicit access (at least the **Reporter** role) even if the project is internal. Users with the Guest role on GitLab.com are only able to perform this action on public projects because internal visibility is not available. In GitLab 15.9 and later, users with the Guest role and an Ultimate license can view private repository content if an administrator (on GitLab Self-Managed or GitLab Dedicated) or group owner (on GitLab.com) gives those users permission. The administrator or group owner can create a [custom role](https://docs.gitlab.com/user/custom_roles/) through the API or UI and assign that role to the users. In GitLab 18.7 and later, users with the Planner role can view private repository content.
-  2. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must be given explicit access (at least the **Reporter** role) even if the project is internal. Users with the Guest role on GitLab.com are only able to perform this action on public projects because internal visibility is not available. In GitLab 15.9 and later, users with the Guest role and an Ultimate license can search private repository content if an administrator (on GitLab Self-Managed or GitLab Dedicated) or group owner (on GitLab.com) gives those users permission. The administrator or group owner can create a [custom role](https://docs.gitlab.com/user/custom_roles/) through the API or UI and assign that role to the users.
-  3. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must be given explicit access (at least the **Reporter** role) even if the project is internal. Users with the Guest role on GitLab.com are only able to perform this action on public projects because internal visibility is not available.
-  4. If the [branch is protected](https://docs.gitlab.com/user/project/repository/branches/protected/), this depends on the access given to Developers and Maintainers.
-  5. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must be given explicit access (at least the **Reporter** role) even if the project is internal. Users with the Guest role on GitLab.com are only able to perform this action on public projects because internal visibility is not available. In GitLab 15.9 and later, users with the Guest role and an Ultimate license can view private repository content if an administrator (on GitLab Self-Managed or GitLab Dedicated) or group owner (on GitLab.com) gives those users permission. The administrator or group owner can create a [custom role](https://docs.gitlab.com/user/custom_roles/) through the API or UI and assign that role to the users.
-  6. Not allowed for Guest, Reporter, Developer, Maintainer, or Owner. See [protected branches](https://docs.gitlab.com/user/project/repository/branches/protected/#allow-force-push).
+Force push to protected branches 5 |  |  |  |  |  |
+**Footnotes** :
+  1. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must be given explicit access (at least the **Planner** role) even if the project is internal. Users with the Guest role on GitLab.com are only able to perform this action on public projects because internal visibility is not available. In GitLab 15.9 and later, users with the Guest role and an Ultimate license can view private repository content if an administrator (on GitLab Self-Managed or GitLab Dedicated) or group owner (on GitLab.com) gives those users permission. The administrator or group owner can create a [custom role](https://docs.gitlab.com/user/custom_roles/) through the API or UI and assign that role to the users. In GitLab 18.7 and later, users with the Planner role can view private repository content.
+  2. Users with the Planner role can not use exact code search or advanced search for code, commits, and comments on commits in private projects. For more information, see [epic &17674](https://gitlab.com/groups/gitlab-org/-/work_items/17674).
+  3. If the [branch is protected](https://docs.gitlab.com/user/project/repository/branches/protected/), this depends on the access given to Developers and Maintainers.
+  4. On GitLab Self-Managed, users with the Guest role are able to perform this action only on public and internal projects (not on private projects). [External users](https://docs.gitlab.com/administration/external_users/) must be given explicit access (at least the **Reporter** role) even if the project is internal. Users with the Guest role on GitLab.com are only able to perform this action on public projects because internal visibility is not available. In GitLab 15.9 and later, users with the Guest role and an Ultimate license can view private repository content if an administrator (on GitLab Self-Managed or GitLab Dedicated) or group owner (on GitLab.com) gives those users permission. The administrator or group owner can create a [custom role](https://docs.gitlab.com/user/custom_roles/) through the API or UI and assign that role to the users.
+  5. Not allowed for Guest, Reporter, Developer, Maintainer, or Owner. See [protected branches](https://docs.gitlab.com/user/project/repository/branches/protected/#allow-force-push).
 
 
 ### Project user management[](https://docs.gitlab.com/user/permissions/#project-user-management "Permalink")
@@ -709,7 +708,7 @@ Action | Guest | Planner | Reporter | Developer | Maintainer | Owner
 View 2FA status of members |  |  |  |  | ✓ | ✓
 Manage [project members](https://docs.gitlab.com/user/project/members/) 1 |  |  |  |  | ✓ | ✓
 Share (invite) projects with groups 2 |  |  |  |  |  | ✓
-**Footnotes**
+**Footnotes** :
   1. Maintainers cannot create, demote, or remove Owners, and they cannot promote users to the Owner role. They also cannot approve Owner role access requests.
   2. When [Share Group Lock](https://docs.gitlab.com/user/project/members/sharing_projects_groups/#prevent-a-project-from-being-shared-with-groups) is enabled the project can’t be shared with other groups. It does not affect group with group sharing.
 
@@ -837,7 +836,7 @@ Resources
   * Cookie Preferences
 
 
-
+![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=10503924d6784ad3f2d352558587a67a&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fuser%2Fpermissions%2F&_biz_t=1772174517059&_biz_i=Roles%20and%20permissions%20%7C%20GitLab%20Docs&_biz_n=208&rnd=731477&cdn_o=a&_biz_z=1772174517060)
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center
@@ -853,7 +852,7 @@ Resources
 #### Your Privacy
 When you visit any website, it may store or retrieve information on your browser, mostly in the form of cookies. This information might be about you, your preferences or your device and is mostly used to make the site work as you expect it to. The information does not usually directly identify you, but it can give you a more personalized web experience. Because we respect your right to privacy, you can choose not to allow some types of cookies. Click on the different category headings to find out more and change our default settings. However, blocking some types of cookies may impact your experience of the site and the services we are able to offer.
 [Cookie Policy](https://about.gitlab.com/privacy/cookies/)
-**User ID:** d8a8ce5a-8fe2-4380-9852-3ffbac7eb562
+**User ID:** 42fad8d5-ed56-4786-8d74-3c72635252d2
 _This User ID will be used as a unique identifier while storing and accessing your preferences for future._
 **Timestamp:** --
 #### Strictly Necessary Cookies

@@ -81,6 +81,7 @@ Select a topicUse GitLab GitLab Duo Extend Install Administer Subscribe Contribu
 [glab stack](https://docs.gitlab.com/cli/stack/)
 [glab token](https://docs.gitlab.com/cli/token/)
 [glab user](https://docs.gitlab.com/cli/user/)
+[glab work-items](https://docs.gitlab.com/cli/work-items/)
 [glab variable](https://docs.gitlab.com/cli/variable/)
 [glab version](https://docs.gitlab.com/cli/version/)
 [Editor and IDE extensions](https://docs.gitlab.com/editor_extensions/)
@@ -161,6 +162,7 @@ Variable | Description
   * [`glab opentofu`](https://docs.gitlab.com/cli/opentofu/)
   * [`glab release`](https://docs.gitlab.com/cli/release/)
   * [`glab repo`](https://docs.gitlab.com/cli/repo/)
+  * [`glab runner`](https://docs.gitlab.com/cli/runner/)
   * [`glab runner-controller`](https://docs.gitlab.com/cli/runner-controller/)
   * [`glab schedule`](https://docs.gitlab.com/cli/schedule/)
   * [`glab securefile`](https://docs.gitlab.com/cli/securefile/)
@@ -171,6 +173,7 @@ Variable | Description
   * [`glab user`](https://docs.gitlab.com/cli/user/)
   * [`glab variable`](https://docs.gitlab.com/cli/variable/)
   * [`glab version`](https://docs.gitlab.com/cli/version/)
+  * [`glab work-items`](https://docs.gitlab.com/cli/work-items/)
 
 
 ## Report issues[](https://docs.gitlab.com/cli/#report-issues "Permalink")
@@ -224,7 +227,7 @@ Resources
   * Cookie Preferences
 
 
-%20%7C%20GitLab%20Docs&_biz_n=193&rnd=725887&cdn_o=a&_biz_z=1771981755750)
+![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=10503924d6784ad3f2d352558587a67a&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fcli%2F&_biz_t=1772174500063&_biz_i=GitLab%20CLI%20\(glab\)%20%7C%20GitLab%20Docs&_biz_n=195&rnd=434688&cdn_o=a&_biz_z=1772174500064)
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center
@@ -240,7 +243,7 @@ Resources
 #### Your Privacy
 When you visit any website, it may store or retrieve information on your browser, mostly in the form of cookies. This information might be about you, your preferences or your device and is mostly used to make the site work as you expect it to. The information does not usually directly identify you, but it can give you a more personalized web experience. Because we respect your right to privacy, you can choose not to allow some types of cookies. Click on the different category headings to find out more and change our default settings. However, blocking some types of cookies may impact your experience of the site and the services we are able to offer.
 [Cookie Policy](https://about.gitlab.com/privacy/cookies/)
-**User ID:** d8a8ce5a-8fe2-4380-9852-3ffbac7eb562
+**User ID:** 42fad8d5-ed56-4786-8d74-3c72635252d2
 _This User ID will be used as a unique identifier while storing and accessing your preferences for future._
 **Timestamp:** --
 #### Strictly Necessary Cookies

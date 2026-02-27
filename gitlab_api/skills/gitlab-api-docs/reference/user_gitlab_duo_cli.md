@@ -121,16 +121,48 @@ irm "https://gitlab.com/gitlab-org/editor-extensions/gitlab-lsp/-/raw/main/packa
 ```
 
 ## Authenticate with GitLab[](https://docs.gitlab.com/user/gitlab_duo_cli/#authenticate-with-gitlab "Permalink")
-The first time you run the GitLab Duo CLI, a configuration screen appears with a prompt to set a **GitLab Instance URL** and **GitLab Token** for authentication.
+To authenticate with GitLab, you can either:
+  * Use the GitLab CLI as a credential helper (recommended).
+  * Use the GitLab Duo CLI configuration screen.
+
+
+### GitLab CLI credential helper[](https://docs.gitlab.com/user/gitlab_duo_cli/#gitlab-cli-credential-helper "Permalink")
+Use the [GitLab CLI (`glab`)](https://docs.gitlab.com/cli/) as a credential helper to maintain a single authentication configuration for both `duo` and `glab`. This method supports both personal access tokens and OAuth.
+Prerequisites:
+  * `glab` version 1.85.2 or later.
+  * `duo` version 8.68.0 or later.
+
+
+#### Use a personal access token[](https://docs.gitlab.com/user/gitlab_duo_cli/#use-a-personal-access-token "Permalink")
+To authenticate with a personal access token:
+  1. Authenticate `glab` with a PAT by running `glab auth login`.
+  2. Run `duo`.
+
+
+For more information, see [`glab auth login`](https://docs.gitlab.com/cli/auth/login/).
+#### Use OAuth[](https://docs.gitlab.com/user/gitlab_duo_cli/#use-oauth "Permalink")
+To authenticate with OAuth, you must use the GitLab CLI credential helper.
+  1. In the GitLab CLI documentation, follow the OAuth authentication instructions for either:
+     * [GitLab.com](https://gitlab.com/gitlab-org/cli#oauth-gitlab-com).
+     * [GitLab Self-Managed and GitLab Dedicated](https://gitlab.com/gitlab-org/cli#oauth-gitlab-self-managed-gitlab-dedicated).
+  2. After `glab` is authenticated, run `duo`.
+
+
+If you have already used the GitLab Duo CLI configuration screen, you cannot use this method until you delete your authentication settings from the `~/.gitlab/storage.json` file.
+### Duo CLI configuration screen[](https://docs.gitlab.com/user/gitlab_duo_cli/#duo-cli-configuration-screen "Permalink")
+Alternatively, you can configure personal access token authentication directly in the Duo CLI configuration screen. This method only supports personal access tokens, and maintains a separate authentication configuration from `glab`.
 Prerequisites:
   * A [personal access token](https://docs.gitlab.com/user/profile/personal_access_tokens/) with `api` permissions.
 
 
 To authenticate:
-  1. Enter a **GitLab Instance URL** and then press `Enter`. For example, `https://gitlab.com`.
-  2. For **GitLab Token** , enter your personal access token.
-  3. To save and exit the CLI, press `Control`+`S`.
-  4. To restart the CLI, run `duo` in your terminal.
+  1. Run `duo` in your terminal. The first time you run the GitLab Duo CLI, a configuration screen appears.
+  2. Enter a **GitLab Instance URL** and then press `Enter`:
+     * For GitLab.com, enter `https://gitlab.com`.
+     * For GitLab Self-Managed or GitLab Dedicated, enter your instance URL.
+  3. For **GitLab Token** , enter your personal access token.
+  4. To save and exit the CLI, press `Enter`.
+  5. To restart the CLI, run `duo` in your terminal.
 
 
 To modify the configuration after initial setup, use `duo config edit`.
@@ -188,6 +220,7 @@ The GitLab Duo CLI supports these options:
   * `-h, --help` : Display help for the GitLab Duo CLI or a specific command. For example, `duo --help` or `duo run --help`.
   * `--log-level <level>`: Set the logging level (`debug`, `info`, `warn`, `error`).
   * `-v`, `--version`: Display version information.
+  * `--model <model>`: Select the AI model to use for your session.
 
 
 Additional options for headless mode:
@@ -286,6 +319,10 @@ Edit this page
   * [npm package](https://docs.gitlab.com/user/gitlab_duo_cli/#npm-package)
   * [Compiled binary](https://docs.gitlab.com/user/gitlab_duo_cli/#compiled-binary)
   * [Authenticate with GitLab](https://docs.gitlab.com/user/gitlab_duo_cli/#authenticate-with-gitlab)
+  * [GitLab CLI credential helper](https://docs.gitlab.com/user/gitlab_duo_cli/#gitlab-cli-credential-helper)
+  * [Use a personal access token](https://docs.gitlab.com/user/gitlab_duo_cli/#use-a-personal-access-token)
+  * [Use OAuth](https://docs.gitlab.com/user/gitlab_duo_cli/#use-oauth)
+  * [Duo CLI configuration screen](https://docs.gitlab.com/user/gitlab_duo_cli/#duo-cli-configuration-screen)
   * [Use the GitLab Duo CLI](https://docs.gitlab.com/user/gitlab_duo_cli/#use-the-gitlab-duo-cli)
   * [Use the GitLab Duo CLI in interactive mode](https://docs.gitlab.com/user/gitlab_duo_cli/#use-the-gitlab-duo-cli-in-interactive-mode)
   * [Use the GitLab Duo CLI in headless mode](https://docs.gitlab.com/user/gitlab_duo_cli/#use-the-gitlab-duo-cli-in-headless-mode)
@@ -336,7 +373,7 @@ Resources
   * Cookie Preferences
 
 
-%20%7C%20GitLab%20Docs&_biz_n=209&rnd=639415&cdn_o=a&_biz_z=1771981776246)
+![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=10503924d6784ad3f2d352558587a67a&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2Fuser%2Fgitlab_duo_cli%2F&_biz_t=1772174516951&_biz_i=GitLab%20Duo%20CLI%20\(%60duo%60\)%20%7C%20GitLab%20Docs&_biz_n=207&rnd=231710&cdn_o=a&_biz_z=1772174516952)
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center
@@ -352,7 +389,7 @@ Resources
 #### Your Privacy
 When you visit any website, it may store or retrieve information on your browser, mostly in the form of cookies. This information might be about you, your preferences or your device and is mostly used to make the site work as you expect it to. The information does not usually directly identify you, but it can give you a more personalized web experience. Because we respect your right to privacy, you can choose not to allow some types of cookies. Click on the different category headings to find out more and change our default settings. However, blocking some types of cookies may impact your experience of the site and the services we are able to offer.
 [Cookie Policy](https://about.gitlab.com/privacy/cookies/)
-**User ID:** d8a8ce5a-8fe2-4380-9852-3ffbac7eb562
+**User ID:** 42fad8d5-ed56-4786-8d74-3c72635252d2
 _This User ID will be used as a unique identifier while storing and accessing your preferences for future._
 **Timestamp:** --
 #### Strictly Necessary Cookies

@@ -92,7 +92,7 @@ Resources
   * Cookie Preferences
 
 
-
+![](https://cdn.bizible.com/ipv?_biz_r=&_biz_h=800054037&_biz_u=10503924d6784ad3f2d352558587a67a&_biz_l=https%3A%2F%2Fdocs.gitlab.com%2F&_biz_t=1772174205429&_biz_i=GitLab%20Docs&_biz_n=2&rnd=190107&cdn_o=a&_biz_z=1772174205430)
 ![Company Logo](https://cdn.cookielaw.org/logos/aa14a5c8-79e3-442a-8177-464ad850b19d/e46c1d0d-1f66-481f-bc06-5427671431da/253e6fee-c4c0-4b60-bc35-79cdae5dda32/gitlab-logo-100.png)
 ## Privacy Preference Center
 ## Privacy Preference Center
@@ -108,7 +108,7 @@ Resources
 #### Your Privacy
 When you visit any website, it may store or retrieve information on your browser, mostly in the form of cookies. This information might be about you, your preferences or your device and is mostly used to make the site work as you expect it to. The information does not usually directly identify you, but it can give you a more personalized web experience. Because we respect your right to privacy, you can choose not to allow some types of cookies. Click on the different category headings to find out more and change our default settings. However, blocking some types of cookies may impact your experience of the site and the services we are able to offer.
 [Cookie Policy](https://about.gitlab.com/privacy/cookies/)
-**User ID:** d8a8ce5a-8fe2-4380-9852-3ffbac7eb562
+**User ID:** 42fad8d5-ed56-4786-8d74-3c72635252d2
 _This User ID will be used as a unique identifier while storing and accessing your preferences for future._
 **Timestamp:** --
 #### Strictly Necessary Cookies
