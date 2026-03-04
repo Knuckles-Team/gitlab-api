@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "25.15.26"
+version = "25.15.27"
 description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -14,24 +14,19 @@ classifiers = [
     "License :: Public Domain",
     "Environment :: Console",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3",
-]
+    "Programming Language :: Python :: 3"]
 requires-python = ">=3.10"
 dependencies = [
-    "agent-utilities>=0.2.11",
-]
+    "agent-utilities>=0.2.12"]
 [project.optional-dependencies]
 mcp = [
-    "agent-utilities[mcp]>=0.2.11",
-]
+    "agent-utilities[mcp]>=0.2.12"]
 
 agent = [
-    "agent-utilities[agent,logfire]>=0.2.11",
-]
+    "agent-utilities[agent,logfire]>=0.2.12"]
 
 gql = [
-    "gql>=4.0.0",
-]
+    "gql>=4.0.0"]
 
 all = [
     "gitlab-api[mcp,agent,gql,logfire]>=25.15.15"
@@ -42,7 +37,7 @@ gitlab-mcp = "gitlab_api.mcp:mcp_server"
 gitlab-agent = "gitlab_api.agent:agent_server"
 
 [tool.setuptools.package-data]
-gitlab_api = [ "mcp_config.json", "skills/**", "agent/**",]
+gitlab_api = [ "mcp_config.json", "agent/**"]
 
 [tool.setuptools.packages.find]
 where = ["."]

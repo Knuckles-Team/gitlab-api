@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # coding: utf-8
 
+from dotenv import load_dotenv, find_dotenv
 import os
 import sys
 import logging
@@ -32,7 +33,7 @@ from gitlab_api.auth import get_client
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-__version__ = "25.15.26"
+__version__ = "25.15.27"
 print(f"Gitlab MCP v{__version__}")
 
 logger = get_logger(name="mcp_server")
@@ -44,11 +45,12 @@ DEFAULT_GITLAB_INSTANCE = os.getenv("GITLAB_INSTANCE", "https://gitlab.com")
 DEFAULT_GITLAB_ACCESS_TOKEN = os.getenv("GITLAB_ACCESS_TOKEN", None)
 
 
-def register_tools(mcp: FastMCP):
-    @mcp.custom_route("/health", methods=["GET"])
+def register_misc_tools(mcp: FastMCP):
     def health_check(request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
+
+def register_branches_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
@@ -206,6 +208,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Deletion complete")
         return response
 
+
+def register_commits_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
@@ -828,6 +832,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("GPG signature retrieval complete")
         return response
 
+
+def register_deploy_tokens_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"deploy_tokens"},
@@ -1135,6 +1141,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Deploy token deleted")
         return response
 
+
+def register_environments_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"environments"},
@@ -1719,6 +1727,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Environment unprotected")
         return response
 
+
+def register_groups_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
@@ -2050,6 +2060,8 @@ def register_tools(mcp: FastMCP):
         response = client.get_group_merge_requests(group_id=group_id, **kwargs)
         return {"merge_requests": response.data}
 
+
+def register_jobs_tools(mcp: FastMCP):
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     def get_project_jobs(
         gitlab_instance: Optional[str] = Field(
@@ -2341,6 +2353,8 @@ def register_tools(mcp: FastMCP):
         )
         return {"jobs": response.data}
 
+
+def register_members_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
     )
@@ -2442,6 +2456,8 @@ def register_tools(mcp: FastMCP):
         response = client.get_project_members(project_id=project_id, **kwargs)
         return {"members": response.data}
 
+
+def register_merge_requests_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"merge-requests"},
@@ -2637,6 +2653,8 @@ def register_tools(mcp: FastMCP):
             )
             return {"merge_requests": response.data}
 
+
+def register_merge_rules_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
@@ -3285,6 +3303,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Approval settings edited")
         return response
 
+
+def register_packages_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
@@ -3442,6 +3462,8 @@ def register_tools(mcp: FastMCP):
         )
         return response
 
+
+def register_pipelines_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
     )
@@ -3567,6 +3589,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Pipeline started")
         return response
 
+
+def register_pipeline_schedules_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"pipeline_schedules"},
@@ -4090,6 +4114,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Variable deleted")
         return response
 
+
+def register_projects_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
@@ -4559,6 +4585,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Project shared")
         return response
 
+
+def register_protected_branches_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"protected_branches"},
@@ -4795,6 +4823,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Code owner approval setting updated")
         return response
 
+
+def register_releases_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
@@ -5306,6 +5336,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Release deleted")
         return response
 
+
+def register_runners_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
@@ -6004,6 +6036,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Runner authentication token reset")
         return response
 
+
+def register_tags_tools(mcp: FastMCP):
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     def get_tags(
         gitlab_instance: Optional[str] = Field(
@@ -6340,6 +6374,8 @@ def register_tools(mcp: FastMCP):
             ctx.info("Tag unprotected")
         return response
 
+
+def register_custom_api_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"custom-api"},
@@ -6456,6 +6492,7 @@ def mcp_server() -> None:
     Example:
         $ python gitlab_api_mcp.py --transport streamable-http --host localhost --port 5000
     """
+    load_dotenv(find_dotenv())
     parser = create_mcp_parser()
     parser.description = "GitLab MCP Server"
     args = parser.parse_args()
@@ -6758,7 +6795,67 @@ def mcp_server() -> None:
             sys.exit(1)
 
     mcp = FastMCP("GitLab", auth=auth)
-    register_tools(mcp)
+    DEFAULT_MISCTOOL = to_boolean(os.getenv("MISCTOOL", "True"))
+    if DEFAULT_MISCTOOL:
+        register_misc_tools(mcp)
+    DEFAULT_BRANCHESTOOL = to_boolean(os.getenv("BRANCHESTOOL", "True"))
+    if DEFAULT_BRANCHESTOOL:
+        register_branches_tools(mcp)
+    DEFAULT_COMMITSTOOL = to_boolean(os.getenv("COMMITSTOOL", "True"))
+    if DEFAULT_COMMITSTOOL:
+        register_commits_tools(mcp)
+    DEFAULT_DEPLOY_TOKENSTOOL = to_boolean(os.getenv("DEPLOY_TOKENSTOOL", "True"))
+    if DEFAULT_DEPLOY_TOKENSTOOL:
+        register_deploy_tokens_tools(mcp)
+    DEFAULT_ENVIRONMENTSTOOL = to_boolean(os.getenv("ENVIRONMENTSTOOL", "True"))
+    if DEFAULT_ENVIRONMENTSTOOL:
+        register_environments_tools(mcp)
+    DEFAULT_GROUPSTOOL = to_boolean(os.getenv("GROUPSTOOL", "True"))
+    if DEFAULT_GROUPSTOOL:
+        register_groups_tools(mcp)
+    DEFAULT_JOBSTOOL = to_boolean(os.getenv("JOBSTOOL", "True"))
+    if DEFAULT_JOBSTOOL:
+        register_jobs_tools(mcp)
+    DEFAULT_MEMBERSTOOL = to_boolean(os.getenv("MEMBERSTOOL", "True"))
+    if DEFAULT_MEMBERSTOOL:
+        register_members_tools(mcp)
+    DEFAULT_MERGE_REQUESTSTOOL = to_boolean(os.getenv("MERGE_REQUESTSTOOL", "True"))
+    if DEFAULT_MERGE_REQUESTSTOOL:
+        register_merge_requests_tools(mcp)
+    DEFAULT_MERGE_RULESTOOL = to_boolean(os.getenv("MERGE_RULESTOOL", "True"))
+    if DEFAULT_MERGE_RULESTOOL:
+        register_merge_rules_tools(mcp)
+    DEFAULT_PACKAGESTOOL = to_boolean(os.getenv("PACKAGESTOOL", "True"))
+    if DEFAULT_PACKAGESTOOL:
+        register_packages_tools(mcp)
+    DEFAULT_PIPELINESTOOL = to_boolean(os.getenv("PIPELINESTOOL", "True"))
+    if DEFAULT_PIPELINESTOOL:
+        register_pipelines_tools(mcp)
+    DEFAULT_PIPELINE_SCHEDULESTOOL = to_boolean(
+        os.getenv("PIPELINE_SCHEDULESTOOL", "True")
+    )
+    if DEFAULT_PIPELINE_SCHEDULESTOOL:
+        register_pipeline_schedules_tools(mcp)
+    DEFAULT_PROJECTSTOOL = to_boolean(os.getenv("PROJECTSTOOL", "True"))
+    if DEFAULT_PROJECTSTOOL:
+        register_projects_tools(mcp)
+    DEFAULT_PROTECTED_BRANCHESTOOL = to_boolean(
+        os.getenv("PROTECTED_BRANCHESTOOL", "True")
+    )
+    if DEFAULT_PROTECTED_BRANCHESTOOL:
+        register_protected_branches_tools(mcp)
+    DEFAULT_RELEASESTOOL = to_boolean(os.getenv("RELEASESTOOL", "True"))
+    if DEFAULT_RELEASESTOOL:
+        register_releases_tools(mcp)
+    DEFAULT_RUNNERSTOOL = to_boolean(os.getenv("RUNNERSTOOL", "True"))
+    if DEFAULT_RUNNERSTOOL:
+        register_runners_tools(mcp)
+    DEFAULT_TAGSTOOL = to_boolean(os.getenv("TAGSTOOL", "True"))
+    if DEFAULT_TAGSTOOL:
+        register_tags_tools(mcp)
+    DEFAULT_CUSTOM_APITOOL = to_boolean(os.getenv("CUSTOM_APITOOL", "True"))
+    if DEFAULT_CUSTOM_APITOOL:
+        register_custom_api_tools(mcp)
     register_prompts(mcp)
 
     for mw in middlewares:
