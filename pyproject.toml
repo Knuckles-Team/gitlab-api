@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "25.15.32"
+version = "25.15.33"
 description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -17,13 +17,13 @@ classifiers = [
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.10"
 dependencies = [
-    "agent-utilities>=0.2.17"]
+    "agent-utilities>=0.2.18"]
 [project.optional-dependencies]
 mcp = [
-    "agent-utilities[mcp]>=0.2.17"]
+    "agent-utilities[mcp]>=0.2.18"]
 
 agent = [
-    "agent-utilities[agent,logfire]>=0.2.17"]
+    "agent-utilities[agent,logfire]>=0.2.18"]
 
 gql = [
     "gql>=4.0.0"]
