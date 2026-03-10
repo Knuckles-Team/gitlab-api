@@ -33,11 +33,14 @@ all = [
 ]
 
 [project.scripts]
-gitlab-mcp = "gitlab_api.mcp:mcp_server"
-gitlab-agent = "gitlab_api.agent:agent_server"
+gitlab-mcp = "gitlab_api.mcp_server:mcp_server"
+gitlab-agent = "gitlab_api.agent_server:agent_server"
 
 [tool.setuptools.package-data]
-gitlab_api = [ "mcp_config.json", "agent/**"]
+gitlab_api = [ "mcp_config.json", "agent_data/**"]
 
 [tool.setuptools.packages.find]
 where = ["."]
+
+[tool.setuptools]
+include-package-data = true

@@ -13,8 +13,8 @@ CORE_MODULES = [
 
 OPTIONAL_MODULES = {
     "gitlab_api.gitlab_gql": "gql",
-    "gitlab_api.agent": "agent",
-    "gitlab_api.mcp": "mcp",
+    "gitlab_api.agent_server": "agent",
+    "gitlab_api.mcp_server": "mcp",
 }
 
 
@@ -48,8 +48,10 @@ for module_name, extra_name in OPTIONAL_MODULES.items():
     else:
         globals()[f"_{extra_name.upper()}_AVAILABLE"] = False
 
-_MCP_AVAILABLE = "gitlab_api.mcp" in globals() or "gitlab_api.mcp" in sys.modules
-_AGENT_AVAILABLE = "gitlab_api.agent" in globals()
+_MCP_AVAILABLE = (
+    "gitlab_api.mcp_server" in globals() or "gitlab_api.mcp_server" in sys.modules
+)
+_AGENT_AVAILABLE = "gitlab_api.agent_server" in globals()
 _GQL_AVAILABLE = "gitlab_api.gitlab_gql" in globals()
 
 __all__.extend(["_MCP_AVAILABLE", "_AGENT_AVAILABLE", "_GQL_AVAILABLE"])
