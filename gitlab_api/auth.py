@@ -5,6 +5,7 @@ from typing import Optional
 import requests
 from agent_utilities.base_utilities import to_boolean, get_logger
 from gitlab_api.gitlab_api import Api
+from agent_utilities.exceptions import AuthError, UnauthorizedError
 
 local = threading.local()
 logger = get_logger(__name__)
@@ -59,15 +60,29 @@ def get_client(
             )
             raise RuntimeError(f"Token exchange failed: {str(e)}")
 
-        return Api(
-            url=instance,
-            token=new_token,
-            verify=verify,
-        )
+        try:
+            return Api(
+                url=instance,
+                token=new_token,
+                verify=verify,
+            )
+        except (AuthError, UnauthorizedError) as e:
+            raise RuntimeError(
+                f"AUTHENTICATION ERROR: The delegated GitLab credentials are not valid for '{instance}'. "
+                f"Please check your OIDC configuration and permissions. "
+                f"Error details: {str(e)}"
+            ) from e
     else:
         logger.info("Using fixed credentials for API")
-        return Api(
-            url=instance,
-            token=token,
-            verify=verify,
-        )
+        try:
+            return Api(
+                url=instance,
+                token=token,
+                verify=verify,
+            )
+        except (AuthError, UnauthorizedError) as e:
+            raise RuntimeError(
+                f"AUTHENTICATION ERROR: The GitLab credentials provided are not valid for '{instance}'. "
+                f"Please check your GITLAB_ACCESS_TOKEN and GITLAB_INSTANCE environment variables. "
+                f"Error details: {str(e)}"
+            ) from e
