@@ -4,7 +4,7 @@ from typing import Optional
 
 import requests
 from agent_utilities.base_utilities import to_boolean, get_logger
-from gitlab_api.gitlab_api import Api
+from gitlab_api.api_wrapper import Api
 from agent_utilities.exceptions import AuthError, UnauthorizedError
 
 local = threading.local()
@@ -12,15 +12,20 @@ logger = get_logger(__name__)
 
 
 def get_client(
-    config: dict,
-    instance: str = os.getenv("GITLAB_INSTANCE", "https://gitlab.com"),
-    token: Optional[str] = os.getenv("GITLAB_ACCESS_TOKEN", None),
+    instance: str = os.getenv("GITLAB_URL", "https://gitlab.com"),
+    token: Optional[str] = os.getenv("GITLAB_TOKEN", None),
     verify: bool = to_boolean(string=os.getenv("GITLAB_VERIFY", "True")),
+    config: Optional[dict] = None,
 ) -> Api:
     """
     Factory function to create the Api client, either with fixed credentials or delegated token.
     Uses server-side logging for visibility into token exchange process.
     """
+    if config is None:
+        from agent_utilities.mcp_utilities import config as default_config
+
+        config = default_config
+
     if config["enable_delegation"]:
         user_token = getattr(local, "user_token", None)
         if not user_token:
@@ -83,6 +88,6 @@ def get_client(
         except (AuthError, UnauthorizedError) as e:
             raise RuntimeError(
                 f"AUTHENTICATION ERROR: The GitLab credentials provided are not valid for '{instance}'. "
-                f"Please check your GITLAB_ACCESS_TOKEN and GITLAB_INSTANCE environment variables. "
+                f"Please check your GITLAB_TOKEN and GITLAB_URL environment variables. "
                 f"Error details: {str(e)}"
             ) from e

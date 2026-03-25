@@ -8,7 +8,7 @@ __all__: List[str] = []
 CORE_MODULES = [
     "gitlab_api.gitlab_input_models",
     "gitlab_api.gitlab_response_models",
-    "gitlab_api.gitlab_api",
+    "gitlab_api.api_wrapper",
 ]
 
 OPTIONAL_MODULES = {

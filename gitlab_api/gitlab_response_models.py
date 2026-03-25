@@ -3795,7 +3795,7 @@ class Response(BaseModel, Generic[T]):
     the parsed data in Pydantic models.
     """
 
-    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
     base_type: str = Field(default="Response")
     response: requests.Response = Field(
         default=None, description="The original requests.Response object", exclude=True

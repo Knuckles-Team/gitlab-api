@@ -25,8 +25,8 @@ services:
       - "HOST=0.0.0.0"
       - "PORT=8017"
       - "TRANSPORT=streamable-http"
-      - "GITLAB_INSTANCE=${GITLAB_INSTANCE}"
-      - "GITLAB_ACCESS_TOKEN=${GITLAB_ACCESS_TOKEN}"
+      - "GITLAB_URL=${GITLAB_URL}"
+      - "GITLAB_TOKEN=${GITLAB_TOKEN}"
       - "GITLAB_VERIFY=${GITLAB_VERIFY}"
     ports:
       - "8017:8017"

@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.15.47*
+*Version: 25.15.48*
 
 ## Overview
 
@@ -362,6 +362,25 @@ This sequence highlights delegation, knowledge retrieval, and tool execution.
 - **OIDC Token Delegation**: Supports token exchange for GitLab API calls, enabling user-specific authentication via OIDC.
 - **OpenAPI JSON Tool Import**: Import custom GitLab API Endpoints through the OpenAPI JSON generated.
 
+
+## Graph Architecture
+
+This agent uses `pydantic-graph` orchestration for intelligent routing and optimal context management.
+
+```mermaid
+---
+title: Gitlab API Graph Agent
+---
+stateDiagram-v2
+  [*] --> RouterNode: User Query
+  RouterNode --> DomainNode: Classified Domain
+  RouterNode --> [*]: Low confidence / Error
+  DomainNode --> [*]: Domain Result
+```
+
+- **RouterNode**: A fast, lightweight LLM (e.g., `gpt-4o-mini`) that classifies the user's query into one of the specialized domains.
+- **DomainNode**: The executor node. For the selected domain, it dynamically sets environment variables to temporarily enable ONLY the tools relevant to that domain, creating a highly focused sub-agent (e.g., `gpt-4o`) to complete the request. This preserves LLM context and prevents tool hallucination.
+
 ## Usage
 
 ### API
@@ -374,7 +393,7 @@ import os
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from gitlab_api.gitlab_api import Api
+from gitlab_api.api_wrapper import Api
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -457,7 +476,26 @@ The `gitlab_gql.py` module provides a GraphQL interface to interact with GitLab'
 - **Pagination Support**: Handles cursor-based pagination with `first` and `after` parameters.
 - **Authentication**: Supports Bearer token authentication, SSL verification, and proxy configuration.
 
-### Usage Example
+#
+## Graph Architecture
+
+This agent uses `pydantic-graph` orchestration for intelligent routing and optimal context management.
+
+```mermaid
+---
+title: Gitlab API Graph Agent
+---
+stateDiagram-v2
+  [*] --> RouterNode: User Query
+  RouterNode --> DomainNode: Classified Domain
+  RouterNode --> [*]: Low confidence / Error
+  DomainNode --> [*]: Domain Result
+```
+
+- **RouterNode**: A fast, lightweight LLM (e.g., `gpt-4o-mini`) that classifies the user's query into one of the specialized domains.
+- **DomainNode**: The executor node. For the selected domain, it dynamically sets environment variables to temporarily enable ONLY the tools relevant to that domain, creating a highly focused sub-agent (e.g., `gpt-4o`) to complete the request. This preserves LLM context and prevents tool hallucination.
+
+## Usage Example
 ```python
 from gitlab_api.gitlab_gql import GraphQL
 
@@ -804,8 +842,8 @@ For Testing Only: Plain text storage will also work, although **not** recommende
         "mcp_policies.json"
       ],
       "env": {
-        "GITLAB_INSTANCE": "https://gitlab.com/api/v4/",
-        "GITLAB_ACCESS_TOKEN": "glpat-askdfalskdvjas",
+        "GITLAB_URL": "https://gitlab.com/api/v4/",
+        "GITLAB_TOKEN": "glpat-askdfalskdvjas",
         "GITLAB_VERIFY": "True"
       },
       "timeout": 200000

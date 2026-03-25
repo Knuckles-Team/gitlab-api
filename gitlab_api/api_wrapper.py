@@ -9,6 +9,9 @@ from base64 import b64encode
 from typing import Dict, Any, List, TypeVar, Tuple
 from pydantic import ValidationError
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from agent_utilities.base_utilities import get_logger
+
+logger = get_logger(__name__)
 
 from gitlab_api.gitlab_input_models import (
     CommitModel,
@@ -82,13 +85,10 @@ class Api(object):
         debug: bool = False,
     ):
         if debug:
-            logging.basicConfig(
-                level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
-            )
+            logger.setLevel(logging.DEBUG)
+            logger.debug("Debug mode enabled")
         else:
-            logging.basicConfig(
-                level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
-            )
+            logger.setLevel(logging.ERROR)
         if url is None:
             raise MissingParameterError
 
@@ -145,10 +145,10 @@ class Api(object):
                 proxies=self.proxies,
             )
             if response.status_code in (401, 403):
-                print(f"Authentication Error with header: {response.content}")
+                logger.error(f"Authentication Error with header: {response.content}")
                 raise AuthError if response.status_code == 401 else UnauthorizedError
             elif response.status_code == 404:
-                print(f"Parameter Error: {response.content}")
+                logger.error(f"Parameter Error: {response.content}")
                 raise ParameterError
 
     def switch_to_next_headers(self) -> bool:
@@ -5027,7 +5027,7 @@ class Api(object):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}")
         except Exception as e:
-            print(f"Request Error: {str(e)}")
+            logger.error(f"Request Error: {str(e)}")
             raise
 
 
