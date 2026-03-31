@@ -1,5 +1,5 @@
 #!/usr/bin/python
-               
+
 
 import logging
 from typing import Dict, Any, Optional, Union, List

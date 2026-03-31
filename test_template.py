@@ -6,7 +6,6 @@ from gitlab_api.agent_server import agent_template
 def test_template_in_process():
     print("Testing gitlab-api agent_template for in-process MCP...")
 
-                                                  
     os.environ.pop("MCP_URL", None)
     os.environ.pop("MCP_CONFIG", None)
 
@@ -21,7 +20,7 @@ def test_template_in_process():
 
     found_fastmcp = False
     for ts in mcp_toolsets:
-                                            
+
         if hasattr(ts, "name") and ts.name == "GitLab":
             print(f"SUCCESS: Found in-process toolset: {ts}")
             found_fastmcp = True

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-               
+
 import re
 from urllib.parse import urlparse, parse_qs
 import requests

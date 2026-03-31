@@ -1,5 +1,5 @@
 #!/usr/bin/python
-               
+
 import re
 
 from typing import Union, List, Dict, Optional
