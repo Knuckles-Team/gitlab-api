@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "gitlab": {
+      "command": "gitlab-mcp",
+      "args": ["--transport", "stdio"],
+      "env": {
+        "GITLAB_URL": "${GITLAB_URL:-http://localhost:8080}",
+        "GITLAB_TOKEN": "${GITLAB_TOKEN}"
+      }
+    }
+  }
+}

@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 def get_client(
     instance: str = os.getenv("GITLAB_URL", "https://gitlab.com"),
     token: Optional[str] = os.getenv("GITLAB_TOKEN", None),
-    verify: bool = to_boolean(string=os.getenv("GITLAB_VERIFY", "True")),
+    verify: bool = to_boolean(string=os.getenv("GITLAB_SSL_VERIFY", "True")),
     config: Optional[dict] = None,
 ) -> Api:
     """

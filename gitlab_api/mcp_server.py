@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# coding: utf-8
+
 
 from dotenv import load_dotenv, find_dotenv
 import os
@@ -20,14 +20,14 @@ from gitlab_api.auth import get_client
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-__version__ = "25.15.49"
+__version__ = "25.15.50"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
 logger.setLevel(logging.DEBUG)
 
 
-DEFAULT_GITLAB_VERIFY = to_boolean(string=os.getenv("GITLAB_VERIFY", "True"))
+DEFAULT_GITLAB_SSL_VERIFY = to_boolean(string=os.getenv("GITLAB_SSL_VERIFY", "True"))
 DEFAULT_GITLAB_URL = os.getenv("GITLAB_URL", "https://gitlab.com")
 DEFAULT_GITLAB_TOKEN = os.getenv("GITLAB_TOKEN", None)
 

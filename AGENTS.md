@@ -5,8 +5,8 @@
 - Core Libraries: `agent-utilities`, `fastmcp`, `pydantic-ai`
 - Key principles: Functional patterns, Pydantic for data validation, asynchronous tool execution.
 - Architecture:
-    - `mcp.py`: Main MCP server entry point and tool registration.
-    - `agent.py`: Pydantic AI agent definition and logic.
+    - `mcp_server.py`: Main MCP server entry point and tool registration.
+    - `agent_server.py`: Pydantic AI agent definition and logic.
     - `skills/`: Directory containing modular agent skills (if applicable).
     - `agent/`: Internal agent logic and prompt templates.
 
@@ -51,14 +51,14 @@ pre-commit run --all-files
 # gitlab-mcp\ngitlab_api.mcp:mcp_server\n# gitlab-agent\ngitlab_api.agent:agent_server
 
 ## Project Structure Quick Reference
-- MCP Entry Point → `mcp.py`
-- Agent Entry Point → `agent.py`
+- MCP Entry Point → `mcp_server.py`
+- Agent Entry Point → `agent_server.py`
 - Source Code → `gitlab_api/`
 - Skills → `skills/` (if exists)
 
 ### File Tree
 ```text
-├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .github\n│   └── workflows\n│       └── pipeline.yml\n├── .gitignore\n├── .pre-commit-config.yaml\n├── .pytest_cache\n│   ├── .gitignore\n│   ├── CACHEDIR.TAG\n│   ├── README.md\n│   └── v\n│       └── cache\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── build-requirements.txt\n├── compose.yml\n├── debug.Dockerfile\n├── gitlab_api\n│   ├── __init__.py\n│   ├── __main__.py\n│   ├── agent\n│   │   ├── AGENTS.md\n│   │   ├── CRON.md\n│   │   ├── CRON_LOG.md\n│   │   ├── HEARTBEAT.md\n│   │   ├── IDENTITY.md\n│   │   ├── MEMORY.md\n│   │   ├── USER.md\n│   │   ├── mcp_config.json\n│   │   └── templates.py\n│   ├── agent.py\n│   ├── auth.py\n│   ├── gitlab_api.py\n│   ├── gitlab_gql.py\n│   ├── gitlab_input_models.py\n│   ├── gitlab_response_models.py\n│   └── mcp.py\n├── mcp.compose.yml\n├── pyproject.toml\n├── pytest.ini\n├── requirements.txt\n├── scripts\n│   ├── validate_a2a_agent.py\n│   └── validate_agent.py\n├── test-requirements.txt\n└── tests\n    ├── test_gitlab_a2a_validation.py\n    ├── test_gitlab_api.py\n    ├── test_gitlab_mcp_validation.py\n    ├── test_gitlab_models.py\n    ├── test_verify_agent.py\n    └── verify_a2a_queries.py
+├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .github\n│   └── workflows\n│       └── pipeline.yml\n├── .gitignore\n├── .pre-commit-config.yaml\n├── .pytest_cache\n│   ├── .gitignore\n│   ├── CACHEDIR.TAG\n│   ├── README.md\n│   └── v\n│       └── cache\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── build-requirements.txt\n├── compose.yml\n├── debug.Dockerfile\n├── gitlab_api\n│   ├── __init__.py\n│   ├── __main__.py\n│   ├── agent\n│   │   ├── AGENTS.md\n│   │   ├── CRON.md\n│   │   ├── CRON_LOG.md\n│   │   ├── HEARTBEAT.md\n│   │   ├── IDENTITY.md\n│   │   ├── MEMORY.md\n│   │   ├── USER.md\n│   │   ├── mcp_config.json\n│   │   └── templates.py\n│   ├── agent_server.py\n│   ├── auth.py\n│   ├── gitlab_api.py\n│   ├── gitlab_gql.py\n│   ├── gitlab_input_models.py\n│   ├── gitlab_response_models.py\n│   └── mcp_server.py\n├── mcp.compose.yml\n├── pyproject.toml\n├── pytest.ini\n├── requirements.txt\n├── scripts\n│   ├── validate_a2a_agent_server.py\n│   └── validate_agent_server.py\n├── test-requirements.txt\n└── tests\n    ├── test_gitlab_a2a_validation.py\n    ├── test_gitlab_api.py\n    ├── test_gitlab_mcp_validation.py\n    ├── test_gitlab_models.py\n    ├── test_verify_agent_server.py\n    └── verify_a2a_queries.py
 ```
 
 ## Code Style & Conventions
@@ -98,7 +98,7 @@ async def my_tool(param: str) -> str:
 - Use `agent-utilities` base classes.
 
 **Ask first:**
-- Major refactors of `mcp.py` or `agent.py`.
+- Major refactors of `mcp_server.py` or `agent_server.py`.
 - Deleting or renaming public tool functions.
 
 **Never do:**
@@ -125,5 +125,5 @@ stateDiagram-v2
   DomainNode --> [*]: Domain Result
 ```
 
-- **RouterNode**: A fast, lightweight LLM (e.g., `gpt-4o-mini`) that classifies the user's query into one of the specialized domains.
+- **RouterNode**: A fast, lightweight LLM (e.g., `nvidia/nemotron-3-super`) that classifies the user's query into one of the specialized domains.
 - **DomainNode**: The executor node. For the selected domain, it dynamically sets environment variables to temporarily enable ONLY the tools relevant to that domain, creating a highly focused sub-agent (e.g., `gpt-4o`) to complete the request. This preserves LLM context and prevents tool hallucination.

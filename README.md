@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.15.49*
+*Version: 25.15.50*
 
 ## Overview
 
@@ -378,7 +378,7 @@ stateDiagram-v2
   DomainNode --> [*]: Domain Result
 ```
 
-- **RouterNode**: A fast, lightweight LLM (e.g., `gpt-4o-mini`) that classifies the user's query into one of the specialized domains.
+- **RouterNode**: A fast, lightweight LLM (e.g., `nvidia/nemotron-3-super`) that classifies the user's query into one of the specialized domains.
 - **DomainNode**: The executor node. For the selected domain, it dynamically sets environment variables to temporarily enable ONLY the tools relevant to that domain, creating a highly focused sub-agent (e.g., `gpt-4o`) to complete the request. This preserves LLM context and prevents tool hallucination.
 
 ## Usage
@@ -492,7 +492,7 @@ stateDiagram-v2
   DomainNode --> [*]: Domain Result
 ```
 
-- **RouterNode**: A fast, lightweight LLM (e.g., `gpt-4o-mini`) that classifies the user's query into one of the specialized domains.
+- **RouterNode**: A fast, lightweight LLM (e.g., `nvidia/nemotron-3-super`) that classifies the user's query into one of the specialized domains.
 - **DomainNode**: The executor node. For the selected domain, it dynamically sets environment variables to temporarily enable ONLY the tools relevant to that domain, creating a highly focused sub-agent (e.g., `gpt-4o`) to complete the request. This preserves LLM context and prevents tool hallucination.
 
 ## Usage Example
@@ -844,7 +844,7 @@ For Testing Only: Plain text storage will also work, although **not** recommende
       "env": {
         "GITLAB_URL": "https://gitlab.com/api/v4/",
         "GITLAB_TOKEN": "glpat-askdfalskdvjas",
-        "GITLAB_VERIFY": "True"
+        "GITLAB_SSL_VERIFY": "True"
       },
       "timeout": 200000
     }

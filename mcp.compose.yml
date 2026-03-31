@@ -27,7 +27,7 @@ services:
       - "TRANSPORT=streamable-http"
       - "GITLAB_URL=${GITLAB_URL}"
       - "GITLAB_TOKEN=${GITLAB_TOKEN}"
-      - "GITLAB_VERIFY=${GITLAB_VERIFY}"
+      - "GITLAB_SSL_VERIFY=${GITLAB_SSL_VERIFY}"
     ports:
       - "8017:8017"
     healthcheck:

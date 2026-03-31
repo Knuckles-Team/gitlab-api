@@ -27,7 +27,7 @@ services:
       - "TRANSPORT=stdio"
       - "GITLAB_URL=${GITLAB_URL}"
       - "GITLAB_TOKEN=${GITLAB_TOKEN}"
-      - "GITLAB_VERIFY=${GITLAB_VERIFY}"
+      - "GITLAB_SSL_VERIFY=${GITLAB_SSL_VERIFY}"
       - "PROVIDER=openai"
       - "LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:1234/v1}"
       - "LLM_API_KEY=${LLM_API_KEY:-llama}"

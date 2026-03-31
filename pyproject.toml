@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "25.15.49"
+version = "25.15.50"
 description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -34,7 +34,6 @@ all = [
 
 [project.scripts]
 gitlab-mcp = "gitlab_api.mcp_server:mcp_server"
-gitlab-agent = "gitlab_api.agent_server:agent_server"
 
 [tool.setuptools.package-data]
 gitlab_api = [ "mcp_config.json", "agent_data/**"]
