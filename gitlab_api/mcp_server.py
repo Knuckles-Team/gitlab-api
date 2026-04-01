@@ -62,7 +62,9 @@ def register_branches_tools(mcp: FastMCP):
         branch: Optional[str] = Field(description="Branch name", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Get branches in a GitLab project, optionally filtered."""
@@ -109,7 +111,9 @@ def register_branches_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Create a new branch in a GitLab project from a reference."""
@@ -155,7 +159,9 @@ def register_branches_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -230,7 +236,9 @@ def register_commits_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Get commits in a GitLab project, optionally filtered."""
@@ -284,7 +292,9 @@ def register_commits_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Create a new commit in a GitLab project."""
@@ -326,7 +336,9 @@ def register_commits_tools(mcp: FastMCP):
         commit_hash: str = Field(description="Commit SHA", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -379,7 +391,9 @@ def register_commits_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -443,7 +457,9 @@ def register_commits_tools(mcp: FastMCP):
         commit_hash: str = Field(description="Commit SHA", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -502,7 +518,9 @@ def register_commits_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -553,7 +571,9 @@ def register_commits_tools(mcp: FastMCP):
         commit_hash: str = Field(description="Commit SHA", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -615,7 +635,9 @@ def register_commits_tools(mcp: FastMCP):
         all: Optional[bool] = Field(description="Include all statuses", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -688,7 +710,9 @@ def register_commits_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -739,7 +763,9 @@ def register_commits_tools(mcp: FastMCP):
         commit_hash: str = Field(description="Commit SHA", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -788,7 +814,9 @@ def register_commits_tools(mcp: FastMCP):
         commit_hash: str = Field(description="Commit SHA", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -836,7 +864,9 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of all deploy tokens for the GitLab instance."""
@@ -869,7 +899,9 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         token_id: Optional[int] = Field(description="Deploy token ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of deploy tokens for a specific GitLab project."""
@@ -920,7 +952,9 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -968,7 +1002,9 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         token_id: int = Field(description="Deploy token ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1012,7 +1048,9 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve deploy tokens for a GitLab group (list or single by ID)."""
@@ -1059,7 +1097,9 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1105,7 +1145,9 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         token_id: int = Field(description="Deploy token ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1161,7 +1203,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of environments for a GitLab project, optionally filtered by name, search, or states or a single environment by id."""
@@ -1211,7 +1255,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1273,7 +1319,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1334,7 +1382,9 @@ def register_environments_tools(mcp: FastMCP):
         environment_id: int = Field(description="Environment ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1378,7 +1428,9 @@ def register_environments_tools(mcp: FastMCP):
         environment_id: int = Field(description="Environment ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1425,7 +1477,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1480,7 +1534,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1524,7 +1580,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve protected environments in a GitLab project (list or single by name)."""
@@ -1570,7 +1628,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1631,7 +1691,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1691,7 +1753,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1753,7 +1817,9 @@ def register_groups_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of groups, optionally filtered by search, sort, ownership, or access level or retrieve a single group by id."""
@@ -1801,7 +1867,9 @@ def register_groups_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -1869,7 +1937,9 @@ def register_groups_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of subgroups for a specific GitLab group, optionally filtered."""
@@ -1921,7 +1991,9 @@ def register_groups_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of all descendant groups for a specific GitLab group, optionally filtered."""
@@ -1971,7 +2043,9 @@ def register_groups_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of projects associated with a specific GitLab group, optionally including subgroups."""
@@ -2024,7 +2098,9 @@ def register_groups_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of merge requests associated with a specific GitLab group, optionally filtered."""
@@ -2075,7 +2151,9 @@ def register_jobs_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of jobs for a specific GitLab project, optionally filtered by scope or a single job by id."""
@@ -2117,7 +2195,9 @@ def register_jobs_tools(mcp: FastMCP):
         job_id: int = Field(description="Job ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve the log (trace) of a specific job in a GitLab project."""
@@ -2149,7 +2229,9 @@ def register_jobs_tools(mcp: FastMCP):
         job_id: int = Field(description="Job ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -2188,7 +2270,9 @@ def register_jobs_tools(mcp: FastMCP):
         job_id: int = Field(description="Job ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -2227,7 +2311,9 @@ def register_jobs_tools(mcp: FastMCP):
         job_id: int = Field(description="Job ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -2266,7 +2352,9 @@ def register_jobs_tools(mcp: FastMCP):
         job_id: int = Field(description="Job ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -2308,7 +2396,9 @@ def register_jobs_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of jobs for a specific pipeline in a GitLab project, optionally filtered by scope."""
@@ -2370,7 +2460,9 @@ def register_members_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of members in a specific GitLab group, optionally filtered by query or user IDs."""
@@ -2420,7 +2512,9 @@ def register_members_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of members in a specific GitLab project, optionally filtered by query or user IDs."""
@@ -2482,7 +2576,9 @@ def register_merge_requests_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -2556,7 +2652,9 @@ def register_merge_requests_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of merge requests across all projects, optionally filtered by state, scope, or labels."""
@@ -2609,7 +2707,9 @@ def register_merge_requests_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of merge requests for a specific GitLab project, optionally filtered or a single merge request or a single merge request by merge id"""
@@ -2660,7 +2760,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         approval_rule_id: int = Field(description="Approval rule ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve project-level merge request approval rules for a GitLab project details of a specific project-level merge request approval rule."""
@@ -2714,7 +2816,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -2781,7 +2885,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -2845,7 +2951,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         approval_rule_id: int = Field(description="Approval rule ID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -2890,7 +2998,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         merge_request_iid: int = Field(description="Merge request IID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve approvals for a specific merge request in a GitLab project."""
@@ -2926,7 +3036,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         merge_request_iid: int = Field(description="Merge request IID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve the approval state of a specific merge request in a GitLab project."""
@@ -2962,7 +3074,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         merge_request_iid: int = Field(description="Merge request IID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve merge request-level approval rules for a specific merge request in a GitLab project."""
@@ -2998,7 +3112,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         merge_request_iid: int = Field(description="Merge request IID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3043,7 +3159,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         merge_request_iid: int = Field(description="Merge request IID", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3085,7 +3203,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         group_id: Union[int, str] = Field(description="Group ID or path", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve merge request approval settings for a specific GitLab group."""
@@ -3130,7 +3250,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3195,7 +3317,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve merge request approval settings for a specific GitLab project."""
@@ -3242,7 +3366,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3312,7 +3438,9 @@ def register_packages_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of repository packages for a specific GitLab project, optionally filtered by package type."""
@@ -3361,7 +3489,9 @@ def register_packages_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3426,7 +3556,9 @@ def register_packages_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Download a repository package from a specific GitLab project."""
@@ -3493,7 +3625,9 @@ def register_pipelines_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of pipelines for a specific GitLab project, optionally filtered by scope, status, or ref or details of a specific pipeline in a GitLab project.."""
@@ -3545,7 +3679,9 @@ def register_pipelines_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3596,7 +3732,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of pipeline schedules for a specific GitLab project."""
@@ -3633,7 +3771,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve details of a specific pipeline schedule in a GitLab project."""
@@ -3672,7 +3812,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve pipelines triggered by a specific pipeline schedule in a GitLab project."""
@@ -3724,7 +3866,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3800,7 +3944,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3864,7 +4010,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3912,7 +4060,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -3960,7 +4110,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4013,7 +4165,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4074,7 +4228,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         key: str = Field(description="Key of the variable to delete", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4134,7 +4290,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of projects, optionally filtered by ownership, search, sort, or visibility or Retrieve details of a specific GitLab project."""
@@ -4192,7 +4350,9 @@ def register_projects_tools(mcp: FastMCP):
         group_id: Union[int, str] = Field(description="Group ID or path", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of nested projects within a GitLab group, including descendant groups."""
@@ -4225,7 +4385,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of contributors to a specific GitLab project."""
@@ -4258,7 +4420,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve statistics for a specific GitLab project."""
@@ -4301,7 +4465,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4365,7 +4531,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of groups associated with a specific GitLab project, optionally filtered."""
@@ -4405,7 +4573,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4445,7 +4615,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4485,7 +4657,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4535,7 +4709,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4595,7 +4771,9 @@ def register_protected_branches_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of protected branches in a specific GitLab project or Retrieve details of a specific protected branch in a GitLab project.."""
@@ -4660,7 +4838,9 @@ def register_protected_branches_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4731,7 +4911,9 @@ def register_protected_branches_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4779,7 +4961,9 @@ def register_protected_branches_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -4838,7 +5022,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of releases for a specific GitLab project, optionally filtered."""
@@ -4878,7 +5064,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve details of the latest release in a GitLab project."""
@@ -4911,7 +5099,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve evidence for the latest release in a GitLab project."""
@@ -4947,7 +5137,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a specific asset for the latest release in a GitLab project."""
@@ -4989,7 +5181,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of releases for a specific GitLab group, optionally filtered."""
@@ -5033,7 +5227,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Download a release asset from a group's release in GitLab."""
@@ -5071,7 +5267,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve details of a release by its tag in a GitLab project."""
@@ -5118,7 +5316,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5175,7 +5375,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5235,7 +5437,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5300,7 +5504,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5354,7 +5560,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of runners in GitLab, optionally filtered by scope, type, status, or tags or Retrieve details of a specific GitLab runner.."""
@@ -5414,7 +5622,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5484,7 +5694,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5531,7 +5743,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve jobs for a specific GitLab runner, optionally filtered by status or sorted."""
@@ -5574,7 +5788,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of runners in a specific GitLab project, optionally filtered by scope."""
@@ -5615,7 +5831,9 @@ def register_runners_tools(mcp: FastMCP):
         runner_id: int = Field(description="ID of the runner to enable", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5658,7 +5876,9 @@ def register_runners_tools(mcp: FastMCP):
         runner_id: int = Field(description="ID of the runner to delete", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5701,7 +5921,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of runners in a specific GitLab group, optionally filtered by scope."""
@@ -5753,7 +5975,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5802,7 +6026,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5846,7 +6072,9 @@ def register_runners_tools(mcp: FastMCP):
         token: str = Field(description="Runner token to verify", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5883,7 +6111,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5921,7 +6151,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -5959,7 +6191,9 @@ def register_runners_tools(mcp: FastMCP):
         group_id: Union[int, str] = Field(description="Group ID or path", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -6000,7 +6234,9 @@ def register_runners_tools(mcp: FastMCP):
         token: str = Field(description="Current token of the runner", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -6049,7 +6285,9 @@ def register_tags_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of tags for a specific GitLab project, optionally filtered or sorted or Retrieve details of a specific tag in a GitLab project."""
@@ -6101,7 +6339,9 @@ def register_tags_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -6156,7 +6396,9 @@ def register_tags_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -6195,7 +6437,9 @@ def register_tags_tools(mcp: FastMCP):
         name: Optional[str] = Field(description="Filter tags by name", default=None),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve a list of protected tags in a specific GitLab project, optionally filtered by name."""
@@ -6237,7 +6481,9 @@ def register_tags_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
     ) -> Response:
         """Retrieve details of a specific protected tag in a GitLab project."""
@@ -6279,7 +6525,9 @@ def register_tags_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -6338,7 +6586,9 @@ def register_tags_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         ctx: Optional[Context] = Field(
             description="MCP context for progress", default=None
@@ -6378,7 +6628,9 @@ def register_custom_api_tools(mcp: FastMCP):
         ),
         verify: Optional[bool] = Field(
             description="Verify SSL certificate",
-            default=to_boolean(os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_VERIFY)),
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
         ),
         method: str = Field(
             description="The HTTP method to use ('GET', 'POST', 'PUT', 'DELETE')"
