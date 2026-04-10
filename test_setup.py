@@ -1,15 +1,15 @@
 import os
 import sys
-from gitlab_api.agent_server import agent_template
+from agent_utilities import initialize_graph_from_workspace
 
 
 def test_template_in_process():
-    print("Testing gitlab-api agent_template for in-process MCP...")
+    print("Testing gitlab-api setup for in-process MCP...")
 
     os.environ.pop("MCP_URL", None)
     os.environ.pop("MCP_CONFIG", None)
 
-    graph, config = agent_template()
+    graph, config = initialize_graph_from_workspace()
 
     mcp_toolsets = config.get("mcp_toolsets", [])
     print(f"Number of toolsets: {len(mcp_toolsets)}")

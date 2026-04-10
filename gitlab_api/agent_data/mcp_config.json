@@ -1,34 +1,36 @@
 {
-    "mcpServers": {
-        "gitlab-api": {
-            "command": "gitlab-mcp",
-            "args": [
-                "--transport",
-                "stdio"
-            ],
-            "env": {
-                "GITLAB_URL": "${GITLAB_URL}",
-                "GITLAB_TOKEN": "${GITLAB_TOKEN}",
-                "GROUPSTOOL": "${ GROUPSTOOL:-True }",
-                "PROTECTED_BRANCHESTOOL": "${ PROTECTED_BRANCHESTOOL:-True }",
-                "PIPELINESTOOL": "${ PIPELINESTOOL:-True }",
-                "MERGE_REQUESTSTOOL": "${ MERGE_REQUESTSTOOL:-True }",
-                "MISCTOOL": "${ MISCTOOL:-True }",
-                "PACKAGESTOOL": "${ PACKAGESTOOL:-True }",
-                "DEPLOY_TOKENSTOOL": "${ DEPLOY_TOKENSTOOL:-True }",
-                "CUSTOM_APITOOL": "${ CUSTOM_APITOOL:-True }",
-                "PIPELINE_SCHEDULESTOOL": "${ PIPELINE_SCHEDULESTOOL:-True }",
-                "MERGE_RULESTOOL": "${ MERGE_RULESTOOL:-True }",
-                "COMMITSTOOL": "${ COMMITSTOOL:-True }",
-                "BRANCHESTOOL": "${ BRANCHESTOOL:-True }",
-                "JOBSTOOL": "${ JOBSTOOL:-True }",
-                "TAGSTOOL": "${ TAGSTOOL:-True }",
-                "MEMBERSTOOL": "${ MEMBERSTOOL:-True }",
-                "ENVIRONMENTSTOOL": "${ ENVIRONMENTSTOOL:-True }",
-                "PROJECTSTOOL": "${ PROJECTSTOOL:-True }",
-                "RELEASESTOOL": "${ RELEASESTOOL:-True }",
-                "RUNNERSTOOL": "${ RUNNERSTOOL:-True }"
-            }
-        }
+  "mcpServers": {
+    "gitlab-api": {
+      "command": "gitlab-mcp",
+      "args": [
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "GITLAB_URL": "${GITLAB_URL}",
+        "GITLAB_TOKEN": "${GITLAB_TOKEN}",
+        "GROUPSTOOL": "${ GROUPSTOOL:-True }",
+        "PROTECTED_BRANCHESTOOL": "${ PROTECTED_BRANCHESTOOL:-True }",
+        "PIPELINESTOOL": "${ PIPELINESTOOL:-True }",
+        "MERGE_REQUESTSTOOL": "${ MERGE_REQUESTSTOOL:-True }",
+        "MISCTOOL": "${ MISCTOOL:-True }",
+        "PACKAGESTOOL": "${ PACKAGESTOOL:-True }",
+        "DEPLOY_TOKENSTOOL": "${ DEPLOY_TOKENSTOOL:-True }",
+        "CUSTOM_APITOOL": "${ CUSTOM_APITOOL:-True }",
+        "PIPELINE_SCHEDULESTOOL": "${ PIPELINE_SCHEDULESTOOL:-True }",
+        "MERGE_RULESTOOL": "${ MERGE_RULESTOOL:-True }",
+        "COMMITSTOOL": "${ COMMITSTOOL:-True }",
+        "BRANCHESTOOL": "${ BRANCHESTOOL:-True }",
+        "JOBSTOOL": "${ JOBSTOOL:-True }",
+        "TAGSTOOL": "${ TAGSTOOL:-True }",
+        "MEMBERSTOOL": "${ MEMBERSTOOL:-True }",
+        "ENVIRONMENTSTOOL": "${ ENVIRONMENTSTOOL:-True }",
+        "PROJECTSTOOL": "${ PROJECTSTOOL:-True }",
+        "RELEASESTOOL": "${ RELEASESTOOL:-True }",
+        "RUNNERSTOOL": "${ RUNNERSTOOL:-True }",
+        "GITLAB_SSL_VERIFY": "${GITLAB_SSL_VERIFY}",
+        "GITLAB_VERIFY": "${GITLAB_VERIFY}"
+      }
     }
+  }
 }
