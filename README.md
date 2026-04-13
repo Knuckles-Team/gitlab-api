@@ -378,7 +378,7 @@ stateDiagram-v2
   DomainNode --> [*]: Domain Result
 ```
 
-- **RouterNode**: A fast, lightweight LLM (e.g., `google/gemma-4-31b`) that classifies the user's query into one of the specialized domains.
+- **RouterNode**: A fast, lightweight LLM (e.g., `nvidia/nemotron-3-super`) that classifies the user's query into one of the specialized domains.
 - **DomainNode**: The executor node. For the selected domain, it dynamically sets environment variables to temporarily enable ONLY the tools relevant to that domain, creating a highly focused sub-agent (e.g., `gpt-4o`) to complete the request. This preserves LLM context and prevents tool hallucination.
 
 ## Usage
@@ -492,7 +492,7 @@ stateDiagram-v2
   DomainNode --> [*]: Domain Result
 ```
 
-- **RouterNode**: A fast, lightweight LLM (e.g., `google/gemma-4-31b`) that classifies the user's query into one of the specialized domains.
+- **RouterNode**: A fast, lightweight LLM (e.g., `nvidia/nemotron-3-super`) that classifies the user's query into one of the specialized domains.
 - **DomainNode**: The executor node. For the selected domain, it dynamically sets environment variables to temporarily enable ONLY the tools relevant to that domain, creating a highly focused sub-agent (e.g., `gpt-4o`) to complete the request. This preserves LLM context and prevents tool hallucination.
 
 ## Usage Example
@@ -606,7 +606,7 @@ The A2A Server exposes a multi-agent system where a parent orchestrator delegate
 
 #### Run the A2A Server:
 ```bash
-gitlab-agent --provider openai --model-id google/gemma-4-31b
+gitlab-agent --provider openai --model-id nvidia/nemotron-3-super
 ```
 
 #### A2A CLI Configuration
@@ -617,7 +617,7 @@ gitlab-agent --provider openai --model-id google/gemma-4-31b
 | --port        | Port to bind the server to                              | 9000                      |
 | --reload      | Enable auto-reload                                      | False                     |
 | --provider    | LLM Provider (openai, anthropic, google, huggingface)   | openai                    |
-| --model-id    | LLM Model ID                                            | google/gemma-4-31b                  |
+| --model-id    | LLM Model ID                                            | nvidia/nemotron-3-super                  |
 | --base-url    | LLM Base URL (for OpenAI compatible providers)          | http://ollama.arpa/v1     |
 | --api-key     | LLM API Key                                             | ollama                    |
 | --mcp-url     | MCP Server URL to connect to                            | http://localhost:8000/mcp |
@@ -635,7 +635,7 @@ docker run -d -p 8000:8000 --name gitlab-mcp gitlab-api:latest gitlab-mcp --tran
 ```bash
 docker run -d -p 9000:9000 --name gitlab-agent gitlab-api:latest gitlab-agent \
   --provider openai \
-  --model-id google/gemma-4-31b \
+  --model-id nvidia/nemotron-3-super \
   --mcp-url http://host.docker.internal:8000/mcp
 ```
 
