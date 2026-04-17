@@ -6,6 +6,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     try:
         from requests.exceptions import RequestsDependencyWarning
+
         warnings.filterwarnings("ignore", category=RequestsDependencyWarning)
     except ImportError:
         pass
@@ -33,7 +34,7 @@ from gitlab_api.auth import get_client
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-__version__ = "25.15.55"
+__version__ = "25.15.56"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
@@ -46,7 +47,10 @@ DEFAULT_GITLAB_TOKEN = os.getenv("GITLAB_TOKEN", None)
 
 
 def register_misc_tools(mcp: FastMCP):
-    def health_check(request: Request) -> JSONResponse:
+    pass
+    pass
+
+    def health_check(_request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
 
@@ -69,7 +73,7 @@ def register_branches_tools(mcp: FastMCP):
         search: Optional[str] = Field(
             description="Filter branches by name containing this term", default=None
         ),
-        regex: Optional[str] = Field(
+        _regex: Optional[str] = Field(
             description="Filter branches by regex pattern on name", default=None
         ),
         branch: Optional[str] = Field(description="Branch name", default=None),
@@ -85,12 +89,13 @@ def register_branches_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
@@ -133,12 +138,13 @@ def register_branches_tools(mcp: FastMCP):
             raise ValueError("project_id, branch, and ref are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
@@ -193,12 +199,13 @@ def register_branches_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -256,12 +263,13 @@ def register_commits_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
@@ -313,12 +321,13 @@ def register_commits_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
@@ -359,12 +368,13 @@ def register_commits_tools(mcp: FastMCP):
             ctx.info(f"Fetching diff for commit {commit_hash} in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -422,12 +432,13 @@ def register_commits_tools(mcp: FastMCP):
 
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -480,12 +491,13 @@ def register_commits_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -540,12 +552,13 @@ def register_commits_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -592,12 +605,13 @@ def register_commits_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -626,13 +640,13 @@ def register_commits_tools(mcp: FastMCP):
         ref: Optional[str] = Field(
             description="Filter statuses by reference (branch or tag)", default=None
         ),
-        stage: Optional[str] = Field(
+        _stage: Optional[str] = Field(
             description="Filter statuses by CI stage", default=None
         ),
         name: Optional[str] = Field(
             description="Filter statuses by job name", default=None
         ),
-        coverage: Optional[bool] = Field(
+        _coverage: Optional[bool] = Field(
             description="Include coverage information", default=None
         ),
         all: Optional[bool] = Field(description="Include all statuses", default=None),
@@ -655,12 +669,13 @@ def register_commits_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -692,16 +707,16 @@ def register_commits_tools(mcp: FastMCP):
             description="State of the build (e.g., 'pending', 'running', 'success', 'failed')",
             default=None,
         ),
-        target_url: Optional[str] = Field(
+        _target_url: Optional[str] = Field(
             description="URL to link to the build", default=None
         ),
-        context: Optional[str] = Field(
+        _context: Optional[str] = Field(
             description="Context of the status (e.g., 'ci/build')", default=None
         ),
         description: Optional[str] = Field(
             description="Description of the status", default=None
         ),
-        coverage: Optional[float] = Field(
+        _coverage: Optional[float] = Field(
             description="Coverage percentage", default=None
         ),
         pipeline_id: Optional[int] = Field(
@@ -729,12 +744,13 @@ def register_commits_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -781,12 +797,13 @@ def register_commits_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -831,12 +848,13 @@ def register_commits_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -871,7 +889,8 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         """Retrieve a list of all deploy tokens for the GitLab instance."""
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -907,7 +926,8 @@ def register_deploy_tokens_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -964,12 +984,13 @@ def register_deploy_tokens_tools(mcp: FastMCP):
             ctx.info(f"Creating deploy token '{name}' for project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -1013,7 +1034,8 @@ def register_deploy_tokens_tools(mcp: FastMCP):
             ctx.info(f"Deleting deploy token {token_id} for project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -1053,7 +1075,8 @@ def register_deploy_tokens_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -1106,12 +1129,13 @@ def register_deploy_tokens_tools(mcp: FastMCP):
             ctx.info(f"Creating deploy token '{name}' for group {group_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -1153,7 +1177,8 @@ def register_deploy_tokens_tools(mcp: FastMCP):
             ctx.info(f"Deleting deploy token {token_id} for group {group_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -1205,12 +1230,13 @@ def register_environments_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
@@ -1261,12 +1287,13 @@ def register_environments_tools(mcp: FastMCP):
             ctx.info(f"Creating environment '{name}' for project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -1326,12 +1353,13 @@ def register_environments_tools(mcp: FastMCP):
             ctx.info(f"Updating environment {environment_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -1386,7 +1414,8 @@ def register_environments_tools(mcp: FastMCP):
             ctx.info(f"Deleting environment {environment_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -1431,7 +1460,8 @@ def register_environments_tools(mcp: FastMCP):
             ctx.info(f"Stopping environment {environment_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -1458,7 +1488,7 @@ def register_environments_tools(mcp: FastMCP):
         project_id: Union[int, str] = Field(
             description="Project ID or path", default=None
         ),
-        older_than: Optional[str] = Field(
+        _older_than: Optional[str] = Field(
             description="Filter environments older than this timestamp (ISO 8601 format)",
             default=None,
         ),
@@ -1479,12 +1509,13 @@ def register_environments_tools(mcp: FastMCP):
             ctx.info(f"Stopping stale environments in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -1535,7 +1566,8 @@ def register_environments_tools(mcp: FastMCP):
             ctx.info(f"Deleting stopped review apps in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -1575,7 +1607,8 @@ def register_environments_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -1627,12 +1660,13 @@ def register_environments_tools(mcp: FastMCP):
             ctx.info(f"Protecting environment '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -1691,12 +1725,13 @@ def register_environments_tools(mcp: FastMCP):
             ctx.info(f"Updating protected environment '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -1750,7 +1785,8 @@ def register_environments_tools(mcp: FastMCP):
             ctx.info(f"Unprotecting environment '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -1806,12 +1842,13 @@ def register_groups_tools(mcp: FastMCP):
         """Retrieve a list of groups, optionally filtered by search, sort, ownership, or access level or retrieve a single group by id."""
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -1866,12 +1903,13 @@ def register_groups_tools(mcp: FastMCP):
             ctx.info(f"Editing group {group_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -1926,12 +1964,13 @@ def register_groups_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -1979,12 +2018,13 @@ def register_groups_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2006,7 +2046,7 @@ def register_groups_tools(mcp: FastMCP):
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
         group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        include_subgroups: Optional[bool] = Field(
+        _include_subgroups: Optional[bool] = Field(
             description="Include projects from subgroups", default=None
         ),
         search: Optional[str] = Field(
@@ -2030,12 +2070,13 @@ def register_groups_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2084,12 +2125,13 @@ def register_groups_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2117,10 +2159,10 @@ def register_jobs_tools(mcp: FastMCP):
         scope: Optional[str] = Field(
             description="Filter jobs by scope (e.g., 'success', 'failed')", default=None
         ),
-        include_retried: Optional[bool] = Field(
+        _include_retried: Optional[bool] = Field(
             description="Include retried jobs", default=None
         ),
-        include_invisible: Optional[bool] = Field(
+        _include_invisible: Optional[bool] = Field(
             description="Include invisible jobs (e.g., from hidden pipelines)",
             default=None,
         ),
@@ -2136,12 +2178,13 @@ def register_jobs_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
@@ -2179,7 +2222,8 @@ def register_jobs_tools(mcp: FastMCP):
             raise ValueError("project_id and job_id are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -2217,7 +2261,8 @@ def register_jobs_tools(mcp: FastMCP):
             ctx.info(f"Cancelling job {job_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -2257,7 +2302,8 @@ def register_jobs_tools(mcp: FastMCP):
             ctx.info(f"Retrying job {job_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -2297,7 +2343,8 @@ def register_jobs_tools(mcp: FastMCP):
             ctx.info(f"Erasing job {job_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -2337,7 +2384,8 @@ def register_jobs_tools(mcp: FastMCP):
             ctx.info(f"Running job {job_id} in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -2375,12 +2423,13 @@ def register_jobs_tools(mcp: FastMCP):
             raise ValueError("project_id and pipeline_id are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2420,10 +2469,10 @@ def register_members_tools(mcp: FastMCP):
         user_ids: Optional[List[int]] = Field(
             description="Filter members by user IDs", default=None
         ),
-        skip_users: Optional[List[int]] = Field(
+        _skip_users: Optional[List[int]] = Field(
             description="Exclude specified user IDs", default=None
         ),
-        show_seat_info: Optional[bool] = Field(
+        _show_seat_info: Optional[bool] = Field(
             description="Include seat information for members", default=None
         ),
         verify: Optional[bool] = Field(
@@ -2438,12 +2487,13 @@ def register_members_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2474,7 +2524,7 @@ def register_members_tools(mcp: FastMCP):
         user_ids: Optional[List[int]] = Field(
             description="Filter members by user IDs", default=None
         ),
-        skip_users: Optional[List[int]] = Field(
+        _skip_users: Optional[List[int]] = Field(
             description="Exclude specified user IDs", default=None
         ),
         verify: Optional[bool] = Field(
@@ -2489,12 +2539,13 @@ def register_members_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2534,7 +2585,7 @@ def register_merge_requests_tools(mcp: FastMCP):
         assignee_id: Optional[int] = Field(
             description="ID of the user to assign the merge request to", default=None
         ),
-        reviewer_ids: Optional[List[int]] = Field(
+        _reviewer_ids: Optional[List[int]] = Field(
             description="IDs of users to set as reviewers", default=None
         ),
         labels: Optional[List[str]] = Field(
@@ -2559,12 +2610,13 @@ def register_merge_requests_tools(mcp: FastMCP):
             ctx.info(f"Creating merge request '{title}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2625,12 +2677,13 @@ def register_merge_requests_tools(mcp: FastMCP):
         """Retrieve a list of merge requests across all projects, optionally filtered by state, scope, or labels."""
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
@@ -2681,12 +2734,13 @@ def register_merge_requests_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2733,7 +2787,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -2767,7 +2822,7 @@ def register_merge_rules_tools(mcp: FastMCP):
         approvals_required: Optional[int] = Field(
             description="Number of approvals required", default=None
         ),
-        rule_type: Optional[str] = Field(
+        _rule_type: Optional[str] = Field(
             description="Type of rule (e.g., 'regular')", default=None
         ),
         user_ids: Optional[List[int]] = Field(
@@ -2793,12 +2848,13 @@ def register_merge_rules_tools(mcp: FastMCP):
             ctx.info(f"Creating approval rule '{name}' for project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2867,12 +2923,13 @@ def register_merge_rules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -2928,7 +2985,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -2967,7 +3025,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             raise ValueError("project_id and merge_request_iid are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3004,7 +3063,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             raise ValueError("project_id and merge_request_iid are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3041,7 +3101,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             raise ValueError("project_id and merge_request_iid are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3085,7 +3146,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3131,7 +3193,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3167,7 +3230,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3229,12 +3293,13 @@ def register_merge_rules_tools(mcp: FastMCP):
             ctx.info(f"Editing approval settings for group {group_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -3279,7 +3344,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3343,12 +3409,13 @@ def register_merge_rules_tools(mcp: FastMCP):
             ctx.info(f"Editing approval settings for project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -3383,7 +3450,7 @@ def register_packages_tools(mcp: FastMCP):
         project_id: Union[int, str] = Field(
             description="Project ID or path", default=None
         ),
-        package_type: Optional[str] = Field(
+        _package_type: Optional[str] = Field(
             description="Filter packages by type (e.g., 'npm', 'maven')", default=None
         ),
         verify: Optional[bool] = Field(
@@ -3398,12 +3465,13 @@ def register_packages_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -3457,12 +3525,13 @@ def register_packages_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -3516,7 +3585,8 @@ def register_packages_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3558,7 +3628,7 @@ def register_pipelines_tools(mcp: FastMCP):
             description="Filter pipelines by reference (e.g., branch or tag name)",
             default=None,
         ),
-        source: Optional[str] = Field(
+        _source: Optional[str] = Field(
             description="Filter pipelines by source (e.g., 'push', 'schedule')",
             default=None,
         ),
@@ -3582,12 +3652,13 @@ def register_pipelines_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -3640,12 +3711,13 @@ def register_pipelines_tools(mcp: FastMCP):
             ctx.info(f"Running pipeline for project {project_id} on ref {ref}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -3687,7 +3759,8 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3725,7 +3798,8 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             raise ValueError("project_id and pipeline_schedule_id are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3765,7 +3839,8 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             raise ValueError("project_id and pipeline_schedule_id are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -3825,12 +3900,13 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -3906,12 +3982,13 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -3967,7 +4044,8 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4016,7 +4094,8 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4065,7 +4144,8 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4121,12 +4201,13 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -4181,7 +4262,8 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4238,7 +4320,8 @@ def register_projects_tools(mcp: FastMCP):
         if not access_token:
             logger.error("No Access Token supplied")
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
 
         try:
             client = get_client(gitlab_instance, access_token, verify, config=config)
@@ -4294,7 +4377,8 @@ def register_projects_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4328,7 +4412,8 @@ def register_projects_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4362,7 +4447,8 @@ def register_projects_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4415,12 +4501,13 @@ def register_projects_tools(mcp: FastMCP):
             ctx.info(f"Editing project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -4453,7 +4540,7 @@ def register_projects_tools(mcp: FastMCP):
         project_id: Union[int, str] = Field(
             description="Project ID or path", default=None
         ),
-        skip_groups: Optional[List[int]] = Field(
+        _skip_groups: Optional[List[int]] = Field(
             description="List of group IDs to exclude", default=None
         ),
         search: Optional[str] = Field(
@@ -4471,12 +4558,13 @@ def register_projects_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -4517,7 +4605,8 @@ def register_projects_tools(mcp: FastMCP):
             ctx.info(f"Archiving project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4558,7 +4647,8 @@ def register_projects_tools(mcp: FastMCP):
             ctx.info(f"Unarchiving project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4599,7 +4689,8 @@ def register_projects_tools(mcp: FastMCP):
             ctx.info(f"Deleting project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4650,12 +4741,13 @@ def register_projects_tools(mcp: FastMCP):
             ctx.info(f"Sharing project {project_id} with group {group_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -4706,7 +4798,8 @@ def register_protected_branches_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4790,12 +4883,13 @@ def register_protected_branches_tools(mcp: FastMCP):
             ctx.info(f"Protecting branch '{branch}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -4849,7 +4943,8 @@ def register_protected_branches_tools(mcp: FastMCP):
             ctx.info(f"Unprotecting branch '{branch}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4902,7 +4997,8 @@ def register_protected_branches_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -4932,7 +5028,7 @@ def register_releases_tools(mcp: FastMCP):
         project_id: Union[int, str] = Field(
             description="Project ID or path", default=None
         ),
-        include_html_description: Optional[bool] = Field(
+        _include_html_description: Optional[bool] = Field(
             description="Whether to include HTML descriptions", default=None
         ),
         sort: Optional[str] = Field(
@@ -4953,12 +5049,13 @@ def register_releases_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -4994,7 +5091,8 @@ def register_releases_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5028,7 +5126,8 @@ def register_releases_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5065,7 +5164,8 @@ def register_releases_tools(mcp: FastMCP):
             raise ValueError("project_id and direct_asset_path are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5087,7 +5187,7 @@ def register_releases_tools(mcp: FastMCP):
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
         group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        include_html_description: Optional[bool] = Field(
+        _include_html_description: Optional[bool] = Field(
             description="Whether to include HTML descriptions", default=None
         ),
         sort: Optional[str] = Field(
@@ -5108,12 +5208,13 @@ def register_releases_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -5153,7 +5254,8 @@ def register_releases_tools(mcp: FastMCP):
             raise ValueError("group_id, tag_name, and direct_asset_path are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5192,7 +5294,8 @@ def register_releases_tools(mcp: FastMCP):
             raise ValueError("project_id and tag_name are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5245,12 +5348,13 @@ def register_releases_tools(mcp: FastMCP):
             ctx.info(f"Creating release '{name}' for project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -5305,7 +5409,8 @@ def register_releases_tools(mcp: FastMCP):
             )
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5368,12 +5473,13 @@ def register_releases_tools(mcp: FastMCP):
             ctx.info(f"Updating release for tag '{tag_name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -5430,7 +5536,8 @@ def register_releases_tools(mcp: FastMCP):
             ctx.info(f"Deleting release for tag '{tag_name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5478,12 +5585,13 @@ def register_runners_tools(mcp: FastMCP):
         """Retrieve a list of runners in GitLab, optionally filtered by scope, type, status, or tags or Retrieve details of a specific GitLab runner.."""
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify"]
@@ -5558,12 +5666,13 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info(f"Updating runner {runner_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -5617,7 +5726,8 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info(f"Setting runner {runner_id} active status to {active}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5660,12 +5770,13 @@ def register_runners_tools(mcp: FastMCP):
             raise ValueError("runner_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -5704,12 +5815,13 @@ def register_runners_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -5751,7 +5863,8 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info(f"Enabling runner {runner_id} for project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5795,7 +5908,8 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info(f"Deleting runner {runner_id} from project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -5834,12 +5948,13 @@ def register_runners_tools(mcp: FastMCP):
             raise ValueError("group_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -5892,12 +6007,13 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info("Registering new runner with token")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -5942,12 +6058,13 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info(f"Deleting runner with ID {runner_id or 'token'}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
@@ -5987,7 +6104,8 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info("Verifying runner authentication")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -6023,7 +6141,8 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info("Resetting GitLab runner registration token")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -6064,7 +6183,8 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info(f"Resetting runner token for project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -6103,7 +6223,8 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info(f"Resetting runner token for group {group_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -6145,7 +6266,8 @@ def register_runners_tools(mcp: FastMCP):
             ctx.info(f"Resetting authentication token for runner {runner_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -6190,12 +6312,13 @@ def register_tags_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -6228,7 +6351,7 @@ def register_tags_tools(mcp: FastMCP):
             description="Reference (e.g., branch or commit SHA) to tag", default=None
         ),
         message: Optional[str] = Field(description="Tag message", default=None),
-        release_description: Optional[str] = Field(
+        _release_description: Optional[str] = Field(
             description="Release description associated with the tag", default=None
         ),
         verify: Optional[bool] = Field(
@@ -6248,12 +6371,13 @@ def register_tags_tools(mcp: FastMCP):
             ctx.info(f"Creating tag '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -6304,7 +6428,8 @@ def register_tags_tools(mcp: FastMCP):
             ctx.info(f"Deleting tag '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -6339,12 +6464,13 @@ def register_tags_tools(mcp: FastMCP):
             raise ValueError("project_id is required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -6382,7 +6508,8 @@ def register_tags_tools(mcp: FastMCP):
             raise ValueError("project_id and name are required")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -6434,12 +6561,13 @@ def register_tags_tools(mcp: FastMCP):
             ctx.info(f"Protecting tag '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
         kwargs = {
-            k: v
+            k.lstrip("_"): v
             for k, v in locals().items()
             if v is not None
             and k
@@ -6490,7 +6618,8 @@ def register_tags_tools(mcp: FastMCP):
             ctx.info(f"Unprotecting tag '{name}' in project {project_id}")
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )
@@ -6540,7 +6669,8 @@ def register_custom_api_tools(mcp: FastMCP):
         """
         if not access_token:
             raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}")
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
         client = get_client(
             instance=gitlab_instance, token=access_token, verify=verify, config=config
         )

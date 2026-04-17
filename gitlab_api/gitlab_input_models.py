@@ -53,7 +53,7 @@ class BranchModel(BaseModel):
             return v
         return str(v).strip("'\"")
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -163,7 +163,7 @@ class CommitModel(BaseModel):
             return v
         return str(v).strip("'\"")
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -427,7 +427,7 @@ class TagModel(BaseModel):
     page: Optional[int] = Field(description="Pagination page", default=1)
     per_page: Optional[int] = Field(description="Results per page", default=100)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         self.api_parameters = {}
         if self.page:
             self.api_parameters["page"] = self.page
@@ -547,7 +547,7 @@ class DeployTokenModel(BaseModel):
     page: Optional[int] = Field(description="Pagination page", default=1)
     per_page: Optional[int] = Field(description="Results per page", default=100)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -884,7 +884,7 @@ class GroupModel(BaseModel):
             return v
         return str(v).strip("'\"")
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -1036,7 +1036,7 @@ class JobModel(BaseModel):
             raise ParameterError
         return v
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -1109,7 +1109,7 @@ class MembersModel(BaseModel):
             raise ParameterError
         return v
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -1224,7 +1224,7 @@ class MergeRequestModel(BaseModel):
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -1706,7 +1706,7 @@ class MergeRequestRuleSettingsModel(BaseModel):
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -1779,7 +1779,7 @@ class NamespaceModel(BaseModel):
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -1852,7 +1852,7 @@ class PackageModel(BaseModel):
     select: Optional[str] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -1987,7 +1987,7 @@ class PipelineModel(BaseModel):
 
         return values
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -2245,7 +2245,7 @@ class ProjectModel(BaseModel):
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -2575,7 +2575,7 @@ class ProtectedBranchModel(BaseModel):
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -2738,7 +2738,7 @@ class ReleaseModel(BaseModel):
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -2911,7 +2911,7 @@ class RunnerModel(BaseModel):
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -3071,7 +3071,7 @@ class UserModel(BaseModel):
     user_id: Optional[Union[str, int]] = None
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """
@@ -3225,7 +3225,7 @@ class WikiModel(BaseModel):
     api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
     data: Optional[Dict] = Field(description="Data Payload", default=None)
 
-    def model_post_init(self, __context):
+    def model_post_init(self, _context):
         """
         Build the API parameters
         """

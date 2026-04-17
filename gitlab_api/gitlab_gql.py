@@ -106,7 +106,7 @@ class GraphQL:
         self,
         project_id: Union[int, str],
         search: Optional[str] = None,
-        regex: Optional[str] = None,
+        _regex: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
     ) -> Dict[str, Any]:
@@ -664,7 +664,7 @@ class GraphQL:
         project_id: Union[int, str],
         ref: Optional[str] = None,
         path: Optional[str] = None,
-        author: Optional[str] = None,
+        _author: Optional[str] = None,
         since: Optional[str] = None,
         until: Optional[str] = None,
         all: Optional[bool] = False,
@@ -758,12 +758,12 @@ class GraphQL:
         branch: str,
         message: str,
         actions: List[Dict],
-        start_branch: Optional[str] = None,
-        start_sha: Optional[str] = None,
-        start_project: Optional[Union[int, str]] = None,
+        _start_branch: Optional[str] = None,
+        _start_sha: Optional[str] = None,
+        _start_project: Optional[Union[int, str]] = None,
         author_email: Optional[str] = None,
         author_name: Optional[str] = None,
-        stats: Optional[bool] = False,
+        _stats: Optional[bool] = False,
         force: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
@@ -1100,7 +1100,7 @@ class GraphQL:
         title: str,
         description: Optional[str] = None,
         labels: Optional[List[str]] = None,
-        milestone_id: Optional[int] = None,
+        _milestone_id: Optional[int] = None,
         assignee_ids: Optional[List[int]] = None,
         remove_source_branch: Optional[bool] = False,
     ) -> Dict[str, Any]:
@@ -1298,7 +1298,7 @@ class GraphQL:
         project_id: Union[int, str],
         ref: Optional[str] = None,
         status: Optional[str] = None,
-        source: Optional[str] = None,
+        _source: Optional[str] = None,
         username: Optional[str] = None,
         updated_after: Optional[str] = None,
         updated_before: Optional[str] = None,
@@ -1971,7 +1971,7 @@ class GraphQL:
     def get_packages(
         self,
         project_id: Union[int, str],
-        package_type: Optional[str] = None,
+        _package_type: Optional[str] = None,
         package_name: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
@@ -2216,7 +2216,7 @@ class GraphQL:
     def get_members(
         self,
         project_id: Union[int, str],
-        include_inherited: Optional[bool] = False,
+        _include_inherited: Optional[bool] = False,
         search: Optional[str] = None,
         first: Optional[int] = 20,
         after: Optional[str] = None,
@@ -2226,7 +2226,7 @@ class GraphQL:
 
         Args:
             project_id: Project ID or full path.
-            include_inherited: Include inherited members (not supported in GraphQL).
+            _include_inherited: Include inherited members (not supported in GraphQL).
             search: Optional search term (not supported in GraphQL).
             first: Number of members to fetch.
             after: Cursor for pagination.
