@@ -29,11 +29,12 @@ gql = [
     "gql>=4.0.0"]
 
 all = [
-    "gitlab-api[mcp,agent,gql,logfire]>=25.15.15"
+    "gitlab-api[mcp,agent,gql,logfire]>=25.15.56"
 ]
 
 [project.scripts]
 gitlab-mcp = "gitlab_api.mcp_server:mcp_server"
+gitlab-agent = "gitlab_api.agent_server:agent_server"
 
 [tool.setuptools.package-data]
 gitlab_api = [ "mcp_config.json", "agent_data/**"]
