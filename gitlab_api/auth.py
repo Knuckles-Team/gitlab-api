@@ -1,11 +1,11 @@
 import os
 import threading
-from typing import Optional
 
 import requests
-from agent_utilities.base_utilities import to_boolean, get_logger
-from gitlab_api.api_wrapper import Api
+from agent_utilities.base_utilities import get_logger, to_boolean
 from agent_utilities.exceptions import AuthError, UnauthorizedError
+
+from gitlab_api.api_wrapper import Api
 
 local = threading.local()
 logger = get_logger(__name__)
@@ -13,9 +13,9 @@ logger = get_logger(__name__)
 
 def get_client(
     instance: str = os.getenv("GITLAB_URL", "https://gitlab.com"),
-    token: Optional[str] = os.getenv("GITLAB_TOKEN", None),
+    token: str | None = os.getenv("GITLAB_TOKEN", None),
     verify: bool = to_boolean(string=os.getenv("GITLAB_SSL_VERIFY", "True")),
-    config: Optional[dict] = None,
+    config: dict | None = None,
 ) -> Api:
     """
     Factory function to create the Api client, either with fixed credentials or delegated token.

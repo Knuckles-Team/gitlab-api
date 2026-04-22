@@ -1,20 +1,17 @@
 #!/usr/bin/python
-
 import re
-
-from typing import Union, List, Dict, Optional
-from pydantic import (
-    BaseModel,
-    Field,
-    field_validator,
-    model_validator,
-    HttpUrl,
-    EmailStr,
-)
-
+from typing import Any
 
 from agent_utilities.exceptions import (
     ParameterError,
+)
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+    HttpUrl,
+    field_validator,
+    model_validator,
 )
 
 
@@ -33,15 +30,15 @@ class BranchModel(BaseModel):
         provided when either `branch` or `ref` is specified.
     """
 
-    project_id: Union[int, str]
-    branch: Optional[str] = None
-    ref: Optional[str] = None
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    max_pages: Optional[int] = Field(
+    project_id: int | str
+    branch: str | None = None
+    ref: str | None = None
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    page: Optional[int] = Field(description="Pagination page", default=1)
-    per_page: Optional[int] = Field(description="Results per page", default=100)
+    page: int | None = Field(description="Pagination page", default=1)
+    per_page: int | None = Field(description="Results per page", default=100)
 
     @field_validator("project_id")
     def validate_project_id(cls, v):
@@ -109,49 +106,49 @@ class CommitModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    project_id: Union[int, str]
-    commit_hash: Optional[str] = None
-    branch: Optional[str] = None
-    dry_run: Optional[bool] = None
-    message: Optional[str] = None
-    state: Optional[str] = None
-    ref: Optional[str] = None
-    name: Optional[str] = None
-    context: Optional[str] = None
-    target_url: Optional[Union[HttpUrl, str]] = None
-    description: Optional[str] = None
-    coverage: Optional[Union[float, str]] = None
-    pipeline_id: Optional[Union[int, str]] = None
-    actions: Optional[list] = None
-    start_branch: Optional[str] = None
-    start_sha: Optional[str] = None
-    start_project: Optional[Union[int, str]] = None
-    author_email: Optional[EmailStr] = None
-    author_name: Optional[str] = None
-    stats: Optional[bool] = None
-    force: Optional[bool] = None
-    line: Optional[int] = None
-    line_type: Optional[str] = None
-    note: Optional[str] = None
-    path: Optional[str] = None
-    group_ids: Optional[list] = None
-    protected_branch_ids: Optional[list] = None
-    report_type: Optional[str] = None
-    rule_type: Optional[str] = None
-    user_ids: Optional[list] = None
-    user_ids: Optional[list] = None
-    since: Optional[str] = None
-    until: Optional[str] = None
-    all: Optional[bool] = None
-    with_stats: Optional[bool] = None
-    ref_name: Optional[str] = None
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    max_pages: Optional[int] = Field(
+    project_id: int | str
+    commit_hash: str | None = None
+    branch: str | None = None
+    dry_run: bool | None = None
+    message: str | None = None
+    state: str | None = None
+    ref: str | None = None
+    name: str | None = None
+    context: str | None = None
+    target_url: HttpUrl | str | None = None
+    description: str | None = None
+    coverage: float | str | None = None
+    pipeline_id: int | str | None = None
+    actions: list | None = None
+    start_branch: str | None = None
+    start_sha: str | None = None
+    start_project: int | str | None = None
+    author_email: EmailStr | None = None
+    author_name: str | None = None
+    stats: bool | None = None
+    force: bool | None = None
+    line: int | None = None
+    line_type: str | None = None
+    note: str | None = None
+    path: str | None = None
+    group_ids: list | None = None
+    protected_branch_ids: list | None = None
+    report_type: str | None = None
+    rule_type: str | None = None
+    user_ids: list | None = None
+    user_ids: list | None = None
+    since: str | None = None
+    until: str | None = None
+    all: bool | None = None
+    with_stats: bool | None = None
+    ref_name: str | None = None
+    data: dict | None = Field(description="Data Payload", default=None)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    page: Optional[int] = Field(description="Pagination page", default=1)
-    per_page: Optional[int] = Field(description="Results per page", default=100)
+    page: int | None = Field(description="Pagination page", default=1)
+    per_page: int | None = Field(description="Results per page", default=100)
 
     @field_validator("project_id", "pipeline_id", "start_project")
     def validate_ids(cls, v):
@@ -358,7 +355,7 @@ class CommitModel(BaseModel):
         Raises:
         - ValueError: If no key is present in the data dictionary.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         if "branch" in values:
             data["branch"] = values.get("branch")
@@ -413,19 +410,19 @@ class CommitModel(BaseModel):
 
 
 class TagModel(BaseModel):
-    project_id: Union[int, str] = Field(..., description="Project ID or full path")
-    tag: Optional[str] = Field(None, description="Name of the tag")
-    ref: Optional[str] = Field(
+    project_id: int | str = Field(..., description="Project ID or full path")
+    tag: str | None = Field(None, description="Name of the tag")
+    ref: str | None = Field(
         None,
         description="Reference (branch, tag, or commit SHA) to create the tag from",
     )
-    message: Optional[str] = Field(None, description="Tag message")
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    max_pages: Optional[int] = Field(
+    message: str | None = Field(None, description="Tag message")
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    page: Optional[int] = Field(description="Pagination page", default=1)
-    per_page: Optional[int] = Field(description="Results per page", default=100)
+    page: int | None = Field(description="Pagination page", default=1)
+    per_page: int | None = Field(description="Results per page", default=100)
 
     def model_post_init(self, _context):
         self.api_parameters = {}
@@ -448,16 +445,16 @@ class TagModel(BaseModel):
 
 
 class PipelineScheduleModel(BaseModel):
-    project_id: Union[int, str] = Field(..., description="Project ID or full path")
-    description: Optional[str] = Field(
+    project_id: int | str = Field(..., description="Project ID or full path")
+    description: str | None = Field(
         None, description="Description of the pipeline schedule"
     )
-    ref: Optional[str] = Field(None, description="Branch or tag to run the pipeline on")
-    cron: Optional[str] = Field(None, description="Cron expression for the schedule")
-    cron_timezone: Optional[str] = Field(
+    ref: str | None = Field(None, description="Branch or tag to run the pipeline on")
+    cron: str | None = Field(None, description="Cron expression for the schedule")
+    cron_timezone: str | None = Field(
         None, description="Timezone for the cron expression"
     )
-    active: Optional[bool] = Field(True, description="Whether the schedule is active")
+    active: bool | None = Field(True, description="Whether the schedule is active")
 
     @field_validator("project_id")
     def validate_project_id(cls, v):
@@ -479,16 +476,14 @@ class PipelineScheduleModel(BaseModel):
 
 
 class IssueModel(BaseModel):
-    project_id: Union[int, str] = Field(..., description="Project ID or full path")
-    title: Optional[str] = Field(None, description="Title of the issue")
-    description: Optional[str] = Field(None, description="Description of the issue")
-    labels: Optional[List[str]] = Field(
-        None, description="List of labels for the issue"
-    )
-    state: Optional[str] = Field(
+    project_id: int | str = Field(..., description="Project ID or full path")
+    title: str | None = Field(None, description="Title of the issue")
+    description: str | None = Field(None, description="Description of the issue")
+    labels: list[str] | None = Field(None, description="List of labels for the issue")
+    state: str | None = Field(
         None, description="State of the issue (e.g., 'opened', 'closed')"
     )
-    issue_iid: Optional[int] = Field(None, description="Internal ID of the issue")
+    issue_iid: int | None = Field(None, description="Internal ID of the issue")
 
     @field_validator("project_id")
     def validate_project_id(cls, v):
@@ -532,20 +527,20 @@ class DeployTokenModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    project_id: Union[int, str] = None
-    group_id: Optional[Union[int, str]] = None
-    token: Optional[str] = None
-    name: Optional[str] = None
-    expires_at: Optional[str] = None
-    username: Optional[str] = None
-    username: Optional[str] = None
-    scopes: Optional[str] = None
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    max_pages: Optional[int] = Field(
+    project_id: int | str = None
+    group_id: int | str | None = None
+    token: str | None = None
+    name: str | None = None
+    expires_at: str | None = None
+    username: str | None = None
+    username: str | None = None
+    scopes: str | None = None
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    page: Optional[int] = Field(description="Pagination page", default=1)
-    per_page: Optional[int] = Field(description="Results per page", default=100)
+    page: int | None = Field(description="Pagination page", default=1)
+    per_page: int | None = Field(description="Results per page", default=100)
 
     def model_post_init(self, _context):
         """
@@ -644,147 +639,145 @@ class GroupModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    group_id: Union[int, str] = Field(description="The group ID.", default=None)
-    name: Optional[str] = Field(description="The name of the group.", default=None)
-    path: Optional[str] = Field(description="The path of the group.", default=None)
-    auto_devops_enabled: Optional[bool] = Field(
+    group_id: int | str = Field(description="The group ID.", default=None)
+    name: str | None = Field(description="The name of the group.", default=None)
+    path: str | None = Field(description="The path of the group.", default=None)
+    auto_devops_enabled: bool | None = Field(
         description="Enable Auto DevOps pipeline by default.", default=None
     )
-    avatar: Optional[bytes] = Field(
+    avatar: bytes | None = Field(
         description="Image file for avatar of the group.", default=None
     )
-    default_branch: Optional[str] = Field(
+    default_branch: str | None = Field(
         description="The default branch name for the group's projects.", default=None
     )
-    default_branch_protection: Optional[int] = Field(
+    default_branch_protection: int | None = Field(
         description="Deprecated: Use default_branch_protection_defaults instead.",
         default=None,
     )
-    default_branch_protection_defaults: Optional[Dict] = Field(
+    default_branch_protection_defaults: dict | None = Field(
         description="Options for default_branch_protection_defaults.", default=None
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
         description="The description of the group.", default=None
     )
-    enabled_git_access_protocol: Optional[str] = Field(
+    enabled_git_access_protocol: str | None = Field(
         description="Enabled protocols for Git access (ssh, http, or all).",
         default=None,
     )
-    emails_enabled: Optional[bool] = Field(
+    emails_enabled: bool | None = Field(
         description="Enable email notifications.", default=None
     )
-    lfs_enabled: Optional[bool] = Field(
+    lfs_enabled: bool | None = Field(
         description="Enable or disable Large File Storage (LFS).", default=None
     )
-    mentions_disabled: Optional[bool] = Field(
+    mentions_disabled: bool | None = Field(
         description="Disable mentions for the group.", default=None
     )
-    prevent_sharing_groups_outside_hierarchy: Optional[bool] = Field(
+    prevent_sharing_groups_outside_hierarchy: bool | None = Field(
         description="Prevent sharing groups outside the hierarchy.", default=None
     )
-    project_creation_level: Optional[str] = Field(
+    project_creation_level: str | None = Field(
         description="Determine if developers can create projects (no-one, maintainer, or developer).",
         default=None,
     )
-    request_access_enabled: Optional[bool] = Field(
+    request_access_enabled: bool | None = Field(
         description="Allow users to request member access.", default=None
     )
-    require_two_factor_authentication: Optional[bool] = Field(
+    require_two_factor_authentication: bool | None = Field(
         description="Require all users to set up two-factor authentication.",
         default=None,
     )
-    shared_runners_setting: Optional[str] = Field(
+    shared_runners_setting: str | None = Field(
         description="Options for shared runners (enabled or disabled).", default=None
     )
-    share_with_group_lock: Optional[bool] = Field(
+    share_with_group_lock: bool | None = Field(
         description="Prevent sharing a project with another group.", default=None
     )
-    subgroup_creation_level: Optional[str] = Field(
+    subgroup_creation_level: str | None = Field(
         description="Allowed to create subgroups (owner or maintainer).", default=None
     )
-    two_factor_grace_period: Optional[int] = Field(
+    two_factor_grace_period: int | None = Field(
         description="Time before two-factor authentication is enforced (in hours).",
         default=None,
     )
-    visibility: Optional[str] = Field(
+    visibility: str | None = Field(
         description="Visibility level of the group (private, internal, or public).",
         default=None,
     )
-    extra_shared_runners_minutes_limit: Optional[int] = Field(
+    extra_shared_runners_minutes_limit: int | None = Field(
         description="Additional compute minutes for the group (admins only).",
         default=None,
     )
-    file_template_project_id: Optional[Union[int, str]] = Field(
+    file_template_project_id: int | str | None = Field(
         description="ID of a project to load custom file templates from.", default=None
     )
-    membership_lock: Optional[bool] = Field(
+    membership_lock: bool | None = Field(
         description="Prevent adding users to projects in this group.", default=None
     )
-    prevent_forking_outside_group: Optional[bool] = Field(
+    prevent_forking_outside_group: bool | None = Field(
         description="Prevent forking projects to external namespaces.", default=None
     )
-    shared_runners_minutes_limit: Optional[int] = Field(
+    shared_runners_minutes_limit: int | None = Field(
         description="Maximum number of monthly compute minutes for this group.",
         default=None,
     )
-    unique_project_download_limit: Optional[int] = Field(
+    unique_project_download_limit: int | None = Field(
         description="Max unique projects a user can download in a time period.",
         default=None,
     )
-    unique_project_download_limit_interval_in_seconds: Optional[int] = Field(
+    unique_project_download_limit_interval_in_seconds: int | None = Field(
         description="Time period for unique project download limit (in seconds).",
         default=None,
     )
-    unique_project_download_limit_allowlist: Optional[List[str]] = Field(
+    unique_project_download_limit_allowlist: list[str] | None = Field(
         description="Usernames excluded from the unique project download limit.",
         default=None,
     )
-    unique_project_download_limit_alertlist: Optional[List[int]] = Field(
+    unique_project_download_limit_alertlist: list[int] | None = Field(
         description="User IDs alerted when unique project download limit is exceeded.",
         default=None,
     )
-    auto_ban_user_on_excessive_projects_download: Optional[bool] = Field(
+    auto_ban_user_on_excessive_projects_download: bool | None = Field(
         description="Automatically ban users exceeding project download limits.",
         default=None,
     )
-    ip_restriction_ranges: Optional[str] = Field(
+    ip_restriction_ranges: str | None = Field(
         description="Comma-separated IP addresses or subnets to restrict access.",
         default=None,
     )
-    allowed_email_domains_list: Optional[str] = Field(
+    allowed_email_domains_list: str | None = Field(
         description="Comma-separated list of allowed email domains.", default=None
     )
-    wiki_access_level: Optional[str] = Field(
+    wiki_access_level: str | None = Field(
         description="Wiki access level (disabled, private, or enabled).", default=None
     )
-    math_rendering_limits_enabled: Optional[bool] = Field(
+    math_rendering_limits_enabled: bool | None = Field(
         description="Indicates if math rendering limits are used for this group.",
         default=None,
     )
-    lock_math_rendering_limits_enabled: Optional[bool] = Field(
+    lock_math_rendering_limits_enabled: bool | None = Field(
         description="Indicates if math rendering limits are locked for descendent groups.",
         default=None,
     )
-    duo_features_enabled: Optional[bool] = Field(
+    duo_features_enabled: bool | None = Field(
         description="Indicates whether GitLab Duo features are enabled.", default=None
     )
-    lock_duo_features_enabled: Optional[bool] = Field(
+    lock_duo_features_enabled: bool | None = Field(
         description="Indicates whether GitLab Duo features setting is enforced for subgroups.",
         default=None,
     )
-    total_pages: Optional[int] = Field(
-        description="Total number of pages", default=None
-    )
-    max_pages: Optional[int] = Field(
+    total_pages: int | None = Field(description="Total number of pages", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    per_page: Optional[int] = Field(description="Results per page", default=100)
-    page: Optional[int] = Field(description="Pagination page", default=1)
-    argument: Optional[str] = Field(
+    per_page: int | None = Field(description="Results per page", default=100)
+    page: int | None = Field(description="Pagination page", default=1)
+    argument: str | None = Field(
         description="Any additional parameter arguments.", default="state=opened"
     )
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     @model_validator(mode="before")
     def build_data(cls, values):
@@ -800,7 +793,7 @@ class GroupModel(BaseModel):
         Raises:
         - None.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:
@@ -917,23 +910,19 @@ class JobModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    project_id: Union[int, str] = None
-    pipeline_id: Union[int, str] = None
-    job_id: Union[int, str] = None
-    scope: Optional[List[str]] = None
-    total_pages: Optional[int] = Field(
-        description="Total number of pages", default=None
-    )
-    max_pages: Optional[int] = Field(
+    project_id: int | str = None
+    pipeline_id: int | str = None
+    job_id: int | str = None
+    scope: list[str] | None = None
+    total_pages: int | None = Field(description="Total number of pages", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    page: Optional[int] = Field(description="Page in multi-page response", default=None)
-    per_page: Optional[int] = Field(
-        description="Amount of items per page", default=None
-    )
-    include_retried: Optional[bool] = None
-    job_variable_attributes: Optional[Dict] = None
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    page: int | None = Field(description="Page in multi-page response", default=None)
+    per_page: int | None = Field(description="Amount of items per page", default=None)
+    include_retried: bool | None = None
+    job_variable_attributes: dict | None = None
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
 
     @field_validator("project_id", "pipeline_id", "job_id")
     def validate_ids(cls, v):
@@ -1068,11 +1057,11 @@ class MembersModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    group_id: Optional[Union[int, str]] = None
-    project_id: Optional[Union[int, str]] = None
-    per_page: Optional[int] = Field(description="Results per page", default=100)
-    page: Optional[int] = Field(description="Pagination page", default=1)
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    group_id: int | str | None = None
+    project_id: int | str | None = None
+    per_page: int | None = Field(description="Results per page", default=100)
+    page: int | None = Field(description="Pagination page", default=1)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
 
     @field_validator("project_id", "group_id")
     def validate_ids(cls, v):
@@ -1176,53 +1165,53 @@ class MergeRequestModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    approved_by_ids: Optional[List[int]] = None
-    approver_ids: Optional[List[int]] = None
-    assignee_id: Optional[Union[int, str]] = None
-    author_id: Optional[Union[int, str]] = None
-    author_username: Optional[str] = None
-    created_after: Optional[str] = None
-    created_before: Optional[str] = None
-    deployed_after: Optional[str] = None
-    deployed_before: Optional[str] = None
-    environment: Optional[str] = None
-    search_in: Optional[str] = None
-    labels: Optional[str] = None
-    milestone: Optional[str] = None
-    my_reaction_emoji: Optional[str] = None
-    project_id: Optional[Union[int, str]] = None
-    search_exclude: Optional[str] = None
-    order_by: Optional[str] = None
-    reviewer_id: Optional[Union[int, str]] = None
-    reviewer_username: Optional[str] = None
-    scope: Optional[List[str]] = None
-    search: Optional[str] = None
-    sort: Optional[str] = None
-    source_branch: Optional[str] = None
-    state: Optional[str] = None
-    target_branch: Optional[str] = None
-    updated_after: Optional[str] = None
-    updated_before: Optional[str] = None
-    view: Optional[str] = None
-    with_labels_details: Optional[bool] = None
-    with_merge_status_recheck: Optional[bool] = None
-    wip: Optional[str] = None
-    title: Optional[str]
-    allow_collaboration: Optional[bool] = None
-    allow_maintainer_to_push: Optional[bool] = None
-    approvals_before_merge: Optional[int] = None
-    assignee_ids: Optional[List[int]] = None
-    description: Optional[str] = None
-    milestone_id: Optional[Union[int, str]] = None
-    remove_source_branch: Optional[str] = None
-    reviewer_ids: Optional[List[int]] = None
-    squash: Optional[bool] = None
-    target_project_id: Optional[Union[int, str]] = None
-    max_pages: Optional[int] = Field(description="Maximum pages to return", default=0)
-    per_page: Optional[int] = Field(description="Results per page", default=100)
-    page: Optional[int] = Field(description="Pagination page", default=1)
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    approved_by_ids: list[int] | None = None
+    approver_ids: list[int] | None = None
+    assignee_id: int | str | None = None
+    author_id: int | str | None = None
+    author_username: str | None = None
+    created_after: str | None = None
+    created_before: str | None = None
+    deployed_after: str | None = None
+    deployed_before: str | None = None
+    environment: str | None = None
+    search_in: str | None = None
+    labels: str | None = None
+    milestone: str | None = None
+    my_reaction_emoji: str | None = None
+    project_id: int | str | None = None
+    search_exclude: str | None = None
+    order_by: str | None = None
+    reviewer_id: int | str | None = None
+    reviewer_username: str | None = None
+    scope: list[str] | None = None
+    search: str | None = None
+    sort: str | None = None
+    source_branch: str | None = None
+    state: str | None = None
+    target_branch: str | None = None
+    updated_after: str | None = None
+    updated_before: str | None = None
+    view: str | None = None
+    with_labels_details: bool | None = None
+    with_merge_status_recheck: bool | None = None
+    wip: str | None = None
+    title: str | None
+    allow_collaboration: bool | None = None
+    allow_maintainer_to_push: bool | None = None
+    approvals_before_merge: int | None = None
+    assignee_ids: list[int] | None = None
+    description: str | None = None
+    milestone_id: int | str | None = None
+    remove_source_branch: str | None = None
+    reviewer_ids: list[int] | None = None
+    squash: bool | None = None
+    target_project_id: int | str | None = None
+    max_pages: int | None = Field(description="Maximum pages to return", default=0)
+    per_page: int | None = Field(description="Results per page", default=100)
+    page: int | None = Field(description="Pagination page", default=1)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     def model_post_init(self, _context):
         """
@@ -1310,7 +1299,7 @@ class MergeRequestModel(BaseModel):
         Note:
         Constructs API parameters based on provided values.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:
@@ -1549,19 +1538,19 @@ class MergeRequestRuleModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: Optional[Union[int, str]] = None
-    group_id: Optional[Union[int, str]] = None
-    approval_rule_id: Optional[Union[int, str]] = None
-    approvals_required: Optional[int] = None
-    name: Optional[str] = None
-    applies_to_all_protected_branches: Optional[bool] = None
-    group_ids: Optional[List[int]] = None
-    merge_request_iid: Optional[Union[int, str]] = None
-    protected_branch_ids: Optional[List[int]] = None
-    report_type: Optional[str] = None
-    rule_type: Optional[str] = None
-    user_ids: Optional[List[int]] = None
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    project_id: int | str | None = None
+    group_id: int | str | None = None
+    approval_rule_id: int | str | None = None
+    approvals_required: int | None = None
+    name: str | None = None
+    applies_to_all_protected_branches: bool | None = None
+    group_ids: list[int] | None = None
+    merge_request_iid: int | str | None = None
+    protected_branch_ids: list[int] | None = None
+    report_type: str | None = None
+    rule_type: str | None = None
+    user_ids: list[int] | None = None
+    data: dict | None = Field(description="Data Payload", default=None)
 
     @field_validator("report_type")
     def validate_report_type(cls, value):
@@ -1614,7 +1603,7 @@ class MergeRequestRuleModel(BaseModel):
         Raises:
         - ValueError: If the data dictionary is empty.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         if "approvals_required" in values:
             data["approvals_required"] = values.get("approvals_required")
@@ -1675,36 +1664,34 @@ class MergeRequestRuleSettingsModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: Optional[Union[int, str]] = Field(
-        description="Project ID", default=None
-    )
-    group_id: Optional[Union[int, str]] = Field(description="Group ID", default=None)
-    allow_author_approval: Optional[bool] = Field(
+    project_id: int | str | None = Field(description="Project ID", default=None)
+    group_id: int | str | None = Field(description="Group ID", default=None)
+    allow_author_approval: bool | None = Field(
         description="Allow or prevent authors from self approving merge requests; true means authors can self approve.",
         default=None,
     )
-    allow_committer_approval: Optional[bool] = Field(
+    allow_committer_approval: bool | None = Field(
         description="Allow or prevent committers from self approving merge requests.",
         default=None,
     )
-    allow_overrides_to_approver_list_per_merge_request: Optional[bool] = Field(
+    allow_overrides_to_approver_list_per_merge_request: bool | None = Field(
         description="Allow or prevent overriding approvers per merge request.",
         default=None,
     )
-    retain_approvals_on_push: Optional[bool] = Field(
+    retain_approvals_on_push: bool | None = Field(
         description="Retain approval count on a new push.", default=None
     )
-    selective_code_owner_removals: Optional[bool] = Field(
+    selective_code_owner_removals: bool | None = Field(
         description="Reset approvals from Code Owners if their files changed. "
         "You must disable the retain_approvals_on_push field to use this field.",
         default=None,
     )
-    require_reauthentication_to_approve: Optional[bool] = Field(
+    require_reauthentication_to_approve: bool | None = Field(
         description="Require approver to authenticate before adding the approval.",
         default=None,
     )
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     def model_post_init(self, _context):
         """
@@ -1748,7 +1735,7 @@ class MergeRequestRuleSettingsModel(BaseModel):
         Raises:
         - None.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:
@@ -1768,16 +1755,16 @@ class NamespaceModel(BaseModel):
 
     """
 
-    namespace_id: Optional[Union[int, str]] = None
-    search: Optional[str] = Field(description="Search parameters", default=None)
-    owned_only: Optional[bool] = Field(
+    namespace_id: int | str | None = None
+    search: str | None = Field(description="Search parameters", default=None)
+    owned_only: bool | None = Field(
         description="Only show owned  namespace", default=None
     )
-    top_level_only: Optional[bool] = Field(
+    top_level_only: bool | None = Field(
         description="Only show top level namespaces", default=None
     )
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     def model_post_init(self, _context):
         """
@@ -1805,7 +1792,7 @@ class NamespaceModel(BaseModel):
         Raises:
         - None.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:
@@ -1844,13 +1831,13 @@ class PackageModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: Union[int, str] = None
-    package_name: Optional[str] = None
-    package_version: Optional[str] = None
-    file_name: Optional[str] = None
-    status: Optional[str] = None
-    select: Optional[str] = None
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    project_id: int | str = None
+    package_name: str | None = None
+    package_version: str | None = None
+    file_name: str | None = None
+    status: str | None = None
+    select: str | None = None
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
 
     def model_post_init(self, _context):
         """
@@ -1944,21 +1931,19 @@ class PipelineModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: Union[int, str] = None
-    total_pages: Optional[int] = Field(
-        description="Total number of pages", default=None
-    )
-    max_pages: Optional[int] = Field(
+    project_id: int | str = None
+    total_pages: int | None = Field(description="Total number of pages", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    per_page: Optional[int] = Field(description="Results per page", default=100)
-    page: Optional[int] = Field(description="Pagination page", default=1)
-    status: Optional[str] = Field(description="Status", default=None)
-    pipeline_id: Optional[Union[int, str]] = None
-    ref: Optional[str] = None
-    variables: Optional[Dict] = None
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    per_page: int | None = Field(description="Results per page", default=100)
+    page: int | None = Field(description="Pagination page", default=1)
+    status: str | None = Field(description="Status", default=None)
+    pipeline_id: int | str | None = None
+    ref: str | None = None
+    variables: dict | None = None
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     @model_validator(mode="before")
     def build_data(cls, values):
@@ -1974,7 +1959,7 @@ class PipelineModel(BaseModel):
         Raises:
         - None.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:
@@ -2034,57 +2019,53 @@ class ProjectModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: Optional[Union[int, str]] = None
-    group_id: Optional[Union[int, str]] = None
-    allow_merge_on_skipped_pipeline: Optional[bool] = None
-    only_allow_merge_if_all_status_checks_passed: Optional[bool] = None
-    analytics_access_level: Optional[str] = None
-    approvals_before_merge: Optional[int] = None
-    auto_cancel_pending_pipelines: Optional[str] = None
-    auto_devops_deploy_strategy: Optional[str] = None
-    auto_devops_enabled: Optional[bool] = None
-    autoclose_referenced_issues: Optional[bool] = None
-    avatar: Optional[str] = None
-    build_git_strategy: Optional[str] = None
-    build_timeout: Optional[int] = None
-    builds_access_level: Optional[str] = None
-    ci_config_path: Optional[str] = None
-    ci_default_git_depth: Optional[int] = None
-    ci_forward_deployment_enabled: Optional[bool] = None
-    ci_allow_fork_pipelines_to_run_in_parent_project: Optional[bool] = None
-    ci_separated_caches: Optional[bool] = None
-    container_expiration_policy_attributes: Optional[str] = None
-    container_registry_access_level: Optional[str] = None
-    default_branch: Optional[str] = None
-    description: Optional[str] = None
-    emails_disabled: Optional[bool] = None
-    enforce_auth_checks_on_uploads: Optional[bool] = None
-    external_authorization_classification_label: Optional[str] = None
-    expires_at: Optional[str] = None
-    forking_access_level: Optional[str] = None
-    group_access: Optional[int] = None
-    import_url: Optional[Union[HttpUrl, str]] = None
-    issues_access_level: Optional[str] = None
-    issues_template: Optional[str] = None
-    keep_latest_artifact: Optional[bool] = None
-    lfs_enabled: Optional[bool] = None
-    total_pages: Optional[int] = Field(
-        description="Total number of pages", default=None
-    )
-    max_pages: Optional[int] = Field(
+    project_id: int | str | None = None
+    group_id: int | str | None = None
+    allow_merge_on_skipped_pipeline: bool | None = None
+    only_allow_merge_if_all_status_checks_passed: bool | None = None
+    analytics_access_level: str | None = None
+    approvals_before_merge: int | None = None
+    auto_cancel_pending_pipelines: str | None = None
+    auto_devops_deploy_strategy: str | None = None
+    auto_devops_enabled: bool | None = None
+    autoclose_referenced_issues: bool | None = None
+    avatar: str | None = None
+    build_git_strategy: str | None = None
+    build_timeout: int | None = None
+    builds_access_level: str | None = None
+    ci_config_path: str | None = None
+    ci_default_git_depth: int | None = None
+    ci_forward_deployment_enabled: bool | None = None
+    ci_allow_fork_pipelines_to_run_in_parent_project: bool | None = None
+    ci_separated_caches: bool | None = None
+    container_expiration_policy_attributes: str | None = None
+    container_registry_access_level: str | None = None
+    default_branch: str | None = None
+    description: str | None = None
+    emails_disabled: bool | None = None
+    enforce_auth_checks_on_uploads: bool | None = None
+    external_authorization_classification_label: str | None = None
+    expires_at: str | None = None
+    forking_access_level: str | None = None
+    group_access: int | None = None
+    import_url: HttpUrl | str | None = None
+    issues_access_level: str | None = None
+    issues_template: str | None = None
+    keep_latest_artifact: bool | None = None
+    lfs_enabled: bool | None = None
+    total_pages: int | None = Field(description="Total number of pages", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    page: Optional[int] = Field(description="Page in multi-page response", default=None)
-    per_page: Optional[int] = Field(
-        description="Amount of items per page", default=None
-    )
-    merge_commit_template: Optional[str] = None
-    merge_method: Optional[str] = None
-    merge_pipelines_enabled: Optional[bool] = None
-    merge_requests_access_level: Optional[str] = None
-    merge_requests_template: Optional[str] = None
-    merge_trains_enabled: Optional[bool] = None
-    mirror_overwrites_diverged_branches: Optional[bool] = None
+    page: int | None = Field(description="Page in multi-page response", default=None)
+    per_page: int | None = Field(description="Amount of items per page", default=None)
+    merge_commit_template: str | None = None
+    merge_method: str | None = None
+    merge_pipelines_enabled: bool | None = None
+    merge_requests_access_level: str | None = None
+    merge_requests_template: str | None = None
+    merge_trains_enabled: bool | None = None
+    mirror_overwrites_diverged_branches: bool | None = None
 
     @field_validator("project_id", "group_id")
     def validate_project_id(cls, v):
@@ -2100,124 +2081,124 @@ class ProjectModel(BaseModel):
             return v.strip("'\"")
         return str(v)
 
-    mirror_trigger_builds: Optional[bool] = None
-    mirror_user_id: Optional[Union[int, str]] = None
-    mirror: Optional[bool] = None
-    mr_default_target_self: Optional[bool] = None
-    name: Optional[str] = None
-    tag_name: Optional[str] = None
-    order_by: Optional[str] = None
-    only_allow_merge_if_all_discussions_are_resolved: Optional[bool] = None
-    only_allow_merge_if_pipeline_succeeds: Optional[bool] = None
-    only_mirror_protected_branches: Optional[bool] = None
-    operations_access_level: Optional[str] = None
-    packages_enabled: Optional[bool] = None
-    pages_access_level: Optional[str] = None
-    path: Optional[str] = None
-    printing_merge_request_link_enabled: Optional[bool] = None
-    public_builds: Optional[bool] = None
-    releases_access_level: Optional[str] = None
-    remove_source_branch_after_merge: Optional[bool] = None
-    repository_access_level: Optional[str] = None
-    repository_storage: Optional[str] = None
-    request_access_enabled: Optional[bool] = None
-    requirements_access_level: Optional[str] = None
-    resolve_outdated_diff_discussions: Optional[bool] = None
-    restrict_user_defined_variables: Optional[bool] = None
-    security_and_compliance_access_level: Optional[str] = None
-    service_desk_enabled: Optional[bool] = None
-    shared_runners_enabled: Optional[bool] = None
-    snippets_access_level: Optional[str] = None
-    squash_commit_template: Optional[str] = None
-    squash_option: Optional[str] = None
-    suggestion_commit_message: Optional[str] = None
-    tag_list: Optional[List[str]] = None
-    topics: Optional[List[str]] = None
-    visibility: Optional[str] = None
-    archived: Optional[bool] = None
-    id_after: Optional[int] = None
-    id_before: Optional[int] = None
-    imported: Optional[bool] = None
-    include_hidden: Optional[bool] = None
-    include_pending_delete: Optional[bool] = None
-    membership: Optional[bool] = None
-    search: Optional[str] = None
-    sort: Optional[str] = None
-    min_access_level: Optional[int] = None
-    owned: Optional[bool] = None
-    statistics: Optional[bool] = None
-    simple: Optional[bool] = None
-    starred: Optional[bool] = None
-    topic: Optional[str] = None
-    topic_id: Optional[Union[int, str]] = None
-    repository_checksum_failed: Optional[bool] = None
-    allowed_to_create: Optional[List[dict]] = None
-    deploy_access_levels: Optional[List[dict]] = None
-    approval_rules: Optional[List[dict]] = None
-    search_namespaces: Optional[bool] = None
-    environment_id: Optional[Union[int, str]] = None
-    environment_name: Optional[str] = None
-    wiki_access_level: Optional[str] = None
-    create_access_level: Optional[int] = None
-    cluster_agent_id: Optional[str] = Field(
+    mirror_trigger_builds: bool | None = None
+    mirror_user_id: int | str | None = None
+    mirror: bool | None = None
+    mr_default_target_self: bool | None = None
+    name: str | None = None
+    tag_name: str | None = None
+    order_by: str | None = None
+    only_allow_merge_if_all_discussions_are_resolved: bool | None = None
+    only_allow_merge_if_pipeline_succeeds: bool | None = None
+    only_mirror_protected_branches: bool | None = None
+    operations_access_level: str | None = None
+    packages_enabled: bool | None = None
+    pages_access_level: str | None = None
+    path: str | None = None
+    printing_merge_request_link_enabled: bool | None = None
+    public_builds: bool | None = None
+    releases_access_level: str | None = None
+    remove_source_branch_after_merge: bool | None = None
+    repository_access_level: str | None = None
+    repository_storage: str | None = None
+    request_access_enabled: bool | None = None
+    requirements_access_level: str | None = None
+    resolve_outdated_diff_discussions: bool | None = None
+    restrict_user_defined_variables: bool | None = None
+    security_and_compliance_access_level: str | None = None
+    service_desk_enabled: bool | None = None
+    shared_runners_enabled: bool | None = None
+    snippets_access_level: str | None = None
+    squash_commit_template: str | None = None
+    squash_option: str | None = None
+    suggestion_commit_message: str | None = None
+    tag_list: list[str] | None = None
+    topics: list[str] | None = None
+    visibility: str | None = None
+    archived: bool | None = None
+    id_after: int | None = None
+    id_before: int | None = None
+    imported: bool | None = None
+    include_hidden: bool | None = None
+    include_pending_delete: bool | None = None
+    membership: bool | None = None
+    search: str | None = None
+    sort: str | None = None
+    min_access_level: int | None = None
+    owned: bool | None = None
+    statistics: bool | None = None
+    simple: bool | None = None
+    starred: bool | None = None
+    topic: str | None = None
+    topic_id: int | str | None = None
+    repository_checksum_failed: bool | None = None
+    allowed_to_create: list[dict] | None = None
+    deploy_access_levels: list[dict] | None = None
+    approval_rules: list[dict] | None = None
+    search_namespaces: bool | None = None
+    environment_id: int | str | None = None
+    environment_name: str | None = None
+    wiki_access_level: str | None = None
+    create_access_level: int | None = None
+    cluster_agent_id: str | None = Field(
         description="The cluster agent to associate with this environment.",
         default=None,
     )
-    external_url: Optional[str] = Field(
+    external_url: str | None = Field(
         description="Place to link to for this environment.", default=None
     )
-    tier: Optional[str] = Field(
+    tier: str | None = Field(
         description="The tier of the new environment. "
         "Allowed values are production, staging, testing, development, and other.",
         default=None,
     )
-    kubernetes_namespace: Optional[str] = Field(
+    kubernetes_namespace: str | None = Field(
         description="The Kubernetes namespace to associate with this environment.",
         default=None,
     )
-    flux_resource_path: Optional[str] = Field(
+    flux_resource_path: str | None = Field(
         description="The Flux resource path to associate with this environment. This must be the full resource path. "
         "For example, helm.toolkit.fluxcd.io/v2/namespaces/gitlab-agent/helmreleases/gitlab-agent.",
         default=None,
     )
-    auto_stop_setting: Optional[str] = Field(
+    auto_stop_setting: str | None = Field(
         description="The auto stop setting for the environment. Allowed values are always or with_action.",
         default=None,
     )
-    states: Optional[str] = Field(description="Search states", default=None)
-    before: Optional[str] = Field(
+    states: str | None = Field(description="Search states", default=None)
+    before: str | None = Field(
         description="The date before which environments can be deleted. Defaults to 30 days ago. "
         "Expected in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).",
         default=None,
     )
-    limit: Optional[int] = Field(
+    limit: int | None = Field(
         description="Maximum number of environments to delete. Defaults to 100.",
         default=None,
     )
-    dry_run: Optional[int] = Field(
+    dry_run: int | None = Field(
         description="Defaults to true for safety reasons. It performs a dry run where no actual deletion is performed. "
         "Set to false to actually delete the environment.",
         default=None,
     )
-    force: Optional[bool] = Field(
+    force: bool | None = Field(
         description="Force environment to stop without executing on_stop actions.",
         default=None,
     )
-    pipeline_schedule_id: Optional[Union[int, str]] = Field(
+    pipeline_schedule_id: int | str | None = Field(
         description="The pipeline schedule ID", default=None
     )
-    cron: Optional[str] = Field(
+    cron: str | None = Field(
         description="The cron schedule, for example: '0 1 * * *'.", default=None
     )
-    cron_timezone: Optional[str] = Field(
+    cron_timezone: str | None = Field(
         description="The time zone supported by ActiveSupport::TimeZone, for example: 'Pacific Time (US & Canada)'.",
         default=None,
     )
-    id: Optional[Union[int, str]] = Field(
+    id: int | str | None = Field(
         description="The ID or URL-encoded path of the project.",
         default=None,
     )
-    ref: Optional[str] = Field(
+    ref: str | None = Field(
         description="The branch or tag name that is triggered. "
         "Both short (e.g., 'main') and full (e.g., 'refs/heads/main' or 'refs/tags/main') ref versions are accepted. "
         "If a short version is provided, "
@@ -2225,25 +2206,25 @@ class ProjectModel(BaseModel):
         "if the ref is ambiguous, it will be rejected.",
         default=None,
     )
-    active: Optional[bool] = Field(
+    active: bool | None = Field(
         description="The activation of pipeline schedule. "
         "If false is set, the pipeline schedule is initially deactivated.",
         default=True,
     )
-    key: Optional[str] = Field(
+    key: str | None = Field(
         description="The key of a variable",
         default=None,
     )
-    value: Optional[str] = Field(
+    value: str | None = Field(
         description="The value of a variable",
         default=None,
     )
-    variable_type: Optional[str] = Field(
+    variable_type: str | None = Field(
         description="The type of a variable. Available types are: env_var (default) and file",
         default=None,
     )
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     def model_post_init(self, _context):
         """
@@ -2337,7 +2318,7 @@ class ProjectModel(BaseModel):
         Raises:
         - None.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:
@@ -2562,18 +2543,18 @@ class ProtectedBranchModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: Union[int, str]
+    project_id: int | str
     branch: str
-    push_access_level: Optional[int] = None
-    merge_access_level: Optional[int] = None
-    unprotect_access_level: Optional[int] = None
-    allow_force_push: Optional[bool] = None
-    allowed_to_push: Optional[List[Dict]] = None
-    allowed_to_merge: Optional[List[Dict]] = None
-    allowed_to_unprotect: Optional[List[Dict]] = None
-    code_owner_approval_required: Optional[bool] = None
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    push_access_level: int | None = None
+    merge_access_level: int | None = None
+    unprotect_access_level: int | None = None
+    allow_force_push: bool | None = None
+    allowed_to_push: list[dict] | None = None
+    allowed_to_merge: list[dict] | None = None
+    allowed_to_unprotect: list[dict] | None = None
+    code_owner_approval_required: bool | None = None
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     def model_post_init(self, _context):
         """
@@ -2609,7 +2590,7 @@ class ProtectedBranchModel(BaseModel):
         Raises:
         - None.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:
@@ -2711,32 +2692,28 @@ class ReleaseModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: Union[int, str] = None
-    group_id: Union[int, str] = None
-    order_by: Optional[str] = None
-    sort: Optional[str] = None
-    simple: Optional[bool] = None
-    include_html_description: Optional[bool] = None
-    tag_name: Optional[str] = None
-    description: Optional[str] = None
-    tag_message: Optional[str] = None
-    ref: Optional[str] = None
-    direct_asset_path: Optional[str] = None
-    name: Optional[List[str]] = None
-    milestones: Optional[str] = None
-    released_at: Optional[str] = None
-    total_pages: Optional[int] = Field(
-        description="Total number of pages", default=None
-    )
-    max_pages: Optional[int] = Field(
+    project_id: int | str = None
+    group_id: int | str = None
+    order_by: str | None = None
+    sort: str | None = None
+    simple: bool | None = None
+    include_html_description: bool | None = None
+    tag_name: str | None = None
+    description: str | None = None
+    tag_message: str | None = None
+    ref: str | None = None
+    direct_asset_path: str | None = None
+    name: list[str] | None = None
+    milestones: str | None = None
+    released_at: str | None = None
+    total_pages: int | None = Field(description="Total number of pages", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    page: Optional[int] = Field(description="Page in multi-page response", default=None)
-    per_page: Optional[int] = Field(
-        description="Amount of items per page", default=None
-    )
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    page: int | None = Field(description="Page in multi-page response", default=None)
+    per_page: int | None = Field(description="Amount of items per page", default=None)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     def model_post_init(self, _context):
         """
@@ -2768,7 +2745,7 @@ class ReleaseModel(BaseModel):
         Raises:
         - None.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:
@@ -2891,25 +2868,25 @@ class RunnerModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    runner_id: Optional[Union[str, int]] = None
-    description: Optional[str] = None
-    active: Optional[bool] = None
-    paused: Optional[bool] = None
-    tag_list: Optional[List[str]] = None
-    run_untagged: Optional[bool] = None
-    locked: Optional[bool] = None
-    access_level: Optional[str] = None
-    maintenance_note: Optional[str] = None
-    info: Optional[str] = None
-    token: Optional[str] = None
-    project_id: Optional[Union[int, str]] = None
-    group_id: Optional[Union[int, str]] = None
-    maximum_timeout: Optional[int] = None
-    runner_type: Optional[str] = None
-    status: Optional[str] = None
-    all_runners: Optional[bool] = False
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    runner_id: str | int | None = None
+    description: str | None = None
+    active: bool | None = None
+    paused: bool | None = None
+    tag_list: list[str] | None = None
+    run_untagged: bool | None = None
+    locked: bool | None = None
+    access_level: str | None = None
+    maintenance_note: str | None = None
+    info: str | None = None
+    token: str | None = None
+    project_id: int | str | None = None
+    group_id: int | str | None = None
+    maximum_timeout: int | None = None
+    runner_type: str | None = None
+    status: str | None = None
+    all_runners: bool | None = False
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     def model_post_init(self, _context):
         """
@@ -2939,7 +2916,7 @@ class RunnerModel(BaseModel):
         Raises:
         - None.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:
@@ -3038,38 +3015,34 @@ class UserModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    username: Optional[str] = None
-    active: Optional[bool] = None
-    blocked: Optional[bool] = None
-    external: Optional[bool] = None
-    humans: Optional[bool] = None
-    exclude_internal: Optional[bool] = None
-    exclude_external: Optional[bool] = None
-    without_project_bots: Optional[bool] = None
-    extern_uid: Optional[str] = None
-    provider: Optional[str] = None
-    created_before: Optional[str] = None
-    created_after: Optional[str] = None
-    with_custom_attributes: Optional[str] = None
-    sort: Optional[str] = None
-    order_by: Optional[str] = None
-    two_factor: Optional[str] = None
-    without_projects: Optional[bool] = None
-    admins: Optional[bool] = None
-    saml_provider_id: Optional[str] = None
-    total_pages: Optional[int] = Field(
-        description="Total number of pages", default=None
-    )
-    max_pages: Optional[int] = Field(
+    username: str | None = None
+    active: bool | None = None
+    blocked: bool | None = None
+    external: bool | None = None
+    humans: bool | None = None
+    exclude_internal: bool | None = None
+    exclude_external: bool | None = None
+    without_project_bots: bool | None = None
+    extern_uid: str | None = None
+    provider: str | None = None
+    created_before: str | None = None
+    created_after: str | None = None
+    with_custom_attributes: str | None = None
+    sort: str | None = None
+    order_by: str | None = None
+    two_factor: str | None = None
+    without_projects: bool | None = None
+    admins: bool | None = None
+    saml_provider_id: str | None = None
+    total_pages: int | None = Field(description="Total number of pages", default=None)
+    max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
     )
-    page: Optional[int] = Field(description="Page in multi-page response", default=None)
-    per_page: Optional[int] = Field(
-        description="Amount of items per page", default=None
-    )
-    sudo: Optional[bool] = False
-    user_id: Optional[Union[str, int]] = None
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
+    page: int | None = Field(description="Page in multi-page response", default=None)
+    per_page: int | None = Field(description="Amount of items per page", default=None)
+    sudo: bool | None = False
+    user_id: str | int | None = None
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
 
     def model_post_init(self, _context):
         """
@@ -3212,18 +3185,18 @@ class WikiModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: Union[int, str] = None
-    slug: Optional[str] = None
-    content: Optional[str] = None
-    title: Optional[str] = None
-    format_type: Optional[str] = None
-    with_content: Optional[bool] = None
-    render_html: Optional[bool] = None
-    file: Optional[str] = None
-    branch: Optional[str] = None
-    version: Optional[str] = None
-    api_parameters: Optional[Dict] = Field(description="API Parameters", default=None)
-    data: Optional[Dict] = Field(description="Data Payload", default=None)
+    project_id: int | str = None
+    slug: str | None = None
+    content: str | None = None
+    title: str | None = None
+    format_type: str | None = None
+    with_content: bool | None = None
+    render_html: bool | None = None
+    file: str | None = None
+    branch: str | None = None
+    version: str | None = None
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
 
     def model_post_init(self, _context):
         """
@@ -3251,7 +3224,7 @@ class WikiModel(BaseModel):
         Raises:
         - None.
         """
-        data = {}
+        data: dict[str, Any] = {}
 
         for field_name, value in values.items():
             if field_name in cls.__annotations__ and value is not None:

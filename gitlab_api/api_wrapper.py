@@ -1,86 +1,87 @@
 #!/usr/bin/python
 
+import logging
 import re
-from urllib.parse import urlparse, parse_qs
+from base64 import b64encode
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Any, TypeVar
+from urllib.parse import parse_qs, urlparse
+
 import requests
 import urllib3
-import logging
-from base64 import b64encode
-from typing import Dict, Any, List, TypeVar, Tuple
-from pydantic import ValidationError
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from agent_utilities.base_utilities import get_logger
+from pydantic import ValidationError
 
 logger = get_logger(__name__)
 
+from agent_utilities.decorators import require_auth
+from agent_utilities.exceptions import (
+    AuthError,
+    MissingParameterError,
+    ParameterError,
+    UnauthorizedError,
+)
+
 from gitlab_api.gitlab_input_models import (
+    BranchModel,
     CommitModel,
+    DeployTokenModel,
     GroupModel,
     JobModel,
     MembersModel,
+    MergeRequestModel,
+    MergeRequestRuleModel,
+    MergeRequestRuleSettingsModel,
     NamespaceModel,
     PackageModel,
     PipelineModel,
     ProjectModel,
-    BranchModel,
-    MergeRequestModel,
-    MergeRequestRuleModel,
-    MergeRequestRuleSettingsModel,
     ReleaseModel,
     RunnerModel,
+    TagModel,
     UserModel,
     WikiModel,
-    DeployTokenModel,
-    TagModel,
 )
 from gitlab_api.gitlab_response_models import (
+    ApprovalRule,
     Branch,
-    Commit,
-    Diff,
     Comment,
-    MergeRequest,
+    Commit,
     CommitSignature,
+    DeployToken,
+    Diff,
     Environment,
     Group,
-    Project,
     Job,
     Membership,
-    ApprovalRule,
+    MergeRequest,
+    MergeRequestRuleSettings,
+    Namespace,
     Package,
     Pipeline,
     PipelineSchedule,
-    User,
+    PipelineVariable,
+    Project,
     Release,
+    Response,
     Runner,
     Tag,
+    User,
     WikiPage,
-    Namespace,
-    DeployToken,
-    Response,
-    MergeRequestRuleSettings,
-    PipelineVariable,
-)
-from agent_utilities.decorators import require_auth
-from agent_utilities.exceptions import (
-    AuthError,
-    UnauthorizedError,
-    ParameterError,
-    MissingParameterError,
 )
 
 T = TypeVar("T")
 
 
-class Api(object):
-
+class Api:
     def __init__(
         self,
-        url: str = None,
-        username: str = None,
-        password: str = None,
-        token: str = None,
-        tokens: list = None,
-        proxies: dict = None,
+        url: str | None = None,
+        username: str | None = None,
+        password: str | None = None,
+        token: str | None = None,
+        tokens: list | None = None,
+        proxies: dict | None = None,
         verify: bool = True,
         debug: bool = False,
     ):
@@ -171,7 +172,7 @@ class Api(object):
 
     def _fetch_next_page(
         self, endpoint: str, model: T, header: dict, page: int
-    ) -> List[dict]:
+    ) -> list[dict]:
         """Fetch a single page of data from the specified endpoint"""
         model.page = page
         model.model_post_init(model)
@@ -186,8 +187,12 @@ class Api(object):
         return page_data if isinstance(page_data, list) else []
 
     def _fetch_all_pages(
-        self, endpoint: str, model: T, id_field: str = None, id_value: Any = None
-    ) -> Tuple[requests.Response, List[dict]]:
+        self,
+        endpoint: str,
+        model: T,
+        id_field: str | None = None,
+        id_value: Any | None = None,
+    ) -> tuple[requests.Response, list[dict]]:
         """Generic method to fetch all pages with parallelization"""
         if id_field and getattr(model, id_field) is None:
             raise MissingParameterError
@@ -4984,8 +4989,8 @@ class Api(object):
         self,
         method: str,
         endpoint: str,
-        data: Dict[str, Any] = None,
-        json: Dict[str, Any] = None,
+        data: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
     ) -> Response:
         """
         Make a custom API request to the GitLab server.

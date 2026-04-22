@@ -2,28 +2,29 @@
 
 
 import logging
-from typing import Dict, Any, Optional, Union, List
-from gql import gql, Client
+from typing import Any
+
+from agent_utilities.decorators import require_auth
+from agent_utilities.exceptions import MissingParameterError, ParameterError
+from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
-from agent_utilities.exceptions import ParameterError, MissingParameterError
-from agent_utilities.decorators import require_auth
 from gitlab_api.gitlab_input_models import (
-    ProjectModel,
     BranchModel,
-    TagModel,
     CommitModel,
+    GroupModel,
+    IssueModel,
+    JobModel,
+    MembersModel,
     MergeRequestModel,
+    NamespaceModel,
+    PackageModel,
     PipelineModel,
     PipelineScheduleModel,
-    JobModel,
-    PackageModel,
-    UserModel,
-    MembersModel,
+    ProjectModel,
     ReleaseModel,
-    IssueModel,
-    NamespaceModel,
-    GroupModel,
+    TagModel,
+    UserModel,
     WikiModel,
 )
 
@@ -37,9 +38,9 @@ class GraphQL:
 
     def __init__(
         self,
-        url: str = None,
-        token: str = None,
-        proxies: Dict = None,
+        url: str | None = None,
+        token: str | None = None,
+        proxies: dict | None = None,
         verify: bool = True,
         debug: bool = False,
     ):
@@ -72,9 +73,9 @@ class GraphQL:
     def execute_gql(
         self,
         query_str: str,
-        variables: Optional[Dict[str, Any]] = None,
-        operation_name: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        variables: dict[str, Any] | None = None,
+        operation_name: str | None = None,
+    ) -> dict[str, Any]:
         """
         Execute a GraphQL query or mutation.
 
@@ -104,12 +105,12 @@ class GraphQL:
     @require_auth
     def get_branches(
         self,
-        project_id: Union[int, str],
-        search: Optional[str] = None,
-        _regex: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        search: str | None = None,
+        _regex: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get branches for a project.
 
@@ -150,8 +151,8 @@ class GraphQL:
 
     @require_auth
     def create_branch(
-        self, project_id: Union[int, str], branch: str, ref: str
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, branch: str, ref: str
+    ) -> dict[str, Any]:
         """
         Create a branch in a project.
 
@@ -186,10 +187,10 @@ class GraphQL:
     @require_auth
     def delete_branch(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         branch: str,
-        delete_merged_branches: Optional[bool] = False,
-    ) -> Dict[str, Any]:
+        delete_merged_branches: bool | None = False,
+    ) -> dict[str, Any]:
         """
         Delete a branch in a project.
 
@@ -221,7 +222,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_branch(self, project_id: Union[int, str], branch: str) -> Dict[str, Any]:
+    def get_branch(self, project_id: int | str, branch: str) -> dict[str, Any]:
         """
         Get a specific branch in a project.
 
@@ -255,13 +256,13 @@ class GraphQL:
     @require_auth
     def protect_branch(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         branch: str,
-        push_access_level: Optional[str] = None,
-        merge_access_level: Optional[str] = None,
-        unprotect_access_level: Optional[str] = None,
-        allow_force_push: Optional[bool] = False,
-    ) -> Dict[str, Any]:
+        push_access_level: str | None = None,
+        merge_access_level: str | None = None,
+        unprotect_access_level: str | None = None,
+        allow_force_push: bool | None = False,
+    ) -> dict[str, Any]:
         """
         Protect a branch in a project.
 
@@ -303,9 +304,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def unprotect_branch(
-        self, project_id: Union[int, str], branch: str
-    ) -> Dict[str, Any]:
+    def unprotect_branch(self, project_id: int | str, branch: str) -> dict[str, Any]:
         """
         Unprotect a branch in a project.
 
@@ -339,8 +338,8 @@ class GraphQL:
 
     @require_auth
     def get_protected_branches(
-        self, project_id: Union[int, str], search: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, search: str | None = None
+    ) -> dict[str, Any]:
         """
         Get protected branches for a project.
 
@@ -371,12 +370,12 @@ class GraphQL:
     @require_auth
     def get_tags(
         self,
-        project_id: Union[int, str],
-        search: Optional[str] = None,
-        sort: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        search: str | None = None,
+        sort: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get tags for a project.
 
@@ -422,11 +421,11 @@ class GraphQL:
     @require_auth
     def create_tag(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         tag: str,
         ref: str,
-        message: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        message: str | None = None,
+    ) -> dict[str, Any]:
         """
         Create a tag in a project.
 
@@ -462,7 +461,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_tag(self, project_id: Union[int, str], tag: str) -> Dict[str, Any]:
+    def delete_tag(self, project_id: int | str, tag: str) -> dict[str, Any]:
         """
         Delete a tag in a project.
 
@@ -490,7 +489,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_tag(self, project_id: Union[int, str], tag: str) -> Dict[str, Any]:
+    def get_tag(self, project_id: int | str, tag: str) -> dict[str, Any]:
         """
         Get a specific tag in a project.
 
@@ -522,8 +521,8 @@ class GraphQL:
 
     @require_auth
     def get_protected_tags(
-        self, project_id: Union[int, str], name: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, name: str | None = None
+    ) -> dict[str, Any]:
         """
         Get protected tags for a project.
 
@@ -555,9 +554,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_protected_tag(
-        self, project_id: Union[int, str], name: str
-    ) -> Dict[str, Any]:
+    def get_protected_tag(self, project_id: int | str, name: str) -> dict[str, Any]:
         """
         Get a specific protected tag in a project.
 
@@ -584,11 +581,11 @@ class GraphQL:
     @require_auth
     def protect_tag(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         name: str,
-        create_access_level: Optional[str] = None,
-        allowed_to_create: Optional[List[Dict]] = None,
-    ) -> Dict[str, Any]:
+        create_access_level: str | None = None,
+        allowed_to_create: list[dict] | None = None,
+    ) -> dict[str, Any]:
         """
         Protect a tag in a project.
 
@@ -626,7 +623,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def unprotect_tag(self, project_id: Union[int, str], name: str) -> Dict[str, Any]:
+    def unprotect_tag(self, project_id: int | str, name: str) -> dict[str, Any]:
         """
         Unprotect a tag in a project.
 
@@ -661,17 +658,17 @@ class GraphQL:
     @require_auth
     def get_commits(
         self,
-        project_id: Union[int, str],
-        ref: Optional[str] = None,
-        path: Optional[str] = None,
-        _author: Optional[str] = None,
-        since: Optional[str] = None,
-        until: Optional[str] = None,
-        all: Optional[bool] = False,
-        with_stats: Optional[bool] = False,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        ref: str | None = None,
+        path: str | None = None,
+        _author: str | None = None,
+        since: str | None = None,
+        until: str | None = None,
+        all: bool | None = False,
+        with_stats: bool | None = False,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get commits for a project.
 
@@ -720,9 +717,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_commit(
-        self, project_id: Union[int, str], commit_hash: str
-    ) -> Dict[str, Any]:
+    def get_commit(self, project_id: int | str, commit_hash: str) -> dict[str, Any]:
         """
         Get a specific commit in a project.
 
@@ -754,18 +749,18 @@ class GraphQL:
     @require_auth
     def create_commit(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         branch: str,
         message: str,
-        actions: List[Dict],
-        _start_branch: Optional[str] = None,
-        _start_sha: Optional[str] = None,
-        _start_project: Optional[Union[int, str]] = None,
-        author_email: Optional[str] = None,
-        author_name: Optional[str] = None,
-        _stats: Optional[bool] = False,
-        force: Optional[bool] = False,
-    ) -> Dict[str, Any]:
+        actions: list[dict],
+        _start_branch: str | None = None,
+        _start_sha: str | None = None,
+        _start_project: int | str | None = None,
+        author_email: str | None = None,
+        author_name: str | None = None,
+        _stats: bool | None = False,
+        force: bool | None = False,
+    ) -> dict[str, Any]:
         """
         Create a commit in a project.
 
@@ -816,12 +811,12 @@ class GraphQL:
     @require_auth
     def cherry_pick_commit(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         commit_hash: str,
         branch: str,
-        message: Optional[str] = None,
-        dry_run: Optional[bool] = False,
-    ) -> Dict[str, Any]:
+        message: str | None = None,
+        dry_run: bool | None = False,
+    ) -> dict[str, Any]:
         """
         Cherry-pick a commit into a branch.
 
@@ -858,8 +853,8 @@ class GraphQL:
 
     @require_auth
     def revert_commit(
-        self, project_id: Union[int, str], commit_hash: str, branch: str
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, commit_hash: str, branch: str
+    ) -> dict[str, Any]:
         """
         Revert a commit in a project.
 
@@ -903,13 +898,13 @@ class GraphQL:
     @require_auth
     def create_commit_comment(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         commit_hash: str,
         note: str,
-        path: Optional[str] = None,
-        line: Optional[int] = None,
-        line_type: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        path: str | None = None,
+        line: int | None = None,
+        line_type: str | None = None,
+    ) -> dict[str, Any]:
         """
         Create a comment on a commit.
 
@@ -953,11 +948,11 @@ class GraphQL:
     @require_auth
     def get_commit_comments(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         commit_hash: str,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get comments on a commit.
 
@@ -1002,18 +997,18 @@ class GraphQL:
     @require_auth
     def get_merge_requests(
         self,
-        project_id: Union[int, str],
-        state: Optional[str] = None,
-        labels: Optional[List[str]] = None,
-        milestone: Optional[str] = None,
-        author_username: Optional[str] = None,
-        reviewer_username: Optional[str] = None,
-        source_branch: Optional[str] = None,
-        target_branch: Optional[str] = None,
-        search: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        state: str | None = None,
+        labels: list[str] | None = None,
+        milestone: str | None = None,
+        author_username: str | None = None,
+        reviewer_username: str | None = None,
+        source_branch: str | None = None,
+        target_branch: str | None = None,
+        search: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get merge requests for a project.
 
@@ -1061,8 +1056,8 @@ class GraphQL:
 
     @require_auth
     def get_merge_request(
-        self, project_id: Union[int, str], merge_request_iid: int
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, merge_request_iid: int
+    ) -> dict[str, Any]:
         """
         Get a specific merge request.
 
@@ -1094,16 +1089,16 @@ class GraphQL:
     @require_auth
     def create_merge_request(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         source_branch: str,
         target_branch: str,
         title: str,
-        description: Optional[str] = None,
-        labels: Optional[List[str]] = None,
-        _milestone_id: Optional[int] = None,
-        assignee_ids: Optional[List[int]] = None,
-        remove_source_branch: Optional[bool] = False,
-    ) -> Dict[str, Any]:
+        description: str | None = None,
+        labels: list[str] | None = None,
+        _milestone_id: int | None = None,
+        assignee_ids: list[int] | None = None,
+        remove_source_branch: bool | None = False,
+    ) -> dict[str, Any]:
         """
         Create a merge request.
 
@@ -1161,12 +1156,12 @@ class GraphQL:
     @require_auth
     def update_merge_request(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         merge_request_iid: int,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        target_branch: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        title: str | None = None,
+        description: str | None = None,
+        target_branch: str | None = None,
+    ) -> dict[str, Any]:
         """
         Update a merge request.
 
@@ -1207,8 +1202,8 @@ class GraphQL:
 
     @require_auth
     def delete_merge_request(
-        self, project_id: Union[int, str], merge_request_iid: int
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, merge_request_iid: int
+    ) -> dict[str, Any]:
         """
         Close a merge request (GitLab GraphQL doesn't support direct deletion).
 
@@ -1245,12 +1240,12 @@ class GraphQL:
     @require_auth
     def accept_merge_request(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         merge_request_iid: int,
-        merge_commit_message: Optional[str] = None,
-        squash: Optional[bool] = False,
-        squash_commit_message: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        merge_commit_message: str | None = None,
+        squash: bool | None = False,
+        squash_commit_message: str | None = None,
+    ) -> dict[str, Any]:
         """
         Accept a merge request.
 
@@ -1295,18 +1290,18 @@ class GraphQL:
     @require_auth
     def get_pipelines(
         self,
-        project_id: Union[int, str],
-        ref: Optional[str] = None,
-        status: Optional[str] = None,
-        _source: Optional[str] = None,
-        username: Optional[str] = None,
-        updated_after: Optional[str] = None,
-        updated_before: Optional[str] = None,
-        order_by: Optional[str] = None,
-        sort: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        ref: str | None = None,
+        status: str | None = None,
+        _source: str | None = None,
+        username: str | None = None,
+        updated_after: str | None = None,
+        updated_before: str | None = None,
+        order_by: str | None = None,
+        sort: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get pipelines for a project.
 
@@ -1351,8 +1346,8 @@ class GraphQL:
 
     @require_auth
     def create_pipeline(
-        self, project_id: Union[int, str], ref: str, variables: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, ref: str, variables: dict | None = None
+    ) -> dict[str, Any]:
         """
         Create a pipeline in a project.
 
@@ -1382,8 +1377,8 @@ class GraphQL:
 
     @require_auth
     def delete_pipeline(
-        self, project_id: Union[int, str], pipeline_id: int
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, pipeline_id: int
+    ) -> dict[str, Any]:
         """
         Delete a pipeline.
 
@@ -1405,9 +1400,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def retry_pipeline(
-        self, project_id: Union[int, str], pipeline_id: int
-    ) -> Dict[str, Any]:
+    def retry_pipeline(self, project_id: int | str, pipeline_id: int) -> dict[str, Any]:
         """
         Retry a pipeline.
 
@@ -1435,8 +1428,8 @@ class GraphQL:
 
     @require_auth
     def cancel_pipeline(
-        self, project_id: Union[int, str], pipeline_id: int
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, pipeline_id: int
+    ) -> dict[str, Any]:
         """
         Cancel a pipeline.
 
@@ -1465,10 +1458,10 @@ class GraphQL:
     @require_auth
     def get_pipeline_schedules(
         self,
-        project_id: Union[int, str],
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get pipeline schedules for a project.
 
@@ -1506,8 +1499,8 @@ class GraphQL:
 
     @require_auth
     def get_pipeline_schedule(
-        self, project_id: Union[int, str], pipeline_schedule_id: int
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, pipeline_schedule_id: int
+    ) -> dict[str, Any]:
         """
         Get a specific pipeline schedule.
 
@@ -1540,13 +1533,13 @@ class GraphQL:
     @require_auth
     def create_pipeline_schedule(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         description: str,
         ref: str,
         cron: str,
-        cron_timezone: Optional[str] = None,
-        active: Optional[bool] = True,
-    ) -> Dict[str, Any]:
+        cron_timezone: str | None = None,
+        active: bool | None = True,
+    ) -> dict[str, Any]:
         """
         Create a pipeline schedule.
 
@@ -1591,14 +1584,14 @@ class GraphQL:
     @require_auth
     def update_pipeline_schedule(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         pipeline_schedule_id: int,
-        description: Optional[str] = None,
-        ref: Optional[str] = None,
-        cron: Optional[str] = None,
-        cron_timezone: Optional[str] = None,
-        active: Optional[bool] = None,
-    ) -> Dict[str, Any]:
+        description: str | None = None,
+        ref: str | None = None,
+        cron: str | None = None,
+        cron_timezone: str | None = None,
+        active: bool | None = None,
+    ) -> dict[str, Any]:
         """
         Update a pipeline schedule.
 
@@ -1642,8 +1635,8 @@ class GraphQL:
 
     @require_auth
     def delete_pipeline_schedule(
-        self, project_id: Union[int, str], pipeline_schedule_id: int
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, pipeline_schedule_id: int
+    ) -> dict[str, Any]:
         """
         Delete a pipeline schedule.
 
@@ -1669,18 +1662,18 @@ class GraphQL:
     @require_auth
     def get_projects(
         self,
-        project_model: Optional[ProjectModel] = None,
-        ids: Optional[List[Union[int, str]]] = None,
-        full_paths: Optional[List[str]] = None,
-        search: Optional[str] = None,
-        membership: Optional[bool] = False,
-        sort: Optional[str] = "id_desc",
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-        archived: Optional[str] = None,
-        visibility_level: Optional[str] = None,
-        min_access_level: Optional[int] = None,
-    ) -> Dict[str, Any]:
+        project_model: ProjectModel | None = None,
+        ids: list[int | str] | None = None,
+        full_paths: list[str] | None = None,
+        search: str | None = None,
+        membership: bool | None = False,
+        sort: str | None = "id_desc",
+        first: int | None = 20,
+        after: str | None = None,
+        archived: str | None = None,
+        visibility_level: str | None = None,
+        min_access_level: int | None = None,
+    ) -> dict[str, Any]:
         """
         Fetch a list of projects visible to the current user.
 
@@ -1749,7 +1742,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_project(self, project_model: ProjectModel) -> Dict[str, Any]:
+    def get_project(self, project_model: ProjectModel) -> dict[str, Any]:
         """
         Fetch a single project by ID or full path.
 
@@ -1781,13 +1774,13 @@ class GraphQL:
     @require_auth
     def get_admin_projects(
         self,
-        project_model: Optional[ProjectModel] = None,
-        ids: Optional[List[Union[int, str]]] = None,
-        full_paths: Optional[List[str]] = None,
-        search: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_model: ProjectModel | None = None,
+        ids: list[int | str] | None = None,
+        full_paths: list[str] | None = None,
+        search: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Fetch a list of projects visible to admins (experimental).
 
@@ -1845,11 +1838,11 @@ class GraphQL:
     @require_auth
     def get_jobs(
         self,
-        project_id: Union[int, str],
-        scope: Optional[List[str]] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        scope: list[str] | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get jobs for a project.
 
@@ -1886,7 +1879,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_job(self, project_id: Union[int, str], job_id: int) -> Dict[str, Any]:
+    def get_job(self, project_id: int | str, job_id: int) -> dict[str, Any]:
         """
         Get a specific job.
 
@@ -1916,7 +1909,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def retry_job(self, project_id: Union[int, str], job_id: int) -> Dict[str, Any]:
+    def retry_job(self, project_id: int | str, job_id: int) -> dict[str, Any]:
         """
         Retry a job.
 
@@ -1942,7 +1935,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def cancel_job(self, project_id: Union[int, str], job_id: int) -> Dict[str, Any]:
+    def cancel_job(self, project_id: int | str, job_id: int) -> dict[str, Any]:
         """
         Cancel a job.
 
@@ -1970,12 +1963,12 @@ class GraphQL:
     @require_auth
     def get_packages(
         self,
-        project_id: Union[int, str],
-        _package_type: Optional[str] = None,
-        package_name: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        _package_type: str | None = None,
+        package_name: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get packages for a project.
 
@@ -2013,9 +2006,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_package(
-        self, project_id: Union[int, str], package_id: int
-    ) -> Dict[str, Any]:
+    def get_package(self, project_id: int | str, package_id: int) -> dict[str, Any]:
         """
         Get a specific package.
 
@@ -2045,9 +2036,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_package(
-        self, project_id: Union[int, str], package_id: int
-    ) -> Dict[str, Any]:
+    def delete_package(self, project_id: int | str, package_id: int) -> dict[str, Any]:
         """
         Delete a package.
 
@@ -2071,10 +2060,10 @@ class GraphQL:
     @require_auth
     def get_deploy_tokens(
         self,
-        project_id: Union[int, str],
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get deploy tokens for a project.
 
@@ -2096,12 +2085,12 @@ class GraphQL:
     @require_auth
     def create_deploy_token(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         name: str,
-        scopes: List[str],
-        expires_at: Optional[str] = None,
-        username: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        scopes: list[str],
+        expires_at: str | None = None,
+        username: str | None = None,
+    ) -> dict[str, Any]:
         """
         Create a deploy token.
 
@@ -2124,8 +2113,8 @@ class GraphQL:
 
     @require_auth
     def delete_deploy_token(
-        self, project_id: Union[int, str], deploy_token_id: int
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, deploy_token_id: int
+    ) -> dict[str, Any]:
         """
         Delete a deploy token.
 
@@ -2146,11 +2135,11 @@ class GraphQL:
     @require_auth
     def get_users(
         self,
-        search: Optional[str] = None,
-        username: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        search: str | None = None,
+        username: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get users.
 
@@ -2188,7 +2177,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_user(self, user_id: int) -> Dict[str, Any]:
+    def get_user(self, user_id: int) -> dict[str, Any]:
         """
         Get a specific user.
 
@@ -2215,12 +2204,12 @@ class GraphQL:
     @require_auth
     def get_members(
         self,
-        project_id: Union[int, str],
-        _include_inherited: Optional[bool] = False,
-        search: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        _include_inherited: bool | None = False,
+        search: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get members of a project.
 
@@ -2264,11 +2253,11 @@ class GraphQL:
     @require_auth
     def add_member(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         user_id: int,
         access_level: str,
-        expires_at: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        expires_at: str | None = None,
+    ) -> dict[str, Any]:
         """
         Add a member to a project.
 
@@ -2311,11 +2300,11 @@ class GraphQL:
     @require_auth
     def update_member(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         user_id: int,
-        access_level: Optional[str] = None,
-        expires_at: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        access_level: str | None = None,
+        expires_at: str | None = None,
+    ) -> dict[str, Any]:
         """
         Update a project member.
 
@@ -2354,9 +2343,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_member(
-        self, project_id: Union[int, str], user_id: int
-    ) -> Dict[str, Any]:
+    def delete_member(self, project_id: int | str, user_id: int) -> dict[str, Any]:
         """
         Remove a member from a project.
 
@@ -2382,10 +2369,10 @@ class GraphQL:
     @require_auth
     def get_releases(
         self,
-        project_id: Union[int, str],
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get releases for a project.
 
@@ -2421,7 +2408,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_release(self, project_id: Union[int, str], tag_name: str) -> Dict[str, Any]:
+    def get_release(self, project_id: int | str, tag_name: str) -> dict[str, Any]:
         """
         Get a specific release.
 
@@ -2450,12 +2437,12 @@ class GraphQL:
     @require_auth
     def create_release(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         tag_name: str,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        ref: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        description: str | None = None,
+        ref: str | None = None,
+    ) -> dict[str, Any]:
         """
         Create a release.
 
@@ -2498,11 +2485,11 @@ class GraphQL:
     @require_auth
     def update_release(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         tag_name: str,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        description: str | None = None,
+    ) -> dict[str, Any]:
         """
         Update a release.
 
@@ -2540,9 +2527,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_release(
-        self, project_id: Union[int, str], tag_name: str
-    ) -> Dict[str, Any]:
+    def delete_release(self, project_id: int | str, tag_name: str) -> dict[str, Any]:
         """
         Delete a release.
 
@@ -2566,16 +2551,16 @@ class GraphQL:
     @require_auth
     def get_issues(
         self,
-        project_id: Union[int, str],
-        state: Optional[str] = None,
-        labels: Optional[List[str]] = None,
-        milestone: Optional[str] = None,
-        author_username: Optional[str] = None,
-        assignee_username: Optional[str] = None,
-        search: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        state: str | None = None,
+        labels: list[str] | None = None,
+        milestone: str | None = None,
+        author_username: str | None = None,
+        assignee_username: str | None = None,
+        search: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get issues for a project.
 
@@ -2628,7 +2613,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_issue(self, project_id: Union[int, str], issue_iid: int) -> Dict[str, Any]:
+    def get_issue(self, project_id: int | str, issue_iid: int) -> dict[str, Any]:
         """
         Get a specific issue.
 
@@ -2657,11 +2642,11 @@ class GraphQL:
     @require_auth
     def create_issue(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         title: str,
-        description: Optional[str] = None,
-        labels: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        description: str | None = None,
+        labels: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Create an issue.
 
@@ -2702,12 +2687,12 @@ class GraphQL:
     @require_auth
     def update_issue(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         issue_iid: int,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        state_event: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+    ) -> dict[str, Any]:
         """
         Update an issue.
 
@@ -2748,9 +2733,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_issue(
-        self, project_id: Union[int, str], issue_iid: int
-    ) -> Dict[str, Any]:
+    def delete_issue(self, project_id: int | str, issue_iid: int) -> dict[str, Any]:
         """
         Delete an issue.
 
@@ -2774,12 +2757,12 @@ class GraphQL:
     @require_auth
     def get_to_dos(
         self,
-        project_id: Union[int, str] = None,
-        state: Optional[str] = None,
-        type: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str = None,
+        state: str | None = None,
+        type: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get to-dos for a user or project.
 
@@ -2825,12 +2808,12 @@ class GraphQL:
     @require_auth
     def get_environments(
         self,
-        project_id: Union[int, str],
-        name: Optional[str] = None,
-        search: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        name: str | None = None,
+        search: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get environments for a project.
 
@@ -2872,8 +2855,8 @@ class GraphQL:
 
     @require_auth
     def create_environment(
-        self, project_id: Union[int, str], name: str, external_url: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, name: str, external_url: str | None = None
+    ) -> dict[str, Any]:
         """
         Create an environment.
 
@@ -2911,11 +2894,11 @@ class GraphQL:
     @require_auth
     def update_environment(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         environment_id: int,
-        name: Optional[str] = None,
-        external_url: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        name: str | None = None,
+        external_url: str | None = None,
+    ) -> dict[str, Any]:
         """
         Update an environment.
 
@@ -2953,8 +2936,8 @@ class GraphQL:
 
     @require_auth
     def delete_environment(
-        self, project_id: Union[int, str], environment_id: int
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, environment_id: int
+    ) -> dict[str, Any]:
         """
         Delete an environment.
 
@@ -2978,11 +2961,11 @@ class GraphQL:
     @require_auth
     def get_test_reports(
         self,
-        project_id: Union[int, str],
-        pipeline_id: Optional[int] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        pipeline_id: int | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get test reports for a project or pipeline.
 
@@ -3025,10 +3008,10 @@ class GraphQL:
     @require_auth
     def get_namespaces(
         self,
-        search: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        search: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get namespaces.
 
@@ -3064,7 +3047,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_namespace(self, namespace_id: Union[int, str]) -> Dict[str, Any]:
+    def get_namespace(self, namespace_id: int | str) -> dict[str, Any]:
         """
         Get a specific namespace.
 
@@ -3090,10 +3073,10 @@ class GraphQL:
     @require_auth
     def get_groups(
         self,
-        search: Optional[str] = None,
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        search: str | None = None,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get groups.
 
@@ -3129,7 +3112,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_group(self, group_id: Union[int, str]) -> Dict[str, Any]:
+    def get_group(self, group_id: int | str) -> dict[str, Any]:
         """
         Get a specific group.
 
@@ -3155,10 +3138,10 @@ class GraphQL:
     @require_auth
     def get_wiki_pages(
         self,
-        project_id: Union[int, str],
-        first: Optional[int] = 20,
-        after: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        project_id: int | str,
+        first: int | None = 20,
+        after: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get wiki pages for a project.
 
@@ -3196,7 +3179,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def get_wiki_page(self, project_id: Union[int, str], slug: str) -> Dict[str, Any]:
+    def get_wiki_page(self, project_id: int | str, slug: str) -> dict[str, Any]:
         """
         Get a specific wiki page.
 
@@ -3227,11 +3210,11 @@ class GraphQL:
     @require_auth
     def create_wiki_page(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         title: str,
         content: str,
-        format_type: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        format_type: str | None = None,
+    ) -> dict[str, Any]:
         """
         Create a wiki page.
 
@@ -3269,12 +3252,12 @@ class GraphQL:
     @require_auth
     def update_wiki_page(
         self,
-        project_id: Union[int, str],
+        project_id: int | str,
         slug: str,
-        title: Optional[str] = None,
-        content: Optional[str] = None,
-        format_type: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        title: str | None = None,
+        content: str | None = None,
+        format_type: str | None = None,
+    ) -> dict[str, Any]:
         """
         Update a wiki page.
 
@@ -3315,9 +3298,7 @@ class GraphQL:
         return self.execute_gql(query, variables=variables)
 
     @require_auth
-    def delete_wiki_page(
-        self, project_id: Union[int, str], slug: str
-    ) -> Dict[str, Any]:
+    def delete_wiki_page(self, project_id: int | str, slug: str) -> dict[str, Any]:
         """
         Delete a wiki page.
 
@@ -3341,8 +3322,8 @@ class GraphQL:
 
     @require_auth
     def upload_wiki_page_attachment(
-        self, project_id: Union[int, str], file: str, branch: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, project_id: int | str, file: str, branch: str | None = None
+    ) -> dict[str, Any]:
         """
         Upload an attachment to a wiki page.
 

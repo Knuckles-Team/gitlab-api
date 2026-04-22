@@ -1,5 +1,6 @@
 import os
 import sys
+
 from agent_utilities import initialize_graph_from_workspace
 
 
@@ -20,7 +21,6 @@ def test_template_in_process():
 
     found_fastmcp = False
     for ts in mcp_toolsets:
-
         if hasattr(ts, "name") and ts.name == "GitLab":
             print(f"SUCCESS: Found in-process toolset: {ts}")
             found_fastmcp = True

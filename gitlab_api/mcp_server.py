@@ -15,24 +15,25 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
-from dotenv import load_dotenv, find_dotenv
+import logging
 import os
 import sys
-import logging
-from typing import Optional, List, Dict, Union, Any
+from typing import Any
 
-from pydantic import Field
-from fastmcp import FastMCP, Context
-from fastmcp.utilities.logging import get_logger
-from gitlab_api.gitlab_response_models import Response
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
-    create_mcp_server,
     config,
+    create_mcp_server,
 )
-from gitlab_api.auth import get_client
+from dotenv import find_dotenv, load_dotenv
+from fastmcp import Context, FastMCP
+from fastmcp.utilities.logging import get_logger
+from pydantic import Field
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+
+from gitlab_api.auth import get_client
+from gitlab_api.gitlab_response_models import Response
 
 __version__ = "25.15.56"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
@@ -59,25 +60,23 @@ def register_branches_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
     def get_branches(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        search: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        search: str | None = Field(
             description="Filter branches by name containing this term", default=None
         ),
-        _regex: Optional[str] = Field(
+        _regex: str | None = Field(
             description="Filter branches by regex pattern on name", default=None
         ),
-        branch: Optional[str] = Field(description="Branch name", default=None),
-        verify: Optional[bool] = Field(
+        branch: str | None = Field(description="Branch name", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -111,22 +110,20 @@ def register_branches_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
     def create_branch(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         branch: str = Field(description="New branch name", default=None),
         ref: str = Field(
             description="Reference to create from (branch/tag/commit SHA)", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -156,31 +153,27 @@ def register_branches_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
     def delete_branch(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        branch: Optional[str] = Field(
-            description="Branch name to delete", default=None
-        ),
-        delete_merged_branches: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        branch: str | None = Field(description="Branch name to delete", default=None),
+        delete_merged_branches: bool | None = Field(
             description="Delete all merged branches (excluding protected)",
             default=False,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -224,34 +217,32 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def get_commits(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        commit_hash: Optional[str] = Field(description="Commit SHA", default=None),
-        ref_name: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        commit_hash: str | None = Field(description="Commit SHA", default=None),
+        ref_name: str | None = Field(
             description="Branch, tag, or commit SHA to filter commits", default=None
         ),
-        since: Optional[str] = Field(
+        since: str | None = Field(
             description="Only commits after this date (ISO 8601 format)", default=None
         ),
-        until: Optional[str] = Field(
+        until: str | None = Field(
             description="Only commits before this date (ISO 8601 format)", default=None
         ),
-        path: Optional[str] = Field(
+        path: str | None = Field(
             description="Only commits that include this file path", default=None
         ),
-        all: Optional[bool] = Field(
+        all: bool | None = Field(
             description="Include all commits across all branches", default=False
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -285,29 +276,27 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def create_commit(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         branch: str = Field(description="Branch name for the commit", default=None),
         commit_message: str = Field(description="Commit message", default=None),
-        actions: List[Dict[str, str]] = Field(
+        actions: list[dict[str, str]] = Field(
             description="List of actions (create/update/delete files)", default=None
         ),
-        author_email: Optional[str] = Field(
+        author_email: str | None = Field(
             description="Author email for the commit", default=None
         ),
-        author_name: Optional[str] = Field(
+        author_name: str | None = Field(
             description="Author name for the commit", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -339,25 +328,23 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def get_commit_diff(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         commit_hash: str = Field(description="Commit SHA", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -388,31 +375,29 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def revert_commit(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         commit_hash: str = Field(description="Commit SHA to revert", default=None),
         branch: str = Field(
             description="Target branch to apply the revert", default=None
         ),
-        dry_run: Optional[bool] = Field(
+        dry_run: bool | None = Field(
             description="Simulate the revert without applying", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -460,25 +445,23 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def get_commit_comments(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         commit_hash: str = Field(description="Commit SHA", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -511,35 +494,33 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def create_commit_comment(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         commit_hash: str = Field(description="Commit SHA", default=None),
         note: str = Field(description="Content of the comment", default=None),
-        path: Optional[str] = Field(
+        path: str | None = Field(
             description="File path to associate with the comment", default=None
         ),
-        line: Optional[int] = Field(
+        line: int | None = Field(
             description="Line number in the file for the comment", default=None
         ),
-        line_type: Optional[str] = Field(
+        line_type: str | None = Field(
             description="Type of line ('new' or 'old')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -574,25 +555,23 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def get_commit_discussions(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         commit_hash: str = Field(description="Commit SHA", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -625,38 +604,36 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def get_commit_statuses(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         commit_hash: str = Field(description="Commit SHA", default=None),
-        ref: Optional[str] = Field(
+        ref: str | None = Field(
             description="Filter statuses by reference (branch or tag)", default=None
         ),
-        _stage: Optional[str] = Field(
+        _stage: str | None = Field(
             description="Filter statuses by CI stage", default=None
         ),
-        name: Optional[str] = Field(
+        name: str | None = Field(
             description="Filter statuses by job name", default=None
         ),
-        _coverage: Optional[bool] = Field(
+        _coverage: bool | None = Field(
             description="Include coverage information", default=None
         ),
-        all: Optional[bool] = Field(description="Include all statuses", default=None),
-        verify: Optional[bool] = Field(
+        all: bool | None = Field(description="Include all statuses", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -691,47 +668,45 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def post_build_status_to_commit(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         commit_hash: str = Field(description="Commit SHA", default=None),
         state: str = Field(
             description="State of the build (e.g., 'pending', 'running', 'success', 'failed')",
             default=None,
         ),
-        _target_url: Optional[str] = Field(
+        _target_url: str | None = Field(
             description="URL to link to the build", default=None
         ),
-        _context: Optional[str] = Field(
+        _context: str | None = Field(
             description="Context of the status (e.g., 'ci/build')", default=None
         ),
-        description: Optional[str] = Field(
+        description: str | None = Field(
             description="Description of the status", default=None
         ),
-        _coverage: Optional[float] = Field(
+        _coverage: float | None = Field(
             description="Coverage percentage", default=None
         ),
-        pipeline_id: Optional[int] = Field(
+        pipeline_id: int | None = Field(
             description="ID of the associated pipeline", default=None
         ),
-        ref: Optional[str] = Field(
+        ref: str | None = Field(
             description="Reference (branch or tag) for the status", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -766,25 +741,23 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def get_commit_merge_requests(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         commit_hash: str = Field(description="Commit SHA", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -817,25 +790,23 @@ def register_commits_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
     )
     def get_commit_gpg_signature(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         commit_hash: str = Field(description="Commit SHA", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -871,15 +842,15 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         tags={"deploy_tokens"},
     )
     def get_deploy_tokens(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -902,19 +873,17 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         tags={"deploy_tokens"},
     )
     def get_project_deploy_tokens(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        token_id: Optional[int] = Field(description="Deploy token ID", default=None),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        token_id: int | None = Field(description="Deploy token ID", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -945,35 +914,33 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         tags={"deploy_tokens"},
     )
     def create_project_deploy_token(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(description="Name of the deploy token", default=None),
-        scopes: List[str] = Field(
+        scopes: list[str] = Field(
             description="Scopes for the deploy token (e.g., ['read_repository'])",
             default=None,
         ),
-        expires_at: Optional[str] = Field(
+        expires_at: str | None = Field(
             description="Expiration date (ISO 8601 format)", default=None
         ),
-        username: Optional[str] = Field(
+        username: str | None = Field(
             description="Username associated with the token", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1005,25 +972,23 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         tags={"deploy_tokens"},
     )
     def delete_project_deploy_token(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         token_id: int = Field(description="Deploy token ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1051,19 +1016,19 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         tags={"deploy_tokens"},
     )
     def get_group_deploy_tokens(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        token_id: Optional[int] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        token_id: int | None = Field(
             description="Deploy token ID for single retrieval", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -1092,33 +1057,33 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         tags={"deploy_tokens"},
     )
     def create_group_deploy_token(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
+        group_id: int | str = Field(description="Group ID or path", default=None),
         name: str = Field(description="Name of the deploy token", default=None),
-        scopes: List[str] = Field(
+        scopes: list[str] = Field(
             description="Scopes for the deploy token (e.g., ['read_repository'])",
             default=None,
         ),
-        expires_at: Optional[str] = Field(
+        expires_at: str | None = Field(
             description="Expiration date (ISO 8601 format)", default=None
         ),
-        username: Optional[str] = Field(
+        username: str | None = Field(
             description="Username associated with the token", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1150,23 +1115,23 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         tags={"deploy_tokens"},
     )
     def delete_group_deploy_token(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
+        group_id: int | str = Field(description="Group ID or path", default=None),
         token_id: int = Field(description="Deploy token ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1194,31 +1159,27 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def get_environments(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        environment_id: Optional[int] = Field(
-            description="Environment ID", default=None
-        ),
-        name: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        environment_id: int | None = Field(description="Environment ID", default=None),
+        name: str | None = Field(
             description="Filter environments by exact name", default=None
         ),
-        search: Optional[str] = Field(
+        search: str | None = Field(
             description="Filter environments by search term in name", default=None
         ),
-        states: Optional[str] = Field(
+        states: str | None = Field(
             description="Filter environments by state (e.g., 'available', 'stopped')",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -1255,28 +1216,26 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def create_environment(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(description="Name of the environment", default=None),
-        external_url: Optional[str] = Field(
+        external_url: str | None = Field(
             description="External URL for the environment", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1316,31 +1275,29 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def update_environment(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         environment_id: int = Field(description="Environment ID", default=None),
-        name: Optional[str] = Field(
+        name: str | None = Field(
             description="New name for the environment", default=None
         ),
-        external_url: Optional[str] = Field(
+        external_url: str | None = Field(
             description="New external URL for the environment", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1385,25 +1342,23 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def delete_environment(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         environment_id: int = Field(description="Environment ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1431,25 +1386,23 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def stop_environment(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         environment_id: int = Field(description="Environment ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1477,28 +1430,26 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def stop_stale_environments(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        _older_than: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        _older_than: str | None = Field(
             description="Filter environments older than this timestamp (ISO 8601 format)",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1538,24 +1489,22 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def delete_stopped_environments(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1581,21 +1530,19 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def get_protected_environments(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(
             description="Name of the protected environment", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -1626,30 +1573,28 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def protect_environment(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(
             description="Name of the environment to protect", default=None
         ),
-        required_approval_count: Optional[int] = Field(
+        required_approval_count: int | None = Field(
             description="Number of approvals required for deployment", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1689,30 +1634,28 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def update_protected_environment(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(
             description="Name of the protected environment", default=None
         ),
-        required_approval_count: Optional[int] = Field(
+        required_approval_count: int | None = Field(
             description="New number of approvals required for deployment", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1754,27 +1697,25 @@ def register_environments_tools(mcp: FastMCP):
         tags={"environments"},
     )
     def unprotect_environment(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(
             description="Name of the environment to unprotect", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1801,38 +1742,38 @@ def register_groups_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
     def get_groups(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Optional[Union[int, str]] = Field(
+        group_id: int | str | None = Field(
             description="Group ID or path", default=None
         ),
-        search: Optional[str] = Field(
+        search: str | None = Field(
             description="Filter groups by search term in name or path", default=None
         ),
-        sort: Optional[str] = Field(
+        sort: str | None = Field(
             description="Sort order (e.g., 'asc', 'desc')", default=None
         ),
-        order_by: Optional[str] = Field(
+        order_by: str | None = Field(
             description="Field to sort by (e.g., 'name', 'path')", default=None
         ),
-        owned: Optional[bool] = Field(
+        owned: bool | None = Field(
             description="Filter groups owned by the authenticated user", default=None
         ),
-        min_access_level: Optional[int] = Field(
+        min_access_level: int | None = Field(
             description="Filter groups by minimum access level (e.g., 10 for Guest)",
             default=None,
         ),
-        top_level_only: Optional[bool] = Field(
+        top_level_only: bool | None = Field(
             description="Include only top-level groups (exclude subgroups)",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -1865,30 +1806,30 @@ def register_groups_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
     def edit_group(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        name: Optional[str] = Field(description="New name for the group", default=None),
-        path: Optional[str] = Field(description="New path for the group", default=None),
-        description: Optional[str] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        name: str | None = Field(description="New name for the group", default=None),
+        path: str | None = Field(description="New path for the group", default=None),
+        description: str | None = Field(
             description="New description for the group", default=None
         ),
-        visibility: Optional[str] = Field(
+        visibility: str | None = Field(
             description="New visibility level (e.g., 'public', 'private')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -1931,28 +1872,28 @@ def register_groups_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
     def get_group_subgroups(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        search: Optional[str] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        search: str | None = Field(
             description="Filter subgroups by search term in name or path", default=None
         ),
-        sort: Optional[str] = Field(
+        sort: str | None = Field(
             description="Sort order (e.g., 'asc', 'desc')", default=None
         ),
-        order_by: Optional[str] = Field(
+        order_by: str | None = Field(
             description="Field to sort by (e.g., 'name', 'path')", default=None
         ),
-        owned: Optional[bool] = Field(
+        owned: bool | None = Field(
             description="Filter subgroups owned by the authenticated user", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -1983,30 +1924,30 @@ def register_groups_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
     def get_group_descendant_groups(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        search: Optional[str] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        search: str | None = Field(
             description="Filter descendant groups by search term in name or path",
             default=None,
         ),
-        sort: Optional[str] = Field(
+        sort: str | None = Field(
             description="Sort order (e.g., 'asc', 'desc')", default=None
         ),
-        order_by: Optional[str] = Field(
+        order_by: str | None = Field(
             description="Field to sort by (e.g., 'name', 'path')", default=None
         ),
-        owned: Optional[bool] = Field(
+        owned: bool | None = Field(
             description="Filter descendant groups owned by the authenticated user",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2037,28 +1978,28 @@ def register_groups_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
     def get_group_projects(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        _include_subgroups: Optional[bool] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        _include_subgroups: bool | None = Field(
             description="Include projects from subgroups", default=None
         ),
-        search: Optional[str] = Field(
+        search: str | None = Field(
             description="Filter projects by search term in name or path", default=None
         ),
-        sort: Optional[str] = Field(
+        sort: str | None = Field(
             description="Sort order (e.g., 'asc', 'desc')", default=None
         ),
-        order_by: Optional[str] = Field(
+        order_by: str | None = Field(
             description="Field to sort by (e.g., 'name', 'path')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2089,31 +2030,31 @@ def register_groups_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
     )
     def get_group_merge_requests(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        state: Optional[str] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        state: str | None = Field(
             description="Filter merge requests by state (e.g., 'opened', 'closed')",
             default=None,
         ),
-        scope: Optional[str] = Field(
+        scope: str | None = Field(
             description="Filter merge requests by scope (e.g., 'created_by_me')",
             default=None,
         ),
-        milestone: Optional[str] = Field(
+        milestone: str | None = Field(
             description="Filter merge requests by milestone title", default=None
         ),
-        search: Optional[str] = Field(
+        search: str | None = Field(
             description="Filter merge requests by search term in title or description",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2144,29 +2085,27 @@ def register_groups_tools(mcp: FastMCP):
 def register_jobs_tools(mcp: FastMCP):
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     def get_project_jobs(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        job_id: Optional[int] = Field(description="Job ID", default=None),
-        scope: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        job_id: int | None = Field(description="Job ID", default=None),
+        scope: str | None = Field(
             description="Filter jobs by scope (e.g., 'success', 'failed')", default=None
         ),
-        _include_retried: Optional[bool] = Field(
+        _include_retried: bool | None = Field(
             description="Include retried jobs", default=None
         ),
-        _include_invisible: Optional[bool] = Field(
+        _include_invisible: bool | None = Field(
             description="Include invisible jobs (e.g., from hidden pipelines)",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2198,19 +2137,17 @@ def register_jobs_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     def get_project_job_log(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         job_id: int = Field(description="Job ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2232,25 +2169,23 @@ def register_jobs_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     def cancel_project_job(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         job_id: int = Field(description="Job ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -2273,25 +2208,23 @@ def register_jobs_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     def retry_project_job(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         job_id: int = Field(description="Job ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -2314,25 +2247,23 @@ def register_jobs_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     def erase_project_job(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         job_id: int = Field(description="Job ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -2355,25 +2286,23 @@ def register_jobs_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     def run_project_job(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         job_id: int = Field(description="Job ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -2396,22 +2325,20 @@ def register_jobs_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
     def get_pipeline_jobs(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         pipeline_id: int = Field(description="Pipeline ID", default=None),
-        scope: Optional[str] = Field(
+        scope: str | None = Field(
             description="Filter jobs by scope (e.g., 'success', 'failed')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2453,29 +2380,29 @@ def register_members_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
     )
     def get_group_members(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        query: Optional[str] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        query: str | None = Field(
             description="Filter members by search term in name or username",
             default=None,
         ),
-        user_ids: Optional[List[int]] = Field(
+        user_ids: list[int] | None = Field(
             description="Filter members by user IDs", default=None
         ),
-        _skip_users: Optional[List[int]] = Field(
+        _skip_users: list[int] | None = Field(
             description="Exclude specified user IDs", default=None
         ),
-        _show_seat_info: Optional[bool] = Field(
+        _show_seat_info: bool | None = Field(
             description="Include seat information for members", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2506,28 +2433,26 @@ def register_members_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
     )
     def get_project_members(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        query: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        query: str | None = Field(
             description="Filter members by search term in name or username",
             default=None,
         ),
-        user_ids: Optional[List[int]] = Field(
+        user_ids: list[int] | None = Field(
             description="Filter members by user IDs", default=None
         ),
-        _skip_users: Optional[List[int]] = Field(
+        _skip_users: list[int] | None = Field(
             description="Exclude specified user IDs", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2561,17 +2486,15 @@ def register_merge_requests_tools(mcp: FastMCP):
         tags={"merge-requests"},
     )
     def create_merge_request(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         source_branch: str = Field(
             description="Source branch for the merge request", default=None
         ),
@@ -2579,25 +2502,25 @@ def register_merge_requests_tools(mcp: FastMCP):
             description="Target branch for the merge request", default=None
         ),
         title: str = Field(description="Title of the merge request", default=None),
-        description: Optional[str] = Field(
+        description: str | None = Field(
             description="Description of the merge request", default=None
         ),
-        assignee_id: Optional[int] = Field(
+        assignee_id: int | None = Field(
             description="ID of the user to assign the merge request to", default=None
         ),
-        _reviewer_ids: Optional[List[int]] = Field(
+        _reviewer_ids: list[int] | None = Field(
             description="IDs of users to set as reviewers", default=None
         ),
-        labels: Optional[List[str]] = Field(
+        labels: list[str] | None = Field(
             description="Labels to apply to the merge request", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -2639,35 +2562,35 @@ def register_merge_requests_tools(mcp: FastMCP):
         tags={"merge-requests"},
     )
     def get_merge_requests(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        state: Optional[str] = Field(
+        state: str | None = Field(
             description="Filter merge requests by state (e.g., 'opened', 'closed')",
             default=None,
         ),
-        scope: Optional[str] = Field(
+        scope: str | None = Field(
             description="Filter merge requests by scope (e.g., 'created_by_me')",
             default=None,
         ),
-        milestone: Optional[str] = Field(
+        milestone: str | None = Field(
             description="Filter merge requests by milestone title", default=None
         ),
-        view: Optional[str] = Field(
+        view: str | None = Field(
             description="Filter merge requests by view (e.g., 'simple')", default=None
         ),
-        labels: Optional[List[str]] = Field(
+        labels: list[str] | None = Field(
             description="Filter merge requests by labels", default=None
         ),
-        author_id: Optional[int] = Field(
+        author_id: int | None = Field(
             description="Filter merge requests by author ID", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2696,33 +2619,31 @@ def register_merge_requests_tools(mcp: FastMCP):
         tags={"merge-requests"},
     )
     def get_project_merge_requests(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        merge_id: Optional[int] = Field(description="Merge request ID", default=None),
-        state: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        merge_id: int | None = Field(description="Merge request ID", default=None),
+        state: str | None = Field(
             description="Filter merge requests by state (e.g., 'opened', 'closed')",
             default=None,
         ),
-        scope: Optional[str] = Field(
+        scope: str | None = Field(
             description="Filter merge requests by scope (e.g., 'created_by_me')",
             default=None,
         ),
-        milestone: Optional[str] = Field(
+        milestone: str | None = Field(
             description="Filter merge requests by milestone title", default=None
         ),
-        labels: Optional[List[str]] = Field(
+        labels: list[str] | None = Field(
             description="Filter merge requests by labels", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2763,19 +2684,17 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def get_project_level_merge_request_approval_rules(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         approval_rule_id: int = Field(description="Approval rule ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -2807,37 +2726,35 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def create_project_level_rule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(description="Name of the approval rule", default=None),
-        approvals_required: Optional[int] = Field(
+        approvals_required: int | None = Field(
             description="Number of approvals required", default=None
         ),
-        _rule_type: Optional[str] = Field(
+        _rule_type: str | None = Field(
             description="Type of rule (e.g., 'regular')", default=None
         ),
-        user_ids: Optional[List[int]] = Field(
+        user_ids: list[int] | None = Field(
             description="List of user IDs required to approve", default=None
         ),
-        group_ids: Optional[List[int]] = Field(
+        group_ids: list[int] | None = Field(
             description="List of group IDs required to approve", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -2876,37 +2793,35 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def update_project_level_rule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         approval_rule_id: int = Field(description="Approval rule ID", default=None),
-        name: Optional[str] = Field(
+        name: str | None = Field(
             description="New name for the approval rule", default=None
         ),
-        approvals_required: Optional[int] = Field(
+        approvals_required: int | None = Field(
             description="New number of approvals required", default=None
         ),
-        user_ids: Optional[List[int]] = Field(
+        user_ids: list[int] | None = Field(
             description="Updated list of user IDs required to approve", default=None
         ),
-        group_ids: Optional[List[int]] = Field(
+        group_ids: list[int] | None = Field(
             description="Updated list of group IDs required to approve", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -2954,25 +2869,23 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def delete_project_level_rule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         approval_rule_id: int = Field(description="Approval rule ID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -3001,19 +2914,17 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def merge_request_level_approvals(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         merge_request_iid: int = Field(description="Merge request IID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3039,19 +2950,17 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def get_approval_state_merge_requests(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         merge_request_iid: int = Field(description="Merge request IID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3077,19 +2986,17 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def get_merge_request_level_rules(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         merge_request_iid: int = Field(description="Merge request IID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3115,25 +3022,23 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def approve_merge_request(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         merge_request_iid: int = Field(description="Merge request IID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -3162,25 +3067,23 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def unapprove_merge_request(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         merge_request_iid: int = Field(description="Merge request IID", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -3209,16 +3112,16 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def get_group_level_rule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        verify: Optional[bool] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3242,36 +3145,36 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def edit_group_level_rule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        allow_author_approval: Optional[bool] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        allow_author_approval: bool | None = Field(
             description="Whether authors can approve their own merge requests",
             default=None,
         ),
-        allow_committer_approval: Optional[bool] = Field(
+        allow_committer_approval: bool | None = Field(
             description="Whether committers can approve merge requests", default=None
         ),
-        allow_overrides_to_approver_list: Optional[bool] = Field(
+        allow_overrides_to_approver_list: bool | None = Field(
             description="Whether overrides to the approver list are allowed",
             default=None,
         ),
-        minimum_approvals: Optional[int] = Field(
+        minimum_approvals: int | None = Field(
             description="Minimum number of approvals required", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -3321,18 +3224,16 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def get_project_level_rule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3356,38 +3257,36 @@ def register_merge_rules_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
     )
     def edit_project_level_rule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        allow_author_approval: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        allow_author_approval: bool | None = Field(
             description="Whether authors can approve their own merge requests",
             default=None,
         ),
-        allow_committer_approval: Optional[bool] = Field(
+        allow_committer_approval: bool | None = Field(
             description="Whether committers can approve merge requests", default=None
         ),
-        allow_overrides_to_approver_list: Optional[bool] = Field(
+        allow_overrides_to_approver_list: bool | None = Field(
             description="Whether overrides to the approver list are allowed",
             default=None,
         ),
-        minimum_approvals: Optional[int] = Field(
+        minimum_approvals: int | None = Field(
             description="Minimum number of approvals required", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -3439,21 +3338,19 @@ def register_packages_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
     def get_repository_packages(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        _package_type: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        _package_type: str | None = Field(
             description="Filter packages by type (e.g., 'npm', 'maven')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3484,33 +3381,31 @@ def register_packages_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
     def publish_repository_package(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         package_name: str = Field(description="Name of the package", default=None),
         package_version: str = Field(
             description="Version of the package", default=None
         ),
         file_name: str = Field(description="Name of the package file", default=None),
-        status: Optional[str] = Field(
+        status: str | None = Field(
             description="Status of the package (e.g., 'default', 'hidden')",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -3553,17 +3448,15 @@ def register_packages_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
     )
     def download_repository_package(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         package_name: str = Field(description="Name of the package", default=None),
         package_version: str = Field(
             description="Version of the package", default=None
@@ -3571,7 +3464,7 @@ def register_packages_tools(mcp: FastMCP):
         file_name: str = Field(
             description="Name of the package file to download", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3604,43 +3497,41 @@ def register_pipelines_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
     )
     def get_pipelines(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        pipeline_id: Optional[int] = Field(description="Pipeline ID", default=None),
-        scope: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        pipeline_id: int | None = Field(description="Pipeline ID", default=None),
+        scope: str | None = Field(
             description="Filter pipelines by scope (e.g., 'running', 'branches')",
             default=None,
         ),
-        status: Optional[str] = Field(
+        status: str | None = Field(
             description="Filter pipelines by status (e.g., 'success', 'failed')",
             default=None,
         ),
-        ref: Optional[str] = Field(
+        ref: str | None = Field(
             description="Filter pipelines by reference (e.g., branch or tag name)",
             default=None,
         ),
-        _source: Optional[str] = Field(
+        _source: str | None = Field(
             description="Filter pipelines by source (e.g., 'push', 'schedule')",
             default=None,
         ),
-        updated_after: Optional[str] = Field(
+        updated_after: str | None = Field(
             description="Filter pipelines updated after this date (ISO 8601 format)",
             default=None,
         ),
-        updated_before: Optional[str] = Field(
+        updated_before: str | None = Field(
             description="Filter pipelines updated before this date (ISO 8601 format)",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3676,31 +3567,29 @@ def register_pipelines_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
     )
     def run_pipeline(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         ref: str = Field(
             description="Reference (e.g., branch or tag) to run the pipeline on",
             default=None,
         ),
-        variables: Optional[Dict[str, str]] = Field(
+        variables: dict[str, str] | None = Field(
             description="Dictionary of pipeline variables", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -3736,18 +3625,16 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def get_pipeline_schedules(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3772,21 +3659,19 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def get_pipeline_schedule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         pipeline_schedule_id: int = Field(
             description="Pipeline schedule ID", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3813,21 +3698,19 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def get_pipelines_triggered_from_schedule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         pipeline_schedule_id: int = Field(
             description="Pipeline schedule ID", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -3854,18 +3737,16 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def create_pipeline_schedule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        description: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        description: str | None = Field(
             description="Description of the pipeline schedule", default=None
         ),
         ref: str = Field(
@@ -3875,19 +3756,19 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             description="Cron expression defining the schedule (e.g., '0 0 * * *')",
             default=None,
         ),
-        cron_timezone: Optional[str] = Field(
+        cron_timezone: str | None = Field(
             description="Timezone for the cron schedule (e.g., 'UTC')", default=None
         ),
-        active: Optional[bool] = Field(
+        active: bool | None = Field(
             description="Whether the schedule is active", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -3928,44 +3809,42 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def edit_pipeline_schedule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         pipeline_schedule_id: int = Field(
             description="Pipeline schedule ID", default=None
         ),
-        description: Optional[str] = Field(
+        description: str | None = Field(
             description="New description of the pipeline schedule", default=None
         ),
-        ref: Optional[str] = Field(
+        ref: str | None = Field(
             description="New reference (e.g., branch or tag) for the pipeline",
             default=None,
         ),
-        cron: Optional[str] = Field(
+        cron: str | None = Field(
             description="New cron expression for the schedule (e.g., '0 0 * * *')",
             default=None,
         ),
-        cron_timezone: Optional[str] = Field(
+        cron_timezone: str | None = Field(
             description="New timezone for the cron schedule (e.g., 'UTC')", default=None
         ),
-        active: Optional[bool] = Field(
+        active: bool | None = Field(
             description="Whether the schedule is active", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4011,27 +3890,25 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def take_pipeline_schedule_ownership(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         pipeline_schedule_id: int = Field(
             description="Pipeline schedule ID", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4061,27 +3938,25 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def delete_pipeline_schedule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         pipeline_schedule_id: int = Field(
             description="Pipeline schedule ID", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4111,27 +3986,25 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def run_pipeline_schedule(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         pipeline_schedule_id: int = Field(
             description="Pipeline schedule ID", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4161,32 +4034,30 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def create_pipeline_schedule_variable(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         pipeline_schedule_id: int = Field(
             description="Pipeline schedule ID", default=None
         ),
         key: str = Field(description="Key of the variable", default=None),
         value: str = Field(description="Value of the variable", default=None),
-        variable_type: Optional[str] = Field(
+        variable_type: str | None = Field(
             description="Type of variable (e.g., 'env_var')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4228,28 +4099,26 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         tags={"pipeline_schedules"},
     )
     def delete_pipeline_schedule_variable(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         pipeline_schedule_id: int = Field(
             description="Pipeline schedule ID", default=None
         ),
         key: str = Field(description="Key of the variable to delete", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4280,32 +4149,32 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def get_projects(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Optional[Union[int, str]] = Field(
+        project_id: int | str | None = Field(
             description="Project ID or path", default=None
         ),
-        owned: Optional[bool] = Field(
+        owned: bool | None = Field(
             description="Filter projects owned by the authenticated user", default=None
         ),
-        search: Optional[str] = Field(
+        search: str | None = Field(
             description="Filter projects by search term in name or path", default=None
         ),
-        sort: Optional[str] = Field(
+        sort: str | None = Field(
             description="Sort projects by criteria (e.g., 'created_at', 'name')",
             default=None,
         ),
-        visibility: Optional[str] = Field(
+        visibility: str | None = Field(
             description="Filter projects by visibility (e.g., 'public', 'private')",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -4356,16 +4225,16 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def get_nested_projects_by_group(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        verify: Optional[bool] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -4389,18 +4258,16 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def get_project_contributors(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -4424,18 +4291,16 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def get_project_statistics(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -4459,34 +4324,30 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def edit_project(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        name: Optional[str] = Field(
-            description="New name of the project", default=None
-        ),
-        description: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        name: str | None = Field(description="New name of the project", default=None),
+        description: str | None = Field(
             description="New description of the project", default=None
         ),
-        visibility: Optional[str] = Field(
+        visibility: str | None = Field(
             description="New visibility of the project (e.g., 'public', 'private')",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4529,24 +4390,22 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def get_project_groups(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        _skip_groups: Optional[List[int]] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        _skip_groups: list[int] | None = Field(
             description="List of group IDs to exclude", default=None
         ),
-        search: Optional[str] = Field(
+        search: str | None = Field(
             description="Filter groups by search term in name", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -4577,24 +4436,22 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def archive_project(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4619,24 +4476,22 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def unarchive_project(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4661,24 +4516,22 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def delete_project(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4703,34 +4556,32 @@ def register_projects_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
     )
     def share_project(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        group_id: Union[int, str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        group_id: int | str = Field(
             description="Group ID or path to share with", default=None
         ),
         group_access: str = Field(
             description="Access level for the group (e.g., 'guest', 'developer', 'maintainer')",
             default=None,
         ),
-        expires_at: Optional[str] = Field(
+        expires_at: str | None = Field(
             description="Expiration date for the share in ISO 8601 format", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4772,21 +4623,19 @@ def register_protected_branches_tools(mcp: FastMCP):
         tags={"protected_branches"},
     )
     def get_protected_branches(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        branch: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        branch: str | None = Field(
             description="Name of the branch to retrieve (e.g., 'main')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -4814,52 +4663,50 @@ def register_protected_branches_tools(mcp: FastMCP):
         tags={"protected_branches"},
     )
     def protect_branch(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         branch: str = Field(
             description="Name of the branch to protect (e.g., 'main')", default=None
         ),
-        push_access_level: Optional[str] = Field(
+        push_access_level: str | None = Field(
             description="Access level for pushing (e.g., 'maintainer')", default=None
         ),
-        merge_access_level: Optional[str] = Field(
+        merge_access_level: str | None = Field(
             description="Access level for merging (e.g., 'developer')", default=None
         ),
-        unprotect_access_level: Optional[str] = Field(
+        unprotect_access_level: str | None = Field(
             description="Access level for unprotecting (e.g., 'maintainer')",
             default=None,
         ),
-        allow_force_push: Optional[bool] = Field(
+        allow_force_push: bool | None = Field(
             description="Whether force pushes are allowed", default=None
         ),
-        allowed_to_push: Optional[List[Dict]] = Field(
+        allowed_to_push: list[dict] | None = Field(
             description="List of users or groups allowed to push", default=None
         ),
-        allowed_to_merge: Optional[List[Dict]] = Field(
+        allowed_to_merge: list[dict] | None = Field(
             description="List of users or groups allowed to merge", default=None
         ),
-        allowed_to_unprotect: Optional[List[Dict]] = Field(
+        allowed_to_unprotect: list[dict] | None = Field(
             description="List of users or groups allowed to unprotect", default=None
         ),
-        code_owner_approval_required: Optional[bool] = Field(
+        code_owner_approval_required: bool | None = Field(
             description="Whether code owner approval is required", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4912,27 +4759,25 @@ def register_protected_branches_tools(mcp: FastMCP):
         tags={"protected_branches"},
     )
     def unprotect_branch(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         branch: str = Field(
             description="Name of the branch to unprotect (e.g., 'main')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -4958,17 +4803,15 @@ def register_protected_branches_tools(mcp: FastMCP):
         tags={"protected_branches"},
     )
     def require_code_owner_approvals_single_branch(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         branch: str = Field(
             description="Name of the branch to set approval requirements for (e.g., 'main')",
             default=None,
@@ -4976,13 +4819,13 @@ def register_protected_branches_tools(mcp: FastMCP):
         code_owner_approval_required: bool = Field(
             description="Whether code owner approval is required", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -5017,27 +4860,25 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def get_releases(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        _include_html_description: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        _include_html_description: bool | None = Field(
             description="Whether to include HTML descriptions", default=None
         ),
-        sort: Optional[str] = Field(
+        sort: str | None = Field(
             description="Sort releases by criteria (e.g., 'released_at')", default=None
         ),
-        order_by: Optional[str] = Field(
+        order_by: str | None = Field(
             description="Order releases by criteria (e.g., 'asc', 'desc')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5068,18 +4909,16 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def get_latest_release(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5103,18 +4942,16 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def get_latest_release_evidence(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5138,21 +4975,19 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def get_latest_release_asset(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         direct_asset_path: str = Field(
             description="Path to the asset (e.g., 'assets/file.zip')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5178,25 +5013,25 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def get_group_releases(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        _include_html_description: Optional[bool] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        _include_html_description: bool | None = Field(
             description="Whether to include HTML descriptions", default=None
         ),
-        sort: Optional[str] = Field(
+        sort: str | None = Field(
             description="Sort releases by criteria (e.g., 'released_at')", default=None
         ),
-        order_by: Optional[str] = Field(
+        order_by: str | None = Field(
             description="Order releases by criteria (e.g., 'asc', 'desc')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5227,22 +5062,22 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def download_release_asset(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
+        group_id: int | str = Field(description="Group ID or path", default=None),
         tag_name: str = Field(
             description="Tag name of the release (e.g., 'v1.0.0')", default=None
         ),
         direct_asset_path: str = Field(
             description="Path to the asset (e.g., 'assets/file.zip')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5268,21 +5103,19 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def get_release_by_tag(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         tag_name: str = Field(
             description="Tag name of the release (e.g., 'v1.0.0')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5306,38 +5139,36 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def create_release(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(description="Name of the release", default=None),
         tag_name: str = Field(
             description="Tag name associated with the release (e.g., 'v1.0.0')",
             default=None,
         ),
-        description: Optional[str] = Field(
+        description: str | None = Field(
             description="Description of the release", default=None
         ),
-        released_at: Optional[str] = Field(
+        released_at: str | None = Field(
             description="Release date in ISO 8601 format", default=None
         ),
-        assets: Optional[Dict] = Field(
+        assets: dict | None = Field(
             description="Dictionary of release assets", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -5376,27 +5207,25 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def create_release_evidence(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         tag_name: str = Field(
             description="Tag name of the release (e.g., 'v1.0.0')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -5425,40 +5254,36 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def update_release(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         tag_name: str = Field(
             description="Tag name of the release to update (e.g., 'v1.0.0')",
             default=None,
         ),
-        name: Optional[str] = Field(
-            description="New name of the release", default=None
-        ),
-        description: Optional[str] = Field(
+        name: str | None = Field(description="New name of the release", default=None),
+        description: str | None = Field(
             description="New description of the release", default=None
         ),
-        released_at: Optional[str] = Field(
+        released_at: str | None = Field(
             description="New release date in ISO 8601 format", default=None
         ),
-        assets: Optional[Dict] = Field(
+        assets: dict | None = Field(
             description="Updated dictionary of release assets", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -5504,28 +5329,26 @@ def register_releases_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
     def delete_release(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         tag_name: str = Field(
             description="Tag name of the release to delete (e.g., 'v1.0.0')",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -5552,30 +5375,30 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def get_runners(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        runner_id: Optional[int] = Field(
+        runner_id: int | None = Field(
             description="ID of the runner to retrieve", default=None
         ),
-        scope: Optional[str] = Field(
+        scope: str | None = Field(
             description="Filter runners by scope (e.g., 'active')", default=None
         ),
-        type: Optional[str] = Field(
+        type: str | None = Field(
             description="Filter runners by type (e.g., 'instance_type')", default=None
         ),
-        status: Optional[str] = Field(
+        status: str | None = Field(
             description="Filter runners by status (e.g., 'online')", default=None
         ),
-        tag_list: Optional[List[str]] = Field(
+        tag_list: list[str] | None = Field(
             description="Filter runners by tags", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5606,44 +5429,44 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def update_runner_details(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
         runner_id: int = Field(description="ID of the runner to update", default=None),
-        description: Optional[str] = Field(
+        description: str | None = Field(
             description="New description of the runner", default=None
         ),
-        active: Optional[bool] = Field(
+        active: bool | None = Field(
             description="Whether the runner is active", default=None
         ),
-        tag_list: Optional[List[str]] = Field(
+        tag_list: list[str] | None = Field(
             description="List of tags for the runner", default=None
         ),
-        run_untagged: Optional[bool] = Field(
+        run_untagged: bool | None = Field(
             description="Whether the runner can run untagged jobs", default=None
         ),
-        locked: Optional[bool] = Field(
+        locked: bool | None = Field(
             description="Whether the runner is locked", default=None
         ),
-        access_level: Optional[str] = Field(
+        access_level: str | None = Field(
             description="Access level of the runner (e.g., 'ref_protected')",
             default=None,
         ),
-        maximum_timeout: Optional[int] = Field(
+        maximum_timeout: int | None = Field(
             description="Maximum timeout for the runner in seconds", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -5694,11 +5517,11 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def pause_runner(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
@@ -5709,13 +5532,13 @@ def register_runners_tools(mcp: FastMCP):
             description="Whether the runner should be active (True) or paused (False)",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -5740,25 +5563,25 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def get_runner_jobs(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
         runner_id: int = Field(
             description="ID of the runner to retrieve jobs for", default=None
         ),
-        status: Optional[str] = Field(
+        status: str | None = Field(
             description="Filter jobs by status (e.g., 'success', 'failed')",
             default=None,
         ),
-        sort: Optional[str] = Field(
+        sort: str | None = Field(
             description="Sort jobs by criteria (e.g., 'created_at')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5789,21 +5612,19 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def get_project_runners(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        scope: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        scope: str | None = Field(
             description="Filter runners by scope (e.g., 'active')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5834,25 +5655,23 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def enable_project_runner(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         runner_id: int = Field(description="ID of the runner to enable", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -5879,25 +5698,23 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def delete_project_runner(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         runner_id: int = Field(description="ID of the runner to delete", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -5924,19 +5741,19 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def get_group_runners(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        scope: Optional[str] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        scope: str | None = Field(
             description="Filter runners by scope (e.g., 'active')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -5967,36 +5784,36 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def register_new_runner(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
         token: str = Field(
             description="Registration token for the runner", default=None
         ),
-        description: Optional[str] = Field(
+        description: str | None = Field(
             description="Description of the runner", default=None
         ),
-        tag_list: Optional[List[str]] = Field(
+        tag_list: list[str] | None = Field(
             description="List of tags for the runner", default=None
         ),
-        run_untagged: Optional[bool] = Field(
+        run_untagged: bool | None = Field(
             description="Whether the runner can run untagged jobs", default=None
         ),
-        locked: Optional[bool] = Field(
+        locked: bool | None = Field(
             description="Whether the runner is locked", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6027,27 +5844,27 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def delete_runner(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        runner_id: Optional[int] = Field(
+        runner_id: int | None = Field(
             description="ID of the runner to delete", default=None
         ),
-        token: Optional[str] = Field(
+        token: str | None = Field(
             description="Token of the runner to delete", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6078,22 +5895,22 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def verify_runner_authentication(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
         token: str = Field(description="Runner token to verify", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6118,21 +5935,21 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def reset_gitlab_runner_token(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6155,24 +5972,22 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def reset_project_runner_token(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6197,22 +6012,22 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def reset_group_runner_token(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        group_id: Union[int, str] = Field(description="Group ID or path", default=None),
-        verify: Optional[bool] = Field(
+        group_id: int | str = Field(description="Group ID or path", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6237,11 +6052,11 @@ def register_runners_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
     def reset_token(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
@@ -6249,13 +6064,13 @@ def register_runners_tools(mcp: FastMCP):
             description="ID of the runner to reset the token for", default=None
         ),
         token: str = Field(description="Current token of the runner", default=None),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6280,27 +6095,25 @@ def register_runners_tools(mcp: FastMCP):
 def register_tags_tools(mcp: FastMCP):
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     def get_tags(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        name: Optional[str] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        name: str | None = Field(
             description="Name of the tag to retrieve (e.g., 'v1.0.0')", default=None
         ),
-        search: Optional[str] = Field(
+        search: str | None = Field(
             description="Filter tags by search term in name", default=None
         ),
-        sort: Optional[str] = Field(
+        sort: str | None = Field(
             description="Sort tags by criteria (e.g., 'name', 'updated')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -6333,34 +6146,32 @@ def register_tags_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     def create_tag(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(
             description="Name of the tag to create (e.g., 'v1.0.0')", default=None
         ),
         ref: str = Field(
             description="Reference (e.g., branch or commit SHA) to tag", default=None
         ),
-        message: Optional[str] = Field(description="Tag message", default=None),
-        _release_description: Optional[str] = Field(
+        message: str | None = Field(description="Tag message", default=None),
+        _release_description: str | None = Field(
             description="Release description associated with the tag", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6397,27 +6208,25 @@ def register_tags_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     def delete_tag(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(
             description="Name of the tag to delete (e.g., 'v1.0.0')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6440,19 +6249,17 @@ def register_tags_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     def get_protected_tags(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
-        name: Optional[str] = Field(description="Filter tags by name", default=None),
-        verify: Optional[bool] = Field(
+        project_id: int | str = Field(description="Project ID or path", default=None),
+        name: str | None = Field(description="Filter tags by name", default=None),
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -6481,22 +6288,20 @@ def register_tags_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     def get_protected_tag(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(
             description="Name of the protected tag to retrieve (e.g., 'v1.0.0')",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -6518,35 +6323,33 @@ def register_tags_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     def protect_tag(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(
             description="Name of the tag to protect (e.g., 'v1.0.0')", default=None
         ),
-        create_access_level: Optional[str] = Field(
+        create_access_level: str | None = Field(
             description="Access level for creating the tag (e.g., 'maintainer')",
             default=None,
         ),
-        allowed_to_create: Optional[List[Dict]] = Field(
+        allowed_to_create: list[dict] | None = Field(
             description="List of users or groups allowed to create the tag",
             default=None,
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6587,27 +6390,25 @@ def register_tags_tools(mcp: FastMCP):
 
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
     def unprotect_tag(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: Union[int, str] = Field(
-            description="Project ID or path", default=None
-        ),
+        project_id: int | str = Field(description="Project ID or path", default=None),
         name: str = Field(
             description="Name of the tag to unprotect (e.g., 'v1.0.0')", default=None
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6635,15 +6436,15 @@ def register_custom_api_tools(mcp: FastMCP):
         tags={"custom-api"},
     )
     def api_request(
-        gitlab_instance: Optional[str] = Field(
+        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
-        access_token: Optional[str] = Field(
+        access_token: str | None = Field(
             description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        verify: Optional[bool] = Field(
+        verify: bool | None = Field(
             description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
@@ -6653,14 +6454,14 @@ def register_custom_api_tools(mcp: FastMCP):
             description="The HTTP method to use ('GET', 'POST', 'PUT', 'DELETE')"
         ),
         endpoint: str = Field(description="The API endpoint to send the request to"),
-        data: Optional[Dict[str, Any]] = Field(
+        data: dict[str, Any] | None = Field(
             default=None,
             description="Data to include in the request body (for non-JSON payloads)",
         ),
-        json: Optional[Dict[str, Any]] = Field(
+        json: dict[str, Any] | None = Field(
             default=None, description="JSON data to include in the request body"
         ),
-        ctx: Optional[Context] = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
     ) -> Response:
@@ -6687,7 +6488,7 @@ def register_prompts(mcp: FastMCP):
     def create_branch_prompt(
         new_branch: str,
         source_branch: str,
-        project_id: Union[str, int],
+        project_id: str | int,
     ) -> str:
         """
         Generates a prompt for creating a branch
@@ -6698,7 +6499,7 @@ def register_prompts(mcp: FastMCP):
     def create_merge_request_prompt(
         new_branch: str,
         source_branch: str,
-        project_id: Union[str, int],
+        project_id: str | int,
         title: str,
         description: str,
     ) -> str:
@@ -6712,7 +6513,7 @@ def register_prompts(mcp: FastMCP):
 
     @mcp.prompt
     def get_project_statistics_prompt(
-        project_id: Union[str, int],
+        project_id: str | int,
     ) -> str:
         """
         Generates a prompt for getting project statistics
@@ -6722,7 +6523,7 @@ def register_prompts(mcp: FastMCP):
     @mcp.prompt
     def trigger_pipeline_prompt(
         branch: str,
-        project_id: Union[str, int],
+        project_id: str | int,
     ) -> str:
         """
         Generates a prompt for triggering a pipeline
@@ -6731,7 +6532,7 @@ def register_prompts(mcp: FastMCP):
 
     @mcp.prompt
     def get_latest_release_prompt(
-        project_id: Union[str, int],
+        project_id: str | int,
     ) -> str:
         """
         Generates a prompt for getting the latest gitlab release.

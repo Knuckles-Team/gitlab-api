@@ -1,9 +1,9 @@
 import importlib
-import sys
 import inspect
+import sys
 from typing import List
 
-__all__: List[str] = []
+__all__: list[str] = []
 
 CORE_MODULES = [
     "gitlab_api.gitlab_input_models",
