@@ -144,6 +144,7 @@ class Api:
                 headers=header,
                 verify=self.verify,
                 proxies=self.proxies,
+                timeout=10,
             )
             if response.status_code in (401, 403):
                 logger.error(f"Authentication Error with header: {response.content}")

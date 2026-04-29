@@ -1,6 +1,8 @@
 import requests
 import time
 import pytest
+
+pytestmark = pytest.mark.integration
 import logging
 
 logging.basicConfig(level=logging.INFO)

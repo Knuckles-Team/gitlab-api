@@ -5,7 +5,7 @@ import requests
 from agent_utilities.base_utilities import get_logger, to_boolean
 from agent_utilities.exceptions import AuthError, UnauthorizedError
 
-from gitlab_api.api_wrapper import Api
+from gitlab_api.api_client import Api
 
 local = threading.local()
 logger = get_logger(__name__)
@@ -51,7 +51,7 @@ def get_client(
         auth = (config["oidc_client_id"], config["oidc_client_secret"])
         try:
             response = requests.post(
-                config["token_endpoint"], data=exchange_data, auth=auth
+                config["token_endpoint"], data=exchange_data, auth=auth, timeout=10
             )
             response.raise_for_status()
             new_token = response.json()["access_token"]

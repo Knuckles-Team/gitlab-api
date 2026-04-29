@@ -1,4 +1,6 @@
 import pytest
+
+pytestmark = pytest.mark.integration
 import requests
 import json
 import time

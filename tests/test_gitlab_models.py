@@ -5,7 +5,7 @@ import os
 import sys
 
 import pytest
-from conftest import reason
+reason = "Unit tests using mocks"
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -29,7 +29,38 @@ try:
         WikiModel,
     )
     from gitlab_api.gitlab_response_models import (
+        AccessControl,
+        Agents,
+        ApprovalRule,
+        Branch,
+        Comment,
+        Commit,
+        CommitSignature,
+        Contributor,
+        DeployToken,
+        Diff,
+        Group,
+        Issue,
+        Job,
+        Membership,
+        MergeApprovals,
+        MergeRequest,
+        Package,
+        Pipeline,
+        PipelineVariable,
+        Project,
+        Release,
         Response,
+        Rule,
+        Runner,
+        TestReport,
+        TimeStats,
+        ToDo,
+        Token,
+        User,
+        Webhook,
+        WikiAttachment,
+        WikiPage,
     )
 
 except ImportError:
@@ -50,9 +81,9 @@ def test_branch_model():
     project_id = 2
     branch_name = "test_branch"
     reference = "main"
-    branch = BranchModel(project_id=project_id, branch=branch_name, reference=reference)
-    assert branch.project_id == project_id
-    assert branch.api_parameters == {"branch": "test_branch", "ref": "main"}
+    branch = BranchModel(project_id=project_id, branch=branch_name, ref=reference)
+    assert branch.project_id == str(project_id)
+    assert branch.api_parameters == {"branch": "test_branch", "ref": "main", "page": 1, "per_page": 100}
 
 
 @pytest.mark.skipif(
@@ -63,7 +94,7 @@ def test_commit_model():
     project_id = 2
     branch_name = "test_branch"
     commit = CommitModel(project_id=project_id, branch_name=branch_name)
-    assert commit.project_id == project_id
+    assert str(commit.project_id) == str(project_id)
 
 
 @pytest.mark.skipif(
@@ -83,9 +114,9 @@ def test_merge_request_model():
         source_branch=source_branch,
         target_branch=target_branch,
     )
-    assert merge_request_rule.project_id == project_id
+    assert str(merge_request_rule.project_id) == str(project_id)
     assert merge_request_rule.title == title
-    assert merge_request_rule.author_id == author_id
+    assert str(merge_request_rule.author_id) == str(author_id)
     assert merge_request_rule.target_branch == target_branch
     assert merge_request_rule.source_branch == source_branch
 
@@ -101,7 +132,7 @@ def test_merge_request_rule_model():
     merge_request_rule = MergeRequestRuleModel(
         project_id=project_id, name=name, approvals_required=9, group_ids=group_ids
     )
-    assert merge_request_rule.project_id == project_id
+    assert str(merge_request_rule.project_id) == str(project_id)
     assert merge_request_rule.name == name
     assert merge_request_rule.approvals_required == 9
 
@@ -112,8 +143,8 @@ def test_merge_request_rule_model():
 )
 def test_pipeline_model():
     project_id = 1234
-    pipeline = PipelineModel(project_id=project_id, per_page=100, reference="test")
-    assert project_id == pipeline.project_id
+    pipeline = PipelineModel(project_id=project_id, per_page=100, ref="test")
+    assert str(pipeline.project_id) == str(project_id)
     assert pipeline.api_parameters == {"page": 1, "per_page": 100, "ref": "test"}
 
 
@@ -125,13 +156,13 @@ def test_project_model():
     group_id = 1234
     project_id = 5679
     project = ProjectModel(group_id=group_id)
-    assert group_id == project.group_id
+    assert str(group_id) == str(project.group_id)
     project = ProjectModel(project_id=project_id)
-    assert project_id == project.project_id
+    assert str(project_id) == str(project.project_id)
     project = ProjectModel(project_id=project_id, group_id=group_id)
-    assert project_id == project.project_id
-    assert group_id == project.group_id
-    assert project.api_parameters == {"group_id": 1234}
+    assert str(project_id) == str(project.project_id)
+    assert str(group_id) == str(project.group_id)
+    assert project.api_parameters == {"group_id": str(group_id)}
     releases = [
         {
             "tag_name": "v0.2",
@@ -315,7 +346,7 @@ def test_project_model():
 def test_group_model():
     group_id = 6
     group = GroupModel(group_id=group_id, per_page=100, page=0)
-    assert group_id == group.group_id
+    assert str(group_id) == str(group.group_id)
     assert group.api_parameters == {"per_page": 100}
 
 
@@ -742,7 +773,7 @@ def test_project_response_1():
             },
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Project](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Project"
 
 
@@ -4749,7 +4780,7 @@ def test_project_response_3():
             "autoclose_referenced_issues": True,
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Project](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Project"
 
 
@@ -4883,7 +4914,7 @@ def test_project_response_2():
         "warn_about_potentially_unwanted_characters": True,
         "permissions": {"project_access": None, "group_access": None},
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Project](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Project"
 
 
@@ -4998,7 +5029,7 @@ def test_user_response_1():
             "email_reset_offered_at": None,
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "User"
 
 
@@ -5016,7 +5047,7 @@ def test_user_response_2():
         "avatar_url": "http://localhost:3000/uploads/user/avatar/1/cd8.jpeg",
         "web_url": "http://localhost:3000/john_smith",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "User"
 
 
@@ -5053,7 +5084,7 @@ def test_branch_response_1():
             },
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Branch](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Branch"
 
 
@@ -5088,7 +5119,7 @@ def test_branch_response_2():
             "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Branch](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Branch"
 
 
@@ -5125,7 +5156,7 @@ def test_branch_response_3():
             },
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Branch](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Branch"
 
 
@@ -5160,7 +5191,7 @@ def test_branch_response_4():
         "can_push": True,
         "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/newbranch",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Branch](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Branch"
 
 
@@ -5205,7 +5236,7 @@ def test_commit_response_1():
             },
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
 
     assert response.data[0].base_type == "Commit"
 
@@ -5233,7 +5264,7 @@ def test_commit_response_2():
         "web_url": "https://gitlab.example.com/janedoe/gitlab-foss/-/commit/ed899a2f4b50b4370feeea94676502b42383c746",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Commit"
 
 
@@ -5266,7 +5297,7 @@ def test_commit_response_3():
         "web_url": "https://gitlab.example.com/janedoe/gitlab-foss/-/commit/6104942438c14ec7bd21c6cd5bd995272b3faff6",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Commit"
 
 
@@ -5277,7 +5308,7 @@ def test_commit_response_3():
 def test_commit_response_4():
     example_data = {"count": 632}
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Commit"
 
 
@@ -5302,7 +5333,7 @@ def test_commit_response_5():
         "web_url": "https://gitlab.example.com/janedoe/gitlab-foss/-/commit/8b090c1b79a14f2bd9e8a738f717824ff53aebad",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Commit"
 
 
@@ -5327,7 +5358,7 @@ def test_commit_response_6():
         "web_url": "https://gitlab.example.com/janedoe/gitlab-foss/-/commit/8b090c1b79a14f2bd9e8a738f717824ff53aebad",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Commit"
 
 
@@ -5341,7 +5372,7 @@ def test_commit_response_7():
         "error_code": "conflict",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Commit"
 
 
@@ -5352,7 +5383,7 @@ def test_commit_response_7():
 def test_commit_response_8():
     example_data = {"dry_run": "success"}
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Commit"
 
 
@@ -5374,7 +5405,7 @@ def test_commit_response_9():
         }
     ]
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Diff](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Diff"
 
 
@@ -5397,7 +5428,7 @@ def test_commit_response_10():
         }
     ]
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Comment](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Comment"
 
 
@@ -5422,7 +5453,7 @@ def test_commit_response_11():
         "note": "Nice picture!",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Comment](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Comment"
 
 
@@ -5463,7 +5494,7 @@ def test_commit_response_12():
         }
     ]
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
 
     assert response.data[0].base_type == "Commit"
 
@@ -5518,7 +5549,7 @@ def test_commit_response_13():
         },
     ]
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
 
     assert response.data[0].base_type == "Commit"
 
@@ -5551,7 +5582,7 @@ def test_commit_response_14():
         "finished_at": "2016-01-19T09:05:50.365Z",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Commit"
 
 
@@ -5608,7 +5639,7 @@ def test_commit_response_15():
         }
     ]
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "MergeRequest"
 
 
@@ -5628,7 +5659,7 @@ def test_commit_response_16():
         "commit_source": "gitaly",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[CommitSignature](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "CommitSignature"
 
 
@@ -5651,7 +5682,7 @@ def test_commit_response_17():
         "commit_source": "gitaly",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[CommitSignature](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "CommitSignature"
 
 
@@ -5680,7 +5711,7 @@ def test_commit_response_18():
         "commit_source": "gitaly",
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[CommitSignature](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "CommitSignature"
 
 
@@ -5691,7 +5722,7 @@ def test_commit_response_18():
 def test_commit_response_19():
     example_data = {"message": "404 GPG Signature Not Found"}
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[CommitSignature](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "CommitSignature"
 
 
@@ -5711,7 +5742,7 @@ def test_deploy_token_response_0():
             "scopes": ["read_repository", "read_registry"],
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[DeployToken](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "DeployToken"
 
 
@@ -5732,7 +5763,7 @@ def test_deploy_token_response_1():
         }
     ]
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[DeployToken](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "DeployToken"
 
 
@@ -5751,7 +5782,7 @@ def test_deploy_token_response_2():
         "scopes": ["read_repository", "read_registry"],
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[DeployToken](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "DeployToken"
 
 
@@ -5771,7 +5802,7 @@ def test_deploy_token_response_3():
         "scopes": ["read_repository"],
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[DeployToken](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "DeployToken"
 
 
@@ -5792,7 +5823,7 @@ def test_deploy_token_response_4():
         }
     ]
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[DeployToken](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "DeployToken"
 
 
@@ -5811,7 +5842,7 @@ def test_deploy_token_response_5():
         "scopes": ["read_repository", "read_registry"],
     }
 
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[DeployToken](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "DeployToken"
 
 
@@ -5929,7 +5960,7 @@ def test_merge_request_response_1():
             "task_completion_status": {"count": 0, "completed_count": 0},
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "MergeRequest"
 
 
@@ -6064,7 +6095,7 @@ def test_merge_request_response_2():
             "approvals_before_merge": 2,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "MergeRequest"
 
 
@@ -6191,7 +6222,7 @@ def test_merge_request_response_3():
             "blocking_discussions_resolved": True,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "MergeRequest"
 
 
@@ -6218,7 +6249,7 @@ def test_merge_request_response_4():
             "web_url": "http://localhost/user2",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "User"
 
 
@@ -6253,7 +6284,7 @@ def test_merge_request_response_5():
             "created_at": "2022-07-27T17:03:27.684Z",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "MergeRequest"
 
 
@@ -6282,7 +6313,7 @@ def test_merge_request_response_6():
             "message": "Sanitize for network graph",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Commit](data=example_data, status_code=200, json_output=example_data)
 
     assert response.data[0].base_type == "Commit"
 
@@ -6397,7 +6428,7 @@ def test_merge_request_response_7():
         ],
         "overflow": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -6430,7 +6461,7 @@ def test_merge_request_response_8():
             "generated_file": False,
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Diff](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Diff"
 
 
@@ -6447,7 +6478,7 @@ def test_merge_request_response_9():
             "status": "success",
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Pipeline](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Pipeline"
 
 
@@ -6571,7 +6602,7 @@ def test_merge_request_response_10():
         "diverged_commits_count": 2,
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -6713,7 +6744,7 @@ def test_merge_request_response_11():
         "diverged_commits_count": 2,
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -6855,7 +6886,7 @@ def test_merge_request_response_12():
         "diverged_commits_count": 2,
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -6865,7 +6896,7 @@ def test_merge_request_response_12():
 )
 def test_merge_request_response_13():
     example_data = {"rebase_in_progress": True}
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -6875,7 +6906,7 @@ def test_merge_request_response_13():
 )
 def test_merge_request_response_14():
     example_data = {"rebase_in_progress": True, "merge_error": None}
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -6885,7 +6916,7 @@ def test_merge_request_response_14():
 )
 def test_merge_request_response_15():
     example_data = {"rebase_in_progress": False, "merge_error": None}
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -6898,7 +6929,7 @@ def test_merge_request_response_16():
         "rebase_in_progress": False,
         "merge_error": "Rebase failed. Please rebase locally",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -6949,7 +6980,7 @@ def test_merge_request_response_17():
             "changes_count": "1",
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Issue"
 
 
@@ -7000,7 +7031,7 @@ def test_merge_request_response_18():
             "changes_count": "1",
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Issue"
 
 
@@ -7015,7 +7046,7 @@ def test_merge_request_response_19():
         "time_estimate": 7200,
         "total_time_spent": 3600,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[TimeStats](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "TimeStats"
 
 
@@ -7030,7 +7061,7 @@ def test_merge_request_response_20():
         "time_estimate": 0,
         "total_time_spent": 0,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[TimeStats](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "TimeStats"
 
 
@@ -7063,7 +7094,7 @@ def test_merge_request_response_21():
             "patch_id_sha": "72c30d1f0115fc1d2bb0b29b24dc2982cbcdfd32",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Diff](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Diff"
 
 
@@ -7159,7 +7190,7 @@ def test_issues_response_1():
             "task_completion_status": {"count": 0, "completed_count": 0},
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Issue"
 
 
@@ -7175,7 +7206,7 @@ def test_issues_response_2():
             "weight": None,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Issue"
 
 
@@ -7212,7 +7243,7 @@ def test_issues_response_3():
         "state": "opened",
         "health_status": "on_track",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
 
 
@@ -7317,7 +7348,7 @@ def test_issues_response_4():
             "health_status": "at_risk",
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Issue"
 
 
@@ -7429,7 +7460,7 @@ def test_issues_response_5():
             "health_status": "at_risk",
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Issue"
 
 
@@ -7525,7 +7556,7 @@ def test_issues_response_6():
         "moved_to_id": None,
         "service_desk_reply_to": "service.desk@gitlab.com",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
 
 
@@ -7589,7 +7620,7 @@ def test_issues_response_7():
         },
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
 
 
@@ -7669,7 +7700,7 @@ def test_issues_response_8():
         },
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
 
 
@@ -7755,7 +7786,7 @@ def test_issues_response_9():
         "moved_to_id": None,
         "service_desk_reply_to": None,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
 
 
@@ -7833,7 +7864,7 @@ def test_issues_response_10():
         },
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
 
 
@@ -7889,7 +7920,7 @@ def test_issues_response_11():
         "severity": "UNKNOWN",
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Issue](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Issue"
 
 
@@ -7988,7 +8019,7 @@ def test_issues_response_12():
         "state": "pending",
         "created_at": "2016-07-01T11:09:13.992Z",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ToDo](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ToDo"
 
 
@@ -8020,7 +8051,7 @@ def test_issues_response_13():
         "noteable_iid": 33,
         "commands_changes": {"promote_to_epic": True},
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Comment](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Comment"
 
 
@@ -8035,7 +8066,7 @@ def test_issues_response_14():
         "time_estimate": 12600,
         "total_time_spent": 0,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[TimeStats](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "TimeStats"
 
 
@@ -8050,7 +8081,7 @@ def test_issues_response_15():
         "time_estimate": 0,
         "total_time_spent": 0,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[TimeStats](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "TimeStats"
 
 
@@ -8087,7 +8118,7 @@ def test_pipeline_response_1():
             "updated_at": "2016-08-12T10:09:56.223Z",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Pipeline](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Pipeline"
 
 
@@ -8125,7 +8156,7 @@ def test_pipeline_response_2():
         "coverage": "30.0",
         "web_url": "https://example.com/foo/bar/pipelines/46",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Pipeline](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Pipeline"
 
 
@@ -8138,7 +8169,7 @@ def test_pipeline_response_3():
         {"key": "RUN_NIGHTLY_BUILD", "variable_type": "env_var", "value": "true"},
         {"key": "foo", "value": "bar"},
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[PipelineVariable](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "PipelineVariable"
 
 
@@ -8176,7 +8207,7 @@ def test_pipeline_response_4():
             }
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[TestReport](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "TestReport"
 
 
@@ -8209,7 +8240,7 @@ def test_pipeline_response_5():
             }
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[TestReport](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "TestReport"
 
 
@@ -8242,7 +8273,7 @@ def test_pipeline_response_6():
             }
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[TestReport](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "TestReport"
 
 
@@ -8292,7 +8323,7 @@ def test_pipeline_response_7():
             "favicon": "/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2.png",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Pipeline](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Pipeline"
 
 
@@ -8329,7 +8360,7 @@ def test_pipeline_response_8():
         "coverage": None,
         "web_url": "https://example.com/foo/bar/pipelines/61",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Pipeline](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Pipeline"
 
 
@@ -8366,7 +8397,7 @@ def test_pipeline_response_9():
         "coverage": None,
         "web_url": "https://example.com/foo/bar/pipelines/46",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Pipeline](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Pipeline"
 
 
@@ -8403,7 +8434,7 @@ def test_pipeline_response_10():
         "coverage": None,
         "web_url": "https://example.com/foo/bar/pipelines/46",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Pipeline](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Pipeline"
 
 
@@ -8441,7 +8472,7 @@ def test_pipeline_response_11():
         "web_url": "https://example.com/foo/bar/pipelines/46",
         "name": "Some new pipeline name",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Pipeline](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Pipeline"
 
 
@@ -8486,7 +8517,7 @@ def test_group_response_1():
             "ip_restriction_ranges": None,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Group"
 
 
@@ -8544,7 +8575,7 @@ def test_group_response_2():
             "lock_duo_features_enabled": False,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Group"
 
 
@@ -8588,7 +8619,7 @@ def test_group_response_3():
             "created_at": "2020-01-15T12:36:29.590Z",
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Group"
 
 
@@ -8663,7 +8694,7 @@ def test_group_response_4():
             "created_at": "2020-01-15T12:36:29.590Z",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Group"
 
 
@@ -8712,7 +8743,7 @@ def test_group_response_5():
             "request_access_enabled": False,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Project](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Project"
 
 
@@ -8826,7 +8857,7 @@ def test_group_response_6():
             "repository_storage": "default",
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Project](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Project"
 
 
@@ -8996,7 +9027,7 @@ def test_group_response_7():
         "math_rendering_limits_enabled": True,
         "lock_math_rendering_limits_enabled": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Group"
 
 
@@ -9016,7 +9047,7 @@ def test_group_response_8():
         "duo_features_enabled": True,
         "lock_duo_features_enabled": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Group"
 
 
@@ -9040,7 +9071,7 @@ def test_group_response_9():
         "file_template_project_id": 1,
         "parent_id": None,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Group"
 
 
@@ -9067,7 +9098,7 @@ def test_group_response_10():
             "full_path": "FooBar",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Group"
 
 
@@ -9138,7 +9169,7 @@ def test_group_response_11():
         "math_rendering_limits_enabled": True,
         "lock_math_rendering_limits_enabled": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Group"
 
 
@@ -9155,7 +9186,7 @@ def test_group_response_12():
             "description": "An interesting group",
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Group"
 
 
@@ -9207,7 +9238,7 @@ def test_group_response_13():
             "extra_shared_runners_minutes_limit": None,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "User"
 
 
@@ -9259,7 +9290,7 @@ def test_group_response_14():
             "extra_shared_runners_minutes_limit": None,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "User"
 
 
@@ -9273,7 +9304,7 @@ def test_group_response_15():
         "username": "service_account_group_345_6018816a18e515214e0c34c2b33523fc",
         "name": "Service account user",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[DeployToken](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "DeployToken"
 
 
@@ -9294,7 +9325,7 @@ def test_group_response_16():
         "expires_at": "2024-06-12",
         "token": "<token_value>",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[DeployToken](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "DeployToken"
 
 
@@ -9315,7 +9346,7 @@ def test_group_response_17():
         "expires_at": "2023-06-20",
         "token": "<token_value>",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[DeployToken](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "DeployToken"
 
 
@@ -9354,7 +9385,7 @@ def test_group_response_18():
         "resource_access_token_events": True,
         "custom_webhook_template": '{"event":"{{object_kind}}"}',
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Webhook](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Webhook"
 
 
@@ -9379,7 +9410,7 @@ def test_group_response_19():
         "file_name_regex": "(exe)$",
         "max_file_size": 100,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Rule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Rule"
 
 
@@ -9389,7 +9420,7 @@ def test_group_response_19():
 )
 def test_group_response_20():
     example_data = {"name": "saml-group-1", "access_level": 10, "member_role_id": 12}
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[AccessControl](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "AccessControl"
 
 
@@ -9399,7 +9430,7 @@ def test_group_response_20():
 )
 def test_group_response_21():
     example_data = {"name": "saml-group-1", "access_level": 10, "member_role_id": 12}
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[AccessControl](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "AccessControl"
 
 
@@ -9534,7 +9565,7 @@ def test_group_response_22():
             "shared_runners_setting": "enabled",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Group](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Group"
 
 
@@ -9761,7 +9792,7 @@ def test_group_response_23():
             "autoclose_referenced_issues": True,
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Project](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Project"
 
 
@@ -9936,7 +9967,7 @@ def test_jobs_response_1():
             },
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Job](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Job"
 
 
@@ -10110,7 +10141,7 @@ def test_jobs_response_2():
             },
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Job](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Job"
 
 
@@ -10185,7 +10216,7 @@ def test_jobs_response_3():
             },
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Job](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Job"
 
 
@@ -10251,7 +10282,7 @@ def test_jobs_response_4():
             "organization": "",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Job](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Job"
 
 
@@ -10287,7 +10318,7 @@ def test_jobs_response_5():
             "web_url": "http://localhost/user2",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Agents](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Agents"
 
 
@@ -10353,7 +10384,7 @@ def test_jobs_response_6():
             "organization": "",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Job](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Job"
 
 
@@ -10394,7 +10425,7 @@ def test_jobs_response_7():
         "project": {"ci_job_token_scope_enabled": False},
         "user": None,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Job](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Job"
 
 
@@ -10435,7 +10466,7 @@ def test_jobs_response_8():
         "project": {"ci_job_token_scope_enabled": False},
         "user": None,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Job](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Job"
 
 
@@ -10476,7 +10507,7 @@ def test_jobs_response_9():
         "project": {"ci_job_token_scope_enabled": False},
         "user": None,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Job](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Job"
 
 
@@ -10532,7 +10563,7 @@ def test_member_response_1():
             },
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "User"
 
 
@@ -10608,7 +10639,7 @@ def test_member_response_2():
             "group_saml_identity": None,
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "User"
 
 
@@ -10638,7 +10669,7 @@ def test_member_response_3():
         "expires_at": None,
         "group_saml_identity": None,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "User"
 
 
@@ -10668,7 +10699,7 @@ def test_member_response_4():
         "expires_at": None,
         "group_saml_identity": None,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "User"
 
 
@@ -10719,7 +10750,7 @@ def test_member_response_5():
             "last_login_at": "2022-10-10T07:28:56.000Z",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "User"
 
 
@@ -10748,7 +10779,7 @@ def test_member_response_6():
             "access_level": {"string_value": "Maintainer", "integer_value": 40},
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Membership](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Membership"
 
 
@@ -10778,7 +10809,7 @@ def test_member_response_7():
         "email": "john@example.com",
         "group_saml_identity": None,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "User"
 
 
@@ -10813,7 +10844,7 @@ def test_member_response_8():
             "invited": True,
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[User](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "User"
 
 
@@ -10848,7 +10879,7 @@ def test_approval_rule_response_1():
             "applies_to_all_protected_branches": True,
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "ApprovalRule"
 
 
@@ -10897,7 +10928,7 @@ def test_approval_rule_response_2():
         ],
         "applies_to_all_protected_branches": True,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -10946,7 +10977,7 @@ def test_approval_rule_response_3():
         ],
         "applies_to_all_protected_branches": True,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -10964,7 +10995,7 @@ def test_approval_rule_response_4():
         "merge_requests_disable_committers_approval": False,
         "require_password_to_approve": True,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeApprovals](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeApprovals"
 
 
@@ -10984,7 +11015,7 @@ def test_approval_rule_response_5():
         "merge_requests_disable_committers_approval": False,
         "require_password_to_approve": True,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeApprovals](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeApprovals"
 
 
@@ -11071,7 +11102,7 @@ def test_approval_rule_response_6():
             "contains_hidden_groups": False,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "ApprovalRule"
 
 
@@ -11156,7 +11187,7 @@ def test_approval_rule_response_7():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -11241,7 +11272,7 @@ def test_approval_rule_response_8():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -11326,7 +11357,7 @@ def test_approval_rule_response_9():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -11360,7 +11391,7 @@ def test_approval_rule_response_10():
             }
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -11415,7 +11446,7 @@ def test_approval_rule_response_11():
             }
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -11481,7 +11512,7 @@ def test_approval_rule_response_12():
             "overridden": False,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "ApprovalRule"
 
 
@@ -11545,7 +11576,7 @@ def test_approval_rule_response_13():
         "contains_hidden_groups": False,
         "overridden": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -11609,7 +11640,7 @@ def test_approval_rule_response_14():
         "contains_hidden_groups": False,
         "overridden": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -11653,7 +11684,7 @@ def test_approval_rule_response_15():
             },
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -11688,7 +11719,7 @@ def test_protected_branch_response_1():
             "applies_to_all_protected_branches": True,
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "ApprovalRule"
 
 
@@ -11737,7 +11768,7 @@ def test_protected_branch_response_2():
         ],
         "applies_to_all_protected_branches": True,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -11786,7 +11817,7 @@ def test_protected_branch_response_3():
         ],
         "applies_to_all_protected_branches": True,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -11804,7 +11835,7 @@ def test_protected_branch_response_4():
         "merge_requests_disable_committers_approval": False,
         "require_password_to_approve": True,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeApprovals](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeApprovals"
 
 
@@ -11824,7 +11855,7 @@ def test_protected_branch_response_5():
         "merge_requests_disable_committers_approval": False,
         "require_password_to_approve": True,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeApprovals](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeApprovals"
 
 
@@ -11911,7 +11942,7 @@ def test_protected_branch_response_6():
             "contains_hidden_groups": False,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "ApprovalRule"
 
 
@@ -11996,7 +12027,7 @@ def test_protected_branch_response_7():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -12081,7 +12112,7 @@ def test_protected_branch_response_8():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -12166,7 +12197,7 @@ def test_protected_branch_response_9():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -12200,7 +12231,7 @@ def test_protected_branch_response_10():
             }
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -12255,7 +12286,7 @@ def test_protected_branch_response_11():
             }
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -12321,7 +12352,7 @@ def test_protected_branch_response_12():
             "overridden": False,
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "ApprovalRule"
 
 
@@ -12385,7 +12416,7 @@ def test_protected_branch_response_13():
         "contains_hidden_groups": False,
         "overridden": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -12449,7 +12480,7 @@ def test_protected_branch_response_14():
         "contains_hidden_groups": False,
         "overridden": False,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[ApprovalRule](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "ApprovalRule"
 
 
@@ -12493,7 +12524,7 @@ def test_protected_branch_response_15():
             },
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[MergeRequest](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "MergeRequest"
 
 
@@ -12531,7 +12562,7 @@ def test_package_response_1():
             "tags": [],
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Package](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Package"
 
 
@@ -12595,7 +12626,7 @@ def test_package_response_2():
             ],
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Package](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Package"
 
 
@@ -12654,7 +12685,7 @@ def test_package_response_3():
             }
         ],
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Package](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Package"
 
 
@@ -12711,7 +12742,7 @@ def test_package_response_4():
             "file_sha256": "ac849d002e56052d320a8ac156f745ece73f6a8cd2f3e82",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Package](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Package"
 
 
@@ -12763,7 +12794,7 @@ def test_package_response_5():
             },
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Pipeline](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Pipeline"
 
 
@@ -12946,7 +12977,7 @@ def test_release_response_1():
             },
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Release](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Release"
 
 
@@ -13061,7 +13092,7 @@ def test_release_response_2():
             "self": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Release](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Release"
 
 
@@ -13162,7 +13193,7 @@ def test_release_response_3():
             "evidence_file_path": "https://gitlab.example.com/root/awesome-app/-/releases/v0.3/evidence.json",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Release](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Release"
 
 
@@ -13242,7 +13273,7 @@ def test_release_response_4():
             "evidence_file_path": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Release](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Release"
 
 
@@ -13306,7 +13337,7 @@ def test_release_response_5():
             "evidence_file_path": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Release](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Release"
 
 
@@ -13341,7 +13372,7 @@ def test_runner_response_1():
             "status": "offline",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Runner](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Runner"
 
 
@@ -13400,7 +13431,7 @@ def test_runner_response_2():
             "status": "offline",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Runner](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Runner"
 
 
@@ -13439,7 +13470,7 @@ def test_runner_response_3():
         "access_level": "ref_protected",
         "maximum_timeout": 3600,
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Runner](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Runner"
 
 
@@ -13513,7 +13544,7 @@ def test_runner_response_4():
             },
         }
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Job](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Job"
 
 
@@ -13548,7 +13579,7 @@ def test_runner_response_5():
             "status": "online",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Runner](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "Runner"
 
 
@@ -13568,7 +13599,7 @@ def test_runner_response_6():
         "online": True,
         "status": "online",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Runner](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Runner"
 
 
@@ -13582,7 +13613,7 @@ def test_runner_response_7():
         "token": "6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Token](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Token"
 
 
@@ -13596,7 +13627,7 @@ def test_runner_response_8():
         "token": "glrt-6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Token](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Token"
 
 
@@ -13609,7 +13640,7 @@ def test_runner_response_9():
         "token": "6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Token](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Token"
 
 
@@ -13622,7 +13653,7 @@ def test_runner_response_10():
         "token": "6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[Token](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "Token"
 
 
@@ -13654,7 +13685,7 @@ def test_wiki_response_1():
             "encoding": "UTF-8",
         },
     ]
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[WikiPage](data=example_data, status_code=200, json_output=example_data)
     assert response.data[0].base_type == "WikiPage"
 
 
@@ -13670,7 +13701,7 @@ def test_wiki_response_2():
         "title": "home",
         "encoding": "UTF-8",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[WikiPage](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "WikiPage"
 
 
@@ -13686,7 +13717,7 @@ def test_wiki_response_3():
         "title": "Hello",
         "encoding": "UTF-8",
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[WikiPage](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "WikiPage"
 
 
@@ -13704,7 +13735,7 @@ def test_wiki_response_4():
             "markdown": "![dk](uploads/6a061c4cf9f1c28cb22c384b4b8d4e3c/dk.png)",
         },
     }
-    response = Response(data=example_data, status_code=200, json_output=example_data)
+    response = Response[WikiAttachment](data=example_data, status_code=200, json_output=example_data)
     assert response.data.base_type == "WikiAttachment"
 
 
@@ -13736,7 +13767,7 @@ def test_wiki_response_5():
             "encoding": "UTF-8",
         },
     ]
-    response = Response(
+    response = Response[WikiPage](
         data=example_data, status_code=200, headers={}, json_output=example_data
     )
     assert response.data[0].base_type == "WikiPage"
@@ -13763,7 +13794,7 @@ def test_contributor_response_1():
             "deletions": 0,
         },
     ]
-    response = Response(
+    response = Response[Contributor](
         data=example_data, status_code=200, headers={}, json_output=example_data
     )
     assert response.data[0].base_type == "Contributor"

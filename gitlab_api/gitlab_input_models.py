@@ -2553,6 +2553,9 @@ class ProtectedBranchModel(BaseModel):
     allowed_to_merge: list[dict] | None = None
     allowed_to_unprotect: list[dict] | None = None
     code_owner_approval_required: bool | None = None
+    page: int | None = Field(description="Pagination page", default=1)
+    per_page: int | None = Field(description="Results per page", default=100)
+    argument: str | None = Field(description="Optional argument", default=None)
     api_parameters: dict | None = Field(description="API Parameters", default=None)
     data: dict | None = Field(description="Data Payload", default=None)
 

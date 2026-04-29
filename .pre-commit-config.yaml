@@ -12,7 +12,6 @@ repos:
     hooks:
       - id: check-added-large-files
         args: ["--maxkb=2000"]
-        exclude: ^uv\.lock$
       - id: check-ast
         exclude: ^(tests/|test/|scripts/|script/)
       - id: check-yaml
@@ -26,7 +25,7 @@ repos:
       - id: end-of-file-fixer
       - id: no-commit-to-branch
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.11
+    rev: v0.15.12
     hooks:
       - id: ruff-check
         args: ["--fix", "--ignore=E402,B008,E501"]
@@ -34,7 +33,7 @@ repos:
       - id: ruff-format
         exclude: ^(tests/|test/|scripts/|script/)
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: v1.20.2
     hooks:
       - id: mypy
         additional_dependencies: [pydantic, types-PyYAML, types-requests, types-setuptools]
@@ -44,7 +43,7 @@ repos:
     hooks:
       - id: vulture
         pass_filenames: false
-        args: [ ".", "--min-confidence", "95", "--exclude", "node_modules,dotnet" ]
+        args: [ ".", "--min-confidence", "95", "--exclude", "node_modules,dotnet,.venv" ]
         require_serial: true
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.2
@@ -52,6 +51,12 @@ repos:
       - id: codespell
         args: ["-L", "ans,linar,nam,tread,ot,", "--ignore-words=.codespellignore"]
         exclude: ^(tests/|test/|scripts/|script/|.*lock.*)
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.9.4
+    hooks:
+      - id: bandit
+        args: ["--skip", "B101,B404,B603"]
+        exclude: ^(tests/|test/|scripts/|script/|__tests__/)
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.9.1
     hooks:
@@ -65,7 +70,7 @@ repos:
     hooks:
       - id: pytest
         name: pytest
-        entry: pytest
+        entry: pytest -m "not integration"
         language: system
         types: [python]
         pass_filenames: false

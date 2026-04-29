@@ -19,7 +19,7 @@ from pydantic import (
 class IssueStats(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="IssueStats")
+    base_type: str | None = Field(default="IssueStats")
     total: int | None = Field(default=None, description="Total number of issues")
     closed: int | None = Field(default=None, description="Number of closed issues")
     opened: int | None = Field(default=None, description="Number of opened issues")
@@ -28,7 +28,7 @@ class IssueStats(BaseModel):
 class Milestone(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Milestone")
+    base_type: str | None = Field(default="Milestone")
     id: int | None = Field(
         default=None, description="Unique identifier for the milestone"
     )
@@ -67,7 +67,7 @@ class Milestone(BaseModel):
 class TimeStats(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="TimeStats")
+    base_type: str | None = Field(default="TimeStats")
     time_estimate: int | None = Field(
         default=None,
         description="Estimated time to complete the merge request (in seconds)",
@@ -87,7 +87,7 @@ class TimeStats(BaseModel):
 class TaskCompletionStatus(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="TaskCompletionStatus")
+    base_type: str | None = Field(default="TaskCompletionStatus")
     count: int | None = Field(
         default=None, description="Total number of tasks in the merge request"
     )
@@ -99,7 +99,7 @@ class TaskCompletionStatus(BaseModel):
 class References(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="References")
+    base_type: str | None = Field(default="References")
     short: str | None = Field(
         default=None, description="Short reference of the merge request"
     )
@@ -114,7 +114,7 @@ class References(BaseModel):
 class Artifact(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Artifact")
+    base_type: str | None = Field(default="Artifact")
     file_type: str | None = Field(
         default=None, description="Type of the artifact file."
     )
@@ -130,7 +130,7 @@ class Artifact(BaseModel):
 class ArtifactsFile(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="ArtifactsFile")
+    base_type: str | None = Field(default="ArtifactsFile")
     filename: str | None = Field(
         default=None, description="Filename of the artifacts file."
     )
@@ -140,7 +140,7 @@ class ArtifactsFile(BaseModel):
 class RunnerManager(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="RunnerManager")
+    base_type: str | None = Field(default="RunnerManager")
     id: int | None = Field(default=None, description="ID of the runner manager.")
     system_id: str | None = Field(
         default=None, description="System ID of the runner manager."
@@ -175,7 +175,7 @@ class RunnerManager(BaseModel):
 class Configuration(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Configuration")
+    base_type: str | None = Field(default="Configuration")
     approvals_before_merge: int | None = Field(
         default=None, description="Number of approvals required before merge"
     )
@@ -207,7 +207,7 @@ class Configuration(BaseModel):
 class Iteration(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Iteration")
+    base_type: str | None = Field(default="Iteration")
     id: int | None = Field(default=None)
     iid: int | None = Field(default=None)
     sequence: int | None = Field(default=None)
@@ -225,7 +225,7 @@ class Iteration(BaseModel):
 class Identity(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Identity")
+    base_type: str | None = Field(default="Identity")
     provider: str | None = Field(default=None, description="The external provider.")
     extern_uid: str | None = Field(
         default=None, description="The external authentication provider UID."
@@ -235,7 +235,7 @@ class Identity(BaseModel):
 class GroupSamlIdentity(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="GroupSamlIdentity")
+    base_type: str | None = Field(default="GroupSamlIdentity")
     extern_uid: str | None = Field(
         default=None, description="External UID of the SAML identity"
     )
@@ -250,7 +250,7 @@ class GroupSamlIdentity(BaseModel):
 class User(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="User")
+    base_type: str | None = Field(default="User")
     id: int | None = Field(default=None, description="The unique ID of the user.")
     username: str | None = Field(default=None, description="The username of the user.")
     user: str | None = Field(default=None, description="The user.")
@@ -413,7 +413,7 @@ class User(BaseModel):
 class Namespace(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Namespace")
+    base_type: str | None = Field(default="Namespace")
     id: int | None = Field(default=None, description="The ID of the namespace.")
     name: str | None = Field(default=None, description="The name of the namespace.")
     path: str | None = Field(default=None, description="The path of the namespace.")
@@ -452,7 +452,7 @@ class Namespace(BaseModel):
 class ContainerExpirationPolicy(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="ContainerExpirationPolicy")
+    base_type: str | None = Field(default="ContainerExpirationPolicy")
     cadence: str | None = Field(
         default=None, description="The cadence of the expiration policy."
     )
@@ -475,7 +475,7 @@ class ContainerExpirationPolicy(BaseModel):
 class Permissions(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Permissions")
+    base_type: str | None = Field(default="Permissions")
     project_access: dict | None = Field(
         default=None, description="Project access level and notification settings."
     )
@@ -487,7 +487,7 @@ class Permissions(BaseModel):
 class Statistics(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Statistics")
+    base_type: str | None = Field(default="Statistics")
     commit_count: int | None = Field(
         default=None, description="The number of commits in the project."
     )
@@ -515,7 +515,7 @@ class Statistics(BaseModel):
 class Diff(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Diff")
+    base_type: str | None = Field(default="Diff")
     id: int | None = Field(default=None, description="The ID of the Diff")
     merge_request_id: int | None = Field(
         default=None, description="The merge request ID"
@@ -559,7 +559,7 @@ class Diff(BaseModel):
 class DetailedStatus(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="DetailedStatus")
+    base_type: str | None = Field(default="DetailedStatus")
     icon: str | None = Field(
         default=None, description="The icon representing the status."
     )
@@ -590,7 +590,7 @@ class DetailedStatus(BaseModel):
 class PipelineSchedule(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="PipelineSchedule")
+    base_type: str | None = Field(default="PipelineSchedule")
     id: int | None = Field(default=None, description="ID of the pipeline schedule")
     description: str | None = Field(
         default=None, description="Description of the schedule"
@@ -605,7 +605,9 @@ class PipelineSchedule(BaseModel):
     next_run_at: datetime | None = Field(
         default=None, description="Next scheduled run time"
     )
-    active: bool = Field(default=True, description="Whether the schedule is active")
+    active: bool | None = Field(
+        default=True, description="Whether the schedule is active"
+    )
     created_at: datetime | None = Field(default=None, description="Creation timestamp")
     updated_at: datetime | None = Field(
         default=None, description="Last update timestamp"
@@ -624,7 +626,7 @@ class PipelineSchedule(BaseModel):
 class Pipeline(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Pipeline")
+    base_type: str | None = Field(default="Pipeline")
     id: int | None = Field(default=None, description="ID of the pipeline")
     iid: int | None = Field(
         default=None, description="The internal ID of the pipeline."
@@ -687,7 +689,7 @@ class Pipeline(BaseModel):
 class PackageLink(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="PackageLink")
+    base_type: str | None = Field(default="PackageLink")
     web_path: str | None = Field(
         default=None, description="Web path to access the package"
     )
@@ -699,7 +701,7 @@ class PackageLink(BaseModel):
 class PackageVersion(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="PackageVersion")
+    base_type: str | None = Field(default="PackageVersion")
     id: int | None = Field(default=None, description="Version ID of the package")
     version: str | None = Field(default=None, description="Version of the package")
     created_at: datetime | None = Field(
@@ -725,7 +727,7 @@ class PackageVersion(BaseModel):
 class Package(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Package")
+    base_type: str | None = Field(default="Package")
     id: int | None = Field(default=None, description="Package ID")
     name: str | None = Field(default=None, description="Name of the package")
     version: str | None = Field(default=None, description="Version of the package")
@@ -799,7 +801,7 @@ class Package(BaseModel):
 class Contributor(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Contributor")
+    base_type: str | None = Field(default="Contributor")
     name: str | None = Field(default=None, description="The name of the contributor.")
     email: EmailStr | str = Field(
         default=None, description="The email of the contributor."
@@ -807,10 +809,10 @@ class Contributor(BaseModel):
     commits: int | None = Field(
         default=None, description="Number of commits from contributor"
     )
-    additions: int = Field(
+    additions: int | None = Field(
         default=None, description="Number of additions from contributor"
     )
-    deletions: int = Field(
+    deletions: int | None = Field(
         default=None, description="Number of deletions from contributor"
     )
 
@@ -818,7 +820,7 @@ class Contributor(BaseModel):
 class CommitStats(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="CommitStats")
+    base_type: str | None = Field(default="CommitStats")
     additions: int | None = Field(
         default=None, description="Number of additions in the commit"
     )
@@ -833,7 +835,7 @@ class CommitStats(BaseModel):
 class CommitSignature(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="CommitSignature")
+    base_type: str | None = Field(default="CommitSignature")
     signature_type: str | None = Field(
         default=None, description="Type of the signature"
     )
@@ -866,7 +868,7 @@ class CommitSignature(BaseModel):
 class Comment(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Comment")
+    base_type: str | None = Field(default="Comment")
     id: int | None = Field(default=None, description="ID of the note")
     type: str | None = Field(default=None, description="Type of the note")
     body: str | None = Field(default=None, description="Body content of the note")
@@ -910,14 +912,14 @@ class Comment(BaseModel):
 class ParentID(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="ParentID")
+    base_type: str | None = Field(default="ParentID")
     parent_id: str | None = Field(default=None, description="Parent ID")
 
 
 class Commit(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Commit")
+    base_type: str | None = Field(default="Commit")
     id: str | int | None = Field(default=None, description="The commit ID.")
     short_id: str | None = Field(
         default=None, description="A shortened version of the commit ID."
@@ -1029,7 +1031,7 @@ class Commit(BaseModel):
 class Membership(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Membership")
+    base_type: str | None = Field(default="Membership")
     id: int | None = Field(default=None, description="ID of the membership")
     source_id: int | None = Field(
         default=None, description="Source ID of the membership"
@@ -1141,7 +1143,7 @@ class LastDeployment(BaseModel):
 class Environment(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Environment")
+    base_type: str | None = Field(default="Environment")
     id: int | None = Field(
         default=None, description="Unique identifier for the environment"
     )
@@ -1198,14 +1200,14 @@ class Environment(BaseModel):
 class Label(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Label")
+    base_type: str | None = Field(default="Label")
     name: str | None = Field(default=None)
 
 
 class Tag(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Tag")
+    base_type: str | None = Field(default="Tag")
     tag: str | None = Field(default=None)
     name: str | None = Field(default=None)
     create_access_levels: list["AccessLevel"] | None = Field(default=None)
@@ -1214,7 +1216,7 @@ class Tag(BaseModel):
 class Topic(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Topic")
+    base_type: str | None = Field(default="Topic")
     name: str | None = Field(default=None)
     title: str | None = Field(default=None)
     description: str | None = Field(default=None)
@@ -1226,21 +1228,21 @@ class Topic(BaseModel):
 class ComplianceFrameworks(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="ComplianceFrameworks")
+    base_type: str | None = Field(default="ComplianceFrameworks")
     name: str | None = Field(default=None)
 
 
 class CIIDTokenComponents(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="CIIDTokenComponents")
+    base_type: str | None = Field(default="CIIDTokenComponents")
     name: str | None = Field(default=None)
 
 
 class Link(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Links")
+    base_type: str | None = Field(default="Links")
     self_link: str | None = Field(
         default=None, alias="self", description="URL to the project itself."
     )
@@ -1286,7 +1288,7 @@ class Link(BaseModel):
 class License(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="License")
+    base_type: str | None = Field(default="License")
     key: str | None = Field(default=None, description="License key (e.g., 'lgpl-3.0').")
     name: str | None = Field(
         default=None,
@@ -1304,7 +1306,7 @@ class License(BaseModel):
 class Project(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Project")
+    base_type: str | None = Field(default="Project")
     id: int | None = Field(default=None, description="The ID of the project.")
     description: str | None = Field(
         default=None, description="The description of the project."
@@ -1839,7 +1841,7 @@ class Project(BaseModel):
 class Runner(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Runner")
+    base_type: str | None = Field(default="Runner")
     id: int | None = Field(default=None, description="ID of the runner.")
     description: str | None = Field(
         default=None, description="Description of the runner."
@@ -1909,15 +1911,15 @@ class Runner(BaseModel):
 class ProjectConfig(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="ProjectConfig")
+    base_type: str | None = Field(default="ProjectConfig")
     id: int | None = Field(default=None, description="Project identifier")
     description: str | None = Field(None, description="Description of the project")
     name: str | None = Field(default=None, description="Name of the project")
-    name_with_namespace: str = Field(
+    name_with_namespace: str | None = Field(
         default=None, description="Full project name with namespace"
     )
     path: str | None = Field(default=None, description="Path of the project")
-    path_with_namespace: str = Field(
+    path_with_namespace: str | None = Field(
         default=None, description="Full path of the project including namespace"
     )
     created_at: datetime = Field(
@@ -1949,7 +1951,7 @@ class ClusterAgent(BaseModel):
 class Job(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Job", description="Type of the model")
+    base_type: str | None = Field(default="Job", description="Type of the model")
     id: int | None = Field(default=None, description="ID of the job")
     name: str | None = Field(default=None, description="Name of the job")
     commit: Commit | None = Field(
@@ -2059,7 +2061,7 @@ class Job(BaseModel):
 class GroupAccess(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="GroupAccess")
+    base_type: str | None = Field(default="GroupAccess")
     access_level: int | None = Field(
         default=None, description="Access level for a group"
     )
@@ -2068,7 +2070,7 @@ class GroupAccess(BaseModel):
 class DefaultBranchProtectionDefaults(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="DefaultBranchProtectionDefaults")
+    base_type: str | None = Field(default="DefaultBranchProtectionDefaults")
     allowed_to_push: list[GroupAccess] | None = Field(
         default=None, description="List of groups allowed to push"
     )
@@ -2095,7 +2097,7 @@ class DefaultBranchProtectionDefaults(BaseModel):
 class RootStorageStatistics(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="RootStorageStatistics")
+    base_type: str | None = Field(default="RootStorageStatistics")
     build_artifacts_size: int | None = Field(
         default=None, description="Build artifacts storage size in bytes."
     )
@@ -2137,7 +2139,7 @@ class RootStorageStatistics(BaseModel):
 class Group(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Group")
+    base_type: str | None = Field(default="Group")
     id: int | None = Field(default=None, description="The ID of the group.")
     group_id: int | None = Field(
         default=None,
@@ -2393,7 +2395,7 @@ class Group(BaseModel):
 class Webhook(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Webhook")
+    base_type: str | None = Field(default="Webhook")
     id: int | None = Field(
         default=None, description="Unique identifier for the webhook"
     )
@@ -2404,59 +2406,59 @@ class Webhook(BaseModel):
     description: str | None = Field(
         default=None, description="Description of the webhook"
     )
-    group_id: int = Field(
+    group_id: int | None = Field(
         default=None, description="Group ID to which the webhook belongs"
     )
-    push_events: bool = Field(
+    push_events: bool | None = Field(
         default=None, description="Whether push events trigger the webhook"
     )
-    push_events_branch_filter: str = Field(
+    push_events_branch_filter: str | None = Field(
         default="", description="Branch filter for push events"
     )
-    issues_events: bool = Field(
+    issues_events: bool | None = Field(
         default=None, description="Whether issues events trigger the webhook"
     )
-    confidential_issues_events: bool = Field(
+    confidential_issues_events: bool | None = Field(
         default=None,
         description="Whether confidential issues events trigger the webhook",
     )
-    merge_requests_events: bool = Field(
+    merge_requests_events: bool | None = Field(
         default=None, description="Whether merge requests events trigger the webhook"
     )
-    tag_push_events: bool = Field(
+    tag_push_events: bool | None = Field(
         default=None, description="Whether tag push events trigger the webhook"
     )
-    note_events: bool = Field(
+    note_events: bool | None = Field(
         default=None, description="Whether note events trigger the webhook"
     )
-    confidential_note_events: bool = Field(
+    confidential_note_events: bool | None = Field(
         default=None, description="Whether confidential note events trigger the webhook"
     )
-    job_events: bool = Field(
+    job_events: bool | None = Field(
         default=None, description="Whether job events trigger the webhook"
     )
-    pipeline_events: bool = Field(
+    pipeline_events: bool | None = Field(
         default=None, description="Whether pipeline events trigger the webhook"
     )
-    wiki_page_events: bool = Field(
+    wiki_page_events: bool | None = Field(
         default=None, description="Whether wiki page events trigger the webhook"
     )
-    deployment_events: bool = Field(
+    deployment_events: bool | None = Field(
         default=None, description="Whether deployment events trigger the webhook"
     )
-    releases_events: bool = Field(
+    releases_events: bool | None = Field(
         default=None, description="Whether releases events trigger the webhook"
     )
-    subgroup_events: bool = Field(
+    subgroup_events: bool | None = Field(
         default=None, description="Whether subgroup events trigger the webhook"
     )
-    member_events: bool = Field(
+    member_events: bool | None = Field(
         default=None, description="Whether member events trigger the webhook"
     )
-    enable_ssl_verification: bool = Field(
+    enable_ssl_verification: bool | None = Field(
         default=None, description="Whether SSL verification is enabled for the webhook"
     )
-    repository_update_events: bool = Field(
+    repository_update_events: bool | None = Field(
         default=None,
         description="Whether repository update events trigger the webhook",
     )
@@ -2472,11 +2474,11 @@ class Webhook(BaseModel):
     created_at: datetime = Field(
         default=None, description="Creation timestamp of the webhook"
     )
-    resource_access_token_events: bool = Field(
+    resource_access_token_events: bool | None = Field(
         default=None,
         description="Whether resource access token events trigger the webhook",
     )
-    custom_webhook_template: str = Field(
+    custom_webhook_template: str | None = Field(
         default=None, description="Custom webhook template JSON"
     )
 
@@ -2484,7 +2486,7 @@ class Webhook(BaseModel):
 class AccessLevel(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="AccessLevel")
+    base_type: str | None = Field(default="AccessLevel")
     id: int | None = Field(default=None, description="Access level ID")
     access_level: int | None = Field(default=None, description="Numeric access level")
     access_level_description: str | None = Field(
@@ -2501,7 +2503,7 @@ class AccessLevel(BaseModel):
 class Branch(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Branch")
+    base_type: str | None = Field(default="Branch")
     name: str | None = Field(default=None, description="The name of the branch.")
     merged: bool | None = Field(
         default=None, description="Whether the branch is merged."
@@ -2567,7 +2569,7 @@ class Branch(BaseModel):
 class ApprovalRule(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="ApprovalRule")
+    base_type: str | None = Field(default="ApprovalRule")
     id: int | None = Field(default=None, description="Approval rule ID")
     name: str | None = Field(default=None, description="Approval rule name")
     rule_type: str | None = Field(default=None, description="Type of the approval rule")
@@ -2646,16 +2648,18 @@ class ApprovalRule(BaseModel):
 class DiffRefs(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="DiffRefs", description="Type of the model")
-    base_sha: str = Field(description="Base SHA of the diff")
-    head_sha: str = Field(description="Head SHA of the diff")
-    start_sha: str = Field(description="Start SHA of the diff")
+    base_type: str | None = Field(default="DiffRefs", description="Type of the model")
+    base_sha: str | None = Field(description="Base SHA of the diff")
+    head_sha: str | None = Field(description="Head SHA of the diff")
+    start_sha: str | None = Field(description="Start SHA of the diff")
 
 
 class MergeRequest(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="MergeRequest", description="Type of the model")
+    base_type: str | None = Field(
+        default="MergeRequest", description="Type of the model"
+    )
     id: int | None = Field(default=None, description="ID of the merge request")
     iid: int | None = Field(
         default=None, description="Internal ID of the merge request"
@@ -2951,7 +2955,7 @@ class MergeRequest(BaseModel):
 class Epic(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Epic")
+    base_type: str | None = Field(default="Epic")
     id: int | None = Field(default=None, description="Unique identifier for the epic.")
     iid: int | None = Field(
         default=None, description="Internal ID of the epic within the project."
@@ -2966,7 +2970,7 @@ class Epic(BaseModel):
 class Issue(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Issue")
+    base_type: str | None = Field(default="Issue")
     state: str | None = Field(
         default=None, description="State of the issue, e.g., opened or closed."
     )
@@ -3107,7 +3111,7 @@ class Issue(BaseModel):
 class PipelineVariable(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="PipelineVariable")
+    base_type: str | None = Field(default="PipelineVariable")
     key: str | None = Field(default=None, description="The key of the variable.")
     variable_type: str | None = Field(
         default=None, description="The type of the variable (e.g., env_var)."
@@ -3118,7 +3122,7 @@ class PipelineVariable(BaseModel):
 class TestCase(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="TestCase")
+    base_type: str | None = Field(default="TestCase")
     status: str | None = Field(
         default=None, description="The status of the test case (e.g., success, failed)."
     )
@@ -3140,7 +3144,7 @@ class TestCase(BaseModel):
 class TestSuite(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="TestSuite")
+    base_type: str | None = Field(default="TestSuite")
     name: str | None = Field(default=None, description="The name of the test suite.")
     total_time: float | None = Field(
         default=None, description="The total time of the test suite in seconds."
@@ -3185,7 +3189,7 @@ class TestSuite(BaseModel):
 class TestReportTotal(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="TestReportTotal")
+    base_type: str | None = Field(default="TestReportTotal")
     time: int | None = Field(
         default=None, description="The total time for all test cases in seconds."
     )
@@ -3212,7 +3216,7 @@ class TestReportTotal(BaseModel):
 class TestReport(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="TestReport")
+    base_type: str | None = Field(default="TestReport")
     total: TestReportTotal | None = Field(
         default=None, description="Total count in test report."
     )
@@ -3253,7 +3257,7 @@ class TestReport(BaseModel):
 class MergeApprovals(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="MergeApprovals")
+    base_type: str | None = Field(default="MergeApprovals")
     approvers: list[User] | None = Field(default=None, description="List of approvers")
     approver_groups: list[Group] | None = Field(
         default=None, description="List of approver groups"
@@ -3304,7 +3308,7 @@ class MergeApprovals(BaseModel):
 class DeployToken(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="DeployToken")
+    base_type: str | None = Field(default="DeployToken")
     id: int | None = Field(
         default=None, description="Unique identifier for the deploy token"
     )
@@ -3338,18 +3342,18 @@ class DeployToken(BaseModel):
 class Rule(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Rule")
+    base_type: str | None = Field(default="Rule")
     id: int | None = Field(default=None, description="Unique identifier for the rule")
     created_at: datetime = Field(
         default=None, description="Timestamp when the rule was created"
     )
-    commit_committer_check: bool = Field(
+    commit_committer_check: bool | None = Field(
         default=None, description="Check for committer compliance"
     )
-    commit_committer_name_check: bool = Field(
+    commit_committer_name_check: bool | None = Field(
         default=None, description="Check for committer's name compliance"
     )
-    reject_unsigned_commits: bool = Field(
+    reject_unsigned_commits: bool | None = Field(
         default=None, description="Flag to reject unsigned commits"
     )
     commit_message_regex: str | None = Field(
@@ -3361,13 +3365,13 @@ class Rule(BaseModel):
     branch_name_regex: str | None = Field(
         default=None, description="Regex for validating branch names"
     )
-    deny_delete_tag: bool = Field(
+    deny_delete_tag: bool | None = Field(
         default=None, description="Flag to deny deletion of tags"
     )
     member_check: bool | None = Field(
         default=None, description="Check for valid membership"
     )
-    prevent_secrets: bool = Field(
+    prevent_secrets: bool | None = Field(
         default=None, description="Flag to prevent secrets in commits"
     )
     author_email_regex: str | None = Field(
@@ -3384,13 +3388,13 @@ class Rule(BaseModel):
 class Setting(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Setting")
+    base_type: str | None = Field(default="Setting")
     id: int | None = Field(
         default=None, description="Unique identifier for the setting"
     )
     value: bool | None = Field(default=None, description="Setting value.")
     locked: bool | None = Field(default=None, description="Locked State of setting.")
-    inherited_from: str = Field(
+    inherited_from: str | None = Field(
         default=None, description="Project inherited rules from"
     )
 
@@ -3398,7 +3402,7 @@ class Setting(BaseModel):
 class MergeRequestRuleSettings(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="MergeRequestRuleSettings")
+    base_type: str | None = Field(default="MergeRequestRuleSettings")
     id: int | None = Field(default=None, description="Unique identifier for the rule")
     allow_author_approval: Setting | None = Field(
         default=None,
@@ -3431,7 +3435,7 @@ class MergeRequestRuleSettings(BaseModel):
 class AccessControl(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="AccessControl")
+    base_type: str | None = Field(default="AccessControl")
     name: str | None = Field(default=None, description="Name of the access group")
     access_level: int | None = Field(
         default=None, description="Access level as an integer"
@@ -3444,7 +3448,7 @@ class AccessControl(BaseModel):
 class Source(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Source")
+    base_type: str | None = Field(default="Source")
     format: str | None = Field(
         default=None, description="Format of the source file (e.g., zip, tar.gz)"
     )
@@ -3456,7 +3460,7 @@ class Source(BaseModel):
 class Assets(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Assets")
+    base_type: str | None = Field(default="Assets")
     count: int | None = Field(default=None, description="Total count of assets")
     sources: list[Source] | None = Field(
         default=None, description="List of source files"
@@ -3494,7 +3498,7 @@ class Assets(BaseModel):
 class Evidence(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Evidence")
+    base_type: str | None = Field(default="Evidence")
     sha: str | None = Field(
         default=None, description="SHA checksum of the evidence file"
     )
@@ -3509,7 +3513,7 @@ class Evidence(BaseModel):
 class ReleaseLinks(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="ReleaseLinks")
+    base_type: str | None = Field(default="ReleaseLinks")
     closed_issues_url: HttpUrl | str | None = Field(
         None, description="URL to the list of closed issues"
     )
@@ -3534,7 +3538,7 @@ class ReleaseLinks(BaseModel):
 class Release(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Release")
+    base_type: str | None = Field(default="Release")
     tag_name: str | None = Field(default=None, description="Tag name of the release")
     description: str | None = Field(
         default=None, description="Description of the release"
@@ -3599,7 +3603,7 @@ class Release(BaseModel):
 class Token(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Token")
+    base_type: str | None = Field(default="Token")
     id: int | None = Field(None, description="Token ID")
     token: str | None = Field(None, description="Authentication token")
     token_expires_at: datetime | None = Field(
@@ -3610,7 +3614,7 @@ class Token(BaseModel):
 class ToDo(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="ToDo")
+    base_type: str | None = Field(default="ToDo")
     id: int | None = Field(default=None, description="To-do identifier")
     project: Project = Field(
         default=None, description="Project associated with the to-do"
@@ -3619,7 +3623,7 @@ class ToDo(BaseModel):
     action_name: str | None = Field(
         default=None, description="Action taken in the to-do"
     )
-    target_type: str = Field(
+    target_type: str | None = Field(
         default=None, description="Type of target referenced in the to-do"
     )
     target: Issue = Field(default=None, description="Target issue for the to-do")
@@ -3636,7 +3640,7 @@ class ToDo(BaseModel):
 class WikiPage(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="WikiPage")
+    base_type: str | None = Field(default="WikiPage")
     content: str | None = Field(None, description="Content of the wiki page")
     format: str | None = Field(
         None, description="Format of the wiki page content (e.g., markdown, rdoc)"
@@ -3653,7 +3657,7 @@ class WikiPage(BaseModel):
 class WikiAttachmentLink(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="WikiAttachmentLink")
+    base_type: str | None = Field(default="WikiAttachmentLink")
     url: HttpUrl | str | None = Field(
         None, description="URL of the uploaded attachment"
     )
@@ -3665,7 +3669,7 @@ class WikiAttachmentLink(BaseModel):
 class WikiAttachment(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="WikiAttachment")
+    base_type: str | None = Field(default="WikiAttachment")
     file_name: str | None = Field(None, description="Name of the uploaded file")
     file_path: str | None = Field(None, description="Path where the file is stored")
     branch: str | None = Field(
@@ -3679,7 +3683,7 @@ class WikiAttachment(BaseModel):
 class Agent(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Agent")
+    base_type: str | None = Field(default="Agent")
     id: int | None = Field(default=None, description="Agent identifier")
     config_project: ProjectConfig = Field(
         default=None, description="Configuration project associated with the agent"
@@ -3689,7 +3693,7 @@ class Agent(BaseModel):
 class Agents(BaseModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
-    base_type: str = Field(default="Agents")
+    base_type: str | None = Field(default="Agents")
     allowed_agents: list[Agent] = Field(
         default=None, description="List of allowed agents"
     )
@@ -3714,10 +3718,18 @@ class Response(BaseModel, Generic[T]):
     """
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
-    base_type: str = Field(default="Response")
+    base_type: str | None = Field(default="Response")
     response: requests.Response = Field(
         default=None, description="The original requests.Response object", exclude=True
     )
     data: T | list[T] | None = Field(
         default=None, description="The Pydantic models converted from the response"
     )
+
+    @property
+    def status_code(self) -> int | None:
+        return self.response.status_code if self.response else None
+
+    @property
+    def headers(self) -> dict | None:
+        return self.response.headers if self.response else None

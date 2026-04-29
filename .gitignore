@@ -136,3 +136,8 @@ dmypy.json
 .pyre/
 /models/
 **/agent_data/chats/
+
+# Graph Database
+knowledge_graph.db*
+.repo_graph/
+.ladybug/
