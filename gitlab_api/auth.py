@@ -43,8 +43,8 @@ def get_client(
         exchange_data = {
             "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
             "subject_token": user_token,
-            "subject_token_type": "urn:ietf:params:oauth:token-type:access_token",
-            "requested_token_type": "urn:ietf:params:oauth:token-type:access_token",
+            "subject_token_type": "urn:ietf:params:oauth:token-type:access_token",  # nosec B105
+            "requested_token_type": "urn:ietf:params:oauth:token-type:access_token",  # nosec B105
             "audience": config["audience"],
             "scope": config["delegated_scopes"],
         }

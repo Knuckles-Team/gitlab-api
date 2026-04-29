@@ -23,6 +23,7 @@ def mock_session():
         yield session
 
 def test_gitlab_api_brute_force(mock_session):
+    _ = mock_session
     from gitlab_api.api_client import Api
     with patch.dict("os.environ", {"GITLAB_URL": "http://test"}):
         api = Api(url="http://test", token="test")
@@ -72,6 +73,7 @@ def test_gitlab_api_brute_force(mock_session):
         except: pass
 
 def test_mcp_server_coverage(mock_session):
+    _ = mock_session
     from gitlab_api.mcp_server import get_mcp_instance
     from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
 
