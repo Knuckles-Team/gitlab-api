@@ -1,7 +1,6 @@
 import importlib
 import inspect
 import sys
-from typing import List
 
 __all__: list[str] = []
 

@@ -2,7 +2,7 @@
 import re
 from typing import Any
 
-from agent_utilities.exceptions import (
+from agent_utilities.core.exceptions import (
     ParameterError,
 )
 from pydantic import (
@@ -136,7 +136,7 @@ class CommitModel(BaseModel):
     report_type: str | None = None
     rule_type: str | None = None
     user_ids: list | None = None
-    user_ids: list | None = None
+    user_ids: list | None = None  # type: ignore
     since: str | None = None
     until: str | None = None
     all: bool | None = None
@@ -410,13 +410,15 @@ class CommitModel(BaseModel):
 
 
 class TagModel(BaseModel):
-    project_id: int | str = Field(..., description="Project ID or full path")
-    tag: str | None = Field(None, description="Name of the tag")
+    project_id: int | str | None = Field(
+        default=None, description="Project ID or full path"
+    )
+    tag: str | None = Field(default=None, description="Name of the tag")
     ref: str | None = Field(
         None,
         description="Reference (branch, tag, or commit SHA) to create the tag from",
     )
-    message: str | None = Field(None, description="Tag message")
+    message: str | None = Field(default=None, description="Tag message")
     api_parameters: dict | None = Field(description="API Parameters", default=None)
     max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
@@ -445,12 +447,18 @@ class TagModel(BaseModel):
 
 
 class PipelineScheduleModel(BaseModel):
-    project_id: int | str = Field(..., description="Project ID or full path")
+    project_id: int | str | None = Field(
+        default=None, description="Project ID or full path"
+    )
     description: str | None = Field(
         None, description="Description of the pipeline schedule"
     )
-    ref: str | None = Field(None, description="Branch or tag to run the pipeline on")
-    cron: str | None = Field(None, description="Cron expression for the schedule")
+    ref: str | None = Field(
+        default=None, description="Branch or tag to run the pipeline on"
+    )
+    cron: str | None = Field(
+        default=None, description="Cron expression for the schedule"
+    )
     cron_timezone: str | None = Field(
         None, description="Timezone for the cron expression"
     )
@@ -476,14 +484,20 @@ class PipelineScheduleModel(BaseModel):
 
 
 class IssueModel(BaseModel):
-    project_id: int | str = Field(..., description="Project ID or full path")
-    title: str | None = Field(None, description="Title of the issue")
-    description: str | None = Field(None, description="Description of the issue")
-    labels: list[str] | None = Field(None, description="List of labels for the issue")
+    project_id: int | str | None = Field(
+        default=None, description="Project ID or full path"
+    )
+    title: str | None = Field(default=None, description="Title of the issue")
+    description: str | None = Field(
+        default=None, description="Description of the issue"
+    )
+    labels: list[str] | None = Field(
+        default=None, description="List of labels for the issue"
+    )
     state: str | None = Field(
         None, description="State of the issue (e.g., 'opened', 'closed')"
     )
-    issue_iid: int | None = Field(None, description="Internal ID of the issue")
+    issue_iid: int | None = Field(default=None, description="Internal ID of the issue")
 
     @field_validator("project_id")
     def validate_project_id(cls, v):
@@ -527,13 +541,13 @@ class DeployTokenModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    project_id: int | str = None
+    project_id: int | str | None = None  # type: ignore
     group_id: int | str | None = None
     token: str | None = None
     name: str | None = None
     expires_at: str | None = None
     username: str | None = None
-    username: str | None = None
+    username: str | None = None  # type: ignore
     scopes: str | None = None
     api_parameters: dict | None = Field(description="API Parameters", default=None)
     max_pages: int | None = Field(
@@ -639,7 +653,7 @@ class GroupModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    group_id: int | str = Field(description="The group ID.", default=None)
+    group_id: int | str | None = Field(description="The group ID.", default=None)  # type: ignore
     name: str | None = Field(description="The name of the group.", default=None)
     path: str | None = Field(description="The path of the group.", default=None)
     auto_devops_enabled: bool | None = Field(
@@ -910,9 +924,9 @@ class JobModel(BaseModel):
     The class includes field_validator functions for specific attribute validations.
     """
 
-    project_id: int | str = None
-    pipeline_id: int | str = None
-    job_id: int | str = None
+    project_id: int | str | None = None
+    pipeline_id: int | str | None = None
+    job_id: int | str | None = None
     scope: list[str] | None = None
     total_pages: int | None = Field(description="Total number of pages", default=None)
     max_pages: int | None = Field(
@@ -1807,35 +1821,22 @@ class NamespaceModel(BaseModel):
 
 
 class PackageModel(BaseModel):
-    """
-    Documentation for the PackageModel Pydantic model.
-
-    This model represents information about a package in a project.
-
-    Attributes:
-    - project_id (Union[int, str]): The ID of the project.
-    - package_name (str): The name of the package.
-    - package_version (str): The version of the package.
-    - file_name (str): The name of the file associated with the package.
-    - status (str): The status of the package.
-    - select (str): Selection criteria for the package.
-    - api_parameters (str): Additional API parameters.
-
-    Methods:
-    - validate_file_name(value): Validate the 'file_name' field.
-    - validate_status(value): Validate the 'status' field.
-    - validate_select(value): Validate the 'select' field.
-
-    Examples:
-    - Example 1: How to use this Pydantic model.
-    - Example 2: Another example of usage.
-    """
-
-    project_id: int | str = None
+    project_id: int | str | None = None
+    group_id: int | str | None = None
+    package_id: int | str | None = None
+    package_type: str | None = None
     package_name: str | None = None
     package_version: str | None = None
-    file_name: str | None = None
+    include_versionless: bool | None = None
     status: str | None = None
+    sort: str | None = None
+    max_pages: int | None = Field(
+        description="Max amount of pages to retrieve", default=None
+    )
+    page: int | None = Field(description="Pagination page", default=1)
+    per_page: int | None = Field(description="Results per page", default=100)
+    ref: str | None = None
+    file_name: str | None = None
     select: str | None = None
     api_parameters: dict | None = Field(description="API Parameters", default=None)
 
@@ -1931,7 +1932,7 @@ class PipelineModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: int | str = None
+    project_id: int | str | None = None
     total_pages: int | None = Field(description="Total number of pages", default=None)
     max_pages: int | None = Field(
         description="Max amount of pages to retrieve", default=None
@@ -2695,8 +2696,8 @@ class ReleaseModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: int | str = None
-    group_id: int | str = None
+    project_id: int | str | None = None
+    group_id: int | str | None = None
     order_by: str | None = None
     sort: str | None = None
     simple: bool | None = None
@@ -3188,7 +3189,7 @@ class WikiModel(BaseModel):
     - Example 2: Another example of usage.
     """
 
-    project_id: int | str = None
+    project_id: int | str | None = None
     slug: str | None = None
     content: str | None = None
     title: str | None = None

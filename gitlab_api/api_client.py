@@ -14,8 +14,8 @@ from pydantic import ValidationError
 
 logger = get_logger(__name__)
 
-from agent_utilities.decorators import require_auth
-from agent_utilities.exceptions import (
+from agent_utilities.core.decorators import require_auth
+from agent_utilities.core.exceptions import (
     AuthError,
     MissingParameterError,
     ParameterError,
@@ -147,10 +147,10 @@ class Api:
                 timeout=10,
             )
             if response.status_code in (401, 403):
-                logger.error(f"Authentication Error with header: {response.content}")
+                logger.error(f"Authentication Error with header: {response.content}")  # type: ignore
                 raise AuthError if response.status_code == 401 else UnauthorizedError
             elif response.status_code == 404:
-                logger.error(f"Parameter Error: {response.content}")
+                logger.error(f"Parameter Error: {response.content}")  # type: ignore
                 raise ParameterError
 
     def switch_to_next_headers(self) -> bool:
@@ -175,11 +175,11 @@ class Api:
         self, endpoint: str, model: T, header: dict, page: int
     ) -> list[dict]:
         """Fetch a single page of data from the specified endpoint"""
-        model.page = page
-        model.model_post_init(model)
+        model.page = page  # type: ignore
+        model.model_post_init(model)  # type: ignore
         response = self._session.get(
             url=f"{self.url}{endpoint}",
-            params=model.api_parameters,
+            params=model.api_parameters,  # type: ignore
             headers=header,
             verify=self.verify,
             proxies=self.proxies,
@@ -207,7 +207,7 @@ class Api:
         )
         total_pages_response = self._session.get(
             url=f"{self.url}{initial_endpoint}",
-            params=model.api_parameters,
+            params=model.api_parameters,  # type: ignore
             headers=headers_to_use[0],
             verify=self.verify,
             proxies=self.proxies,
@@ -223,18 +223,22 @@ class Api:
         if isinstance(initial_data, list):
             all_data.extend(initial_data)
 
-        if not model.max_pages or model.max_pages == 0 or model.max_pages > total_pages:
-            model.max_pages = total_pages
+        if not model.max_pages or model.max_pages == 0 or model.max_pages > total_pages:  # type: ignore
+            model.max_pages = total_pages  # type: ignore
 
-        if model.max_pages > 1:
+        if model.max_pages > 1:  # type: ignore
             with ThreadPoolExecutor(max_workers=len(headers_to_use)) as executor:
                 future_to_page = {}
                 header_idx = 0
 
-                for page in range(1, model.max_pages):
+                for page in range(1, model.max_pages):  # type: ignore
                     header = headers_to_use[header_idx % len(headers_to_use)]
                     future = executor.submit(
-                        self._fetch_next_page, initial_endpoint, model, header, page
+                        self._fetch_next_page,  # type: ignore[arg-type]
+                        initial_endpoint,
+                        model,
+                        header,
+                        page,
                     )
                     future_to_page[future] = page
                     header_idx += 1
@@ -275,7 +279,7 @@ class Api:
             parsed_data = [Branch(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_branch(self, **kwargs) -> Response:
@@ -306,7 +310,7 @@ class Api:
             parsed_data = Branch(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_branch(self, **kwargs) -> Response:
@@ -338,7 +342,7 @@ class Api:
             parsed_data = Branch(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_branch(self, **kwargs) -> Response:
@@ -369,7 +373,7 @@ class Api:
             parsed_data = Branch(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_merged_branches(self, **kwargs) -> Response:
@@ -400,7 +404,7 @@ class Api:
             parsed_data = Branch(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_commits(self, **kwargs) -> Response:
@@ -427,7 +431,7 @@ class Api:
             parsed_data = [Commit(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_commit(self, **kwargs) -> Response:
@@ -455,7 +459,7 @@ class Api:
             parsed_data = Commit(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_commit_references(self, **kwargs) -> Response:
@@ -483,7 +487,7 @@ class Api:
             parsed_data = Commit(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def cherry_pick_commit(self, **kwargs) -> Response:
@@ -512,7 +516,7 @@ class Api:
             parsed_data = Commit(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_commit(self, **kwargs) -> Response:
@@ -541,7 +545,7 @@ class Api:
             parsed_data = Commit(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def revert_commit(self, **kwargs) -> Response:
@@ -570,7 +574,7 @@ class Api:
             parsed_data = Commit(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_commit_diff(self, **kwargs) -> Response:
@@ -598,7 +602,7 @@ class Api:
             parsed_data = [Diff(**item) for item in response.json()]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_commit_comments(self, **kwargs) -> Response:
@@ -626,7 +630,7 @@ class Api:
             parsed_data = [Comment(**item) for item in response.json()]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_commit_comment(self, **kwargs) -> Response:
@@ -655,7 +659,7 @@ class Api:
             parsed_data = Comment(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_commit_discussions(self, **kwargs) -> Response:
@@ -683,7 +687,7 @@ class Api:
             parsed_data = [Comment(**item) for item in response.json()]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_commit_statuses(self, **kwargs) -> Response:
@@ -711,7 +715,7 @@ class Api:
             parsed_data = [Commit(**item) for item in response.json()]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def post_build_status_to_commit(self, **kwargs) -> Response:
@@ -740,7 +744,7 @@ class Api:
             parsed_data = Commit(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_commit_merge_requests(self, **kwargs) -> Response:
@@ -768,7 +772,7 @@ class Api:
             parsed_data = [MergeRequest(**item) for item in response.json()]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_commit_gpg_signature(self, **kwargs) -> Response:
@@ -796,7 +800,7 @@ class Api:
             parsed_data = CommitSignature(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_deploy_tokens(self, **kwargs) -> Response:
@@ -823,9 +827,9 @@ class Api:
             parsed_data = [DeployToken(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get deploy tokens: {str(e)}")
+            raise ParameterError(f"Failed to get deploy tokens: {str(e)}") from e
 
     @require_auth
     def get_project_deploy_tokens(self, **kwargs) -> Response:
@@ -855,9 +859,11 @@ class Api:
             parsed_data = [DeployToken(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get project deploy tokens: {str(e)}")
+            raise ParameterError(
+                f"Failed to get project deploy tokens: {str(e)}"
+            ) from e
 
     @require_auth
     def get_project_deploy_token(self, **kwargs) -> Response:
@@ -875,11 +881,11 @@ class Api:
             MissingParameterError: If required parameters are missing.
         """
         deploy_token = DeployTokenModel(**kwargs)
-        if deploy_token.project_id is None or deploy_token.deploy_token_id is None:
+        if deploy_token.project_id is None or deploy_token.deploy_token_id is None:  # type: ignore
             raise MissingParameterError("project_id and deploy_token_id are required")
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.deploy_token_id}",
+                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.deploy_token_id}",  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -888,9 +894,9 @@ class Api:
             parsed_data = DeployToken(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get project deploy token: {str(e)}")
+            raise ParameterError(f"Failed to get project deploy token: {str(e)}") from e
 
     @require_auth
     def create_project_deploy_token(self, **kwargs) -> Response:
@@ -926,9 +932,11 @@ class Api:
             parsed_data = DeployToken(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to create project deploy token: {str(e)}")
+            raise ParameterError(
+                f"Failed to create project deploy token: {str(e)}"
+            ) from e
 
     @require_auth
     def delete_project_deploy_token(self, **kwargs) -> Response:
@@ -946,11 +954,11 @@ class Api:
             MissingParameterError: If required parameters are missing.
         """
         deploy_token = DeployTokenModel(**kwargs)
-        if deploy_token.project_id is None or deploy_token.deploy_token_id is None:
+        if deploy_token.project_id is None or deploy_token.deploy_token_id is None:  # type: ignore
             raise MissingParameterError("project_id and deploy_token_id are required")
         try:
             response = self._session.delete(
-                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.deploy_token_id}",
+                url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.deploy_token_id}",  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -958,9 +966,11 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to delete project deploy token: {str(e)}")
+            raise ParameterError(
+                f"Failed to delete project deploy token: {str(e)}"
+            ) from e
 
     @require_auth
     def get_group_deploy_tokens(self, **kwargs) -> Response:
@@ -990,9 +1000,9 @@ class Api:
             parsed_data = [DeployToken(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get group deploy tokens: {str(e)}")
+            raise ParameterError(f"Failed to get group deploy tokens: {str(e)}") from e
 
     @require_auth
     def get_group_deploy_token(self, **kwargs) -> Response:
@@ -1010,11 +1020,11 @@ class Api:
             MissingParameterError: If required parameters are missing.
         """
         deploy_token = DeployTokenModel(**kwargs)
-        if deploy_token.group_id is None or deploy_token.deploy_token_id is None:
+        if deploy_token.group_id is None or deploy_token.deploy_token_id is None:  # type: ignore
             raise MissingParameterError("group_id and deploy_token_id are required")
         try:
             response = self._session.get(
-                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.deploy_token_id}",
+                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.deploy_token_id}",  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -1023,9 +1033,9 @@ class Api:
             parsed_data = DeployToken(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get group deploy token: {str(e)}")
+            raise ParameterError(f"Failed to get group deploy token: {str(e)}") from e
 
     @require_auth
     def create_group_deploy_token(self, **kwargs) -> Response:
@@ -1061,9 +1071,11 @@ class Api:
             parsed_data = DeployToken(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to create group deploy token: {str(e)}")
+            raise ParameterError(
+                f"Failed to create group deploy token: {str(e)}"
+            ) from e
 
     @require_auth
     def delete_group_deploy_token(self, **kwargs) -> Response:
@@ -1081,11 +1093,11 @@ class Api:
             MissingParameterError: If required parameters are missing.
         """
         deploy_token = DeployTokenModel(**kwargs)
-        if deploy_token.group_id is None or deploy_token.deploy_token_id is None:
+        if deploy_token.group_id is None or deploy_token.deploy_token_id is None:  # type: ignore
             raise MissingParameterError("group_id and deploy_token_id are required")
         try:
             response = self._session.delete(
-                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.deploy_token_id}",
+                url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.deploy_token_id}",  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -1093,9 +1105,11 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to delete group deploy token: {str(e)}")
+            raise ParameterError(
+                f"Failed to delete group deploy token: {str(e)}"
+            ) from e
 
     @require_auth
     def get_environments(self, **kwargs) -> Response:
@@ -1125,7 +1139,7 @@ class Api:
             parsed_data = [Environment(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_environment(self, **kwargs) -> Response:
@@ -1157,7 +1171,7 @@ class Api:
             parsed_data = Environment(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_environment(self, **kwargs) -> Response:
@@ -1189,7 +1203,7 @@ class Api:
             parsed_data = Environment(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def update_environment(self, **kwargs) -> Response:
@@ -1221,7 +1235,7 @@ class Api:
             parsed_data = Environment(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_environment(self, **kwargs) -> Response:
@@ -1251,7 +1265,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def stop_environment(self, **kwargs) -> Response:
@@ -1283,7 +1297,7 @@ class Api:
             parsed_data = Environment(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def stop_stale_environments(self, **kwargs) -> Response:
@@ -1314,7 +1328,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_stopped_environments(self, **kwargs) -> Response:
@@ -1345,7 +1359,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_protected_environments(self, **kwargs) -> Response:
@@ -1375,7 +1389,7 @@ class Api:
             parsed_data = [Environment(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_protected_environment(self, **kwargs) -> Response:
@@ -1406,7 +1420,7 @@ class Api:
             parsed_data = Environment(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def protect_environment(self, **kwargs) -> Response:
@@ -1438,7 +1452,7 @@ class Api:
             parsed_data = Environment(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def update_protected_environment(self, **kwargs) -> Response:
@@ -1470,7 +1484,7 @@ class Api:
             parsed_data = Environment(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def unprotect_environment(self, **kwargs) -> Response:
@@ -1500,7 +1514,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_groups(self, **kwargs) -> Response:
@@ -1527,7 +1541,7 @@ class Api:
             parsed_data = [Group(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_group(self, **kwargs) -> Response:
@@ -1558,7 +1572,7 @@ class Api:
             parsed_data = Group(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def edit_group(self, **kwargs) -> Response:
@@ -1590,7 +1604,7 @@ class Api:
             parsed_data = Group(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_group_subgroups(self, **kwargs) -> Response:
@@ -1620,7 +1634,7 @@ class Api:
             parsed_data = [Group(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_group_descendant_groups(self, **kwargs) -> Response:
@@ -1650,7 +1664,7 @@ class Api:
             parsed_data = [Group(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_group_projects(self, **kwargs) -> Response:
@@ -1680,7 +1694,7 @@ class Api:
             parsed_data = [Project(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_group_merge_requests(self, **kwargs) -> Response:
@@ -1710,7 +1724,7 @@ class Api:
             parsed_data = [MergeRequest(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_jobs(self, **kwargs) -> Response:
@@ -1740,7 +1754,7 @@ class Api:
             parsed_data = [Job(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_job(self, **kwargs) -> Response:
@@ -1771,7 +1785,7 @@ class Api:
             parsed_data = Job(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_job_log(self, **kwargs) -> Response:
@@ -1802,7 +1816,7 @@ class Api:
             parsed_data = response.text
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def cancel_project_job(self, **kwargs) -> Response:
@@ -1833,7 +1847,7 @@ class Api:
             parsed_data = Job(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def retry_project_job(self, **kwargs) -> Response:
@@ -1864,7 +1878,7 @@ class Api:
             parsed_data = Job(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def erase_project_job(self, **kwargs) -> Response:
@@ -1895,7 +1909,7 @@ class Api:
             parsed_data = Job(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def run_project_job(self, **kwargs) -> Response:
@@ -1919,7 +1933,7 @@ class Api:
             response = self._session.post(
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/play",
                 headers=self.headers,
-                json=job.data,
+                json=job.data,  # type: ignore
                 verify=self.verify,
                 proxies=self.proxies,
             )
@@ -1927,7 +1941,7 @@ class Api:
             parsed_data = Job(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_pipeline_jobs(self, **kwargs) -> Response:
@@ -1957,7 +1971,7 @@ class Api:
             parsed_data = [Job(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_group_members(self, **kwargs) -> Response:
@@ -1987,7 +2001,7 @@ class Api:
             parsed_data = [Membership(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_members(self, **kwargs) -> Response:
@@ -2017,7 +2031,7 @@ class Api:
             parsed_data = [Membership(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_merge_request(self, **kwargs) -> Response:
@@ -2054,7 +2068,7 @@ class Api:
             parsed_data = MergeRequest(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_merge_requests(self, **kwargs) -> Response:
@@ -2081,7 +2095,7 @@ class Api:
             parsed_data = [MergeRequest(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_merge_requests(self, **kwargs) -> Response:
@@ -2111,7 +2125,7 @@ class Api:
             parsed_data = [MergeRequest(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_merge_request(self, **kwargs) -> Response:
@@ -2129,11 +2143,11 @@ class Api:
             ParameterError: If invalid parameters are provided.
         """
         merge_request = MergeRequestModel(**kwargs)
-        if merge_request.project_id is None or merge_request.merge_request_iid is None:
+        if merge_request.project_id is None or merge_request.merge_request_iid is None:  # type: ignore
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{merge_request.project_id}/merge_requests/{merge_request.merge_request_iid}",
+                url=f"{self.url}/projects/{merge_request.project_id}/merge_requests/{merge_request.merge_request_iid}",  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -2142,7 +2156,7 @@ class Api:
             parsed_data = MergeRequest(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_level_merge_request_rules(self, **kwargs) -> Response:
@@ -2172,7 +2186,7 @@ class Api:
             parsed_data = [ApprovalRule(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_level_merge_request_rule(self, **kwargs) -> Response:
@@ -2203,7 +2217,7 @@ class Api:
             parsed_data = ApprovalRule(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_project_level_rule(self, **kwargs) -> Response:
@@ -2235,7 +2249,7 @@ class Api:
             parsed_data = ApprovalRule(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def update_project_level_rule(self, **kwargs) -> Response:
@@ -2267,7 +2281,7 @@ class Api:
             parsed_data = ApprovalRule(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_project_level_rule(self, **kwargs) -> Response:
@@ -2297,7 +2311,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def merge_request_level_approvals(self, **kwargs) -> Response:
@@ -2328,7 +2342,7 @@ class Api:
             parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_approval_state_merge_requests(self, **kwargs) -> Response:
@@ -2359,7 +2373,7 @@ class Api:
             parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_merge_request_level_rules(self, **kwargs) -> Response:
@@ -2389,7 +2403,7 @@ class Api:
             parsed_data = [ApprovalRule(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def approve_merge_request(self, **kwargs) -> Response:
@@ -2420,7 +2434,7 @@ class Api:
             parsed_data = MergeRequest(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def unapprove_merge_request(self, **kwargs) -> Response:
@@ -2450,7 +2464,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_group_level_rule(self, **kwargs) -> Response:
@@ -2482,7 +2496,7 @@ class Api:
             parsed_data = MergeRequestRuleSettings(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def edit_group_level_rule(self, **kwargs) -> Response:
@@ -2514,7 +2528,7 @@ class Api:
             parsed_data = MergeRequestRuleSettings(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_level_rule(self, **kwargs) -> Response:
@@ -2545,7 +2559,7 @@ class Api:
             parsed_data = MergeRequestRuleSettings(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def edit_project_level_rule(self, **kwargs) -> Response:
@@ -2577,7 +2591,7 @@ class Api:
             parsed_data = MergeRequestRuleSettings(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_repository_packages(self, **kwargs) -> Response:
@@ -2607,7 +2621,7 @@ class Api:
             parsed_data = [Package(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def publish_repository_package(self, **kwargs) -> Response:
@@ -2643,7 +2657,7 @@ class Api:
             parsed_data = Package(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def download_repository_package(self, **kwargs) -> Response:
@@ -2679,7 +2693,7 @@ class Api:
             parsed_data = response.content
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_pipelines(self, **kwargs) -> Response:
@@ -2709,7 +2723,7 @@ class Api:
             parsed_data = [Pipeline(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_pipeline(self, **kwargs) -> Response:
@@ -2740,7 +2754,7 @@ class Api:
             parsed_data = Pipeline(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def run_pipeline(self, **kwargs) -> Response:
@@ -2772,7 +2786,7 @@ class Api:
             parsed_data = Pipeline(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_pipeline_schedules(self, **kwargs) -> Response:
@@ -2802,7 +2816,7 @@ class Api:
             parsed_data = [PipelineSchedule(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_pipeline_schedule(self, **kwargs) -> Response:
@@ -2833,7 +2847,7 @@ class Api:
             parsed_data = PipelineSchedule(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_pipelines_triggered_from_schedule(self, **kwargs) -> Response:
@@ -2863,7 +2877,7 @@ class Api:
             parsed_data = [Pipeline(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_pipeline_schedule(self, **kwargs) -> Response:
@@ -2895,7 +2909,7 @@ class Api:
             parsed_data = PipelineSchedule(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def edit_pipeline_schedule(self, **kwargs) -> Response:
@@ -2927,7 +2941,7 @@ class Api:
             parsed_data = PipelineSchedule(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def take_pipeline_schedule_ownership(self, **kwargs) -> Response:
@@ -2958,7 +2972,7 @@ class Api:
             parsed_data = PipelineSchedule(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_pipeline_schedule(self, **kwargs) -> Response:
@@ -2988,7 +3002,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def run_pipeline_schedule(self, **kwargs) -> Response:
@@ -3018,7 +3032,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_pipeline_schedule_variable(self, **kwargs) -> Response:
@@ -3050,7 +3064,7 @@ class Api:
             parsed_data = PipelineVariable(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_pipeline_schedule_variable(self, **kwargs) -> Response:
@@ -3084,7 +3098,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_projects(self, **kwargs) -> Response:
@@ -3111,7 +3125,7 @@ class Api:
             parsed_data = [Project(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project(self, **kwargs) -> Response:
@@ -3142,7 +3156,7 @@ class Api:
             parsed_data = Project(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_nested_projects_by_group(self, **kwargs) -> Response:
@@ -3187,9 +3201,9 @@ class Api:
                 all_projects.extend(parsed_data)
                 last_response = response
 
-            return Response(response=last_response, data=all_projects)
+            return Response(response=last_response, data=all_projects)  # type: ignore
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_contributors(self, **kwargs) -> Response:
@@ -3219,7 +3233,7 @@ class Api:
             parsed_data = [User(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_statistics(self, **kwargs) -> Response:
@@ -3250,7 +3264,7 @@ class Api:
             parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def edit_project(self, **kwargs) -> Response:
@@ -3282,7 +3296,7 @@ class Api:
             parsed_data = Project(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_groups(self, **kwargs) -> Response:
@@ -3312,7 +3326,7 @@ class Api:
             parsed_data = [Group(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def archive_project(self, **kwargs) -> Response:
@@ -3343,7 +3357,7 @@ class Api:
             parsed_data = Project(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def unarchive_project(self, **kwargs) -> Response:
@@ -3374,7 +3388,7 @@ class Api:
             parsed_data = Project(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_project(self, **kwargs) -> Response:
@@ -3404,7 +3418,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def share_project(self, **kwargs) -> Response:
@@ -3440,7 +3454,7 @@ class Api:
             parsed_data = Project(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_protected_branches(self, **kwargs) -> Response:
@@ -3470,7 +3484,7 @@ class Api:
             parsed_data = [Branch(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_protected_branch(self, **kwargs) -> Response:
@@ -3501,7 +3515,7 @@ class Api:
             parsed_data = Branch(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def protect_branch(self, **kwargs) -> Response:
@@ -3524,7 +3538,7 @@ class Api:
         try:
             response = self._session.post(
                 url=f"{self.url}/projects/{protected_branch.project_id}/protected_branches",
-                json=protected_branch.data,
+                json=protected_branch.data,  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -3533,7 +3547,7 @@ class Api:
             parsed_data = Branch(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def unprotect_branch(self, **kwargs) -> Response:
@@ -3563,7 +3577,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def require_code_owner_approvals_single_branch(self, **kwargs) -> Response:
@@ -3586,7 +3600,7 @@ class Api:
         try:
             response = self._session.patch(
                 url=f"{self.url}/projects/{protected_branch.project_id}/protected_branches/{protected_branch.branch}",
-                json=protected_branch.data,
+                json=protected_branch.data,  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -3595,7 +3609,7 @@ class Api:
             parsed_data = Branch(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_releases(self, **kwargs) -> Response:
@@ -3625,7 +3639,7 @@ class Api:
             parsed_data = [Release(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_latest_release(self, **kwargs) -> Response:
@@ -3656,7 +3670,7 @@ class Api:
             parsed_data = Release(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_latest_release_evidence(self, **kwargs) -> Response:
@@ -3687,7 +3701,7 @@ class Api:
             parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_latest_release_asset(self, **kwargs) -> Response:
@@ -3718,7 +3732,7 @@ class Api:
             parsed_data = response.content
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_group_releases(self, **kwargs) -> Response:
@@ -3748,7 +3762,7 @@ class Api:
             parsed_data = [Release(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def download_release_asset(self, **kwargs) -> Response:
@@ -3783,7 +3797,7 @@ class Api:
             parsed_data = response.content
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_release_by_tag(self, **kwargs) -> Response:
@@ -3814,7 +3828,7 @@ class Api:
             parsed_data = Release(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_release(self, **kwargs) -> Response:
@@ -3846,7 +3860,7 @@ class Api:
             parsed_data = Release(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_release_evidence(self, **kwargs) -> Response:
@@ -3876,7 +3890,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def update_release(self, **kwargs) -> Response:
@@ -3908,7 +3922,7 @@ class Api:
             parsed_data = Release(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_release(self, **kwargs) -> Response:
@@ -3938,7 +3952,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_runners(self, **kwargs) -> Response:
@@ -3965,7 +3979,7 @@ class Api:
             parsed_data = [Runner(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_runner(self, **kwargs) -> Response:
@@ -3996,7 +4010,7 @@ class Api:
             parsed_data = Runner(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def update_runner_details(self, **kwargs) -> Response:
@@ -4028,7 +4042,7 @@ class Api:
             parsed_data = Runner(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def pause_runner(self, **kwargs) -> Response:
@@ -4060,7 +4074,7 @@ class Api:
             parsed_data = Runner(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_runner_jobs(self, **kwargs) -> Response:
@@ -4090,7 +4104,7 @@ class Api:
             parsed_data = [Job(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_project_runners(self, **kwargs) -> Response:
@@ -4120,7 +4134,7 @@ class Api:
             parsed_data = [Runner(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def enable_project_runner(self, **kwargs) -> Response:
@@ -4152,7 +4166,7 @@ class Api:
             parsed_data = Runner(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_project_runner(self, **kwargs) -> Response:
@@ -4182,7 +4196,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_group_runners(self, **kwargs) -> Response:
@@ -4212,7 +4226,7 @@ class Api:
             parsed_data = [Runner(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def register_new_runner(self, **kwargs) -> Response:
@@ -4244,7 +4258,7 @@ class Api:
             parsed_data = Runner(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_runner(self, **kwargs) -> Response:
@@ -4283,7 +4297,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def verify_runner_authentication(self, **kwargs) -> Response:
@@ -4314,7 +4328,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def reset_gitlab_runner_token(self) -> Response:
@@ -4338,7 +4352,7 @@ class Api:
             parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def reset_project_runner_token(self, **kwargs) -> Response:
@@ -4369,7 +4383,7 @@ class Api:
             parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def reset_group_runner_token(self, **kwargs) -> Response:
@@ -4400,7 +4414,7 @@ class Api:
             parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def reset_token(self, **kwargs) -> Response:
@@ -4432,7 +4446,7 @@ class Api:
             parsed_data = Runner(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_tags(self, **kwargs) -> Response:
@@ -4462,7 +4476,7 @@ class Api:
             parsed_data = [Tag(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_tag(self, **kwargs) -> Response:
@@ -4480,11 +4494,11 @@ class Api:
             ParameterError: If invalid parameters are provided.
         """
         tag = TagModel(**kwargs)
-        if tag.project_id is None or tag.name is None:
+        if tag.project_id is None or tag.name is None:  # type: ignore
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{tag.project_id}/repository/tags/{tag.name}",
+                url=f"{self.url}/projects/{tag.project_id}/repository/tags/{tag.name}",  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -4493,7 +4507,7 @@ class Api:
             parsed_data = Tag(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_tag(self, **kwargs) -> Response:
@@ -4511,12 +4525,12 @@ class Api:
             ParameterError: If invalid parameters are provided.
         """
         tag = TagModel(**kwargs)
-        if tag.project_id is None or tag.name is None:
+        if tag.project_id is None or tag.name is None:  # type: ignore
             raise MissingParameterError
         try:
             response = self._session.post(
                 url=f"{self.url}/projects/{tag.project_id}/repository/tags",
-                json=tag.data,
+                json=tag.data,  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -4525,7 +4539,7 @@ class Api:
             parsed_data = Tag(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_tag(self, **kwargs) -> Response:
@@ -4543,11 +4557,11 @@ class Api:
             ParameterError: If invalid parameters are provided.
         """
         tag = TagModel(**kwargs)
-        if tag.project_id is None or tag.name is None:
+        if tag.project_id is None or tag.name is None:  # type: ignore
             raise MissingParameterError
         try:
             response = self._session.delete(
-                url=f"{self.url}/projects/{tag.project_id}/repository/tags/{tag.name}",
+                url=f"{self.url}/projects/{tag.project_id}/repository/tags/{tag.name}",  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -4555,7 +4569,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_protected_tags(self, **kwargs) -> Response:
@@ -4585,7 +4599,7 @@ class Api:
             parsed_data = [Tag(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_protected_tag(self, **kwargs) -> Response:
@@ -4603,11 +4617,11 @@ class Api:
             ParameterError: If invalid parameters are provided.
         """
         tag = TagModel(**kwargs)
-        if tag.project_id is None or tag.name is None:
+        if tag.project_id is None or tag.name is None:  # type: ignore
             raise MissingParameterError
         try:
             response = self._session.get(
-                url=f"{self.url}/projects/{tag.project_id}/protected_tags/{tag.name}",
+                url=f"{self.url}/projects/{tag.project_id}/protected_tags/{tag.name}",  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -4616,7 +4630,7 @@ class Api:
             parsed_data = Tag(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def protect_tag(self, **kwargs) -> Response:
@@ -4634,12 +4648,12 @@ class Api:
             ParameterError: If invalid parameters are provided.
         """
         tag = TagModel(**kwargs)
-        if tag.project_id is None or tag.name is None:
+        if tag.project_id is None or tag.name is None:  # type: ignore
             raise MissingParameterError
         try:
             response = self._session.post(
                 url=f"{self.url}/projects/{tag.project_id}/protected_tags",
-                json=tag.data,
+                json=tag.data,  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -4648,7 +4662,7 @@ class Api:
             parsed_data = Tag(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def unprotect_tag(self, **kwargs) -> Response:
@@ -4666,11 +4680,11 @@ class Api:
             ParameterError: If invalid parameters are provided.
         """
         tag = TagModel(**kwargs)
-        if tag.project_id is None or tag.name is None:
+        if tag.project_id is None or tag.name is None:  # type: ignore
             raise MissingParameterError
         try:
             response = self._session.delete(
-                url=f"{self.url}/projects/{tag.project_id}/protected_tags/{tag.name}",
+                url=f"{self.url}/projects/{tag.project_id}/protected_tags/{tag.name}",  # type: ignore
                 headers=self.headers,
                 verify=self.verify,
                 proxies=self.proxies,
@@ -4678,7 +4692,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_users(self, **kwargs) -> Response:
@@ -4705,7 +4719,7 @@ class Api:
             parsed_data = [User(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_user(self, **kwargs) -> Response:
@@ -4736,7 +4750,7 @@ class Api:
             parsed_data = User(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_wiki_list(self, **kwargs) -> Response:
@@ -4766,7 +4780,7 @@ class Api:
             parsed_data = [WikiPage(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_wiki_page(self, **kwargs) -> Response:
@@ -4797,7 +4811,7 @@ class Api:
             parsed_data = WikiPage(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def create_wiki_page(self, **kwargs) -> Response:
@@ -4829,7 +4843,7 @@ class Api:
             parsed_data = WikiPage(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def update_wiki_page(self, **kwargs) -> Response:
@@ -4861,7 +4875,7 @@ class Api:
             parsed_data = WikiPage(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def delete_wiki_page(self, **kwargs) -> Response:
@@ -4891,7 +4905,7 @@ class Api:
             response.raise_for_status()
             return Response(response=response)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def upload_wiki_page_attachment(self, **kwargs) -> Response:
@@ -4912,7 +4926,7 @@ class Api:
         if wiki.project_id is None or wiki.file is None or wiki.branch is None:
             raise MissingParameterError
         try:
-            headers = self.headers.copy()
+            headers = self.headers.copy() if self.headers else {}
             headers["Content-Type"] = "multipart/form-data"
             response = self._session.post(
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/attachments",
@@ -4925,7 +4939,7 @@ class Api:
             parsed_data = response.json()
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_namespaces(self, **kwargs) -> Response:
@@ -4952,7 +4966,7 @@ class Api:
             parsed_data = [Namespace(**item) for item in data]
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def get_namespace(self, **kwargs) -> Response:
@@ -4983,7 +4997,7 @@ class Api:
             parsed_data = Namespace(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
     def api_request(
@@ -5031,7 +5045,7 @@ class Api:
             )
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
-            raise ParameterError(f"Invalid parameters: {e.errors()}")
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except Exception as e:
             logger.error(f"Request Error: {str(e)}")
             raise

@@ -1,7 +1,8 @@
-import requests
 import logging
 import sys
+
 import pytest
+import requests
 
 pytestmark = pytest.mark.integration
 

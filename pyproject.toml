@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "25.15.56"
+version = "25.15.58"
 description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: Public Domain", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.10"
-dependencies = [ "agent-utilities>=0.2.31",]
+dependencies = [ "agent-utilities>=0.2.42",]
 [[project.authors]]
 name = "Audel Rouhi"
 email = "knucklessg1@gmail.com"
@@ -18,8 +18,8 @@ email = "knucklessg1@gmail.com"
 text = "MIT"
 
 [project.optional-dependencies]
-mcp = [ "agent-utilities[mcp]>=0.2.31",]
-agent = [ "agent-utilities[agent,logfire]>=0.2.31",]
+mcp = [ "agent-utilities[mcp]>=0.2.42",]
+agent = [ "agent-utilities[agent,logfire]>=0.2.42",]
 gql = [ "gql>=4.0.0",]
 all = [ "gitlab-api[mcp,agent,gql,logfire]>=25.15.56",]
 test = [ "pytest", "pytest-asyncio",]

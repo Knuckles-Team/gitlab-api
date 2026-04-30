@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import asyncio
-import sys
-from gitlab_api.gitlab_agent import stream_chat, chat, node_chat
-
 import os
+import sys
+
+from gitlab_api.gitlab_agent import chat, node_chat, stream_chat
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 

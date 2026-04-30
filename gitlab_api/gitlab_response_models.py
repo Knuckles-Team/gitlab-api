@@ -803,7 +803,7 @@ class Contributor(BaseModel):
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Contributor")
     name: str | None = Field(default=None, description="The name of the contributor.")
-    email: EmailStr | str = Field(
+    email: EmailStr | str = Field(  # type: ignore
         default=None, description="The email of the contributor."
     )
     commits: int | None = Field(
@@ -1922,7 +1922,7 @@ class ProjectConfig(BaseModel):
     path_with_namespace: str | None = Field(
         default=None, description="Full path of the project including namespace"
     )
-    created_at: datetime = Field(
+    created_at: datetime = Field(  # type: ignore
         default=None, description="Creation timestamp of the project"
     )
     ci_job_token_scope_enabled: bool | None = Field(
@@ -2399,7 +2399,7 @@ class Webhook(BaseModel):
     id: int | None = Field(
         default=None, description="Unique identifier for the webhook"
     )
-    url: HttpUrl | str = Field(
+    url: HttpUrl | str = Field(  # type: ignore
         default=None, description="The URL the webhook should target"
     )
     name: str | None = Field(default=None, description="Name of the webhook")
@@ -2471,7 +2471,7 @@ class Webhook(BaseModel):
     url_variables: list[str] = Field(
         default_factory=list, description="List of URL variables for the webhook"
     )
-    created_at: datetime = Field(
+    created_at: datetime = Field(  # type: ignore
         default=None, description="Creation timestamp of the webhook"
     )
     resource_access_token_events: bool | None = Field(
@@ -3344,7 +3344,7 @@ class Rule(BaseModel):
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Rule")
     id: int | None = Field(default=None, description="Unique identifier for the rule")
-    created_at: datetime = Field(
+    created_at: datetime = Field(  # type: ignore
         default=None, description="Timestamp when the rule was created"
     )
     commit_committer_check: bool | None = Field(
@@ -3616,23 +3616,23 @@ class ToDo(BaseModel):
     __hash__ = object.__hash__
     base_type: str | None = Field(default="ToDo")
     id: int | None = Field(default=None, description="To-do identifier")
-    project: Project = Field(
+    project: Project = Field(  # type: ignore
         default=None, description="Project associated with the to-do"
     )
-    author: User = Field(default=None, description="Author of the to-do")
+    author: User | None = Field(default=None, description="Author of the to-do")
     action_name: str | None = Field(
         default=None, description="Action taken in the to-do"
     )
     target_type: str | None = Field(
         default=None, description="Type of target referenced in the to-do"
     )
-    target: Issue = Field(default=None, description="Target issue for the to-do")
-    target_url: HttpUrl | str = Field(
+    target: Issue | None = Field(default=None, description="Target issue for the to-do")
+    target_url: HttpUrl | str = Field(  # type: ignore
         default=None, description="URL pointing to the target of the to-do"
     )
     body: str | None = Field(default=None, description="Body text of the to-do")
     state: str | None = Field(default=None, description="State of the to-do")
-    created_at: datetime = Field(
+    created_at: datetime = Field(  # type: ignore
         default=None, description="Timestamp when the to-do was created"
     )
 
@@ -3685,7 +3685,7 @@ class Agent(BaseModel):
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Agent")
     id: int | None = Field(default=None, description="Agent identifier")
-    config_project: ProjectConfig = Field(
+    config_project: ProjectConfig = Field(  # type: ignore
         default=None, description="Configuration project associated with the agent"
     )
 
@@ -3695,16 +3695,19 @@ class Agents(BaseModel):
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Agents")
     allowed_agents: list[Agent] = Field(
-        default=None, description="List of allowed agents"
+        default_factory=list,
+        description="List of allowed agents",
     )
-    job: Job = Field(default=None, description="Job associated with the agents")
-    pipeline: Pipeline = Field(
+    job: Job | None = Field(default=None, description="Job associated with the agents")
+    pipeline: Pipeline = Field(  # type: ignore
         default=None, description="Pipeline associated with the agents"
     )
-    project: Project = Field(
+    project: Project = Field(  # type: ignore
         default=None, description="Project associated with the agents"
     )
-    user: User = Field(default=None, description="User associated with the agents")
+    user: User | None = Field(
+        default=None, description="User associated with the agents"
+    )
 
 
 T = TypeVar("T")
@@ -3719,7 +3722,7 @@ class Response(BaseModel, Generic[T]):
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
     base_type: str | None = Field(default="Response")
-    response: requests.Response = Field(
+    response: requests.Response = Field(  # type: ignore
         default=None, description="The original requests.Response object", exclude=True
     )
     data: T | list[T] | None = Field(
@@ -3732,4 +3735,4 @@ class Response(BaseModel, Generic[T]):
 
     @property
     def headers(self) -> dict | None:
-        return self.response.headers if self.response else None
+        return self.response.headers if self.response else None  # type: ignore

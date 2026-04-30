@@ -1,6 +1,7 @@
-import requests
 import time
+
 import pytest
+import requests
 
 pytestmark = pytest.mark.integration
 import logging
@@ -27,9 +28,9 @@ def wait_for_service(url, timeout=60):
 def test_a_spin_up():
     """Validate A) The A2A Agent is able to spin up"""
     logger.info("Verifying A2A Agent Spin Up...")
-    assert wait_for_service(
-        f"{BASE_URL}/docs"
-    ), "A2A Agent failed to spin up (docs not reachable)"
+    assert wait_for_service(f"{BASE_URL}/docs"), (
+        "A2A Agent failed to spin up (docs not reachable)"
+    )
     logger.info("A2A Agent is UP.")
 
 

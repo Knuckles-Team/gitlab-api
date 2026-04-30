@@ -3,7 +3,7 @@ import threading
 
 import requests
 from agent_utilities.base_utilities import get_logger, to_boolean
-from agent_utilities.exceptions import AuthError, UnauthorizedError
+from agent_utilities.core.exceptions import AuthError, UnauthorizedError
 
 from gitlab_api.api_client import Api
 
@@ -63,7 +63,7 @@ def get_client(
                 "Token exchange failed",
                 extra={"error_type": type(e).__name__, "error_message": str(e)},
             )
-            raise RuntimeError(f"Token exchange failed: {str(e)}")
+            raise RuntimeError(f"Token exchange failed: {str(e)}") from e
 
         try:
             return Api(

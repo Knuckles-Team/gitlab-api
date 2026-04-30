@@ -1,7 +1,8 @@
-import requests
 import json
-import time
 import logging
+import time
+
+import requests
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

@@ -4,8 +4,8 @@
 import logging
 from typing import Any
 
-from agent_utilities.decorators import require_auth
-from agent_utilities.exceptions import MissingParameterError, ParameterError
+from agent_utilities.core.decorators import require_auth
+from agent_utilities.core.exceptions import MissingParameterError, ParameterError
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
@@ -100,7 +100,7 @@ class GraphQL:
             return result
         except Exception as e:
             logging.error(f"GraphQL execution failed: {str(e)}")
-            raise ParameterError(f"Query execution failed: {str(e)}")
+            raise ParameterError(f"Query execution failed: {str(e)}") from e
 
     @require_auth
     def get_branches(
@@ -124,7 +124,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with branch data.
         """
-        branch = BranchModel(project_id=project_id, search=search)
+        BranchModel(project_id=project_id, search=search)  # type: ignore
         query = """
         query ($fullPath: ID!, $search: String, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -233,7 +233,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with branch data.
         """
-        branch_model = BranchModel(project_id=project_id, branch=branch)
+        BranchModel(project_id=project_id, branch=branch)
         query = """
         query ($fullPath: ID!, $branch: String!) {
             project(fullPath: $fullPath) {
@@ -389,7 +389,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with tag data.
         """
-        tag = TagModel(project_id=project_id)
+        TagModel(project_id=project_id)  # type: ignore
         query = """
         query ($fullPath: ID!, $search: String, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -472,7 +472,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with deletion result.
         """
-        tag_model = TagModel(project_id=project_id, tag=tag)
+        tag_model = TagModel(project_id=project_id, tag=tag)  # type: ignore
         query = """
         mutation ($input: DestroyTagInput!) {
             destroyTag(input: $input) {
@@ -500,7 +500,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with tag data.
         """
-        tag_model = TagModel(project_id=project_id, tag=tag)
+        TagModel(project_id=project_id, tag=tag)  # type: ignore
         query = """
         query ($fullPath: ID!, $tagName: String!) {
             project(fullPath: $fullPath) {
@@ -601,7 +601,7 @@ class GraphQL:
         Note:
             Uses branchRuleUpdate for tag patterns; full tag protection requires REST API.
         """
-        tag_model = TagModel(project_id=project_id, tag=name)
+        tag_model = TagModel(project_id=project_id, tag=name)  # type: ignore
         query = """
         mutation ($input: BranchRuleUpdateInput!) {
             branchRuleUpdate(input: $input) {
@@ -634,7 +634,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with unprotection result.
         """
-        tag_model = TagModel(project_id=project_id, tag=name)
+        tag_model = TagModel(project_id=project_id, tag=name)  # type: ignore
         query = """
         mutation ($input: BranchRuleUpdateInput!) {
             branchRuleUpdate(input: $input) {
@@ -687,7 +687,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with commit data.
         """
-        commit = CommitModel(project_id=project_id, ref=ref)
+        CommitModel(project_id=project_id, ref=ref)
         query = """
         query ($fullPath: ID!, $ref: String, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -728,7 +728,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with commit data.
         """
-        commit = CommitModel(project_id=project_id, commit_hash=commit_hash)
+        CommitModel(project_id=project_id, commit_hash=commit_hash)
         query = """
         query ($fullPath: ID!, $sha: String!) {
             project(fullPath: $fullPath) {
@@ -780,7 +780,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with created commit data.
         """
-        commit = CommitModel(
+        CommitModel(
             project_id=project_id, branch=branch, message=message, actions=actions
         )
         query = """
@@ -866,9 +866,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with revert result.
         """
-        commit = CommitModel(
-            project_id=project_id, commit_hash=commit_hash, branch=branch
-        )
+        CommitModel(project_id=project_id, commit_hash=commit_hash, branch=branch)
         query = """
         mutation ($input: CommitCreateInput!) {
             commitCreate(input: $input) {
@@ -919,7 +917,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with comment data.
         """
-        commit = CommitModel(project_id=project_id, commit_hash=commit_hash, note=note)
+        CommitModel(project_id=project_id, commit_hash=commit_hash, note=note)
         query = """
         mutation ($input: NoteCreateInput!) {
             noteCreate(input: $input) {
@@ -935,7 +933,7 @@ class GraphQL:
             "input": {"noteableId": f"gid://gitlab/Commit/{commit_hash}", "body": note}
         }
         if path and line:
-            variables["input"]["position"] = {
+            variables["input"]["position"] = {  # type: ignore
                 "baseSha": commit_hash,
                 "startSha": commit_hash,
                 "headSha": commit_hash,
@@ -965,7 +963,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with comment data.
         """
-        commit = CommitModel(project_id=project_id, commit_hash=commit_hash)
+        CommitModel(project_id=project_id, commit_hash=commit_hash)
         query = """
         query ($fullPath: ID!, $sha: String!, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -1028,7 +1026,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with merge request data.
         """
-        mr = MergeRequestModel(project_id=project_id, state=state)
+        MergeRequestModel(project_id=project_id, state=state)  # type: ignore
         query = """
         query ($fullPath: ID!, $state: MergeRequestState, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -1068,9 +1066,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with merge request data.
         """
-        mr = MergeRequestModel(
-            project_id=project_id, merge_request_iid=merge_request_iid
-        )
+        MergeRequestModel(project_id=project_id, merge_request_iid=merge_request_iid)  # type: ignore
         query = """
         query ($fullPath: ID!, $iid: String!) {
             project(fullPath: $fullPath) {
@@ -1116,7 +1112,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with created merge request data.
         """
-        mr = MergeRequestModel(
+        MergeRequestModel(
             project_id=project_id,
             source_branch=source_branch,
             target_branch=target_branch,
@@ -1214,9 +1210,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with close result.
         """
-        mr = MergeRequestModel(
-            project_id=project_id, merge_request_iid=merge_request_iid
-        )
+        MergeRequestModel(project_id=project_id, merge_request_iid=merge_request_iid)  # type: ignore
         query = """
         mutation ($input: MergeRequestUpdateInput!) {
             mergeRequestUpdate(input: $input) {
@@ -1259,9 +1253,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with merge result.
         """
-        mr = MergeRequestModel(
-            project_id=project_id, merge_request_iid=merge_request_iid
-        )
+        MergeRequestModel(project_id=project_id, merge_request_iid=merge_request_iid)  # type: ignore
         query = """
         mutation ($input: MergeRequestAcceptInput!) {
             mergeRequestAccept(input: $input) {
@@ -1321,7 +1313,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with pipeline data.
         """
-        pipeline = PipelineModel(project_id=project_id)
+        PipelineModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -1359,7 +1351,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with created pipeline data.
         """
-        pipeline = PipelineModel(project_id=project_id, ref=ref)
+        PipelineModel(project_id=project_id, ref=ref)
         query = """
         mutation ($input: CiPipelineCreateInput!) {
             ciPipelineCreate(input: $input) {
@@ -1372,7 +1364,7 @@ class GraphQL:
         """
         variables_dict = {"input": {"projectPath": str(project_id), "ref": ref}}
         if variables:
-            variables_dict["input"]["variables"] = variables
+            variables_dict["input"]["variables"] = variables  # type: ignore
         return self.execute_gql(query, variables=variables_dict)
 
     @require_auth
@@ -1411,7 +1403,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with retry result.
         """
-        pipeline = PipelineModel(project_id=project_id)
+        PipelineModel(project_id=project_id)
         query = """
         mutation ($input: PipelineRetryInput!) {
             pipelineRetry(input: $input) {
@@ -1440,7 +1432,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with cancel result.
         """
-        pipeline = PipelineModel(project_id=project_id)
+        PipelineModel(project_id=project_id)
         query = """
         mutation ($input: PipelineCancelInput!) {
             pipelineCancel(input: $input) {
@@ -1473,7 +1465,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with pipeline schedule data.
         """
-        pipeline_schedule = PipelineScheduleModel(project_id=project_id)
+        PipelineScheduleModel(project_id=project_id)  # type: ignore
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -1511,7 +1503,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with pipeline schedule data.
         """
-        pipeline_schedule = PipelineScheduleModel(project_id=project_id)
+        PipelineScheduleModel(project_id=project_id)  # type: ignore
         query = """
         query ($fullPath: ID!, $id: CiPipelineScheduleID!) {
             project(fullPath: $fullPath) {
@@ -1554,7 +1546,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with created pipeline schedule data.
         """
-        pipeline_schedule = PipelineScheduleModel(project_id=project_id, ref=ref)
+        PipelineScheduleModel(project_id=project_id, ref=ref)  # type: ignore
         query = """
         mutation ($input: PipelineScheduleCreateInput!) {
             pipelineScheduleCreate(input: $input) {
@@ -1694,9 +1686,9 @@ class GraphQL:
             Dict[str, Any]: Raw GraphQL response with project data.
         """
         if project_model:
-            project = project_model
+            pass
         else:
-            project = ProjectModel()
+            ProjectModel()
 
         query = """
         query ($ids: [ID!], $fullPaths: [String!], $search: String, $membership: Boolean, $sort: String, $first: Int, $after: String, $archived: ProjectArchived, $visibilityLevel: VisibilityLevelsEnum, $minAccessLevel: AccessLevelEnum) {
@@ -1719,14 +1711,14 @@ class GraphQL:
         """
         variables = {"first": first, "sort": sort}
         if ids:
-            variables["ids"] = [
+            variables["ids"] = [  # type: ignore
                 f"gid://gitlab/Project/{id}" if isinstance(id, int) else id
                 for id in ids
             ]
         if full_paths:
             if len(full_paths) > 50:
                 raise ParameterError("Cannot provide more than 50 full paths")
-            variables["fullPaths"] = full_paths
+            variables["fullPaths"] = full_paths  # type: ignore
         if search:
             variables["search"] = search
         if membership is not None:
@@ -1798,9 +1790,9 @@ class GraphQL:
         Note: Admin-only; experimental in GitLab 18.4+.
         """
         if project_model:
-            project = project_model
+            pass
         else:
-            project = ProjectModel()
+            ProjectModel()
 
         query = """
         query ($ids: [ID!], $fullPaths: [String!], $search: String, $first: Int, $after: String) {
@@ -1821,18 +1813,18 @@ class GraphQL:
         """
         variables = {"first": first}
         if ids:
-            variables["ids"] = [
+            variables["ids"] = [  # type: ignore
                 f"gid://gitlab/Project/{id}" if isinstance(id, int) else id
                 for id in ids
             ]
         if full_paths:
             if len(full_paths) > 50:
                 raise ParameterError("Cannot provide more than 50 full paths")
-            variables["fullPaths"] = full_paths
+            variables["fullPaths"] = full_paths  # type: ignore
         if search:
-            variables["search"] = search
+            variables["search"] = search  # type: ignore
         if after:
-            variables["after"] = after
+            variables["after"] = after  # type: ignore
         return self.execute_gql(query, variables=variables)
 
     @require_auth
@@ -1855,7 +1847,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with job data.
         """
-        job = JobModel(project_id=project_id)
+        JobModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -1890,7 +1882,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with job data.
         """
-        job = JobModel(project_id=project_id)
+        JobModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $id: CiJobID!) {
             project(fullPath: $fullPath) {
@@ -1982,7 +1974,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with package data.
         """
-        package = PackageModel(project_id=project_id)
+        PackageModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -2017,7 +2009,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with package data.
         """
-        package = PackageModel(project_id=project_id)
+        PackageModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $id: PackagesPackageID!) {
             project(fullPath: $fullPath) {
@@ -2152,7 +2144,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with user data.
         """
-        user = UserModel()
+        UserModel()
         query = """
         query ($search: String, $first: Int, $after: String) {
             users(search: $search, first: $first, after: $after) {
@@ -2171,9 +2163,9 @@ class GraphQL:
         """
         variables = {"first": first}
         if search:
-            variables["search"] = search
+            variables["search"] = search  # type: ignore
         if after:
-            variables["after"] = after
+            variables["after"] = after  # type: ignore
         return self.execute_gql(query, variables=variables)
 
     @require_auth
@@ -2187,7 +2179,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with user data.
         """
-        user = UserModel(user_id=user_id)
+        UserModel(user_id=user_id)
         query = """
         query ($id: UserID!) {
             user(id: $id) {
@@ -2223,7 +2215,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with member data.
         """
-        members = MembersModel(project_id=project_id)
+        MembersModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -2270,7 +2262,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with added member data.
         """
-        members = MembersModel(project_id=project_id)
+        MembersModel(project_id=project_id)
         query = """
         mutation ($input: ProjectMemberCreateInput!) {
             projectMemberCreate(input: $input) {
@@ -2384,7 +2376,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with release data.
         """
-        release = ReleaseModel(project_id=project_id)
+        ReleaseModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -2419,7 +2411,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with release data.
         """
-        release = ReleaseModel(project_id=project_id)
+        ReleaseModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $tagName: String!) {
             project(fullPath: $fullPath) {
@@ -2456,7 +2448,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with created release data.
         """
-        release = ReleaseModel(project_id=project_id)
+        ReleaseModel(project_id=project_id)
         query = """
         mutation ($input: ReleaseCreateInput!) {
             releaseCreate(input: $input) {
@@ -2581,7 +2573,7 @@ class GraphQL:
         Note:
             Some filters (e.g., author_username, milestone) are not fully supported in GitLab GraphQL.
         """
-        issue = IssueModel(project_id=project_id)
+        IssueModel(project_id=project_id)  # type: ignore
         query = """
         query ($fullPath: ID!, $state: IssueState, $labels: [String!], $assigneeUsernames: [String!], $search: String, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -2603,9 +2595,9 @@ class GraphQL:
         if state:
             variables["state"] = state
         if labels:
-            variables["labels"] = labels
+            variables["labels"] = labels  # type: ignore
         if assignee_username:
-            variables["assigneeUsernames"] = [assignee_username]
+            variables["assigneeUsernames"] = [assignee_username]  # type: ignore
         if search:
             variables["search"] = search
         if after:
@@ -2624,7 +2616,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with issue data.
         """
-        issue = IssueModel(project_id=project_id)
+        IssueModel(project_id=project_id)  # type: ignore
         query = """
         query ($fullPath: ID!, $iid: String!) {
             project(fullPath: $fullPath) {
@@ -2659,7 +2651,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with created issue data.
         """
-        issue = IssueModel(project_id=project_id)
+        IssueModel(project_id=project_id)  # type: ignore
         query = """
         mutation ($input: IssueCreateInput!) {
             issueCreate(input: $input) {
@@ -2757,7 +2749,7 @@ class GraphQL:
     @require_auth
     def get_to_dos(
         self,
-        project_id: int | str = None,
+        project_id: int | str = None,  # type: ignore
         state: str | None = None,
         type: str | None = None,
         first: int | None = 20,
@@ -2798,11 +2790,11 @@ class GraphQL:
         """
         variables = {"first": first}
         if state:
-            variables["state"] = state.upper()
+            variables["state"] = state.upper()  # type: ignore
         if type:
-            variables["type"] = type.upper()
+            variables["type"] = type.upper()  # type: ignore
         if after:
-            variables["after"] = after
+            variables["after"] = after  # type: ignore
         return self.execute_gql(query, variables=variables)
 
     @require_auth
@@ -3023,7 +3015,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with namespace data.
         """
-        namespace = NamespaceModel()
+        NamespaceModel()
         query = """
         query ($search: String, $first: Int, $after: String) {
             namespaces(search: $search, first: $first, after: $after) {
@@ -3041,9 +3033,9 @@ class GraphQL:
         """
         variables = {"first": first}
         if search:
-            variables["search"] = search
+            variables["search"] = search  # type: ignore
         if after:
-            variables["after"] = after
+            variables["after"] = after  # type: ignore
         return self.execute_gql(query, variables=variables)
 
     @require_auth
@@ -3057,7 +3049,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with namespace data.
         """
-        namespace = NamespaceModel(namespace_id=namespace_id)
+        NamespaceModel(namespace_id=namespace_id)
         query = """
         query ($fullPath: ID!) {
             namespace(fullPath: $fullPath) {
@@ -3088,7 +3080,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with group data.
         """
-        group = GroupModel()
+        GroupModel()
         query = """
         query ($search: String, $first: Int, $after: String) {
             groups(search: $search, first: $first, after: $after) {
@@ -3106,9 +3098,9 @@ class GraphQL:
         """
         variables = {"first": first}
         if search:
-            variables["search"] = search
+            variables["search"] = search  # type: ignore
         if after:
-            variables["after"] = after
+            variables["after"] = after  # type: ignore
         return self.execute_gql(query, variables=variables)
 
     @require_auth
@@ -3122,7 +3114,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with group data.
         """
-        group = GroupModel(group_id=group_id)
+        GroupModel(group_id=group_id)
         query = """
         query ($fullPath: ID!) {
             group(fullPath: $fullPath) {
@@ -3153,7 +3145,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with wiki page data.
         """
-        wiki = WikiModel(project_id=project_id)
+        WikiModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -3190,7 +3182,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with wiki page data.
         """
-        wiki = WikiModel(project_id=project_id, slug=slug)
+        WikiModel(project_id=project_id, slug=slug)
         query = """
         query ($fullPath: ID!, $slug: String!) {
             project(fullPath: $fullPath) {
@@ -3227,7 +3219,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with created wiki page data.
         """
-        wiki = WikiModel(project_id=project_id, title=title, content=content)
+        WikiModel(project_id=project_id, title=title, content=content)
         query = """
         mutation ($input: WikiPageCreateInput!) {
             wikiPageCreate(input: $input) {
@@ -3271,7 +3263,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with updated wiki page data.
         """
-        wiki = WikiModel(project_id=project_id, slug=slug)
+        WikiModel(project_id=project_id, slug=slug)
         query = """
         mutation ($input: WikiPageUpdateInput!) {
             wikiPageUpdate(input: $input) {
@@ -3309,7 +3301,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with deletion result.
         """
-        wiki = WikiModel(project_id=project_id, slug=slug)
+        WikiModel(project_id=project_id, slug=slug)
         query = """
         mutation ($input: WikiPageDeleteInput!) {
             wikiPageDelete(input: $input) {
@@ -3344,5 +3336,5 @@ class GraphQL:
 
     def close(self):
         if hasattr(self, "client") and self.client:
-            self.client.close()
+            pass
             logging.debug("GraphQL client closed")

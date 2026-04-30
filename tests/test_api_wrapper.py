@@ -2,8 +2,15 @@ import os
 import sys
 
 import pytest
+
+
 def pydantic_to_sqlalchemy(schema):
-    return {"data": [item.model_dump() for item in schema.data] if hasattr(schema, "data") and isinstance(schema.data, list) else []}
+    return {
+        "data": [item.model_dump() for item in schema.data]
+        if hasattr(schema, "data") and isinstance(schema.data, list)
+        else []
+    }
+
 
 reason = "Unit tests using mocks"
 
@@ -21,9 +28,11 @@ reason = "do not run on MacOS or windows OR dependency is not installed OR " + r
 
 gitlab_url = "http://gitlab.arpa/api/v4"
 token = os.environ.get("GITLAB_TOKEN", default="NA")
+
+
 @pytest.fixture
 def client():
-    return gitlab_api.Api(url=gitlab_url, token=token, verify=False)
+    return gitlab_api.Api(url=gitlab_url, token=token, verify=False) # type: ignore[attr-defined]
 
 
 @pytest.mark.skipif(
@@ -102,9 +111,9 @@ def test_edit_group(client):
 )
 def test_edit_project(client):
     group_id = 6
-    group = client.edit_group(group_id=group_id, visibility="internal")
+    client.edit_group(group_id=group_id, visibility="internal")
     group_id = 179
-    group = client.edit_group(group_id=group_id, visibility="internal")
+    client.edit_group(group_id=group_id, visibility="internal")
     project_id = 55
     project = client.edit_project(project_id=project_id, visibility="internal")
     assert project.data.visibility == "internal"

@@ -1,11 +1,12 @@
 import pytest
 
 pytestmark = pytest.mark.integration
-import requests
 import json
-import time
 import logging
 import subprocess
+import time
+
+import requests
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -118,9 +119,9 @@ def test_graphiti_ingestion():
         "Validating Graphiti Ingestion",
     )
     text = get_assistant_text(result)
-    assert (
-        text is not None
-    ), f"No response text from assistant. Result: {json.dumps(result, indent=2)}"
+    assert text is not None, (
+        f"No response text from assistant. Result: {json.dumps(result, indent=2)}"
+    )
     logger.info(f"Graphiti Ingestion Result: {text}")
 
 
@@ -130,9 +131,9 @@ def test_branch_creation_flow():
         "Validating Create Branch (Delegation)",
     )
     text_create = get_assistant_text(result_create)
-    assert (
-        text_create is not None
-    ), f"No response text from assistant. Result: {json.dumps(result_create, indent=2)}"
+    assert text_create is not None, (
+        f"No response text from assistant. Result: {json.dumps(result_create, indent=2)}"
+    )
     logger.info(f"Create Branch Result: {text_create}")
 
     result_verify = run_query_and_wait(
@@ -140,9 +141,9 @@ def test_branch_creation_flow():
         "Verifying Branch Creation",
     )
     text_verify = get_assistant_text(result_verify)
-    assert (
-        text_verify is not None
-    ), f"No response text from assistant. Result: {json.dumps(result_verify, indent=2)}"
+    assert text_verify is not None, (
+        f"No response text from assistant. Result: {json.dumps(result_verify, indent=2)}"
+    )
     logger.info(f"Verify Branch Result: {text_verify}")
 
 
@@ -152,9 +153,9 @@ def test_pipeline_flow():
         "Validating Run Pipeline",
     )
     text_run = get_assistant_text(result_run)
-    assert (
-        text_run is not None
-    ), f"No response text from assistant. Result: {json.dumps(result_run, indent=2)}"
+    assert text_run is not None, (
+        f"No response text from assistant. Result: {json.dumps(result_run, indent=2)}"
+    )
     logger.info(f"Run Pipeline Result: {text_run}")
 
     result_verify = run_query_and_wait(
@@ -162,9 +163,9 @@ def test_pipeline_flow():
         "Verifying Pipeline Execution",
     )
     text_verify = get_assistant_text(result_verify)
-    assert (
-        text_verify is not None
-    ), f"No response text from assistant. Result: {json.dumps(result_verify, indent=2)}"
+    assert text_verify is not None, (
+        f"No response text from assistant. Result: {json.dumps(result_verify, indent=2)}"
+    )
     logger.info(f"Verify Pipeline Result: {text_verify}")
 
 
@@ -173,9 +174,9 @@ def test_list_projects():
         "List all projects available.", "Validating Get Projects"
     )
     text = get_assistant_text(result)
-    assert (
-        text is not None
-    ), f"No response text from assistant. Result: {json.dumps(result, indent=2)}"
+    assert text is not None, (
+        f"No response text from assistant. Result: {json.dumps(result, indent=2)}"
+    )
     logger.info(f"List Projects Result: {text}")
 
 
