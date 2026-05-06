@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.18.0*
+*Version: 25.19.0*
 
 ## Overview
 
@@ -899,3 +899,108 @@ npx @modelcontextprotocol/inspector gitlab-mcp
 
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
+
+
+## MCP Configuration Examples
+
+### 1. Standard IO (stdio) Deployment
+
+```json
+{
+  "mcpServers": {
+    "gitlab-api": {
+      "command": "uv",
+      "args": [
+        "run",
+        "gitlab-mcp"
+      ],
+      "env": {
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "BRANCHESTOOL": "True",
+        "COMMITSTOOL": "True",
+        "CUSTOM_APITOOL": "True",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "DEPLOY_TOKENSTOOL": "True",
+        "ENVIRONMENTSTOOL": "True",
+        "GITLAB_SSL_VERIFY": "<YOUR_GITLAB_SSL_VERIFY>",
+        "GITLAB_TOKEN": "<YOUR_GITLAB_TOKEN>",
+        "GITLAB_URL": "<YOUR_GITLAB_URL>",
+        "GITLAB_VERIFY": "<YOUR_GITLAB_VERIFY>",
+        "GROUPSTOOL": "True",
+        "JOBSTOOL": "True",
+        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
+        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
+        "MCP_URL": "<YOUR_MCP_URL>",
+        "MEMBERSTOOL": "True",
+        "MERGE_REQUESTSTOOL": "True",
+        "MERGE_RULESTOOL": "True",
+        "MISCTOOL": "True",
+        "MODEL_ID": "<YOUR_MODEL_ID>",
+        "PACKAGESTOOL": "True",
+        "PIPELINESTOOL": "True",
+        "PIPELINE_SCHEDULESTOOL": "True",
+        "PROJECTSTOOL": "True",
+        "PROTECTED_BRANCHESTOOL": "True",
+        "RELEASESTOOL": "True",
+        "RUNNERSTOOL": "True",
+        "TAGSTOOL": "True"
+      }
+    }
+  }
+}
+```
+
+### 2. Streamable HTTP (SSE) Deployment
+
+```json
+{
+  "mcpServers": {
+    "gitlab-api": {
+      "command": "uv",
+      "args": [
+        "run",
+        "gitlab-mcp",
+        "--transport",
+        "http",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000"
+      ],
+      "env": {
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "BRANCHESTOOL": "True",
+        "COMMITSTOOL": "True",
+        "CUSTOM_APITOOL": "True",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "DEPLOY_TOKENSTOOL": "True",
+        "ENVIRONMENTSTOOL": "True",
+        "GITLAB_SSL_VERIFY": "<YOUR_GITLAB_SSL_VERIFY>",
+        "GITLAB_TOKEN": "<YOUR_GITLAB_TOKEN>",
+        "GITLAB_URL": "<YOUR_GITLAB_URL>",
+        "GITLAB_VERIFY": "<YOUR_GITLAB_VERIFY>",
+        "GROUPSTOOL": "True",
+        "JOBSTOOL": "True",
+        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
+        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
+        "MCP_URL": "<YOUR_MCP_URL>",
+        "MEMBERSTOOL": "True",
+        "MERGE_REQUESTSTOOL": "True",
+        "MERGE_RULESTOOL": "True",
+        "MISCTOOL": "True",
+        "MODEL_ID": "<YOUR_MODEL_ID>",
+        "PACKAGESTOOL": "True",
+        "PIPELINESTOOL": "True",
+        "PIPELINE_SCHEDULESTOOL": "True",
+        "PROJECTSTOOL": "True",
+        "PROTECTED_BRANCHESTOOL": "True",
+        "RELEASESTOOL": "True",
+        "RUNNERSTOOL": "True",
+        "TAGSTOOL": "True"
+      }
+    }
+  }
+}
+```

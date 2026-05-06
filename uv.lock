@@ -794,7 +794,7 @@ wheels = [
 
 [[package]]
 name = "gitlab-api"
-version = "25.17.0"
+version = "25.18.0"
 source = { editable = "." }
 dependencies = [
     { name = "agent-utilities" },
