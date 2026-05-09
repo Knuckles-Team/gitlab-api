@@ -38,7 +38,7 @@ from starlette.responses import JSONResponse
 from gitlab_api.auth import get_client
 from gitlab_api.gitlab_response_models import Response
 
-__version__ = "25.21.0"
+__version__ = "25.22.0"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
@@ -5924,7 +5924,7 @@ def register_releases_tools(mcp: FastMCP):
         return response
 
 
-async def register_runners_tools(mcp: FastMCP):
+def register_runners_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )

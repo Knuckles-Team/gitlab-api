@@ -1,2 +1,1 @@
-agent-utilities[agent,mcp,logfire]>=0.2.31
-gql>=4.0.0
+agent-utilities>=0.6.2
