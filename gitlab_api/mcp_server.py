@@ -25,7 +25,6 @@ from agent_utilities.mcp_utilities import (
     config,
     create_mcp_server,
     ctx_confirm_destructive,
-    ctx_log,
     ctx_progress,
 )
 from dotenv import find_dotenv, load_dotenv
@@ -54,7 +53,7 @@ def register_misc_tools(mcp: FastMCP):
     pass
     pass
 
-    def health_check(_request: Request) -> JSONResponse:
+    def health_check(request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
 
@@ -62,5035 +61,107 @@ def register_branches_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
     )
-    def get_branches(
+    async def gitlab_branches(
+        action: str = Field(description="Action: 'get', 'create', 'delete'"),
         gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        search: str | None = Field(
-            description="Filter branches by name containing this term", default=None
-        ),
-        _regex: str | None = Field(
-            description="Filter branches by regex pattern on name", default=None
-        ),
-        branch: str | None = Field(description="Branch name", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Get branches in a GitLab project, optionally filtered."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify"]
-        }
-        if branch:
-            response = client.get_branch(**kwargs)
-            return response
-        else:
-            response = client.get_branches(**kwargs)
-            return {"branches": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
-    )
-    async def create_branch(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        branch: str | None = Field(description="New branch name", default=None),
-        ref: str | None = Field(
-            description="Reference to create from (branch/tag/commit SHA)", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Create a new branch in a GitLab project from a reference."""
-        if not project_id or not branch or not ref:
-            raise ValueError("project_id, branch, and ref are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify"]
-        }
-        response = client.create_branch(**kwargs)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"branches"}
-    )
-    async def delete_branch(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        branch: str | None = Field(description="Branch name to delete", default=None),
-        delete_merged_branches: bool | None = Field(
-            description="Delete all merged branches (excluding protected)",
-            default=False,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a branch or all merged branches in a GitLab project.
-
-        - If delete_merged_branches=True, deletes all merged branches (excluding protected).
-        - Otherwise, deletes the specified branch.
-        """
-        if not await ctx_confirm_destructive(ctx, "delete branch"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not delete_merged_branches and not branch:
-            raise ValueError("branch is required when delete_merged_branches=False")
-        if ctx:
-            await ctx.info(
-                f"Deleting {'merged branches' if delete_merged_branches else f'branch {branch}'} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        if delete_merged_branches:
-            response = client.delete_merged_branches(**kwargs)
-        else:
-            response = client.delete_branch(**kwargs)
-        if ctx:
-            await ctx.info("Deletion complete")
-        return response
-
-
-def register_commits_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    def get_commits(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(description="Commit SHA", default=None),
-        ref_name: str | None = Field(
-            description="Branch, tag, or commit SHA to filter commits", default=None
-        ),
-        since: str | None = Field(
-            description="Only commits after this date (ISO 8601 format)", default=None
-        ),
-        until: str | None = Field(
-            description="Only commits before this date (ISO 8601 format)", default=None
-        ),
-        path: str | None = Field(
-            description="Only commits that include this file path", default=None
-        ),
-        all: bool | None = Field(
-            description="Include all commits across all branches", default=False
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Get commits in a GitLab project, optionally filtered."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify"]
-        }
-        if commit_hash:
-            response = client.get_commit(**kwargs)
-            return response
-        else:
-            response = client.get_commits(**kwargs)
-            return {"commits": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    def create_commit(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        branch: str | None = Field(
-            description="Branch name for the commit", default=None
-        ),
-        commit_message: str | None = Field(description="Commit message", default=None),
-        actions: list[dict[str, str]] = Field(
-            description="List of actions (create/update/delete files)",
-            default=None,  # type: ignore
-        ),
-        author_email: str | None = Field(
-            description="Author email for the commit", default=None
-        ),
-        author_name: str | None = Field(
-            description="Author name for the commit", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Create a new commit in a GitLab project."""
-        if not project_id or not branch or not commit_message or not actions:
-            raise ValueError(
-                "project_id, branch, commit_message, and actions are required"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify"]
-        }
-        response = client.create_commit(**kwargs)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    async def get_commit_diff(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(description="Commit SHA", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Get the diff of a specific commit in a GitLab project."""
-        if not project_id or not commit_hash:
-            raise ValueError("project_id and commit_hash are required")
-        if ctx:
-            await ctx.info(
-                f"Fetching diff for commit {commit_hash} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.get_commit_diff(**kwargs)
-        if ctx:
-            await ctx.info("Diff retrieval complete")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    def revert_commit(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(
-            description="Commit SHA to revert", default=None
-        ),
-        branch: str | None = Field(
-            description="Target branch to apply the revert", default=None
-        ),
-        dry_run: bool | None = Field(
-            description="Simulate the revert without applying", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Revert a commit in a target branch in a GitLab project.
-
-        - If dry_run=True, simulates the revert without applying changes.
-        - Returns the revert commit details or simulation result.
-        """
-        if not project_id or not commit_hash or not branch:
-            raise ValueError("project_id, commit_hash, and branch are required")
-
-        if not dry_run and ctx:
-            message = f"Are you sure you want to REVERT commit {commit_hash} in branch {branch} of project {project_id}?"
-            result = ctx.elicit(message, response_type=bool)  # type: ignore
-            if result.action != "accept" or not result.data:  # type: ignore
-                return "Operation cancelled by user."  # type: ignore
-
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "commit_hash",
-                "ctx",
-            ]
-        }
-        response = client.revert_commit(
-            project_id=project_id, commit_hash=commit_hash, **kwargs
-        )
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    async def get_commit_comments(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(description="Commit SHA", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Retrieve comments on a specific commit in a GitLab project."""
-        if not project_id or not commit_hash:
-            raise ValueError("project_id and commit_hash are required")
-        if ctx:
-            await ctx.info(
-                f"Fetching comments for commit {commit_hash} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.get_commit_comments(**kwargs)
-        if ctx:
-            await ctx.info("Comments retrieval complete")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    async def create_commit_comment(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(description="Commit SHA", default=None),
-        note: str | None = Field(description="Content of the comment", default=None),
-        path: str | None = Field(
-            description="File path to associate with the comment", default=None
-        ),
-        line: int | None = Field(
-            description="Line number in the file for the comment", default=None
-        ),
-        line_type: str | None = Field(
-            description="Type of line ('new' or 'old')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create a new comment on a specific commit in a GitLab project."""
-        if not project_id or not commit_hash or not note:
-            raise ValueError("project_id, commit_hash, and note are required")
-        if ctx:
-            await ctx.info(
-                f"Creating comment on commit {commit_hash} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.create_commit_comment(
-            project_id=project_id, commit_hash=commit_hash, **kwargs
-        )
-        if ctx:
-            await ctx.info("Comment creation complete")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    async def get_commit_discussions(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(description="Commit SHA", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Retrieve discussions (threaded comments) on a specific commit in a GitLab project."""
-        if not project_id or not commit_hash:
-            raise ValueError("project_id and commit_hash are required")
-        if ctx:
-            await ctx.info(
-                f"Fetching discussions for commit {commit_hash} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.get_commit_discussions(**kwargs)
-        if ctx:
-            await ctx.info("Discussions retrieval complete")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    async def get_commit_statuses(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(description="Commit SHA", default=None),
-        ref: str | None = Field(
-            description="Filter statuses by reference (branch or tag)", default=None
-        ),
-        _stage: str | None = Field(
-            description="Filter statuses by CI stage", default=None
-        ),
-        name: str | None = Field(
-            description="Filter statuses by job name", default=None
-        ),
-        _coverage: bool | None = Field(
-            description="Include coverage information", default=None
-        ),
-        all: bool | None = Field(description="Include all statuses", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Retrieve build/CI statuses for a specific commit in a GitLab project."""
-        if not project_id or not commit_hash:
-            raise ValueError("project_id and commit_hash are required")
-        if ctx:
-            await ctx.info(
-                f"Fetching statuses for commit {commit_hash} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.get_commit_statuses(
-            project_id=project_id, commit_hash=commit_hash, **kwargs
-        )
-        if ctx:
-            await ctx.info("Statuses retrieval complete")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    async def post_build_status_to_commit(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(description="Commit SHA", default=None),
-        state: str | None = Field(
-            description="State of the build (e.g., 'pending', 'running', 'success', 'failed')",
-            default=None,
-        ),
-        _target_url: str | None = Field(
-            description="URL to link to the build", default=None
-        ),
-        _context: str | None = Field(
-            description="Context of the status (e.g., 'ci/build')", default=None
-        ),
-        description: str | None = Field(
-            description="Description of the status", default=None
-        ),
-        _coverage: float | None = Field(
-            description="Coverage percentage", default=None
-        ),
-        pipeline_id: int | None = Field(
-            description="ID of the associated pipeline", default=None
-        ),
-        ref: str | None = Field(
-            description="Reference (branch or tag) for the status", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Post a build/CI status to a specific commit in a GitLab project."""
-        if not project_id or not commit_hash or not state:
-            raise ValueError("project_id, commit_hash, and state are required")
-        if ctx:
-            await ctx.info(
-                f"Posting build status for commit {commit_hash} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.post_build_status_to_commit(
-            project_id=project_id, commit_hash=commit_hash, **kwargs
-        )
-        if ctx:
-            await ctx.info("Build status posted successfully")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    async def get_commit_merge_requests(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(description="Commit SHA", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Retrieve merge requests associated with a specific commit in a GitLab project."""
-        if not project_id or not commit_hash:
-            raise ValueError("project_id and commit_hash are required")
-        if ctx:
-            await ctx.info(
-                f"Fetching merge requests for commit {commit_hash} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.get_commit_merge_requests(**kwargs)
-        if ctx:
-            await ctx.info("Merge requests retrieval complete")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
-    )
-    async def get_commit_gpg_signature(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        commit_hash: str | None = Field(description="Commit SHA", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Retrieve the GPG signature for a specific commit in a GitLab project."""
-        if not project_id or not commit_hash:
-            raise ValueError("project_id and commit_hash are required")
-        if ctx:
-            await ctx.info(
-                f"Fetching GPG signature for commit {commit_hash} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.get_commit_gpg_signature(**kwargs)
-        if ctx:
-            await ctx.info("GPG signature retrieval complete")
-        return response
-
-
-def register_deploy_tokens_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"deploy_tokens"},
-    )
-    def get_deploy_tokens(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of all deploy tokens for the GitLab instance."""
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_deploy_tokens()
-        return {"deploy_tokens": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"deploy_tokens"},
-    )
-    def get_project_deploy_tokens(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        token_id: int | None = Field(description="Deploy token ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of deploy tokens for a specific GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        if token_id:
-            response = client.get_project_deploy_token(
-                project_id=project_id, token=token_id
-            )
-            return response
-        else:
-            response = client.get_project_deploy_tokens(project_id=project_id)
-            return {"deploy_tokens": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"deploy_tokens"},
-    )
-    async def create_project_deploy_token(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(description="Name of the deploy token", default=None),
-        scopes: list[str] = Field(
-            description="Scopes for the deploy token (e.g., ['read_repository'])",
-            default=None,  # type: ignore
-        ),
-        expires_at: str | None = Field(
-            description="Expiration date (ISO 8601 format)", default=None
-        ),
-        username: str | None = Field(
-            description="Username associated with the token", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create a deploy token for a GitLab project with specified name and scopes."""
-        if not project_id or not name or not scopes:
-            raise ValueError("project_id, name, and scopes are required")
-        if ctx:
-            await ctx.info(f"Creating deploy token '{name}' for project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.create_project_deploy_token(**kwargs)
-        if ctx:
-            await ctx.info("Deploy token created")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"deploy_tokens"},
-    )
-    async def delete_project_deploy_token(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        token_id: int | None = Field(description="Deploy token ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a specific deploy token for a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "delete project deploy token"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not token_id:
-            raise ValueError("project_id and token_id are required")
-        if ctx:
-            await ctx.info(f"Deleting deploy token {token_id} for project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_project_deploy_token(
-            project_id=project_id, token=token_id
-        )
-        if ctx:
-            await ctx.info("Deploy token deleted")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"deploy_tokens"},
-    )
-    def get_group_deploy_tokens(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        token_id: int | None = Field(
-            description="Deploy token ID for single retrieval", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve deploy tokens for a GitLab group (list or single by ID)."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        if token_id:
-            response = client.get_group_deploy_token(group_id=group_id, token=token_id)
-            return response
-        else:
-            response = client.get_group_deploy_tokens(group_id=group_id)
-            return {"deploy_tokens": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"deploy_tokens"},
-    )
-    async def create_group_deploy_token(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        name: str | None = Field(description="Name of the deploy token", default=None),
-        scopes: list[str] = Field(
-            description="Scopes for the deploy token (e.g., ['read_repository'])",
-            default=None,  # type: ignore
-        ),
-        expires_at: str | None = Field(
-            description="Expiration date (ISO 8601 format)", default=None
-        ),
-        username: str | None = Field(
-            description="Username associated with the token", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create a deploy token for a GitLab group with specified name and scopes."""
-        if not group_id or not name or not scopes:
-            raise ValueError("group_id, name, and scopes are required")
-        if ctx:
-            await ctx.info(f"Creating deploy token '{name}' for group {group_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.create_group_deploy_token(**kwargs)
-        if ctx:
-            await ctx.info("Deploy token created")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"deploy_tokens"},
-    )
-    async def delete_group_deploy_token(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        token_id: int | None = Field(description="Deploy token ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a specific deploy token for a GitLab group."""
-        if not await ctx_confirm_destructive(ctx, "delete group deploy token"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not group_id or not token_id:
-            raise ValueError("group_id and token_id are required")
-        if ctx:
-            await ctx.info(f"Deleting deploy token {token_id} for group {group_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_group_deploy_token(group_id=group_id, token=token_id)
-        if ctx:
-            await ctx.info("Deploy token deleted")
-        return response
-
-
-def register_environments_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    def get_environments(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        environment_id: int | None = Field(description="Environment ID", default=None),
-        name: str | None = Field(
-            description="Filter environments by exact name", default=None
-        ),
-        search: str | None = Field(
-            description="Filter environments by search term in name", default=None
-        ),
-        states: str | None = Field(
-            description="Filter environments by state (e.g., 'available', 'stopped')",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of environments for a GitLab project, optionally filtered by name, search, or states or a single environment by id."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify"]
-        }
-        if environment_id:
-            response = client.get_environment(
-                project_id=project_id, environment_id=environment_id
-            )
-            return response
-        else:
-            response = client.get_environments(**kwargs)
-            return {"environments": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    async def create_environment(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(description="Name of the environment", default=None),
-        external_url: str | None = Field(
-            description="External URL for the environment", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create a new environment in a GitLab project with a specified name and optional external URL."""
-        if not project_id or not name:
-            raise ValueError("project_id and name are required")
-        if ctx:
-            await ctx.info(f"Creating environment '{name}' for project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.create_environment(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Environment created")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    async def update_environment(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        environment_id: int | None = Field(description="Environment ID", default=None),
-        name: str | None = Field(
-            description="New name for the environment", default=None
-        ),
-        external_url: str | None = Field(
-            description="New external URL for the environment", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Update an existing environment in a GitLab project with new name or external URL."""
-        if not project_id or not environment_id:
-            raise ValueError("project_id and environment_id are required")
-        if not name and not external_url:
-            raise ValueError("At least one of name or external_url must be provided")
-        if ctx:
-            await ctx.info(
-                f"Updating environment {environment_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-                "environment_id",
-            ]
-        }
-        response = client.update_environment(
-            project_id=project_id, environment_id=environment_id, **kwargs
-        )
-        if ctx:
-            await ctx.info("Environment updated")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    async def delete_environment(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        environment_id: int | None = Field(description="Environment ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a specific environment in a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "delete environment"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not environment_id:
-            raise ValueError("project_id and environment_id are required")
-        if ctx:
-            await ctx.info(
-                f"Deleting environment {environment_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_environment(
-            project_id=project_id, environment_id=environment_id
-        )
-        if ctx:
-            await ctx.info("Environment deleted")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    async def stop_environment(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        environment_id: int | None = Field(description="Environment ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Stop a specific environment in a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "stop environment"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not environment_id:
-            raise ValueError("project_id and environment_id are required")
-        if ctx:
-            await ctx.info(
-                f"Stopping environment {environment_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.stop_environment(
-            project_id=project_id, environment_id=environment_id
-        )
-        if ctx:
-            await ctx.info("Environment stopped")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    async def stop_stale_environments(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        _older_than: str | None = Field(
-            description="Filter environments older than this timestamp (ISO 8601 format)",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Stop stale environments in a GitLab project, optionally filtered by older_than timestamp."""
-        if not await ctx_confirm_destructive(ctx, "stop stale environments"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id:
-            raise ValueError("project_id is required")
-        if ctx:
-            await ctx.info(f"Stopping stale environments in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.stop_stale_environments(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Stale environments stopped")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    async def delete_stopped_environments(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete stopped review app environments in a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "delete stopped environments"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id:
-            raise ValueError("project_id is required")
-        if ctx:
-            await ctx.info(f"Deleting stopped review apps in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_stopped_environments(project_id=project_id)
-        if ctx:
-            await ctx.info("Stopped review apps deleted")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    def get_protected_environments(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(
-            description="Name of the protected environment", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve protected environments in a GitLab project (list or single by name)."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        if name:
-            response = client.get_protected_environment(
-                project_id=project_id, name=name
-            )
-            return response
-        else:
-            response = client.get_protected_environments(project_id=project_id)
-            return {"protected_environments": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    async def protect_environment(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(
-            description="Name of the environment to protect", default=None
-        ),
-        required_approval_count: int | None = Field(
-            description="Number of approvals required for deployment", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Protect an environment in a GitLab project with optional approval count."""
-        if not project_id or not name:
-            raise ValueError("project_id and name are required")
-        if ctx:
-            await ctx.info(f"Protecting environment '{name}' in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.protect_environment(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Environment protected")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    async def update_protected_environment(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(
-            description="Name of the protected environment", default=None
-        ),
-        required_approval_count: int | None = Field(
-            description="New number of approvals required for deployment", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Update a protected environment in a GitLab project with new approval count."""
-        if not project_id or not name:
-            raise ValueError("project_id and name are required")
-        if not required_approval_count:
-            raise ValueError("required_approval_count must be provided")
-        if ctx:
-            await ctx.info(
-                f"Updating protected environment '{name}' in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.update_protected_environment(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Protected environment updated")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"environments"},
-    )
-    async def unprotect_environment(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(
-            description="Name of the environment to unprotect", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Unprotect a specific environment in a GitLab project."""
-        if not project_id or not name:
-            raise ValueError("project_id and name are required")
-        if ctx:
-            await ctx.info(f"Unprotecting environment '{name}' in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.unprotect_environment(project_id=project_id, name=name)
-        if ctx:
-            await ctx.info("Environment unprotected")
-        return response
-
-
-def register_groups_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
-    )
-    def get_groups(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str | None = Field(
-            description="Group ID or path", default=None
-        ),
-        search: str | None = Field(
-            description="Filter groups by search term in name or path", default=None
-        ),
-        sort: str | None = Field(
-            description="Sort order (e.g., 'asc', 'desc')", default=None
-        ),
-        order_by: str | None = Field(
-            description="Field to sort by (e.g., 'name', 'path')", default=None
-        ),
-        owned: bool | None = Field(
-            description="Filter groups owned by the authenticated user", default=None
-        ),
-        min_access_level: int | None = Field(
-            description="Filter groups by minimum access level (e.g., 10 for Guest)",
-            default=None,
-        ),
-        top_level_only: bool | None = Field(
-            description="Include only top-level groups (exclude subgroups)",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of groups, optionally filtered by search, sort, ownership, or access level or retrieve a single group by id."""
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
-        }
-        if group_id:
-            response = client.get_group(group_id=group_id, **kwargs)
-            return response
-        else:
-            response = client.get_groups(**kwargs)
-            return {"groups": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
-    )
-    async def edit_group(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        name: str | None = Field(description="New name for the group", default=None),
-        path: str | None = Field(description="New path for the group", default=None),
-        description: str | None = Field(
-            description="New description for the group", default=None
-        ),
-        visibility: str | None = Field(
-            description="New visibility level (e.g., 'public', 'private')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Edit a specific GitLab group's details (name, path, description, or visibility)."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not any([name, path, description, visibility]):
-            raise ValueError(
-                "At least one of name, path, description, or visibility must be provided"
-            )
-        if ctx:
-            await ctx.info(f"Editing group {group_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "group_id",
-            ]
-        }
-        response = client.edit_group(group_id=group_id, **kwargs)
-        if ctx:
-            await ctx.info("Group edited")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
-    )
-    def get_group_subgroups(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        search: str | None = Field(
-            description="Filter subgroups by search term in name or path", default=None
-        ),
-        sort: str | None = Field(
-            description="Sort order (e.g., 'asc', 'desc')", default=None
-        ),
-        order_by: str | None = Field(
-            description="Field to sort by (e.g., 'name', 'path')", default=None
-        ),
-        owned: bool | None = Field(
-            description="Filter subgroups owned by the authenticated user", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of subgroups for a specific GitLab group, optionally filtered."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
-        }
-        response = client.get_group_subgroups(group_id=group_id, **kwargs)
-        return {"subgroups": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
-    )
-    def get_group_descendant_groups(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        search: str | None = Field(
-            description="Filter descendant groups by search term in name or path",
-            default=None,
-        ),
-        sort: str | None = Field(
-            description="Sort order (e.g., 'asc', 'desc')", default=None
-        ),
-        order_by: str | None = Field(
-            description="Field to sort by (e.g., 'name', 'path')", default=None
-        ),
-        owned: bool | None = Field(
-            description="Filter descendant groups owned by the authenticated user",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of all descendant groups for a specific GitLab group, optionally filtered."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
-        }
-        response = client.get_group_descendant_groups(group_id=group_id, **kwargs)
-        return {"descendant_groups": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
-    )
-    def get_group_projects(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        _include_subgroups: bool | None = Field(
-            description="Include projects from subgroups", default=None
-        ),
-        search: str | None = Field(
-            description="Filter projects by search term in name or path", default=None
-        ),
-        sort: str | None = Field(
-            description="Sort order (e.g., 'asc', 'desc')", default=None
-        ),
-        order_by: str | None = Field(
-            description="Field to sort by (e.g., 'name', 'path')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of projects associated with a specific GitLab group, optionally including subgroups."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
-        }
-        response = client.get_group_projects(group_id=group_id, **kwargs)
-        return {"projects": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
-    )
-    def get_group_merge_requests(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        state: str | None = Field(
-            description="Filter merge requests by state (e.g., 'opened', 'closed')",
-            default=None,
-        ),
-        scope: str | None = Field(
-            description="Filter merge requests by scope (e.g., 'created_by_me')",
-            default=None,
-        ),
-        milestone: str | None = Field(
-            description="Filter merge requests by milestone title", default=None
-        ),
-        search: str | None = Field(
-            description="Filter merge requests by search term in title or description",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of merge requests associated with a specific GitLab group, optionally filtered."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
-        }
-        response = client.get_group_merge_requests(group_id=group_id, **kwargs)
-        return {"merge_requests": response.data}  # type: ignore
-
-
-def register_jobs_tools(mcp: FastMCP):
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    def get_project_jobs(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        job_id: int | None = Field(description="Job ID", default=None),
-        scope: str | None = Field(
-            description="Filter jobs by scope (e.g., 'success', 'failed')", default=None
-        ),
-        _include_retried: bool | None = Field(
-            description="Include retried jobs", default=None
-        ),
-        _include_invisible: bool | None = Field(
-            description="Include invisible jobs (e.g., from hidden pipelines)",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of jobs for a specific GitLab project, optionally filtered by scope or a single job by id."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify"]
-        }
-        if job_id:
-            response = client.get_project_job(project_id=project_id, job_id=job_id)
-            return response
-        else:
-            response = client.get_project_jobs(**kwargs)
-            return {"jobs": response.data}  # type: ignore
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def get_project_job_log(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        job_id: int | None = Field(description="Job ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve the log (trace) of a specific job in a GitLab project."""
-        if not project_id or not job_id:
-            raise ValueError("project_id and job_id are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_project_job_log(project_id=project_id, job_id=job_id)
-        return response
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def cancel_project_job(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        job_id: int | None = Field(description="Job ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Cancel a specific job in a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "cancel project job"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not job_id:
-            raise ValueError("project_id and job_id are required")
-        if ctx:
-            await ctx.info(f"Cancelling job {job_id} in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.cancel_project_job(project_id=project_id, job_id=job_id)
-        if ctx:
-            await ctx.info("Job cancelled")
-        return response
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def retry_project_job(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        job_id: int | None = Field(description="Job ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Retry a specific job in a GitLab project."""
-        if not project_id or not job_id:
-            raise ValueError("project_id and job_id are required")
-        if ctx:
-            await ctx.info(f"Retrying job {job_id} in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.retry_project_job(project_id=project_id, job_id=job_id)
-        if ctx:
-            await ctx.info("Job retried")
-        return response
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def erase_project_job(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        job_id: int | None = Field(description="Job ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Erase (delete artifacts and logs of) a specific job in a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "erase project job"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not job_id:
-            raise ValueError("project_id and job_id are required")
-        if ctx:
-            await ctx.info(f"Erasing job {job_id} in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.erase_project_job(project_id=project_id, job_id=job_id)
-        if ctx:
-            await ctx.info("Job erased")
-        return response
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    async def run_project_job(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        job_id: int | None = Field(description="Job ID", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Run (play) a specific manual job in a GitLab project."""
-        if not project_id or not job_id:
-            raise ValueError("project_id and job_id are required")
-        if ctx:
-            await ctx.info(f"Running job {job_id} in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.run_project_job(project_id=project_id, job_id=job_id)
-        if ctx:
-            await ctx.info("Job started")
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
-    def get_pipeline_jobs(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_id: int | None = Field(description="Pipeline ID", default=None),
-        scope: str | None = Field(
-            description="Filter jobs by scope (e.g., 'success', 'failed')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of jobs for a specific pipeline in a GitLab project, optionally filtered by scope."""
-        if not project_id or not pipeline_id:
-            raise ValueError("project_id and pipeline_id are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "project_id",
-                "pipeline_id",
-            ]
-        }
-        response = client.get_pipeline_jobs(
-            project_id=project_id, pipeline_id=pipeline_id, **kwargs
-        )
-        return {"jobs": response.data}  # type: ignore
-
-
-def register_members_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
-    )
-    def get_group_members(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        query: str | None = Field(
-            description="Filter members by search term in name or username",
-            default=None,
-        ),
-        user_ids: list[int] | None = Field(
-            description="Filter members by user IDs", default=None
-        ),
-        _skip_users: list[int] | None = Field(
-            description="Exclude specified user IDs", default=None
-        ),
-        _show_seat_info: bool | None = Field(
-            description="Include seat information for members", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of members in a specific GitLab group, optionally filtered by query or user IDs."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
-        }
-        response = client.get_group_members(group_id=group_id, **kwargs)
-        return {"members": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
-    )
-    def get_project_members(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        query: str | None = Field(
-            description="Filter members by search term in name or username",
-            default=None,
-        ),
-        user_ids: list[int] | None = Field(
-            description="Filter members by user IDs", default=None
-        ),
-        _skip_users: list[int] | None = Field(
-            description="Exclude specified user IDs", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of members in a specific GitLab project, optionally filtered by query or user IDs."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
-        }
-        response = client.get_project_members(project_id=project_id, **kwargs)
-        return {"members": response.data}  # type: ignore
-
-
-def register_merge_requests_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"merge-requests"},
-    )
-    async def create_merge_request(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        source_branch: str | None = Field(
-            description="Source branch for the merge request", default=None
-        ),
-        target_branch: str | None = Field(
-            description="Target branch for the merge request", default=None
-        ),
-        title: str | None = Field(
-            description="Title of the merge request", default=None
-        ),
-        description: str | None = Field(
-            description="Description of the merge request", default=None
-        ),
-        assignee_id: int | None = Field(
-            description="ID of the user to assign the merge request to", default=None
-        ),
-        _reviewer_ids: list[int] | None = Field(
-            description="IDs of users to set as reviewers", default=None
-        ),
-        labels: list[str] | None = Field(
-            description="Labels to apply to the merge request", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create a new merge request in a GitLab project with specified source and target branches."""
-        if not project_id or not source_branch or not target_branch or not title:
-            raise ValueError(
-                "project_id, source_branch, target_branch, and title are required"
-            )
-        if ctx:
-            await ctx.info(f"Creating merge request '{title}' in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.create_merge_request(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Merge request created")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"merge-requests"},
-    )
-    def get_merge_requests(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        state: str | None = Field(
-            description="Filter merge requests by state (e.g., 'opened', 'closed')",
-            default=None,
-        ),
-        scope: str | None = Field(
-            description="Filter merge requests by scope (e.g., 'created_by_me')",
-            default=None,
-        ),
-        milestone: str | None = Field(
-            description="Filter merge requests by milestone title", default=None
-        ),
-        view: str | None = Field(
-            description="Filter merge requests by view (e.g., 'simple')", default=None
-        ),
-        labels: list[str] | None = Field(
-            description="Filter merge requests by labels", default=None
-        ),
-        author_id: int | None = Field(
-            description="Filter merge requests by author ID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of merge requests across all projects, optionally filtered by state, scope, or labels."""
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify"]
-        }
-        response = client.get_merge_requests(**kwargs)
-        return {"merge_requests": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"merge-requests"},
-    )
-    def get_project_merge_requests(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        merge_id: int | None = Field(description="Merge request ID", default=None),
-        state: str | None = Field(
-            description="Filter merge requests by state (e.g., 'opened', 'closed')",
-            default=None,
-        ),
-        scope: str | None = Field(
-            description="Filter merge requests by scope (e.g., 'created_by_me')",
-            default=None,
-        ),
-        milestone: str | None = Field(
-            description="Filter merge requests by milestone title", default=None
-        ),
-        labels: list[str] | None = Field(
-            description="Filter merge requests by labels", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of merge requests for a specific GitLab project, optionally filtered or a single merge request or a single merge request by merge id"""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
-        }
-        if merge_id:
-            response = client.get_project_merge_request(
-                project_id=project_id, merge_id=merge_id
-            )
-            return response
-        else:
-            response = client.get_project_merge_requests(
-                project_id=project_id, **kwargs
-            )
-            return {"merge_requests": response.data}  # type: ignore
-
-
-def register_merge_rules_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    def get_project_level_merge_request_approval_rules(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        approval_rule_id: int | None = Field(
-            description="Approval rule ID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve project-level merge request approval rules for a GitLab project details of a specific project-level merge request approval rule."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        if approval_rule_id:
-            response = client.get_project_level_merge_request_rule(
-                project_id=project_id, approval_rule_id=approval_rule_id
-            )
-            return response
-        else:
-            response = client.get_project_level_merge_request_rules(
-                project_id=project_id
-            )
-            return {"approval_rules": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    async def create_project_level_rule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(description="Name of the approval rule", default=None),
-        approvals_required: int | None = Field(
-            description="Number of approvals required", default=None
-        ),
-        _rule_type: str | None = Field(
-            description="Type of rule (e.g., 'regular')", default=None
-        ),
-        user_ids: list[int] | None = Field(
-            description="List of user IDs required to approve", default=None
-        ),
-        group_ids: list[int] | None = Field(
-            description="List of group IDs required to approve", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create a new project-level merge request approval rule."""
-        if not project_id or not name:
-            raise ValueError("project_id and name are required")
-        if ctx:
-            await ctx.info(f"Creating approval rule '{name}' for project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.create_project_level_rule(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Approval rule created")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    async def update_project_level_rule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        approval_rule_id: int | None = Field(
-            description="Approval rule ID", default=None
-        ),
-        name: str | None = Field(
-            description="New name for the approval rule", default=None
-        ),
-        approvals_required: int | None = Field(
-            description="New number of approvals required", default=None
-        ),
-        user_ids: list[int] | None = Field(
-            description="Updated list of user IDs required to approve", default=None
-        ),
-        group_ids: list[int] | None = Field(
-            description="Updated list of group IDs required to approve", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Update an existing project-level merge request approval rule."""
-        if not project_id or not approval_rule_id:
-            raise ValueError("project_id and approval_rule_id are required")
-        if not any([name, approvals_required, user_ids, group_ids]):
-            raise ValueError(
-                "At least one of name, approvals_required, user_ids, or group_ids must be provided"
-            )
-        if ctx:
-            await ctx.info(
-                f"Updating approval rule {approval_rule_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-                "approval_rule_id",
-            ]
-        }
-        response = client.update_project_level_rule(
-            project_id=project_id, approval_rule_id=approval_rule_id, **kwargs
-        )
-        if ctx:
-            await ctx.info("Approval rule updated")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    async def delete_project_level_rule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        approval_rule_id: int | None = Field(
-            description="Approval rule ID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a project-level merge request approval rule."""
-        if not await ctx_confirm_destructive(ctx, "delete project level rule"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not approval_rule_id:
-            raise ValueError("project_id and approval_rule_id are required")
-        if ctx:
-            await ctx.info(
-                f"Deleting approval rule {approval_rule_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_project_level_rule(
-            project_id=project_id, approval_rule_id=approval_rule_id
-        )
-        if ctx:
-            await ctx.info("Approval rule deleted")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    def merge_request_level_approvals(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        merge_request_iid: int | None = Field(
-            description="Merge request IID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve approvals for a specific merge request in a GitLab project."""
-        if not project_id or not merge_request_iid:
-            raise ValueError("project_id and merge_request_iid are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.merge_request_level_approvals(
-            project_id=project_id, merge_request_iid=merge_request_iid
-        )
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    def get_approval_state_merge_requests(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        merge_request_iid: int | None = Field(
-            description="Merge request IID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve the approval state of a specific merge request in a GitLab project."""
-        if not project_id or not merge_request_iid:
-            raise ValueError("project_id and merge_request_iid are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_approval_state_merge_requests(
-            project_id=project_id, merge_request_iid=merge_request_iid
-        )
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    def get_merge_request_level_rules(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        merge_request_iid: int | None = Field(
-            description="Merge request IID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve merge request-level approval rules for a specific merge request in a GitLab project."""
-        if not project_id or not merge_request_iid:
-            raise ValueError("project_id and merge_request_iid are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_merge_request_level_rules(
-            project_id=project_id, merge_request_iid=merge_request_iid
-        )
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    async def approve_merge_request(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        merge_request_iid: int | None = Field(
-            description="Merge request IID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Approve a specific merge request in a GitLab project."""
-        if not project_id or not merge_request_iid:
-            raise ValueError("project_id and merge_request_iid are required")
-        if ctx:
-            await ctx.info(
-                f"Approving merge request {merge_request_iid} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.approve_merge_request(
-            project_id=project_id, merge_request_iid=merge_request_iid
-        )
-        if ctx:
-            await ctx.info("Merge request approved")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    async def unapprove_merge_request(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        merge_request_iid: int | None = Field(
-            description="Merge request IID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Unapprove a specific merge request in a GitLab project."""
-        if not project_id or not merge_request_iid:
-            raise ValueError("project_id and merge_request_iid are required")
-        if ctx:
-            await ctx.info(
-                f"Unapproving merge request {merge_request_iid} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.unapprove_merge_request(
-            project_id=project_id, merge_request_iid=merge_request_iid
-        )
-        if ctx:
-            await ctx.info("Merge request unapproved")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    def get_group_level_rule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve merge request approval settings for a specific GitLab group."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_group_level_rule(group_id=group_id)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    async def edit_group_level_rule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        allow_author_approval: bool | None = Field(
-            description="Whether authors can approve their own merge requests",
-            default=None,
-        ),
-        allow_committer_approval: bool | None = Field(
-            description="Whether committers can approve merge requests", default=None
-        ),
-        allow_overrides_to_approver_list: bool | None = Field(
-            description="Whether overrides to the approver list are allowed",
-            default=None,
-        ),
-        minimum_approvals: int | None = Field(
-            description="Minimum number of approvals required", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Edit merge request approval settings for a specific GitLab group."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not any(
-            [
-                allow_author_approval,
-                allow_committer_approval,
-                allow_overrides_to_approver_list,
-                minimum_approvals,
-            ]
-        ):
-            raise ValueError(
-                "At least one of allow_author_approval, allow_committer_approval, allow_overrides_to_approver_list, or minimum_approvals must be provided"
-            )
-        if ctx:
-            await ctx.info(f"Editing approval settings for group {group_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "group_id",
-            ]
-        }
-        response = client.edit_group_level_rule(group_id=group_id, **kwargs)
-        if ctx:
-            await ctx.info("Approval settings edited")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    def get_project_level_rule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve merge request approval settings for a specific GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_project_level_rule(project_id=project_id)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
-    )
-    async def edit_project_level_rule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        allow_author_approval: bool | None = Field(
-            description="Whether authors can approve their own merge requests",
-            default=None,
-        ),
-        allow_committer_approval: bool | None = Field(
-            description="Whether committers can approve merge requests", default=None
-        ),
-        allow_overrides_to_approver_list: bool | None = Field(
-            description="Whether overrides to the approver list are allowed",
-            default=None,
-        ),
-        minimum_approvals: int | None = Field(
-            description="Minimum number of approvals required", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Edit merge request approval settings for a specific GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not any(
-            [
-                allow_author_approval,
-                allow_committer_approval,
-                allow_overrides_to_approver_list,
-                minimum_approvals,
-            ]
-        ):
-            raise ValueError(
-                "At least one of allow_author_approval, allow_committer_approval, allow_overrides_to_approver_list, or minimum_approvals must be provided"
-            )
-        if ctx:
-            await ctx.info(f"Editing approval settings for project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.edit_project_level_rule(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Approval settings edited")
-        return response
-
-
-def register_packages_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
-    )
-    def get_repository_packages(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        _package_type: str | None = Field(
-            description="Filter packages by type (e.g., 'npm', 'maven')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of repository packages for a specific GitLab project, optionally filtered by package type."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
-        }
-        response = client.get_repository_packages(project_id=project_id, **kwargs)
-        return {"packages": response.data}  # type: ignore
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
-    )
-    async def publish_repository_package(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        package_name: str | None = Field(
-            description="Name of the package", default=None
-        ),
-        package_version: str | None = Field(
-            description="Version of the package", default=None
-        ),
-        file_name: str | None = Field(
-            description="Name of the package file", default=None
-        ),
-        status: str | None = Field(
-            description="Status of the package (e.g., 'default', 'hidden')",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Publish a repository package to a specific GitLab project."""
-        if not project_id or not package_name or not package_version or not file_name:
-            raise ValueError(
-                "project_id, package_name, package_version, and file_name are required"
-            )
-        if ctx:
-            await ctx.info(
-                f"Publishing package {package_name}/{package_version} to project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.publish_repository_package(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Package published")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
-    )
-    async def download_repository_package(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        package_name: str | None = Field(
-            description="Name of the package", default=None
-        ),
-        package_version: str | None = Field(
-            description="Version of the package", default=None
-        ),
-        file_name: str | None = Field(
-            description="Name of the package file to download", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Download a repository package from a specific GitLab project."""
-        if not project_id or not package_name or not package_version or not file_name:
-            raise ValueError(
-                "project_id, package_name, package_version, and file_name are required"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.download_repository_package(
-            project_id=project_id,
-            package_name=package_name,
-            package_version=package_version,
-            file_name=file_name,
-        )
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-
-def register_pipelines_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
-    )
-    async def get_pipelines(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_id: int | None = Field(description="Pipeline ID", default=None),
-        scope: str | None = Field(
-            description="Filter pipelines by scope (e.g., 'running', 'branches')",
-            default=None,
-        ),
-        status: str | None = Field(
-            description="Filter pipelines by status (e.g., 'success', 'failed')",
-            default=None,
-        ),
-        ref: str | None = Field(
-            description="Filter pipelines by reference (e.g., branch or tag name)",
-            default=None,
-        ),
-        _source: str | None = Field(
-            description="Filter pipelines by source (e.g., 'push', 'schedule')",
-            default=None,
-        ),
-        updated_after: str | None = Field(
-            description="Filter pipelines updated after this date (ISO 8601 format)",
-            default=None,
-        ),
-        updated_before: str | None = Field(
-            description="Filter pipelines updated before this date (ISO 8601 format)",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of pipelines for a specific GitLab project, optionally filtered by scope, status, or ref or details of a specific pipeline in a GitLab project.."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
-        }
-        if pipeline_id:
-            response = client.get_pipeline(
-                project_id=project_id, pipeline_id=pipeline_id
-            )
-        else:
-            response = client.get_pipelines(project_id=project_id, **kwargs)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
-    )
-    async def run_pipeline(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        ref: str | None = Field(
-            description="Reference (e.g., branch or tag) to run the pipeline on",
-            default=None,
-        ),
-        variables: dict[str, str] | None = Field(
-            description="Dictionary of pipeline variables", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Run a pipeline for a specific GitLab project with a given reference (e.g., branch or tag)."""
-        if not project_id or not ref:
-            raise ValueError("project_id and ref are required")
-        if ctx:
-            await ctx.info(f"Running pipeline for project {project_id} on ref {ref}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.run_pipeline(
-            project_id=project_id, ref=ref, variables=variables
-        )
-        if ctx:
-            await ctx.info("Pipeline started")
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-
-def register_pipeline_schedules_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    def get_pipeline_schedules(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of pipeline schedules for a specific GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_pipeline_schedules(project_id=project_id)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    def get_pipeline_schedule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_schedule_id: int | None = Field(
-            description="Pipeline schedule ID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve details of a specific pipeline schedule in a GitLab project."""
-        if not project_id or not pipeline_schedule_id:
-            raise ValueError("project_id and pipeline_schedule_id are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_pipeline_schedule(
-            project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
-        )
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    def get_pipelines_triggered_from_schedule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_schedule_id: int | None = Field(
-            description="Pipeline schedule ID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve pipelines triggered by a specific pipeline schedule in a GitLab project."""
-        if not project_id or not pipeline_schedule_id:
-            raise ValueError("project_id and pipeline_schedule_id are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_pipelines_triggered_from_schedule(
-            project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
-        )
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    async def create_pipeline_schedule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        description: str | None = Field(
-            description="Description of the pipeline schedule", default=None
-        ),
-        ref: str | None = Field(
-            description="Reference (e.g., branch or tag) for the pipeline", default=None
-        ),
-        cron: str | None = Field(
-            description="Cron expression defining the schedule (e.g., '0 0 * * *')",
-            default=None,
-        ),
-        cron_timezone: str | None = Field(
-            description="Timezone for the cron schedule (e.g., 'UTC')", default=None
-        ),
-        active: bool | None = Field(
-            description="Whether the schedule is active", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create a pipeline schedule for a specific GitLab project."""
-        if not project_id or not ref or not cron:
-            raise ValueError("project_id, ref, and cron are required")
-        if ctx:
-            await ctx.info(
-                f"Creating pipeline schedule '{description or 'no description'}' for project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.create_pipeline_schedule(
-            project_id=project_id,
-            description=description,
-            ref=ref,
-            cron=cron,
-            cron_timezone=cron_timezone,
-            active=active,
-        )
-        if ctx:
-            await ctx.info("Pipeline schedule created")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    async def edit_pipeline_schedule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_schedule_id: int | None = Field(
-            description="Pipeline schedule ID", default=None
-        ),
-        description: str | None = Field(
-            description="New description of the pipeline schedule", default=None
-        ),
-        ref: str | None = Field(
-            description="New reference (e.g., branch or tag) for the pipeline",
-            default=None,
-        ),
-        cron: str | None = Field(
-            description="New cron expression for the schedule (e.g., '0 0 * * *')",
-            default=None,
-        ),
-        cron_timezone: str | None = Field(
-            description="New timezone for the cron schedule (e.g., 'UTC')", default=None
-        ),
-        active: bool | None = Field(
-            description="Whether the schedule is active", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Edit a pipeline schedule in a GitLab project."""
-        if not project_id or not pipeline_schedule_id:
-            raise ValueError("project_id and pipeline_schedule_id are required")
-        if not any([description, ref, cron, cron_timezone, active]):
-            raise ValueError(
-                "At least one of description, ref, cron, cron_timezone, or active must be provided"
-            )
-        if ctx:
-            await ctx.info(
-                f"Editing pipeline schedule {pipeline_schedule_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.edit_pipeline_schedule(
-            project_id=project_id,
-            pipeline_schedule_id=pipeline_schedule_id,
-            description=description,
-            ref=ref,
-            cron=cron,
-            cron_timezone=cron_timezone,
-            active=active,
-        )
-        if ctx:
-            await ctx.info("Pipeline schedule edited")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    async def take_pipeline_schedule_ownership(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_schedule_id: int | None = Field(
-            description="Pipeline schedule ID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Take ownership of a pipeline schedule in a GitLab project."""
-        if not project_id or not pipeline_schedule_id:
-            raise ValueError("project_id and pipeline_schedule_id are required")
-        if ctx:
-            await ctx.info(
-                f"Taking ownership of pipeline schedule {pipeline_schedule_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.take_pipeline_schedule_ownership(
-            project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
-        )
-        if ctx:
-            await ctx.info("Ownership taken")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    async def delete_pipeline_schedule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_schedule_id: int | None = Field(
-            description="Pipeline schedule ID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a pipeline schedule in a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "delete pipeline schedule"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not pipeline_schedule_id:
-            raise ValueError("project_id and pipeline_schedule_id are required")
-        if ctx:
-            await ctx.info(
-                f"Deleting pipeline schedule {pipeline_schedule_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_pipeline_schedule(
-            project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
-        )
-        if ctx:
-            await ctx.info("Pipeline schedule deleted")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    async def run_pipeline_schedule(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_schedule_id: int | None = Field(
-            description="Pipeline schedule ID", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Run a pipeline schedule immediately in a GitLab project."""
-        if not project_id or not pipeline_schedule_id:
-            raise ValueError("project_id and pipeline_schedule_id are required")
-        if ctx:
-            await ctx.info(
-                f"Running pipeline schedule {pipeline_schedule_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.run_pipeline_schedule(
-            project_id=project_id, pipeline_schedule_id=pipeline_schedule_id
-        )
-        if ctx:
-            await ctx.info("Pipeline schedule run started")
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    async def create_pipeline_schedule_variable(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_schedule_id: int | None = Field(
-            description="Pipeline schedule ID", default=None
-        ),
-        key: str | None = Field(description="Key of the variable", default=None),
-        value: str | None = Field(description="Value of the variable", default=None),
-        variable_type: str | None = Field(
-            description="Type of variable (e.g., 'env_var')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create a variable for a pipeline schedule in a GitLab project."""
-        if not project_id or not pipeline_schedule_id or not key or not value:
-            raise ValueError(
-                "project_id, pipeline_schedule_id, key, and value are required"
-            )
-        if ctx:
-            await ctx.info(
-                f"Creating variable '{key}' for pipeline schedule {pipeline_schedule_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.create_pipeline_schedule_variable(
-            project_id=project_id,
-            pipeline_schedule_id=pipeline_schedule_id,
-            key=key,
-            value=value,
-            variable_type=variable_type,
-        )
-        if ctx:
-            await ctx.info("Variable created")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"pipeline_schedules"},
-    )
-    async def delete_pipeline_schedule_variable(
-        gitlab_instance: str | None = Field(
             description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
         ),
         access_token: str | None = Field(
-            description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        pipeline_schedule_id: int | None = Field(
-            description="Pipeline schedule ID", default=None
-        ),
-        key: str | None = Field(
-            description="Key of the variable to delete", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a variable from a pipeline schedule in a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "delete pipeline schedule variable"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not pipeline_schedule_id or not key:
-            raise ValueError("project_id, pipeline_schedule_id, and key are required")
-        if ctx:
-            await ctx.info(
-                f"Deleting variable '{key}' from pipeline schedule {pipeline_schedule_id} in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_pipeline_schedule_variable(
-            project_id=project_id, pipeline_schedule_id=pipeline_schedule_id, key=key
-        )
-        if ctx:
-            await ctx.info("Variable deleted")
-        return response
-
-
-def register_projects_tools(mcp: FastMCP):
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    def get_projects(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
             description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
         project_id: int | str | None = Field(
-            description="Project ID or path", default=None
-        ),
-        owned: bool | None = Field(
-            description="Filter projects owned by the authenticated user", default=None
-        ),
+            default=None, description="Optional ID or path"
+        ),  # type: ignore
         search: str | None = Field(
-            description="Filter projects by search term in name or path", default=None
-        ),
-        sort: str | None = Field(
-            description="Sort projects by criteria (e.g., 'created_at', 'name')",
             default=None,
+            description="Filter branches by name containing this term (for 'get')",
         ),
-        visibility: str | None = Field(
-            description="Filter projects by visibility (e.g., 'public', 'private')",
+        regex: str | None = Field(
             default=None,
+            description="Filter branches by regex pattern on name (for 'get')",
+        ),
+        branch: str | None = Field(
+            default=None, description="Branch name (for 'get', 'create', 'delete')"
+        ),
+        ref: str | None = Field(
+            default=None,
+            description="Reference to create from (branch/tag/commit SHA) (for 'create')",
+        ),
+        delete_merged_branches: bool | None = Field(
+            default=False,
+            description="Delete all merged branches (excluding protected) (for 'delete')",
         ),
         verify: bool | None = Field(
-            description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
+            description="Verify SSL certificate",
         ),
-        ctx: Context = Field(  # type: ignore
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
-    ) -> Response:
-        """Retrieve a list of projects, optionally filtered by ownership, search, sort, or visibility or Retrieve details of a specific GitLab project."""
-        ctx_log(
-            ctx,
-            logger,
-            "info",
-            f"get_projects called with parameters: project_id={project_id}, owned={owned}, search={search}, sort={sort}, visibility={visibility}",
-        )
-
+    ) -> Response | dict[str, Any]:
+        """Manage branches in a GitLab project (get, create, delete)."""
+        if not project_id:
+            raise ValueError("project_id is required")
         if not access_token:
-            ctx_log(ctx, logger, "error", "No Access Token supplied")
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
             )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
 
-        try:
-            client = get_client(gitlab_instance, access_token, verify, config=config)  # type: ignore
-            kwargs = {}
+        args_dict = {
+            "project_id": project_id,
+            "search": search,
+            "regex": regex,
+            "branch": branch,
+            "ref": ref,
+            "delete_merged_branches": delete_merged_branches,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
 
-            if owned:
-                kwargs["owned"] = owned
-            if search:
-                kwargs["search"] = search  # type: ignore
-            if sort:
-                kwargs["sort"] = sort  # type: ignore
-            if visibility:
-                kwargs["visibility"] = visibility  # type: ignore
-
-            if project_id:
-                ctx_log(ctx, logger, "info", f"Fetching specific project: {project_id}")
-                response = client.get_project(project_id=project_id)
-                ctx_log(
-                    ctx, logger, "info", f"Successfully retrieved project: {project_id}"
-                )
-                return response
+        if action == "get":
+            if branch:
+                return client.get_branch(**kwargs)
             else:
-                ctx_log(ctx, logger, "info", f"Fetching projects with kwargs: {kwargs}")
-                response = client.get_projects(**kwargs)
-                ctx_log(
-                    ctx,
-                    logger,
-                    "info",
-                    f"Successfully retrieved {len(response.data) if hasattr(response, 'data') and isinstance(response.data, list) else 'unknown number of'} projects",
+                response = client.get_branches(**kwargs)
+                return {"branches": response.data}  # type: ignore
+
+        elif action == "create":
+            if not branch or not ref:
+                raise ValueError("branch and ref are required for 'create'")
+            return client.create_branch(**kwargs)
+
+        elif action == "delete":
+            if not await ctx_confirm_destructive(ctx, "delete branch"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
+            if ctx:
+                await ctx_progress(ctx, 0, 100)
+                await ctx.info(
+                    f"Deleting {'merged branches' if delete_merged_branches else f'branch {branch}'} in project {project_id}"
                 )
-                return response
-        except Exception as e:
-            ctx_log(
-                ctx, logger, "error", f"Error in get_projects: {str(e)}", exc_info=True
-            )
-            raise
+            if delete_merged_branches:
+                response = client.delete_merged_branches(**kwargs)
+            else:
+                if not branch:
+                    raise ValueError(
+                        "branch is required when delete_merged_branches=False"
+                    )
+                response = client.delete_branch(**kwargs)
+            if ctx:
+                await ctx.info("Deletion complete")
+                await ctx_progress(ctx, 100, 100)
+            return response
 
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    def get_nested_projects_by_group(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of nested projects within a GitLab group, including descendant groups."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_nested_projects_by_group(group_id=group_id)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    def get_project_contributors(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of contributors to a specific GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_project_contributors(project_id=project_id)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    def get_project_statistics(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve statistics for a specific GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_project_statistics(project_id=project_id)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    async def edit_project(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(description="New name of the project", default=None),
-        description: str | None = Field(
-            description="New description of the project", default=None
-        ),
-        visibility: str | None = Field(
-            description="New visibility of the project (e.g., 'public', 'private')",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Edit a specific GitLab project's details (name, description, or visibility)."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not any([name, description, visibility]):
-            raise ValueError(
-                "At least one of name, description, or visibility must be provided"
-            )
-        if ctx:
-            await ctx.info(f"Editing project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.edit_project(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Project edited")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    def get_project_groups(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        _skip_groups: list[int] | None = Field(
-            description="List of group IDs to exclude", default=None
-        ),
-        search: str | None = Field(
-            description="Filter groups by search term in name", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of groups associated with a specific GitLab project, optionally filtered."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
-        }
-        response = client.get_project_groups(project_id=project_id, **kwargs)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    async def archive_project(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Archive a specific GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if ctx:
-            await ctx.info(f"Archiving project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.archive_project(project_id=project_id)
-        if ctx:
-            await ctx.info("Project archived")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    async def unarchive_project(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Unarchive a specific GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if ctx:
-            await ctx.info(f"Unarchiving project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.unarchive_project(project_id=project_id)
-        if ctx:
-            await ctx.info("Project unarchived")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    async def delete_project(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a specific GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "delete project"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id:
-            raise ValueError("project_id is required")
-        if ctx:
-            await ctx.info(f"Deleting project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_project(project_id=project_id)
-        if ctx:
-            await ctx.info("Project deleted")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
-    )
-    async def share_project(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        group_id: int | str = Field(  # type: ignore
-            description="Group ID or path to share with", default=None
-        ),
-        group_access: str | None = Field(
-            description="Access level for the group (e.g., 'guest', 'developer', 'maintainer')",
-            default=None,
-        ),
-        expires_at: str | None = Field(
-            description="Expiration date for the share in ISO 8601 format", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Share a specific GitLab project with a group, specifying access level."""
-        if not project_id or not group_id or not group_access:
-            raise ValueError("project_id, group_id, and group_access are required")
-        if ctx:
-            await ctx.info(f"Sharing project {project_id} with group {group_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.share_project(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Project shared")
-        return response
+        else:
+            raise ValueError(f"Unknown action: {action}")
 
 
 def register_protected_branches_tools(mcp: FastMCP):
@@ -5098,30 +169,183 @@ def register_protected_branches_tools(mcp: FastMCP):
         exclude_args=["gitlab_instance", "access_token", "verify"],
         tags={"protected_branches"},
     )
-    def get_protected_branches(
+    async def gitlab_protected_branches(
+        action: str = Field(description="Action: 'get', 'protect', 'unprotect'"),
         gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
         ),
         access_token: str | None = Field(
-            description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
         ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
         branch: str | None = Field(
-            description="Name of the branch to retrieve (e.g., 'main')", default=None
+            default=None,
+            description="Name of the branch or wildcard (e.g., 'main' or '*-stable')",
+        ),
+        push_access_level: int | None = Field(
+            default=None, description="Access level allowed to push"
+        ),
+        merge_access_level: int | None = Field(
+            default=None, description="Access level allowed to merge"
+        ),
+        unprotect_access_level: int | None = Field(
+            default=None, description="Access level allowed to unprotect"
+        ),
+        allow_force_push: bool | None = Field(
+            default=None, description="Allow force push"
         ),
         verify: bool | None = Field(
-            description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
+            description="Verify SSL certificate",
         ),
-        ctx: Context = Field(  # type: ignore
+        ctx: Context | None = Field(
             description="MCP context for progress reporting", default=None
         ),
-    ) -> Response:
-        """Retrieve a list of protected branches in a specific GitLab project or Retrieve details of a specific protected branch in a GitLab project.."""
+    ) -> Response | dict[str, Any]:
+        """Manage protected branches in GitLab."""
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "project_id": project_id,
+            "branch": branch,
+            "push_access_level": push_access_level,
+            "merge_access_level": merge_access_level,
+            "unprotect_access_level": unprotect_access_level,
+            "allow_force_push": allow_force_push,
+            "name": branch,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get":
+            if not project_id:
+                raise ValueError("project_id required")
+            if branch:
+                return client.get_protected_branch(project_id=project_id, branch=branch)
+            return client.get_protected_branches(project_id=project_id)
+        elif action == "protect":
+            if not project_id or not branch:
+                raise ValueError("project_id, branch required")
+            return client.protect_branch(**kwargs)
+        elif action == "unprotect":
+            if not project_id or not branch:
+                raise ValueError("project_id, branch required")
+            if not await ctx_confirm_destructive(ctx, "unprotect_branch"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.unprotect_branch(project_id=project_id, name=branch)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_commits_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"commits"}
+    )
+    async def gitlab_commits(
+        action: str = Field(
+            description="Action: 'get', 'create', 'diff', 'revert', 'get_comments', 'create_comment', 'get_discussions', 'get_statuses', 'post_status', 'get_merge_requests', 'get_gpg_signature'"
+        ),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Optional ID or path"
+        ),
+        commit_hash: str | None = Field(default=None, description="Commit SHA"),
+        ref_name: str | None = Field(
+            default=None, description="Branch, tag, or commit SHA to filter commits"
+        ),
+        since: str | None = Field(
+            default=None, description="Only commits after this date (ISO 8601 format)"
+        ),
+        until: str | None = Field(
+            default=None, description="Only commits before this date (ISO 8601 format)"
+        ),
+        path: str | None = Field(
+            default=None, description="Only commits that include this file path"
+        ),
+        all: bool | None = Field(
+            default=False, description="Include all commits across all branches"
+        ),
+        branch: str | None = Field(
+            default=None, description="Branch name for the commit"
+        ),
+        commit_message: str | None = Field(default=None, description="Commit message"),
+        actions: list[dict[str, str]] | None = Field(
+            default=None, description="List of actions (create/update/delete files)"
+        ),
+        author_email: str | None = Field(
+            default=None, description="Author email for the commit"
+        ),
+        author_name: str | None = Field(
+            default=None, description="Author name for the commit"
+        ),
+        dry_run: bool | None = Field(
+            default=None, description="Simulate the revert without applying"
+        ),
+        note: str | None = Field(default=None, description="Content of the comment"),
+        line: int | None = Field(
+            default=None, description="Line number in the file for the comment"
+        ),
+        line_type: str | None = Field(
+            default=None, description="Type of line ('new' or 'old')"
+        ),
+        ref: str | None = Field(
+            default=None, description="Filter statuses by reference (branch or tag)"
+        ),
+        stage: str | None = Field(
+            default=None, description="Filter statuses by CI stage"
+        ),
+        name: str | None = Field(
+            default=None, description="Filter statuses by job name"
+        ),
+        coverage: float | None = Field(default=None, description="Coverage percentage"),
+        state: str | None = Field(
+            default=None,
+            description="State of the build (e.g., 'pending', 'running', 'success', 'failed')",
+        ),
+        target_url: str | None = Field(
+            default=None, description="URL to link to the build"
+        ),
+        context: str | None = Field(
+            default=None, description="Context of the status (e.g., 'ci/build')"
+        ),
+        description: str | None = Field(
+            default=None, description="Description of the status"
+        ),
+        pipeline_id: int | None = Field(
+            default=None, description="ID of the associated pipeline"
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage commits in a GitLab project."""
         if not project_id:
             raise ValueError("project_id is required")
         if not access_token:
@@ -5134,198 +358,142 @@ def register_protected_branches_tools(mcp: FastMCP):
             verify=bool(verify),
             config=config,
         )
-        if branch:
-            response = client.get_protected_branch(project_id=project_id, branch=branch)
-        else:
-            response = client.get_protected_branches(project_id=project_id)
-        return response
 
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"protected_branches"},
-    )
-    async def protect_branch(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        branch: str | None = Field(
-            description="Name of the branch to protect (e.g., 'main')", default=None
-        ),
-        push_access_level: str | None = Field(
-            description="Access level for pushing (e.g., 'maintainer')", default=None
-        ),
-        merge_access_level: str | None = Field(
-            description="Access level for merging (e.g., 'developer')", default=None
-        ),
-        unprotect_access_level: str | None = Field(
-            description="Access level for unprotecting (e.g., 'maintainer')",
-            default=None,
-        ),
-        allow_force_push: bool | None = Field(
-            description="Whether force pushes are allowed", default=None
-        ),
-        allowed_to_push: list[dict] | None = Field(
-            description="List of users or groups allowed to push", default=None
-        ),
-        allowed_to_merge: list[dict] | None = Field(
-            description="List of users or groups allowed to merge", default=None
-        ),
-        allowed_to_unprotect: list[dict] | None = Field(
-            description="List of users or groups allowed to unprotect", default=None
-        ),
-        code_owner_approval_required: bool | None = Field(
-            description="Whether code owner approval is required", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Protect a specific branch in a GitLab project with specified access levels."""
-        if not project_id or not branch:
-            raise ValueError("project_id and branch are required")
-        if not any(
-            [
-                push_access_level,
-                merge_access_level,
-                unprotect_access_level,
-                allow_force_push,
-                allowed_to_push,
-                allowed_to_merge,
-                allowed_to_unprotect,
-                code_owner_approval_required,
-            ]
-        ):
-            raise ValueError("At least one protection parameter must be provided")
-        if ctx:
-            await ctx.info(f"Protecting branch '{branch}' in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
+        args_dict = {
+            "project_id": project_id,
+            "commit_hash": commit_hash,
+            "ref_name": ref_name,
+            "since": since,
+            "until": until,
+            "path": path,
+            "all": all,
+            "branch": branch,
+            "commit_message": commit_message,
+            "actions": actions,
+            "author_email": author_email,
+            "author_name": author_name,
+            "dry_run": dry_run,
+            "note": note,
+            "line": line,
+            "line_type": line_type,
+            "ref": ref,
+            "stage": stage,
+            "name": name,
+            "coverage": coverage,
+            "state": state,
+            "target_url": target_url,
+            "context": context,
+            "description": description,
+            "pipeline_id": pipeline_id,
         }
-        response = client.protect_branch(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Branch protected")
-        return response
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
 
+        if action == "get":
+            if commit_hash:
+                return client.get_commit(**kwargs)
+            else:
+                response = client.get_commits(**kwargs)
+                return {"commits": response.data}
+        elif action == "create":
+            if not branch or not commit_message or not actions:
+                raise ValueError(
+                    "branch, commit_message, and actions are required for 'create'"
+                )
+            return client.create_commit(**kwargs)
+        elif action == "diff":
+            if not commit_hash:
+                raise ValueError("commit_hash is required")
+            return client.get_commit_diff(**kwargs)
+        elif action == "revert":
+            if not commit_hash or not branch:
+                raise ValueError("commit_hash and branch are required")
+            if not dry_run and ctx:
+                if not await ctx_confirm_destructive(
+                    ctx, f"revert commit {commit_hash}"
+                ):
+                    return {
+                        "status": "cancelled",
+                        "message": "Operation cancelled by user",
+                    }
+            return client.revert_commit(**kwargs)
+        elif action == "get_comments":
+            if not commit_hash:
+                raise ValueError("commit_hash is required")
+            return client.get_commit_comments(**kwargs)
+        elif action == "create_comment":
+            if not commit_hash or not note:
+                raise ValueError("commit_hash and note are required")
+            return client.create_commit_comment(**kwargs)
+        elif action == "get_discussions":
+            if not commit_hash:
+                raise ValueError("commit_hash is required")
+            return client.get_commit_discussions(**kwargs)
+        elif action == "get_statuses":
+            if not commit_hash:
+                raise ValueError("commit_hash is required")
+            return client.get_commit_statuses(**kwargs)
+        elif action == "post_status":
+            if not commit_hash or not state:
+                raise ValueError("commit_hash and state are required")
+            return client.post_build_status_to_commit(**kwargs)
+        elif action == "get_merge_requests":
+            if not commit_hash:
+                raise ValueError("commit_hash is required")
+            return client.get_commit_merge_requests(**kwargs)
+        elif action == "get_gpg_signature":
+            if not commit_hash:
+                raise ValueError("commit_hash is required")
+            return client.get_commit_gpg_signature(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_deploy_tokens_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"protected_branches"},
+        tags={"deploy_tokens"},
     )
-    async def unprotect_branch(
+    async def gitlab_deploy_tokens(
+        action: str = Field(
+            description="Action: 'get', 'get_project', 'create_project', 'delete_project', 'get_group', 'create_group', 'delete_group'"
+        ),
         gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
         ),
         access_token: str | None = Field(
-            description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        branch: str | None = Field(
-            description="Name of the branch to unprotect (e.g., 'main')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Unprotect a specific branch in a GitLab project."""
-        if not project_id or not branch:
-            raise ValueError("project_id and branch are required")
-        if ctx:
-            await ctx.info(f"Unprotecting branch '{branch}' in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.unprotect_branch(project_id=project_id, branch=branch)
-        if ctx:
-            await ctx.info("Branch unprotected")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"],
-        tags={"protected_branches"},
-    )
-    async def require_code_owner_approvals_single_branch(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
             description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        branch: str | None = Field(
-            description="Name of the branch to set approval requirements for (e.g., 'main')",
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        group_id: int | str | None = Field(
+            default=None, description="Group ID or path"
+        ),
+        token_id: int | None = Field(default=None, description="Deploy token ID"),
+        name: str | None = Field(default=None, description="Name of the deploy token"),
+        scopes: list[str] | None = Field(
             default=None,
+            description="Scopes for the deploy token (e.g., ['read_repository'])",
         ),
-        code_owner_approval_required: bool | None = Field(
-            description="Whether code owner approval is required", default=None
+        expires_at: str | None = Field(
+            default=None, description="Expiration date (ISO 8601 format)"
+        ),
+        username: str | None = Field(
+            default=None, description="Username associated with the token"
         ),
         verify: bool | None = Field(
-            description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
+            description="Verify SSL certificate",
         ),
         ctx: Context | None = Field(
-            description="MCP context for progress", default=None
+            description="MCP context for progress reporting", default=None
         ),
-    ) -> Response:
-        """Require or disable code owner approvals for a specific branch in a GitLab project."""
-        if not project_id or not branch or code_owner_approval_required is None:
-            raise ValueError(
-                "project_id, branch, and code_owner_approval_required are required"
-            )
-        if ctx:
-            await ctx.info(
-                f"Setting code owner approval requirement for branch '{branch}' in project {project_id}"
-            )
+    ) -> Response | dict[str, Any]:
+        """Manage deploy tokens in GitLab."""
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
@@ -5336,382 +504,1251 @@ def register_protected_branches_tools(mcp: FastMCP):
             verify=bool(verify),
             config=config,
         )
-        response = client.require_code_owner_approvals_single_branch(
-            project_id=project_id,
-            branch=branch,
-            code_owner_approval_required=code_owner_approval_required,
+
+        args_dict = {
+            "project_id": project_id,
+            "group_id": group_id,
+            "token_id": token_id,
+            "name": name,
+            "scopes": scopes,
+            "expires_at": expires_at,
+            "username": username,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get":
+            return client.get_deploy_tokens(**kwargs)
+        elif action == "get_project":
+            if not project_id:
+                raise ValueError("project_id is required")
+            return client.get_project_deploy_tokens(**kwargs)
+        elif action == "create_project":
+            if not project_id or not name or not scopes:
+                raise ValueError("project_id, name, and scopes are required")
+            return client.create_project_deploy_token(**kwargs)
+        elif action == "delete_project":
+            if not project_id or not token_id:
+                raise ValueError("project_id and token_id are required")
+            if not await ctx_confirm_destructive(
+                ctx, f"delete project deploy token {token_id}"
+            ):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_project_deploy_token(**kwargs)
+        elif action == "get_group":
+            if not group_id:
+                raise ValueError("group_id is required")
+            return client.get_group_deploy_tokens(**kwargs)
+        elif action == "create_group":
+            if not group_id or not name or not scopes:
+                raise ValueError("group_id, name, and scopes are required")
+            return client.create_group_deploy_token(**kwargs)
+        elif action == "delete_group":
+            if not group_id or not token_id:
+                raise ValueError("group_id and token_id are required")
+            if not await ctx_confirm_destructive(
+                ctx, f"delete group deploy token {token_id}"
+            ):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_group_deploy_token(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_environments_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"],
+        tags={"environments"},
+    )
+    async def gitlab_environments(
+        action: str = Field(
+            description="Action: 'get', 'create', 'update', 'delete', 'stop', 'stop_stale', 'delete_stopped', 'get_protected', 'protect', 'update_protected', 'unprotect'"
+        ),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        environment_id: int | None = Field(default=None, description="Environment ID"),
+        name: str | None = Field(default=None, description="Name of the environment"),
+        search: str | None = Field(
+            default=None, description="Filter environments by search term in name"
+        ),
+        states: str | None = Field(
+            default=None,
+            description="Filter environments by state (e.g., 'available', 'stopped')",
+        ),
+        external_url: str | None = Field(
+            default=None, description="External URL for the environment"
+        ),
+        older_than: str | None = Field(
+            default=None,
+            description="Filter environments older than this timestamp (ISO 8601 format)",
+        ),
+        required_approval_count: int | None = Field(
+            default=None, description="Number of approvals required for deployment"
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage environments in GitLab."""
+        if not project_id:
+            raise ValueError("project_id is required")
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
         )
-        if ctx:
-            await ctx.info("Code owner approval setting updated")
-        return response
+
+        args_dict = {
+            "project_id": project_id,
+            "environment_id": environment_id,
+            "name": name,
+            "search": search,
+            "states": states,
+            "external_url": external_url,
+            "older_than": older_than,
+            "required_approval_count": required_approval_count,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get":
+            return client.get_environments(**kwargs)
+        elif action == "create":
+            if not name:
+                raise ValueError("name is required for 'create'")
+            return client.create_environment(**kwargs)
+        elif action == "update":
+            if not environment_id:
+                raise ValueError("environment_id is required")
+            return client.update_environment(**kwargs)
+        elif action == "delete":
+            if not environment_id:
+                raise ValueError("environment_id is required")
+            if not await ctx_confirm_destructive(
+                ctx, f"delete environment {environment_id}"
+            ):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_environment(**kwargs)
+        elif action == "stop":
+            if not environment_id:
+                raise ValueError("environment_id is required")
+            return client.stop_environment(**kwargs)
+        elif action == "stop_stale":
+            if not older_than:
+                raise ValueError("older_than is required")
+            return client.stop_stale_environments(**kwargs)
+        elif action == "delete_stopped":
+            if not await ctx_confirm_destructive(ctx, "delete stopped environments"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_stopped_environments(**kwargs)
+        elif action == "get_protected":
+            return client.get_protected_environments(**kwargs)
+        elif action == "protect":
+            if not name:
+                raise ValueError("name is required")
+            return client.protect_environment(**kwargs)
+        elif action == "update_protected":
+            if not name:
+                raise ValueError("name is required")
+            return client.update_protected_environment(**kwargs)
+        elif action == "unprotect":
+            if not name:
+                raise ValueError("name is required")
+            if not await ctx_confirm_destructive(ctx, f"unprotect environment {name}"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.unprotect_environment(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_groups_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"groups"}
+    )
+    async def gitlab_groups(
+        action: str = Field(
+            description="Action: 'get', 'edit', 'get_subgroups', 'get_descendants', 'get_projects', 'get_merge_requests'"
+        ),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        group_id: int | str | None = Field(
+            default=None, description="Group ID or path"
+        ),
+        search: str | None = Field(
+            default=None, description="Filter groups by search term in name or path"
+        ),
+        sort: str | None = Field(
+            default=None, description="Sort order (e.g., 'asc', 'desc')"
+        ),
+        order_by: str | None = Field(
+            default=None, description="Field to sort by (e.g., 'name', 'path')"
+        ),
+        owned: bool | None = Field(
+            default=None, description="Filter groups owned by the authenticated user"
+        ),
+        min_access_level: int | None = Field(
+            default=None,
+            description="Filter groups by minimum access level (e.g., 10 for Guest)",
+        ),
+        top_level_only: bool | None = Field(
+            default=None,
+            description="Include only top-level groups (exclude subgroups)",
+        ),
+        name: str | None = Field(default=None, description="New name for the group"),
+        path: str | None = Field(default=None, description="New path for the group"),
+        description: str | None = Field(
+            default=None, description="New description for the group"
+        ),
+        visibility: str | None = Field(
+            default=None, description="New visibility level (e.g., 'public', 'private')"
+        ),
+        include_subgroups: bool | None = Field(
+            default=None, description="Include projects from subgroups"
+        ),
+        state: str | None = Field(
+            default=None,
+            description="Filter merge requests by state (e.g., 'opened', 'closed')",
+        ),
+        scope: str | None = Field(
+            default=None,
+            description="Filter merge requests by scope (e.g., 'created_by_me')",
+        ),
+        milestone: str | None = Field(
+            default=None, description="Filter merge requests by milestone title"
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage groups in GitLab."""
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "group_id": group_id,
+            "search": search,
+            "sort": sort,
+            "order_by": order_by,
+            "owned": owned,
+            "min_access_level": min_access_level,
+            "top_level_only": top_level_only,
+            "name": name,
+            "path": path,
+            "description": description,
+            "visibility": visibility,
+            "include_subgroups": include_subgroups,
+            "state": state,
+            "scope": scope,
+            "milestone": milestone,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get":
+            return client.get_groups(**kwargs)
+        elif action == "edit":
+            if not group_id:
+                raise ValueError("group_id is required")
+            return client.edit_group(**kwargs)
+        elif action == "get_subgroups":
+            if not group_id:
+                raise ValueError("group_id is required")
+            return client.get_group_subgroups(**kwargs)
+        elif action == "get_descendants":
+            if not group_id:
+                raise ValueError("group_id is required")
+            return client.get_group_descendant_groups(**kwargs)
+        elif action == "get_projects":
+            if not group_id:
+                raise ValueError("group_id is required")
+            return client.get_group_projects(**kwargs)
+        elif action == "get_merge_requests":
+            if not group_id:
+                raise ValueError("group_id is required")
+            return client.get_group_merge_requests(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_jobs_tools(mcp: FastMCP):
+    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"jobs"})
+    async def gitlab_jobs(
+        action: str = Field(
+            description="Action: 'get_project_jobs', 'get_log', 'cancel', 'retry', 'erase', 'run', 'get_pipeline_jobs'"
+        ),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        job_id: int | None = Field(default=None, description="Job ID"),
+        scope: str | None = Field(
+            default=None, description="Filter jobs by scope (e.g., 'success', 'failed')"
+        ),
+        include_retried: bool | None = Field(
+            default=None, description="Include retried jobs"
+        ),
+        include_invisible: bool | None = Field(
+            default=None,
+            description="Include invisible jobs (e.g., from hidden pipelines)",
+        ),
+        pipeline_id: int | None = Field(default=None, description="Pipeline ID"),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage CI/CD jobs in GitLab."""
+        if not project_id:
+            raise ValueError("project_id is required")
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "project_id": project_id,
+            "job_id": job_id,
+            "scope": scope,
+            "include_retried": include_retried,
+            "include_invisible": include_invisible,
+            "pipeline_id": pipeline_id,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get_project_jobs":
+            return client.get_project_jobs(**kwargs)
+        elif action == "get_log":
+            if not job_id:
+                raise ValueError("job_id is required")
+            return client.get_project_job_log(**kwargs)
+        elif action == "cancel":
+            if not job_id:
+                raise ValueError("job_id is required")
+            return client.cancel_project_job(**kwargs)
+        elif action == "retry":
+            if not job_id:
+                raise ValueError("job_id is required")
+            return client.retry_project_job(**kwargs)
+        elif action == "erase":
+            if not job_id:
+                raise ValueError("job_id is required")
+            if not await ctx_confirm_destructive(ctx, f"erase job {job_id}"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.erase_project_job(**kwargs)
+        elif action == "run":
+            if not job_id:
+                raise ValueError("job_id is required")
+            return client.run_project_job(**kwargs)
+        elif action == "get_pipeline_jobs":
+            if not pipeline_id:
+                raise ValueError("pipeline_id is required")
+            return client.get_pipeline_jobs(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_members_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"members"}
+    )
+    async def gitlab_members(
+        action: str = Field(description="Action: 'get_group', 'get_project'"),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        group_id: int | str | None = Field(
+            default=None, description="Group ID or path"
+        ),
+        query: str | None = Field(
+            default=None,
+            description="Filter members by search term in name or username",
+        ),
+        user_ids: list[int] | None = Field(
+            default=None, description="Filter members by user IDs"
+        ),
+        skip_users: list[int] | None = Field(
+            default=None, description="Exclude specified user IDs"
+        ),
+        show_seat_info: bool | None = Field(
+            default=None, description="Include seat information for members"
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage members in GitLab."""
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "group_id": group_id,
+            "query": query,
+            "user_ids": user_ids,
+            "skip_users": skip_users,
+            "show_seat_info": show_seat_info,
+            "project_id": project_id,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get_group":
+            if not group_id:
+                raise ValueError("group_id required")
+            return client.get_group_members(**kwargs)
+        elif action == "get_project":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.get_project_members(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_merge_requests_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"],
+        tags={"merge_requests"},
+    )
+    async def gitlab_merge_requests(
+        action: str = Field(description="Action: 'create', 'get', 'get_project'"),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        merge_id: int | None = Field(default=None, description="Merge request ID"),
+        source_branch: str | None = Field(
+            default=None, description="Source branch for the merge request"
+        ),
+        target_branch: str | None = Field(
+            default=None, description="Target branch for the merge request"
+        ),
+        title: str | None = Field(
+            default=None, description="Title of the merge request"
+        ),
+        description: str | None = Field(
+            default=None, description="Description of the merge request"
+        ),
+        assignee_id: int | None = Field(
+            default=None, description="ID of the user to assign the merge request to"
+        ),
+        reviewer_ids: list[int] | None = Field(
+            default=None, description="IDs of users to set as reviewers"
+        ),
+        labels: list[str] | None = Field(
+            default=None, description="Labels to apply to the merge request"
+        ),
+        state: str | None = Field(
+            default=None,
+            description="Filter merge requests by state (e.g., 'opened', 'closed')",
+        ),
+        scope: str | None = Field(
+            default=None,
+            description="Filter merge requests by scope (e.g., 'created_by_me')",
+        ),
+        milestone: str | None = Field(
+            default=None, description="Filter merge requests by milestone title"
+        ),
+        view: str | None = Field(
+            default=None, description="Filter merge requests by view (e.g., 'simple')"
+        ),
+        author_id: int | None = Field(
+            default=None, description="Filter merge requests by author ID"
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage merge requests in GitLab."""
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "project_id": project_id,
+            "merge_id": merge_id,
+            "source_branch": source_branch,
+            "target_branch": target_branch,
+            "title": title,
+            "description": description,
+            "assignee_id": assignee_id,
+            "reviewer_ids": reviewer_ids,
+            "labels": labels,
+            "state": state,
+            "scope": scope,
+            "milestone": milestone,
+            "view": view,
+            "author_id": author_id,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "create":
+            if not project_id or not source_branch or not target_branch or not title:
+                raise ValueError(
+                    "project_id, source_branch, target_branch, title required"
+                )
+            return client.create_merge_request(**kwargs)
+        elif action == "get":
+            return client.get_merge_requests(**kwargs)
+        elif action == "get_project":
+            if not project_id:
+                raise ValueError("project_id required")
+            if merge_id:
+                return client.get_project_merge_request(
+                    project_id=project_id, merge_id=merge_id
+                )
+            else:
+                response = client.get_project_merge_requests(**kwargs)
+                return {"merge_requests": response.data}
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_merge_rules_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"merge_rules"}
+    )
+    async def gitlab_merge_rules(
+        action: str = Field(
+            description="Action: 'get_project_level', 'create_project_level', 'update_project_level', 'delete_project_level', 'get_mr_approvals', 'get_mr_approval_state', 'get_mr_level', 'approve_mr', 'unapprove_mr', 'get_group_level', 'edit_group_level', 'edit_project_level'"
+        ),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        approval_rule_id: int | None = Field(
+            default=None, description="Approval rule ID"
+        ),
+        name: str | None = Field(default=None, description="Name of the approval rule"),
+        approvals_required: int | None = Field(
+            default=None, description="Number of approvals required"
+        ),
+        rule_type: str | None = Field(
+            default=None, description="Type of rule (e.g., 'regular')"
+        ),
+        user_ids: list[int] | None = Field(
+            default=None, description="List of user IDs required to approve"
+        ),
+        group_ids: list[int] | None = Field(
+            default=None, description="List of group IDs required to approve"
+        ),
+        merge_request_iid: int | None = Field(
+            default=None, description="Merge request IID"
+        ),
+        group_id: int | str | None = Field(
+            default=None, description="Group ID or path"
+        ),
+        allow_author_approval: bool | None = Field(
+            default=None,
+            description="Whether authors can approve their own merge requests",
+        ),
+        allow_committer_approval: bool | None = Field(
+            default=None, description="Whether committers can approve merge requests"
+        ),
+        allow_overrides_to_approver_list: bool | None = Field(
+            default=None,
+            description="Whether overrides to the approver list are allowed",
+        ),
+        minimum_approvals: int | None = Field(
+            default=None, description="Minimum number of approvals required"
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage merge rules in GitLab."""
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "project_id": project_id,
+            "approval_rule_id": approval_rule_id,
+            "name": name,
+            "approvals_required": approvals_required,
+            "rule_type": rule_type,
+            "user_ids": user_ids,
+            "group_ids": group_ids,
+            "merge_request_iid": merge_request_iid,
+            "group_id": group_id,
+            "allow_author_approval": allow_author_approval,
+            "allow_committer_approval": allow_committer_approval,
+            "allow_overrides_to_approver_list": allow_overrides_to_approver_list,
+            "minimum_approvals": minimum_approvals,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get_project_level":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.get_project_level_merge_request_rules(**kwargs)
+        elif action == "create_project_level":
+            if not project_id or not name or approvals_required is None:
+                raise ValueError("project_id, name, approvals_required required")
+            return client.create_project_level_rule(**kwargs)
+        elif action == "update_project_level":
+            if (
+                not project_id
+                or not approval_rule_id
+                or not name
+                or approvals_required is None
+            ):
+                raise ValueError(
+                    "project_id, approval_rule_id, name, approvals_required required"
+                )
+            return client.update_project_level_rule(**kwargs)
+        elif action == "delete_project_level":
+            if not project_id or not approval_rule_id:
+                raise ValueError("project_id, approval_rule_id required")
+            if not await ctx_confirm_destructive(ctx, "delete_project_level_rule"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_project_level_rule(**kwargs)
+        elif action == "get_mr_approvals":
+            if not project_id or not merge_request_iid:
+                raise ValueError("project_id, merge_request_iid required")
+            return client.merge_request_level_approvals(**kwargs)
+        elif action == "get_mr_approval_state":
+            if not project_id or not merge_request_iid:
+                raise ValueError("project_id, merge_request_iid required")
+            return client.get_approval_state_merge_requests(**kwargs)
+        elif action == "get_mr_level":
+            if not project_id or not merge_request_iid:
+                raise ValueError("project_id, merge_request_iid required")
+            return client.get_merge_request_level_rules(**kwargs)
+        elif action == "approve_mr":
+            if not project_id or not merge_request_iid:
+                raise ValueError("project_id, merge_request_iid required")
+            return client.approve_merge_request(**kwargs)
+        elif action == "unapprove_mr":
+            if not project_id or not merge_request_iid:
+                raise ValueError("project_id, merge_request_iid required")
+            return client.unapprove_merge_request(**kwargs)
+        elif action == "get_group_level":
+            if not group_id:
+                raise ValueError("group_id required")
+            return client.get_group_level_rule(**kwargs)
+        elif action == "edit_group_level":
+            if not group_id:
+                raise ValueError("group_id required")
+            return client.edit_group_level_rule(**kwargs)
+        elif action == "edit_project_level":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.edit_project_level_rule(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_packages_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"packages"}
+    )
+    async def gitlab_packages(
+        action: str = Field(description="Action: 'get', 'publish', 'download'"),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        package_type: str | None = Field(
+            default=None, description="Filter packages by type (e.g., 'npm', 'maven')"
+        ),
+        package_name: str | None = Field(
+            default=None, description="Name of the package"
+        ),
+        package_version: str | None = Field(
+            default=None, description="Version of the package"
+        ),
+        file_name: str | None = Field(
+            default=None, description="Name of the package file"
+        ),
+        status: str | None = Field(
+            default=None,
+            description="Status of the package (e.g., 'default', 'hidden')",
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage packages in GitLab."""
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "project_id": project_id,
+            "package_type": package_type,
+            "package_name": package_name,
+            "package_version": package_version,
+            "file_name": file_name,
+            "status": status,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.get_repository_packages(**kwargs)
+        elif action == "publish":
+            if (
+                not project_id
+                or not package_name
+                or not package_version
+                or not file_name
+            ):
+                raise ValueError(
+                    "project_id, package_name, package_version, file_name required"
+                )
+            return client.publish_repository_package(**kwargs)
+        elif action == "download":
+            if (
+                not project_id
+                or not package_name
+                or not package_version
+                or not file_name
+            ):
+                raise ValueError(
+                    "project_id, package_name, package_version, file_name required"
+                )
+            return client.download_repository_package(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_pipelines_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"pipelines"}
+    )
+    async def gitlab_pipelines(
+        action: str = Field(description="Action: 'get', 'run'"),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        pipeline_id: int | None = Field(default=None, description="Pipeline ID"),
+        scope: str | None = Field(
+            default=None,
+            description="Filter pipelines by scope (e.g., 'running', 'branches')",
+        ),
+        status: str | None = Field(
+            default=None,
+            description="Filter pipelines by status (e.g., 'success', 'failed')",
+        ),
+        ref: str | None = Field(
+            default=None,
+            description="Filter pipelines by reference (e.g., branch or tag name)",
+        ),
+        source: str | None = Field(
+            default=None,
+            description="Filter pipelines by source (e.g., 'push', 'schedule')",
+        ),
+        updated_after: str | None = Field(
+            default=None,
+            description="Filter pipelines updated after this date (ISO 8601 format)",
+        ),
+        updated_before: str | None = Field(
+            default=None,
+            description="Filter pipelines updated before this date (ISO 8601 format)",
+        ),
+        variables: dict[str, str] | None = Field(
+            default=None, description="Dictionary of pipeline variables"
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage pipelines in GitLab."""
+        if not project_id:
+            raise ValueError("project_id is required")
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "project_id": project_id,
+            "pipeline_id": pipeline_id,
+            "scope": scope,
+            "status": status,
+            "ref": ref,
+            "source": source,
+            "updated_after": updated_after,
+            "updated_before": updated_before,
+            "variables": variables,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get":
+            if pipeline_id:
+                return client.get_pipeline(
+                    project_id=project_id, pipeline_id=pipeline_id
+                )
+            else:
+                return client.get_pipelines(**kwargs)
+        elif action == "run":
+            if not ref:
+                raise ValueError("ref is required for 'run'")
+            return client.run_pipeline(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_pipeline_schedules_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"],
+        tags={"pipeline_schedules"},
+    )
+    async def gitlab_pipeline_schedules(
+        action: str = Field(
+            description="Action: 'get_all', 'get', 'get_triggered', 'create', 'edit', 'take_ownership', 'delete', 'run', 'create_variable', 'delete_variable'"
+        ),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        pipeline_schedule_id: int | None = Field(
+            default=None, description="Pipeline schedule ID"
+        ),
+        description: str | None = Field(
+            default=None, description="Description of the pipeline schedule"
+        ),
+        ref: str | None = Field(
+            default=None, description="Reference (e.g., branch or tag) for the pipeline"
+        ),
+        cron: str | None = Field(
+            default=None,
+            description="Cron expression defining the schedule (e.g., '0 0 * * *')",
+        ),
+        cron_timezone: str | None = Field(
+            default=None, description="Timezone for the cron schedule (e.g., 'UTC')"
+        ),
+        active: bool | None = Field(
+            default=None, description="Whether the schedule is active"
+        ),
+        key: str | None = Field(default=None, description="Key of the variable"),
+        value: str | None = Field(default=None, description="Value of the variable"),
+        variable_type: str | None = Field(
+            default=None, description="Type of variable (e.g., 'env_var')"
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage pipeline schedules in GitLab."""
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "project_id": project_id,
+            "pipeline_schedule_id": pipeline_schedule_id,
+            "description": description,
+            "ref": ref,
+            "cron": cron,
+            "cron_timezone": cron_timezone,
+            "active": active,
+            "key": key,
+            "value": value,
+            "variable_type": variable_type,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get_all":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.get_pipeline_schedules(**kwargs)
+        elif action == "get":
+            if not project_id or not pipeline_schedule_id:
+                raise ValueError("project_id, pipeline_schedule_id required")
+            return client.get_pipeline_schedule(**kwargs)
+        elif action == "get_triggered":
+            if not project_id or not pipeline_schedule_id:
+                raise ValueError("project_id, pipeline_schedule_id required")
+            return client.get_pipelines_triggered_from_schedule(**kwargs)
+        elif action == "create":
+            if not project_id or not description or not ref or not cron:
+                raise ValueError("project_id, description, ref, cron required")
+            return client.create_pipeline_schedule(**kwargs)
+        elif action == "edit":
+            if not project_id or not pipeline_schedule_id:
+                raise ValueError("project_id, pipeline_schedule_id required")
+            return client.edit_pipeline_schedule(**kwargs)
+        elif action == "take_ownership":
+            if not project_id or not pipeline_schedule_id:
+                raise ValueError("project_id, pipeline_schedule_id required")
+            return client.take_pipeline_schedule_ownership(**kwargs)
+        elif action == "delete":
+            if not project_id or not pipeline_schedule_id:
+                raise ValueError("project_id, pipeline_schedule_id required")
+            if not await ctx_confirm_destructive(ctx, "delete_pipeline_schedule"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_pipeline_schedule(**kwargs)
+        elif action == "run":
+            if not project_id or not pipeline_schedule_id:
+                raise ValueError("project_id, pipeline_schedule_id required")
+            return client.run_pipeline_schedule(**kwargs)
+        elif action == "create_variable":
+            if not project_id or not pipeline_schedule_id or not key or not value:
+                raise ValueError(
+                    "project_id, pipeline_schedule_id, key, value required"
+                )
+            return client.create_pipeline_schedule_variable(**kwargs)
+        elif action == "delete_variable":
+            if not project_id or not pipeline_schedule_id or not key:
+                raise ValueError("project_id, pipeline_schedule_id, key required")
+            if not await ctx_confirm_destructive(
+                ctx, "delete_pipeline_schedule_variable"
+            ):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_pipeline_schedule_variable(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
+
+
+def register_projects_tools(mcp: FastMCP):
+    @mcp.tool(
+        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"projects"}
+    )
+    async def gitlab_projects(
+        action: str = Field(
+            description="Action: 'get', 'get_nested_by_group', 'get_contributors', 'get_statistics', 'edit', 'share_with_group', 'unshare_with_group'"
+        ),
+        gitlab_instance: str | None = Field(
+            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
+        ),
+        access_token: str | None = Field(
+            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
+        ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
+        owned: bool | None = Field(
+            default=None, description="Filter projects owned by the authenticated user"
+        ),
+        search: str | None = Field(
+            default=None, description="Filter projects by search term in name or path"
+        ),
+        sort: str | None = Field(
+            default=None,
+            description="Sort projects by criteria (e.g., 'created_at', 'name')",
+        ),
+        visibility: str | None = Field(
+            default=None,
+            description="Filter projects by visibility (e.g., 'public', 'private')",
+        ),
+        group_id: int | str | None = Field(
+            default=None, description="Group ID or path"
+        ),
+        name: str | None = Field(default=None, description="New name of the project"),
+        description: str | None = Field(
+            default=None, description="New description of the project"
+        ),
+        skip_groups: list[int] | None = Field(
+            default=None, description="List of group IDs to exclude"
+        ),
+        group_access: str | None = Field(
+            default=None,
+            description="Access level for the group (e.g., 'guest', 'developer', 'maintainer')",
+        ),
+        expires_at: str | None = Field(
+            default=None, description="Expiration date for the share in ISO 8601 format"
+        ),
+        verify: bool | None = Field(
+            default=to_boolean(
+                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
+            ),
+            description="Verify SSL certificate",
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting", default=None
+        ),
+    ) -> Response | dict[str, Any]:
+        """Manage projects in GitLab."""
+        if not access_token:
+            raise RuntimeError(
+                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+            )
+        client = get_client(
+            instance=gitlab_instance or DEFAULT_GITLAB_URL,
+            token=access_token,
+            verify=bool(verify),
+            config=config,
+        )
+
+        args_dict = {
+            "project_id": project_id,
+            "owned": owned,
+            "search": search,
+            "sort": sort,
+            "visibility": visibility,
+            "group_id": group_id,
+            "name": name,
+            "description": description,
+            "skip_groups": skip_groups,
+            "group_access": group_access,
+            "expires_at": expires_at,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get":
+            if project_id:
+                return client.get_project(project_id=project_id)
+            else:
+                response = client.get_projects(**kwargs)
+                return response
+        elif action == "get_nested_by_group":
+            if not group_id:
+                raise ValueError("group_id is required")
+            return client.get_nested_projects_by_group(**kwargs)
+        elif action == "get_contributors":
+            if not project_id:
+                raise ValueError("project_id is required")
+            return client.get_project_contributors(**kwargs)
+        elif action == "get_statistics":
+            if not project_id:
+                raise ValueError("project_id is required")
+            return client.get_project_statistics(**kwargs)
+        elif action == "edit":
+            if not project_id:
+                raise ValueError("project_id is required")
+            return client.edit_project(**kwargs)
+        elif action == "share_with_group":
+            if not project_id or not group_id or not group_access:
+                raise ValueError("project_id, group_id, group_access are required")
+            return client.share_project(**kwargs)
+        elif action == "unshare_with_group":
+            if not project_id or not group_id:
+                raise ValueError("project_id, group_id are required")
+            if not await ctx_confirm_destructive(
+                ctx, f"unshare project {project_id} with group {group_id}"
+            ):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_shared_project_link(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
 
 
 def register_releases_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
     )
-    def get_releases(
+    async def gitlab_releases(
+        action: str = Field(
+            description="Action: 'get', 'get_latest', 'get_latest_evidence', 'get_latest_asset', 'get_group_releases', 'download_asset', 'get_by_tag', 'create', 'create_evidence', 'update', 'delete'"
+        ),
         gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
         ),
         access_token: str | None = Field(
-            description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        _include_html_description: bool | None = Field(
-            description="Whether to include HTML descriptions", default=None
-        ),
-        sort: str | None = Field(
-            description="Sort releases by criteria (e.g., 'released_at')", default=None
-        ),
-        order_by: str | None = Field(
-            description="Order releases by criteria (e.g., 'asc', 'desc')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of releases for a specific GitLab project, optionally filtered."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
-        }
-        response = client.get_releases(project_id=project_id, **kwargs)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    def get_latest_release(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
             description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
         ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
         ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
+        group_id: int | str | None = Field(
+            default=None, description="Group ID or path (for group releases)"
         ),
-    ) -> Response:
-        """Retrieve details of the latest release in a GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_latest_release(project_id=project_id)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    def get_latest_release_evidence(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve evidence for the latest release in a GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_latest_release_evidence(project_id=project_id)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    def get_latest_release_asset(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        direct_asset_path: str | None = Field(
-            description="Path to the asset (e.g., 'assets/file.zip')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a specific asset for the latest release in a GitLab project."""
-        if not project_id or not direct_asset_path:
-            raise ValueError("project_id and direct_asset_path are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_latest_release_asset(
-            project_id=project_id, direct_asset_path=direct_asset_path
-        )
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    def get_group_releases(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        _include_html_description: bool | None = Field(
-            description="Whether to include HTML descriptions", default=None
-        ),
-        sort: str | None = Field(
-            description="Sort releases by criteria (e.g., 'released_at')", default=None
-        ),
-        order_by: str | None = Field(
-            description="Order releases by criteria (e.g., 'asc', 'desc')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of releases for a specific GitLab group, optionally filtered."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
-        }
-        response = client.get_group_releases(group_id=group_id, **kwargs)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    async def download_release_asset(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
         tag_name: str | None = Field(
-            description="Tag name of the release (e.g., 'v1.0.0')", default=None
+            default=None, description="Tag name of the release"
         ),
-        direct_asset_path: str | None = Field(
-            description="Path to the asset (e.g., 'assets/file.zip')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Download a release asset from a group's release in GitLab."""
-        if not group_id or not tag_name or not direct_asset_path:
-            raise ValueError("group_id, tag_name, and direct_asset_path are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.download_release_asset(
-            group_id=group_id, tag_name=tag_name, direct_asset_path=direct_asset_path
-        )
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    def get_release_by_tag(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        tag_name: str | None = Field(
-            description="Tag name of the release (e.g., 'v1.0.0')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve details of a release by its tag in a GitLab project."""
-        if not project_id or not tag_name:
-            raise ValueError("project_id and tag_name are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_release_by_tag(project_id=project_id, tag_name=tag_name)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    async def create_release(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(description="Name of the release", default=None),
-        tag_name: str | None = Field(
-            description="Tag name associated with the release (e.g., 'v1.0.0')",
-            default=None,
-        ),
+        name: str | None = Field(default=None, description="Release name"),
         description: str | None = Field(
-            description="Description of the release", default=None
+            default=None, description="Release description"
         ),
-        released_at: str | None = Field(
-            description="Release date in ISO 8601 format", default=None
+        ref: str | None = Field(
+            default=None, description="Commit SHA or branch name (for create)"
         ),
-        assets: dict | None = Field(
-            description="Dictionary of release assets", default=None
+        link_id: int | None = Field(default=None, description="ID of the asset link"),
+        filepath: str | None = Field(
+            default=None, description="Filepath for downloaded asset"
         ),
         verify: bool | None = Field(
-            description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
+            description="Verify SSL certificate",
         ),
         ctx: Context | None = Field(
-            description="MCP context for progress", default=None
+            description="MCP context for progress reporting", default=None
         ),
-    ) -> Response:
-        """Create a new release in a GitLab project."""
-        if not project_id or not name or not tag_name:
-            raise ValueError("project_id, name, and tag_name are required")
-        if ctx:
-            await ctx.info(f"Creating release '{name}' for project {project_id}")
+    ) -> Response | dict[str, Any]:
+        """Manage releases in GitLab."""
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
@@ -5722,720 +1759,148 @@ def register_releases_tools(mcp: FastMCP):
             verify=bool(verify),
             config=config,
         )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
+
+        args_dict = {
+            "project_id": project_id,
+            "group_id": group_id,
+            "tag_name": tag_name,
+            "name": name,
+            "description": description,
+            "ref": ref,
+            "link_id": link_id,
+            "filepath": filepath,
         }
-        response = client.create_release(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Release created")
-        return response
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
 
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    async def create_release_evidence(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        tag_name: str | None = Field(
-            description="Tag name of the release (e.g., 'v1.0.0')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create evidence for a release in a GitLab project."""
-        if not project_id or not tag_name:
-            raise ValueError("project_id and tag_name are required")
-        if ctx:
-            await ctx.info(
-                f"Creating release evidence for tag '{tag_name}' in project {project_id}"
+        if action == "get":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.get_releases(project_id=project_id)
+        elif action == "get_latest":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.get_latest_release(project_id=project_id)
+        elif action == "get_latest_evidence":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.get_latest_release_evidence(project_id=project_id)
+        elif action == "get_latest_asset":
+            if not project_id or not link_id or not filepath:
+                raise ValueError("project_id, link_id, filepath required")
+            return client.get_latest_release_asset(
+                project_id=project_id, link_id=link_id, filepath=filepath
             )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
+        elif action == "get_group_releases":
+            if not group_id:
+                raise ValueError("group_id required")
+            return client.get_group_releases(group_id=group_id)
+        elif action == "download_asset":
+            if not group_id or not tag_name or not link_id or not filepath:
+                raise ValueError("group_id, tag_name, link_id, filepath required")
+            return client.download_release_asset(
+                group_id=group_id, tag_name=tag_name, link_id=link_id, filepath=filepath
             )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.create_release_evidence(
-            project_id=project_id, tag_name=tag_name
-        )
-        if ctx:
-            await ctx.info("Release evidence created")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    async def update_release(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        tag_name: str | None = Field(
-            description="Tag name of the release to update (e.g., 'v1.0.0')",
-            default=None,
-        ),
-        name: str | None = Field(description="New name of the release", default=None),
-        description: str | None = Field(
-            description="New description of the release", default=None
-        ),
-        released_at: str | None = Field(
-            description="New release date in ISO 8601 format", default=None
-        ),
-        assets: dict | None = Field(
-            description="Updated dictionary of release assets", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Update a release in a GitLab project."""
-        if not project_id or not tag_name:
-            raise ValueError("project_id and tag_name are required")
-        if not any([name, description, released_at, assets]):
-            raise ValueError(
-                "At least one of name, description, released_at, or assets must be provided"
+        elif action == "get_by_tag":
+            if not project_id or not tag_name:
+                raise ValueError("project_id, tag_name required")
+            return client.get_release_by_tag(project_id=project_id, tag_name=tag_name)
+        elif action == "create":
+            if not project_id or not name or not tag_name or not description:
+                raise ValueError("project_id, name, tag_name, description required")
+            return client.create_release(**kwargs)
+        elif action == "create_evidence":
+            if not project_id or not tag_name:
+                raise ValueError("project_id, tag_name required")
+            return client.create_release_evidence(
+                project_id=project_id, tag_name=tag_name
             )
-        if ctx:
-            await ctx.info(
-                f"Updating release for tag '{tag_name}' in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-                "tag_name",
-            ]
-        }
-        response = client.update_release(
-            project_id=project_id, tag_name=tag_name, **kwargs
-        )
-        if ctx:
-            await ctx.info("Release updated")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"releases"}
-    )
-    async def delete_release(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        tag_name: str | None = Field(
-            description="Tag name of the release to delete (e.g., 'v1.0.0')",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a release in a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "delete release"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not tag_name:
-            raise ValueError("project_id and tag_name are required")
-        if ctx:
-            await ctx.info(
-                f"Deleting release for tag '{tag_name}' in project {project_id}"
-            )
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_release(project_id=project_id, tag_name=tag_name)
-        if ctx:
-            await ctx.info("Release deleted")
-        return response
+        elif action == "update":
+            if not project_id or not tag_name:
+                raise ValueError("project_id, tag_name required")
+            return client.update_release(**kwargs)
+        elif action == "delete":
+            if not project_id or not tag_name:
+                raise ValueError("project_id, tag_name required")
+            if not await ctx_confirm_destructive(ctx, "delete_release"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_release(project_id=project_id, tag_name=tag_name)
+        else:
+            raise ValueError(f"Unknown action: {action}")
 
 
 def register_runners_tools(mcp: FastMCP):
     @mcp.tool(
         exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
     )
-    async def get_runners(
+    async def gitlab_runners(
+        action: str = Field(
+            description="Action: 'get_all', 'update_details', 'pause', 'get_jobs', 'get_project', 'enable_project', 'delete_project', 'get_group', 'register', 'delete', 'verify_auth', 'reset_gitlab_token', 'reset_project_token', 'reset_group_token', 'reset_token'"
+        ),
         gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
         ),
         access_token: str | None = Field(
-            description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
         ),
         runner_id: int | None = Field(
-            description="ID of the runner to retrieve", default=None
+            default=None, description="ID of the runner to retrieve"
         ),
         scope: str | None = Field(
-            description="Filter runners by scope (e.g., 'active')", default=None
+            default=None, description="Filter runners by scope (e.g., 'active')"
         ),
         type: str | None = Field(
-            description="Filter runners by type (e.g., 'instance_type')", default=None
+            default=None, description="Filter runners by type (e.g., 'instance_type')"
         ),
         status: str | None = Field(
-            description="Filter runners by status (e.g., 'online')", default=None
+            default=None, description="Filter runners by status (e.g., 'online')"
         ),
         tag_list: list[str] | None = Field(
-            description="Filter runners by tags", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Retrieve a list of runners in GitLab, optionally filtered by scope, type, status, or tags or Retrieve details of a specific GitLab runner.."""
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify"]
-        }
-        if runner_id:
-            response = client.get_runner(runner_id=runner_id)
-        else:
-            response = client.get_runners(**kwargs)
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def update_runner_details(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        runner_id: int | None = Field(
-            description="ID of the runner to update", default=None
+            default=None, description="Filter runners by tags"
         ),
         description: str | None = Field(
-            description="New description of the runner", default=None
+            default=None, description="New description of the runner"
         ),
         active: bool | None = Field(
-            description="Whether the runner is active", default=None
-        ),
-        tag_list: list[str] | None = Field(
-            description="List of tags for the runner", default=None
+            default=None, description="Whether the runner is active"
         ),
         run_untagged: bool | None = Field(
-            description="Whether the runner can run untagged jobs", default=None
+            default=None, description="Whether the runner can run untagged jobs"
         ),
         locked: bool | None = Field(
-            description="Whether the runner is locked", default=None
+            default=None, description="Whether the runner is locked"
         ),
         access_level: str | None = Field(
-            description="Access level of the runner (e.g., 'ref_protected')",
             default=None,
+            description="Access level of the runner (e.g., 'ref_protected')",
         ),
         maximum_timeout: int | None = Field(
-            description="Maximum timeout for the runner in seconds", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Update details for a specific GitLab runner."""
-        if not runner_id:
-            raise ValueError("runner_id is required")
-        if not any(
-            [
-                description,
-                active,
-                tag_list,
-                run_untagged,
-                locked,
-                access_level,
-                maximum_timeout,
-            ]
-        ):
-            raise ValueError("At least one update parameter must be provided")
-        if ctx:
-            await ctx.info(f"Updating runner {runner_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "runner_id",
-            ]
-        }
-        response = client.update_runner_details(runner_id=runner_id, **kwargs)
-        if ctx:
-            await ctx.info("Runner updated")
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def pause_runner(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        runner_id: int | None = Field(
-            description="ID of the runner to pause or unpause", default=None
-        ),
-        active: bool | None = Field(
-            description="Whether the runner should be active (True) or paused (False)",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Pause or unpause a specific GitLab runner."""
-        if not runner_id or active is None:
-            raise ValueError("runner_id and active are required")
-        if ctx:
-            await ctx.info(f"Setting runner {runner_id} active status to {active}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.pause_runner(runner_id=runner_id, active=active)
-        if ctx:
-            await ctx.info("Runner status updated")
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def get_runner_jobs(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        runner_id: int | None = Field(
-            description="ID of the runner to retrieve jobs for", default=None
-        ),
-        status: str | None = Field(
-            description="Filter jobs by status (e.g., 'success', 'failed')",
-            default=None,
+            default=None, description="Maximum timeout for the runner in seconds"
         ),
         sort: str | None = Field(
-            description="Sort jobs by criteria (e.g., 'created_at')", default=None
+            default=None, description="Sort jobs by criteria (e.g., 'created_at')"
         ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
         ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Retrieve jobs for a specific GitLab runner, optionally filtered by status or sorted."""
-        if not runner_id:
-            raise ValueError("runner_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "runner_id"]
-        }
-        response = client.get_runner_jobs(runner_id=runner_id, **kwargs)
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def get_project_runners(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        scope: str | None = Field(
-            description="Filter runners by scope (e.g., 'active')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Retrieve a list of runners in a specific GitLab project, optionally filtered by scope."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
-        }
-        response = client.get_project_runners(project_id=project_id, **kwargs)
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def enable_project_runner(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        runner_id: int | None = Field(
-            description="ID of the runner to enable", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Enable a runner in a specific GitLab project."""
-        if not project_id or not runner_id:
-            raise ValueError("project_id and runner_id are required")
-        if ctx:
-            await ctx.info(f"Enabling runner {runner_id} for project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.enable_project_runner(
-            project_id=project_id, runner_id=runner_id
-        )
-        if ctx:
-            await ctx.info("Runner enabled")
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def delete_project_runner(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        runner_id: int | None = Field(
-            description="ID of the runner to delete", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a runner from a specific GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "delete project runner"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not runner_id:
-            raise ValueError("project_id and runner_id are required")
-        if ctx:
-            await ctx.info(f"Deleting runner {runner_id} from project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_project_runner(
-            project_id=project_id, runner_id=runner_id
-        )
-        if ctx:
-            await ctx.info("Runner deleted")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def get_group_runners(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        scope: str | None = Field(
-            description="Filter runners by scope (e.g., 'active')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Retrieve a list of runners in a specific GitLab group, optionally filtered by scope."""
-        if not group_id:
-            raise ValueError("group_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "group_id"]
-        }
-        response = client.get_group_runners(group_id=group_id, **kwargs)
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def register_new_runner(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+        group_id: int | str | None = Field(
+            default=None, description="Group ID or path"
         ),
         token: str | None = Field(
-            description="Registration token for the runner", default=None
-        ),
-        description: str | None = Field(
-            description="Description of the runner", default=None
-        ),
-        tag_list: list[str] | None = Field(
-            description="List of tags for the runner", default=None
-        ),
-        run_untagged: bool | None = Field(
-            description="Whether the runner can run untagged jobs", default=None
-        ),
-        locked: bool | None = Field(
-            description="Whether the runner is locked", default=None
+            default=None, description="Registration token for the runner"
         ),
         verify: bool | None = Field(
-            description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
+            description="Verify SSL certificate",
         ),
         ctx: Context | None = Field(
-            description="MCP context for progress", default=None
+            description="MCP context for progress reporting", default=None
         ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Register a new GitLab runner."""
-        if not token:
-            raise ValueError("token is required")
-        if ctx:
-            await ctx.info("Registering new runner with token")
+    ) -> Response | dict[str, Any]:
+        """Manage runners in GitLab."""
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
@@ -6446,604 +1911,150 @@ def register_runners_tools(mcp: FastMCP):
             verify=bool(verify),
             config=config,
         )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
+
+        args_dict = {
+            "runner_id": runner_id,
+            "scope": scope,
+            "type": type,
+            "status": status,
+            "tag_list": tag_list,
+            "description": description,
+            "active": active,
+            "run_untagged": run_untagged,
+            "locked": locked,
+            "access_level": access_level,
+            "maximum_timeout": maximum_timeout,
+            "sort": sort,
+            "project_id": project_id,
+            "group_id": group_id,
+            "token": token,
         }
-        response = client.register_new_runner(**kwargs)
-        if ctx:
-            await ctx.info("Runner registered")
-        await ctx_progress(ctx, 100, 100)
-        return response
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
 
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def delete_runner(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        runner_id: int | None = Field(
-            description="ID of the runner to delete", default=None
-        ),
-        token: str | None = Field(
-            description="Token of the runner to delete", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a GitLab runner by ID or token."""
-        if not await ctx_confirm_destructive(ctx, "delete runner"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not runner_id and not token:
-            raise ValueError("Either runner_id or token is required")
-        if ctx:
-            await ctx.info(f"Deleting runner with ID {runner_id or 'token'}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k not in ["client", "gitlab_instance", "access_token", "verify", "ctx"]
-        }
-        response = client.delete_runner(**kwargs)
-        if ctx:
-            await ctx.info("Runner deleted")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def verify_runner_authentication(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        token: str | None = Field(description="Runner token to verify", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        await ctx_progress(ctx, 0, 100)
-        """Verify authentication for a GitLab runner using its token."""
-        if not token:
-            raise ValueError("token is required")
-        if ctx:
-            await ctx.info("Verifying runner authentication")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.verify_runner_authentication(token=token)
-        if ctx:
-            await ctx.info("Runner authentication verified")
-        await ctx_progress(ctx, 100, 100)
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def reset_gitlab_runner_token(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Reset the GitLab runner registration token."""
-        if not await ctx_confirm_destructive(ctx, "reset gitlab runner token"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if ctx:
-            await ctx.info("Resetting GitLab runner registration token")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.reset_gitlab_runner_token()
-        if ctx:
-            await ctx.info("Runner token reset")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def reset_project_runner_token(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Reset the registration token for a project's runner in GitLab."""
-        if not await ctx_confirm_destructive(ctx, "reset project runner token"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id:
-            raise ValueError("project_id is required")
-        if ctx:
-            await ctx.info(f"Resetting runner token for project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.reset_project_runner_token(project_id=project_id)
-        if ctx:
-            await ctx.info("Project runner token reset")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def reset_group_runner_token(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        group_id: int | str = Field(description="Group ID or path", default=None),  # type: ignore
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Reset the registration token for a group's runner in GitLab."""
-        if not await ctx_confirm_destructive(ctx, "reset group runner token"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not group_id:
-            raise ValueError("group_id is required")
-        if ctx:
-            await ctx.info(f"Resetting runner token for group {group_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.reset_group_runner_token(group_id=group_id)
-        if ctx:
-            await ctx.info("Group runner token reset")
-        return response
-
-    @mcp.tool(
-        exclude_args=["gitlab_instance", "access_token", "verify"], tags={"runners"}
-    )
-    async def reset_token(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        runner_id: int | None = Field(
-            description="ID of the runner to reset the token for", default=None
-        ),
-        token: str | None = Field(
-            description="Current token of the runner", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Reset the authentication token for a specific GitLab runner."""
-        if not await ctx_confirm_destructive(ctx, "reset token"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not runner_id or not token:
-            raise ValueError("runner_id and token are required")
-        if ctx:
-            await ctx.info(f"Resetting authentication token for runner {runner_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.reset_token(runner_id=runner_id, token=token)
-        if ctx:
-            await ctx.info("Runner authentication token reset")
-        return response
+        if action == "get_all":
+            return client.get_runners(**kwargs)
+        elif action == "update_details":
+            if not runner_id:
+                raise ValueError("runner_id required")
+            return client.update_runner_details(**kwargs)
+        elif action == "pause":
+            if not runner_id:
+                raise ValueError("runner_id required")
+            return client.pause_runner(**kwargs)
+        elif action == "get_jobs":
+            if not runner_id:
+                raise ValueError("runner_id required")
+            return client.get_runner_jobs(**kwargs)
+        elif action == "get_project":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.get_project_runners(**kwargs)
+        elif action == "enable_project":
+            if not project_id or not runner_id:
+                raise ValueError("project_id, runner_id required")
+            return client.enable_project_runner(**kwargs)
+        elif action == "delete_project":
+            if not project_id or not runner_id:
+                raise ValueError("project_id, runner_id required")
+            if not await ctx_confirm_destructive(ctx, "delete_project_runner"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_project_runner(**kwargs)
+        elif action == "get_group":
+            if not group_id:
+                raise ValueError("group_id required")
+            return client.get_group_runners(**kwargs)
+        elif action == "register":
+            if not token:
+                raise ValueError("token required")
+            return client.register_new_runner(**kwargs)
+        elif action == "delete":
+            if not runner_id:
+                raise ValueError("runner_id required")
+            if not await ctx_confirm_destructive(ctx, "delete_runner"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_runner(**kwargs)
+        elif action == "verify_auth":
+            if not token:
+                raise ValueError("token required")
+            return client.verify_runner_authentication(**kwargs)
+        elif action == "reset_gitlab_token":
+            if not await ctx_confirm_destructive(ctx, "reset_gitlab_runner_token"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.reset_gitlab_runner_token(**kwargs)
+        elif action == "reset_project_token":
+            if not project_id:
+                raise ValueError("project_id required")
+            if not await ctx_confirm_destructive(ctx, "reset_project_runner_token"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.reset_project_runner_token(**kwargs)
+        elif action == "reset_group_token":
+            if not group_id:
+                raise ValueError("group_id required")
+            if not await ctx_confirm_destructive(ctx, "reset_group_runner_token"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.reset_group_runner_token(**kwargs)
+        elif action == "reset_token":
+            if not runner_id:
+                raise ValueError("runner_id required")
+            if not await ctx_confirm_destructive(ctx, "reset_token"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.reset_token(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
 
 
 def register_tags_tools(mcp: FastMCP):
     @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    def get_tags(
+    async def gitlab_tags(
+        action: str = Field(
+            description="Action: 'get', 'create', 'delete', 'get_protected', 'get_protected_tag', 'protect', 'unprotect'"
+        ),
         gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
         ),
         access_token: str | None = Field(
-            description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
         ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
+        project_id: int | str | None = Field(
+            default=None, description="Project ID or path"
+        ),
         name: str | None = Field(
-            description="Name of the tag to retrieve (e.g., 'v1.0.0')", default=None
+            default=None, description="Name of the tag to retrieve (e.g., 'v1.0.0')"
         ),
         search: str | None = Field(
-            description="Filter tags by search term in name", default=None
+            default=None, description="Filter tags by search term in name"
         ),
         sort: str | None = Field(
-            description="Sort tags by criteria (e.g., 'name', 'updated')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of tags for a specific GitLab project, optionally filtered or sorted or Retrieve details of a specific tag in a GitLab project."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
-        }
-        if name:
-            response = client.get_tag(project_id=project_id, name=name)
-            return response
-        else:
-            response = client.get_tags(project_id=project_id, **kwargs)
-            return {"tags": response.data}  # type: ignore
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def create_tag(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(
-            description="Name of the tag to create (e.g., 'v1.0.0')", default=None
+            default=None, description="Sort tags by criteria (e.g., 'name', 'updated')"
         ),
         ref: str | None = Field(
-            description="Reference (e.g., branch or commit SHA) to tag", default=None
+            default=None, description="Reference (e.g., branch or commit SHA) to tag"
         ),
-        message: str | None = Field(description="Tag message", default=None),
-        _release_description: str | None = Field(
-            description="Release description associated with the tag", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Create a new tag in a GitLab project."""
-        if not project_id or not name or not ref:
-            raise ValueError("project_id, name, and ref are required")
-        if ctx:
-            await ctx.info(f"Creating tag '{name}' in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.create_tag(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Tag created")
-        return response
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def delete_tag(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(
-            description="Name of the tag to delete (e.g., 'v1.0.0')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Delete a specific tag in a GitLab project."""
-        if not await ctx_confirm_destructive(ctx, "delete tag"):
-            return {"status": "cancelled", "message": "Operation cancelled by user"}  # type: ignore
-        await ctx_progress(ctx, 0, 100)
-        if not project_id or not name:
-            raise ValueError("project_id and name are required")
-        if ctx:
-            await ctx.info(f"Deleting tag '{name}' in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.delete_tag(project_id=project_id, name=name)
-        if ctx:
-            await ctx.info("Tag deleted")
-        return response
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    def get_protected_tags(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(description="Filter tags by name", default=None),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve a list of protected tags in a specific GitLab project, optionally filtered by name."""
-        if not project_id:
-            raise ValueError("project_id is required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in ["client", "gitlab_instance", "access_token", "verify", "project_id"]
-        }
-        response = client.get_protected_tags(project_id=project_id, **kwargs)
-        return response
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    def get_protected_tag(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(
-            description="Name of the protected tag to retrieve (e.g., 'v1.0.0')",
-            default=None,
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context = Field(  # type: ignore
-            description="MCP context for progress reporting", default=None
-        ),
-    ) -> Response:
-        """Retrieve details of a specific protected tag in a GitLab project."""
-        if not project_id or not name:
-            raise ValueError("project_id and name are required")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.get_protected_tag(project_id=project_id, name=name)
-        return response
-
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def protect_tag(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(
-            description="Name of the tag to protect (e.g., 'v1.0.0')", default=None
+        message: str | None = Field(default=None, description="Tag message"),
+        release_description: str | None = Field(
+            default=None, description="Release description associated with the tag"
         ),
         create_access_level: str | None = Field(
-            description="Access level for creating the tag (e.g., 'maintainer')",
             default=None,
+            description="Access level for creating the tag (e.g., 'maintainer')",
         ),
         allowed_to_create: list[dict] | None = Field(
-            description="List of users or groups allowed to create the tag",
             default=None,
+            description="List of users or groups allowed to create the tag",
         ),
         verify: bool | None = Field(
-            description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
+            description="Verify SSL certificate",
         ),
         ctx: Context | None = Field(
-            description="MCP context for progress", default=None
+            description="MCP context for progress reporting", default=None
         ),
-    ) -> Response:
-        """Protect a specific tag in a GitLab project with specified access levels."""
-        if not project_id or not name:
-            raise ValueError("project_id and name are required")
-        if not create_access_level and not allowed_to_create:
-            raise ValueError(
-                "At least one of create_access_level or allowed_to_create must be provided"
-            )
-        if ctx:
-            await ctx.info(f"Protecting tag '{name}' in project {project_id}")
+    ) -> Response | dict[str, Any]:
+        """Manage tags in GitLab."""
         if not access_token:
             raise RuntimeError(
                 f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
@@ -7054,68 +2065,54 @@ def register_tags_tools(mcp: FastMCP):
             verify=bool(verify),
             config=config,
         )
-        kwargs = {
-            k.lstrip("_"): v
-            for k, v in locals().items()
-            if v is not None
-            and k
-            not in [
-                "client",
-                "gitlab_instance",
-                "access_token",
-                "verify",
-                "ctx",
-                "project_id",
-            ]
-        }
-        response = client.protect_tag(project_id=project_id, **kwargs)
-        if ctx:
-            await ctx.info("Tag protected")
-        return response
 
-    @mcp.tool(exclude_args=["gitlab_instance", "access_token", "verify"], tags={"tags"})
-    async def unprotect_tag(
-        gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
-            default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
-        ),
-        access_token: str | None = Field(
-            description="GitLab access token",
-            default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
-        ),
-        project_id: int | str = Field(description="Project ID or path", default=None),  # type: ignore
-        name: str | None = Field(
-            description="Name of the tag to unprotect (e.g., 'v1.0.0')", default=None
-        ),
-        verify: bool | None = Field(
-            description="Verify SSL certificate",
-            default=to_boolean(
-                os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
-            ),
-        ),
-        ctx: Context | None = Field(
-            description="MCP context for progress", default=None
-        ),
-    ) -> Response:
-        """Unprotect a specific tag in a GitLab project."""
-        if not project_id or not name:
-            raise ValueError("project_id and name are required")
-        if ctx:
-            await ctx.info(f"Unprotecting tag '{name}' in project {project_id}")
-        if not access_token:
-            raise RuntimeError(
-                f"No Access Token supplied as function parameters or as the environment variables [GITLAB_TOKEN] Access Token Supplied: {access_token}"
-            )
-        client = get_client(
-            instance=gitlab_instance or DEFAULT_GITLAB_URL,
-            token=access_token,
-            verify=bool(verify),
-            config=config,
-        )
-        response = client.unprotect_tag(project_id=project_id, name=name)
-        if ctx:
-            await ctx.info("Tag unprotected")
-        return response
+        args_dict = {
+            "project_id": project_id,
+            "name": name,
+            "search": search,
+            "sort": sort,
+            "ref": ref,
+            "message": message,
+            "release_description": release_description,
+            "create_access_level": create_access_level,
+            "allowed_to_create": allowed_to_create,
+        }
+        kwargs = {k: v for k, v in args_dict.items() if v is not None}
+
+        if action == "get":
+            if not project_id:
+                raise ValueError("project_id required")
+            if name:
+                return client.get_tag(project_id=project_id, name=name)
+            return client.get_tags(**kwargs)
+        elif action == "create":
+            if not project_id or not name or not ref:
+                raise ValueError("project_id, name, ref required")
+            return client.create_tag(**kwargs)
+        elif action == "delete":
+            if not project_id or not name:
+                raise ValueError("project_id, name required")
+            if not await ctx_confirm_destructive(ctx, "delete_tag"):
+                return {"status": "cancelled", "message": "Operation cancelled by user"}
+            return client.delete_tag(**kwargs)
+        elif action == "get_protected":
+            if not project_id:
+                raise ValueError("project_id required")
+            return client.get_protected_tags(**kwargs)
+        elif action == "get_protected_tag":
+            if not project_id or not name:
+                raise ValueError("project_id, name required")
+            return client.get_protected_tag(**kwargs)
+        elif action == "protect":
+            if not project_id or not name:
+                raise ValueError("project_id, name required")
+            return client.protect_tag(**kwargs)
+        elif action == "unprotect":
+            if not project_id or not name:
+                raise ValueError("project_id, name required")
+            return client.unprotect_tag(**kwargs)
+        else:
+            raise ValueError(f"Unknown action: {action}")
 
 
 def register_custom_api_tools(mcp: FastMCP):
@@ -7125,18 +2122,18 @@ def register_custom_api_tools(mcp: FastMCP):
     )
     async def api_request(
         gitlab_instance: str | None = Field(
-            description="URL of GitLab instance with /api/v4/ suffix",
             default=os.environ.get("GITLAB_URL", DEFAULT_GITLAB_URL),
+            description="URL of GitLab instance with /api/v4/ suffix",
         ),
         access_token: str | None = Field(
-            description="GitLab access token",
             default=os.environ.get("GITLAB_TOKEN", DEFAULT_GITLAB_TOKEN),
+            description="GitLab access token",
         ),
         verify: bool | None = Field(
-            description="Verify SSL certificate",
             default=to_boolean(
                 os.environ.get("GITLAB_VERIFY", DEFAULT_GITLAB_SSL_VERIFY)
             ),
+            description="Verify SSL certificate",
         ),
         method: str | None = Field(
             description="The HTTP method to use ('GET', 'POST', 'PUT', 'DELETE')"
@@ -7154,7 +2151,7 @@ def register_custom_api_tools(mcp: FastMCP):
         ctx: Context | None = Field(
             description="MCP context for progress", default=None
         ),
-    ) -> Response:
+    ) -> Response | dict[str, Any]:
         """
         Make a custom API request to a GitLab instance.
         """

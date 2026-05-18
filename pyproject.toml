@@ -9,7 +9,7 @@ description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: Public Domain", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.11, <3.14"
-dependencies = [ "agent-utilities>=0.9.0",]
+dependencies = [ "agent-utilities>=0.11.0",]
 [[project.authors]]
 name = "Audel Rouhi"
 email = "knucklessg1@gmail.com"
@@ -18,11 +18,11 @@ email = "knucklessg1@gmail.com"
 text = "MIT"
 
 [project.optional-dependencies]
-mcp = [ "agent-utilities[mcp]>=0.9.0",]
-agent = [ "agent-utilities[agent,logfire]>=0.9.0",]
+mcp = [ "agent-utilities[mcp]>=0.11.0",]
+agent = [ "agent-utilities[agent,logfire]>=0.11.0",]
 gql = [ "gql>=4.0.0",]
 all = [ "gitlab-api[mcp,agent,gql,logfire]>=25.15.56",]
-test = [ "pytest", "pytest-asyncio",]
+test = [ "pytest", "pytest-asyncio", "pytest-cov",]
 
 [project.scripts]
 gitlab-mcp = "gitlab_api.mcp_server:mcp_server"
@@ -54,3 +54,6 @@ ignore = [ "E402", "E501", "B008",]
 
 [tool.setuptools.packages.find]
 where = [ ".",]
+
+[tool.vulture]
+ignore_names = ["request", "config"]

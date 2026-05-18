@@ -3,8 +3,8 @@ services:
   gitlab-agent:
     # image: docker.io/knucklessg1/gitlab:latest
     build:
-      context: . # Debug
-      dockerfile: debug.Dockerfile
+      context: .. # Debug
+      dockerfile: docker/debug.Dockerfile
     container_name: gitlab-agent
     hostname: gitlab-agent
     command: [ "gitlab-agent" ]
@@ -19,7 +19,7 @@ services:
         max-file: "3"
     restart: always
     env_file:
-      - .env
+      - ../.env
     environment:
       - "PYTHONUNBUFFERED=1"
       - "HOST=0.0.0.0"

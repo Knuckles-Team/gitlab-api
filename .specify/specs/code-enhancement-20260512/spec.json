@@ -1,0 +1,287 @@
+{
+  "feature_id": "code-enhancement-20260512",
+  "title": "Code Enhancement: gitlab-api",
+  "created": "2026-05-12T14:14:40.992830+00:00",
+  "overview": "Automated code enhancement review for gitlab-api. Covers 17 analysis domains.",
+  "user_stories": [
+    {
+      "role": "developer",
+      "action": "address Project Analysis findings (grade: C, score: 74)",
+      "value": "improve project project analysis from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Codebase Optimization findings (grade: F, score: 46)",
+      "value": "improve project codebase optimization from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Test Coverage findings (grade: C, score: 75)",
+      "value": "improve project test coverage from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Architecture & Design Patterns findings (grade: D, score: 65)",
+      "value": "improve project architecture & design patterns from D to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Concept Traceability findings (grade: F, score: 30)",
+      "value": "improve project concept traceability from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Changelog Audit findings (grade: C, score: 75)",
+      "value": "improve project changelog audit from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Pytest Quality findings (grade: F, score: 49)",
+      "value": "improve project pytest quality from F to at least B (80+)"
+    }
+  ],
+  "functional_requirements": [
+    {
+      "id": "FR-001",
+      "description": "16 functions exceed 200 lines (actionable refactoring targets): test_project_response_3 (4002L), register_runners_tools (821L), register_merge_rules_tools (728L), register_commits_tools (668L), register_environments_tools (641L)",
+      "testable": true
+    },
+    {
+      "id": "FR-002",
+      "description": "Monolithic: mcp_server.py (7339L) \u2014 16 functions with high complexity (worst: register_runners_tools at 821L, CC=94); Low cohesion: 27 distinct concepts in one file",
+      "testable": true
+    },
+    {
+      "id": "FR-003",
+      "description": "Monolithic: gitlab_input_models.py (3278L) \u2014 4 functions with high complexity (worst: ProjectModel.model_post_init at 77L, CC=36); Low cohesion: 22 distinct concepts in one file",
+      "testable": true
+    },
+    {
+      "id": "FR-004",
+      "description": "Needs attention: api_client.py (5079L) \u2014 God class: Api (158 methods) \u2014 consider mixins/composition",
+      "testable": true
+    },
+    {
+      "id": "FR-005",
+      "description": "Needs attention: gitlab_gql.py (3340L) \u2014 God class: GraphQL (86 methods) \u2014 consider mixins/composition",
+      "testable": true
+    },
+    {
+      "id": "FR-006",
+      "description": "Needs attention: gitlab_response_models.py (3738L) \u2014 Low cohesion: 89 distinct concepts in one file",
+      "testable": true
+    },
+    {
+      "id": "FR-007",
+      "description": "7 functions with nesting depth >4",
+      "testable": true
+    },
+    {
+      "id": "FR-008",
+      "description": "6 tests without assertions",
+      "testable": true
+    },
+    {
+      "id": "FR-009",
+      "description": "40 potential doc-test drift items",
+      "testable": true
+    },
+    {
+      "id": "FR-010",
+      "description": "README.md missing sections: installation",
+      "testable": true
+    },
+    {
+      "id": "FR-011",
+      "description": "README missing: Has a Table of Contents",
+      "testable": true
+    },
+    {
+      "id": "FR-012",
+      "description": "README missing: References /docs directory material",
+      "testable": true
+    },
+    {
+      "id": "FR-013",
+      "description": "SRP: 6 modules exceed 500 lines (god modules)",
+      "testable": true
+    },
+    {
+      "id": "FR-014",
+      "description": "SRP: 2 classes have >15 methods",
+      "testable": true
+    },
+    {
+      "id": "FR-015",
+      "description": "No discernible layer architecture (no domain/service/adapter separation)",
+      "testable": true
+    },
+    {
+      "id": "FR-016",
+      "description": "Low dependency injection ratio: 2%",
+      "testable": true
+    },
+    {
+      "id": "FR-017",
+      "description": "Low traceability ratio: 0% concepts fully traced",
+      "testable": true
+    },
+    {
+      "id": "FR-018",
+      "description": "217 test functions missing concept markers",
+      "testable": true
+    },
+    {
+      "id": "FR-019",
+      "description": "484 significant functions (>10 lines) missing concept markers in docstrings",
+      "testable": true
+    },
+    {
+      "id": "FR-020",
+      "description": "Total lint findings: 0 (high/error: 0, medium/warning: 0, low: 0)",
+      "testable": true
+    },
+    {
+      "id": "FR-021",
+      "description": "2 hook(s) may be outdated: ruff-pre-commit, uv-pre-commit",
+      "testable": true
+    },
+    {
+      "id": "FR-022",
+      "description": "FAILED: tests/test_gitlab_a2a_validation.py::test_a_spin_up",
+      "testable": true
+    },
+    {
+      "id": "FR-023",
+      "description": "FAILED: tests/test_gitlab_a2a_validation.py::test_b_respond_to_query",
+      "testable": true
+    },
+    {
+      "id": "FR-024",
+      "description": "FAILED: tests/test_gitlab_a2a_validation.py::test_c_d_e_f_full_flow",
+      "testable": true
+    },
+    {
+      "id": "FR-025",
+      "description": "FAILED: tests/test_gitlab_mcp_validation.py::test_create_branch",
+      "testable": true
+    },
+    {
+      "id": "FR-026",
+      "description": "FAILED: tests/test_verify_agent.py::test_graphiti_ingestion",
+      "testable": true
+    },
+    {
+      "id": "FR-027",
+      "description": "FAILED: tests/test_verify_agent.py::test_branch_creation_flow",
+      "testable": true
+    },
+    {
+      "id": "FR-028",
+      "description": "FAILED: tests/test_verify_agent.py::test_pipeline_flow",
+      "testable": true
+    },
+    {
+      "id": "FR-029",
+      "description": "FAILED: tests/test_verify_agent.py::test_list_projects",
+      "testable": true
+    },
+    {
+      "id": "FR-030",
+      "description": "FAILED: tests/test_verify_agent.py::test_z_validate_service_logs",
+      "testable": true
+    },
+    {
+      "id": "FR-031",
+      "description": "2 rogue/throwaway scripts detected (fix_*, validate_*, patch_*, etc.): scripts/validate_agent.py, scripts/validate_a2a_agent.py",
+      "testable": true
+    },
+    {
+      "id": "FR-032",
+      "description": "CHANGELOG.md exists but could not be parsed \u2014 check format compliance",
+      "testable": true
+    },
+    {
+      "id": "FR-033",
+      "description": "No changelog entries within the last 30 days",
+      "testable": true
+    },
+    {
+      "id": "FR-034",
+      "description": "keepachangelog not installed \u2014 pip install 'universal-skills[code-enhancer]'",
+      "testable": true
+    },
+    {
+      "id": "FR-035",
+      "description": "1 test files exceed 500 lines \u2014 split into focused modules",
+      "testable": true
+    },
+    {
+      "id": "FR-036",
+      "description": "1 test files have >30 tests \u2014 too dense",
+      "testable": true
+    },
+    {
+      "id": "FR-037",
+      "description": "Test directory lacks subdirectory organization (consider unit/, integration/, e2e/)",
+      "testable": true
+    },
+    {
+      "id": "FR-038",
+      "description": "Low fixture usage: only 7% of tests use fixtures",
+      "testable": true
+    },
+    {
+      "id": "FR-039",
+      "description": "No @pytest.mark.parametrize usage \u2014 consider data-driven tests",
+      "testable": true
+    },
+    {
+      "id": "FR-040",
+      "description": "6 tests have no assertions",
+      "testable": true
+    },
+    {
+      "id": "FR-041",
+      "description": "182 tests use weak assertions (assert result is not None, assert True, etc.)",
+      "testable": true
+    },
+    {
+      "id": "FR-042",
+      "description": "24 groups of duplicate test bodies detected (51 total) \u2014 use parametrize instead",
+      "testable": true
+    },
+    {
+      "id": "FR-043",
+      "description": "20 tests exceed 100 lines \u2014 likely doing too much per test",
+      "testable": true
+    },
+    {
+      "id": "FR-044",
+      "description": "Undocumented env vars: EUNOMIA_REMOTE_URL, FASTMCP_LOG_LEVEL, MCP_CONFIG, NO_COLOR, OAUTH_BASE_URL, OAUTH_UPSTREAM_AUTH_ENDPOINT, OAUTH_UPSTREAM_CLIENT_ID, OAUTH_UPSTREAM_CLIENT_SECRET, OAUTH_UPSTREAM_TOKEN_ENDPOINT, REMOTE_AUTH_SERVERS",
+      "testable": true
+    },
+    {
+      "id": "FR-045",
+      "description": "30 Python env vars not in .env.example: BRANCHESTOOL, COMMITSTOOL, CUSTOM_APITOOL, DEFAULT_AGENT_NAME, DEPLOY_TOKENSTOOL",
+      "testable": true
+    }
+  ],
+  "success_criteria": [
+    {
+      "metric": "Overall GPA",
+      "current": 2.65,
+      "target": 3.0
+    },
+    {
+      "metric": "Domains at B or above",
+      "current": 10,
+      "target": 17
+    },
+    {
+      "metric": "Actionable findings",
+      "current": 45,
+      "target": 0
+    }
+  ]
+}

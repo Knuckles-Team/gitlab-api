@@ -1,0 +1,95 @@
+# Tasks: Code Enhancement: gitlab-api
+
+Generated: 2026-05-12T14:14:40.992830+00:00
+Skipped informational: 5
+
+- [ ] [P] **T001** [Codebase Optimization] 16 functions exceed 200 lines (actionable refactoring targets): test_project_res
+  - Priority: P2-Medium | Effort: Large
+- [ ] [P] **T002** [Codebase Optimization] Monolithic: mcp_server.py (7339L) — 16 functions with high complexity (worst: re
+  - Priority: P1-High | Effort: Large
+- [ ] [P] **T003** [Codebase Optimization] Monolithic: gitlab_input_models.py (3278L) — 4 functions with high complexity (w
+  - Priority: P1-High | Effort: Large
+- [ ] [P] **T004** [Codebase Optimization] Needs attention: api_client.py (5079L) — God class: Api (158 methods) — consider
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T005** [Codebase Optimization] Needs attention: gitlab_gql.py (3340L) — God class: GraphQL (86 methods) — consi
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T006** [Codebase Optimization] Needs attention: gitlab_response_models.py (3738L) — Low cohesion: 89 distinct c
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T007** [Codebase Optimization] 7 functions with nesting depth >4
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T008** [Test Coverage] 6 tests without assertions
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T009** [Test Coverage] 40 potential doc-test drift items
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T010** [Documentation & Governance] README.md missing sections: installation
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T011** [Documentation & Governance] README missing: Has a Table of Contents
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T012** [Documentation & Governance] README missing: References /docs directory material
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T013** [Architecture & Design Patterns] SRP: 6 modules exceed 500 lines (god modules)
+  - Priority: P2-Medium | Effort: Large
+- [ ] [P] **T014** [Architecture & Design Patterns] SRP: 2 classes have >15 methods
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T015** [Architecture & Design Patterns] No discernible layer architecture (no domain/service/adapter separation)
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T016** [Architecture & Design Patterns] Low dependency injection ratio: 2%
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T017** [Concept Traceability] Low traceability ratio: 0% concepts fully traced
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T018** [Concept Traceability] 217 test functions missing concept markers
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T019** [Concept Traceability] 484 significant functions (>10 lines) missing concept markers in docstrings
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T020** [Linting & Formatting] Total lint findings: 0 (high/error: 0, medium/warning: 0, low: 0)
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T021** [Pre-Commit Compliance] 2 hook(s) may be outdated: ruff-pre-commit, uv-pre-commit
+  - Priority: P2-Medium | Effort: Small
+- [ ] [P] **T022** [Test Execution] FAILED: tests/test_gitlab_a2a_validation.py::test_a_spin_up
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T023** [Test Execution] FAILED: tests/test_gitlab_a2a_validation.py::test_b_respond_to_query
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T024** [Test Execution] FAILED: tests/test_gitlab_a2a_validation.py::test_c_d_e_f_full_flow
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T025** [Test Execution] FAILED: tests/test_gitlab_mcp_validation.py::test_create_branch
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T026** [Test Execution] FAILED: tests/test_verify_agent.py::test_graphiti_ingestion
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T027** [Test Execution] FAILED: tests/test_verify_agent.py::test_branch_creation_flow
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T028** [Test Execution] FAILED: tests/test_verify_agent.py::test_pipeline_flow
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T029** [Test Execution] FAILED: tests/test_verify_agent.py::test_list_projects
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T030** [Test Execution] FAILED: tests/test_verify_agent.py::test_z_validate_service_logs
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T031** [Directory Organization] 2 rogue/throwaway scripts detected (fix_*, validate_*, patch_*, etc.): scripts/v
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T032** [Changelog Audit] CHANGELOG.md exists but could not be parsed — check format compliance
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T033** [Changelog Audit] No changelog entries within the last 30 days
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T034** [Changelog Audit] keepachangelog not installed — pip install 'universal-skills[code-enhancer]'
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T035** [Pytest Quality] 1 test files exceed 500 lines — split into focused modules
+  - Priority: P1-High | Effort: Large
+- [ ] [P] **T036** [Pytest Quality] 1 test files have >30 tests — too dense
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T037** [Pytest Quality] Test directory lacks subdirectory organization (consider unit/, integration/, e2
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T038** [Pytest Quality] Low fixture usage: only 7% of tests use fixtures
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T039** [Pytest Quality] No @pytest.mark.parametrize usage — consider data-driven tests
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T040** [Pytest Quality] 6 tests have no assertions
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T041** [Pytest Quality] 182 tests use weak assertions (assert result is not None, assert True, etc.)
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T042** [Pytest Quality] 24 groups of duplicate test bodies detected (51 total) — use parametrize instead
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T043** [Pytest Quality] 20 tests exceed 100 lines — likely doing too much per test
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T044** [Environment Variables] Undocumented env vars: EUNOMIA_REMOTE_URL, FASTMCP_LOG_LEVEL, MCP_CONFIG, NO_COL
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T045** [Environment Variables] 30 Python env vars not in .env.example: BRANCHESTOOL, COMMITSTOOL, CUSTOM_APITOO
+  - Priority: P3-Low | Effort: Medium

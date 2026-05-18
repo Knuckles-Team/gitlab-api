@@ -3457,6 +3457,36 @@ class Api:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
     @require_auth
+    def delete_shared_project_link(self, **kwargs) -> Response:
+        """
+        Unshare a specific project from a group.
+
+        Args:
+            **kwargs: Additional parameters for the request (e.g., project_id, group_id).
+
+        Returns:
+            Response: A wrapper containing the original response (no data for successful deletion).
+
+        Raises:
+            MissingParameterError: If the project_id or group_id is missing.
+            ParameterError: If invalid parameters are provided.
+        """
+        project = ProjectModel(**kwargs)
+        if project.project_id is None or project.group_id is None:
+            raise MissingParameterError
+        try:
+            response = self._session.delete(
+                url=f"{self.url}/projects/{project.project_id}/share/{project.group_id}",
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            return Response(response=response)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
+
+    @require_auth
     def get_protected_branches(self, **kwargs) -> Response:
         """
         Get information about protected branches in a project.

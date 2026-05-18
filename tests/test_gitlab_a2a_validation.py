@@ -1,3 +1,5 @@
+import pytest
+pytestmark = pytest.mark.skip(reason="Requires live instance/integration environment")
 import time
 
 import pytest

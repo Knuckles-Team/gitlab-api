@@ -46,8 +46,9 @@ def test_create_branch():
         "jsonrpc": "2.0",
         "method": "tools/call",
         "params": {
-            "name": "gitlab_create_branch",
+            "name": "gitlab_branches",
             "arguments": {
+                "action": "create",
                 "project_id": 202,
                 "branch": "test-mcp-validation",
                 "ref": "main",

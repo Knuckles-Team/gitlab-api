@@ -1,2 +1,0 @@
-gitlab_api/gitlab_gql.py:3339: error: Invalid syntax  [syntax]
-Found 1 error in 1 file (errors prevented further checking)
