@@ -57,7 +57,7 @@ RUN apt-get update \
      && curl -sS https://starship.rs/install.sh | sh -s -- --yes \
     && mkdir -p /root/.config \
     && echo 'eval "$(starship init bash)"' >> /root/.bashrc \
-    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow gitlab-api[all]>=25.23.0
+    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow gitlab-api[all]>=25.24.0
 
 COPY docker/starship.toml /root/.config/starship.toml
 

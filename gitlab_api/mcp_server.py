@@ -37,7 +37,7 @@ from starlette.responses import JSONResponse
 from gitlab_api.auth import get_client
 from gitlab_api.gitlab_response_models import Response
 
-__version__ = "25.23.0"
+__version__ = "25.24.0"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
