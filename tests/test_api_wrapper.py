@@ -32,7 +32,7 @@ token = os.environ.get("GITLAB_TOKEN", default="NA")
 
 @pytest.fixture
 def client():
-    return gitlab_api.Api(url=gitlab_url, token=token, verify=False) # type: ignore[attr-defined]
+    return gitlab_api.Api(url=gitlab_url, token=token, verify=False)  # type: ignore[attr-defined]
 
 
 @pytest.mark.skipif(

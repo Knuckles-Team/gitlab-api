@@ -153,9 +153,9 @@ def test_mcp_server_coverage(mock_session):
 
 def test_agent_server_coverage():
     import gitlab_api.agent_server as mod
-    from gitlab_api import agent_server
+    from gitlab_api.agent_server import agent_server
 
-    with patch("gitlab_api.agent_server.create_graph_agent_server") as mock_s:
+    with patch("agent_utilities.create_agent_server") as mock_s:
         with patch("sys.argv", ["agent_server.py"]):
             if inspect.isfunction(agent_server):
                 agent_server()

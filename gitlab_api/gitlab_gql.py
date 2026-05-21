@@ -189,7 +189,7 @@ class GraphQL:
         self,
         project_id: int | str,
         branch: str,
-        delete_merged_branches: bool | None = False,
+        _delete_merged_branches: bool | None = False,
     ) -> dict[str, Any]:
         """
         Delete a branch in a project.
@@ -583,8 +583,8 @@ class GraphQL:
         self,
         project_id: int | str,
         name: str,
-        create_access_level: str | None = None,
-        allowed_to_create: list[dict] | None = None,
+        _create_access_level: str | None = None,
+        _allowed_to_create: list[dict] | None = None,
     ) -> dict[str, Any]:
         """
         Protect a tag in a project.

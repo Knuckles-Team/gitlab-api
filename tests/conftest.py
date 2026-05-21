@@ -41,7 +41,9 @@ def mock_requests():
                 "/members",
             ]
         ):
-            data: list[dict[str, object]] | dict[str, object] = [{"id": 1, "name": "test"}]  # Return at least one item with ID
+            data: list[dict[str, object]] | dict[str, object] = [
+                {"id": 1, "name": "test"}
+            ]  # Return at least one item with ID
         elif "/projects?" in url or "/groups?" in url:
             data = [{"id": 1, "name": "test"}]
         else:

@@ -102,7 +102,7 @@ repos:
   hooks:
   - id: pytest
     name: pytest
-    entry: pytest -m "not integration"
+    entry: uv run pytest -m "not integration"
     language: system
     types: [python]
     pass_filenames: false
@@ -121,3 +121,12 @@ repos:
   rev: v3.0.1
   hooks:
   - id: docker-compose-check
+
+- repo: local
+  hooks:
+  - id: verify-api-integration
+    name: Verify API-to-MCP Integration Coverage
+    entry: python scripts/verify_api_integration.py --local
+    language: system
+    pass_filenames: false
+    always_run: true

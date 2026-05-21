@@ -605,8 +605,7 @@ def test_project_response_1():
             },
         },
     ]
-    response = Response[Project](
-        data=example_data)  # type: ignore
+    response = Response[Project](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Project"  # type: ignore
 
 
@@ -4613,8 +4612,7 @@ def test_project_response_3():
             "autoclose_referenced_issues": True,
         },
     ]
-    response = Response[Project](
-        data=example_data)  # type: ignore
+    response = Response[Project](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Project"  # type: ignore
 
 
@@ -4748,8 +4746,7 @@ def test_project_response_2():
         "warn_about_potentially_unwanted_characters": True,
         "permissions": {"project_access": None, "group_access": None},
     }
-    response = Response[Project](
-        data=example_data)  # type: ignore
+    response = Response[Project](data=example_data)  # type: ignore
     assert response.data.base_type == "Project"  # type: ignore
 
 
@@ -4864,8 +4861,7 @@ def test_user_response_1():
             "email_reset_offered_at": None,
         },
     ]
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data[0].base_type == "User"  # type: ignore
 
 
@@ -4883,8 +4879,7 @@ def test_user_response_2():
         "avatar_url": "http://localhost:3000/uploads/user/avatar/1/cd8.jpeg",
         "web_url": "http://localhost:3000/john_smith",
     }
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data.base_type == "User"  # type: ignore
 
 
@@ -4921,8 +4916,7 @@ def test_branch_response_1():
             },
         }
     ]
-    response = Response[Branch](
-        data=example_data)  # type: ignore
+    response = Response[Branch](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Branch"  # type: ignore
 
 
@@ -4957,8 +4951,7 @@ def test_branch_response_2():
             "web_url": "https://gitlab.example.com/my-group/my-project/-/commit/7b5c3cc8be40ee161ae89a06bba6229da1032a0c",
         },
     }
-    response = Response[Branch](
-        data=example_data)  # type: ignore
+    response = Response[Branch](data=example_data)  # type: ignore
     assert response.data.base_type == "Branch"  # type: ignore
 
 
@@ -4995,8 +4988,7 @@ def test_branch_response_3():
             },
         }
     ]
-    response = Response[Branch](
-        data=example_data)  # type: ignore
+    response = Response[Branch](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Branch"  # type: ignore
 
 
@@ -5031,8 +5023,7 @@ def test_branch_response_4():
         "can_push": True,
         "web_url": "https://gitlab.example.com/my-group/my-project/-/tree/newbranch",
     }
-    response = Response[Branch](
-        data=example_data)  # type: ignore
+    response = Response[Branch](data=example_data)  # type: ignore
     assert response.data.base_type == "Branch"  # type: ignore
 
 
@@ -5077,8 +5068,7 @@ def test_commit_response_1():
             },
         },
     ]
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
 
     assert response.data[0].base_type == "Commit"  # type: ignore
 
@@ -5106,8 +5096,7 @@ def test_commit_response_2():
         "web_url": "https://gitlab.example.com/janedoe/gitlab-foss/-/commit/ed899a2f4b50b4370feeea94676502b42383c746",
     }
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
     assert response.data.base_type == "Commit"  # type: ignore
 
 
@@ -5140,8 +5129,7 @@ def test_commit_response_3():
         "web_url": "https://gitlab.example.com/janedoe/gitlab-foss/-/commit/6104942438c14ec7bd21c6cd5bd995272b3faff6",
     }
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
     assert response.data.base_type == "Commit"  # type: ignore
 
 
@@ -5152,8 +5140,7 @@ def test_commit_response_3():
 def test_commit_response_4():
     example_data = {"count": 632}
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
     assert response.data.base_type == "Commit"  # type: ignore
 
 
@@ -5178,8 +5165,7 @@ def test_commit_response_5():
         "web_url": "https://gitlab.example.com/janedoe/gitlab-foss/-/commit/8b090c1b79a14f2bd9e8a738f717824ff53aebad",
     }
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
     assert response.data.base_type == "Commit"  # type: ignore
 
 
@@ -5204,8 +5190,7 @@ def test_commit_response_6():
         "web_url": "https://gitlab.example.com/janedoe/gitlab-foss/-/commit/8b090c1b79a14f2bd9e8a738f717824ff53aebad",
     }
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
     assert response.data.base_type == "Commit"  # type: ignore
 
 
@@ -5219,8 +5204,7 @@ def test_commit_response_7():
         "error_code": "conflict",
     }
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
     assert response.data.base_type == "Commit"  # type: ignore
 
 
@@ -5231,8 +5215,7 @@ def test_commit_response_7():
 def test_commit_response_8():
     example_data = {"dry_run": "success"}
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
     assert response.data.base_type == "Commit"  # type: ignore
 
 
@@ -5254,8 +5237,7 @@ def test_commit_response_9():
         }
     ]
 
-    response = Response[Diff](
-        data=example_data)  # type: ignore
+    response = Response[Diff](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Diff"  # type: ignore
 
 
@@ -5278,8 +5260,7 @@ def test_commit_response_10():
         }
     ]
 
-    response = Response[Comment](
-        data=example_data)  # type: ignore
+    response = Response[Comment](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Comment"  # type: ignore
 
 
@@ -5304,8 +5285,7 @@ def test_commit_response_11():
         "note": "Nice picture!",
     }
 
-    response = Response[Comment](
-        data=example_data)  # type: ignore
+    response = Response[Comment](data=example_data)  # type: ignore
     assert response.data.base_type == "Comment"  # type: ignore
 
 
@@ -5346,8 +5326,7 @@ def test_commit_response_12():
         }
     ]
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
 
     assert response.data[0].base_type == "Commit"  # type: ignore
 
@@ -5402,8 +5381,7 @@ def test_commit_response_13():
         },
     ]
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
 
     assert response.data[0].base_type == "Commit"  # type: ignore
 
@@ -5436,8 +5414,7 @@ def test_commit_response_14():
         "finished_at": "2016-01-19T09:05:50.365Z",
     }
 
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
     assert response.data.base_type == "Commit"  # type: ignore
 
 
@@ -5494,8 +5471,7 @@ def test_commit_response_15():
         }
     ]
 
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data[0].base_type == "MergeRequest"  # type: ignore
 
 
@@ -5515,8 +5491,7 @@ def test_commit_response_16():
         "commit_source": "gitaly",
     }
 
-    response = Response[CommitSignature](
-        data=example_data)  # type: ignore
+    response = Response[CommitSignature](data=example_data)  # type: ignore
     assert response.data.base_type == "CommitSignature"  # type: ignore
 
 
@@ -5539,8 +5514,7 @@ def test_commit_response_17():
         "commit_source": "gitaly",
     }
 
-    response = Response[CommitSignature](
-        data=example_data)  # type: ignore
+    response = Response[CommitSignature](data=example_data)  # type: ignore
     assert response.data.base_type == "CommitSignature"  # type: ignore
 
 
@@ -5569,8 +5543,7 @@ def test_commit_response_18():
         "commit_source": "gitaly",
     }
 
-    response = Response[CommitSignature](
-        data=example_data)  # type: ignore
+    response = Response[CommitSignature](data=example_data)  # type: ignore
     assert response.data.base_type == "CommitSignature"  # type: ignore
 
 
@@ -5581,8 +5554,7 @@ def test_commit_response_18():
 def test_commit_response_19():
     example_data = {"message": "404 GPG Signature Not Found"}
 
-    response = Response[CommitSignature](
-        data=example_data)  # type: ignore
+    response = Response[CommitSignature](data=example_data)  # type: ignore
     assert response.data.base_type == "CommitSignature"  # type: ignore
 
 
@@ -5602,8 +5574,7 @@ def test_deploy_token_response_0():
             "scopes": ["read_repository", "read_registry"],
         }
     ]
-    response = Response[DeployToken](
-        data=example_data)  # type: ignore
+    response = Response[DeployToken](data=example_data)  # type: ignore
     assert response.data[0].base_type == "DeployToken"  # type: ignore
 
 
@@ -5624,8 +5595,7 @@ def test_deploy_token_response_1():
         }
     ]
 
-    response = Response[DeployToken](
-        data=example_data)  # type: ignore
+    response = Response[DeployToken](data=example_data)  # type: ignore
     assert response.data[0].base_type == "DeployToken"  # type: ignore
 
 
@@ -5644,8 +5614,7 @@ def test_deploy_token_response_2():
         "scopes": ["read_repository", "read_registry"],
     }
 
-    response = Response[DeployToken](
-        data=example_data)  # type: ignore
+    response = Response[DeployToken](data=example_data)  # type: ignore
     assert response.data.base_type == "DeployToken"  # type: ignore
 
 
@@ -5665,8 +5634,7 @@ def test_deploy_token_response_3():
         "scopes": ["read_repository"],
     }
 
-    response = Response[DeployToken](
-        data=example_data)  # type: ignore
+    response = Response[DeployToken](data=example_data)  # type: ignore
     assert response.data.base_type == "DeployToken"  # type: ignore
 
 
@@ -5687,8 +5655,7 @@ def test_deploy_token_response_4():
         }
     ]
 
-    response = Response[DeployToken](
-        data=example_data)  # type: ignore
+    response = Response[DeployToken](data=example_data)  # type: ignore
     assert response.data[0].base_type == "DeployToken"  # type: ignore
 
 
@@ -5707,8 +5674,7 @@ def test_deploy_token_response_5():
         "scopes": ["read_repository", "read_registry"],
     }
 
-    response = Response[DeployToken](
-        data=example_data)  # type: ignore
+    response = Response[DeployToken](data=example_data)  # type: ignore
     assert response.data.base_type == "DeployToken"  # type: ignore
 
 
@@ -5826,8 +5792,7 @@ def test_merge_request_response_1():
             "task_completion_status": {"count": 0, "completed_count": 0},
         }
     ]
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data[0].base_type == "MergeRequest"  # type: ignore
 
 
@@ -5962,8 +5927,7 @@ def test_merge_request_response_2():
             "approvals_before_merge": 2,
         }
     ]
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data[0].base_type == "MergeRequest"  # type: ignore
 
 
@@ -6090,8 +6054,7 @@ def test_merge_request_response_3():
             "blocking_discussions_resolved": True,
         }
     ]
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data[0].base_type == "MergeRequest"  # type: ignore
 
 
@@ -6118,8 +6081,7 @@ def test_merge_request_response_4():
             "web_url": "http://localhost/user2",
         },
     ]
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data[0].base_type == "User"  # type: ignore
 
 
@@ -6154,8 +6116,7 @@ def test_merge_request_response_5():
             "created_at": "2022-07-27T17:03:27.684Z",
         },
     ]
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data[0].base_type == "MergeRequest"  # type: ignore
 
 
@@ -6184,8 +6145,7 @@ def test_merge_request_response_6():
             "message": "Sanitize for network graph",
         },
     ]
-    response = Response[Commit](
-        data=example_data)  # type: ignore
+    response = Response[Commit](data=example_data)  # type: ignore
 
     assert response.data[0].base_type == "Commit"  # type: ignore
 
@@ -6300,8 +6260,7 @@ def test_merge_request_response_7():
         ],
         "overflow": False,
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -6334,8 +6293,7 @@ def test_merge_request_response_8():
             "generated_file": False,
         },
     ]
-    response = Response[Diff](
-        data=example_data)  # type: ignore
+    response = Response[Diff](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Diff"  # type: ignore
 
 
@@ -6352,8 +6310,7 @@ def test_merge_request_response_9():
             "status": "success",
         }
     ]
-    response = Response[Pipeline](
-        data=example_data)  # type: ignore
+    response = Response[Pipeline](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Pipeline"  # type: ignore
 
 
@@ -6477,8 +6434,7 @@ def test_merge_request_response_10():
         "diverged_commits_count": 2,
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -6620,8 +6576,7 @@ def test_merge_request_response_11():
         "diverged_commits_count": 2,
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -6763,8 +6718,7 @@ def test_merge_request_response_12():
         "diverged_commits_count": 2,
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -6774,8 +6728,7 @@ def test_merge_request_response_12():
 )
 def test_merge_request_response_13():
     example_data = {"rebase_in_progress": True}
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -6785,8 +6738,7 @@ def test_merge_request_response_13():
 )
 def test_merge_request_response_14():
     example_data = {"rebase_in_progress": True, "merge_error": None}
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -6796,8 +6748,7 @@ def test_merge_request_response_14():
 )
 def test_merge_request_response_15():
     example_data = {"rebase_in_progress": False, "merge_error": None}
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -6810,8 +6761,7 @@ def test_merge_request_response_16():
         "rebase_in_progress": False,
         "merge_error": "Rebase failed. Please rebase locally",
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -6862,8 +6812,7 @@ def test_merge_request_response_17():
             "changes_count": "1",
         }
     ]
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Issue"  # type: ignore
 
 
@@ -6914,8 +6863,7 @@ def test_merge_request_response_18():
             "changes_count": "1",
         }
     ]
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Issue"  # type: ignore
 
 
@@ -6930,8 +6878,7 @@ def test_merge_request_response_19():
         "time_estimate": 7200,
         "total_time_spent": 3600,
     }
-    response = Response[TimeStats](
-        data=example_data)  # type: ignore
+    response = Response[TimeStats](data=example_data)  # type: ignore
     assert response.data.base_type == "TimeStats"  # type: ignore
 
 
@@ -6946,8 +6893,7 @@ def test_merge_request_response_20():
         "time_estimate": 0,
         "total_time_spent": 0,
     }
-    response = Response[TimeStats](
-        data=example_data)  # type: ignore
+    response = Response[TimeStats](data=example_data)  # type: ignore
     assert response.data.base_type == "TimeStats"  # type: ignore
 
 
@@ -6980,8 +6926,7 @@ def test_merge_request_response_21():
             "patch_id_sha": "72c30d1f0115fc1d2bb0b29b24dc2982cbcdfd32",
         },
     ]
-    response = Response[Diff](
-        data=example_data)  # type: ignore
+    response = Response[Diff](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Diff"  # type: ignore
 
 
@@ -7077,8 +7022,7 @@ def test_issues_response_1():
             "task_completion_status": {"count": 0, "completed_count": 0},
         }
     ]
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Issue"  # type: ignore
 
 
@@ -7094,8 +7038,7 @@ def test_issues_response_2():
             "weight": None,
         }
     ]
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Issue"  # type: ignore
 
 
@@ -7132,8 +7075,7 @@ def test_issues_response_3():
         "state": "opened",
         "health_status": "on_track",
     }
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data.base_type == "Issue"  # type: ignore
 
 
@@ -7238,8 +7180,7 @@ def test_issues_response_4():
             "health_status": "at_risk",
         }
     ]
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Issue"  # type: ignore
 
 
@@ -7351,8 +7292,7 @@ def test_issues_response_5():
             "health_status": "at_risk",
         }
     ]
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Issue"  # type: ignore
 
 
@@ -7448,8 +7388,7 @@ def test_issues_response_6():
         "moved_to_id": None,
         "service_desk_reply_to": "service.desk@gitlab.com",
     }
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data.base_type == "Issue"  # type: ignore
 
 
@@ -7513,8 +7452,7 @@ def test_issues_response_7():
         },
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data.base_type == "Issue"  # type: ignore
 
 
@@ -7594,8 +7532,7 @@ def test_issues_response_8():
         },
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data.base_type == "Issue"  # type: ignore
 
 
@@ -7681,8 +7618,7 @@ def test_issues_response_9():
         "moved_to_id": None,
         "service_desk_reply_to": None,
     }
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data.base_type == "Issue"  # type: ignore
 
 
@@ -7760,8 +7696,7 @@ def test_issues_response_10():
         },
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data.base_type == "Issue"  # type: ignore
 
 
@@ -7817,8 +7752,7 @@ def test_issues_response_11():
         "severity": "UNKNOWN",
         "task_completion_status": {"count": 0, "completed_count": 0},
     }
-    response = Response[Issue](
-        data=example_data)  # type: ignore
+    response = Response[Issue](data=example_data)  # type: ignore
     assert response.data.base_type == "Issue"  # type: ignore
 
 
@@ -7917,8 +7851,7 @@ def test_issues_response_12():
         "state": "pending",
         "created_at": "2016-07-01T11:09:13.992Z",
     }
-    response = Response[ToDo](
-        data=example_data)  # type: ignore
+    response = Response[ToDo](data=example_data)  # type: ignore
     assert response.data.base_type == "ToDo"  # type: ignore
 
 
@@ -7950,8 +7883,7 @@ def test_issues_response_13():
         "noteable_iid": 33,
         "commands_changes": {"promote_to_epic": True},
     }
-    response = Response[Comment](
-        data=example_data)  # type: ignore
+    response = Response[Comment](data=example_data)  # type: ignore
     assert response.data.base_type == "Comment"  # type: ignore
 
 
@@ -7966,8 +7898,7 @@ def test_issues_response_14():
         "time_estimate": 12600,
         "total_time_spent": 0,
     }
-    response = Response[TimeStats](
-        data=example_data)  # type: ignore
+    response = Response[TimeStats](data=example_data)  # type: ignore
     assert response.data.base_type == "TimeStats"  # type: ignore
 
 
@@ -7982,8 +7913,7 @@ def test_issues_response_15():
         "time_estimate": 0,
         "total_time_spent": 0,
     }
-    response = Response[TimeStats](
-        data=example_data)  # type: ignore
+    response = Response[TimeStats](data=example_data)  # type: ignore
     assert response.data.base_type == "TimeStats"  # type: ignore
 
 
@@ -8020,8 +7950,7 @@ def test_pipeline_response_1():
             "updated_at": "2016-08-12T10:09:56.223Z",
         },
     ]
-    response = Response[Pipeline](
-        data=example_data)  # type: ignore
+    response = Response[Pipeline](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Pipeline"  # type: ignore
 
 
@@ -8059,8 +7988,7 @@ def test_pipeline_response_2():
         "coverage": "30.0",
         "web_url": "https://example.com/foo/bar/pipelines/46",
     }
-    response = Response[Pipeline](
-        data=example_data)  # type: ignore
+    response = Response[Pipeline](data=example_data)  # type: ignore
     assert response.data.base_type == "Pipeline"  # type: ignore
 
 
@@ -8073,8 +8001,7 @@ def test_pipeline_response_3():
         {"key": "RUN_NIGHTLY_BUILD", "variable_type": "env_var", "value": "true"},
         {"key": "foo", "value": "bar"},
     ]
-    response = Response[PipelineVariable](
-        data=example_data)  # type: ignore
+    response = Response[PipelineVariable](data=example_data)  # type: ignore
     assert response.data[0].base_type == "PipelineVariable"  # type: ignore
 
 
@@ -8112,8 +8039,7 @@ def test_pipeline_response_4():
             }
         ],
     }
-    response = Response[TestReport](
-        data=example_data)  # type: ignore
+    response = Response[TestReport](data=example_data)  # type: ignore
     assert response.data.base_type == "TestReport"  # type: ignore
 
 
@@ -8146,8 +8072,7 @@ def test_pipeline_response_5():
             }
         ],
     }
-    response = Response[TestReport](
-        data=example_data)  # type: ignore
+    response = Response[TestReport](data=example_data)  # type: ignore
     assert response.data.base_type == "TestReport"  # type: ignore
 
 
@@ -8180,8 +8105,7 @@ def test_pipeline_response_6():
             }
         ],
     }
-    response = Response[TestReport](
-        data=example_data)  # type: ignore
+    response = Response[TestReport](data=example_data)  # type: ignore
     assert response.data.base_type == "TestReport"  # type: ignore
 
 
@@ -8231,8 +8155,7 @@ def test_pipeline_response_7():
             "favicon": "/assets/ci_favicons/favicon_status_success-8451333011eee8ce9f2ab25dc487fe24a8758c694827a582f17f42b0a90446a2.png",
         },
     }
-    response = Response[Pipeline](
-        data=example_data)  # type: ignore
+    response = Response[Pipeline](data=example_data)  # type: ignore
     assert response.data.base_type == "Pipeline"  # type: ignore
 
 
@@ -8269,8 +8192,7 @@ def test_pipeline_response_8():
         "coverage": None,
         "web_url": "https://example.com/foo/bar/pipelines/61",
     }
-    response = Response[Pipeline](
-        data=example_data)  # type: ignore
+    response = Response[Pipeline](data=example_data)  # type: ignore
     assert response.data.base_type == "Pipeline"  # type: ignore
 
 
@@ -8307,8 +8229,7 @@ def test_pipeline_response_9():
         "coverage": None,
         "web_url": "https://example.com/foo/bar/pipelines/46",
     }
-    response = Response[Pipeline](
-        data=example_data)  # type: ignore
+    response = Response[Pipeline](data=example_data)  # type: ignore
     assert response.data.base_type == "Pipeline"  # type: ignore
 
 
@@ -8345,8 +8266,7 @@ def test_pipeline_response_10():
         "coverage": None,
         "web_url": "https://example.com/foo/bar/pipelines/46",
     }
-    response = Response[Pipeline](
-        data=example_data)  # type: ignore
+    response = Response[Pipeline](data=example_data)  # type: ignore
     assert response.data.base_type == "Pipeline"  # type: ignore
 
 
@@ -8384,8 +8304,7 @@ def test_pipeline_response_11():
         "web_url": "https://example.com/foo/bar/pipelines/46",
         "name": "Some new pipeline name",
     }
-    response = Response[Pipeline](
-        data=example_data)  # type: ignore
+    response = Response[Pipeline](data=example_data)  # type: ignore
     assert response.data.base_type == "Pipeline"  # type: ignore
 
 
@@ -8430,8 +8349,7 @@ def test_group_response_1():
             "ip_restriction_ranges": None,
         }
     ]
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Group"  # type: ignore
 
 
@@ -8489,8 +8407,7 @@ def test_group_response_2():
             "lock_duo_features_enabled": False,
         }
     ]
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Group"  # type: ignore
 
 
@@ -8534,8 +8451,7 @@ def test_group_response_3():
             "created_at": "2020-01-15T12:36:29.590Z",
         }
     ]
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Group"  # type: ignore
 
 
@@ -8610,8 +8526,7 @@ def test_group_response_4():
             "created_at": "2020-01-15T12:36:29.590Z",
         },
     ]
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Group"  # type: ignore
 
 
@@ -8660,8 +8575,7 @@ def test_group_response_5():
             "request_access_enabled": False,
         }
     ]
-    response = Response[Project](
-        data=example_data)  # type: ignore
+    response = Response[Project](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Project"  # type: ignore
 
 
@@ -8775,8 +8689,7 @@ def test_group_response_6():
             "repository_storage": "default",
         }
     ]
-    response = Response[Project](
-        data=example_data)  # type: ignore
+    response = Response[Project](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Project"  # type: ignore
 
 
@@ -8946,8 +8859,7 @@ def test_group_response_7():
         "math_rendering_limits_enabled": True,
         "lock_math_rendering_limits_enabled": False,
     }
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data.base_type == "Group"  # type: ignore
 
 
@@ -8967,8 +8879,7 @@ def test_group_response_8():
         "duo_features_enabled": True,
         "lock_duo_features_enabled": False,
     }
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data.base_type == "Group"  # type: ignore
 
 
@@ -8992,8 +8903,7 @@ def test_group_response_9():
         "file_template_project_id": 1,
         "parent_id": None,
     }
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data.base_type == "Group"  # type: ignore
 
 
@@ -9020,8 +8930,7 @@ def test_group_response_10():
             "full_path": "FooBar",
         },
     ]
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Group"  # type: ignore
 
 
@@ -9092,8 +9001,7 @@ def test_group_response_11():
         "math_rendering_limits_enabled": True,
         "lock_math_rendering_limits_enabled": False,
     }
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data.base_type == "Group"  # type: ignore
 
 
@@ -9110,8 +9018,7 @@ def test_group_response_12():
             "description": "An interesting group",
         }
     ]
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Group"  # type: ignore
 
 
@@ -9163,8 +9070,7 @@ def test_group_response_13():
             "extra_shared_runners_minutes_limit": None,
         }
     ]
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data[0].base_type == "User"  # type: ignore
 
 
@@ -9216,8 +9122,7 @@ def test_group_response_14():
             "extra_shared_runners_minutes_limit": None,
         }
     ]
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data[0].base_type == "User"  # type: ignore
 
 
@@ -9231,8 +9136,7 @@ def test_group_response_15():
         "username": "service_account_group_345_6018816a18e515214e0c34c2b33523fc",
         "name": "Service account user",
     }
-    response = Response[DeployToken](
-        data=example_data)  # type: ignore
+    response = Response[DeployToken](data=example_data)  # type: ignore
     assert response.data.base_type == "DeployToken"  # type: ignore
 
 
@@ -9253,8 +9157,7 @@ def test_group_response_16():
         "expires_at": "2024-06-12",
         "token": "<token_value>",
     }
-    response = Response[DeployToken](
-        data=example_data)  # type: ignore
+    response = Response[DeployToken](data=example_data)  # type: ignore
     assert response.data.base_type == "DeployToken"  # type: ignore
 
 
@@ -9275,8 +9178,7 @@ def test_group_response_17():
         "expires_at": "2023-06-20",
         "token": "<token_value>",
     }
-    response = Response[DeployToken](
-        data=example_data)  # type: ignore
+    response = Response[DeployToken](data=example_data)  # type: ignore
     assert response.data.base_type == "DeployToken"  # type: ignore
 
 
@@ -9315,8 +9217,7 @@ def test_group_response_18():
         "resource_access_token_events": True,
         "custom_webhook_template": '{"event":"{{object_kind}}"}',
     }
-    response = Response[Webhook](
-        data=example_data)  # type: ignore
+    response = Response[Webhook](data=example_data)  # type: ignore
     assert response.data.base_type == "Webhook"  # type: ignore
 
 
@@ -9341,8 +9242,7 @@ def test_group_response_19():
         "file_name_regex": "(exe)$",
         "max_file_size": 100,
     }
-    response = Response[Rule](
-        data=example_data)  # type: ignore
+    response = Response[Rule](data=example_data)  # type: ignore
     assert response.data.base_type == "Rule"  # type: ignore
 
 
@@ -9352,8 +9252,7 @@ def test_group_response_19():
 )
 def test_group_response_20():
     example_data = {"name": "saml-group-1", "access_level": 10, "member_role_id": 12}
-    response = Response[AccessControl](
-        data=example_data)  # type: ignore
+    response = Response[AccessControl](data=example_data)  # type: ignore
     assert response.data.base_type == "AccessControl"  # type: ignore
 
 
@@ -9363,8 +9262,7 @@ def test_group_response_20():
 )
 def test_group_response_21():
     example_data = {"name": "saml-group-1", "access_level": 10, "member_role_id": 12}
-    response = Response[AccessControl](
-        data=example_data)  # type: ignore
+    response = Response[AccessControl](data=example_data)  # type: ignore
     assert response.data.base_type == "AccessControl"  # type: ignore
 
 
@@ -9499,8 +9397,7 @@ def test_group_response_22():
             "shared_runners_setting": "enabled",
         },
     ]
-    response = Response[Group](
-        data=example_data)  # type: ignore
+    response = Response[Group](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Group"  # type: ignore
 
 
@@ -9727,8 +9624,7 @@ def test_group_response_23():
             "autoclose_referenced_issues": True,
         },
     ]
-    response = Response[Project](
-        data=example_data)  # type: ignore
+    response = Response[Project](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Project"  # type: ignore
 
 
@@ -9903,8 +9799,7 @@ def test_jobs_response_1():
             },
         },
     ]
-    response = Response[Job](
-        data=example_data)  # type: ignore
+    response = Response[Job](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Job"  # type: ignore
 
 
@@ -10078,8 +9973,7 @@ def test_jobs_response_2():
             },
         },
     ]
-    response = Response[Job](
-        data=example_data)  # type: ignore
+    response = Response[Job](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Job"  # type: ignore
 
 
@@ -10154,8 +10048,7 @@ def test_jobs_response_3():
             },
         }
     ]
-    response = Response[Job](
-        data=example_data)  # type: ignore
+    response = Response[Job](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Job"  # type: ignore
 
 
@@ -10221,8 +10114,7 @@ def test_jobs_response_4():
             "organization": "",
         },
     }
-    response = Response[Job](
-        data=example_data)  # type: ignore
+    response = Response[Job](data=example_data)  # type: ignore
     assert response.data.base_type == "Job"  # type: ignore
 
 
@@ -10258,8 +10150,7 @@ def test_jobs_response_5():
             "web_url": "http://localhost/user2",
         },
     }
-    response = Response[Agents](
-        data=example_data)  # type: ignore
+    response = Response[Agents](data=example_data)  # type: ignore
     assert response.data.base_type == "Agents"  # type: ignore
 
 
@@ -10325,8 +10216,7 @@ def test_jobs_response_6():
             "organization": "",
         },
     }
-    response = Response[Job](
-        data=example_data)  # type: ignore
+    response = Response[Job](data=example_data)  # type: ignore
     assert response.data.base_type == "Job"  # type: ignore
 
 
@@ -10367,8 +10257,7 @@ def test_jobs_response_7():
         "project": {"ci_job_token_scope_enabled": False},
         "user": None,
     }
-    response = Response[Job](
-        data=example_data)  # type: ignore
+    response = Response[Job](data=example_data)  # type: ignore
     assert response.data.base_type == "Job"  # type: ignore
 
 
@@ -10409,8 +10298,7 @@ def test_jobs_response_8():
         "project": {"ci_job_token_scope_enabled": False},
         "user": None,
     }
-    response = Response[Job](
-        data=example_data)  # type: ignore
+    response = Response[Job](data=example_data)  # type: ignore
     assert response.data.base_type == "Job"  # type: ignore
 
 
@@ -10451,8 +10339,7 @@ def test_jobs_response_9():
         "project": {"ci_job_token_scope_enabled": False},
         "user": None,
     }
-    response = Response[Job](
-        data=example_data)  # type: ignore
+    response = Response[Job](data=example_data)  # type: ignore
     assert response.data.base_type == "Job"  # type: ignore
 
 
@@ -10508,8 +10395,7 @@ def test_member_response_1():
             },
         },
     ]
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data[0].base_type == "User"  # type: ignore
 
 
@@ -10585,8 +10471,7 @@ def test_member_response_2():
             "group_saml_identity": None,
         },
     ]
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data[0].base_type == "User"  # type: ignore
 
 
@@ -10616,8 +10501,7 @@ def test_member_response_3():
         "expires_at": None,
         "group_saml_identity": None,
     }
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data.base_type == "User"  # type: ignore
 
 
@@ -10647,8 +10531,7 @@ def test_member_response_4():
         "expires_at": None,
         "group_saml_identity": None,
     }
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data.base_type == "User"  # type: ignore
 
 
@@ -10699,8 +10582,7 @@ def test_member_response_5():
             "last_login_at": "2022-10-10T07:28:56.000Z",
         },
     ]
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data[0].base_type == "User"  # type: ignore
 
 
@@ -10729,8 +10611,7 @@ def test_member_response_6():
             "access_level": {"string_value": "Maintainer", "integer_value": 40},
         },
     ]
-    response = Response[Membership](
-        data=example_data)  # type: ignore
+    response = Response[Membership](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Membership"  # type: ignore
 
 
@@ -10760,8 +10641,7 @@ def test_member_response_7():
         "email": "john@example.com",
         "group_saml_identity": None,
     }
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data.base_type == "User"  # type: ignore
 
 
@@ -10796,8 +10676,7 @@ def test_member_response_8():
             "invited": True,
         },
     ]
-    response = Response[User](
-        data=example_data)  # type: ignore
+    response = Response[User](data=example_data)  # type: ignore
     assert response.data[0].base_type == "User"  # type: ignore
 
 
@@ -10832,8 +10711,7 @@ def test_approval_rule_response_1():
             "applies_to_all_protected_branches": True,
         },
     ]
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data[0].base_type == "ApprovalRule"  # type: ignore
 
 
@@ -10882,8 +10760,7 @@ def test_approval_rule_response_2():
         ],
         "applies_to_all_protected_branches": True,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -10932,8 +10809,7 @@ def test_approval_rule_response_3():
         ],
         "applies_to_all_protected_branches": True,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -10951,8 +10827,7 @@ def test_approval_rule_response_4():
         "merge_requests_disable_committers_approval": False,
         "require_password_to_approve": True,
     }
-    response = Response[MergeApprovals](
-        data=example_data)  # type: ignore
+    response = Response[MergeApprovals](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeApprovals"  # type: ignore
 
 
@@ -10972,8 +10847,7 @@ def test_approval_rule_response_5():
         "merge_requests_disable_committers_approval": False,
         "require_password_to_approve": True,
     }
-    response = Response[MergeApprovals](
-        data=example_data)  # type: ignore
+    response = Response[MergeApprovals](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeApprovals"  # type: ignore
 
 
@@ -11060,8 +10934,7 @@ def test_approval_rule_response_6():
             "contains_hidden_groups": False,
         }
     ]
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data[0].base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11146,8 +11019,7 @@ def test_approval_rule_response_7():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11232,8 +11104,7 @@ def test_approval_rule_response_8():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11318,8 +11189,7 @@ def test_approval_rule_response_9():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11353,8 +11223,7 @@ def test_approval_rule_response_10():
             }
         ],
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -11409,8 +11278,7 @@ def test_approval_rule_response_11():
             }
         ],
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -11476,8 +11344,7 @@ def test_approval_rule_response_12():
             "overridden": False,
         }
     ]
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data[0].base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11541,8 +11408,7 @@ def test_approval_rule_response_13():
         "contains_hidden_groups": False,
         "overridden": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11606,8 +11472,7 @@ def test_approval_rule_response_14():
         "contains_hidden_groups": False,
         "overridden": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11651,8 +11516,7 @@ def test_approval_rule_response_15():
             },
         ],
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -11687,8 +11551,7 @@ def test_protected_branch_response_1():
             "applies_to_all_protected_branches": True,
         },
     ]
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data[0].base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11737,8 +11600,7 @@ def test_protected_branch_response_2():
         ],
         "applies_to_all_protected_branches": True,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11787,8 +11649,7 @@ def test_protected_branch_response_3():
         ],
         "applies_to_all_protected_branches": True,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -11806,8 +11667,7 @@ def test_protected_branch_response_4():
         "merge_requests_disable_committers_approval": False,
         "require_password_to_approve": True,
     }
-    response = Response[MergeApprovals](
-        data=example_data)  # type: ignore
+    response = Response[MergeApprovals](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeApprovals"  # type: ignore
 
 
@@ -11827,8 +11687,7 @@ def test_protected_branch_response_5():
         "merge_requests_disable_committers_approval": False,
         "require_password_to_approve": True,
     }
-    response = Response[MergeApprovals](
-        data=example_data)  # type: ignore
+    response = Response[MergeApprovals](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeApprovals"  # type: ignore
 
 
@@ -11915,8 +11774,7 @@ def test_protected_branch_response_6():
             "contains_hidden_groups": False,
         }
     ]
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data[0].base_type == "ApprovalRule"  # type: ignore
 
 
@@ -12001,8 +11859,7 @@ def test_protected_branch_response_7():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -12087,8 +11944,7 @@ def test_protected_branch_response_8():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -12173,8 +12029,7 @@ def test_protected_branch_response_9():
         ],
         "contains_hidden_groups": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -12208,8 +12063,7 @@ def test_protected_branch_response_10():
             }
         ],
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -12264,8 +12118,7 @@ def test_protected_branch_response_11():
             }
         ],
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -12331,8 +12184,7 @@ def test_protected_branch_response_12():
             "overridden": False,
         }
     ]
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data[0].base_type == "ApprovalRule"  # type: ignore
 
 
@@ -12396,8 +12248,7 @@ def test_protected_branch_response_13():
         "contains_hidden_groups": False,
         "overridden": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -12461,8 +12312,7 @@ def test_protected_branch_response_14():
         "contains_hidden_groups": False,
         "overridden": False,
     }
-    response = Response[ApprovalRule](
-        data=example_data)  # type: ignore
+    response = Response[ApprovalRule](data=example_data)  # type: ignore
     assert response.data.base_type == "ApprovalRule"  # type: ignore
 
 
@@ -12506,8 +12356,7 @@ def test_protected_branch_response_15():
             },
         ],
     }
-    response = Response[MergeRequest](
-        data=example_data)  # type: ignore
+    response = Response[MergeRequest](data=example_data)  # type: ignore
     assert response.data.base_type == "MergeRequest"  # type: ignore
 
 
@@ -12545,8 +12394,7 @@ def test_package_response_1():
             "tags": [],
         },
     ]
-    response = Response[Package](
-        data=example_data)  # type: ignore
+    response = Response[Package](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Package"  # type: ignore
 
 
@@ -12610,8 +12458,7 @@ def test_package_response_2():
             ],
         },
     ]
-    response = Response[Package](
-        data=example_data)  # type: ignore
+    response = Response[Package](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Package"  # type: ignore
 
 
@@ -12670,8 +12517,7 @@ def test_package_response_3():
             }
         ],
     }
-    response = Response[Package](
-        data=example_data)  # type: ignore
+    response = Response[Package](data=example_data)  # type: ignore
     assert response.data.base_type == "Package"  # type: ignore
 
 
@@ -12728,8 +12574,7 @@ def test_package_response_4():
             "file_sha256": "ac849d002e56052d320a8ac156f745ece73f6a8cd2f3e82",
         },
     ]
-    response = Response[Package](
-        data=example_data)  # type: ignore
+    response = Response[Package](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Package"  # type: ignore
 
 
@@ -12781,8 +12626,7 @@ def test_package_response_5():
             },
         },
     ]
-    response = Response[Pipeline](
-        data=example_data)  # type: ignore
+    response = Response[Pipeline](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Pipeline"  # type: ignore
 
 
@@ -12965,8 +12809,7 @@ def test_release_response_1():
             },
         },
     ]
-    response = Response[Release](
-        data=example_data)  # type: ignore
+    response = Response[Release](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Release"  # type: ignore
 
 
@@ -13081,8 +12924,7 @@ def test_release_response_2():
             "self": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1",
         },
     }
-    response = Response[Release](
-        data=example_data)  # type: ignore
+    response = Response[Release](data=example_data)  # type: ignore
     assert response.data.base_type == "Release"  # type: ignore
 
 
@@ -13183,8 +13025,7 @@ def test_release_response_3():
             "evidence_file_path": "https://gitlab.example.com/root/awesome-app/-/releases/v0.3/evidence.json",
         },
     }
-    response = Response[Release](
-        data=example_data)  # type: ignore
+    response = Response[Release](data=example_data)  # type: ignore
     assert response.data.base_type == "Release"  # type: ignore
 
 
@@ -13264,8 +13105,7 @@ def test_release_response_4():
             "evidence_file_path": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json",
         },
     }
-    response = Response[Release](
-        data=example_data)  # type: ignore
+    response = Response[Release](data=example_data)  # type: ignore
     assert response.data.base_type == "Release"  # type: ignore
 
 
@@ -13329,8 +13169,7 @@ def test_release_response_5():
             "evidence_file_path": "https://gitlab.example.com/root/awesome-app/-/releases/v0.1/evidence.json",
         },
     }
-    response = Response[Release](
-        data=example_data)  # type: ignore
+    response = Response[Release](data=example_data)  # type: ignore
     assert response.data.base_type == "Release"  # type: ignore
 
 
@@ -13365,8 +13204,7 @@ def test_runner_response_1():
             "status": "offline",
         },
     ]
-    response = Response[Runner](
-        data=example_data)  # type: ignore
+    response = Response[Runner](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Runner"  # type: ignore
 
 
@@ -13425,8 +13263,7 @@ def test_runner_response_2():
             "status": "offline",
         },
     ]
-    response = Response[Runner](
-        data=example_data)  # type: ignore
+    response = Response[Runner](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Runner"  # type: ignore
 
 
@@ -13465,8 +13302,7 @@ def test_runner_response_3():
         "access_level": "ref_protected",
         "maximum_timeout": 3600,
     }
-    response = Response[Runner](
-        data=example_data)  # type: ignore
+    response = Response[Runner](data=example_data)  # type: ignore
     assert response.data.base_type == "Runner"  # type: ignore
 
 
@@ -13540,8 +13376,7 @@ def test_runner_response_4():
             },
         }
     ]
-    response = Response[Job](
-        data=example_data)  # type: ignore
+    response = Response[Job](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Job"  # type: ignore
 
 
@@ -13576,8 +13411,7 @@ def test_runner_response_5():
             "status": "online",
         },
     ]
-    response = Response[Runner](
-        data=example_data)  # type: ignore
+    response = Response[Runner](data=example_data)  # type: ignore
     assert response.data[0].base_type == "Runner"  # type: ignore
 
 
@@ -13597,8 +13431,7 @@ def test_runner_response_6():
         "online": True,
         "status": "online",
     }
-    response = Response[Runner](
-        data=example_data)  # type: ignore
+    response = Response[Runner](data=example_data)  # type: ignore
     assert response.data.base_type == "Runner"  # type: ignore
 
 
@@ -13612,8 +13445,7 @@ def test_runner_response_7():
         "token": "6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
     }
-    response = Response[Token](
-        data=example_data)  # type: ignore
+    response = Response[Token](data=example_data)  # type: ignore
     assert response.data.base_type == "Token"  # type: ignore
 
 
@@ -13627,8 +13459,7 @@ def test_runner_response_8():
         "token": "glrt-6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
     }
-    response = Response[Token](
-        data=example_data)  # type: ignore
+    response = Response[Token](data=example_data)  # type: ignore
     assert response.data.base_type == "Token"  # type: ignore
 
 
@@ -13641,8 +13472,7 @@ def test_runner_response_9():
         "token": "6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
     }
-    response = Response[Token](
-        data=example_data)  # type: ignore
+    response = Response[Token](data=example_data)  # type: ignore
     assert response.data.base_type == "Token"  # type: ignore
 
 
@@ -13655,8 +13485,7 @@ def test_runner_response_10():
         "token": "6337ff461c94fd3fa32ba3b1ff4125",
         "token_expires_at": "2021-09-27T21:05:03.203Z",
     }
-    response = Response[Token](
-        data=example_data)  # type: ignore
+    response = Response[Token](data=example_data)  # type: ignore
     assert response.data.base_type == "Token"  # type: ignore
 
 
@@ -13688,8 +13517,7 @@ def test_wiki_response_1():
             "encoding": "UTF-8",
         },
     ]
-    response = Response[WikiPage](
-        data=example_data)  # type: ignore
+    response = Response[WikiPage](data=example_data)  # type: ignore
     assert response.data[0].base_type == "WikiPage"  # type: ignore
 
 
@@ -13705,8 +13533,7 @@ def test_wiki_response_2():
         "title": "home",
         "encoding": "UTF-8",
     }
-    response = Response[WikiPage](
-        data=example_data)  # type: ignore
+    response = Response[WikiPage](data=example_data)  # type: ignore
     assert response.data.base_type == "WikiPage"  # type: ignore
 
 
@@ -13722,8 +13549,7 @@ def test_wiki_response_3():
         "title": "Hello",
         "encoding": "UTF-8",
     }
-    response = Response[WikiPage](
-        data=example_data)  # type: ignore
+    response = Response[WikiPage](data=example_data)  # type: ignore
     assert response.data.base_type == "WikiPage"  # type: ignore
 
 
@@ -13741,8 +13567,7 @@ def test_wiki_response_4():
             "markdown": "![dk](uploads/6a061c4cf9f1c28cb22c384b4b8d4e3c/dk.png)",
         },
     }
-    response = Response[WikiAttachment](
-        data=example_data)  # type: ignore
+    response = Response[WikiAttachment](data=example_data)  # type: ignore
     assert response.data.base_type == "WikiAttachment"  # type: ignore
 
 
@@ -13774,8 +13599,10 @@ def test_wiki_response_5():
             "encoding": "UTF-8",
         },
     ]
-    response = Response[WikiPage](  # type: ignore
-        data=example_data, headers={})  # type: ignore
+    response = Response[WikiPage](
+        data=example_data,  # type: ignore[arg-type]
+        headers={},  # type: ignore[call-arg]
+    )
     assert response.data[0].base_type == "WikiPage"  # type: ignore
 
 
@@ -13800,8 +13627,10 @@ def test_contributor_response_1():
             "deletions": 0,
         },
     ]
-    response = Response[Contributor](  # type: ignore
-        data=example_data, headers={})  # type: ignore
+    response = Response[Contributor](
+        data=example_data,  # type: ignore[arg-type]
+        headers={},  # type: ignore[call-arg]
+    )
     assert response.data[0].base_type == "Contributor"  # type: ignore
 
 

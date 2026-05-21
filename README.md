@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 25.24.0*
+*Version: 25.24.1*
 
 ## Overview
 
@@ -852,6 +852,42 @@ For Testing Only: Plain text storage will also work, although **not** recommende
 }
 ```
 
+## Security & Governance
+
+This project is built on [`agent-utilities`](https://github.com/Knuckles-Team/agent-utilities), inheriting enterprise-grade security and governance features.
+
+### Authentication & Authorization
+| Feature | Description |
+|---------|-------------|
+| **OIDC Token Delegation** | RFC 8693 token exchange for user-context propagation from A2A → MCP |
+| **Eunomia Policies** | Fine-grained, policy-driven tool authorization (`none`, `embedded`, `remote`) |
+| **Scoped Credentials** | Tools execute with the caller's scoped identity where possible |
+| **3LO / OAuth / API Token** | Multiple auth strategies with graceful fallback |
+
+### Eunomia Policy Enforcement
+Eunomia provides a policy enforcement point for all tool calls:
+- **Embedded mode**: Load local `mcp_policies.json` for role-based access, sensitivity gating, and audit logging
+- **Remote mode**: Forward authorization decisions to a central Eunomia policy server for multi-agent governance
+- Enable via CLI: `--eunomia-type embedded --eunomia-policy-file mcp_policies.json`
+
+### Runtime Protections
+| Protection | Description |
+|------------|-------------|
+| **Tool Guard** | Sensitivity detection with human-in-the-loop approval gating |
+| **Prompt Injection Defense** | Input scanning and repetition/loop guards |
+| **Content Filtering** | Output schema enforcement and cost budget controls |
+| **Stuck Loop Detection** | Automatic detection and recovery from agent loops |
+| **Context Limit Warnings** | Proactive alerts before context window exhaustion |
+
+### Graph Agent Architecture
+The A2A agent uses `pydantic-graph` orchestration with:
+- **RouterNode**: Lightweight classifier that routes queries to specialized domains
+- **DomainNode**: Focused executor with only relevant tools loaded, preventing tool hallucination
+- **Approval Gates**: Policy-driven approval workflows before sensitive operations
+- **Usage Guards**: Budget and rate limiting enforcement
+
+> **Production Recommendation**: Enable `--eunomia-type embedded` (or `remote`) + OIDC delegation + containerized deployment. See [`agent-utilities` documentation](https://github.com/Knuckles-Team/agent-utilities) for full policy configuration.
+
 ## Install Python Package
 
 Install Python Package
@@ -903,103 +939,28 @@ npx @modelcontextprotocol/inspector gitlab-mcp
 
 ## MCP Configuration Examples
 
-### 1. Standard IO (stdio) Deployment
-
+### stdio (recommended for local development)
 ```json
 {
   "mcpServers": {
-    "gitlab-api": {
-      "command": "uv",
-      "args": [
-        "run",
-        "gitlab-mcp"
-      ],
+    "gitlab": {
+      "command": ".venv/bin/gitlab-mcp",
+      "args": [],
       "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
-        "BRANCHESTOOL": "True",
-        "COMMITSTOOL": "True",
-        "CUSTOM_APITOOL": "True",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
-        "DEPLOY_TOKENSTOOL": "True",
-        "ENVIRONMENTSTOOL": "True",
-        "GITLAB_SSL_VERIFY": "<YOUR_GITLAB_SSL_VERIFY>",
-        "GITLAB_TOKEN": "<YOUR_GITLAB_TOKEN>",
-        "GITLAB_URL": "<YOUR_GITLAB_URL>",
-        "GITLAB_VERIFY": "<YOUR_GITLAB_VERIFY>",
-        "GROUPSTOOL": "True",
-        "JOBSTOOL": "True",
-        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
-        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
-        "MCP_URL": "<YOUR_MCP_URL>",
-        "MEMBERSTOOL": "True",
-        "MERGE_REQUESTSTOOL": "True",
-        "MERGE_RULESTOOL": "True",
-        "MISCTOOL": "True",
-        "MODEL_ID": "<YOUR_MODEL_ID>",
-        "PACKAGESTOOL": "True",
-        "PIPELINESTOOL": "True",
-        "PIPELINE_SCHEDULESTOOL": "True",
-        "PROJECTSTOOL": "True",
-        "PROTECTED_BRANCHESTOOL": "True",
-        "RELEASESTOOL": "True",
-        "RUNNERSTOOL": "True",
-        "TAGSTOOL": "True"
-      }
+        "GITLAB_URL": "",
+        "GITLAB_TOKEN": ""
+}
     }
   }
 }
 ```
 
-### 2. Streamable HTTP (SSE) Deployment
-
+### Streamable HTTP (recommended for production)
 ```json
 {
   "mcpServers": {
-    "gitlab-api": {
-      "command": "uv",
-      "args": [
-        "run",
-        "gitlab-mcp",
-        "--transport",
-        "http",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8000"
-      ],
-      "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
-        "BRANCHESTOOL": "True",
-        "COMMITSTOOL": "True",
-        "CUSTOM_APITOOL": "True",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
-        "DEPLOY_TOKENSTOOL": "True",
-        "ENVIRONMENTSTOOL": "True",
-        "GITLAB_SSL_VERIFY": "<YOUR_GITLAB_SSL_VERIFY>",
-        "GITLAB_TOKEN": "<YOUR_GITLAB_TOKEN>",
-        "GITLAB_URL": "<YOUR_GITLAB_URL>",
-        "GITLAB_VERIFY": "<YOUR_GITLAB_VERIFY>",
-        "GROUPSTOOL": "True",
-        "JOBSTOOL": "True",
-        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
-        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
-        "MCP_URL": "<YOUR_MCP_URL>",
-        "MEMBERSTOOL": "True",
-        "MERGE_REQUESTSTOOL": "True",
-        "MERGE_RULESTOOL": "True",
-        "MISCTOOL": "True",
-        "MODEL_ID": "<YOUR_MODEL_ID>",
-        "PACKAGESTOOL": "True",
-        "PIPELINESTOOL": "True",
-        "PIPELINE_SCHEDULESTOOL": "True",
-        "PROJECTSTOOL": "True",
-        "PROTECTED_BRANCHESTOOL": "True",
-        "RELEASESTOOL": "True",
-        "RUNNERSTOOL": "True",
-        "TAGSTOOL": "True"
-      }
+    "gitlab": {
+      "url": "http://localhost:8080/gitlab-mcp/mcp"
     }
   }
 }
