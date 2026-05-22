@@ -22,7 +22,8 @@ mcp = [ "agent-utilities[mcp]>=0.11.0",]
 agent = [ "agent-utilities[agent,logfire]>=0.11.0",]
 gql = [ "gql>=4.0.0",]
 all = [ "gitlab-api[mcp,agent,gql,logfire]>=25.15.56",]
-test = [ "pytest", "pytest-asyncio", "pytest-cov",]
+test = [
+    "pytest-xdist>=3.6.0", "pytest", "pytest-asyncio", "pytest-cov",]
 
 [project.scripts]
 gitlab-mcp = "gitlab_api.mcp_server:mcp_server"
