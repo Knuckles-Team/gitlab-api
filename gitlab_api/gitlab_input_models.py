@@ -491,17 +491,55 @@ class IssueModel(BaseModel):
     description: str | None = Field(
         default=None, description="Description of the issue"
     )
-    labels: list[str] | None = Field(
-        default=None, description="List of labels for the issue"
+    labels: list[str] | str | None = Field(
+        default=None, description="List of labels or comma-separated string of labels"
     )
     state: str | None = Field(
         None, description="State of the issue (e.g., 'opened', 'closed')"
     )
-    issue_iid: int | None = Field(default=None, description="Internal ID of the issue")
+    state_event: str | None = Field(
+        None, description="State event to update the issue ('close', 'reopen')"
+    )
+    issue_iid: int | str | None = Field(
+        default=None, description="Internal ID of the issue"
+    )
+    assignee_ids: list[int] | None = Field(
+        default=None, description="Assignees user IDs"
+    )
+    milestone_id: int | str | None = Field(default=None, description="Milestone ID")
+    max_pages: int | None = Field(description="Maximum pages to return", default=None)
+    per_page: int | None = Field(description="Results per page", default=None)
+    page: int | None = Field(description="Pagination page", default=None)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
+
+    def model_post_init(self, _context):
+        self.api_parameters = {}
+        if self.state:
+            self.api_parameters["state"] = self.state
+        if self.labels:
+            self.api_parameters["labels"] = self.labels
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        data: dict[str, Any] = {}
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+        data = {k: v for k, v in data.items() if v is not None}
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+        return values
 
     @field_validator("project_id")
     def validate_project_id(cls, v):
-        if not v:
+        if v is None:
+            return v
+        if not str(v).strip():
             raise ValueError("Project ID or path cannot be empty")
         return str(v).strip("'\"")
 
@@ -3046,7 +3084,24 @@ class UserModel(BaseModel):
     per_page: int | None = Field(description="Amount of items per page", default=None)
     sudo: bool | None = False
     user_id: str | int | None = None
+    email: str | None = None
+    password: str | None = None
+    name: str | None = None
+    admin: bool | None = None
+    skips_confirmation: bool | None = None
     api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        data: dict[str, Any] = {}
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+        data = {k: v for k, v in data.items() if v is not None}
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+        return values
 
     def model_post_init(self, _context):
         """
@@ -3276,3 +3331,134 @@ class WikiModel(BaseModel):
         if not isinstance(value, (int, str)):
             raise ValueError("Project ID must be an integer or a string")
         return value
+
+
+class LabelModel(BaseModel):
+    project_id: int | str | None = Field(
+        default=None, description="Project ID or full path"
+    )
+    name: str | None = Field(default=None, description="The name of the label")
+    color: str | None = Field(
+        default=None, description="The color of the label in hex format, e.g. #334455"
+    )
+    new_name: str | None = Field(default=None, description="The new name of the label")
+    description: str | None = Field(
+        default=None, description="The description of the label"
+    )
+    data: dict | None = Field(description="Data Payload", default=None)
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        data: dict[str, Any] = {}
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+        data = {k: v for k, v in data.items() if v is not None}
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+        return values
+
+
+class MilestoneModel(BaseModel):
+    project_id: int | str | None = Field(
+        default=None, description="Project ID or full path"
+    )
+    milestone_id: int | str | None = Field(default=None, description="Milestone ID")
+    title: str | None = Field(default=None, description="The title of the milestone")
+    description: str | None = Field(
+        default=None, description="The description of the milestone"
+    )
+    state_event: str | None = Field(
+        default=None,
+        description="The state event of the milestone (e.g. close, activate)",
+    )
+    data: dict | None = Field(description="Data Payload", default=None)
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        data: dict[str, Any] = {}
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+        data = {k: v for k, v in data.items() if v is not None}
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+        return values
+
+
+class SnippetModel(BaseModel):
+    project_id: int | str | None = Field(
+        default=None, description="Project ID or full path"
+    )
+    snippet_id: int | str | None = Field(default=None, description="Snippet ID")
+    title: str | None = Field(default=None, description="The title of the snippet")
+    file_name: str | None = Field(
+        default=None, description="The file name of the snippet"
+    )
+    content: str | None = Field(default=None, description="The content of the snippet")
+    visibility: str | None = Field(
+        default=None, description="Visibility level: private, internal, public"
+    )
+    data: dict | None = Field(description="Data Payload", default=None)
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        data: dict[str, Any] = {}
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+        data = {k: v for k, v in data.items() if v is not None}
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+        return values
+
+
+class NoteModel(BaseModel):
+    project_id: int | str | None = Field(
+        default=None, description="Project ID or full path"
+    )
+    issue_iid: int | str | None = Field(
+        default=None, description="Internal ID of the issue"
+    )
+    note_id: int | str | None = Field(default=None, description="Note ID")
+    body: str | None = Field(
+        default=None, description="The content of the note/comment"
+    )
+    data: dict | None = Field(description="Data Payload", default=None)
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        data: dict[str, Any] = {}
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+        data = {k: v for k, v in data.items() if v is not None}
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+        return values
+
+
+class EpicModel(BaseModel):
+    group_id: int | str | None = Field(
+        default=None, description="Group ID or full path"
+    )
+    epic_iid: int | str | None = Field(default=None, description="Epic IID")
+    title: str | None = Field(default=None, description="The title of the epic")
+    description: str | None = Field(
+        default=None, description="The description of the epic"
+    )
+    state_event: str | None = Field(
+        default=None, description="State event: close, reopen"
+    )
+    data: dict | None = Field(description="Data Payload", default=None)
+
+    @model_validator(mode="before")
+    def build_data(cls, values):
+        data: dict[str, Any] = {}
+        for field_name, value in values.items():
+            if field_name in cls.__annotations__ and value is not None:
+                data[field_name] = value
+        data = {k: v for k, v in data.items() if v is not None}
+        if "data" not in values or values["data"] is None:
+            values["data"] = data
+        return values

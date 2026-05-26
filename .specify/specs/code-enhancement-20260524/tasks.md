@@ -1,0 +1,95 @@
+# Tasks: Code Enhancement: gitlab-api
+
+Generated: 2026-05-24T04:17:16.188296+00:00
+Skipped informational: 6
+
+- [ ] [P] **T001** [Dependency Audit] Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T002** [Dependency Audit] Minor update: agent-utilities 0.2.40 (installed) -> 0.16.0
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T003** [Codebase Optimization] 5 functions exceed 200 lines (actionable refactoring targets): test_project_resp
+  - Priority: P2-Medium | Effort: Large
+- [ ] [P] **T004** [Codebase Optimization] Monolithic: mcp_server.py (1329L) — 6 functions with high complexity (worst: get
+  - Priority: P1-High | Effort: Large
+- [ ] [P] **T005** [Codebase Optimization] Monolithic: gitlab_input_models.py (3464L) — 4 functions with high complexity (w
+  - Priority: P1-High | Effort: Large
+- [ ] [P] **T006** [Codebase Optimization] Needs attention: gitlab_gql.py (3341L) — God class: GraphQL (86 methods) — consi
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T007** [Codebase Optimization] Needs attention: gitlab_response_models.py (3761L) — Low cohesion: 91 distinct c
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T008** [Codebase Optimization] Needs attention: api_client_pipelines.py (783L) — God class: GitLabApiPipelines
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T009** [Codebase Optimization] 10 functions with nesting depth >4
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T010** [Codebase Optimization] 1 flat directories with >15 Python files: gitlab_api/mcp
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T011** [Test Coverage] 7 tests without assertions
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T012** [Test Coverage] 15 potential doc-test drift items
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T013** [Documentation & Governance] README.md missing sections: usage|quick start
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T014** [Documentation & Governance] 2 broken internal links in README.md
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T015** [Documentation & Governance] README missing: Has a Table of Contents
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T016** [Documentation & Governance] README missing: Has usage examples with code blocks
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T017** [Architecture & Design Patterns] SRP: 11 modules exceed 500 lines (god modules)
+  - Priority: P2-Medium | Effort: Large
+- [ ] [P] **T018** [Architecture & Design Patterns] SRP: 8 classes have >15 methods
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T019** [Architecture & Design Patterns] No discernible layer architecture (no domain/service/adapter separation)
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T020** [Architecture & Design Patterns] Low dependency injection ratio: 2%
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T021** [Architecture & Design Patterns] 28 Python files at top level — consider package organization
+  - Priority: P2-Medium | Effort: Large
+- [ ] [P] **T022** [Concept Traceability] Low traceability ratio: 0% concepts fully traced
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T023** [Concept Traceability] 34 orphaned concepts (only in one source)
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T024** [Concept Traceability] 241 test functions missing concept markers
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T025** [Concept Traceability] 482 significant functions (>10 lines) missing concept markers in docstrings
+  - Priority: P4-Enhancement | Effort: Small
+- [ ] [P] **T026** [Linting & Formatting] Total lint findings: 0 (high/error: 0, medium/warning: 0, low: 0)
+  - Priority: P4-Enhancement | Effort: Medium
+- [ ] [P] **T027** [Pre-Commit Compliance] 2 hook(s) may be outdated: ruff-pre-commit, uv-pre-commit
+  - Priority: P2-Medium | Effort: Small
+- [ ] [P] **T028** [Directory Organization] 1 directories with >20 files: gitlab_api/mcp
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T029** [Directory Organization] 2 rogue/throwaway scripts detected (fix_*, validate_*, patch_*, etc.): scripts/v
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T030** [Changelog Audit] CHANGELOG.md exists but could not be parsed — check format compliance
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T031** [Changelog Audit] No changelog entries within the last 30 days
+  - Priority: P3-Low | Effort: Medium
+- [ ] [P] **T032** [Changelog Audit] keepachangelog not installed — pip install 'universal-skills[code-enhancer]'
+  - Priority: P3-Low | Effort: Small
+- [ ] [P] **T033** [Pytest Quality] 1 test files exceed 500 lines — split into focused modules
+  - Priority: P1-High | Effort: Large
+- [ ] [P] **T034** [Pytest Quality] 1 test files have >30 tests — too dense
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T035** [Pytest Quality] Test directory lacks subdirectory organization (consider unit/, integration/, e2
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T036** [Pytest Quality] Low fixture usage: only 9% of tests use fixtures
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T037** [Pytest Quality] No @pytest.mark.parametrize usage — consider data-driven tests
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T038** [Pytest Quality] 7 tests have no assertions
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T039** [Pytest Quality] 183 tests use weak assertions (assert result is not None, assert True, etc.)
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T040** [Pytest Quality] 24 groups of duplicate test bodies detected (51 total) — use parametrize instead
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T041** [Pytest Quality] 21 tests exceed 100 lines — likely doing too much per test
+  - Priority: P1-High | Effort: Medium
+- [ ] [P] **T042** [Environment Variables] Only 16% of env vars documented in README.md
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T043** [Environment Variables] Undocumented env vars: AUTH_TYPE, BRANCHESTOOL, COMMITSTOOL, CUSTOM_APITOOL, DEF
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T044** [Environment Variables] 16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_L
+  - Priority: P2-Medium | Effort: Medium
+- [ ] [P] **T045** [analyze_xdg_kg] Analysis error: No module named 'agent_utilities.knowledge_graph'
+  - Priority: P1-High | Effort: Medium

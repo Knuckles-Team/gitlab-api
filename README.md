@@ -43,7 +43,7 @@
 
 This agent wraps the GitLab API + MCP Server + A2A Server API. You can interact with it programmatically or via its integrated execution entrypoints.
 
-Detailed instructions on how to use the underlying API wrappers, extended schema bindings, and developer SDK references are maintained in [docs/index.md](file:///home/apps/workspace/agent-packages/agents/gitlab-api/docs/index.md).
+Detailed instructions on how to use the underlying API wrappers, extended schema bindings, and developer SDK references are maintained in [docs/index.md](docs/index.md).
 
 ---
 
@@ -54,28 +54,55 @@ This server utilizes dynamic Action-Routed tools to optimize token overhead and 
 ### Available MCP Tools
 | Tool Module | Toggle Env Var | Enabled by Default | Description & Nested Methods |
 |-------------|----------------|--------------------|------------------------------|
-| **Misc** | `MISCTOOL` | `True` | Manage misc operations. |
-| **Branches** | `BRANCHESTOOL` | `True` | Manage gitlab branches operations. Action-routed methods: `get`, `create`, `delete`. |
-| **Protected Branches** | `PROTECTED_BRANCHESTOOL` | `True` | Manage gitlab protected branches operations. Action-routed methods: `get`, `protect`, `unprotect`. |
-| **Commits** | `COMMITSTOOL` | `True` | Manage gitlab commits operations. Action-routed methods: `get`, `create`, `diff`, `revert`, `get_comments`, `create_comment`, `get_discussions`, `get_statuses`, `post_status`, `get_merge_requests`, `get_gpg_signature`. |
-| **Deploy Tokens** | `DEPLOY_TOKENSTOOL` | `True` | Manage gitlab deploy tokens operations. Action-routed methods: `get`, `get_project`, `create_project`, `delete_project`, `get_group`, `create_group`, `delete_group`. |
-| **Environments** | `ENVIRONMENTSTOOL` | `True` | Manage gitlab environments operations. Action-routed methods: `get`, `create`, `update`, `delete`, `stop`, `stop_stale`, `delete_stopped`, `get_protected`, `protect`, `update_protected`, `unprotect`. |
-| **Groups** | `GROUPSTOOL` | `True` | Manage gitlab groups operations. Action-routed methods: `get`, `edit`, `get_subgroups`, `get_descendants`, `get_projects`, `get_merge_requests`. |
-| **Jobs** | `JOBSTOOL` | `True` | Manage gitlab jobs operations. Action-routed methods: `get_project_jobs`, `get_log`, `cancel`, `retry`, `erase`, `run`, `get_pipeline_jobs`. |
-| **Members** | `MEMBERSTOOL` | `True` | Manage gitlab members operations. Action-routed methods: `get_group`, `get_project`. |
-| **Merge Requests** | `MERGE_REQUESTSTOOL` | `True` | Manage gitlab merge requests operations. Action-routed methods: `create`, `get`, `get_project`. |
-| **Merge Rules** | `MERGE_RULESTOOL` | `True` | Manage gitlab merge rules operations. Action-routed methods: `get_project_level`, `create_project_level`, `update_project_level`, `delete_project_level`, `get_mr_approvals`, `get_mr_approval_state`, `get_mr_level`, `approve_mr`, `unapprove_mr`, `get_group_level`, `edit_group_level`, `edit_project_level`. |
-| **Packages** | `PACKAGESTOOL` | `True` | Manage gitlab packages operations. Action-routed methods: `get`, `publish`, `download`. |
-| **Pipelines** | `PIPELINESTOOL` | `True` | Manage gitlab pipelines operations. Action-routed methods: `get`, `run`. |
-| **Pipeline Schedules** | `PIPELINE_SCHEDULESTOOL` | `True` | Manage gitlab pipeline schedules operations. Action-routed methods: `get_all`, `get`, `get_triggered`, `create`, `edit`, `take_ownership`, `delete`, `run`, `create_variable`, `delete_variable`. |
-| **Projects** | `PROJECTSTOOL` | `True` | Manage gitlab projects operations. Action-routed methods: `get`, `get_nested_by_group`, `get_contributors`, `get_statistics`, `edit`, `share_with_group`, `unshare_with_group`. |
-| **Releases** | `RELEASESTOOL` | `True` | Manage gitlab releases operations. Action-routed methods: `get`, `get_latest`, `get_latest_evidence`, `get_latest_asset`, `get_group_releases`, `download_asset`, `get_by_tag`, `create`, `create_evidence`, `update`, `delete`. |
-| **Runners** | `RUNNERSTOOL` | `True` | Manage gitlab runners operations. Action-routed methods: `get_all`, `update_details`, `pause`, `get_jobs`, `get_project`, `enable_project`, `delete_project`, `get_group`, `register`, `delete`, `verify_auth`, `reset_gitlab_token`, `reset_project_token`, `reset_group_token`, `reset_token`. |
-| **Tags** | `TAGSTOOL` | `True` | Manage gitlab tags operations. Action-routed methods: `get`, `create`, `delete`, `get_protected`, `get_protected_tag`, `protect`, `unprotect`. |
-| **Custom Api** | `CUSTOM_APITOOL` | `True` | Manage api request operations. |
-| **Graphql** | `GRAPHQLTOOL` | `True` | Execute raw GraphQL queries and mutations natively on GitLab. |
+| **Misc** | `MISC_TOOL` | `True` | Manage gitlab api misc operations. |
+| **Branches** | `BRANCHES_TOOL` | `True` | Manage gitlab branches operations. Action-routed methods: `create`, `delete`, `get`. |
+| **Protected Branches** | `PROTECTED_BRANCHES_TOOL` | `True` | Manage gitlab protected branches operations. Action-routed methods: `get`, `protect`, `unprotect`. |
+| **Commits** | `COMMITS_TOOL` | `True` | Manage gitlab commits operations. Action-routed methods: `create`, `create_comment`, `diff`, `get`, `get_comments`, `get_discussions`, `get_gpg_signature`, `get_merge_requests`, `get_statuses`, `post_status`, `revert`. |
+| **Deploy Tokens** | `DEPLOY_TOKENS_TOOL` | `True` | Manage gitlab deploy tokens operations. Action-routed methods: `create_group`, `create_project`, `delete_group`, `delete_project`, `get`, `get_group`, `get_project`. |
+| **Environments** | `ENVIRONMENTS_TOOL` | `True` | Manage gitlab environments operations. Action-routed methods: `create`, `delete`, `delete_stopped`, `get`, `get_protected`, `protect`, `stop`, `stop_stale`, `unprotect`, `update`, `update_protected`. |
+| **Groups** | `GROUPS_TOOL` | `True` | Manage gitlab groups operations. Action-routed methods: `edit`, `get`, `get_descendants`, `get_merge_requests`, `get_projects`, `get_subgroups`. |
+| **Jobs** | `JOBS_TOOL` | `True` | Manage gitlab jobs operations. Action-routed methods: `cancel`, `erase`, `get_log`, `get_pipeline_jobs`, `get_project_jobs`, `retry`, `run`. |
+| **Members** | `MEMBERS_TOOL` | `True` | Manage gitlab members operations. Action-routed methods: `get_group`, `get_project`. |
+| **Merge Requests** | `MERGE_REQUESTS_TOOL` | `True` | Manage gitlab merge requests operations. Action-routed methods: `create`, `get`, `get_project`. |
+| **Merge Rules** | `MERGE_RULES_TOOL` | `True` | Manage gitlab merge rules operations. Action-routed methods: `approve_mr`, `create_project_level`, `delete_project_level`, `edit_group_level`, `edit_project_level`, `get_group_level`, `get_mr_approval_state`, `get_mr_approvals`, `get_mr_level`, `get_project_level`, `unapprove_mr`, `update_project_level`. |
+| **Packages** | `PACKAGES_TOOL` | `True` | Manage gitlab packages operations. Action-routed methods: `download`, `get`, `publish`. |
+| **Pipelines** | `PIPELINES_TOOL` | `True` | Manage gitlab pipelines operations. Action-routed methods: `get`, `run`. |
+| **Pipeline Schedules** | `PIPELINE_SCHEDULES_TOOL` | `True` | Manage gitlab pipeline schedules operations. Action-routed methods: `create`, `create_variable`, `delete`, `delete_variable`, `edit`, `get`, `get_all`, `get_triggered`, `run`, `take_ownership`. |
+| **Projects** | `PROJECTS_TOOL` | `True` | Manage gitlab projects operations. Action-routed methods: `edit`, `get`, `get_contributors`, `get_nested_by_group`, `get_statistics`, `share_with_group`, `unshare_with_group`. |
+| **Releases** | `RELEASES_TOOL` | `True` | Manage gitlab releases operations. Action-routed methods: `create`, `create_evidence`, `delete`, `download_asset`, `get`, `get_by_tag`, `get_group_releases`, `get_latest`, `get_latest_asset`, `get_latest_evidence`, `update`. |
+| **Runners** | `RUNNERS_TOOL` | `True` | Manage gitlab runners operations. Action-routed methods: `delete`, `delete_project`, `enable_project`, `get_all`, `get_group`, `get_jobs`, `get_project`, `pause`, `register`, `reset_gitlab_token`, `reset_group_token`, `reset_project_token`, `reset_token`, `update_details`, `verify_auth`. |
+| **Tags** | `TAGS_TOOL` | `True` | Manage gitlab tags operations. Action-routed methods: `create`, `delete`, `get`, `get_protected`, `get_protected_tag`, `protect`, `unprotect`. |
+| **Labels** | `LABELS_TOOL` | `True` | Manage GitLab labels. Action-routed methods: `create`, `delete`, `get`, `update`. |
+| **Milestones** | `MILESTONES_TOOL` | `True` | Manage GitLab milestones. Action-routed methods: `create`, `delete`, `get`, `update`. |
+| **Snippets** | `SNIPPETS_TOOL` | `True` | Manage GitLab snippets. Action-routed methods: `create`, `delete`, `get`, `update`. |
+| **Notes** | `NOTES_TOOL` | `True` | Manage GitLab notes/comments on issues, merge requests, commits, and epics. Action-routed methods: `create`, `delete`, `get`, `update`. |
+| **Epics** | `EPICS_TOOL` | `True` | Manage GitLab epics. Action-routed methods: `create`, `delete`, `get`, `update`. |
+| **Issues** | `ISSUES_TOOL` | `True` | Manage GitLab issues. Action-routed methods: `create`, `delete`, `get`, `update`. |
+| **Custom Api** | `CUSTOM_API_TOOL` | `True` | Execute arbitrary GitLab REST API requests directly. |
+| **Graphql** | `GRAPHQL_TOOL` | `True` | Execute raw GraphQL queries and mutations natively on GitLab. |
 
-Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](file:///home/apps/workspace/agent-packages/agents/gitlab-api/docs/mcp.md).
+Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
+
+### Dynamic Tool Selection & Visibility
+
+This MCP server supports dynamic toolset selection and visibility filtering at runtime. This allows you to restrict the set of exposed tools in order to prevent blowing up the LLM's context window.
+
+You can configure tool filtering via multiple input channels:
+
+- **CLI Arguments:** Pass `--tools` or `--toolsets` (or their disabled counterparts `--disabled-tools` and `--disabled-toolsets`) during startup.
+- **Environment Variables:** Define standard environment variables:
+  - `MCP_ENABLED_TOOLS` / `MCP_DISABLED_TOOLS`
+  - `MCP_ENABLED_TAGS` / `MCP_DISABLED_TAGS`
+- **HTTP SSE Request Headers:** Pass custom headers during transport initialization:
+  - `x-mcp-enabled-tools` / `x-mcp-disabled-tools`
+  - `x-mcp-enabled-tags` / `x-mcp-disabled-tags`
+- **HTTP SSE Request Query Parameters:** Append query parameters directly to your transport connection URL:
+  - `?tools=tool1,tool2`
+  - `?tags=tag1`
+
+When query strings or parameters are supplied, an LLM-free **Knowledge Graph resolution layer** (using `DynamicToolOrchestrator`) matches query intents against known tool tags, names, or descriptions, with safe fallback and automated 24-hour background cache refreshing.
+
+---
 
 ### MCP Configuration Examples
 
@@ -237,7 +264,7 @@ services:
 
 ```
 
-Detailed graph node architecture explanations, custom skill configurations, and agentic trace guides are available in [docs/agent.md](file:///home/apps/workspace/agent-packages/agents/gitlab-api/docs/agent.md).
+Detailed graph node architecture explanations, custom skill configurations, and agentic trace guides are available in [docs/agent.md](docs/agent.md).
 
 ---
 

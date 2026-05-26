@@ -61,6 +61,7 @@ class GraphQL:
         )
 
         headers = {"Authorization": f"Bearer {token}"}
+        self.headers = headers
         self.transport = RequestsHTTPTransport(
             url=self.url,
             headers=headers,

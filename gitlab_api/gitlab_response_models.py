@@ -3736,3 +3736,26 @@ class Response(BaseModel, Generic[T]):
     @property
     def headers(self) -> dict | None:
         return self.response.headers if self.response else None  # type: ignore
+
+
+class Snippet(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    __hash__ = object.__hash__
+    base_type: str | None = Field(default="Snippet")
+    id: int | None = Field(default=None)
+    title: str | None = Field(default=None)
+    file_name: str | None = Field(default=None)
+    description: str | None = Field(default=None)
+    visibility: str | None = Field(default=None)
+
+
+class Note(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    __hash__ = object.__hash__
+    base_type: str | None = Field(default="Note")
+    id: int | None = Field(default=None)
+    body: str | None = Field(default=None)
+    attachment: str | None = Field(default=None)
+    system: bool | None = Field(default=None)
+    upvote: bool | None = Field(default=None)
+    downvote: bool | None = Field(default=None)
