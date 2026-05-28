@@ -1,6 +1,6 @@
 import pytest
 
-pytestmark = pytest.mark.integration
+pytestmark = [pytest.mark.skip(reason="Requires live instance/integration environment"), pytest.mark.integration]
 import json
 import logging
 import subprocess

@@ -6,7 +6,7 @@ import time
 import pytest
 import requests
 
-pytestmark = pytest.mark.integration
+pytestmark = [pytest.mark.skip(reason="Requires live instance/integration environment"), pytest.mark.integration]
 import logging
 
 logging.basicConfig(level=logging.INFO)

@@ -4,7 +4,7 @@ import sys
 import pytest
 import requests
 
-pytestmark = pytest.mark.integration
+pytestmark = [pytest.mark.skip(reason="Requires live instance/integration environment"), pytest.mark.integration]
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

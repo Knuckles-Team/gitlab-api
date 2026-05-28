@@ -33,7 +33,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from gitlab_api.auth import get_client
 
-__version__ = "25.27.0"
+__version__ = "25.28.0"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
@@ -43,8 +43,10 @@ DEFAULT_GITLAB_SSL_VERIFY = to_boolean(string=os.getenv("GITLAB_SSL_VERIFY", "Tr
 DEFAULT_GITLAB_URL = os.getenv("GITLAB_URL", "https://gitlab.com")
 DEFAULT_GITLAB_TOKEN = os.getenv("GITLAB_TOKEN", None)
 
+
 def register_misc_tools(mcp: FastMCP):
     pass
+
 
 def register_branches_tools(mcp: FastMCP):
     @mcp.tool(tags={"branches"})
@@ -82,6 +84,7 @@ def register_branches_tools(mcp: FastMCP):
             return client.delete_branch(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_protected_branches_tools(mcp: FastMCP):
     @mcp.tool(tags={"protected_branches"})
     async def gitlab_protected_branches(
@@ -117,6 +120,7 @@ def register_protected_branches_tools(mcp: FastMCP):
         if action == "unprotect":
             return client.unprotect_branch(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_commits_tools(mcp: FastMCP):
     @mcp.tool(tags={"commits"})
@@ -170,6 +174,7 @@ def register_commits_tools(mcp: FastMCP):
             return client.get_commit_gpg_signature(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_deploy_tokens_tools(mcp: FastMCP):
     @mcp.tool(tags={"deploy_tokens"})
     async def gitlab_deploy_tokens(
@@ -215,6 +220,7 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         if action == "delete_group":
             return client.delete_group_deploy_token(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_environments_tools(mcp: FastMCP):
     @mcp.tool(tags={"environments"})
@@ -270,6 +276,7 @@ def register_environments_tools(mcp: FastMCP):
             return client.unprotect_environment(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_groups_tools(mcp: FastMCP):
     @mcp.tool(tags={"groups"})
     async def gitlab_groups(
@@ -311,6 +318,7 @@ def register_groups_tools(mcp: FastMCP):
         if action == "get_merge_requests":
             return client.get_group_merge_requests(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_jobs_tools(mcp: FastMCP):
     @mcp.tool(tags={"jobs"})
@@ -354,6 +362,7 @@ def register_jobs_tools(mcp: FastMCP):
             return client.get_pipeline_jobs(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_members_tools(mcp: FastMCP):
     @mcp.tool(tags={"members"})
     async def gitlab_members(
@@ -385,6 +394,7 @@ def register_members_tools(mcp: FastMCP):
         if action == "get_project":
             return client.get_project_members(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_merge_requests_tools(mcp: FastMCP):
     @mcp.tool(tags={"merge_requests"})
@@ -421,6 +431,7 @@ def register_merge_requests_tools(mcp: FastMCP):
         if action == "get_project":
             return client.get_project_merge_requests(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_merge_rules_tools(mcp: FastMCP):
     @mcp.tool(tags={"merge_rules"})
@@ -474,6 +485,7 @@ def register_merge_rules_tools(mcp: FastMCP):
             return client.edit_project_level_rule(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_packages_tools(mcp: FastMCP):
     @mcp.tool(tags={"packages"})
     async def gitlab_packages(
@@ -508,6 +520,7 @@ def register_packages_tools(mcp: FastMCP):
             return client.download_repository_package(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_pipelines_tools(mcp: FastMCP):
     @mcp.tool(tags={"pipelines"})
     async def gitlab_pipelines(
@@ -541,6 +554,7 @@ def register_pipelines_tools(mcp: FastMCP):
         if action == "run":
             return client.run_pipeline(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_pipeline_schedules_tools(mcp: FastMCP):
     @mcp.tool(tags={"pipeline_schedules"})
@@ -590,6 +604,7 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             return client.delete_pipeline_schedule_variable(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_projects_tools(mcp: FastMCP):
     @mcp.tool(tags={"projects"})
     async def gitlab_projects(
@@ -637,6 +652,7 @@ def register_projects_tools(mcp: FastMCP):
         if action == "unarchive":
             return client.unarchive_project(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_releases_tools(mcp: FastMCP):
     @mcp.tool(tags={"releases"})
@@ -689,6 +705,7 @@ def register_releases_tools(mcp: FastMCP):
         if action == "delete":
             return client.delete_release(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_runners_tools(mcp: FastMCP):
     @mcp.tool(tags={"runners"})
@@ -748,6 +765,7 @@ def register_runners_tools(mcp: FastMCP):
             return client.reset_token(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_tags_tools(mcp: FastMCP):
     @mcp.tool(tags={"tags"})
     async def gitlab_tags(
@@ -792,6 +810,7 @@ def register_tags_tools(mcp: FastMCP):
             return client.unprotect_tag(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_labels_tools(mcp: FastMCP):
     @mcp.tool(tags={"labels"})
     async def gitlab_labels(
@@ -829,6 +848,7 @@ def register_labels_tools(mcp: FastMCP):
         if action == "delete":
             return client.delete_label(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_milestones_tools(mcp: FastMCP):
     @mcp.tool(tags={"milestones"})
@@ -868,6 +888,7 @@ def register_milestones_tools(mcp: FastMCP):
             return client.delete_milestone(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_snippets_tools(mcp: FastMCP):
     @mcp.tool(tags={"snippets"})
     async def gitlab_snippets(
@@ -905,6 +926,7 @@ def register_snippets_tools(mcp: FastMCP):
         if action == "delete":
             return client.delete_snippet(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_notes_tools(mcp: FastMCP):
     @mcp.tool(tags={"notes"})
@@ -944,6 +966,7 @@ def register_notes_tools(mcp: FastMCP):
             return client.delete_note(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_epics_tools(mcp: FastMCP):
     @mcp.tool(tags={"epics"})
     async def gitlab_epics(
@@ -981,6 +1004,7 @@ def register_epics_tools(mcp: FastMCP):
         if action == "delete":
             return client.delete_epic(**kwargs)
         raise ValueError(f"Unknown action: {action}")
+
 
 def register_issues_tools(mcp: FastMCP):
     @mcp.tool(tags={"issues"})
@@ -1020,6 +1044,7 @@ def register_issues_tools(mcp: FastMCP):
             return client.delete_issue(**kwargs)
         raise ValueError(f"Unknown action: {action}")
 
+
 def register_custom_api_tools(mcp: FastMCP):
     @mcp.tool(tags={"custom-api"})
     async def api_request(
@@ -1050,6 +1075,7 @@ def register_custom_api_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         return client.api_request(method=method, endpoint=endpoint, **kwargs)
+
 
 def register_prompts(mcp: FastMCP):
     @mcp.prompt
@@ -1106,6 +1132,7 @@ def register_prompts(mcp: FastMCP):
         Generates a prompt for getting the latest gitlab release.
         """
         return f"What is the latest release for project id: {project_id}"
+
 
 def register_graphql_tools(mcp: FastMCP):
     from gitlab_api.auth import get_graphql_client
@@ -1175,6 +1202,7 @@ def register_graphql_tools(mcp: FastMCP):
             return await ctx_graphql_list_types(execute_fn)
         except Exception as e:
             return {"error": f"Failed to discover GitLab GraphQL schema: {str(e)}"}
+
 
 def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     """Initialize and return the GitLab MCP instance, args, and middlewares."""
@@ -1280,6 +1308,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
+
 def mcp_server() -> None:
     mcp, args, middlewares, registered_tags = get_mcp_instance()
     print(f"{'gitlab-api'} MCP v{__version__}", file=sys.stderr)
@@ -1297,6 +1326,7 @@ def mcp_server() -> None:
     else:
         logger.error("Invalid transport", extra={"transport": args.transport})
         sys.exit(1)
+
 
 if __name__ == "__main__":
     mcp_server()

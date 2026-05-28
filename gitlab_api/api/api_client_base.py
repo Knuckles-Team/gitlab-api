@@ -123,6 +123,7 @@ class GitLabApiBase:
     ) -> list[dict]:
         """Fetch a single page of data from the specified endpoint"""
         import copy
+
         local_model = copy.copy(model)
         local_model.page = page  # type: ignore
         local_model.model_post_init(local_model)  # type: ignore
@@ -175,7 +176,11 @@ class GitLabApiBase:
             all_data.extend(initial_data)
 
         # Fetch all pages by default (max up to 10 pages) if max_pages is None, 0, or not set
-        if not hasattr(model, "max_pages") or model.max_pages is None or model.max_pages == 0:  # type: ignore
+        if (
+            not hasattr(model, "max_pages")
+            or model.max_pages is None
+            or model.max_pages == 0
+        ):  # type: ignore
             model.max_pages = min(total_pages, 10)  # type: ignore
         elif model.max_pages > total_pages:  # type: ignore
             model.max_pages = total_pages  # type: ignore

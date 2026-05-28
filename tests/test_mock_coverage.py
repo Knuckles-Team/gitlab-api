@@ -286,11 +286,11 @@ async def test_mcp_server_graphql_exception():
 async def test_archive_unarchive_methods_and_mcp():
     # 1. Test Api.archive_project and Api.unarchive_project methods
     client = Api(url="http://gitlab.com", token="tok")
-    
+
     mock_resp = requests.Response()
     mock_resp.status_code = 200
     mock_resp._content = b'{"id": 123, "name": "archived-project", "archived": true}'
-    
+
     with patch("requests.Session.post", return_value=mock_resp) as mock_post:
         res = client.archive_project(project_id=123)
         project = res.data
@@ -299,13 +299,18 @@ async def test_archive_unarchive_methods_and_mcp():
         assert project.archived is True
         assert project.id == 123
         mock_post.assert_called_once()
-        assert mock_post.call_args.kwargs['url'] == "http://gitlab.com/api/v4/projects/123/archive"
-        assert mock_post.call_args.kwargs['headers'] == client.headers
+        assert (
+            mock_post.call_args.kwargs["url"]
+            == "http://gitlab.com/api/v4/projects/123/archive"
+        )
+        assert mock_post.call_args.kwargs["headers"] == client.headers
 
     mock_resp_un = requests.Response()
     mock_resp_un.status_code = 200
-    mock_resp_un._content = b'{"id": 123, "name": "archived-project", "archived": false}'
-    
+    mock_resp_un._content = (
+        b'{"id": 123, "name": "archived-project", "archived": false}'
+    )
+
     with patch("requests.Session.post", return_value=mock_resp_un) as mock_post:
         res = client.unarchive_project(project_id=123)
         project = res.data
@@ -314,8 +319,11 @@ async def test_archive_unarchive_methods_and_mcp():
         assert project.archived is False
         assert project.id == 123
         mock_post.assert_called_once()
-        assert mock_post.call_args.kwargs['url'] == "http://gitlab.com/api/v4/projects/123/unarchive"
-        assert mock_post.call_args.kwargs['headers'] == client.headers
+        assert (
+            mock_post.call_args.kwargs["url"]
+            == "http://gitlab.com/api/v4/projects/123/unarchive"
+        )
+        assert mock_post.call_args.kwargs["headers"] == client.headers
 
     # 2. Test the FastMCP tool for gitlab_projects archive/unarchive actions
     mcp, _, _, _ = get_mcp_instance()
@@ -324,25 +332,31 @@ async def test_archive_unarchive_methods_and_mcp():
         if inspect.iscoroutinefunction(mcp.list_tools)
         else mcp.list_tools()
     )
-    
+
     projects_tool = None
     for tool in tool_objs:
         if tool.name == "gitlab_projects":
             projects_tool = tool
             break
-            
+
     assert projects_tool is not None
-    
+
     mock_client = MagicMock()
-    mock_client.archive_project.return_value = {"status": "success", "action": "archive"}
-    mock_client.unarchive_project.return_value = {"status": "success", "action": "unarchive"}
-    
+    mock_client.archive_project.return_value = {
+        "status": "success",
+        "action": "archive",
+    }
+    mock_client.unarchive_project.return_value = {
+        "status": "success",
+        "action": "unarchive",
+    }
+
     # Test action="archive"
     res_archive = await projects_tool.fn(
         action="archive",
         params_json='{"project_id": 123}',
         client=mock_client,
-        ctx=None
+        ctx=None,
     )
     assert res_archive == {"status": "success", "action": "archive"}
     mock_client.archive_project.assert_called_once_with(project_id=123)
@@ -352,8 +366,7 @@ async def test_archive_unarchive_methods_and_mcp():
         action="unarchive",
         params_json='{"project_id": 123}',
         client=mock_client,
-        ctx=None
+        ctx=None,
     )
     assert res_unarchive == {"status": "success", "action": "unarchive"}
     mock_client.unarchive_project.assert_called_once_with(project_id=123)
-
