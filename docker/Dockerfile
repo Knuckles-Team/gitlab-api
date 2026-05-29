@@ -29,7 +29,7 @@ WORKDIR /app
 COPY . /app
 
 # Compile and install package in-place
-RUN uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow gitlab-api[all]>=25.30.1
+RUN uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow gitlab-api[all]>=25.31.0
 
 COPY docker/starship.toml /root/.config/starship.toml
 
