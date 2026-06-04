@@ -33,7 +33,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from gitlab_api.auth import get_client
 
-__version__ = "25.38.0"
+__version__ = "25.39.0"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
