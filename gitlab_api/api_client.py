@@ -31,4 +31,4 @@ class Api(
     GitLabApiEnvironments,
     GitLabApiOther,
 ):
-    pass
+    __slots__ = ()

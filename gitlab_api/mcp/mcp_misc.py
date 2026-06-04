@@ -7,4 +7,4 @@ from fastmcp import FastMCP
 
 
 def register_misc_tools(mcp: FastMCP):
-    pass
+    return None

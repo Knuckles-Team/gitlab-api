@@ -2071,7 +2071,7 @@ class GraphQL:
         Note:
             Deploy tokens are not fully supported in GraphQL; use REST API.
         """
-        raise NotImplementedError(
+        raise RuntimeError(
             "Deploy tokens not available in GitLab GraphQL; use REST API."
         )
 
@@ -2100,7 +2100,7 @@ class GraphQL:
         Note:
             Deploy tokens are not supported in GraphQL; use REST API.
         """
-        raise NotImplementedError(
+        raise RuntimeError(
             "Deploy token creation not available in GitLab GraphQL; use REST API."
         )
 
@@ -2121,7 +2121,7 @@ class GraphQL:
         Note:
             Deploy tokens are not supported in GraphQL; use REST API.
         """
-        raise NotImplementedError(
+        raise RuntimeError(
             "Deploy token deletion not available in GitLab GraphQL; use REST API."
         )
 
@@ -3331,7 +3331,7 @@ class GraphQL:
         Note:
             File uploads are not directly supported in GitLab GraphQL; use REST API.
         """
-        raise NotImplementedError(
+        raise RuntimeError(
             "Wiki attachment upload not available in GitLab GraphQL; use REST API."
         )
 

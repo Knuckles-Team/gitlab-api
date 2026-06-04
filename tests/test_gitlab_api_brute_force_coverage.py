@@ -99,7 +99,7 @@ def test_mcp_server_coverage(mock_session):
         return await call_next(context)
 
     async def dummy_log(*args, **kwargs):
-        pass
+        return None
 
     # Let's mock get_client and get_graphql_client using dummy functions with proper signature
     mock_api = MagicMock(spec=Api)

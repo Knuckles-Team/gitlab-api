@@ -33,7 +33,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from gitlab_api.auth import get_client
 
-__version__ = "25.37.0"
+__version__ = "25.38.0"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
@@ -45,7 +45,7 @@ DEFAULT_GITLAB_TOKEN = os.getenv("GITLAB_TOKEN", None)
 
 
 def register_misc_tools(mcp: FastMCP):
-    pass
+    return None
 
 
 def register_branches_tools(mcp: FastMCP):
