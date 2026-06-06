@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "25.40.0"
+version = "25.41.0"
 description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: Public Domain", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
@@ -21,7 +21,7 @@ text = "MIT"
 mcp = [ "agent-utilities[mcp]>=0.45.0",]
 agent = [ "agent-utilities[agent,logfire]>=0.45.0",]
 gql = [ "gql>=4.0.0",]
-all = [ "gitlab-api[mcp,agent,gql,logfire]>=25.39.0",]
+all = [ "gitlab-api[mcp,agent,gql,logfire]>=25.40.0",]
 test = [
     "pytest-xdist>=3.6.0", "pytest", "pytest-asyncio", "pytest-cov",]
 
