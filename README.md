@@ -22,6 +22,11 @@
 
 *Version: 25.41.0*
 
+> **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
+> interfaces, the integrated A2A agent server, and guidance for provisioning the
+> backing GitLab instance are maintained in the
+> [official documentation](https://knuckles-team.github.io/gitlab-api/).
+
 ---
 
 ## Overview
@@ -297,6 +302,23 @@ uv pip install gitlab-api[all]
 # Using standard pip
 python -m pip install gitlab-api[all]
 ```
+
+---
+
+## Documentation
+
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/gitlab-api/) and is the
+recommended reference for installation, deployment, and day-to-day operation.
+
+| Page | Contents |
+|---|---|
+| [Installation](https://knuckles-team.github.io/gitlab-api/installation/) | pip, source, extras, prebuilt Docker image |
+| [Deployment](https://knuckles-team.github.io/gitlab-api/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
+| [Usage](https://knuckles-team.github.io/gitlab-api/usage/) | the MCP tools, the `Api` client, the CLI |
+| [Backing Platform](https://knuckles-team.github.io/gitlab-api/platform/) | deploy GitLab with Docker |
+| [Overview](https://knuckles-team.github.io/gitlab-api/overview/) | the action-routed tool surface and architecture |
+| [Concepts](https://knuckles-team.github.io/gitlab-api/concepts/) | concept registry (`CONCEPT:GL-*`) |
 
 ---
 
