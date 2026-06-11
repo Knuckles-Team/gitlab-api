@@ -7,9 +7,9 @@ name = "gitlab-api"
 version = "25.42.0"
 description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
-classifiers = [ "Development Status :: 5 - Production/Stable", "License :: Public Domain", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
+classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.11, <3.15"
-dependencies = [ "agent-utilities>=0.47.0", "python-dotenv>=1.0.0", "gql>=4.0.0",]
+dependencies = [ "agent-utilities>=0.47.0", "python-dotenv>=1.0.0", "gql[requests]>=4.0.0",]
 [[project.authors]]
 name = "Audel Rouhi"
 email = "knucklessg1@gmail.com"
@@ -20,7 +20,7 @@ text = "MIT"
 [project.optional-dependencies]
 mcp = [ "agent-utilities[mcp]>=0.47.0",]
 agent = [ "agent-utilities[agent,logfire]>=0.47.0",]
-gql = [ "gql>=4.0.0",]
+gql = [ "gql[requests]>=4.0.0",]
 all = [ "gitlab-api[mcp,agent,gql,logfire]>=25.42.0",]
 test = [
     "pytest-xdist>=3.6.0", "pytest", "pytest-asyncio", "pytest-cov",]

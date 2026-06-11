@@ -58,554 +58,86 @@ gitlab_api.agent_server:agent_server
 
 ## Project Structure Quick Reference
 - MCP Entry Point → `mcp_server.py`
-- Agent Entry Point → `agent.py`
+- Agent Entry Point → `agent_server.py`
 - Source Code → `gitlab_api/`
 - Skills → `skills/` (if exists)
 
 ### File Tree
 ```text
-├── .bumpversion.cfg
-├── .codespellignore
-├── .dockerignore
-├── .env
-├── .env.example
-├── .gitattributes
-├── .github
-│   └── workflows
+├── .github/
+│   └── workflows/
 │       ├── docs.yml
 │       ├── pages.yml
 │       └── pipeline.yml
-├── .gitignore
-├── .mypy_cache
-│   ├── .gitignore
-│   ├── 3.10
-│   │   ├── @plugins_snapshot.json
-│   │   ├── __future__.data.json
-│   │   ├── __future__.meta.json
-│   │   ├── _ast.data.json
-│   │   ├── _ast.meta.json
-│   │   ├── _asyncio.data.json
-│   │   ├── _asyncio.meta.json
-│   │   ├── _blake2.data.json
-│   │   ├── _blake2.meta.json
-│   │   ├── _codecs.data.json
-│   │   ├── _codecs.meta.json
-│   │   ├── _collections_abc.data.json
-│   │   ├── _collections_abc.meta.json
-│   │   ├── _contextvars.data.json
-│   │   ├── _contextvars.meta.json
-│   │   ├── _ctypes.data.json
-│   │   ├── _ctypes.meta.json
-│   │   ├── _decimal.data.json
-│   │   ├── _decimal.meta.json
-│   │   ├── _frozen_importlib.data.json
-│   │   ├── _frozen_importlib.meta.json
-│   │   ├── _frozen_importlib_external.data.json
-│   │   ├── _frozen_importlib_external.meta.json
-│   │   ├── _hashlib.data.json
-│   │   ├── _hashlib.meta.json
-│   │   ├── _io.data.json
-│   │   ├── _io.meta.json
-│   │   ├── _operator.data.json
-│   │   ├── _operator.meta.json
-│   │   ├── _pickle.data.json
-│   │   ├── _pickle.meta.json
-│   │   ├── _queue.data.json
-│   │   ├── _queue.meta.json
-│   │   ├── _random.data.json
-│   │   ├── _random.meta.json
-│   │   ├── _sitebuiltins.data.json
-│   │   ├── _sitebuiltins.meta.json
-│   │   ├── _socket.data.json
-│   │   ├── _socket.meta.json
-│   │   ├── _ssl.data.json
-│   │   ├── _ssl.meta.json
-│   │   ├── _thread.data.json
-│   │   ├── _thread.meta.json
-│   │   ├── _typeshed
-│   │   ├── _warnings.data.json
-│   │   ├── _warnings.meta.json
-│   │   ├── _weakref.data.json
-│   │   ├── _weakref.meta.json
-│   │   ├── _weakrefset.data.json
-│   │   ├── _weakrefset.meta.json
-│   │   ├── abc.data.json
-│   │   ├── abc.meta.json
-│   │   ├── annotated_types
-│   │   ├── ast.data.json
-│   │   ├── ast.meta.json
-│   │   ├── asyncio
-│   │   ├── base64.data.json
-│   │   ├── base64.meta.json
-│   │   ├── binascii.data.json
-│   │   ├── binascii.meta.json
-│   │   ├── builtins.data.json
-│   │   ├── builtins.meta.json
-│   │   ├── cache.db
-│   │   ├── codecs.data.json
-│   │   ├── codecs.meta.json
-│   │   ├── collections
-│   │   ├── colorsys.data.json
-│   │   ├── colorsys.meta.json
-│   │   ├── concurrent
-│   │   ├── contextlib.data.json
-│   │   ├── contextlib.meta.json
-│   │   ├── contextvars.data.json
-│   │   ├── contextvars.meta.json
-│   │   ├── copy.data.json
-│   │   ├── copy.meta.json
-│   │   ├── copyreg.data.json
-│   │   ├── copyreg.meta.json
-│   │   ├── ctypes
-│   │   ├── dataclasses.data.json
-│   │   ├── dataclasses.meta.json
-│   │   ├── datetime.data.json
-│   │   ├── datetime.meta.json
-│   │   ├── decimal.data.json
-│   │   ├── decimal.meta.json
-│   │   ├── dis.data.json
-│   │   ├── dis.meta.json
-│   │   ├── email
-│   │   ├── enum.data.json
-│   │   ├── enum.meta.json
-│   │   ├── errno.data.json
-│   │   ├── errno.meta.json
-│   │   ├── fractions.data.json
-│   │   ├── fractions.meta.json
-│   │   ├── functools.data.json
-│   │   ├── functools.meta.json
-│   │   ├── genericpath.data.json
-│   │   ├── genericpath.meta.json
-│   │   ├── gitlab_api
-│   │   ├── hashlib.data.json
-│   │   ├── hashlib.meta.json
-│   │   ├── hmac.data.json
-│   │   ├── hmac.meta.json
-│   │   ├── http
-│   │   ├── importlib
-│   │   ├── inspect.data.json
-│   │   ├── inspect.meta.json
-│   │   ├── io.data.json
-│   │   ├── io.meta.json
-│   │   ├── ipaddress.data.json
-│   │   ├── ipaddress.meta.json
-│   │   ├── itertools.data.json
-│   │   ├── itertools.meta.json
-│   │   ├── json
-│   │   ├── keyword.data.json
-│   │   ├── keyword.meta.json
-│   │   ├── logging
-│   │   ├── math.data.json
-│   │   ├── math.meta.json
-│   │   ├── mimetypes.data.json
-│   │   ├── mimetypes.meta.json
-│   │   ├── multiprocessing
-│   │   ├── numbers.data.json
-│   │   ├── numbers.meta.json
-│   │   ├── opcode.data.json
-│   │   ├── opcode.meta.json
-│   │   ├── operator.data.json
-│   │   ├── operator.meta.json
-│   │   ├── os
-│   │   ├── pathlib.data.json
-│   │   ├── pathlib.meta.json
-│   │   ├── pickle.data.json
-│   │   ├── pickle.meta.json
-│   │   ├── posixpath.data.json
-│   │   ├── posixpath.meta.json
-│   │   ├── pydantic
-│   │   ├── pydantic_core
-│   │   ├── queue.data.json
-│   │   ├── queue.meta.json
-│   │   ├── random.data.json
-│   │   ├── random.meta.json
-│   │   ├── re.data.json
-│   │   ├── re.meta.json
-│   │   ├── requests
-│   │   ├── resource.data.json
-│   │   ├── resource.meta.json
-│   │   ├── select.data.json
-│   │   ├── select.meta.json
-│   │   ├── selectors.data.json
-│   │   ├── selectors.meta.json
-│   │   ├── signal.data.json
-│   │   ├── signal.meta.json
-│   │   ├── socket.data.json
-│   │   ├── socket.meta.json
-│   │   ├── sre_compile.data.json
-│   │   ├── sre_compile.meta.json
-│   │   ├── sre_constants.data.json
-│   │   ├── sre_constants.meta.json
-│   │   ├── sre_parse.data.json
-│   │   ├── sre_parse.meta.json
-│   │   ├── ssl.data.json
-│   │   ├── ssl.meta.json
-│   │   ├── string.data.json
-│   │   ├── string.meta.json
-│   │   ├── subprocess.data.json
-│   │   ├── subprocess.meta.json
-│   │   ├── sys
-│   │   ├── tempfile.data.json
-│   │   ├── tempfile.meta.json
-│   │   ├── test_gitlab_a2a_validation.data.json
-│   │   ├── test_gitlab_a2a_validation.meta.json
-│   │   ├── test_gitlab_mcp_validation.data.json
-│   │   ├── test_gitlab_mcp_validation.meta.json
-│   │   ├── test_setup.data.json
-│   │   ├── test_setup.meta.json
-│   │   ├── test_verify_agent.data.json
-│   │   ├── test_verify_agent.meta.json
-│   │   ├── tests
-│   │   ├── textwrap.data.json
-│   │   ├── textwrap.meta.json
-│   │   ├── threading.data.json
-│   │   ├── threading.meta.json
-│   │   ├── time.data.json
-│   │   ├── time.meta.json
-│   │   ├── traceback.data.json
-│   │   ├── traceback.meta.json
-│   │   ├── types.data.json
-│   │   ├── types.meta.json
-│   │   ├── typing.data.json
-│   │   ├── typing.meta.json
-│   │   ├── typing_extensions.data.json
-│   │   ├── typing_extensions.meta.json
-│   │   ├── typing_inspection
-│   │   ├── unittest
-│   │   ├── urllib
-│   │   ├── urllib3
-│   │   ├── uuid.data.json
-│   │   ├── uuid.meta.json
-│   │   ├── validate_a2a_agent.data.json
-│   │   ├── validate_a2a_agent.meta.json
-│   │   ├── validate_agent.data.json
-│   │   ├── validate_agent.meta.json
-│   │   ├── verify_a2a_queries.data.json
-│   │   ├── verify_a2a_queries.meta.json
-│   │   ├── warnings.data.json
-│   │   ├── warnings.meta.json
-│   │   ├── weakref.data.json
-│   │   ├── weakref.meta.json
-│   │   ├── zipfile
-│   │   ├── zlib.data.json
-│   │   ├── zlib.meta.json
-│   │   └── zoneinfo
-│   ├── 3.13
-│   │   ├── @plugins_snapshot.json
-│   │   ├── __future__.data.json
-│   │   ├── __future__.meta.json
-│   │   ├── _ast.data.json
-│   │   ├── _ast.meta.json
-│   │   ├── _asyncio.data.json
-│   │   ├── _asyncio.meta.json
-│   │   ├── _blake2.data.json
-│   │   ├── _blake2.meta.json
-│   │   ├── _codecs.data.json
-│   │   ├── _codecs.meta.json
-│   │   ├── _collections_abc.data.json
-│   │   ├── _collections_abc.meta.json
-│   │   ├── _contextvars.data.json
-│   │   ├── _contextvars.meta.json
-│   │   ├── _ctypes.data.json
-│   │   ├── _ctypes.meta.json
-│   │   ├── _decimal.data.json
-│   │   ├── _decimal.meta.json
-│   │   ├── _frozen_importlib.data.json
-│   │   ├── _frozen_importlib.meta.json
-│   │   ├── _frozen_importlib_external.data.json
-│   │   ├── _frozen_importlib_external.meta.json
-│   │   ├── _hashlib.data.json
-│   │   ├── _hashlib.meta.json
-│   │   ├── _io.data.json
-│   │   ├── _io.meta.json
-│   │   ├── _operator.data.json
-│   │   ├── _operator.meta.json
-│   │   ├── _pickle.data.json
-│   │   ├── _pickle.meta.json
-│   │   ├── _queue.data.json
-│   │   ├── _queue.meta.json
-│   │   ├── _random.data.json
-│   │   ├── _random.meta.json
-│   │   ├── _sitebuiltins.data.json
-│   │   ├── _sitebuiltins.meta.json
-│   │   ├── _socket.data.json
-│   │   ├── _socket.meta.json
-│   │   ├── _ssl.data.json
-│   │   ├── _ssl.meta.json
-│   │   ├── _thread.data.json
-│   │   ├── _thread.meta.json
-│   │   ├── _typeshed
-│   │   ├── _warnings.data.json
-│   │   ├── _warnings.meta.json
-│   │   ├── _weakref.data.json
-│   │   ├── _weakref.meta.json
-│   │   ├── _weakrefset.data.json
-│   │   ├── _weakrefset.meta.json
-│   │   ├── abc.data.json
-│   │   ├── abc.meta.json
-│   │   ├── annotated_types
-│   │   ├── ast.data.json
-│   │   ├── ast.meta.json
-│   │   ├── asyncio
-│   │   ├── base64.data.json
-│   │   ├── base64.meta.json
-│   │   ├── binascii.data.json
-│   │   ├── binascii.meta.json
-│   │   ├── builtins.data.json
-│   │   ├── builtins.meta.json
-│   │   ├── codecs.data.json
-│   │   ├── codecs.meta.json
-│   │   ├── collections
-│   │   ├── colorsys.data.json
-│   │   ├── colorsys.meta.json
-│   │   ├── concurrent
-│   │   ├── contextlib.data.json
-│   │   ├── contextlib.meta.json
-│   │   ├── contextvars.data.json
-│   │   ├── contextvars.meta.json
-│   │   ├── copy.data.json
-│   │   ├── copy.meta.json
-│   │   ├── copyreg.data.json
-│   │   ├── copyreg.meta.json
-│   │   ├── ctypes
-│   │   ├── dataclasses.data.json
-│   │   ├── dataclasses.meta.json
-│   │   ├── datetime.data.json
-│   │   ├── datetime.meta.json
-│   │   ├── decimal.data.json
-│   │   ├── decimal.meta.json
-│   │   ├── dis.data.json
-│   │   ├── dis.meta.json
-│   │   ├── email
-│   │   ├── enum.data.json
-│   │   ├── enum.meta.json
-│   │   ├── errno.data.json
-│   │   ├── errno.meta.json
-│   │   ├── fractions.data.json
-│   │   ├── fractions.meta.json
-│   │   ├── functools.data.json
-│   │   ├── functools.meta.json
-│   │   ├── genericpath.data.json
-│   │   ├── genericpath.meta.json
-│   │   ├── gitlab_api
-│   │   ├── hashlib.data.json
-│   │   ├── hashlib.meta.json
-│   │   ├── hmac.data.json
-│   │   ├── hmac.meta.json
-│   │   ├── http
-│   │   ├── importlib
-│   │   ├── inspect.data.json
-│   │   ├── inspect.meta.json
-│   │   ├── io.data.json
-│   │   ├── io.meta.json
-│   │   ├── ipaddress.data.json
-│   │   ├── ipaddress.meta.json
-│   │   ├── itertools.data.json
-│   │   ├── itertools.meta.json
-│   │   ├── json
-│   │   ├── keyword.data.json
-│   │   ├── keyword.meta.json
-│   │   ├── logging
-│   │   ├── math.data.json
-│   │   ├── math.meta.json
-│   │   ├── mimetypes.data.json
-│   │   ├── mimetypes.meta.json
-│   │   ├── multiprocessing
-│   │   ├── numbers.data.json
-│   │   ├── numbers.meta.json
-│   │   ├── opcode.data.json
-│   │   ├── opcode.meta.json
-│   │   ├── operator.data.json
-│   │   ├── operator.meta.json
-│   │   ├── os
-│   │   ├── pathlib.data.json
-│   │   ├── pathlib.meta.json
-│   │   ├── pickle.data.json
-│   │   ├── pickle.meta.json
-│   │   ├── posixpath.data.json
-│   │   ├── posixpath.meta.json
-│   │   ├── pydantic
-│   │   ├── pydantic_core
-│   │   ├── queue.data.json
-│   │   ├── queue.meta.json
-│   │   ├── random.data.json
-│   │   ├── random.meta.json
-│   │   ├── re.data.json
-│   │   ├── re.meta.json
-│   │   ├── requests
-│   │   ├── resource.data.json
-│   │   ├── resource.meta.json
-│   │   ├── select.data.json
-│   │   ├── select.meta.json
-│   │   ├── selectors.data.json
-│   │   ├── selectors.meta.json
-│   │   ├── signal.data.json
-│   │   ├── signal.meta.json
-│   │   ├── socket.data.json
-│   │   ├── socket.meta.json
-│   │   ├── sre_compile.data.json
-│   │   ├── sre_compile.meta.json
-│   │   ├── sre_constants.data.json
-│   │   ├── sre_constants.meta.json
-│   │   ├── sre_parse.data.json
-│   │   ├── sre_parse.meta.json
-│   │   ├── ssl.data.json
-│   │   ├── ssl.meta.json
-│   │   ├── string.data.json
-│   │   ├── string.meta.json
-│   │   ├── subprocess.data.json
-│   │   ├── subprocess.meta.json
-│   │   ├── sys
-│   │   ├── tempfile.data.json
-│   │   ├── tempfile.meta.json
-│   │   ├── test_gitlab_a2a_validation.data.json
-│   │   ├── test_gitlab_a2a_validation.meta.json
-│   │   ├── test_gitlab_mcp_validation.data.json
-│   │   ├── test_gitlab_mcp_validation.meta.json
-│   │   ├── test_setup.data.json
-│   │   ├── test_setup.meta.json
-│   │   ├── test_verify_agent.data.json
-│   │   ├── test_verify_agent.meta.json
-│   │   ├── textwrap.data.json
-│   │   ├── textwrap.meta.json
-│   │   ├── threading.data.json
-│   │   ├── threading.meta.json
-│   │   ├── time.data.json
-│   │   ├── time.meta.json
-│   │   ├── traceback.data.json
-│   │   ├── traceback.meta.json
-│   │   ├── types.data.json
-│   │   ├── types.meta.json
-│   │   ├── typing.data.json
-│   │   ├── typing.meta.json
-│   │   ├── typing_extensions.data.json
-│   │   ├── typing_extensions.meta.json
-│   │   ├── typing_inspection
-│   │   ├── urllib
-│   │   ├── urllib3
-│   │   ├── uuid.data.json
-│   │   ├── uuid.meta.json
-│   │   ├── validate_a2a_agent.data.json
-│   │   ├── validate_a2a_agent.meta.json
-│   │   ├── validate_agent.data.json
-│   │   ├── validate_agent.meta.json
-│   │   ├── verify_a2a_queries.data.json
-│   │   ├── verify_a2a_queries.meta.json
-│   │   ├── warnings.data.json
-│   │   ├── warnings.meta.json
-│   │   ├── weakref.data.json
-│   │   ├── weakref.meta.json
-│   │   ├── zipfile
-│   │   ├── zlib.data.json
-│   │   ├── zlib.meta.json
-│   │   └── zoneinfo
-│   └── CACHEDIR.TAG
-├── .pre-commit-config.yaml
-├── .pytest_cache
-│   ├── .gitignore
-│   ├── CACHEDIR.TAG
-│   ├── README.md
-│   └── v
-│       └── cache
-├── .specify
-│   └── specs
-│       └── code-enhancement-20260512
-├── .venv
-│   ├── .gitignore
-│   ├── .lock
-│   ├── CACHEDIR.TAG
-│   ├── bin
-│   │   ├── activate
-│   │   ├── activate-global-python-argcomplete
-│   │   ├── activate.bat
-│   │   ├── activate.csh
-│   │   ├── activate.fish
-│   │   ├── activate.nu
-│   │   ├── activate.ps1
-│   │   ├── activate_this.py
-│   │   ├── agent-terminal-ui
-│   │   ├── cyclopts
-│   │   ├── deactivate.bat
-│   │   ├── distro
-│   │   ├── docutils
-│   │   ├── dotenv
-│   │   ├── email_validator
-│   │   ├── eunomia
-│   │   ├── eunomia-mcp
-│   │   ├── f2py
-│   │   ├── fastapi
-│   │   ├── fastmcp
-│   │   ├── genai-prices
-│   │   ├── gitlab-agent
-│   │   ├── gitlab-mcp
-│   │   ├── gql-cli
-│   │   ├── httpx
-│   │   ├── install-skills
-│   │   ├── jsonschema
-│   │   ├── keyring
-│   │   ├── logfire
-│   │   ├── markdown-it
-│   │   ├── mcp
-│   │   ├── normalizer
-│   │   ├── numpy-config
-│   │   ├── openai
-│   │   ├── opentelemetry-bootstrap
-│   │   ├── opentelemetry-instrument
-│   │   ├── pai
-│   │   ├── py.test
-│   │   ├── pydoc.bat
-│   │   ├── pygmentize
-│   │   ├── pyrsa-decrypt
-│   │   ├── pyrsa-encrypt
-│   │   ├── pyrsa-keygen
-│   │   ├── pyrsa-priv2pub
-│   │   ├── pyrsa-sign
-│   │   ├── pyrsa-verify
-│   │   ├── pytest
-│   │   ├── python
-│   │   ├── python-argcomplete-check-easy-install-script
-│   │   ├── python3
-│   │   ├── python3.11
-│   │   ├── register-python-argcomplete
-│   │   ├── rst2html
-│   │   ├── rst2html4
-│   │   ├── rst2html5
-│   │   ├── rst2latex
-│   │   ├── rst2man
-│   │   ├── rst2odt
-│   │   ├── rst2pseudoxml
-│   │   ├── rst2s5
-│   │   ├── rst2xetex
-│   │   ├── rst2xml
-│   │   ├── tqdm
-│   │   ├── typer
-│   │   ├── uvicorn
-│   │   ├── watchfiles
-│   │   └── websockets
-│   ├── include
-│   │   └── site
-│   ├── lib
-│   │   └── python3.11
-│   ├── lib64
-│   │   └── python3.11
-│   └── pyvenv.cfg
-├── .vulture_ignore
-├── AGENTS.md
-├── CHANGELOG.md
-├── LICENSE
-├── MANIFEST.in
-├── README.md
-├── a2a.json
-├── build-requirements.txt
-├── docker
-│   ├── Dockerfile
-│   ├── compose.yml
+├── .specify/
+│   └── specs/
+│       ├── code-enhancement-20260512/
+│       │   ├── CHECKLIST.md
+│       │   ├── DRIFT_REPORT.md
+│       │   ├── spec.json
+│       │   ├── spec.md
+│       │   ├── tasks.json
+│       │   └── tasks.md
+│       └── code-enhancement-20260524/
+│           ├── spec.json
+│           ├── spec.md
+│           ├── tasks.json
+│           └── tasks.md
+├── docker/
+│   ├── agent.compose.yml
 │   ├── debug.Dockerfile
-│   └── mcp.compose.yml
-├── docs
+│   ├── Dockerfile
+│   ├── mcp.compose.yml
+│   └── starship.toml
+├── docs/
+│   ├── concepts.md
+│   ├── deployment.md
 │   ├── index.md
-│   └── overview.md
-├── gitlab_api
+│   ├── installation.md
+│   ├── overview.md
+│   ├── platform.md
+│   └── usage.md
+├── gitlab_api/
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── api_client_base.py
+│   │   ├── api_client_environments.py
+│   │   ├── api_client_issues.py
+│   │   ├── api_client_merge_requests.py
+│   │   ├── api_client_other.py
+│   │   ├── api_client_pipelines.py
+│   │   ├── api_client_projects.py
+│   │   ├── api_client_repositories.py
+│   │   ├── api_client_system.py
+│   │   └── api_client_users_groups.py
+│   ├── mcp/
+│   │   ├── __init__.py
+│   │   ├── mcp_branches.py
+│   │   ├── mcp_commits.py
+│   │   ├── mcp_custom_api.py
+│   │   ├── mcp_deploy_tokens.py
+│   │   ├── mcp_environments.py
+│   │   ├── mcp_epics.py
+│   │   ├── mcp_graphql.py
+│   │   ├── mcp_groups.py
+│   │   ├── mcp_issues.py
+│   │   ├── mcp_jobs.py
+│   │   ├── mcp_labels.py
+│   │   ├── mcp_members.py
+│   │   ├── mcp_merge_requests.py
+│   │   ├── mcp_merge_rules.py
+│   │   ├── mcp_milestones.py
+│   │   ├── mcp_misc.py
+│   │   ├── mcp_notes.py
+│   │   ├── mcp_packages.py
+│   │   ├── mcp_pipeline_schedules.py
+│   │   ├── mcp_pipelines.py
+│   │   ├── mcp_projects.py
+│   │   ├── mcp_protected_branches.py
+│   │   ├── mcp_releases.py
+│   │   ├── mcp_runners.py
+│   │   ├── mcp_snippets.py
+│   │   └── mcp_tags.py
 │   ├── __init__.py
 │   ├── __main__.py
 │   ├── agent_server.py
@@ -617,57 +149,48 @@ gitlab_api.agent_server:agent_server
 │   ├── main_agent.json
 │   ├── mcp_config.json
 │   └── mcp_server.py
-├── mcp_config.json
-├── mkdocs.yml
-├── mypy_out.txt
-├── opencode.json
-├── pyproject.toml
-├── pytest.ini
-├── requirements.txt
-├── scripts
-│   ├── all_skeletons.py
-│   ├── commits_args.txt
-│   ├── deploy_tokens_args.txt
-│   ├── environments_args.txt
-│   ├── extract_args.py
-│   ├── generate_table.py
-│   ├── groups_args.txt
-│   ├── jobs_args.txt
-│   ├── merge_requests_args.txt
-│   ├── new_table.md
-│   ├── pipelines_args.txt
-│   ├── projects_args.txt
-│   ├── releases_args.txt
-│   ├── releases_skeleton.py
-│   ├── repositories_args.txt
-│   ├── rewrite_commits.py
-│   ├── rewrite_deploy_tokens.py
-│   ├── rewrite_environments.py
-│   ├── rewrite_groups.py
-│   ├── rewrite_jobs.py
-│   ├── rewrite_merge_requests.py
-│   ├── rewrite_pipelines.py
-│   ├── rewrite_projects.py
-│   ├── rewrite_protected_branches.py
-│   ├── rewrite_releases.py
-│   ├── rewrite_remaining.py
-│   ├── update_readme.py
+├── scripts/
+│   ├── security_sanitizer.py
 │   ├── validate_a2a_agent.py
-│   └── validate_agent.py
-├── starship.toml
-├── test-requirements.txt
-├── test_setup.py
-├── tests
+│   ├── validate_agent.py
+│   └── verify_api_integration.py
+├── tests/
 │   ├── __init__.py
 │   ├── conftest.py
 │   ├── test_api_wrapper.py
+│   ├── test_auth.py
 │   ├── test_concept_parity.py
 │   ├── test_gitlab_a2a_validation.py
 │   ├── test_gitlab_api_brute_force_coverage.py
+│   ├── test_gitlab_gql.py
 │   ├── test_gitlab_mcp_validation.py
 │   ├── test_gitlab_models.py
+│   ├── test_init_dynamics.py
+│   ├── test_mock_coverage.py
+│   ├── test_startup.py
 │   ├── test_verify_agent.py
 │   └── verify_a2a_queries.py
+├── .bumpversion.cfg
+├── .codespellignore
+├── .dockerignore
+├── .env.example
+├── .gitattributes
+├── .gitignore
+├── .pre-commit-config.yaml
+├── .vulture_ignore
+├── a2a.json
+├── AGENTS.md
+├── CHANGELOG.md
+├── CLAUDE.md
+├── LICENSE
+├── MANIFEST.in
+├── mcp_config.json
+├── mkdocs.yml
+├── opencode.json
+├── pyproject.toml
+├── pytest.ini
+├── README.md
+├── requirements.txt
 └── uv.lock
 ```
 
