@@ -1,7 +1,7 @@
 {
   "name": "gitlab-api-agent",
   "type": "agent",
-  "version": "25.43.0",
+  "version": "25.44.0",
   "description": "Agent package for gitlab-api",
   "url": "https://github.com/Knuckles-Team/gitlab-api/tree/main",
   "license": "MIT",
