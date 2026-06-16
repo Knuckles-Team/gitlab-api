@@ -22,17 +22,62 @@ from gitlab_api.api_client import Api
 logger = get_logger(__name__)
 
 
+def _resolve_connection(
+    instance: str | None, token: str | None, verify: bool | None
+) -> tuple[str, str | None, bool]:
+    """Resolve ``(url, token, verify)`` for a target tenant (CONCEPT:KG-2.9g).
+
+    ``instance`` may be a configured instance NAME (resolved from the shared
+    ``gitlab_instances`` config), a bare URL (used as-is, back-compat), or ``None``
+    (the default instance, else ``GITLAB_URL``). Explicit ``token``/``verify`` args
+    always win over the instance's stored values.
+    """
+    from gitlab_api.instances import get_instance
+
+    env_verify = to_boolean(string=os.getenv("GITLAB_SSL_VERIFY", "True"))
+
+    # A bare URL is used directly (the historical call shape) — the caller owns
+    # the token it passes (no env fallback, so an explicit token=None stays None).
+    if instance and str(instance).startswith(("http://", "https://")):
+        return (instance, token, env_verify if verify is None else verify)
+
+    # A name (or None=default) resolves against the configured tenants.
+    inst = get_instance(instance)
+    if inst is None:
+        if instance:
+            raise RuntimeError(
+                f"GitLab instance '{instance}' is not configured. Add it to "
+                "gitlab_instances in ~/.config/agent-utilities/config.json, or pass "
+                "a full URL / set GITLAB_URL+GITLAB_TOKEN."
+            )
+        # No config at all → legacy single-host env defaults.
+        return (
+            os.getenv("GITLAB_URL", "https://gitlab.com"),
+            token or os.getenv("GITLAB_TOKEN"),
+            env_verify if verify is None else verify,
+        )
+    return (
+        inst.url,
+        token or inst.token or os.getenv("GITLAB_TOKEN"),
+        inst.verify_ssl if verify is None else verify,
+    )
+
+
 def get_client(
-    instance: str = os.getenv("GITLAB_URL", "https://gitlab.com"),
-    token: str | None = os.getenv("GITLAB_TOKEN", None),
-    verify: bool = to_boolean(string=os.getenv("GITLAB_SSL_VERIFY", "True")),
+    instance: str | None = None,
+    token: str | None = None,
+    verify: bool | None = None,
     config: dict | None = None,
 ) -> Api:
     """Factory function to create the GitLab Api client.
 
-    Supports OIDC delegation and fixed credentials (token).
-    Uses the shared ``delegated_auth`` helper from agent-utilities.
+    Multi-tenant (CONCEPT:KG-2.9g): ``instance`` selects a configured tenant by
+    name (from the shared ``gitlab_instances`` config), accepts a bare URL, or
+    defaults to the first configured instance / ``GITLAB_URL``. Supports OIDC
+    delegation and fixed credentials (token) via the shared ``delegated_auth``
+    helper from agent-utilities.
     """
+    instance, token, verify = _resolve_connection(instance, token, verify)
     from agent_utilities.mcp.delegated_auth import (
         get_delegated_token,
         get_user_identity,
@@ -80,15 +125,18 @@ def get_client(
 
 
 def get_graphql_client(
-    instance: str = os.getenv("GITLAB_URL", "https://gitlab.com"),
-    token: str | None = os.getenv("GITLAB_TOKEN", None),
-    verify: bool = to_boolean(string=os.getenv("GITLAB_SSL_VERIFY", "True")),
+    instance: str | None = None,
+    token: str | None = None,
+    verify: bool | None = None,
     config: dict | None = None,
 ) -> Any:
     """Factory function to create the GitLab GraphQL client.
 
-    Supports OIDC delegation and fixed credentials (token).
+    Multi-tenant (CONCEPT:KG-2.9g): ``instance`` selects a configured tenant by
+    name, a bare URL, or the default. Supports OIDC delegation and fixed
+    credentials (token).
     """
+    instance, token, verify = _resolve_connection(instance, token, verify)
     from agent_utilities.mcp.delegated_auth import (
         get_delegated_token,
         get_user_identity,
