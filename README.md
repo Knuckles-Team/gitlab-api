@@ -288,6 +288,39 @@ Detailed graph node architecture explanations, custom skill configurations, and 
 
 ---
 
+## Multi-Tenancy (multiple GitLab instances)
+
+The client is natively multi-tenant. The set of instances is declared once in the
+shared **agent-utilities XDG config** (`~/.config/agent-utilities/config.json`) under
+`gitlab_instances` — the **same** list the Knowledge-Graph GitLab indexer reads, so one
+config drives both code/metadata indexing and every API/MCP call:
+
+```json
+{
+  "gitlab_instances": [
+    {"name": "internal", "url": "https://gitlab.arpa", "token": "glpat-xxxx", "verify_ssl": false},
+    {"name": "public",   "url": "https://gitlab.com",  "token": "glpat-yyyy", "verify_ssl": true}
+  ]
+}
+```
+
+Target a tenant by **name** from the client factory; a bare URL still works, and an
+unset instance resolves to the first configured one (else `GITLAB_URL`/`GITLAB_TOKEN`):
+
+```python
+from gitlab_api.auth import get_client
+from gitlab_api.instances import list_configured_instances
+
+internal = get_client(instance="internal")   # resolves url+token+verify from config
+public   = get_client(instance="public")
+default  = get_client()                        # first configured / GITLAB_URL fallback
+names    = [i.name for i in list_configured_instances()]
+```
+
+The MCP server exposes a `gitlab_instances` tool (`action=list|get`) to discover the
+configured tenants (tokens are never returned). When no instances are configured, the
+connector falls back to the single-host `GITLAB_URL`/`GITLAB_TOKEN` it has always used.
+
 ## Security & Governance
 
 Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/Knuckles-Team/agent-utilities) core, standard security parameters are fully supported:

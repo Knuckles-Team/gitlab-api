@@ -47,6 +47,37 @@ DEFAULT_GITLAB_TOKEN = os.getenv("GITLAB_TOKEN", None)
 
 
 def register_misc_tools(mcp: FastMCP):
+    @mcp.tool(tags={"misc", "multitenant"})
+    async def gitlab_instances(
+        action: str = Field(
+            default="list",
+            description="'list' all configured GitLab tenants, or 'get' one by name.",
+        ),
+        name: str = Field(default="", description="Instance name for action='get'."),
+        ctx: Context | None = None,
+    ) -> Any:
+        """List the configured GitLab tenants (CONCEPT:KG-2.9g).
+
+        Multi-tenancy is driven by the shared agent-utilities XDG config
+        (``gitlab_instances`` in ~/.config/agent-utilities/config.json). Every
+        gitlab-api tool targets a tenant by passing that instance NAME to the
+        client factory; this tool surfaces the available names (tokens are never
+        returned). Falls back to the single-host GITLAB_URL/GITLAB_TOKEN.
+        """
+        from gitlab_api.instances import get_instance, instance_summaries
+
+        if action == "get":
+            inst = get_instance(name or None)
+            if inst is None:
+                return {"error": f"instance '{name}' not configured"}
+            return {
+                "name": inst.name,
+                "url": inst.url,
+                "verify_ssl": inst.verify_ssl,
+                "has_token": bool(inst.token),
+            }
+        return {"instances": instance_summaries()}
+
     return None
 
 
