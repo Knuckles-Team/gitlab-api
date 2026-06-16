@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -57,17 +57,17 @@ def register_jobs_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_project_jobs":
-            return client.get_project_jobs(**kwargs)
+            return await run_blocking(client.get_project_jobs, **kwargs)
         if action == "get_log":
-            return client.get_project_job_log(**kwargs)
+            return await run_blocking(client.get_project_job_log, **kwargs)
         if action == "cancel":
-            return client.cancel_project_job(**kwargs)
+            return await run_blocking(client.cancel_project_job, **kwargs)
         if action == "retry":
-            return client.retry_project_job(**kwargs)
+            return await run_blocking(client.retry_project_job, **kwargs)
         if action == "erase":
-            return client.erase_project_job(**kwargs)
+            return await run_blocking(client.erase_project_job, **kwargs)
         if action == "run":
-            return client.run_project_job(**kwargs)
+            return await run_blocking(client.run_project_job, **kwargs)
         if action == "get_pipeline_jobs":
-            return client.get_pipeline_jobs(**kwargs)
+            return await run_blocking(client.get_pipeline_jobs, **kwargs)
         raise ValueError(f"Unknown action: {action}")

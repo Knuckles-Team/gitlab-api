@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -58,20 +58,20 @@ def register_deploy_tokens_tools(mcp: FastMCP):
 
         if action == "get":
             if "token_id" in kwargs and "project_id" in kwargs:
-                return client.get_project_deploy_token(**kwargs)
+                return await run_blocking(client.get_project_deploy_token, **kwargs)
             elif "token_id" in kwargs and "group_id" in kwargs:
-                return client.get_group_deploy_token(**kwargs)
-            return client.get_deploy_tokens(**kwargs)
+                return await run_blocking(client.get_group_deploy_token, **kwargs)
+            return await run_blocking(client.get_deploy_tokens, **kwargs)
         if action == "get_project":
-            return client.get_project_deploy_tokens(**kwargs)
+            return await run_blocking(client.get_project_deploy_tokens, **kwargs)
         if action == "create_project":
-            return client.create_project_deploy_token(**kwargs)
+            return await run_blocking(client.create_project_deploy_token, **kwargs)
         if action == "delete_project":
-            return client.delete_project_deploy_token(**kwargs)
+            return await run_blocking(client.delete_project_deploy_token, **kwargs)
         if action == "get_group":
-            return client.get_group_deploy_tokens(**kwargs)
+            return await run_blocking(client.get_group_deploy_tokens, **kwargs)
         if action == "create_group":
-            return client.create_group_deploy_token(**kwargs)
+            return await run_blocking(client.create_group_deploy_token, **kwargs)
         if action == "delete_group":
-            return client.delete_group_deploy_token(**kwargs)
+            return await run_blocking(client.delete_group_deploy_token, **kwargs)
         raise ValueError(f"Unknown action: {action}")

@@ -5,6 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
+from agent_utilities.mcp_utilities import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -42,8 +43,11 @@ def register_graphql_tools(mcp: FastMCP):
             return {"error": f"Invalid variables JSON: {e}"}
 
         try:
-            return client.execute_gql(
-                query_str=query, variables=vars_dict, operation_name=operation_name
+            return await run_blocking(
+                client.execute_gql,
+                query_str=query,
+                variables=vars_dict,
+                operation_name=operation_name,
             )
         except Exception as e:
             return {"error": f"GraphQL execution failed: {str(e)}"}
@@ -69,8 +73,10 @@ def register_graphql_tools(mcp: FastMCP):
             await ctx.info("Retrieving dynamic GitLab GraphQL schema...")
 
         # Safe wrapper to call execute_gql
-        def execute_fn(q, variables=None):
-            return client.execute_gql(query_str=q, variables=variables)
+        async def execute_fn(q, variables=None):
+            return await run_blocking(
+                client.execute_gql, query_str=q, variables=variables
+            )
 
         try:
             if type_name:

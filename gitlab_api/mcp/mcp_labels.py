@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -48,12 +48,12 @@ def register_labels_tools(mcp: FastMCP):
 
         if action == "get":
             if "name" in kwargs or "label_id" in kwargs:
-                return client.get_label(**kwargs)
-            return client.get_labels(**kwargs)
+                return await run_blocking(client.get_label, **kwargs)
+            return await run_blocking(client.get_labels, **kwargs)
         if action == "create":
-            return client.create_label(**kwargs)
+            return await run_blocking(client.create_label, **kwargs)
         if action == "update":
-            return client.update_label(**kwargs)
+            return await run_blocking(client.update_label, **kwargs)
         if action == "delete":
-            return client.delete_label(**kwargs)
+            return await run_blocking(client.delete_label, **kwargs)
         raise ValueError(f"Unknown action: {action}")

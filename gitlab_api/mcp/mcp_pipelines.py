@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -46,8 +46,8 @@ def register_pipelines_tools(mcp: FastMCP):
 
         if action == "get":
             if "pipeline_id" in kwargs:
-                return client.get_pipeline(**kwargs)
-            return client.get_pipelines(**kwargs)
+                return await run_blocking(client.get_pipeline, **kwargs)
+            return await run_blocking(client.get_pipelines, **kwargs)
         if action == "run":
-            return client.run_pipeline(**kwargs)
+            return await run_blocking(client.run_pipeline, **kwargs)
         raise ValueError(f"Unknown action: {action}")

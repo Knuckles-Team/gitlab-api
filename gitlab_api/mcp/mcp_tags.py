@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -58,18 +58,18 @@ def register_tags_tools(mcp: FastMCP):
 
         if action == "get":
             if "tag" in kwargs or "tag_name" in kwargs:
-                return client.get_tag(**kwargs)
-            return client.get_tags(**kwargs)
+                return await run_blocking(client.get_tag, **kwargs)
+            return await run_blocking(client.get_tags, **kwargs)
         if action == "create":
-            return client.create_tag(**kwargs)
+            return await run_blocking(client.create_tag, **kwargs)
         if action == "delete":
-            return client.delete_tag(**kwargs)
+            return await run_blocking(client.delete_tag, **kwargs)
         if action == "get_protected":
-            return client.get_protected_tags(**kwargs)
+            return await run_blocking(client.get_protected_tags, **kwargs)
         if action == "get_protected_tag":
-            return client.get_protected_tag(**kwargs)
+            return await run_blocking(client.get_protected_tag, **kwargs)
         if action == "protect":
-            return client.protect_tag(**kwargs)
+            return await run_blocking(client.protect_tag, **kwargs)
         if action == "unprotect":
-            return client.unprotect_tag(**kwargs)
+            return await run_blocking(client.unprotect_tag, **kwargs)
         raise ValueError(f"Unknown action: {action}")

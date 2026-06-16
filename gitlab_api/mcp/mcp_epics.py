@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -48,12 +48,12 @@ def register_epics_tools(mcp: FastMCP):
 
         if action == "get":
             if "epic_iid" in kwargs or "epic_id" in kwargs:
-                return client.get_epic(**kwargs)
-            return client.get_epics(**kwargs)
+                return await run_blocking(client.get_epic, **kwargs)
+            return await run_blocking(client.get_epics, **kwargs)
         if action == "create":
-            return client.create_epic(**kwargs)
+            return await run_blocking(client.create_epic, **kwargs)
         if action == "update":
-            return client.update_epic(**kwargs)
+            return await run_blocking(client.update_epic, **kwargs)
         if action == "delete":
-            return client.delete_epic(**kwargs)
+            return await run_blocking(client.delete_epic, **kwargs)
         raise ValueError(f"Unknown action: {action}")
