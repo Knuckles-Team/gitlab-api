@@ -29,6 +29,7 @@ from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
     resolve_action,
+    run_blocking,
 )
 from dotenv import find_dotenv, load_dotenv
 
@@ -84,12 +85,12 @@ def register_branches_tools(mcp: FastMCP):
 
         if action == "get":
             if "branch" in kwargs:
-                return client.get_branch(**kwargs)
-            return client.get_branches(**kwargs)
+                return await run_blocking(client.get_branch, **kwargs)
+            return await run_blocking(client.get_branches, **kwargs)
         if action == "create":
-            return client.create_branch(**kwargs)
+            return await run_blocking(client.create_branch, **kwargs)
         if action == "delete":
-            return client.delete_branch(**kwargs)
+            return await run_blocking(client.delete_branch, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -128,12 +129,12 @@ def register_protected_branches_tools(mcp: FastMCP):
 
         if action == "get":
             if "branch" in kwargs:
-                return client.get_protected_branch(**kwargs)
-            return client.get_protected_branches(**kwargs)
+                return await run_blocking(client.get_protected_branch, **kwargs)
+            return await run_blocking(client.get_protected_branches, **kwargs)
         if action == "protect":
-            return client.protect_branch(**kwargs)
+            return await run_blocking(client.protect_branch, **kwargs)
         if action == "unprotect":
-            return client.unprotect_branch(**kwargs)
+            return await run_blocking(client.unprotect_branch, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -186,28 +187,28 @@ def register_commits_tools(mcp: FastMCP):
 
         if action == "get":
             if "commit_sha" in kwargs:
-                return client.get_commit(**kwargs)
-            return client.get_commits(**kwargs)
+                return await run_blocking(client.get_commit, **kwargs)
+            return await run_blocking(client.get_commits, **kwargs)
         if action == "create":
-            return client.create_commit(**kwargs)
+            return await run_blocking(client.create_commit, **kwargs)
         if action == "diff":
-            return client.get_commit_diff(**kwargs)
+            return await run_blocking(client.get_commit_diff, **kwargs)
         if action == "revert":
-            return client.revert_commit(**kwargs)
+            return await run_blocking(client.revert_commit, **kwargs)
         if action == "get_comments":
-            return client.get_commit_comments(**kwargs)
+            return await run_blocking(client.get_commit_comments, **kwargs)
         if action == "create_comment":
-            return client.create_commit_comment(**kwargs)
+            return await run_blocking(client.create_commit_comment, **kwargs)
         if action == "get_discussions":
-            return client.get_commit_discussions(**kwargs)
+            return await run_blocking(client.get_commit_discussions, **kwargs)
         if action == "get_statuses":
-            return client.get_commit_statuses(**kwargs)
+            return await run_blocking(client.get_commit_statuses, **kwargs)
         if action == "post_status":
-            return client.post_build_status_to_commit(**kwargs)
+            return await run_blocking(client.post_build_status_to_commit, **kwargs)
         if action == "get_merge_requests":
-            return client.get_commit_merge_requests(**kwargs)
+            return await run_blocking(client.get_commit_merge_requests, **kwargs)
         if action == "get_gpg_signature":
-            return client.get_commit_gpg_signature(**kwargs)
+            return await run_blocking(client.get_commit_gpg_signature, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -256,22 +257,22 @@ def register_deploy_tokens_tools(mcp: FastMCP):
 
         if action == "get":
             if "token_id" in kwargs and "project_id" in kwargs:
-                return client.get_project_deploy_token(**kwargs)
+                return await run_blocking(client.get_project_deploy_token, **kwargs)
             elif "token_id" in kwargs and "group_id" in kwargs:
-                return client.get_group_deploy_token(**kwargs)
-            return client.get_deploy_tokens(**kwargs)
+                return await run_blocking(client.get_group_deploy_token, **kwargs)
+            return await run_blocking(client.get_deploy_tokens, **kwargs)
         if action == "get_project":
-            return client.get_project_deploy_tokens(**kwargs)
+            return await run_blocking(client.get_project_deploy_tokens, **kwargs)
         if action == "create_project":
-            return client.create_project_deploy_token(**kwargs)
+            return await run_blocking(client.create_project_deploy_token, **kwargs)
         if action == "delete_project":
-            return client.delete_project_deploy_token(**kwargs)
+            return await run_blocking(client.delete_project_deploy_token, **kwargs)
         if action == "get_group":
-            return client.get_group_deploy_tokens(**kwargs)
+            return await run_blocking(client.get_group_deploy_tokens, **kwargs)
         if action == "create_group":
-            return client.create_group_deploy_token(**kwargs)
+            return await run_blocking(client.create_group_deploy_token, **kwargs)
         if action == "delete_group":
-            return client.delete_group_deploy_token(**kwargs)
+            return await run_blocking(client.delete_group_deploy_token, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -324,30 +325,30 @@ def register_environments_tools(mcp: FastMCP):
 
         if action == "get":
             if "environment_id" in kwargs:
-                return client.get_environment(**kwargs)
-            return client.get_environments(**kwargs)
+                return await run_blocking(client.get_environment, **kwargs)
+            return await run_blocking(client.get_environments, **kwargs)
         if action == "create":
-            return client.create_environment(**kwargs)
+            return await run_blocking(client.create_environment, **kwargs)
         if action == "update":
-            return client.update_environment(**kwargs)
+            return await run_blocking(client.update_environment, **kwargs)
         if action == "delete":
-            return client.delete_environment(**kwargs)
+            return await run_blocking(client.delete_environment, **kwargs)
         if action == "stop":
-            return client.stop_environment(**kwargs)
+            return await run_blocking(client.stop_environment, **kwargs)
         if action == "stop_stale":
-            return client.stop_stale_environments(**kwargs)
+            return await run_blocking(client.stop_stale_environments, **kwargs)
         if action == "delete_stopped":
-            return client.delete_stopped_environments(**kwargs)
+            return await run_blocking(client.delete_stopped_environments, **kwargs)
         if action == "get_protected":
             if "environment_name" in kwargs:
-                return client.get_protected_environment(**kwargs)
-            return client.get_protected_environments(**kwargs)
+                return await run_blocking(client.get_protected_environment, **kwargs)
+            return await run_blocking(client.get_protected_environments, **kwargs)
         if action == "protect":
-            return client.protect_environment(**kwargs)
+            return await run_blocking(client.protect_environment, **kwargs)
         if action == "update_protected":
-            return client.update_protected_environment(**kwargs)
+            return await run_blocking(client.update_protected_environment, **kwargs)
         if action == "unprotect":
-            return client.unprotect_environment(**kwargs)
+            return await run_blocking(client.unprotect_environment, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -395,18 +396,18 @@ def register_groups_tools(mcp: FastMCP):
 
         if action == "get":
             if "group_id" in kwargs:
-                return client.get_group(**kwargs)
-            return client.get_groups(**kwargs)
+                return await run_blocking(client.get_group, **kwargs)
+            return await run_blocking(client.get_groups, **kwargs)
         if action == "edit":
-            return client.edit_group(**kwargs)
+            return await run_blocking(client.edit_group, **kwargs)
         if action == "get_subgroups":
-            return client.get_group_subgroups(**kwargs)
+            return await run_blocking(client.get_group_subgroups, **kwargs)
         if action == "get_descendants":
-            return client.get_group_descendant_groups(**kwargs)
+            return await run_blocking(client.get_group_descendant_groups, **kwargs)
         if action == "get_projects":
-            return client.get_group_projects(**kwargs)
+            return await run_blocking(client.get_group_projects, **kwargs)
         if action == "get_merge_requests":
-            return client.get_group_merge_requests(**kwargs)
+            return await run_blocking(client.get_group_merge_requests, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -454,19 +455,19 @@ def register_jobs_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_project_jobs":
-            return client.get_project_jobs(**kwargs)
+            return await run_blocking(client.get_project_jobs, **kwargs)
         if action == "get_log":
-            return client.get_project_job_log(**kwargs)
+            return await run_blocking(client.get_project_job_log, **kwargs)
         if action == "cancel":
-            return client.cancel_project_job(**kwargs)
+            return await run_blocking(client.cancel_project_job, **kwargs)
         if action == "retry":
-            return client.retry_project_job(**kwargs)
+            return await run_blocking(client.retry_project_job, **kwargs)
         if action == "erase":
-            return client.erase_project_job(**kwargs)
+            return await run_blocking(client.erase_project_job, **kwargs)
         if action == "run":
-            return client.run_project_job(**kwargs)
+            return await run_blocking(client.run_project_job, **kwargs)
         if action == "get_pipeline_jobs":
-            return client.get_pipeline_jobs(**kwargs)
+            return await run_blocking(client.get_pipeline_jobs, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -504,9 +505,9 @@ def register_members_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_group":
-            return client.get_group_members(**kwargs)
+            return await run_blocking(client.get_group_members, **kwargs)
         if action == "get_project":
-            return client.get_project_members(**kwargs)
+            return await run_blocking(client.get_project_members, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -544,13 +545,13 @@ def register_merge_requests_tools(mcp: FastMCP):
         action = resolved
 
         if action == "create":
-            return client.create_merge_request(**kwargs)
+            return await run_blocking(client.create_merge_request, **kwargs)
         if action == "get":
             if "merge_request_iid" in kwargs:
-                return client.get_project_merge_request(**kwargs)
-            return client.get_merge_requests(**kwargs)
+                return await run_blocking(client.get_project_merge_request, **kwargs)
+            return await run_blocking(client.get_merge_requests, **kwargs)
         if action == "get_project":
-            return client.get_project_merge_requests(**kwargs)
+            return await run_blocking(client.get_project_merge_requests, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -604,28 +605,34 @@ def register_merge_rules_tools(mcp: FastMCP):
 
         if action == "get_project_level":
             if "approval_rule_id" in kwargs:
-                return client.get_project_level_merge_request_rule(**kwargs)
-            return client.get_project_level_merge_request_rules(**kwargs)
+                return await run_blocking(
+                    client.get_project_level_merge_request_rule, **kwargs
+                )
+            return await run_blocking(
+                client.get_project_level_merge_request_rules, **kwargs
+            )
         if action == "create_project_level":
-            return client.create_project_level_rule(**kwargs)
+            return await run_blocking(client.create_project_level_rule, **kwargs)
         if action == "update_project_level":
-            return client.update_project_level_rule(**kwargs)
+            return await run_blocking(client.update_project_level_rule, **kwargs)
         if action == "delete_project_level":
-            return client.delete_project_level_rule(**kwargs)
+            return await run_blocking(client.delete_project_level_rule, **kwargs)
         if action == "get_mr_approvals" or action == "get_mr_approval_state":
-            return client.get_approval_state_merge_requests(**kwargs)
+            return await run_blocking(
+                client.get_approval_state_merge_requests, **kwargs
+            )
         if action == "get_mr_level":
-            return client.get_merge_request_level_rules(**kwargs)
+            return await run_blocking(client.get_merge_request_level_rules, **kwargs)
         if action == "approve_mr":
-            return client.approve_merge_request(**kwargs)
+            return await run_blocking(client.approve_merge_request, **kwargs)
         if action == "unapprove_mr":
-            return client.unapprove_merge_request(**kwargs)
+            return await run_blocking(client.unapprove_merge_request, **kwargs)
         if action == "get_group_level":
-            return client.get_group_level_rule(**kwargs)
+            return await run_blocking(client.get_group_level_rule, **kwargs)
         if action == "edit_group_level":
-            return client.edit_group_level_rule(**kwargs)
+            return await run_blocking(client.edit_group_level_rule, **kwargs)
         if action == "edit_project_level":
-            return client.edit_project_level_rule(**kwargs)
+            return await run_blocking(client.edit_project_level_rule, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -663,11 +670,11 @@ def register_packages_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get":
-            return client.get_repository_packages(**kwargs)
+            return await run_blocking(client.get_repository_packages, **kwargs)
         if action == "publish":
-            return client.publish_repository_package(**kwargs)
+            return await run_blocking(client.publish_repository_package, **kwargs)
         if action == "download":
-            return client.download_repository_package(**kwargs)
+            return await run_blocking(client.download_repository_package, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -704,10 +711,10 @@ def register_pipelines_tools(mcp: FastMCP):
 
         if action == "get":
             if "pipeline_id" in kwargs:
-                return client.get_pipeline(**kwargs)
-            return client.get_pipelines(**kwargs)
+                return await run_blocking(client.get_pipeline, **kwargs)
+            return await run_blocking(client.get_pipelines, **kwargs)
         if action == "run":
-            return client.run_pipeline(**kwargs)
+            return await run_blocking(client.run_pipeline, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -758,25 +765,31 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_all":
-            return client.get_pipeline_schedules(**kwargs)
+            return await run_blocking(client.get_pipeline_schedules, **kwargs)
         if action == "get":
-            return client.get_pipeline_schedule(**kwargs)
+            return await run_blocking(client.get_pipeline_schedule, **kwargs)
         if action == "get_triggered":
-            return client.get_pipelines_triggered_from_schedule(**kwargs)
+            return await run_blocking(
+                client.get_pipelines_triggered_from_schedule, **kwargs
+            )
         if action == "create":
-            return client.create_pipeline_schedule(**kwargs)
+            return await run_blocking(client.create_pipeline_schedule, **kwargs)
         if action == "edit":
-            return client.edit_pipeline_schedule(**kwargs)
+            return await run_blocking(client.edit_pipeline_schedule, **kwargs)
         if action == "take_ownership":
-            return client.take_pipeline_schedule_ownership(**kwargs)
+            return await run_blocking(client.take_pipeline_schedule_ownership, **kwargs)
         if action == "delete":
-            return client.delete_pipeline_schedule(**kwargs)
+            return await run_blocking(client.delete_pipeline_schedule, **kwargs)
         if action == "run":
-            return client.run_pipeline_schedule(**kwargs)
+            return await run_blocking(client.run_pipeline_schedule, **kwargs)
         if action == "create_variable":
-            return client.create_pipeline_schedule_variable(**kwargs)
+            return await run_blocking(
+                client.create_pipeline_schedule_variable, **kwargs
+            )
         if action == "delete_variable":
-            return client.delete_pipeline_schedule_variable(**kwargs)
+            return await run_blocking(
+                client.delete_pipeline_schedule_variable, **kwargs
+            )
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -827,24 +840,24 @@ def register_projects_tools(mcp: FastMCP):
 
         if action == "get":
             if "project_id" in kwargs or "id" in kwargs:
-                return client.get_project(**kwargs)
-            return client.get_projects(**kwargs)
+                return await run_blocking(client.get_project, **kwargs)
+            return await run_blocking(client.get_projects, **kwargs)
         if action == "get_nested_by_group":
-            return client.get_nested_projects_by_group(**kwargs)
+            return await run_blocking(client.get_nested_projects_by_group, **kwargs)
         if action == "get_contributors":
-            return client.get_project_contributors(**kwargs)
+            return await run_blocking(client.get_project_contributors, **kwargs)
         if action == "get_statistics":
-            return client.get_project_statistics(**kwargs)
+            return await run_blocking(client.get_project_statistics, **kwargs)
         if action == "edit":
-            return client.edit_project(**kwargs)
+            return await run_blocking(client.edit_project, **kwargs)
         if action == "share_with_group":
-            return client.share_project(**kwargs)
+            return await run_blocking(client.share_project, **kwargs)
         if action == "unshare_with_group":
-            return client.delete_shared_project_link(**kwargs)
+            return await run_blocking(client.delete_shared_project_link, **kwargs)
         if action == "archive":
-            return client.archive_project(**kwargs)
+            return await run_blocking(client.archive_project, **kwargs)
         if action == "unarchive":
-            return client.unarchive_project(**kwargs)
+            return await run_blocking(client.unarchive_project, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -897,28 +910,28 @@ def register_releases_tools(mcp: FastMCP):
 
         if action == "get":
             if "tag_name" in kwargs:
-                return client.get_release_by_tag(**kwargs)
-            return client.get_releases(**kwargs)
+                return await run_blocking(client.get_release_by_tag, **kwargs)
+            return await run_blocking(client.get_releases, **kwargs)
         if action == "get_latest":
-            return client.get_latest_release(**kwargs)
+            return await run_blocking(client.get_latest_release, **kwargs)
         if action == "get_latest_evidence":
-            return client.get_latest_release_evidence(**kwargs)
+            return await run_blocking(client.get_latest_release_evidence, **kwargs)
         if action == "get_latest_asset":
-            return client.get_latest_release_asset(**kwargs)
+            return await run_blocking(client.get_latest_release_asset, **kwargs)
         if action == "get_group_releases":
-            return client.get_group_releases(**kwargs)
+            return await run_blocking(client.get_group_releases, **kwargs)
         if action == "download_asset":
-            return client.download_release_asset(**kwargs)
+            return await run_blocking(client.download_release_asset, **kwargs)
         if action == "get_by_tag":
-            return client.get_release_by_tag(**kwargs)
+            return await run_blocking(client.get_release_by_tag, **kwargs)
         if action == "create":
-            return client.create_release(**kwargs)
+            return await run_blocking(client.create_release, **kwargs)
         if action == "create_evidence":
-            return client.create_release_evidence(**kwargs)
+            return await run_blocking(client.create_release_evidence, **kwargs)
         if action == "update":
-            return client.update_release(**kwargs)
+            return await run_blocking(client.update_release, **kwargs)
         if action == "delete":
-            return client.delete_release(**kwargs)
+            return await run_blocking(client.delete_release, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -974,35 +987,35 @@ def register_runners_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_all":
-            return client.get_runners(**kwargs)
+            return await run_blocking(client.get_runners, **kwargs)
         if action == "update_details":
-            return client.update_runner_details(**kwargs)
+            return await run_blocking(client.update_runner_details, **kwargs)
         if action == "pause":
-            return client.pause_runner(**kwargs)
+            return await run_blocking(client.pause_runner, **kwargs)
         if action == "get_jobs":
-            return client.get_runner_jobs(**kwargs)
+            return await run_blocking(client.get_runner_jobs, **kwargs)
         if action == "get_project":
-            return client.get_project_runners(**kwargs)
+            return await run_blocking(client.get_project_runners, **kwargs)
         if action == "enable_project":
-            return client.enable_project_runner(**kwargs)
+            return await run_blocking(client.enable_project_runner, **kwargs)
         if action == "delete_project":
-            return client.delete_project_runner(**kwargs)
+            return await run_blocking(client.delete_project_runner, **kwargs)
         if action == "get_group":
-            return client.get_group_runners(**kwargs)
+            return await run_blocking(client.get_group_runners, **kwargs)
         if action == "register":
-            return client.register_new_runner(**kwargs)
+            return await run_blocking(client.register_new_runner, **kwargs)
         if action == "delete":
-            return client.delete_runner(**kwargs)
+            return await run_blocking(client.delete_runner, **kwargs)
         if action == "verify_auth":
-            return client.verify_runner_authentication(**kwargs)
+            return await run_blocking(client.verify_runner_authentication, **kwargs)
         if action == "reset_gitlab_token":
-            return client.reset_gitlab_runner_token(**kwargs)
+            return await run_blocking(client.reset_gitlab_runner_token, **kwargs)
         if action == "reset_project_token":
-            return client.reset_project_runner_token(**kwargs)
+            return await run_blocking(client.reset_project_runner_token, **kwargs)
         if action == "reset_group_token":
-            return client.reset_group_runner_token(**kwargs)
+            return await run_blocking(client.reset_group_runner_token, **kwargs)
         if action == "reset_token":
-            return client.reset_token(**kwargs)
+            return await run_blocking(client.reset_token, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1051,20 +1064,20 @@ def register_tags_tools(mcp: FastMCP):
 
         if action == "get":
             if "tag" in kwargs or "tag_name" in kwargs:
-                return client.get_tag(**kwargs)
-            return client.get_tags(**kwargs)
+                return await run_blocking(client.get_tag, **kwargs)
+            return await run_blocking(client.get_tags, **kwargs)
         if action == "create":
-            return client.create_tag(**kwargs)
+            return await run_blocking(client.create_tag, **kwargs)
         if action == "delete":
-            return client.delete_tag(**kwargs)
+            return await run_blocking(client.delete_tag, **kwargs)
         if action == "get_protected":
-            return client.get_protected_tags(**kwargs)
+            return await run_blocking(client.get_protected_tags, **kwargs)
         if action == "get_protected_tag":
-            return client.get_protected_tag(**kwargs)
+            return await run_blocking(client.get_protected_tag, **kwargs)
         if action == "protect":
-            return client.protect_tag(**kwargs)
+            return await run_blocking(client.protect_tag, **kwargs)
         if action == "unprotect":
-            return client.unprotect_tag(**kwargs)
+            return await run_blocking(client.unprotect_tag, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1103,14 +1116,14 @@ def register_labels_tools(mcp: FastMCP):
 
         if action == "get":
             if "name" in kwargs or "label_id" in kwargs:
-                return client.get_label(**kwargs)
-            return client.get_labels(**kwargs)
+                return await run_blocking(client.get_label, **kwargs)
+            return await run_blocking(client.get_labels, **kwargs)
         if action == "create":
-            return client.create_label(**kwargs)
+            return await run_blocking(client.create_label, **kwargs)
         if action == "update":
-            return client.update_label(**kwargs)
+            return await run_blocking(client.update_label, **kwargs)
         if action == "delete":
-            return client.delete_label(**kwargs)
+            return await run_blocking(client.delete_label, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1149,14 +1162,14 @@ def register_milestones_tools(mcp: FastMCP):
 
         if action == "get":
             if "milestone_id" in kwargs:
-                return client.get_milestone(**kwargs)
-            return client.get_milestones(**kwargs)
+                return await run_blocking(client.get_milestone, **kwargs)
+            return await run_blocking(client.get_milestones, **kwargs)
         if action == "create":
-            return client.create_milestone(**kwargs)
+            return await run_blocking(client.create_milestone, **kwargs)
         if action == "update":
-            return client.update_milestone(**kwargs)
+            return await run_blocking(client.update_milestone, **kwargs)
         if action == "delete":
-            return client.delete_milestone(**kwargs)
+            return await run_blocking(client.delete_milestone, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1195,14 +1208,14 @@ def register_snippets_tools(mcp: FastMCP):
 
         if action == "get":
             if "snippet_id" in kwargs:
-                return client.get_snippet(**kwargs)
-            return client.get_snippets(**kwargs)
+                return await run_blocking(client.get_snippet, **kwargs)
+            return await run_blocking(client.get_snippets, **kwargs)
         if action == "create":
-            return client.create_snippet(**kwargs)
+            return await run_blocking(client.create_snippet, **kwargs)
         if action == "update":
-            return client.update_snippet(**kwargs)
+            return await run_blocking(client.update_snippet, **kwargs)
         if action == "delete":
-            return client.delete_snippet(**kwargs)
+            return await run_blocking(client.delete_snippet, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1241,14 +1254,14 @@ def register_notes_tools(mcp: FastMCP):
 
         if action == "get":
             if "note_id" in kwargs:
-                return client.get_note(**kwargs)
-            return client.get_notes(**kwargs)
+                return await run_blocking(client.get_note, **kwargs)
+            return await run_blocking(client.get_notes, **kwargs)
         if action == "create":
-            return client.create_note(**kwargs)
+            return await run_blocking(client.create_note, **kwargs)
         if action == "update":
-            return client.update_note(**kwargs)
+            return await run_blocking(client.update_note, **kwargs)
         if action == "delete":
-            return client.delete_note(**kwargs)
+            return await run_blocking(client.delete_note, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1287,14 +1300,14 @@ def register_epics_tools(mcp: FastMCP):
 
         if action == "get":
             if "epic_iid" in kwargs or "epic_id" in kwargs:
-                return client.get_epic(**kwargs)
-            return client.get_epics(**kwargs)
+                return await run_blocking(client.get_epic, **kwargs)
+            return await run_blocking(client.get_epics, **kwargs)
         if action == "create":
-            return client.create_epic(**kwargs)
+            return await run_blocking(client.create_epic, **kwargs)
         if action == "update":
-            return client.update_epic(**kwargs)
+            return await run_blocking(client.update_epic, **kwargs)
         if action == "delete":
-            return client.delete_epic(**kwargs)
+            return await run_blocking(client.delete_epic, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1333,14 +1346,14 @@ def register_issues_tools(mcp: FastMCP):
 
         if action == "get":
             if "issue_iid" in kwargs or "issue_id" in kwargs:
-                return client.get_issue(**kwargs)
-            return client.get_issues(**kwargs)
+                return await run_blocking(client.get_issue, **kwargs)
+            return await run_blocking(client.get_issues, **kwargs)
         if action == "create":
-            return client.create_issue(**kwargs)
+            return await run_blocking(client.create_issue, **kwargs)
         if action == "update":
-            return client.update_issue(**kwargs)
+            return await run_blocking(client.update_issue, **kwargs)
         if action == "delete":
-            return client.delete_issue(**kwargs)
+            return await run_blocking(client.delete_issue, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1373,7 +1386,9 @@ def register_custom_api_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
-        return client.api_request(method=method, endpoint=endpoint, **kwargs)
+        return await run_blocking(
+            client.api_request, method=method, endpoint=endpoint, **kwargs
+        )
 
 
 def register_prompts(mcp: FastMCP):
@@ -1465,8 +1480,11 @@ def register_graphql_tools(mcp: FastMCP):
             return {"error": f"Invalid variables JSON: {e}"}
 
         try:
-            return client.execute_gql(
-                query_str=query, variables=vars_dict, operation_name=operation_name
+            return await run_blocking(
+                client.execute_gql,
+                query_str=query,
+                variables=vars_dict,
+                operation_name=operation_name,
             )
         except Exception as e:
             return {"error": f"GraphQL execution failed: {str(e)}"}
@@ -1492,8 +1510,10 @@ def register_graphql_tools(mcp: FastMCP):
             await ctx.info("Retrieving dynamic GitLab GraphQL schema...")
 
         # Safe wrapper to call execute_gql
-        def execute_fn(q, variables=None):
-            return client.execute_gql(query_str=q, variables=variables)
+        async def execute_fn(q, variables=None):
+            return await run_blocking(
+                client.execute_gql, query_str=q, variables=variables
+            )
 
         try:
             if type_name:

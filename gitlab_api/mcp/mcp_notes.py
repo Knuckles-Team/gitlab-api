@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -48,12 +48,12 @@ def register_notes_tools(mcp: FastMCP):
 
         if action == "get":
             if "note_id" in kwargs:
-                return client.get_note(**kwargs)
-            return client.get_notes(**kwargs)
+                return await run_blocking(client.get_note, **kwargs)
+            return await run_blocking(client.get_notes, **kwargs)
         if action == "create":
-            return client.create_note(**kwargs)
+            return await run_blocking(client.create_note, **kwargs)
         if action == "update":
-            return client.update_note(**kwargs)
+            return await run_blocking(client.update_note, **kwargs)
         if action == "delete":
-            return client.delete_note(**kwargs)
+            return await run_blocking(client.delete_note, **kwargs)
         raise ValueError(f"Unknown action: {action}")

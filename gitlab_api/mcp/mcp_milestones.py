@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -48,12 +48,12 @@ def register_milestones_tools(mcp: FastMCP):
 
         if action == "get":
             if "milestone_id" in kwargs:
-                return client.get_milestone(**kwargs)
-            return client.get_milestones(**kwargs)
+                return await run_blocking(client.get_milestone, **kwargs)
+            return await run_blocking(client.get_milestones, **kwargs)
         if action == "create":
-            return client.create_milestone(**kwargs)
+            return await run_blocking(client.create_milestone, **kwargs)
         if action == "update":
-            return client.update_milestone(**kwargs)
+            return await run_blocking(client.update_milestone, **kwargs)
         if action == "delete":
-            return client.delete_milestone(**kwargs)
+            return await run_blocking(client.delete_milestone, **kwargs)
         raise ValueError(f"Unknown action: {action}")

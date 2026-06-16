@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -47,11 +47,11 @@ def register_merge_requests_tools(mcp: FastMCP):
         action = resolved
 
         if action == "create":
-            return client.create_merge_request(**kwargs)
+            return await run_blocking(client.create_merge_request, **kwargs)
         if action == "get":
             if "merge_request_iid" in kwargs:
-                return client.get_project_merge_request(**kwargs)
-            return client.get_merge_requests(**kwargs)
+                return await run_blocking(client.get_project_merge_request, **kwargs)
+            return await run_blocking(client.get_merge_requests, **kwargs)
         if action == "get_project":
-            return client.get_project_merge_requests(**kwargs)
+            return await run_blocking(client.get_project_merge_requests, **kwargs)
         raise ValueError(f"Unknown action: {action}")

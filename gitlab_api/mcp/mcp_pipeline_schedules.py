@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -60,23 +60,29 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_all":
-            return client.get_pipeline_schedules(**kwargs)
+            return await run_blocking(client.get_pipeline_schedules, **kwargs)
         if action == "get":
-            return client.get_pipeline_schedule(**kwargs)
+            return await run_blocking(client.get_pipeline_schedule, **kwargs)
         if action == "get_triggered":
-            return client.get_pipelines_triggered_from_schedule(**kwargs)
+            return await run_blocking(
+                client.get_pipelines_triggered_from_schedule, **kwargs
+            )
         if action == "create":
-            return client.create_pipeline_schedule(**kwargs)
+            return await run_blocking(client.create_pipeline_schedule, **kwargs)
         if action == "edit":
-            return client.edit_pipeline_schedule(**kwargs)
+            return await run_blocking(client.edit_pipeline_schedule, **kwargs)
         if action == "take_ownership":
-            return client.take_pipeline_schedule_ownership(**kwargs)
+            return await run_blocking(client.take_pipeline_schedule_ownership, **kwargs)
         if action == "delete":
-            return client.delete_pipeline_schedule(**kwargs)
+            return await run_blocking(client.delete_pipeline_schedule, **kwargs)
         if action == "run":
-            return client.run_pipeline_schedule(**kwargs)
+            return await run_blocking(client.run_pipeline_schedule, **kwargs)
         if action == "create_variable":
-            return client.create_pipeline_schedule_variable(**kwargs)
+            return await run_blocking(
+                client.create_pipeline_schedule_variable, **kwargs
+            )
         if action == "delete_variable":
-            return client.delete_pipeline_schedule_variable(**kwargs)
+            return await run_blocking(
+                client.delete_pipeline_schedule_variable, **kwargs
+            )
         raise ValueError(f"Unknown action: {action}")

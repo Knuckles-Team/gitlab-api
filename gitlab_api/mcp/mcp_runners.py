@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -65,33 +65,33 @@ def register_runners_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get_all":
-            return client.get_runners(**kwargs)
+            return await run_blocking(client.get_runners, **kwargs)
         if action == "update_details":
-            return client.update_runner_details(**kwargs)
+            return await run_blocking(client.update_runner_details, **kwargs)
         if action == "pause":
-            return client.pause_runner(**kwargs)
+            return await run_blocking(client.pause_runner, **kwargs)
         if action == "get_jobs":
-            return client.get_runner_jobs(**kwargs)
+            return await run_blocking(client.get_runner_jobs, **kwargs)
         if action == "get_project":
-            return client.get_project_runners(**kwargs)
+            return await run_blocking(client.get_project_runners, **kwargs)
         if action == "enable_project":
-            return client.enable_project_runner(**kwargs)
+            return await run_blocking(client.enable_project_runner, **kwargs)
         if action == "delete_project":
-            return client.delete_project_runner(**kwargs)
+            return await run_blocking(client.delete_project_runner, **kwargs)
         if action == "get_group":
-            return client.get_group_runners(**kwargs)
+            return await run_blocking(client.get_group_runners, **kwargs)
         if action == "register":
-            return client.register_new_runner(**kwargs)
+            return await run_blocking(client.register_new_runner, **kwargs)
         if action == "delete":
-            return client.delete_runner(**kwargs)
+            return await run_blocking(client.delete_runner, **kwargs)
         if action == "verify_auth":
-            return client.verify_runner_authentication(**kwargs)
+            return await run_blocking(client.verify_runner_authentication, **kwargs)
         if action == "reset_gitlab_token":
-            return client.reset_gitlab_runner_token(**kwargs)
+            return await run_blocking(client.reset_gitlab_runner_token, **kwargs)
         if action == "reset_project_token":
-            return client.reset_project_runner_token(**kwargs)
+            return await run_blocking(client.reset_project_runner_token, **kwargs)
         if action == "reset_group_token":
-            return client.reset_group_runner_token(**kwargs)
+            return await run_blocking(client.reset_group_runner_token, **kwargs)
         if action == "reset_token":
-            return client.reset_token(**kwargs)
+            return await run_blocking(client.reset_token, **kwargs)
         raise ValueError(f"Unknown action: {action}")

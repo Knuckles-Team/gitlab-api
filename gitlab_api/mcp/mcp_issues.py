@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -48,12 +48,12 @@ def register_issues_tools(mcp: FastMCP):
 
         if action == "get":
             if "issue_iid" in kwargs or "issue_id" in kwargs:
-                return client.get_issue(**kwargs)
-            return client.get_issues(**kwargs)
+                return await run_blocking(client.get_issue, **kwargs)
+            return await run_blocking(client.get_issues, **kwargs)
         if action == "create":
-            return client.create_issue(**kwargs)
+            return await run_blocking(client.create_issue, **kwargs)
         if action == "update":
-            return client.update_issue(**kwargs)
+            return await run_blocking(client.update_issue, **kwargs)
         if action == "delete":
-            return client.delete_issue(**kwargs)
+            return await run_blocking(client.delete_issue, **kwargs)
         raise ValueError(f"Unknown action: {action}")

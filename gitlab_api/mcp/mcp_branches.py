@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -48,10 +48,10 @@ def register_branches_tools(mcp: FastMCP):
 
         if action == "get":
             if "branch" in kwargs:
-                return client.get_branch(**kwargs)
-            return client.get_branches(**kwargs)
+                return await run_blocking(client.get_branch, **kwargs)
+            return await run_blocking(client.get_branches, **kwargs)
         if action == "create":
-            return client.create_branch(**kwargs)
+            return await run_blocking(client.create_branch, **kwargs)
         if action == "delete":
-            return client.delete_branch(**kwargs)
+            return await run_blocking(client.delete_branch, **kwargs)
         raise ValueError(f"Unknown action: {action}")

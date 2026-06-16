@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -62,26 +62,26 @@ def register_releases_tools(mcp: FastMCP):
 
         if action == "get":
             if "tag_name" in kwargs:
-                return client.get_release_by_tag(**kwargs)
-            return client.get_releases(**kwargs)
+                return await run_blocking(client.get_release_by_tag, **kwargs)
+            return await run_blocking(client.get_releases, **kwargs)
         if action == "get_latest":
-            return client.get_latest_release(**kwargs)
+            return await run_blocking(client.get_latest_release, **kwargs)
         if action == "get_latest_evidence":
-            return client.get_latest_release_evidence(**kwargs)
+            return await run_blocking(client.get_latest_release_evidence, **kwargs)
         if action == "get_latest_asset":
-            return client.get_latest_release_asset(**kwargs)
+            return await run_blocking(client.get_latest_release_asset, **kwargs)
         if action == "get_group_releases":
-            return client.get_group_releases(**kwargs)
+            return await run_blocking(client.get_group_releases, **kwargs)
         if action == "download_asset":
-            return client.download_release_asset(**kwargs)
+            return await run_blocking(client.download_release_asset, **kwargs)
         if action == "get_by_tag":
-            return client.get_release_by_tag(**kwargs)
+            return await run_blocking(client.get_release_by_tag, **kwargs)
         if action == "create":
-            return client.create_release(**kwargs)
+            return await run_blocking(client.create_release, **kwargs)
         if action == "create_evidence":
-            return client.create_release_evidence(**kwargs)
+            return await run_blocking(client.create_release_evidence, **kwargs)
         if action == "update":
-            return client.update_release(**kwargs)
+            return await run_blocking(client.update_release, **kwargs)
         if action == "delete":
-            return client.delete_release(**kwargs)
+            return await run_blocking(client.delete_release, **kwargs)
         raise ValueError(f"Unknown action: {action}")

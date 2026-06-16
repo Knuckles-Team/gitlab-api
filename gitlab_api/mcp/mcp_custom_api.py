@@ -5,6 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
+from agent_utilities.mcp_utilities import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -41,4 +42,6 @@ def register_custom_api_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
-        return client.api_request(method=method, endpoint=endpoint, **kwargs)
+        return await run_blocking(
+            client.api_request, method=method, endpoint=endpoint, **kwargs
+        )

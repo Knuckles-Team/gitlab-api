@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -62,26 +62,26 @@ def register_commits_tools(mcp: FastMCP):
 
         if action == "get":
             if "commit_sha" in kwargs:
-                return client.get_commit(**kwargs)
-            return client.get_commits(**kwargs)
+                return await run_blocking(client.get_commit, **kwargs)
+            return await run_blocking(client.get_commits, **kwargs)
         if action == "create":
-            return client.create_commit(**kwargs)
+            return await run_blocking(client.create_commit, **kwargs)
         if action == "diff":
-            return client.get_commit_diff(**kwargs)
+            return await run_blocking(client.get_commit_diff, **kwargs)
         if action == "revert":
-            return client.revert_commit(**kwargs)
+            return await run_blocking(client.revert_commit, **kwargs)
         if action == "get_comments":
-            return client.get_commit_comments(**kwargs)
+            return await run_blocking(client.get_commit_comments, **kwargs)
         if action == "create_comment":
-            return client.create_commit_comment(**kwargs)
+            return await run_blocking(client.create_commit_comment, **kwargs)
         if action == "get_discussions":
-            return client.get_commit_discussions(**kwargs)
+            return await run_blocking(client.get_commit_discussions, **kwargs)
         if action == "get_statuses":
-            return client.get_commit_statuses(**kwargs)
+            return await run_blocking(client.get_commit_statuses, **kwargs)
         if action == "post_status":
-            return client.post_build_status_to_commit(**kwargs)
+            return await run_blocking(client.post_build_status_to_commit, **kwargs)
         if action == "get_merge_requests":
-            return client.get_commit_merge_requests(**kwargs)
+            return await run_blocking(client.get_commit_merge_requests, **kwargs)
         if action == "get_gpg_signature":
-            return client.get_commit_gpg_signature(**kwargs)
+            return await run_blocking(client.get_commit_gpg_signature, **kwargs)
         raise ValueError(f"Unknown action: {action}")

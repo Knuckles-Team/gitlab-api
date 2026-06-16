@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -48,10 +48,10 @@ def register_protected_branches_tools(mcp: FastMCP):
 
         if action == "get":
             if "branch" in kwargs:
-                return client.get_protected_branch(**kwargs)
-            return client.get_protected_branches(**kwargs)
+                return await run_blocking(client.get_protected_branch, **kwargs)
+            return await run_blocking(client.get_protected_branches, **kwargs)
         if action == "protect":
-            return client.protect_branch(**kwargs)
+            return await run_blocking(client.protect_branch, **kwargs)
         if action == "unprotect":
-            return client.unprotect_branch(**kwargs)
+            return await run_blocking(client.unprotect_branch, **kwargs)
         raise ValueError(f"Unknown action: {action}")

@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action
+from agent_utilities.mcp_utilities import resolve_action, run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -58,18 +58,18 @@ def register_projects_tools(mcp: FastMCP):
 
         if action == "get":
             if "project_id" in kwargs or "id" in kwargs:
-                return client.get_project(**kwargs)
-            return client.get_projects(**kwargs)
+                return await run_blocking(client.get_project, **kwargs)
+            return await run_blocking(client.get_projects, **kwargs)
         if action == "get_nested_by_group":
-            return client.get_nested_projects_by_group(**kwargs)
+            return await run_blocking(client.get_nested_projects_by_group, **kwargs)
         if action == "get_contributors":
-            return client.get_project_contributors(**kwargs)
+            return await run_blocking(client.get_project_contributors, **kwargs)
         if action == "get_statistics":
-            return client.get_project_statistics(**kwargs)
+            return await run_blocking(client.get_project_statistics, **kwargs)
         if action == "edit":
-            return client.edit_project(**kwargs)
+            return await run_blocking(client.edit_project, **kwargs)
         if action == "share_with_group":
-            return client.share_project(**kwargs)
+            return await run_blocking(client.share_project, **kwargs)
         if action == "unshare_with_group":
-            return client.delete_shared_project_link(**kwargs)
+            return await run_blocking(client.delete_shared_project_link, **kwargs)
         raise ValueError(f"Unknown action: {action}")
