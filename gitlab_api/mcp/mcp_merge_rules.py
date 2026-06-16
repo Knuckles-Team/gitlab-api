@@ -5,6 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -37,6 +38,28 @@ def register_merge_rules_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get_project_level",
+                "create_project_level",
+                "update_project_level",
+                "delete_project_level",
+                "get_mr_approvals",
+                "get_mr_approval_state",
+                "get_mr_level",
+                "approve_mr",
+                "unapprove_mr",
+                "get_group_level",
+                "edit_group_level",
+                "edit_project_level",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_project_level":
             if "approval_rule_id" in kwargs:
