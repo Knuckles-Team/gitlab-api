@@ -28,6 +28,7 @@ from typing import Any
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
+    resolve_action,
 )
 from dotenv import find_dotenv, load_dotenv
 
@@ -74,6 +75,13 @@ def register_branches_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action, {"get", "create", "delete"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "branch" in kwargs:
                 return client.get_branch(**kwargs)
@@ -111,6 +119,13 @@ def register_protected_branches_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action, {"get", "protect", "unprotect"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "branch" in kwargs:
                 return client.get_protected_branch(**kwargs)
@@ -147,6 +162,27 @@ def register_commits_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get",
+                "create",
+                "diff",
+                "revert",
+                "get_comments",
+                "create_comment",
+                "get_discussions",
+                "get_statuses",
+                "post_status",
+                "get_merge_requests",
+                "get_gpg_signature",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get":
             if "commit_sha" in kwargs:
@@ -201,6 +237,23 @@ def register_deploy_tokens_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action,
+            {
+                "get",
+                "get_project",
+                "create_project",
+                "delete_project",
+                "get_group",
+                "create_group",
+                "delete_group",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "token_id" in kwargs and "project_id" in kwargs:
                 return client.get_project_deploy_token(**kwargs)
@@ -247,6 +300,27 @@ def register_environments_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get",
+                "create",
+                "update",
+                "delete",
+                "stop",
+                "stop_stale",
+                "delete_stopped",
+                "get_protected",
+                "protect",
+                "update_protected",
+                "unprotect",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get":
             if "environment_id" in kwargs:
@@ -303,6 +377,22 @@ def register_groups_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action,
+            {
+                "get",
+                "edit",
+                "get_subgroups",
+                "get_descendants",
+                "get_projects",
+                "get_merge_requests",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "group_id" in kwargs:
                 return client.get_group(**kwargs)
@@ -345,6 +435,23 @@ def register_jobs_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get_project_jobs",
+                "get_log",
+                "cancel",
+                "retry",
+                "erase",
+                "run",
+                "get_pipeline_jobs",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_project_jobs":
             return client.get_project_jobs(**kwargs)
@@ -389,6 +496,13 @@ def register_members_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action, {"get_group", "get_project"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get_group":
             return client.get_group_members(**kwargs)
         if action == "get_project":
@@ -421,6 +535,13 @@ def register_merge_requests_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action, {"create", "get", "get_project"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "create":
             return client.create_merge_request(**kwargs)
@@ -458,6 +579,28 @@ def register_merge_rules_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get_project_level",
+                "create_project_level",
+                "update_project_level",
+                "delete_project_level",
+                "get_mr_approvals",
+                "get_mr_approval_state",
+                "get_mr_level",
+                "approve_mr",
+                "unapprove_mr",
+                "get_group_level",
+                "edit_group_level",
+                "edit_project_level",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_project_level":
             if "approval_rule_id" in kwargs:
@@ -512,6 +655,13 @@ def register_packages_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action, {"get", "publish", "download"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             return client.get_repository_packages(**kwargs)
         if action == "publish":
@@ -547,6 +697,11 @@ def register_pipelines_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(action, {"get", "run"}, service="gitlab-api")
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "pipeline_id" in kwargs:
                 return client.get_pipeline(**kwargs)
@@ -581,6 +736,26 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get_all",
+                "get",
+                "get_triggered",
+                "create",
+                "edit",
+                "take_ownership",
+                "delete",
+                "run",
+                "create_variable",
+                "delete_variable",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_all":
             return client.get_pipeline_schedules(**kwargs)
@@ -631,6 +806,25 @@ def register_projects_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action,
+            {
+                "get",
+                "get_nested_by_group",
+                "get_contributors",
+                "get_statistics",
+                "edit",
+                "share_with_group",
+                "unshare_with_group",
+                "archive",
+                "unarchive",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "project_id" in kwargs or "id" in kwargs:
                 return client.get_project(**kwargs)
@@ -679,6 +873,27 @@ def register_releases_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get",
+                "get_latest",
+                "get_latest_evidence",
+                "get_latest_asset",
+                "get_group_releases",
+                "download_asset",
+                "get_by_tag",
+                "create",
+                "create_evidence",
+                "update",
+                "delete",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get":
             if "tag_name" in kwargs:
@@ -732,6 +947,31 @@ def register_runners_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get_all",
+                "update_details",
+                "pause",
+                "get_jobs",
+                "get_project",
+                "enable_project",
+                "delete_project",
+                "get_group",
+                "register",
+                "delete",
+                "verify_auth",
+                "reset_gitlab_token",
+                "reset_project_token",
+                "reset_group_token",
+                "reset_token",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_all":
             return client.get_runners(**kwargs)
@@ -792,6 +1032,23 @@ def register_tags_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action,
+            {
+                "get",
+                "create",
+                "delete",
+                "get_protected",
+                "get_protected_tag",
+                "protect",
+                "unprotect",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "tag" in kwargs or "tag_name" in kwargs:
                 return client.get_tag(**kwargs)
@@ -837,6 +1094,13 @@ def register_labels_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "name" in kwargs or "label_id" in kwargs:
                 return client.get_label(**kwargs)
@@ -875,6 +1139,13 @@ def register_milestones_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get":
             if "milestone_id" in kwargs:
@@ -915,6 +1186,13 @@ def register_snippets_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "snippet_id" in kwargs:
                 return client.get_snippet(**kwargs)
@@ -953,6 +1231,13 @@ def register_notes_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get":
             if "note_id" in kwargs:
@@ -993,6 +1278,13 @@ def register_epics_tools(mcp: FastMCP):
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
+        resolved = resolve_action(
+            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
         if action == "get":
             if "epic_iid" in kwargs or "epic_id" in kwargs:
                 return client.get_epic(**kwargs)
@@ -1031,6 +1323,13 @@ def register_issues_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get":
             if "issue_iid" in kwargs or "issue_id" in kwargs:

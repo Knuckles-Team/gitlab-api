@@ -5,6 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -37,6 +38,26 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get_all",
+                "get",
+                "get_triggered",
+                "create",
+                "edit",
+                "take_ownership",
+                "delete",
+                "run",
+                "create_variable",
+                "delete_variable",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get_all":
             return client.get_pipeline_schedules(**kwargs)

@@ -5,6 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
+from agent_utilities.mcp_utilities import resolve_action
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -37,6 +38,23 @@ def register_deploy_tokens_tools(mcp: FastMCP):
             return {"error": f"Invalid params_json: {e}"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {
+                "get",
+                "get_project",
+                "create_project",
+                "delete_project",
+                "get_group",
+                "create_group",
+                "delete_group",
+            },
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
 
         if action == "get":
             if "token_id" in kwargs and "project_id" in kwargs:
