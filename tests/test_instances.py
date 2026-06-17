@@ -47,8 +47,10 @@ def test_get_instance_by_name_and_default(monkeypatch):
             {"name": "b", "url": "https://b.io", "token": "tb"},
         ],
     )
-    assert instances.get_instance("b").url == "https://b.io"
-    assert instances.get_instance(None).name == "a"  # default = first
+    by_name = instances.get_instance("b")
+    assert by_name is not None and by_name.url == "https://b.io"
+    default = instances.get_instance(None)
+    assert default is not None and default.name == "a"  # default = first
     assert instances.get_instance("missing") is None
 
 
