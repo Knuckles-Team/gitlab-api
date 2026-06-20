@@ -72,7 +72,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
-| `api_request` | `CUSTOM-APITOOL` | Execute arbitrary GitLab REST API requests directly. |
+| `api_request` | `CUSTOM_APITOOL` | Execute arbitrary GitLab REST API requests directly. |
 | `gitlab_branches` | `BRANCHESTOOL` | Manage gitlab branches operations. |
 | `gitlab_commits` | `COMMITSTOOL` | Manage gitlab commits operations. |
 | `gitlab_deploy_tokens` | `DEPLOY_TOKENSTOOL` | Manage gitlab deploy tokens operations. |
