@@ -65,34 +65,43 @@ the verbose set with `--tools tag:verbose` / `MCP_ENABLED_TAGS=verbose`. See the
 agent-utilities *MCP Tool Modes* guide.
 
 ### Available MCP Tools
-| Tool Module | Toggle Env Var | Enabled by Default | Description & Nested Methods |
-|-------------|----------------|--------------------|------------------------------|
-| **Misc** | `MISC_TOOL` | `True` | Manage gitlab api misc operations. |
-| **Branches** | `BRANCHES_TOOL` | `True` | Manage gitlab branches operations. Action-routed methods: `create`, `delete`, `get`. |
-| **Protected Branches** | `PROTECTED_BRANCHES_TOOL` | `True` | Manage gitlab protected branches operations. Action-routed methods: `get`, `protect`, `unprotect`. |
-| **Commits** | `COMMITS_TOOL` | `True` | Manage gitlab commits operations. Action-routed methods: `create`, `create_comment`, `diff`, `get`, `get_comments`, `get_discussions`, `get_gpg_signature`, `get_merge_requests`, `get_statuses`, `post_status`, `revert`. |
-| **Deploy Tokens** | `DEPLOY_TOKENS_TOOL` | `True` | Manage gitlab deploy tokens operations. Action-routed methods: `create_group`, `create_project`, `delete_group`, `delete_project`, `get`, `get_group`, `get_project`. |
-| **Environments** | `ENVIRONMENTS_TOOL` | `True` | Manage gitlab environments operations. Action-routed methods: `create`, `delete`, `delete_stopped`, `get`, `get_protected`, `protect`, `stop`, `stop_stale`, `unprotect`, `update`, `update_protected`. |
-| **Groups** | `GROUPS_TOOL` | `True` | Manage gitlab groups operations. Action-routed methods: `edit`, `get`, `get_descendants`, `get_merge_requests`, `get_projects`, `get_subgroups`. |
-| **Jobs** | `JOBS_TOOL` | `True` | Manage gitlab jobs operations. Action-routed methods: `cancel`, `erase`, `get_log`, `get_pipeline_jobs`, `get_project_jobs`, `retry`, `run`. |
-| **Members** | `MEMBERS_TOOL` | `True` | Manage gitlab members operations. Action-routed methods: `get_group`, `get_project`. |
-| **Merge Requests** | `MERGE_REQUESTS_TOOL` | `True` | Manage gitlab merge requests operations. Action-routed methods: `create`, `get`, `get_project`. |
-| **Merge Rules** | `MERGE_RULES_TOOL` | `True` | Manage gitlab merge rules operations. Action-routed methods: `approve_mr`, `create_project_level`, `delete_project_level`, `edit_group_level`, `edit_project_level`, `get_group_level`, `get_mr_approval_state`, `get_mr_approvals`, `get_mr_level`, `get_project_level`, `unapprove_mr`, `update_project_level`. |
-| **Packages** | `PACKAGES_TOOL` | `True` | Manage gitlab packages operations. Action-routed methods: `download`, `get`, `publish`. |
-| **Pipelines** | `PIPELINES_TOOL` | `True` | Manage gitlab pipelines operations. Action-routed methods: `get`, `run`. |
-| **Pipeline Schedules** | `PIPELINE_SCHEDULES_TOOL` | `True` | Manage gitlab pipeline schedules operations. Action-routed methods: `create`, `create_variable`, `delete`, `delete_variable`, `edit`, `get`, `get_all`, `get_triggered`, `run`, `take_ownership`. |
-| **Projects** | `PROJECTS_TOOL` | `True` | Manage gitlab projects operations. Action-routed methods: `edit`, `get`, `get_contributors`, `get_nested_by_group`, `get_statistics`, `share_with_group`, `unshare_with_group`. |
-| **Releases** | `RELEASES_TOOL` | `True` | Manage gitlab releases operations. Action-routed methods: `create`, `create_evidence`, `delete`, `download_asset`, `get`, `get_by_tag`, `get_group_releases`, `get_latest`, `get_latest_asset`, `get_latest_evidence`, `update`. |
-| **Runners** | `RUNNERS_TOOL` | `True` | Manage gitlab runners operations. Action-routed methods: `delete`, `delete_project`, `enable_project`, `get_all`, `get_group`, `get_jobs`, `get_project`, `pause`, `register`, `reset_gitlab_token`, `reset_group_token`, `reset_project_token`, `reset_token`, `update_details`, `verify_auth`. |
-| **Tags** | `TAGS_TOOL` | `True` | Manage gitlab tags operations. Action-routed methods: `create`, `delete`, `get`, `get_protected`, `get_protected_tag`, `protect`, `unprotect`. |
-| **Labels** | `LABELS_TOOL` | `True` | Manage GitLab labels. Action-routed methods: `create`, `delete`, `get`, `update`. |
-| **Milestones** | `MILESTONES_TOOL` | `True` | Manage GitLab milestones. Action-routed methods: `create`, `delete`, `get`, `update`. |
-| **Snippets** | `SNIPPETS_TOOL` | `True` | Manage GitLab snippets. Action-routed methods: `create`, `delete`, `get`, `update`. |
-| **Notes** | `NOTES_TOOL` | `True` | Manage GitLab notes/comments on issues, merge requests, commits, and epics. Action-routed methods: `create`, `delete`, `get`, `update`. |
-| **Epics** | `EPICS_TOOL` | `True` | Manage GitLab epics. Action-routed methods: `create`, `delete`, `get`, `update`. |
-| **Issues** | `ISSUES_TOOL` | `True` | Manage GitLab issues. Action-routed methods: `create`, `delete`, `get`, `update`. |
-| **Custom Api** | `CUSTOM_API_TOOL` | `True` | Execute arbitrary GitLab REST API requests directly. |
-| **Graphql** | `GRAPHQL_TOOL` | `True` | Execute raw GraphQL queries and mutations natively on GitLab. |
+
+_Auto-generated from the live MCP server — do not edit by hand._
+
+<!-- MCP-TOOLS-TABLE:START -->
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `api_request` | `CUSTOM-APITOOL` | Execute arbitrary GitLab REST API requests directly. |
+| `gitlab_branches` | `BRANCHESTOOL` | Manage gitlab branches operations. |
+| `gitlab_commits` | `COMMITSTOOL` | Manage gitlab commits operations. |
+| `gitlab_deploy_tokens` | `DEPLOY_TOKENSTOOL` | Manage gitlab deploy tokens operations. |
+| `gitlab_discover_graphql_schema` | `GRAPHQLTOOL` | Discover the dynamic GitLab GraphQL schema including types, fields, and custom attributes in real-time. |
+| `gitlab_environments` | `ENVIRONMENTSTOOL` | Manage gitlab environments operations. |
+| `gitlab_epics` | `EPICSTOOL` | Manage GitLab epics. |
+| `gitlab_graphql` | `GRAPHQLTOOL` | Execute raw GraphQL queries and mutations natively on GitLab. |
+| `gitlab_groups` | `GROUPSTOOL` | Manage gitlab groups operations. |
+| `gitlab_instances` | `MISCTOOL` | List the configured GitLab tenants (CONCEPT:KG-2.9g). |
+| `gitlab_issues` | `ISSUESTOOL` | Manage GitLab issues. |
+| `gitlab_jobs` | `JOBSTOOL` | Manage gitlab jobs operations. |
+| `gitlab_labels` | `LABELSTOOL` | Manage GitLab labels. |
+| `gitlab_members` | `MEMBERSTOOL` | Manage gitlab members operations. |
+| `gitlab_merge_requests` | `MERGE_REQUESTSTOOL` | Manage gitlab merge requests operations. |
+| `gitlab_merge_rules` | `MERGE_RULESTOOL` | Manage gitlab merge rules operations. |
+| `gitlab_milestones` | `MILESTONESTOOL` | Manage GitLab milestones. |
+| `gitlab_notes` | `NOTESTOOL` | Manage GitLab notes/comments on issues, merge requests, commits, and epics. |
+| `gitlab_packages` | `PACKAGESTOOL` | Manage gitlab packages operations. |
+| `gitlab_pipeline_schedules` | `PIPELINE_SCHEDULESTOOL` | Manage gitlab pipeline schedules operations. |
+| `gitlab_pipelines` | `PIPELINESTOOL` | Manage gitlab pipelines operations. |
+| `gitlab_projects` | `PROJECTSTOOL` | Manage gitlab projects operations. |
+| `gitlab_protected_branches` | `PROTECTED_BRANCHESTOOL` | Manage gitlab protected branches operations. |
+| `gitlab_releases` | `RELEASESTOOL` | Manage gitlab releases operations. |
+| `gitlab_runners` | `RUNNERSTOOL` | Manage gitlab runners operations. |
+| `gitlab_snippets` | `SNIPPETSTOOL` | Manage GitLab snippets. |
+| `gitlab_tags` | `TAGSTOOL` | Manage gitlab tags operations. |
+
+_27 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
+<!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
 
