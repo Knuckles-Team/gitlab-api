@@ -56,6 +56,14 @@ Detailed instructions on how to use the underlying API wrappers, extended schema
 
 This server utilizes dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
 
+### Tool surface — `MCP_TOOL_MODE`
+
+Set `MCP_TOOL_MODE` (in the shared `~/.config/agent-utilities/config.json` or env):
+`condensed` (default — the action-routed tools below), `verbose` (one named 1:1 tool
+per API method, e.g. `gitlab_get_branches(...)`, tagged `verbose`), or `both`. Filter
+the verbose set with `--tools tag:verbose` / `MCP_ENABLED_TAGS=verbose`. See the
+agent-utilities *MCP Tool Modes* guide.
+
 ### Available MCP Tools
 | Tool Module | Toggle Env Var | Enabled by Default | Description & Nested Methods |
 |-------------|----------------|--------------------|------------------------------|
