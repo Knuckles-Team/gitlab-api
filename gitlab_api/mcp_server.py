@@ -29,10 +29,9 @@ from agent_utilities.core.config import setting
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
     load_config,
-    register_verbose_tools,
+    register_tool_surface,
     resolve_action,
     run_blocking,
-    tool_mode,
 )
 
 from gitlab_api.api_client import Api
@@ -1560,8 +1559,6 @@ def register_graphql_tools(mcp: FastMCP):
 def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     """Initialize and return the GitLab MCP instance, args, and middlewares."""
     load_config()
-    mode = tool_mode()
-    condensed = mode in ("condensed", "both")
     os.environ["FASTMCP_LOG_LEVEL"] = "ERROR"
     os.environ["TERM"] = "dumb"
     os.environ["NO_COLOR"] = "1"
@@ -1572,97 +1569,18 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
         instructions="GitLab API MCP Server - Manage projects, issues, merge requests, branches, and more.",
     )
 
-    DEFAULT_GRAPHQLTOOL = condensed and setting("GRAPHQLTOOL", True)
-    if DEFAULT_GRAPHQLTOOL:
-        register_graphql_tools(mcp)
-
-    DEFAULT_MISCTOOL = condensed and setting("MISCTOOL", True)
-    if DEFAULT_MISCTOOL:
-        register_misc_tools(mcp)
-    DEFAULT_BRANCHESTOOL = condensed and setting("BRANCHESTOOL", True)
-    if DEFAULT_BRANCHESTOOL:
-        register_branches_tools(mcp)
-    DEFAULT_COMMITSTOOL = condensed and setting("COMMITSTOOL", True)
-    if DEFAULT_COMMITSTOOL:
-        register_commits_tools(mcp)
-    DEFAULT_DEPLOY_TOKENSTOOL = condensed and setting("DEPLOY_TOKENSTOOL", True)
-    if DEFAULT_DEPLOY_TOKENSTOOL:
-        register_deploy_tokens_tools(mcp)
-    DEFAULT_ENVIRONMENTSTOOL = condensed and setting("ENVIRONMENTSTOOL", True)
-    if DEFAULT_ENVIRONMENTSTOOL:
-        register_environments_tools(mcp)
-    DEFAULT_GROUPSTOOL = condensed and setting("GROUPSTOOL", True)
-    if DEFAULT_GROUPSTOOL:
-        register_groups_tools(mcp)
-    DEFAULT_JOBSTOOL = condensed and setting("JOBSTOOL", True)
-    if DEFAULT_JOBSTOOL:
-        register_jobs_tools(mcp)
-    DEFAULT_MEMBERSTOOL = condensed and setting("MEMBERSTOOL", True)
-    if DEFAULT_MEMBERSTOOL:
-        register_members_tools(mcp)
-    DEFAULT_MERGE_REQUESTSTOOL = condensed and setting("MERGE_REQUESTSTOOL", True)
-    if DEFAULT_MERGE_REQUESTSTOOL:
-        register_merge_requests_tools(mcp)
-    DEFAULT_MERGE_RULESTOOL = condensed and setting("MERGE_RULESTOOL", True)
-    if DEFAULT_MERGE_RULESTOOL:
-        register_merge_rules_tools(mcp)
-    DEFAULT_PACKAGESTOOL = condensed and setting("PACKAGESTOOL", True)
-    if DEFAULT_PACKAGESTOOL:
-        register_packages_tools(mcp)
-    DEFAULT_PIPELINESTOOL = condensed and setting("PIPELINESTOOL", True)
-    if DEFAULT_PIPELINESTOOL:
-        register_pipelines_tools(mcp)
-    DEFAULT_PIPELINE_SCHEDULESTOOL = condensed and setting(
-        "PIPELINE_SCHEDULESTOOL", True
+    registered_tags = register_tool_surface(
+        mcp,
+        client_cls=Api,
+        get_client=get_client,
+        service="gitlab-api",
+        tools_module=sys.modules[__name__],
     )
-    if DEFAULT_PIPELINE_SCHEDULESTOOL:
-        register_pipeline_schedules_tools(mcp)
-    DEFAULT_PROJECTSTOOL = condensed and setting("PROJECTSTOOL", True)
-    if DEFAULT_PROJECTSTOOL:
-        register_projects_tools(mcp)
-    DEFAULT_PROTECTED_BRANCHESTOOL = condensed and setting(
-        "PROTECTED_BRANCHESTOOL", True
-    )
-    if DEFAULT_PROTECTED_BRANCHESTOOL:
-        register_protected_branches_tools(mcp)
-    DEFAULT_RELEASESTOOL = condensed and setting("RELEASESTOOL", True)
-    if DEFAULT_RELEASESTOOL:
-        register_releases_tools(mcp)
-    DEFAULT_RUNNERSTOOL = condensed and setting("RUNNERSTOOL", True)
-    if DEFAULT_RUNNERSTOOL:
-        register_runners_tools(mcp)  # type: ignore
-    DEFAULT_TAGSTOOL = condensed and setting("TAGSTOOL", True)
-    if DEFAULT_TAGSTOOL:
-        register_tags_tools(mcp)
-    DEFAULT_LABELSTOOL = condensed and setting("LABELSTOOL", True)
-    if DEFAULT_LABELSTOOL:
-        register_labels_tools(mcp)
-    DEFAULT_MILESTONESTOOL = condensed and setting("MILESTONESTOOL", True)
-    if DEFAULT_MILESTONESTOOL:
-        register_milestones_tools(mcp)
-    DEFAULT_SNIPPETSTOOL = condensed and setting("SNIPPETSTOOL", True)
-    if DEFAULT_SNIPPETSTOOL:
-        register_snippets_tools(mcp)
-    DEFAULT_NOTESTOOL = condensed and setting("NOTESTOOL", True)
-    if DEFAULT_NOTESTOOL:
-        register_notes_tools(mcp)
-    DEFAULT_EPICSTOOL = condensed and setting("EPICSTOOL", True)
-    if DEFAULT_EPICSTOOL:
-        register_epics_tools(mcp)
-    DEFAULT_ISSUESTOOL = condensed and setting("ISSUESTOOL", True)
-    if DEFAULT_ISSUESTOOL:
-        register_issues_tools(mcp)
-    DEFAULT_CUSTOM_APITOOL = condensed and setting("CUSTOM_APITOOL", True)
-    if DEFAULT_CUSTOM_APITOOL:
-        register_custom_api_tools(mcp)
-    if mode in ("verbose", "both"):
-        register_verbose_tools(mcp, Api, get_client, service="gitlab-api")
     register_prompts(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
 
-    registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
 
