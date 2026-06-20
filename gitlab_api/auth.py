@@ -9,11 +9,11 @@ Authentication priority:
 See ``docs/guides/oauth_sso.md`` in agent-utilities for full details.
 """
 
-import os
 import threading
 from typing import Any
 
-from agent_utilities.base_utilities import get_logger, to_boolean
+from agent_utilities.base_utilities import get_logger
+from agent_utilities.core.config import setting
 from agent_utilities.core.exceptions import AuthError, UnauthorizedError
 
 local = threading.local()
@@ -34,7 +34,7 @@ def _resolve_connection(
     """
     from gitlab_api.instances import get_instance
 
-    env_verify = to_boolean(string=os.getenv("GITLAB_SSL_VERIFY", "True"))
+    env_verify = setting("GITLAB_SSL_VERIFY", True)
 
     # A bare URL is used directly (the historical call shape) — the caller owns
     # the token it passes (no env fallback, so an explicit token=None stays None).
@@ -52,13 +52,13 @@ def _resolve_connection(
             )
         # No config at all → legacy single-host env defaults.
         return (
-            os.getenv("GITLAB_URL", "https://gitlab.com"),
-            token or os.getenv("GITLAB_TOKEN"),
+            setting("GITLAB_URL", "https://gitlab.com"),
+            token or setting("GITLAB_TOKEN"),
             env_verify if verify is None else verify,
         )
     return (
         inst.url,
-        token or inst.token or os.getenv("GITLAB_TOKEN"),
+        token or inst.token or setting("GITLAB_TOKEN"),
         inst.verify_ssl if verify is None else verify,
     )
 
