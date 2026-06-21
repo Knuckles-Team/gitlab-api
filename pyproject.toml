@@ -29,6 +29,12 @@ test = [
 gitlab-mcp = "gitlab_api.mcp_server:mcp_server"
 gitlab-agent = "gitlab_api.agent_server:agent_server"
 
+[project.entry-points."agent_utilities.skill_providers"]
+gitlab-api = "gitlab_api.skills"
+
+[project.entry-points."agent_utilities.prompt_providers"]
+gitlab-api = "gitlab_api.prompts"
+
 [tool.setuptools]
 include-package-data = true
 
@@ -47,7 +53,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-gitlab_api = [ "mcp_config.json", "agent_data/**",]
+gitlab_api = [ "mcp_config.json", "agent_data/**", "prompts/**", "skills/**",]
 
 [tool.ruff.lint]
 select = [ "E", "F", "I", "UP", "B",]
