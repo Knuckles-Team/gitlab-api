@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   gitlab-api-mcp:
-    image: knucklessg1/gitlab-api:latest
+    image: knucklessg1/gitlab-api:mcp
     container_name: gitlab-api-mcp
     hostname: gitlab-api-mcp
     restart: always
