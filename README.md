@@ -236,6 +236,69 @@ consumed from a **remote deployment**. The
 
 ## Environment Variables
 
+<!-- ENV-VARS-TABLE:START -->
+
+#### Package environment variables
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `HOST` | `0.0.0.0` |  |
+| `PORT` | `8000` |  |
+| `TRANSPORT` | `stdio` | options: stdio, streamable-http, sse |
+| `ENABLE_OTEL` | `True` |  |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:8080/api/public/otel` |  |
+| `OTEL_EXPORTER_OTLP_PUBLIC_KEY` | `pk-...` |  |
+| `OTEL_EXPORTER_OTLP_SECRET_KEY` | `sk-...` |  |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` |  |
+| `EUNOMIA_TYPE` | `none` | options: none, embedded, remote |
+| `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
+| `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
+| `GITLAB_URL` | `https://gitlab.example.com` |  |
+| `GITLAB_TOKEN` | `your_gitlab_token_here` |  |
+| `MISCTOOL` | `True` |  |
+| `BRANCHESTOOL` | `True` |  |
+| `PROTECTED_BRANCHESTOOL` | `True` |  |
+| `COMMITSTOOL` | `True` |  |
+| `DEPLOY_TOKENSTOOL` | `True` |  |
+| `ENVIRONMENTSTOOL` | `True` |  |
+| `GROUPSTOOL` | `True` |  |
+| `JOBSTOOL` | `True` |  |
+| `MEMBERSTOOL` | `True` |  |
+| `MERGE_REQUESTSTOOL` | `True` |  |
+| `MERGE_RULESTOOL` | `True` |  |
+| `PACKAGESTOOL` | `True` |  |
+| `PIPELINESTOOL` | `True` |  |
+| `PIPELINE_SCHEDULESTOOL` | `True` |  |
+| `PROJECTSTOOL` | `True` |  |
+| `RELEASESTOOL` | `True` |  |
+| `RUNNERSTOOL` | `True` |  |
+| `TAGSTOOL` | `True` |  |
+| `CUSTOM_APITOOL` | `True` |  |
+| `GRAPHQLTOOL` | `True` |  |
+
+#### Inherited agent-utilities variables (apply to every connector)
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `MCP_TOOL_MODE` | `condensed` | Tool surface: `condensed` | `verbose` | `both` |
+| `MCP_ENABLED_TOOLS` | — | Comma-separated tool allow-list |
+| `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
+| `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
+| `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
+| `MCP_CLIENT_AUTH` | — | Outbound MCP auth (`oidc-client-credentials` for fleet calls) |
+| `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
+| `OIDC_CLIENT_SECRET` | — | OIDC client secret (service-account auth) |
+| `DEBUG` | `False` | Verbose logging |
+| `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
+| `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
+| `PROVIDER` | `openai` | LLM provider for the agent |
+| `MODEL_ID` | `gpt-4o` | Model id for the agent |
+| `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
+
+_33 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+<!-- ENV-VARS-TABLE:END -->
+
+
 Every variable the server reads.
 
 ### Connection & Credentials
