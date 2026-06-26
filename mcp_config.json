@@ -7,6 +7,7 @@
         "gitlab-mcp"
       ],
       "env": {
+        "MCP_TOOL_MODE": "condensed",
         "FASTMCP_LOG_LEVEL": "<YOUR_FASTMCP_LOG_LEVEL>",
         "NO_COLOR": "<YOUR_NO_COLOR>",
         "TERM": "<YOUR_TERM>",
@@ -21,7 +22,6 @@
         "GITLAB_SSL_VERIFY": "<YOUR_GITLAB_SSL_VERIFY>",
         "GITLAB_TOKEN": "<YOUR_GITLAB_TOKEN>",
         "GITLAB_URL": "<YOUR_GITLAB_URL>",
-        "GITLAB_VERIFY": "<YOUR_GITLAB_VERIFY>",
         "GROUPSTOOL": "True",
         "JOBSTOOL": "True",
         "MCP_URL": "<YOUR_MCP_URL>",
