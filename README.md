@@ -70,6 +70,8 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 <!-- MCP-TOOLS-TABLE:START -->
 
+#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
 | `api_request` | `CUSTOM_APITOOL` | Execute arbitrary GitLab REST API requests directly. |
@@ -100,7 +102,205 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_snippets` | `SNIPPETSTOOL` | Manage GitLab snippets. |
 | `gitlab_tags` | `TAGSTOOL` | Manage gitlab tags operations. |
 
-_27 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>188 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `gitlab_api_request` | `SYSTEMTOOL` | Make a custom API request to the GitLab server. |
+| `gitlab_approve_merge_request` | `MERGE_REQUESTSTOOL` | Approve a specific merge request. |
+| `gitlab_archive_project` | `PROJECTSTOOL` | Archive a specific project. |
+| `gitlab_cancel_project_job` | `PROJECTSTOOL` | Cancel a specific job within a project. |
+| `gitlab_cherry_pick_commit` | `REPOSITORIESTOOL` | Cherry-pick a commit into a new branch. |
+| `gitlab_create_branch` | `REPOSITORIESTOOL` | Create a new branch in a project. |
+| `gitlab_create_commit` | `REPOSITORIESTOOL` | Create a new commit. |
+| `gitlab_create_commit_comment` | `REPOSITORIESTOOL` | Create a comment on a commit. |
+| `gitlab_create_environment` | `ENVIRONMENTSTOOL` | Create a new environment for a project. |
+| `gitlab_create_epic` | `ISSUESTOOL` | Create a new group epic. |
+| `gitlab_create_group_deploy_token` | `USERS_GROUPSTOOL` | Create a deploy token for a group. |
+| `gitlab_create_issue` | `ISSUESTOOL` | Create a new issue. |
+| `gitlab_create_label` | `ISSUESTOOL` | Create a new label. |
+| `gitlab_create_merge_request` | `MERGE_REQUESTSTOOL` | Create a new merge request. |
+| `gitlab_create_milestone` | `ISSUESTOOL` | Create a project milestone. |
+| `gitlab_create_note` | `OTHERTOOL` | Create a new note/comment on an issue. |
+| `gitlab_create_pipeline_schedule` | `PIPELINESTOOL` | Create a pipeline schedule for a specific project. |
+| `gitlab_create_pipeline_schedule_variable` | `PIPELINESTOOL` | Create a variable for a pipeline schedule. |
+| `gitlab_create_project_deploy_token` | `PROJECTSTOOL` | Create a deploy token for a project. |
+| `gitlab_create_project_level_rule` | `PROJECTSTOOL` | Create a new project-level merge request approval rule. |
+| `gitlab_create_release` | `ENVIRONMENTSTOOL` | Create a new release in a project. |
+| `gitlab_create_release_evidence` | `ENVIRONMENTSTOOL` | Create evidence for a release in a project. |
+| `gitlab_create_snippet` | `OTHERTOOL` | Create a project snippet or personal snippet. |
+| `gitlab_create_tag` | `REPOSITORIESTOOL` | Create a tag in a project. |
+| `gitlab_create_user` | `USERS_GROUPSTOOL` | Create a new user. |
+| `gitlab_create_wiki_page` | `OTHERTOOL` | Create a new wiki page for a project. |
+| `gitlab_delete_branch` | `REPOSITORIESTOOL` | Delete a branch in a project. |
+| `gitlab_delete_environment` | `ENVIRONMENTSTOOL` | Delete an environment for a project. |
+| `gitlab_delete_epic` | `ISSUESTOOL` | Delete a group epic. |
+| `gitlab_delete_group_deploy_token` | `USERS_GROUPSTOOL` | Delete a deploy token for a group. |
+| `gitlab_delete_issue` | `ISSUESTOOL` | Delete an issue. |
+| `gitlab_delete_label` | `ISSUESTOOL` | Delete a label. |
+| `gitlab_delete_merged_branches` | `REPOSITORIESTOOL` | Delete all merged branches in a project. |
+| `gitlab_delete_milestone` | `ISSUESTOOL` | Delete a project milestone. |
+| `gitlab_delete_note` | `OTHERTOOL` | Delete a note. |
+| `gitlab_delete_pipeline_schedule` | `PIPELINESTOOL` | Delete a pipeline schedule for a specific project. |
+| `gitlab_delete_pipeline_schedule_variable` | `PIPELINESTOOL` | Delete a variable from a pipeline schedule. |
+| `gitlab_delete_project` | `PROJECTSTOOL` | Delete a specific project. |
+| `gitlab_delete_project_deploy_token` | `PROJECTSTOOL` | Delete a deploy token for a project. |
+| `gitlab_delete_project_level_rule` | `PROJECTSTOOL` | Delete a project-level merge request approval rule. |
+| `gitlab_delete_project_runner` | `PROJECTSTOOL` | Delete a runner from a project. |
+| `gitlab_delete_release` | `ENVIRONMENTSTOOL` | Delete a release in a project. |
+| `gitlab_delete_runner` | `PIPELINESTOOL` | Delete a runner. |
+| `gitlab_delete_shared_project_link` | `PROJECTSTOOL` | Unshare a specific project from a group. |
+| `gitlab_delete_snippet` | `OTHERTOOL` | Delete a snippet. |
+| `gitlab_delete_stopped_environments` | `ENVIRONMENTSTOOL` | Delete stopped environments (review apps) for a project. |
+| `gitlab_delete_tag` | `REPOSITORIESTOOL` | Delete a tag in a project. |
+| `gitlab_delete_user` | `USERS_GROUPSTOOL` | Delete a user. |
+| `gitlab_delete_wiki_page` | `OTHERTOOL` | Delete a wiki page for a project. |
+| `gitlab_download_release_asset` | `ENVIRONMENTSTOOL` | Download a release asset from a group's release. |
+| `gitlab_download_repository_package` | `OTHERTOOL` | Download a repository package for a specific project. |
+| `gitlab_edit_group` | `USERS_GROUPSTOOL` | Edit a specific group. |
+| `gitlab_edit_group_level_rule` | `USERS_GROUPSTOOL` | Edit a group-level merge request approval setting. |
+| `gitlab_edit_pipeline_schedule` | `PIPELINESTOOL` | Edit a pipeline schedule for a specific project. |
+| `gitlab_edit_project` | `PROJECTSTOOL` | Edit a specific project. |
+| `gitlab_edit_project_level_rule` | `PROJECTSTOOL` | Edit a project-level merge request approval setting. |
+| `gitlab_enable_project_runner` | `PROJECTSTOOL` | Enable a runner in a project. |
+| `gitlab_erase_project_job` | `PROJECTSTOOL` | Erase a specific job within a project. |
+| `gitlab_get_approval_state_merge_requests` | `MERGE_REQUESTSTOOL` | Get the approval state of merge requests for a specific project. |
+| `gitlab_get_branch` | `REPOSITORIESTOOL` | Retrieve information about a specific branch in a project. |
+| `gitlab_get_branches` | `REPOSITORIESTOOL` | Retrieve information about branches in a project. |
+| `gitlab_get_commit` | `REPOSITORIESTOOL` | Get a specific commit. |
+| `gitlab_get_commit_comments` | `REPOSITORIESTOOL` | Get comments on a commit. |
+| `gitlab_get_commit_diff` | `REPOSITORIESTOOL` | Get the diff of a commit. |
+| `gitlab_get_commit_discussions` | `REPOSITORIESTOOL` | Get discussions on a commit. |
+| `gitlab_get_commit_gpg_signature` | `REPOSITORIESTOOL` | Get GPG signature of a commit. |
+| `gitlab_get_commit_merge_requests` | `REPOSITORIESTOOL` | Get merge requests associated with a commit. |
+| `gitlab_get_commit_references` | `REPOSITORIESTOOL` | Get references of a commit. |
+| `gitlab_get_commit_statuses` | `REPOSITORIESTOOL` | Get statuses of a commit. |
+| `gitlab_get_commits` | `REPOSITORIESTOOL` | Get commits. |
+| `gitlab_get_deploy_tokens` | `ENVIRONMENTSTOOL` | Get all deploy tokens. |
+| `gitlab_get_environment` | `ENVIRONMENTSTOOL` | Get details of a specific environment. |
+| `gitlab_get_environments` | `ENVIRONMENTSTOOL` | Get a list of environments for a project. |
+| `gitlab_get_epic` | `ISSUESTOOL` | Get a specific group epic. |
+| `gitlab_get_epics` | `ISSUESTOOL` | Get all epics for a group. |
+| `gitlab_get_group` | `USERS_GROUPSTOOL` | Get details of a specific group. |
+| `gitlab_get_group_deploy_token` | `USERS_GROUPSTOOL` | Get a specific deploy token for a group. |
+| `gitlab_get_group_deploy_tokens` | `USERS_GROUPSTOOL` | Get deploy tokens for a specific group. |
+| `gitlab_get_group_descendant_groups` | `USERS_GROUPSTOOL` | Get descendant groups of a specific group. |
+| `gitlab_get_group_level_rule` | `USERS_GROUPSTOOL` | Get details of a group-level merge request approval setting. |
+| `gitlab_get_group_members` | `USERS_GROUPSTOOL` | Get members of a specific group. |
+| `gitlab_get_group_merge_requests` | `MERGE_REQUESTSTOOL` | Get merge requests associated with a specific group. |
+| `gitlab_get_group_projects` | `PROJECTSTOOL` | Get projects associated with a specific group. |
+| `gitlab_get_group_releases` | `USERS_GROUPSTOOL` | Get information about releases in a group. |
+| `gitlab_get_group_runners` | `PIPELINESTOOL` | Get information about runners in a group. |
+| `gitlab_get_group_subgroups` | `USERS_GROUPSTOOL` | Get subgroups of a specific group. |
+| `gitlab_get_groups` | `USERS_GROUPSTOOL` | Get a list of groups. |
+| `gitlab_get_issue` | `ISSUESTOOL` | Get a single issue. |
+| `gitlab_get_issues` | `ISSUESTOOL` | Get list of issues. Can filter by project_id. |
+| `gitlab_get_label` | `ISSUESTOOL` | Get a specific label by name. |
+| `gitlab_get_labels` | `ISSUESTOOL` | Get all labels for a project. |
+| `gitlab_get_latest_release` | `ENVIRONMENTSTOOL` | Get information about the latest release in a project. |
+| `gitlab_get_latest_release_asset` | `ENVIRONMENTSTOOL` | Get the asset for the latest release in a project. |
+| `gitlab_get_latest_release_evidence` | `ENVIRONMENTSTOOL` | Get evidence for the latest release in a project. |
+| `gitlab_get_merge_request_level_rules` | `MERGE_REQUESTSTOOL` | Get merge request-level approval rules for a specific project and merge request. |
+| `gitlab_get_merge_requests` | `MERGE_REQUESTSTOOL` | Get a list of merge requests. |
+| `gitlab_get_milestone` | `ISSUESTOOL` | Get a specific project milestone. |
+| `gitlab_get_milestones` | `ISSUESTOOL` | Get all milestones for a project. |
+| `gitlab_get_namespace` | `USERS_GROUPSTOOL` | Get information about a specific namespace. |
+| `gitlab_get_namespaces` | `USERS_GROUPSTOOL` | Get information about namespaces. |
+| `gitlab_get_nested_projects_by_group` | `PROJECTSTOOL` | Get information about nested projects within a group. |
+| `gitlab_get_note` | `OTHERTOOL` | Get a specific note. |
+| `gitlab_get_notes` | `OTHERTOOL` | Get all notes for a specific issue. |
+| `gitlab_get_pipeline` | `PIPELINESTOOL` | Get information about a specific pipeline in a project. |
+| `gitlab_get_pipeline_jobs` | `PIPELINESTOOL` | Get jobs associated with a specific pipeline within a project. |
+| `gitlab_get_pipeline_schedule` | `PIPELINESTOOL` | Get information about a specific pipeline schedule in a project. |
+| `gitlab_get_pipeline_schedules` | `PIPELINESTOOL` | Get pipeline schedules for a specific project. |
+| `gitlab_get_pipelines` | `PIPELINESTOOL` | Get information about pipelines for a specific project. |
+| `gitlab_get_pipelines_triggered_from_schedule` | `PIPELINESTOOL` | Get pipelines triggered from a specific pipeline schedule. |
+| `gitlab_get_project` | `PROJECTSTOOL` | Get information about a specific project. |
+| `gitlab_get_project_contributors` | `PROJECTSTOOL` | Get information about contributors to a project. |
+| `gitlab_get_project_deploy_token` | `PROJECTSTOOL` | Get a specific deploy token for a project. |
+| `gitlab_get_project_deploy_tokens` | `PROJECTSTOOL` | Get deploy tokens for a specific project. |
+| `gitlab_get_project_groups` | `PROJECTSTOOL` | Get groups associated with a specific project. |
+| `gitlab_get_project_job` | `PROJECTSTOOL` | Get details of a specific job within a project. |
+| `gitlab_get_project_job_log` | `PROJECTSTOOL` | Get the log of a specific job within a project. |
+| `gitlab_get_project_jobs` | `PROJECTSTOOL` | Get jobs associated with a specific project. |
+| `gitlab_get_project_level_merge_request_rule` | `PROJECTSTOOL` | Get details of a specific project-level merge request approval rule. |
+| `gitlab_get_project_level_merge_request_rules` | `PROJECTSTOOL` | Get project-level merge request approval rules. |
+| `gitlab_get_project_level_rule` | `PROJECTSTOOL` | Get details of a project-level merge request approval setting. |
+| `gitlab_get_project_members` | `PROJECTSTOOL` | Get members of a specific project. |
+| `gitlab_get_project_merge_request` | `PROJECTSTOOL` | Get details of a specific merge request in a project. |
+| `gitlab_get_project_merge_requests` | `PROJECTSTOOL` | Get merge requests for a specific project. |
+| `gitlab_get_project_runners` | `PROJECTSTOOL` | Get information about runners in a project. |
+| `gitlab_get_project_statistics` | `PROJECTSTOOL` | Get statistics for a specific project. |
+| `gitlab_get_projects` | `PROJECTSTOOL` | Get information about projects. |
+| `gitlab_get_protected_branch` | `REPOSITORIESTOOL` | Get information about a specific protected branch in a project. |
+| `gitlab_get_protected_branches` | `REPOSITORIESTOOL` | Get information about protected branches in a project. |
+| `gitlab_get_protected_environment` | `ENVIRONMENTSTOOL` | Get details of a specific protected environment. |
+| `gitlab_get_protected_environments` | `ENVIRONMENTSTOOL` | Get a list of protected environments for a project. |
+| `gitlab_get_protected_tag` | `REPOSITORIESTOOL` | Get information about a specific protected tag in a project. |
+| `gitlab_get_protected_tags` | `REPOSITORIESTOOL` | Get information about protected tags in a project. |
+| `gitlab_get_release_by_tag` | `REPOSITORIESTOOL` | Get information about a release by its tag in a project. |
+| `gitlab_get_releases` | `ENVIRONMENTSTOOL` | Get information about releases in a project. |
+| `gitlab_get_repository_packages` | `OTHERTOOL` | Get information about repository packages for a specific project. |
+| `gitlab_get_runner` | `PIPELINESTOOL` | Get information about a specific runner. |
+| `gitlab_get_runner_jobs` | `PIPELINESTOOL` | Get jobs for a specific runner. |
+| `gitlab_get_runners` | `PIPELINESTOOL` | Get information about runners. |
+| `gitlab_get_snippet` | `OTHERTOOL` | Get a specific snippet. |
+| `gitlab_get_snippets` | `OTHERTOOL` | Get list of snippets. Can filter by project_id. |
+| `gitlab_get_tag` | `REPOSITORIESTOOL` | Get information about a specific tag in a project. |
+| `gitlab_get_tags` | `REPOSITORIESTOOL` | Get information about tags in a project. |
+| `gitlab_get_user` | `USERS_GROUPSTOOL` | Get information about a specific user. |
+| `gitlab_get_users` | `USERS_GROUPSTOOL` | Get information about users. |
+| `gitlab_get_wiki_list` | `OTHERTOOL` | Get a list of wiki pages for a project. |
+| `gitlab_get_wiki_page` | `OTHERTOOL` | Get information about a specific wiki page. |
+| `gitlab_merge_request_level_approvals` | `MERGE_REQUESTSTOOL` | Get approvals for a specific merge request. |
+| `gitlab_pause_runner` | `PIPELINESTOOL` | Pause or unpause a specific runner. |
+| `gitlab_post_build_status_to_commit` | `REPOSITORIESTOOL` | Post build status to a commit. |
+| `gitlab_protect_branch` | `REPOSITORIESTOOL` | Protect a specific branch in a project. |
+| `gitlab_protect_environment` | `ENVIRONMENTSTOOL` | Protect an environment for a project. |
+| `gitlab_protect_tag` | `REPOSITORIESTOOL` | Protect a tag in a project. |
+| `gitlab_publish_repository_package` | `OTHERTOOL` | Publish a repository package for a specific project. |
+| `gitlab_register_new_runner` | `PIPELINESTOOL` | Register a new runner. |
+| `gitlab_require_code_owner_approvals_single_branch` | `REPOSITORIESTOOL` | Require code owner approvals for a specific branch in a project. |
+| `gitlab_reset_gitlab_runner_token` | `PIPELINESTOOL` | Reset GitLab runner registration token. |
+| `gitlab_reset_group_runner_token` | `PIPELINESTOOL` | Reset registration token for a group's runner. |
+| `gitlab_reset_project_runner_token` | `PROJECTSTOOL` | Reset registration token for a project's runner. |
+| `gitlab_reset_token` | `OTHERTOOL` | Reset authentication token for a runner. |
+| `gitlab_retry_project_job` | `PROJECTSTOOL` | Retry a specific job within a project. |
+| `gitlab_revert_commit` | `REPOSITORIESTOOL` | Revert a commit. |
+| `gitlab_run_pipeline` | `PIPELINESTOOL` | Run a pipeline for a specific project. |
+| `gitlab_run_pipeline_schedule` | `PIPELINESTOOL` | Run a pipeline schedule for a specific project. |
+| `gitlab_run_project_job` | `PROJECTSTOOL` | Run a specific job within a project. |
+| `gitlab_share_project` | `PROJECTSTOOL` | Share a specific project with a group. |
+| `gitlab_stop_environment` | `ENVIRONMENTSTOOL` | Stop an environment for a project. |
+| `gitlab_stop_stale_environments` | `ENVIRONMENTSTOOL` | Stop stale environments for a project. |
+| `gitlab_take_pipeline_schedule_ownership` | `PIPELINESTOOL` | Take ownership of a pipeline schedule for a specific project. |
+| `gitlab_unapprove_merge_request` | `MERGE_REQUESTSTOOL` | Unapprove a specific merge request. |
+| `gitlab_unarchive_project` | `PROJECTSTOOL` | Unarchive a specific project. |
+| `gitlab_unprotect_branch` | `REPOSITORIESTOOL` | Unprotect a specific branch in a project. |
+| `gitlab_unprotect_environment` | `ENVIRONMENTSTOOL` | Unprotect an environment for a project. |
+| `gitlab_unprotect_tag` | `REPOSITORIESTOOL` | Unprotect a tag in a project. |
+| `gitlab_update_environment` | `ENVIRONMENTSTOOL` | Update an existing environment for a project. |
+| `gitlab_update_epic` | `ISSUESTOOL` | Update a group epic. |
+| `gitlab_update_issue` | `ISSUESTOOL` | Update an issue. |
+| `gitlab_update_label` | `ISSUESTOOL` | Update an existing label. |
+| `gitlab_update_milestone` | `ISSUESTOOL` | Update a project milestone. |
+| `gitlab_update_note` | `OTHERTOOL` | Update a note. |
+| `gitlab_update_project_level_rule` | `PROJECTSTOOL` | Update an existing project-level merge request approval rule. |
+| `gitlab_update_protected_environment` | `ENVIRONMENTSTOOL` | Update a protected environment for a project. |
+| `gitlab_update_release` | `ENVIRONMENTSTOOL` | Update information about a release in a project. |
+| `gitlab_update_runner_details` | `PIPELINESTOOL` | Update details for a specific runner. |
+| `gitlab_update_snippet` | `OTHERTOOL` | Update a snippet. |
+| `gitlab_update_user` | `USERS_GROUPSTOOL` | Update an existing user. |
+| `gitlab_update_wiki_page` | `OTHERTOOL` | Update an existing wiki page for a project. |
+| `gitlab_upload_wiki_page_attachment` | `OTHERTOOL` | Upload an attachment to a wiki page for a project. |
+| `gitlab_verify_runner_authentication` | `PIPELINESTOOL` | Verify runner authentication. |
+
+</details>
+
+_27 action-routed tool(s) (default) · 188 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
@@ -255,23 +455,30 @@ consumed from a **remote deployment**. The
 | `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
 | `GITLAB_URL` | `https://gitlab.example.com` |  |
 | `GITLAB_TOKEN` | `your_gitlab_token_here` |  |
+| `GITLAB_SSL_VERIFY` | `True` | verify TLS certs; set False for self-signed homelab instances |
 | `MISCTOOL` | `True` |  |
 | `BRANCHESTOOL` | `True` |  |
 | `PROTECTED_BRANCHESTOOL` | `True` |  |
 | `COMMITSTOOL` | `True` |  |
 | `DEPLOY_TOKENSTOOL` | `True` |  |
 | `ENVIRONMENTSTOOL` | `True` |  |
+| `EPICSTOOL` | `True` |  |
 | `GROUPSTOOL` | `True` |  |
+| `ISSUESTOOL` | `True` |  |
 | `JOBSTOOL` | `True` |  |
+| `LABELSTOOL` | `True` |  |
 | `MEMBERSTOOL` | `True` |  |
 | `MERGE_REQUESTSTOOL` | `True` |  |
 | `MERGE_RULESTOOL` | `True` |  |
+| `MILESTONESTOOL` | `True` |  |
+| `NOTESTOOL` | `True` |  |
 | `PACKAGESTOOL` | `True` |  |
 | `PIPELINESTOOL` | `True` |  |
 | `PIPELINE_SCHEDULESTOOL` | `True` |  |
 | `PROJECTSTOOL` | `True` |  |
 | `RELEASESTOOL` | `True` |  |
 | `RUNNERSTOOL` | `True` |  |
+| `SNIPPETSTOOL` | `True` |  |
 | `TAGSTOOL` | `True` |  |
 | `CUSTOM_APITOOL` | `True` |  |
 | `GRAPHQLTOOL` | `True` |  |
@@ -295,7 +502,7 @@ consumed from a **remote deployment**. The
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_33 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_40 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 
