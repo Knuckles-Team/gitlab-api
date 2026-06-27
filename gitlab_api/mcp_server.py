@@ -830,7 +830,7 @@ def register_projects_tools(mcp: FastMCP):
     @mcp.tool(tags={"projects"})
     async def gitlab_projects(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'get_nested_by_group', 'get_contributors', 'get_statistics', 'edit', 'share_with_group', 'unshare_with_group', 'archive', 'unarchive'"
+            description="Action to perform. Must be one of: 'get', 'create', 'delete', 'get_nested_by_group', 'get_contributors', 'get_statistics', 'edit', 'share_with_group', 'unshare_with_group', 'archive', 'unarchive'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -856,6 +856,8 @@ def register_projects_tools(mcp: FastMCP):
             action,
             {
                 "get",
+                "create",
+                "delete",
                 "get_nested_by_group",
                 "get_contributors",
                 "get_statistics",
@@ -875,6 +877,10 @@ def register_projects_tools(mcp: FastMCP):
             if "project_id" in kwargs or "id" in kwargs:
                 return await run_blocking(client.get_project, **kwargs)
             return await run_blocking(client.get_projects, **kwargs)
+        if action == "create":
+            return await run_blocking(client.create_project, **kwargs)
+        if action == "delete":
+            return await run_blocking(client.delete_project, **kwargs)
         if action == "get_nested_by_group":
             return await run_blocking(client.get_nested_projects_by_group, **kwargs)
         if action == "get_contributors":

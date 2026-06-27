@@ -880,6 +880,41 @@ class GitLabApiProjects(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
+    def create_project(self, **kwargs) -> Response:
+        """
+        Create a new project.
+
+        Args:
+            **kwargs: GitLab POST /projects body fields. Common: name (required
+                unless path given), path, namespace_id (group/user namespace),
+                visibility ('private'|'internal'|'public'), description,
+                initialize_with_readme. A flexible body is sent so any documented
+                create field is accepted (ProjectModel does not cover namespace_id).
+
+        Returns:
+            Response: A wrapper containing the original response and a Project model.
+
+        Raises:
+            MissingParameterError: If neither name nor path is provided.
+            ParameterError: If invalid parameters are provided.
+        """
+        if not kwargs.get("name") and not kwargs.get("path"):
+            raise MissingParameterError
+        body = {k: v for k, v in kwargs.items() if v is not None}
+        try:
+            response = self._session.post(
+                url=f"{self.url}/projects",
+                json=body,
+                headers=self.headers,
+                verify=self.verify,
+                proxies=self.proxies,
+            )
+            response.raise_for_status()
+            parsed_data = Project(**response.json())
+            return Response(response=response, data=parsed_data)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
+
     def edit_project(self, **kwargs) -> Response:
         """
         Edit a specific project.
