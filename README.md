@@ -328,21 +328,20 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ### MCP Configuration Examples
 
-> **Install the slim `[mcp]` extra.** All examples below install
-> `gitlab-api[mcp]` — the MCP-server extra that pulls only the FastMCP /
-> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
-> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
-> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
-> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
-> (see [Installation](#installation)).
+<!-- MCP-CONFIG-EXAMPLES:START -->
 
-#### stdio Transport (Recommended for local IDEs e.g., Cursor, Claude Desktop)
-Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
+> **Install the slim `[mcp]` extra.** All examples install `gitlab-api[mcp]` — the
+> MCP-server extra that pulls only the FastMCP / FastAPI tooling (`agent-utilities[mcp]`).
+> It deliberately **excludes** the heavy agent runtime (`pydantic-ai`, the epistemic-graph
+> engine, `dspy`, `llama-index`), so `uvx` / container installs are far smaller. Use the
+> full `[agent]` extra only when you need the integrated Pydantic AI agent.
+
+#### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
 
 ```json
 {
   "mcpServers": {
-    "gitlab-api": {
+    "gitlab-mcp": {
       "command": "uvx",
       "args": [
         "--from",
@@ -350,46 +349,103 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
         "gitlab-mcp"
       ],
       "env": {
-        "GITLAB_URL": "your_gitlab_url_here",
-        "GITLAB_TOKEN": "your_gitlab_token_here"
+        "MCP_TOOL_MODE": "condensed",
+        "BRANCHESTOOL": "True",
+        "COMMITSTOOL": "True",
+        "CUSTOM_APITOOL": "True",
+        "DEPLOY_TOKENSTOOL": "True",
+        "ENVIRONMENTSTOOL": "True",
+        "EPICSTOOL": "True",
+        "GITLAB_TOKEN": "your_gitlab_token_here",
+        "GITLAB_URL": "https://gitlab.example.com",
+        "GRAPHQLTOOL": "True",
+        "GROUPSTOOL": "True",
+        "ISSUESTOOL": "True",
+        "JOBSTOOL": "True",
+        "LABELSTOOL": "True",
+        "MEMBERSTOOL": "True",
+        "MERGE_REQUESTSTOOL": "True",
+        "MERGE_RULESTOOL": "True",
+        "MILESTONESTOOL": "True",
+        "MISCTOOL": "True",
+        "NOTESTOOL": "True",
+        "PACKAGESTOOL": "True",
+        "PIPELINESTOOL": "True",
+        "PIPELINE_SCHEDULESTOOL": "True",
+        "PROJECTSTOOL": "True",
+        "PROTECTED_BRANCHESTOOL": "True",
+        "RELEASESTOOL": "True",
+        "RUNNERSTOOL": "True",
+        "SNIPPETSTOOL": "True",
+        "TAGSTOOL": "True"
       }
     }
   }
 }
 ```
 
-#### Streamable-HTTP Transport (Recommended for production deployments)
-Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx` with explicit host and port definition:
+#### Streamable-HTTP Transport (networked / production)
 
 ```json
 {
   "mcpServers": {
-    "gitlab-api": {
+    "gitlab-mcp": {
       "command": "uvx",
       "args": [
         "--from",
         "gitlab-api[mcp]",
-        "gitlab-mcp"
+        "gitlab-mcp",
+        "--transport",
+        "streamable-http",
+        "--port",
+        "8000"
       ],
       "env": {
         "TRANSPORT": "streamable-http",
         "HOST": "0.0.0.0",
         "PORT": "8000",
-        "GITLAB_URL": "your_gitlab_url_here",
-        "GITLAB_TOKEN": "your_gitlab_token_here"
+        "MCP_TOOL_MODE": "condensed",
+        "BRANCHESTOOL": "True",
+        "COMMITSTOOL": "True",
+        "CUSTOM_APITOOL": "True",
+        "DEPLOY_TOKENSTOOL": "True",
+        "ENVIRONMENTSTOOL": "True",
+        "EPICSTOOL": "True",
+        "GITLAB_TOKEN": "your_gitlab_token_here",
+        "GITLAB_URL": "https://gitlab.example.com",
+        "GRAPHQLTOOL": "True",
+        "GROUPSTOOL": "True",
+        "ISSUESTOOL": "True",
+        "JOBSTOOL": "True",
+        "LABELSTOOL": "True",
+        "MEMBERSTOOL": "True",
+        "MERGE_REQUESTSTOOL": "True",
+        "MERGE_RULESTOOL": "True",
+        "MILESTONESTOOL": "True",
+        "MISCTOOL": "True",
+        "NOTESTOOL": "True",
+        "PACKAGESTOOL": "True",
+        "PIPELINESTOOL": "True",
+        "PIPELINE_SCHEDULESTOOL": "True",
+        "PROJECTSTOOL": "True",
+        "PROTECTED_BRANCHESTOOL": "True",
+        "RELEASESTOOL": "True",
+        "RUNNERSTOOL": "True",
+        "SNIPPETSTOOL": "True",
+        "TAGSTOOL": "True"
       }
     }
   }
 }
 ```
 
-Alternatively, connect to a pre-deployed remote or local Streamable-HTTP instance:
+Alternatively, connect to a pre-deployed Streamable-HTTP instance by `url`:
 
 ```json
 {
   "mcpServers": {
-    "gitlab-api": {
-      "url": "http://localhost:8000/gitlab-api/mcp"
+    "gitlab-mcp": {
+      "url": "http://localhost:8000/gitlab-mcp/mcp"
     }
   }
 }
@@ -399,23 +455,45 @@ Deploying the Streamable-HTTP server via Docker:
 
 ```bash
 docker run -d \
-  --name gitlab-api-mcp \
+  --name gitlab-mcp-mcp \
   -p 8000:8000 \
   -e TRANSPORT=streamable-http \
+  -e HOST=0.0.0.0 \
   -e PORT=8000 \
-  -e GITLAB_URL="your_value" \
-  -e GITLAB_TOKEN="your_value" \
+  -e MCP_TOOL_MODE=condensed \
+  -e BRANCHESTOOL=True \
+  -e COMMITSTOOL=True \
+  -e CUSTOM_APITOOL=True \
+  -e DEPLOY_TOKENSTOOL=True \
+  -e ENVIRONMENTSTOOL=True \
+  -e EPICSTOOL=True \
+  -e GITLAB_TOKEN=your_gitlab_token_here \
+  -e GITLAB_URL=https://gitlab.example.com \
+  -e GRAPHQLTOOL=True \
+  -e GROUPSTOOL=True \
+  -e ISSUESTOOL=True \
+  -e JOBSTOOL=True \
+  -e LABELSTOOL=True \
+  -e MEMBERSTOOL=True \
+  -e MERGE_REQUESTSTOOL=True \
+  -e MERGE_RULESTOOL=True \
+  -e MILESTONESTOOL=True \
+  -e MISCTOOL=True \
+  -e NOTESTOOL=True \
+  -e PACKAGESTOOL=True \
+  -e PIPELINESTOOL=True \
+  -e PIPELINE_SCHEDULESTOOL=True \
+  -e PROJECTSTOOL=True \
+  -e PROTECTED_BRANCHESTOOL=True \
+  -e RELEASESTOOL=True \
+  -e RUNNERSTOOL=True \
+  -e SNIPPETSTOOL=True \
+  -e TAGSTOOL=True \
   knucklessg1/gitlab-api:mcp
 ```
 
-> The `:mcp` tag is the **slim MCP-server image** (built from
-> `docker/Dockerfile --target mcp`, installing `gitlab-api[mcp]`). The default
-> `:latest` tag is the **full agent image** (`--target agent`, `gitlab-api[agent]`)
-> which also bundles the Pydantic AI agent and the epistemic-graph engine — use it
-> when you run `gitlab-agent` (the agent), not just the MCP server. See
-> [Container images](#container-images-mcp-vs-agent).
-
----
+_Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
+<!-- MCP-CONFIG-EXAMPLES:END -->
 
 <!-- BEGIN GENERATED: additional-deployment-options -->
 ### Additional Deployment Options
