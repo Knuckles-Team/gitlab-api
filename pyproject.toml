@@ -32,6 +32,12 @@ gitlab-agent = "gitlab_api.agent_server:agent_server"
 [project.entry-points."agent_utilities.skill_providers"]
 gitlab-api = "gitlab_api.skills"
 
+[project.entry-points."agent_utilities.ontology_providers"]
+gitlab-api = "gitlab_api.ontology"
+
+[project.entry-points."agent_utilities.source_connector_providers"]
+gitlab-api = "gitlab_api.connectors"
+
 [project.entry-points."agent_utilities.prompt_providers"]
 gitlab-api = "gitlab_api.prompts"
 
@@ -53,7 +59,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-gitlab_api = [ "mcp_config.json", "agent_data/**", "prompts/**", "skills/**",]
+gitlab_api = [ "mcp_config.json", "agent_data/**", "prompts/**", "skills/**", "ontology/**", "connectors/**",]
 
 [tool.ruff.lint]
 select = [ "E", "F", "I", "UP", "B",]

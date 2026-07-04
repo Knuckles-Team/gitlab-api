@@ -1,0 +1,152 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix : <http://knuckles.team/kg#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# GitLab DevOps ontology — projects, code review, and CI/CD delivery. All classes and
+# properties live in the shared `:` (kg#) namespace; only the owl:Ontology node gets the
+# per-package IRI. Backs the gitlab-api MCP tool surface (gitlab_projects / gitlab_merge_requests
+# / gitlab_pipelines / gitlab_issues / …).
+
+:GitLabGroup a owl:Class ;
+    rdfs:label "GitLab Group" ;
+    rdfs:comment "A namespace that owns projects and subgroups (gitlab_groups)." .
+
+:Project a owl:Class ;
+    rdfs:label "Project" ;
+    rdfs:comment "A GitLab project / repository (gitlab_projects)." .
+
+:MergeRequest a owl:Class ;
+    rdfs:label "Merge Request" ;
+    rdfs:comment "A proposed change under review, from a source to a target branch (gitlab_merge_requests)." .
+
+:Pipeline a owl:Class ;
+    rdfs:label "Pipeline" ;
+    rdfs:comment "A CI/CD pipeline run for a commit/ref (gitlab_pipelines)." .
+
+:Job a owl:Class ;
+    rdfs:label "Job" ;
+    rdfs:comment "A single stage/job within a pipeline (gitlab_jobs)." .
+
+:Issue a owl:Class ;
+    rdfs:label "Issue" ;
+    rdfs:comment "A tracked work item or defect (gitlab_issues)." .
+
+:Epic a owl:Class ;
+    rdfs:label "Epic" ;
+    rdfs:comment "A group-level container aggregating related issues (gitlab_epics)." .
+
+:Milestone a owl:Class ;
+    rdfs:label "Milestone" ;
+    rdfs:comment "A time-boxed delivery target grouping issues and merge requests (gitlab_milestones)." .
+
+:Commit a owl:Class ;
+    rdfs:label "Commit" ;
+    rdfs:comment "A git commit recorded in a project (gitlab_commits)." .
+
+:Branch a owl:Class ;
+    rdfs:label "Branch" ;
+    rdfs:comment "A named git branch within a project (gitlab_branches)." .
+
+:Release a owl:Class ;
+    rdfs:label "Release" ;
+    rdfs:comment "A tagged, published project release (gitlab_releases)." .
+
+:Runner a owl:Class ;
+    rdfs:label "Runner" ;
+    rdfs:comment "A CI runner that executes pipeline jobs (gitlab_runners)." .
+
+# --- links (owl:ObjectProperty) ---
+
+:belongsToProject a owl:ObjectProperty ;
+    rdfs:label "belongs to project" ;
+    rdfs:comment "Links a merge request, pipeline, issue, commit, or branch to its Project." ;
+    rdfs:range :Project .
+
+:partOfGroup a owl:ObjectProperty ;
+    rdfs:label "part of group" ;
+    rdfs:comment "Links a Project or Epic to its owning GitLabGroup." ;
+    rdfs:domain :Project ;
+    rdfs:range :GitLabGroup .
+
+:targetsBranch a owl:ObjectProperty ;
+    rdfs:label "targets branch" ;
+    rdfs:comment "Links a MergeRequest to the Branch it merges into." ;
+    rdfs:domain :MergeRequest ;
+    rdfs:range :Branch .
+
+:triggeredPipeline a owl:ObjectProperty ;
+    rdfs:label "triggered pipeline" ;
+    rdfs:comment "Links a Commit or MergeRequest to a Pipeline it started." ;
+    rdfs:range :Pipeline .
+
+:hasJob a owl:ObjectProperty ;
+    rdfs:label "has job" ;
+    rdfs:comment "Links a Pipeline to a Job it contains." ;
+    rdfs:domain :Pipeline ;
+    rdfs:range :Job .
+
+:ranOnRunner a owl:ObjectProperty ;
+    rdfs:label "ran on runner" ;
+    rdfs:comment "Links a Job to the Runner that executed it." ;
+    rdfs:domain :Job ;
+    rdfs:range :Runner .
+
+:closesIssue a owl:ObjectProperty ;
+    rdfs:label "closes issue" ;
+    rdfs:comment "Links a MergeRequest to an Issue it resolves." ;
+    rdfs:domain :MergeRequest ;
+    rdfs:range :Issue .
+
+:hasMilestone a owl:ObjectProperty ;
+    rdfs:label "has milestone" ;
+    rdfs:comment "Links an Issue or MergeRequest to its Milestone." ;
+    rdfs:range :Milestone .
+
+:authoredBy a owl:ObjectProperty ;
+    rdfs:label "authored by" ;
+    rdfs:comment "Links a MergeRequest, Issue, or Commit to the Person who created it." ;
+    rdfs:range :Person .
+
+# --- fields (owl:DatatypeProperty) ---
+
+:iid a owl:DatatypeProperty ;
+    rdfs:label "internal id" ;
+    rdfs:comment "Project-scoped internal id of a MergeRequest, Issue, or Epic (e.g. !42, #17)." ;
+    rdfs:range xsd:string .
+
+:webUrl a owl:DatatypeProperty ;
+    rdfs:label "web url" ;
+    rdfs:comment "Canonical GitLab web URL of the object." ;
+    rdfs:range xsd:string .
+
+:state a owl:DatatypeProperty ;
+    rdfs:label "state" ;
+    rdfs:comment "Lifecycle state (opened, closed, merged, locked)." ;
+    rdfs:range xsd:string .
+
+:pipelineStatus a owl:DatatypeProperty ;
+    rdfs:label "pipeline status" ;
+    rdfs:comment "Result status of a Pipeline or Job (success, failed, running, canceled)." ;
+    rdfs:range xsd:string .
+
+:ref a owl:DatatypeProperty ;
+    rdfs:label "ref" ;
+    rdfs:comment "Git ref (branch or tag) a Pipeline or Release was built from." ;
+    rdfs:range xsd:string .
+
+:sha a owl:DatatypeProperty ;
+    rdfs:label "sha" ;
+    rdfs:comment "Full git commit SHA." ;
+    rdfs:range xsd:string .
+
+<http://knuckles.team/kg/gitlab> a owl:Ontology ;
+    rdfs:label "GitLab DevOps Ontology" ;
+    rdfs:comment """GitLab source-control and CI/CD delivery model — groups, projects,
+    merge requests, pipelines, jobs, issues, epics, milestones, commits, branches,
+    releases and runners, with their review and delivery relationships — federated into
+    the agent-utilities knowledge-graph hub.""" ;
+    owl:imports <http://knuckles.team/kg> .
