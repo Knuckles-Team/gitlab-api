@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 def _resolve_connection(
     instance: str | None, token: str | None, verify: bool | None
 ) -> tuple[str, str | None, bool]:
-    """Resolve ``(url, token, verify)`` for a target tenant (CONCEPT:KG-2.9g).
+    """Resolve ``(url, token, verify)`` for a target tenant (CONCEPT:AU-KG.backend.declared-columns-so-schema).
 
     ``instance`` may be a configured instance NAME (resolved from the shared
     ``gitlab_instances`` config), a bare URL (used as-is, back-compat), or ``None``
@@ -71,7 +71,7 @@ def get_client(
 ) -> Api:
     """Factory function to create the GitLab Api client.
 
-    Multi-tenant (CONCEPT:KG-2.9g): ``instance`` selects a configured tenant by
+    Multi-tenant (CONCEPT:AU-KG.backend.declared-columns-so-schema): ``instance`` selects a configured tenant by
     name (from the shared ``gitlab_instances`` config), accepts a bare URL, or
     defaults to the first configured instance / ``GITLAB_URL``. Supports OIDC
     delegation and fixed credentials (token) via the shared ``delegated_auth``
@@ -132,7 +132,7 @@ def get_graphql_client(
 ) -> Any:
     """Factory function to create the GitLab GraphQL client.
 
-    Multi-tenant (CONCEPT:KG-2.9g): ``instance`` selects a configured tenant by
+    Multi-tenant (CONCEPT:AU-KG.backend.declared-columns-so-schema): ``instance`` selects a configured tenant by
     name, a bare URL, or the default. Supports OIDC delegation and fixed
     credentials (token).
     """

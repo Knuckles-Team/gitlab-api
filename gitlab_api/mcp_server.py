@@ -58,7 +58,7 @@ def register_misc_tools(mcp: FastMCP):
         name: str = Field(default="", description="Instance name for action='get'."),
         ctx: Context | None = None,
     ) -> Any:
-        """List the configured GitLab tenants (CONCEPT:KG-2.9g).
+        """List the configured GitLab tenants (CONCEPT:AU-KG.backend.declared-columns-so-schema).
 
         Multi-tenancy is driven by the shared agent-utilities XDG config
         (``gitlab_instances`` in ~/.config/agent-utilities/config.json). Every

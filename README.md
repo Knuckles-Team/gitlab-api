@@ -83,7 +83,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_epics` | `EPICSTOOL` | Manage GitLab epics. |
 | `gitlab_graphql` | `GRAPHQLTOOL` | Execute raw GraphQL queries and mutations natively on GitLab. |
 | `gitlab_groups` | `GROUPSTOOL` | Manage gitlab groups operations. |
-| `gitlab_instances` | `MISCTOOL` | List the configured GitLab tenants (CONCEPT:KG-2.9g). |
+| `gitlab_instances` | `MISCTOOL` | List the configured GitLab tenants (CONCEPT:AU-KG.backend.declared-columns-so-schema). |
 | `gitlab_issues` | `ISSUESTOOL` | Manage GitLab issues. |
 | `gitlab_jobs` | `JOBSTOOL` | Manage gitlab jobs operations. |
 | `gitlab_labels` | `LABELSTOOL` | Manage GitLab labels. |

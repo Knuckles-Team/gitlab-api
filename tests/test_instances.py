@@ -1,4 +1,4 @@
-"""Multi-tenant GitLab instance registry + resolution (CONCEPT:KG-2.9g)."""
+"""Multi-tenant GitLab instance registry + resolution (CONCEPT:AU-KG.backend.declared-columns-so-schema)."""
 
 from types import SimpleNamespace
 
