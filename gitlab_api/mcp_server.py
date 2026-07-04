@@ -80,6 +80,38 @@ def register_misc_tools(mcp: FastMCP):
             }
         return {"instances": instance_summaries()}
 
+    @mcp.tool(tags={"misc", "kg"})
+    async def gitlab_ingest_projects(
+        params_json: str = Field(
+            default="{}",
+            description="JSON string of get_projects filters (e.g. membership, per_page).",
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = None,
+    ) -> Any:
+        """Natively ingest GitLab projects into epistemic-graph as typed :Project nodes.
+
+        Lists projects via the GitLab API and pushes them (with their :GitLabGroup +
+        :partOfGroup links) into the knowledge graph via the fast engine client.
+        Best-effort: returns ``{"ingested": None}`` when no engine is reachable.
+        CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        """
+        import json as _json
+
+        from gitlab_api.kg_ingest import ingest_projects
+
+        kwargs = _json.loads(params_json) if params_json else {}
+        resp = await run_blocking(client.get_projects, **kwargs)
+        data = getattr(resp, "data", resp)
+        records = data if isinstance(data, list) else [data]
+        projects = [
+            r.model_dump() if hasattr(r, "model_dump") else r
+            for r in records
+            if r is not None
+        ]
+        result = ingest_projects(projects)
+        return {"listed": len(projects), "ingested": result}
+
     return None
 
 
