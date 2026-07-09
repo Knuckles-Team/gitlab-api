@@ -18,6 +18,7 @@ from gitlab_api.api.api_client_projects import GitLabApiProjects
 from gitlab_api.api.api_client_repositories import GitLabApiRepositories
 from gitlab_api.api.api_client_system import GitLabApiSystem
 from gitlab_api.api.api_client_users_groups import GitLabApiUsersGroups
+from gitlab_api.api.api_client_vulnerabilities import GitLabApiVulnerabilities
 
 
 class Api(
@@ -29,6 +30,7 @@ class Api(
     GitLabApiPipelines,
     GitLabApiUsersGroups,
     GitLabApiEnvironments,
+    GitLabApiVulnerabilities,
     GitLabApiOther,
 ):
     __slots__ = ()

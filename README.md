@@ -105,12 +105,13 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_snippets` | `SNIPPETSTOOL` | Manage GitLab snippets. |
 | `gitlab_tags` | `TAGSTOOL` | Manage gitlab tags operations. |
 | `gitlab_users` | `USERSTOOL` | Manage gitlab users operations. |
+| `gitlab_vulnerabilities` | `VULNERABILITIESTOOL` | Review a project's dependency list and security vulnerabilities (the GitLab counterpart to GitHub Dependabot). |
 | `gitlab_wiki` | `WIKITOOL` | Manage gitlab wiki operations. |
 
 #### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
 
 <details>
-<summary>192 per-operation tools — one per public API method (click to expand)</summary>
+<summary>196 per-operation tools — one per public API method (click to expand)</summary>
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
@@ -204,6 +205,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_get_group_releases` | `USERS_GROUPSTOOL` | Get information about releases in a group. |
 | `gitlab_get_group_runners` | `PIPELINESTOOL` | Get information about runners in a group. |
 | `gitlab_get_group_subgroups` | `USERS_GROUPSTOOL` | Get subgroups of a specific group. |
+| `gitlab_get_group_vulnerabilities` | `VULNERABILITIESTOOL` | Get a group's security vulnerability findings (Ultimate). |
 | `gitlab_get_groups` | `USERS_GROUPSTOOL` | Get a list of groups. |
 | `gitlab_get_issue` | `ISSUESTOOL` | Get a single issue. |
 | `gitlab_get_issues` | `ISSUESTOOL` | Get list of issues. Can filter by project_id. |
@@ -229,6 +231,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_get_pipelines_triggered_from_schedule` | `PIPELINESTOOL` | Get pipelines triggered from a specific pipeline schedule. |
 | `gitlab_get_project` | `PROJECTSTOOL` | Get information about a specific project. |
 | `gitlab_get_project_contributors` | `PROJECTSTOOL` | Get information about contributors to a project. |
+| `gitlab_get_project_dependencies` | `VULNERABILITIESTOOL` | Get a project's Dependency List (all detected dependencies). |
 | `gitlab_get_project_deploy_token` | `PROJECTSTOOL` | Get a specific deploy token for a project. |
 | `gitlab_get_project_deploy_tokens` | `PROJECTSTOOL` | Get deploy tokens for a specific project. |
 | `gitlab_get_project_groups` | `PROJECTSTOOL` | Get groups associated with a specific project. |
@@ -243,6 +246,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_get_project_merge_requests` | `PROJECTSTOOL` | Get merge requests for a specific project. |
 | `gitlab_get_project_runners` | `PROJECTSTOOL` | Get information about runners in a project. |
 | `gitlab_get_project_statistics` | `PROJECTSTOOL` | Get statistics for a specific project. |
+| `gitlab_get_project_vulnerabilities` | `VULNERABILITIESTOOL` | Get a project's security vulnerabilities (Ultimate). |
 | `gitlab_get_projects` | `PROJECTSTOOL` | Get information about projects. |
 | `gitlab_get_protected_branch` | `REPOSITORIESTOOL` | Get information about a specific protected branch in a project. |
 | `gitlab_get_protected_branches` | `REPOSITORIESTOOL` | Get information about protected branches in a project. |
@@ -262,6 +266,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_get_tags` | `REPOSITORIESTOOL` | Get information about tags in a project. |
 | `gitlab_get_user` | `USERS_GROUPSTOOL` | Get information about a specific user. |
 | `gitlab_get_users` | `USERS_GROUPSTOOL` | Get information about users. |
+| `gitlab_get_vulnerability` | `VULNERABILITIESTOOL` | Get a single vulnerability by its global ID (Ultimate). |
 | `gitlab_get_wiki_list` | `OTHERTOOL` | Get a list of wiki pages for a project. |
 | `gitlab_get_wiki_page` | `OTHERTOOL` | Get information about a specific wiki page. |
 | `gitlab_merge_request_level_approvals` | `MERGE_REQUESTSTOOL` | Get approvals for a specific merge request. |
@@ -309,7 +314,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 </details>
 
-_32 action-routed tool(s) (default) · 192 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_33 action-routed tool(s) (default) · 196 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
@@ -390,6 +395,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "SNIPPETSTOOL": "True",
         "TAGSTOOL": "True",
         "USERSTOOL": "True",
+        "VULNERABILITIESTOOL": "True",
         "WIKITOOL": "True"
       }
     }
@@ -449,6 +455,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "SNIPPETSTOOL": "True",
         "TAGSTOOL": "True",
         "USERSTOOL": "True",
+        "VULNERABILITIESTOOL": "True",
         "WIKITOOL": "True"
       }
     }
@@ -509,6 +516,7 @@ docker run -d \
   -e SNIPPETSTOOL=True \
   -e TAGSTOOL=True \
   -e USERSTOOL=True \
+  -e VULNERABILITIESTOOL=True \
   -e WIKITOOL=True \
   knucklessg1/gitlab-api:mcp
 ```
@@ -581,6 +589,7 @@ consumed from a **remote deployment**. The
 | `SNIPPETSTOOL` | `True` |  |
 | `TAGSTOOL` | `True` |  |
 | `USERSTOOL` | `True` |  |
+| `VULNERABILITIESTOOL` | `True` |  |
 | `WIKITOOL` | `True` |  |
 | `CUSTOM_APITOOL` | `True` |  |
 | `GRAPHQLTOOL` | `True` |  |
@@ -605,7 +614,7 @@ consumed from a **remote deployment**. The
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_44 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_45 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 

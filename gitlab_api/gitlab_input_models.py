@@ -3442,6 +3442,69 @@ class NoteModel(BaseModel):
         return values
 
 
+class VulnerabilityModel(BaseModel):
+    """
+    Pydantic model for the dependency list / security vulnerability surface
+    (the GitLab counterpart to GitHub Dependabot).
+
+    Attributes:
+    - project_id (int | str): Project ID or full path (dependencies / project vulnerabilities).
+    - group_id (int | str): Group ID or full path (group vulnerability findings).
+    - vulnerability_id (int | str): ID of a single vulnerability (global endpoint).
+    - package_manager (str): Optional Dependency List filter (e.g. 'bundler', 'npm').
+    """
+
+    project_id: int | str | None = Field(
+        default=None, description="Project ID or full path"
+    )
+    group_id: int | str | None = Field(
+        default=None, description="Group ID or full path"
+    )
+    vulnerability_id: int | str | None = Field(
+        default=None, description="ID of a single vulnerability"
+    )
+    package_manager: str | None = Field(
+        default=None,
+        description="Dependency List filter by package manager (e.g. 'npm', 'bundler')",
+    )
+    max_pages: int | None = Field(description="Maximum pages to return", default=None)
+    per_page: int | None = Field(description="Results per page", default=None)
+    page: int | None = Field(description="Pagination page", default=None)
+    api_parameters: dict | None = Field(description="API Parameters", default=None)
+    data: dict | None = Field(description="Data Payload", default=None)
+
+    def model_post_init(self, _context):
+        self.api_parameters = {}
+        if self.package_manager:
+            self.api_parameters["package_manager"] = self.package_manager
+        if self.page:
+            self.api_parameters["page"] = self.page
+        if self.per_page:
+            self.api_parameters["per_page"] = self.per_page
+
+    @field_validator("project_id")
+    def validate_project_id(cls, v):
+        if v is None:
+            return v
+        if not str(v).strip():
+            raise ValueError("Project ID or path cannot be empty")
+        return str(v).strip("'\"")
+
+    @field_validator("group_id")
+    def validate_group_id(cls, v):
+        if v is None:
+            return v
+        if not str(v).strip():
+            raise ValueError("Group ID or path cannot be empty")
+        return str(v).strip("'\"")
+
+    @field_validator("vulnerability_id")
+    def validate_vulnerability_id(cls, v):
+        if v is None:
+            return v
+        return str(v).strip("'\"")
+
+
 class EpicModel(BaseModel):
     group_id: int | str | None = Field(
         default=None, description="Group ID or full path"

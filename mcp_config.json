@@ -39,6 +39,7 @@
         "SNIPPETSTOOL": "True",
         "TAGSTOOL": "True",
         "USERSTOOL": "True",
+        "VULNERABILITIESTOOL": "True",
         "WIKITOOL": "True"
       }
     }

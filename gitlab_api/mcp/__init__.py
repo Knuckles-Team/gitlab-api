@@ -33,6 +33,7 @@ from gitlab_api.mcp.mcp_runners import register_runners_tools
 from gitlab_api.mcp.mcp_snippets import register_snippets_tools
 from gitlab_api.mcp.mcp_tags import register_tags_tools
 from gitlab_api.mcp.mcp_users import register_users_tools
+from gitlab_api.mcp.mcp_vulnerabilities import register_vulnerabilities_tools
 from gitlab_api.mcp.mcp_wiki import register_wiki_tools
 
 __all__ = [
@@ -65,5 +66,6 @@ __all__ = [
     "register_snippets_tools",
     "register_tags_tools",
     "register_users_tools",
+    "register_vulnerabilities_tools",
     "register_wiki_tools",
 ]
