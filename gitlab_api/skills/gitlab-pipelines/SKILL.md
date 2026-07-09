@@ -1,5 +1,6 @@
 ---
 name: gitlab-pipelines
+skill_type: skill
 description: >-
   CI/CD pipeline review on GitLab via the gitlab-api MCP server — review pipeline results for a
   project, a group, or the whole instance, drill into the CI jobs of a pipeline, and read a

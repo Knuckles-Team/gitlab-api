@@ -1,5 +1,6 @@
 ---
 name: gitlab-issues
+skill_type: skill
 description: >-
   Issue review and tracking on GitLab via the gitlab-api MCP server — review a project's issues,
   review issues across a whole group/organization, and read, create, update, or close an issue

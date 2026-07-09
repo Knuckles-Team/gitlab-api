@@ -1,5 +1,6 @@
 ---
 name: gitlab-merge-request-create
+skill_type: skill
 description: >-
   Open a new GitLab merge request against a project via the gitlab-api MCP server — from a
   source branch into a target branch, with title, description, assignees, reviewers, labels,

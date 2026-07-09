@@ -1,5 +1,6 @@
 ---
 name: gitlab-merge-request-review
+skill_type: skill
 description: >-
   Review and merge GitLab merge requests via the gitlab-api MCP server — by default the MRs
   assigned to you or where you are a reviewer, optionally scoped to a project, group, or the
