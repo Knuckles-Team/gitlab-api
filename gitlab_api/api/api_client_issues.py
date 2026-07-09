@@ -77,6 +77,36 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
+    def get_group_issues(self, **kwargs) -> Response:
+        """
+        Get the list of issues for a group (and, by default, its subgroups).
+
+        Args:
+            **kwargs: group_id (required) plus optional filters (state, labels,
+                assignee_username, milestone, search, order_by, ...).
+
+        Returns:
+            Response: A wrapper containing the original response and a list of Issue models.
+
+        Raises:
+            MissingParameterError: If the group_id is missing.
+            ParameterError: If invalid parameters are provided.
+        """
+        issue = IssueModel(**kwargs)
+        if issue.group_id is None:
+            raise MissingParameterError("Missing required parameter: group_id")
+        try:
+            response, data = self._fetch_all_pages(
+                endpoint=f"/groups/{issue.group_id}/issues",
+                model=issue,
+                id_field=None,
+                id_value=None,
+            )
+            parsed_data = [Issue(**item) for item in data]
+            return Response(response=response, data=parsed_data)
+        except ValidationError as e:
+            raise ParameterError(f"Invalid parameters: {e.errors()}") from e
+
     def get_issue(self, **kwargs) -> Response:
         """
         Get a single issue.

@@ -17,7 +17,7 @@ def register_commits_tools(mcp: FastMCP):
     @mcp.tool(tags={"commits"})
     async def gitlab_commits(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'create', 'diff', 'revert', 'get_comments', 'create_comment', 'get_discussions', 'get_statuses', 'post_status', 'get_merge_requests', 'get_gpg_signature'"
+            description="Action to perform. Must be one of: 'get', 'create', 'diff', 'revert', 'get_comments', 'create_comment', 'get_discussions', 'get_statuses', 'post_status', 'get_merge_requests', 'get_gpg_signature', 'cherry_pick', 'get_references'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -53,6 +53,8 @@ def register_commits_tools(mcp: FastMCP):
                 "post_status",
                 "get_merge_requests",
                 "get_gpg_signature",
+                "cherry_pick",
+                "get_references",
             },
             service="gitlab-api",
         )
@@ -84,4 +86,8 @@ def register_commits_tools(mcp: FastMCP):
             return await run_blocking(client.get_commit_merge_requests, **kwargs)
         if action == "get_gpg_signature":
             return await run_blocking(client.get_commit_gpg_signature, **kwargs)
+        if action == "cherry_pick":
+            return await run_blocking(client.cherry_pick_commit, **kwargs)
+        if action == "get_references":
+            return await run_blocking(client.get_commit_references, **kwargs)
         raise ValueError(f"Unknown action: {action}")

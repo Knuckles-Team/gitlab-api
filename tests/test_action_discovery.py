@@ -37,7 +37,7 @@ async def test_list_actions_returns_names():
     )
     assert isinstance(result, dict)
     assert result["service"] == "gitlab-api"
-    assert set(result["actions"]) == {"get", "create", "delete"}
+    assert set(result["actions"]) == {"get", "create", "delete", "delete_merged"}
 
 
 @pytest.mark.asyncio

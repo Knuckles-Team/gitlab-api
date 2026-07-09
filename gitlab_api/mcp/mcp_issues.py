@@ -17,7 +17,7 @@ def register_issues_tools(mcp: FastMCP):
     @mcp.tool(tags={"issues"})
     async def gitlab_issues(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'create', 'update', 'delete'"
+            description="Action to perform. Must be one of: 'get', 'create', 'update', 'delete', 'get_group'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -40,7 +40,9 @@ def register_issues_tools(mcp: FastMCP):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resolved = resolve_action(
-            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+            action,
+            {"get", "create", "update", "delete", "get_group"},
+            service="gitlab-api",
         )
         if isinstance(resolved, dict):
             return resolved
@@ -56,4 +58,6 @@ def register_issues_tools(mcp: FastMCP):
             return await run_blocking(client.update_issue, **kwargs)
         if action == "delete":
             return await run_blocking(client.delete_issue, **kwargs)
+        if action == "get_group":
+            return await run_blocking(client.get_group_issues, **kwargs)
         raise ValueError(f"Unknown action: {action}")

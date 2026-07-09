@@ -487,6 +487,10 @@ class IssueModel(BaseModel):
     project_id: int | str | None = Field(
         default=None, description="Project ID or full path"
     )
+    group_id: int | str | None = Field(
+        default=None,
+        description="Group ID or full path (for group-scoped issue listing)",
+    )
     title: str | None = Field(default=None, description="Title of the issue")
     description: str | None = Field(
         default=None, description="Description of the issue"

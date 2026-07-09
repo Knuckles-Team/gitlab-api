@@ -17,7 +17,7 @@ def register_projects_tools(mcp: FastMCP):
     @mcp.tool(tags={"projects"})
     async def gitlab_projects(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'create', 'delete', 'archive', 'unarchive', 'get_nested_by_group', 'get_contributors', 'get_statistics', 'edit', 'share_with_group', 'unshare_with_group'"
+            description="Action to perform. Must be one of: 'get', 'create', 'delete', 'archive', 'unarchive', 'get_nested_by_group', 'get_contributors', 'get_statistics', 'edit', 'share_with_group', 'unshare_with_group', 'get_project_groups'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -53,6 +53,7 @@ def register_projects_tools(mcp: FastMCP):
                 "edit",
                 "share_with_group",
                 "unshare_with_group",
+                "get_project_groups",
             },
             service="gitlab-api",
         )
@@ -84,4 +85,6 @@ def register_projects_tools(mcp: FastMCP):
             return await run_blocking(client.share_project, **kwargs)
         if action == "unshare_with_group":
             return await run_blocking(client.delete_shared_project_link, **kwargs)
+        if action == "get_project_groups":
+            return await run_blocking(client.get_project_groups, **kwargs)
         raise ValueError(f"Unknown action: {action}")

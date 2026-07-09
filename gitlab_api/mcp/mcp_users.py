@@ -1,4 +1,4 @@
-"""MCP tools for protected branches operations.
+"""MCP tools for users operations.
 
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
@@ -13,11 +13,11 @@ from pydantic import Field
 from gitlab_api.auth import get_client
 
 
-def register_protected_branches_tools(mcp: FastMCP):
-    @mcp.tool(tags={"protected_branches"})
-    async def gitlab_protected_branches(
+def register_users_tools(mcp: FastMCP):
+    @mcp.tool(tags={"users"})
+    async def gitlab_users(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'protect', 'unprotect', 'require_code_owner_approvals'"
+            description="Action to perform. Must be one of: 'get', 'get_user', 'create', 'update', 'delete'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -27,7 +27,7 @@ def register_protected_branches_tools(mcp: FastMCP):
             default=None, description="MCP context for progress reporting"
         ),
     ) -> Any:
-        """Manage gitlab protected branches operations."""
+        """Manage gitlab users operations."""
         if ctx:
             await ctx.info("Executing tool...")
         import json
@@ -41,7 +41,7 @@ def register_protected_branches_tools(mcp: FastMCP):
 
         resolved = resolve_action(
             action,
-            {"get", "protect", "unprotect", "require_code_owner_approvals"},
+            {"get", "get_user", "create", "update", "delete"},
             service="gitlab-api",
         )
         if isinstance(resolved, dict):
@@ -49,15 +49,13 @@ def register_protected_branches_tools(mcp: FastMCP):
         action = resolved
 
         if action == "get":
-            if "branch" in kwargs:
-                return await run_blocking(client.get_protected_branch, **kwargs)
-            return await run_blocking(client.get_protected_branches, **kwargs)
-        if action == "protect":
-            return await run_blocking(client.protect_branch, **kwargs)
-        if action == "unprotect":
-            return await run_blocking(client.unprotect_branch, **kwargs)
-        if action == "require_code_owner_approvals":
-            return await run_blocking(
-                client.require_code_owner_approvals_single_branch, **kwargs
-            )
+            return await run_blocking(client.get_users, **kwargs)
+        if action == "get_user":
+            return await run_blocking(client.get_user, **kwargs)
+        if action == "create":
+            return await run_blocking(client.create_user, **kwargs)
+        if action == "update":
+            return await run_blocking(client.update_user, **kwargs)
+        if action == "delete":
+            return await run_blocking(client.delete_user, **kwargs)
         raise ValueError(f"Unknown action: {action}")

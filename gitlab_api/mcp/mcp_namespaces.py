@@ -1,4 +1,4 @@
-"""MCP tools for protected branches operations.
+"""MCP tools for namespaces operations.
 
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
@@ -13,11 +13,11 @@ from pydantic import Field
 from gitlab_api.auth import get_client
 
 
-def register_protected_branches_tools(mcp: FastMCP):
-    @mcp.tool(tags={"protected_branches"})
-    async def gitlab_protected_branches(
+def register_namespaces_tools(mcp: FastMCP):
+    @mcp.tool(tags={"namespaces"})
+    async def gitlab_namespaces(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'protect', 'unprotect', 'require_code_owner_approvals'"
+            description="Action to perform. Must be one of: 'get', 'get_namespace'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -27,7 +27,7 @@ def register_protected_branches_tools(mcp: FastMCP):
             default=None, description="MCP context for progress reporting"
         ),
     ) -> Any:
-        """Manage gitlab protected branches operations."""
+        """Manage gitlab namespaces operations."""
         if ctx:
             await ctx.info("Executing tool...")
         import json
@@ -40,24 +40,14 @@ def register_protected_branches_tools(mcp: FastMCP):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resolved = resolve_action(
-            action,
-            {"get", "protect", "unprotect", "require_code_owner_approvals"},
-            service="gitlab-api",
+            action, {"get", "get_namespace"}, service="gitlab-api"
         )
         if isinstance(resolved, dict):
             return resolved
         action = resolved
 
         if action == "get":
-            if "branch" in kwargs:
-                return await run_blocking(client.get_protected_branch, **kwargs)
-            return await run_blocking(client.get_protected_branches, **kwargs)
-        if action == "protect":
-            return await run_blocking(client.protect_branch, **kwargs)
-        if action == "unprotect":
-            return await run_blocking(client.unprotect_branch, **kwargs)
-        if action == "require_code_owner_approvals":
-            return await run_blocking(
-                client.require_code_owner_approvals_single_branch, **kwargs
-            )
+            return await run_blocking(client.get_namespaces, **kwargs)
+        if action == "get_namespace":
+            return await run_blocking(client.get_namespace, **kwargs)
         raise ValueError(f"Unknown action: {action}")

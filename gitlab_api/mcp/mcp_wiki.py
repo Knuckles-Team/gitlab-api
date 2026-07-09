@@ -1,4 +1,4 @@
-"""MCP tools for protected branches operations.
+"""MCP tools for wiki operations.
 
 Auto-generated from mcp_server.py during ecosystem standardization.
 """
@@ -13,11 +13,11 @@ from pydantic import Field
 from gitlab_api.auth import get_client
 
 
-def register_protected_branches_tools(mcp: FastMCP):
-    @mcp.tool(tags={"protected_branches"})
-    async def gitlab_protected_branches(
+def register_wiki_tools(mcp: FastMCP):
+    @mcp.tool(tags={"wiki"})
+    async def gitlab_wiki(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'protect', 'unprotect', 'require_code_owner_approvals'"
+            description="Action to perform. Must be one of: 'get_list', 'get', 'create', 'update', 'delete', 'upload_attachment'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -27,7 +27,7 @@ def register_protected_branches_tools(mcp: FastMCP):
             default=None, description="MCP context for progress reporting"
         ),
     ) -> Any:
-        """Manage gitlab protected branches operations."""
+        """Manage gitlab wiki operations."""
         if ctx:
             await ctx.info("Executing tool...")
         import json
@@ -41,23 +41,23 @@ def register_protected_branches_tools(mcp: FastMCP):
 
         resolved = resolve_action(
             action,
-            {"get", "protect", "unprotect", "require_code_owner_approvals"},
+            {"get_list", "get", "create", "update", "delete", "upload_attachment"},
             service="gitlab-api",
         )
         if isinstance(resolved, dict):
             return resolved
         action = resolved
 
+        if action == "get_list":
+            return await run_blocking(client.get_wiki_list, **kwargs)
         if action == "get":
-            if "branch" in kwargs:
-                return await run_blocking(client.get_protected_branch, **kwargs)
-            return await run_blocking(client.get_protected_branches, **kwargs)
-        if action == "protect":
-            return await run_blocking(client.protect_branch, **kwargs)
-        if action == "unprotect":
-            return await run_blocking(client.unprotect_branch, **kwargs)
-        if action == "require_code_owner_approvals":
-            return await run_blocking(
-                client.require_code_owner_approvals_single_branch, **kwargs
-            )
+            return await run_blocking(client.get_wiki_page, **kwargs)
+        if action == "create":
+            return await run_blocking(client.create_wiki_page, **kwargs)
+        if action == "update":
+            return await run_blocking(client.update_wiki_page, **kwargs)
+        if action == "delete":
+            return await run_blocking(client.delete_wiki_page, **kwargs)
+        if action == "upload_attachment":
+            return await run_blocking(client.upload_wiki_page_attachment, **kwargs)
         raise ValueError(f"Unknown action: {action}")

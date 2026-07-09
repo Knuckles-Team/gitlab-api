@@ -82,7 +82,9 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_environments` | `ENVIRONMENTSTOOL` | Manage gitlab environments operations. |
 | `gitlab_epics` | `EPICSTOOL` | Manage GitLab epics. |
 | `gitlab_graphql` | `GRAPHQLTOOL` | Execute raw GraphQL queries and mutations natively on GitLab. |
+| `gitlab_graphql_ops` | `GRAPHQL_OPSTOOL` | Run a typed GitLab GraphQL operation by name. |
 | `gitlab_groups` | `GROUPSTOOL` | Manage gitlab groups operations. |
+| `gitlab_ingest_projects` | `MISCTOOL` | Natively ingest GitLab projects into epistemic-graph as typed :Project nodes. |
 | `gitlab_instances` | `MISCTOOL` | List the configured GitLab tenants (CONCEPT:AU-KG.backend.declared-columns-so-schema). |
 | `gitlab_issues` | `ISSUESTOOL` | Manage GitLab issues. |
 | `gitlab_jobs` | `JOBSTOOL` | Manage gitlab jobs operations. |
@@ -91,6 +93,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_merge_requests` | `MERGE_REQUESTSTOOL` | Manage gitlab merge requests operations. |
 | `gitlab_merge_rules` | `MERGE_RULESTOOL` | Manage gitlab merge rules operations. |
 | `gitlab_milestones` | `MILESTONESTOOL` | Manage GitLab milestones. |
+| `gitlab_namespaces` | `NAMESPACESTOOL` | Manage gitlab namespaces operations. |
 | `gitlab_notes` | `NOTESTOOL` | Manage GitLab notes/comments on issues, merge requests, commits, and epics. |
 | `gitlab_packages` | `PACKAGESTOOL` | Manage gitlab packages operations. |
 | `gitlab_pipeline_schedules` | `PIPELINE_SCHEDULESTOOL` | Manage gitlab pipeline schedules operations. |
@@ -101,17 +104,21 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_runners` | `RUNNERSTOOL` | Manage gitlab runners operations. |
 | `gitlab_snippets` | `SNIPPETSTOOL` | Manage GitLab snippets. |
 | `gitlab_tags` | `TAGSTOOL` | Manage gitlab tags operations. |
+| `gitlab_users` | `USERSTOOL` | Manage gitlab users operations. |
+| `gitlab_wiki` | `WIKITOOL` | Manage gitlab wiki operations. |
 
 #### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
 
 <details>
-<summary>188 per-operation tools — one per public API method (click to expand)</summary>
+<summary>192 per-operation tools — one per public API method (click to expand)</summary>
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
+| `gitlab_accept_merge_request` | `MERGE_REQUESTSTOOL` | Accept (merge) a merge request. |
 | `gitlab_api_request` | `SYSTEMTOOL` | Make a custom API request to the GitLab server. |
 | `gitlab_approve_merge_request` | `MERGE_REQUESTSTOOL` | Approve a specific merge request. |
 | `gitlab_archive_project` | `PROJECTSTOOL` | Archive a specific project. |
+| `gitlab_cancel_merge_when_pipeline_succeeds` | `MERGE_REQUESTSTOOL` | Cancel a merge request's queued "merge when pipeline succeeds" (auto-merge). |
 | `gitlab_cancel_project_job` | `PROJECTSTOOL` | Cancel a specific job within a project. |
 | `gitlab_cherry_pick_commit` | `REPOSITORIESTOOL` | Cherry-pick a commit into a new branch. |
 | `gitlab_create_branch` | `REPOSITORIESTOOL` | Create a new branch in a project. |
@@ -127,6 +134,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_create_note` | `OTHERTOOL` | Create a new note/comment on an issue. |
 | `gitlab_create_pipeline_schedule` | `PIPELINESTOOL` | Create a pipeline schedule for a specific project. |
 | `gitlab_create_pipeline_schedule_variable` | `PIPELINESTOOL` | Create a variable for a pipeline schedule. |
+| `gitlab_create_project` | `PROJECTSTOOL` | Create a new project. |
 | `gitlab_create_project_deploy_token` | `PROJECTSTOOL` | Create a deploy token for a project. |
 | `gitlab_create_project_level_rule` | `PROJECTSTOOL` | Create a new project-level merge request approval rule. |
 | `gitlab_create_release` | `ENVIRONMENTSTOOL` | Create a new release in a project. |
@@ -188,6 +196,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_get_group_deploy_token` | `USERS_GROUPSTOOL` | Get a specific deploy token for a group. |
 | `gitlab_get_group_deploy_tokens` | `USERS_GROUPSTOOL` | Get deploy tokens for a specific group. |
 | `gitlab_get_group_descendant_groups` | `USERS_GROUPSTOOL` | Get descendant groups of a specific group. |
+| `gitlab_get_group_issues` | `ISSUESTOOL` | Get the list of issues for a group (and, by default, its subgroups). |
 | `gitlab_get_group_level_rule` | `USERS_GROUPSTOOL` | Get details of a group-level merge request approval setting. |
 | `gitlab_get_group_members` | `USERS_GROUPSTOOL` | Get members of a specific group. |
 | `gitlab_get_group_merge_requests` | `MERGE_REQUESTSTOOL` | Get merge requests associated with a specific group. |
@@ -300,7 +309,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 </details>
 
-_27 action-routed tool(s) (default) · 188 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_32 action-routed tool(s) (default) · 192 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
@@ -359,6 +368,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "GITLAB_TOKEN": "your_gitlab_token_here",
         "GITLAB_URL": "https://gitlab.example.com",
         "GRAPHQLTOOL": "True",
+        "GRAPHQL_OPSTOOL": "True",
         "GROUPSTOOL": "True",
         "ISSUESTOOL": "True",
         "JOBSTOOL": "True",
@@ -368,6 +378,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "MERGE_RULESTOOL": "True",
         "MILESTONESTOOL": "True",
         "MISCTOOL": "True",
+        "NAMESPACESTOOL": "True",
         "NOTESTOOL": "True",
         "PACKAGESTOOL": "True",
         "PIPELINESTOOL": "True",
@@ -377,7 +388,9 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "RELEASESTOOL": "True",
         "RUNNERSTOOL": "True",
         "SNIPPETSTOOL": "True",
-        "TAGSTOOL": "True"
+        "TAGSTOOL": "True",
+        "USERSTOOL": "True",
+        "WIKITOOL": "True"
       }
     }
   }
@@ -414,6 +427,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "GITLAB_TOKEN": "your_gitlab_token_here",
         "GITLAB_URL": "https://gitlab.example.com",
         "GRAPHQLTOOL": "True",
+        "GRAPHQL_OPSTOOL": "True",
         "GROUPSTOOL": "True",
         "ISSUESTOOL": "True",
         "JOBSTOOL": "True",
@@ -423,6 +437,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "MERGE_RULESTOOL": "True",
         "MILESTONESTOOL": "True",
         "MISCTOOL": "True",
+        "NAMESPACESTOOL": "True",
         "NOTESTOOL": "True",
         "PACKAGESTOOL": "True",
         "PIPELINESTOOL": "True",
@@ -432,7 +447,9 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "RELEASESTOOL": "True",
         "RUNNERSTOOL": "True",
         "SNIPPETSTOOL": "True",
-        "TAGSTOOL": "True"
+        "TAGSTOOL": "True",
+        "USERSTOOL": "True",
+        "WIKITOOL": "True"
       }
     }
   }
@@ -470,6 +487,7 @@ docker run -d \
   -e GITLAB_TOKEN=your_gitlab_token_here \
   -e GITLAB_URL=https://gitlab.example.com \
   -e GRAPHQLTOOL=True \
+  -e GRAPHQL_OPSTOOL=True \
   -e GROUPSTOOL=True \
   -e ISSUESTOOL=True \
   -e JOBSTOOL=True \
@@ -479,6 +497,7 @@ docker run -d \
   -e MERGE_RULESTOOL=True \
   -e MILESTONESTOOL=True \
   -e MISCTOOL=True \
+  -e NAMESPACESTOOL=True \
   -e NOTESTOOL=True \
   -e PACKAGESTOOL=True \
   -e PIPELINESTOOL=True \
@@ -489,6 +508,8 @@ docker run -d \
   -e RUNNERSTOOL=True \
   -e SNIPPETSTOOL=True \
   -e TAGSTOOL=True \
+  -e USERSTOOL=True \
+  -e WIKITOOL=True \
   knucklessg1/gitlab-api:mcp
 ```
 
@@ -549,6 +570,7 @@ consumed from a **remote deployment**. The
 | `MERGE_REQUESTSTOOL` | `True` |  |
 | `MERGE_RULESTOOL` | `True` |  |
 | `MILESTONESTOOL` | `True` |  |
+| `NAMESPACESTOOL` | `True` |  |
 | `NOTESTOOL` | `True` |  |
 | `PACKAGESTOOL` | `True` |  |
 | `PIPELINESTOOL` | `True` |  |
@@ -558,8 +580,11 @@ consumed from a **remote deployment**. The
 | `RUNNERSTOOL` | `True` |  |
 | `SNIPPETSTOOL` | `True` |  |
 | `TAGSTOOL` | `True` |  |
+| `USERSTOOL` | `True` |  |
+| `WIKITOOL` | `True` |  |
 | `CUSTOM_APITOOL` | `True` |  |
 | `GRAPHQLTOOL` | `True` |  |
+| `GRAPHQL_OPSTOOL` | `True` |  |
 
 #### Inherited agent-utilities variables (apply to every connector)
 
@@ -580,7 +605,7 @@ consumed from a **remote deployment**. The
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_40 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_44 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 

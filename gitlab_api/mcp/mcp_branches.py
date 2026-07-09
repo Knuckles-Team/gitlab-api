@@ -17,7 +17,7 @@ def register_branches_tools(mcp: FastMCP):
     @mcp.tool(tags={"branches"})
     async def gitlab_branches(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'create', 'delete'"
+            description="Action to perform. Must be one of: 'get', 'create', 'delete', 'delete_merged'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -40,7 +40,7 @@ def register_branches_tools(mcp: FastMCP):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resolved = resolve_action(
-            action, {"get", "create", "delete"}, service="gitlab-api"
+            action, {"get", "create", "delete", "delete_merged"}, service="gitlab-api"
         )
         if isinstance(resolved, dict):
             return resolved
@@ -54,4 +54,6 @@ def register_branches_tools(mcp: FastMCP):
             return await run_blocking(client.create_branch, **kwargs)
         if action == "delete":
             return await run_blocking(client.delete_branch, **kwargs)
+        if action == "delete_merged":
+            return await run_blocking(client.delete_merged_branches, **kwargs)
         raise ValueError(f"Unknown action: {action}")

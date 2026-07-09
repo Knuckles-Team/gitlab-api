@@ -17,6 +17,7 @@
         "GITLAB_TOKEN": "your_gitlab_token_here",
         "GITLAB_URL": "https://gitlab.example.com",
         "GRAPHQLTOOL": "True",
+        "GRAPHQL_OPSTOOL": "True",
         "GROUPSTOOL": "True",
         "ISSUESTOOL": "True",
         "JOBSTOOL": "True",
@@ -26,6 +27,7 @@
         "MERGE_RULESTOOL": "True",
         "MILESTONESTOOL": "True",
         "MISCTOOL": "True",
+        "NAMESPACESTOOL": "True",
         "NOTESTOOL": "True",
         "PACKAGESTOOL": "True",
         "PIPELINESTOOL": "True",
@@ -35,7 +37,9 @@
         "RELEASESTOOL": "True",
         "RUNNERSTOOL": "True",
         "SNIPPETSTOOL": "True",
-        "TAGSTOOL": "True"
+        "TAGSTOOL": "True",
+        "USERSTOOL": "True",
+        "WIKITOOL": "True"
       }
     }
   }

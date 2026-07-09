@@ -17,7 +17,7 @@ def register_merge_requests_tools(mcp: FastMCP):
     @mcp.tool(tags={"merge_requests"})
     async def gitlab_merge_requests(
         action: str = Field(
-            description="Action to perform. Must be one of: 'create', 'get', 'get_project'"
+            description="Action to perform. Must be one of: 'create', 'get', 'get_project', 'accept', 'cancel_auto_merge'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -40,7 +40,9 @@ def register_merge_requests_tools(mcp: FastMCP):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resolved = resolve_action(
-            action, {"create", "get", "get_project"}, service="gitlab-api"
+            action,
+            {"create", "get", "get_project", "accept", "cancel_auto_merge"},
+            service="gitlab-api",
         )
         if isinstance(resolved, dict):
             return resolved
@@ -54,4 +56,10 @@ def register_merge_requests_tools(mcp: FastMCP):
             return await run_blocking(client.get_merge_requests, **kwargs)
         if action == "get_project":
             return await run_blocking(client.get_project_merge_requests, **kwargs)
+        if action == "accept":
+            return await run_blocking(client.accept_merge_request, **kwargs)
+        if action == "cancel_auto_merge":
+            return await run_blocking(
+                client.cancel_merge_when_pipeline_succeeds, **kwargs
+            )
         raise ValueError(f"Unknown action: {action}")

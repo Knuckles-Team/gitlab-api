@@ -119,7 +119,7 @@ def register_branches_tools(mcp: FastMCP):
     @mcp.tool(tags={"branches"})
     async def gitlab_branches(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'create', 'delete'"
+            description="Action to perform. Must be one of: 'get', 'create', 'delete', 'delete_merged'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -142,7 +142,7 @@ def register_branches_tools(mcp: FastMCP):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resolved = resolve_action(
-            action, {"get", "create", "delete"}, service="gitlab-api"
+            action, {"get", "create", "delete", "delete_merged"}, service="gitlab-api"
         )
         if isinstance(resolved, dict):
             return resolved
@@ -156,6 +156,8 @@ def register_branches_tools(mcp: FastMCP):
             return await run_blocking(client.create_branch, **kwargs)
         if action == "delete":
             return await run_blocking(client.delete_branch, **kwargs)
+        if action == "delete_merged":
+            return await run_blocking(client.delete_merged_branches, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -163,7 +165,7 @@ def register_protected_branches_tools(mcp: FastMCP):
     @mcp.tool(tags={"protected_branches"})
     async def gitlab_protected_branches(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'protect', 'unprotect'"
+            description="Action to perform. Must be one of: 'get', 'protect', 'unprotect', 'require_code_owner_approvals'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -186,7 +188,9 @@ def register_protected_branches_tools(mcp: FastMCP):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resolved = resolve_action(
-            action, {"get", "protect", "unprotect"}, service="gitlab-api"
+            action,
+            {"get", "protect", "unprotect", "require_code_owner_approvals"},
+            service="gitlab-api",
         )
         if isinstance(resolved, dict):
             return resolved
@@ -200,6 +204,10 @@ def register_protected_branches_tools(mcp: FastMCP):
             return await run_blocking(client.protect_branch, **kwargs)
         if action == "unprotect":
             return await run_blocking(client.unprotect_branch, **kwargs)
+        if action == "require_code_owner_approvals":
+            return await run_blocking(
+                client.require_code_owner_approvals_single_branch, **kwargs
+            )
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -207,7 +215,7 @@ def register_commits_tools(mcp: FastMCP):
     @mcp.tool(tags={"commits"})
     async def gitlab_commits(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'create', 'diff', 'revert', 'get_comments', 'create_comment', 'get_discussions', 'get_statuses', 'post_status', 'get_merge_requests', 'get_gpg_signature'"
+            description="Action to perform. Must be one of: 'get', 'create', 'diff', 'revert', 'get_comments', 'create_comment', 'get_discussions', 'get_statuses', 'post_status', 'get_merge_requests', 'get_gpg_signature', 'cherry_pick', 'get_references'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -243,6 +251,8 @@ def register_commits_tools(mcp: FastMCP):
                 "post_status",
                 "get_merge_requests",
                 "get_gpg_signature",
+                "cherry_pick",
+                "get_references",
             },
             service="gitlab-api",
         )
@@ -274,6 +284,10 @@ def register_commits_tools(mcp: FastMCP):
             return await run_blocking(client.get_commit_merge_requests, **kwargs)
         if action == "get_gpg_signature":
             return await run_blocking(client.get_commit_gpg_signature, **kwargs)
+        if action == "cherry_pick":
+            return await run_blocking(client.cherry_pick_commit, **kwargs)
+        if action == "get_references":
+            return await run_blocking(client.get_commit_references, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -480,7 +494,7 @@ def register_jobs_tools(mcp: FastMCP):
     @mcp.tool(tags={"jobs"})
     async def gitlab_jobs(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get_project_jobs', 'get_log', 'cancel', 'retry', 'erase', 'run', 'get_pipeline_jobs'"
+            description="Action to perform. Must be one of: 'get_project_jobs', 'get_job', 'get_log', 'cancel', 'retry', 'erase', 'run', 'get_pipeline_jobs'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -506,6 +520,7 @@ def register_jobs_tools(mcp: FastMCP):
             action,
             {
                 "get_project_jobs",
+                "get_job",
                 "get_log",
                 "cancel",
                 "retry",
@@ -521,6 +536,8 @@ def register_jobs_tools(mcp: FastMCP):
 
         if action == "get_project_jobs":
             return await run_blocking(client.get_project_jobs, **kwargs)
+        if action == "get_job":
+            return await run_blocking(client.get_project_job, **kwargs)
         if action == "get_log":
             return await run_blocking(client.get_project_job_log, **kwargs)
         if action == "cancel":
@@ -580,7 +597,7 @@ def register_merge_requests_tools(mcp: FastMCP):
     @mcp.tool(tags={"merge_requests"})
     async def gitlab_merge_requests(
         action: str = Field(
-            description="Action to perform. Must be one of: 'create', 'get', 'get_project'"
+            description="Action to perform. Must be one of: 'create', 'get', 'get_project', 'accept', 'cancel_auto_merge'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -603,7 +620,9 @@ def register_merge_requests_tools(mcp: FastMCP):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resolved = resolve_action(
-            action, {"create", "get", "get_project"}, service="gitlab-api"
+            action,
+            {"create", "get", "get_project", "accept", "cancel_auto_merge"},
+            service="gitlab-api",
         )
         if isinstance(resolved, dict):
             return resolved
@@ -617,6 +636,12 @@ def register_merge_requests_tools(mcp: FastMCP):
             return await run_blocking(client.get_merge_requests, **kwargs)
         if action == "get_project":
             return await run_blocking(client.get_project_merge_requests, **kwargs)
+        if action == "accept":
+            return await run_blocking(client.accept_merge_request, **kwargs)
+        if action == "cancel_auto_merge":
+            return await run_blocking(
+                client.cancel_merge_when_pipeline_succeeds, **kwargs
+            )
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -624,7 +649,7 @@ def register_merge_rules_tools(mcp: FastMCP):
     @mcp.tool(tags={"merge_rules"})
     async def gitlab_merge_rules(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get_project_level', 'create_project_level', 'update_project_level', 'delete_project_level', 'get_mr_approvals', 'get_mr_approval_state', 'get_mr_level', 'approve_mr', 'unapprove_mr', 'get_group_level', 'edit_group_level', 'edit_project_level'"
+            description="Action to perform. Must be one of: 'get_project_level', 'create_project_level', 'update_project_level', 'delete_project_level', 'get_mr_approvals', 'get_mr_approval_state', 'get_mr_level', 'approve_mr', 'unapprove_mr', 'get_group_level', 'edit_group_level', 'edit_project_level', 'set_mr_approvals', 'get_project_rule'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -661,6 +686,8 @@ def register_merge_rules_tools(mcp: FastMCP):
                 "get_group_level",
                 "edit_group_level",
                 "edit_project_level",
+                "set_mr_approvals",
+                "get_project_rule",
             },
             service="gitlab-api",
         )
@@ -698,6 +725,10 @@ def register_merge_rules_tools(mcp: FastMCP):
             return await run_blocking(client.edit_group_level_rule, **kwargs)
         if action == "edit_project_level":
             return await run_blocking(client.edit_project_level_rule, **kwargs)
+        if action == "set_mr_approvals":
+            return await run_blocking(client.merge_request_level_approvals, **kwargs)
+        if action == "get_project_rule":
+            return await run_blocking(client.get_project_level_rule, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -862,7 +893,7 @@ def register_projects_tools(mcp: FastMCP):
     @mcp.tool(tags={"projects"})
     async def gitlab_projects(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'create', 'delete', 'get_nested_by_group', 'get_contributors', 'get_statistics', 'edit', 'share_with_group', 'unshare_with_group', 'archive', 'unarchive'"
+            description="Action to perform. Must be one of: 'get', 'create', 'delete', 'get_nested_by_group', 'get_contributors', 'get_statistics', 'edit', 'share_with_group', 'unshare_with_group', 'archive', 'unarchive', 'get_project_groups'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -898,6 +929,7 @@ def register_projects_tools(mcp: FastMCP):
                 "unshare_with_group",
                 "archive",
                 "unarchive",
+                "get_project_groups",
             },
             service="gitlab-api",
         )
@@ -929,6 +961,8 @@ def register_projects_tools(mcp: FastMCP):
             return await run_blocking(client.archive_project, **kwargs)
         if action == "unarchive":
             return await run_blocking(client.unarchive_project, **kwargs)
+        if action == "get_project_groups":
+            return await run_blocking(client.get_project_groups, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1010,7 +1044,7 @@ def register_runners_tools(mcp: FastMCP):
     @mcp.tool(tags={"runners"})
     async def gitlab_runners(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get_all', 'update_details', 'pause', 'get_jobs', 'get_project', 'enable_project', 'delete_project', 'get_group', 'register', 'delete', 'verify_auth', 'reset_gitlab_token', 'reset_project_token', 'reset_group_token', 'reset_token'"
+            description="Action to perform. Must be one of: 'get_all', 'get', 'update_details', 'pause', 'get_jobs', 'get_project', 'enable_project', 'delete_project', 'get_group', 'register', 'delete', 'verify_auth', 'reset_gitlab_token', 'reset_project_token', 'reset_group_token', 'reset_token'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -1036,6 +1070,7 @@ def register_runners_tools(mcp: FastMCP):
             action,
             {
                 "get_all",
+                "get",
                 "update_details",
                 "pause",
                 "get_jobs",
@@ -1059,6 +1094,8 @@ def register_runners_tools(mcp: FastMCP):
 
         if action == "get_all":
             return await run_blocking(client.get_runners, **kwargs)
+        if action == "get":
+            return await run_blocking(client.get_runner, **kwargs)
         if action == "update_details":
             return await run_blocking(client.update_runner_details, **kwargs)
         if action == "pause":
@@ -1386,7 +1423,7 @@ def register_issues_tools(mcp: FastMCP):
     @mcp.tool(tags={"issues"})
     async def gitlab_issues(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get', 'create', 'update', 'delete'"
+            description="Action to perform. Must be one of: 'get', 'create', 'update', 'delete', 'get_group'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -1409,7 +1446,9 @@ def register_issues_tools(mcp: FastMCP):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resolved = resolve_action(
-            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+            action,
+            {"get", "create", "update", "delete", "get_group"},
+            service="gitlab-api",
         )
         if isinstance(resolved, dict):
             return resolved
@@ -1425,6 +1464,8 @@ def register_issues_tools(mcp: FastMCP):
             return await run_blocking(client.update_issue, **kwargs)
         if action == "delete":
             return await run_blocking(client.delete_issue, **kwargs)
+        if action == "get_group":
+            return await run_blocking(client.get_group_issues, **kwargs)
         raise ValueError(f"Unknown action: {action}")
 
 
@@ -1460,6 +1501,144 @@ def register_custom_api_tools(mcp: FastMCP):
         return await run_blocking(
             client.api_request, method=method, endpoint=endpoint, **kwargs
         )
+
+
+def register_users_tools(mcp: FastMCP):
+    @mcp.tool(tags={"users"})
+    async def gitlab_users(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get', 'get_user', 'create', 'update', 'delete'"
+        ),
+        params_json: str = Field(
+            default="{}", description="JSON string of parameters to pass to the action."
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> Any:
+        """Manage gitlab users operations."""
+        if ctx:
+            await ctx.info("Executing tool...")
+        import json
+
+        try:
+            kwargs = json.loads(params_json)
+        except Exception as e:
+            return {"error": f"Invalid params_json: {e}"}
+
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {"get", "get_user", "create", "update", "delete"},
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
+        if action == "get":
+            return await run_blocking(client.get_users, **kwargs)
+        if action == "get_user":
+            return await run_blocking(client.get_user, **kwargs)
+        if action == "create":
+            return await run_blocking(client.create_user, **kwargs)
+        if action == "update":
+            return await run_blocking(client.update_user, **kwargs)
+        if action == "delete":
+            return await run_blocking(client.delete_user, **kwargs)
+        raise ValueError(f"Unknown action: {action}")
+
+
+def register_wiki_tools(mcp: FastMCP):
+    @mcp.tool(tags={"wiki"})
+    async def gitlab_wiki(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get_list', 'get', 'create', 'update', 'delete', 'upload_attachment'"
+        ),
+        params_json: str = Field(
+            default="{}", description="JSON string of parameters to pass to the action."
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> Any:
+        """Manage gitlab wiki operations."""
+        if ctx:
+            await ctx.info("Executing tool...")
+        import json
+
+        try:
+            kwargs = json.loads(params_json)
+        except Exception as e:
+            return {"error": f"Invalid params_json: {e}"}
+
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action,
+            {"get_list", "get", "create", "update", "delete", "upload_attachment"},
+            service="gitlab-api",
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
+        if action == "get_list":
+            return await run_blocking(client.get_wiki_list, **kwargs)
+        if action == "get":
+            return await run_blocking(client.get_wiki_page, **kwargs)
+        if action == "create":
+            return await run_blocking(client.create_wiki_page, **kwargs)
+        if action == "update":
+            return await run_blocking(client.update_wiki_page, **kwargs)
+        if action == "delete":
+            return await run_blocking(client.delete_wiki_page, **kwargs)
+        if action == "upload_attachment":
+            return await run_blocking(client.upload_wiki_page_attachment, **kwargs)
+        raise ValueError(f"Unknown action: {action}")
+
+
+def register_namespaces_tools(mcp: FastMCP):
+    @mcp.tool(tags={"namespaces"})
+    async def gitlab_namespaces(
+        action: str = Field(
+            description="Action to perform. Must be one of: 'get', 'get_namespace'"
+        ),
+        params_json: str = Field(
+            default="{}", description="JSON string of parameters to pass to the action."
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> Any:
+        """Manage gitlab namespaces operations."""
+        if ctx:
+            await ctx.info("Executing tool...")
+        import json
+
+        try:
+            kwargs = json.loads(params_json)
+        except Exception as e:
+            return {"error": f"Invalid params_json: {e}"}
+
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action, {"get", "get_namespace"}, service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
+        if action == "get":
+            return await run_blocking(client.get_namespaces, **kwargs)
+        if action == "get_namespace":
+            return await run_blocking(client.get_namespace, **kwargs)
+        raise ValueError(f"Unknown action: {action}")
 
 
 def register_prompts(mcp: FastMCP):
@@ -1592,6 +1771,88 @@ def register_graphql_tools(mcp: FastMCP):
             return await ctx_graphql_list_types(execute_fn)
         except Exception as e:
             return {"error": f"Failed to discover GitLab GraphQL schema: {str(e)}"}
+
+
+def register_graphql_ops_tools(mcp: FastMCP):
+    from gitlab_api.auth import get_graphql_client
+    from gitlab_api.gitlab_gql import GraphQL as _GitlabGraphQL
+
+    #: Every typed operation on the GraphQL client (all methods except the raw
+    #: execute_gql passthrough, which the gitlab_graphql tool already exposes).
+    _GRAPHQL_OPS_ACTIONS = tuple(
+        sorted(
+            name
+            for name, attr in vars(_GitlabGraphQL).items()
+            if not name.startswith("_") and callable(attr) and name != "execute_gql"
+        )
+    )
+
+    @mcp.tool(tags={"graphql_ops"})
+    async def gitlab_graphql_ops(
+        action: str = Field(
+            description=(
+                "Typed GraphQL operation to run (a method on the GitLab GraphQL "
+                "client), e.g. 'get_merge_requests', 'update_merge_request', "
+                "'delete_merge_request', 'accept_merge_request', 'retry_pipeline', "
+                "'cancel_pipeline', 'create_pipeline', 'get_projects', 'get_job'."
+            )
+        ),
+        params_json: str = Field(
+            default="{}", description="JSON string of parameters to pass to the action."
+        ),
+        client=Depends(get_graphql_client),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> Any:
+        """Run a typed GitLab GraphQL operation by name.
+
+        The GraphQL-native counterpart to the REST gitlab_<domain> tools — prefer it
+        for GraphQL-only capabilities (merge-request update/delete, pipeline
+        retry/cancel, member add/update/delete) and rich nested reads. Parameters in
+        params_json are passed as keyword arguments to the named operation; a few
+        operations that take a single typed model (e.g. get_project) build it from
+        those same kwargs automatically.
+        """
+        if ctx:
+            await ctx.info("Executing GitLab GraphQL operation...")
+        import inspect
+        import json
+
+        from pydantic import BaseModel
+
+        try:
+            kwargs = json.loads(params_json)
+        except Exception as e:
+            return {"error": f"Invalid params_json: {e}"}
+
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+
+        resolved = resolve_action(
+            action, set(_GRAPHQL_OPS_ACTIONS), service="gitlab-api"
+        )
+        if isinstance(resolved, dict):
+            return resolved
+        action = resolved
+
+        method = getattr(client, action)
+        required = [
+            p
+            for p in inspect.signature(method).parameters.values()
+            if p.default is inspect.Parameter.empty
+            and p.kind in (p.POSITIONAL_OR_KEYWORD, p.KEYWORD_ONLY)
+        ]
+        try:
+            if (
+                len(required) == 1
+                and isinstance(required[0].annotation, type)
+                and issubclass(required[0].annotation, BaseModel)
+            ):
+                model = required[0].annotation(**kwargs)
+                return await run_blocking(method, **{required[0].name: model})
+            return await run_blocking(method, **kwargs)
+        except Exception as e:
+            return {"error": f"GraphQL operation '{action}' failed: {str(e)}"}
 
 
 def get_mcp_instance() -> tuple[Any, Any, Any, Any]:

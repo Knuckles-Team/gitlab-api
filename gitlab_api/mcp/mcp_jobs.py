@@ -17,7 +17,7 @@ def register_jobs_tools(mcp: FastMCP):
     @mcp.tool(tags={"jobs"})
     async def gitlab_jobs(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get_project_jobs', 'get_log', 'cancel', 'retry', 'erase', 'run', 'get_pipeline_jobs'"
+            description="Action to perform. Must be one of: 'get_project_jobs', 'get_job', 'get_log', 'cancel', 'retry', 'erase', 'run', 'get_pipeline_jobs'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -43,6 +43,7 @@ def register_jobs_tools(mcp: FastMCP):
             action,
             {
                 "get_project_jobs",
+                "get_job",
                 "get_log",
                 "cancel",
                 "retry",
@@ -58,6 +59,8 @@ def register_jobs_tools(mcp: FastMCP):
 
         if action == "get_project_jobs":
             return await run_blocking(client.get_project_jobs, **kwargs)
+        if action == "get_job":
+            return await run_blocking(client.get_project_job, **kwargs)
         if action == "get_log":
             return await run_blocking(client.get_project_job_log, **kwargs)
         if action == "cancel":

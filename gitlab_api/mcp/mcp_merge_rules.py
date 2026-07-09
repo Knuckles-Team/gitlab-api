@@ -17,7 +17,7 @@ def register_merge_rules_tools(mcp: FastMCP):
     @mcp.tool(tags={"merge_rules"})
     async def gitlab_merge_rules(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get_project_level', 'create_project_level', 'update_project_level', 'delete_project_level', 'get_mr_approvals', 'get_mr_approval_state', 'get_mr_level', 'approve_mr', 'unapprove_mr', 'get_group_level', 'edit_group_level', 'edit_project_level'"
+            description="Action to perform. Must be one of: 'get_project_level', 'create_project_level', 'update_project_level', 'delete_project_level', 'get_mr_approvals', 'get_mr_approval_state', 'get_mr_level', 'approve_mr', 'unapprove_mr', 'get_group_level', 'edit_group_level', 'edit_project_level', 'set_mr_approvals', 'get_project_rule'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -54,6 +54,8 @@ def register_merge_rules_tools(mcp: FastMCP):
                 "get_group_level",
                 "edit_group_level",
                 "edit_project_level",
+                "set_mr_approvals",
+                "get_project_rule",
             },
             service="gitlab-api",
         )
@@ -91,4 +93,8 @@ def register_merge_rules_tools(mcp: FastMCP):
             return await run_blocking(client.edit_group_level_rule, **kwargs)
         if action == "edit_project_level":
             return await run_blocking(client.edit_project_level_rule, **kwargs)
+        if action == "set_mr_approvals":
+            return await run_blocking(client.merge_request_level_approvals, **kwargs)
+        if action == "get_project_rule":
+            return await run_blocking(client.get_project_level_rule, **kwargs)
         raise ValueError(f"Unknown action: {action}")

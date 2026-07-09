@@ -17,7 +17,7 @@ def register_runners_tools(mcp: FastMCP):
     @mcp.tool(tags={"runners"})
     async def gitlab_runners(
         action: str = Field(
-            description="Action to perform. Must be one of: 'get_all', 'update_details', 'pause', 'get_jobs', 'get_project', 'enable_project', 'delete_project', 'get_group', 'register', 'delete', 'verify_auth', 'reset_gitlab_token', 'reset_project_token', 'reset_group_token', 'reset_token'"
+            description="Action to perform. Must be one of: 'get_all', 'get', 'update_details', 'pause', 'get_jobs', 'get_project', 'enable_project', 'delete_project', 'get_group', 'register', 'delete', 'verify_auth', 'reset_gitlab_token', 'reset_project_token', 'reset_group_token', 'reset_token'"
         ),
         params_json: str = Field(
             default="{}", description="JSON string of parameters to pass to the action."
@@ -43,6 +43,7 @@ def register_runners_tools(mcp: FastMCP):
             action,
             {
                 "get_all",
+                "get",
                 "update_details",
                 "pause",
                 "get_jobs",
@@ -66,6 +67,8 @@ def register_runners_tools(mcp: FastMCP):
 
         if action == "get_all":
             return await run_blocking(client.get_runners, **kwargs)
+        if action == "get":
+            return await run_blocking(client.get_runner, **kwargs)
         if action == "update_details":
             return await run_blocking(client.update_runner_details, **kwargs)
         if action == "pause":
