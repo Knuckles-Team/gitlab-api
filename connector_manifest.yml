@@ -1,0 +1,314 @@
+connector: gitlab-api
+ontology_source: gitlab
+schema_version: '1'
+resources:
+- name: Branch
+  label: Branch
+  id_prefix: branch
+  relations: []
+- name: Commit
+  label: Commit
+  id_prefix: commit
+  relations: []
+- name: Epic
+  label: Epic
+  id_prefix: epic
+  relations: []
+- name: GitLabGroup
+  label: GitLab Group
+  id_prefix: gitlabgroup
+  relations: []
+- name: Issue
+  label: Issue
+  id_prefix: issue
+  relations: []
+- name: Job
+  label: Job
+  id_prefix: job
+  relations:
+  - name: ranOnRunner
+    label: ran on runner
+    target: Runner
+    lpg_rel_type: ''
+- name: MergeRequest
+  label: Merge Request
+  id_prefix: mergerequest
+  relations:
+  - name: closesIssue
+    label: closes issue
+    target: Issue
+    lpg_rel_type: ''
+  - name: targetsBranch
+    label: targets branch
+    target: Branch
+    lpg_rel_type: ''
+- name: Milestone
+  label: Milestone
+  id_prefix: milestone
+  relations: []
+- name: Pipeline
+  label: Pipeline
+  id_prefix: pipeline
+  relations:
+  - name: hasJob
+    label: has job
+    target: Job
+    lpg_rel_type: ''
+- name: Project
+  label: Project
+  id_prefix: project
+  relations:
+  - name: partOfGroup
+    label: part of group
+    target: GitLabGroup
+    lpg_rel_type: ''
+- name: Release
+  label: Release
+  id_prefix: release
+  relations: []
+- name: Runner
+  label: Runner
+  id_prefix: runner
+  relations: []
+actions:
+- id: run_graph_flow
+  name: Graph Flow Execution
+  description: Execute a workflow through the agent's graph orchestration engine
+events:
+- name: gitlab-projects.updated
+  resource: repository
+  description: "Watermark event for 'gitlab-projects' \u2014 advances on last_activity_at (mcp_source_presets.json)."
+identity:
+  id_field:
+    repository: id
+  title_field:
+    repository: path_with_namespace
+  text_field:
+    repository: description
+  updated_field:
+    repository: last_activity_at
+permissions:
+  acl_fields: []
+  tenant_field: null
+  read_roles: []
+schema_mappings:
+  Branch:
+    ontology_class: null
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  Commit:
+    ontology_class: null
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  Epic:
+    ontology_class: null
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  GitLabGroup:
+    ontology_class: Organization
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  Issue:
+    ontology_class: Incident
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  Job:
+    ontology_class: Action
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  MergeRequest:
+    ontology_class: null
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  Milestone:
+    ontology_class: null
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  Pipeline:
+    ontology_class: null
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  Project:
+    ontology_class: SoftwareProject
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  Release:
+    ontology_class: null
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+  Runner:
+    ontology_class: null
+    fields:
+      iid: xsd:string
+      pipelineStatus: xsd:string
+      ref: xsd:string
+      sha: xsd:string
+      state: xsd:string
+      webUrl: xsd:string
+sync:
+- preset: gitlab-projects
+  server: gitlab-api
+  tool: gitlab_projects
+  action: get
+  records_path: data
+  id_field: id
+  title_field: path_with_namespace
+  text_field: description
+  updated_field: last_activity_at
+  pagination: page
+  doc_type: repository
+  raw:
+    server: gitlab-api
+    tool: gitlab_projects
+    action: get
+    records_path: data
+    id_field: id
+    title_field: path_with_namespace
+    text_field: description
+    updated_field: last_activity_at
+    pagination: page
+    page_kind: page
+    page_param: page
+    page_size_param: per_page
+    doc_type: repository
+provenance:
+  generated_by: scripts/generate_connector_manifests.py
+  generated_at: '2026-07-11T00:00:00Z'
+  source_artifacts:
+  - a2a.json
+  - gitlab_api/connectors/mcp_source_presets.json
+  - gitlab_api/ontology/gitlab.ttl
+  integrity:
+    algorithm: urdna2015-sha256
+    hash: 6d958020af7388f30d7b583e702642cf4d7c5a2ce6e7f50caf84690bbeb6da46
+    triple_count: 82
+  signer: ontology-manifest-generator
+  signature: 9524360cc3438fad4046001fc5ccc49c5987b8fc8790c045b6c6004ea0d1a32f
+policy:
+  pii_fields: {}
+  tenant_boundary: null
+  rls: []
+review_todos:
+- "policy.rls / policy.tenant_boundary are unset \u2014 no row-level-security predicate has been reviewed\
+  \ for this connector."
+- "relation 'authoredBy' has no declared rdfs:domain resolving to a known resource in this connector's\
+  \ ontology \u2014 not attached to any resource; verify its true domain manually."
+- "relation 'belongsToProject' has no declared rdfs:domain resolving to a known resource in this connector's\
+  \ ontology \u2014 not attached to any resource; verify its true domain manually."
+- "relation 'hasMilestone' has no declared rdfs:domain resolving to a known resource in this connector's\
+  \ ontology \u2014 not attached to any resource; verify its true domain manually."
+- "relation 'triggeredPipeline' has no declared rdfs:domain resolving to a known resource in this connector's\
+  \ ontology \u2014 not attached to any resource; verify its true domain manually."
+- "schema_mappings.Branch.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
+  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Commit.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
+  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Epic.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
+  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.GitLabGroup.ontology_class = 'Organization' [DRAFT \u2014 nearest hub-canonical-class-by-name\
+  \ heuristic (D16 residue; human sign-off required before use)] \u2014 verify manually before relying\
+  \ on this crosswalk for reasoning/joins."
+- "schema_mappings.Issue.ontology_class = 'Incident' [DRAFT \u2014 nearest hub-canonical-class-by-name\
+  \ heuristic (D16 residue; human sign-off required before use)] \u2014 verify manually before relying\
+  \ on this crosswalk for reasoning/joins."
+- "schema_mappings.Job.ontology_class = 'Action' [DRAFT \u2014 nearest hub-canonical-class-by-name heuristic\
+  \ (D16 residue; human sign-off required before use)] \u2014 verify manually before relying on this crosswalk\
+  \ for reasoning/joins."
+- "schema_mappings.MergeRequest.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
+  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Milestone.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
+  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Pipeline.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
+  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Project.ontology_class = 'SoftwareProject' [DRAFT \u2014 nearest hub-canonical-class-by-name\
+  \ heuristic (D16 residue; human sign-off required before use)] \u2014 verify manually before relying\
+  \ on this crosswalk for reasoning/joins."
+- "schema_mappings.Release.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
+  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Runner.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
+  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
+- 'auth: static PAT sent as ''Authorization: Bearer'' (glpat-...), or OIDC delegation. Env: GITLAB_URL,
+  GITLAB_TOKEN, GITLAB_SSL_VERIFY, ENABLE_DELEGATION, OIDC_CLIENT_ID/SECRET, AUDIENCE, DELEGATED_SCOPES
+  (default ''api''); multi-tenant via gitlab_instances (name/url/token/verify_ssl). Shape: single shared
+  token per configured instance. required_scopes: no named GitLab PAT scope declared in code (verify token
+  has ''api''/''read_api'' as needed); OIDC path default scope ''api''.'
+- "change_support: snapshot/poll only, via mcp_source_presets.json (delta+hydrate+writeback \u2014 see\
+  \ docs/architecture/kg_connectors_and_ingestion.md section 8 connector inventory for the real, already-shipped\
+  \ wiring). cdc: none (no change-data-capture/replication-log path). webhook: none (any 'webhook' hits\
+  \ in this package's source manage webhooks IN THE REMOTE SYSTEM as a tool capability \u2014 there is\
+  \ no inbound webhook RECEIVER wired to source_sync ingestion for this connector today)."
+- "policy.classification / policy.retention: UNKNOWN \u2014 this connector declares no data classification\
+  \ (e.g. public/internal/confidential/restricted) or retention/legal-hold policy anywhere in its shipped\
+  \ artifacts; do not assume a default. Treat both as manifest_status=draft until an operator reviews\
+  \ the actual data handled and states a classification + retention period explicitly (see policy.pii_fields\
+  \ above for the one heuristic that IS populated)."
+- "quality (SHACL shapes / freshness SLA): UNKNOWN \u2014 no SHACL shape set or freshness contract is\
+  \ declared for this connector's resources; manifest_status=draft for quality until a shape set + freshness\
+  \ SLA is authored and referenced here."
+- "manifest_status: draft \u2014 resources/schema_mappings/sync/actions/events were generated deterministically\
+  \ (zero LLM, zero network) from this connector's OWN shipped artifacts via scripts/generate_connector_manifests.py;\
+  \ the auth/required_scopes/change_support/policy/quality annotations above were added by a manual read-only\
+  \ code survey (not re-verified against a live deployment) as part of AU-P1-6 making this connector's\
+  \ manifest MANDATORY for enterprise activation \u2014 operator sign-off on the ontology_class crosswalks,\
+  \ PII/RLS policy, and the classification/retention/quality gaps above is still required before this\
+  \ manifest should be treated as fully authoritative."
+- "cross-connector note: atlassian-agent, gitlab-api, servicenow-api, microsoft-agent, and leanix-agent\
+  \ all layer a common OIDC_CLIENT_ID/SECRET + ENABLE_DELEGATION + DELEGATED_SCOPES + AUDIENCE RFC-8693-style\
+  \ token-exchange path on top of each connector's own native credential (a shared auth.py pattern across\
+  \ these agent-packages) \u2014 this is the per-user delegated-identity opt-in; the native credential\
+  \ above remains the system-to-system default."
