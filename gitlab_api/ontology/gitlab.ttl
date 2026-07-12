@@ -27,9 +27,19 @@
     rdfs:label "Pipeline" ;
     rdfs:comment "A CI/CD pipeline run for a commit/ref (gitlab_pipelines)." .
 
+:PipelineRun a owl:Class ;
+    rdfs:label "Pipeline Run" ;
+    rdfs:comment "Alias of :Pipeline in the autonomous-SDLC-loop lifecycle vocabulary — a single executed run of a project's CI/CD pipeline for a commit/ref/merge request, ingested by gitlab_api.kg_ingest.ingest_pipeline_runs (id gitlab:pipelinerun:<project>:<id>)." ;
+    owl:equivalentClass :Pipeline .
+
 :Job a owl:Class ;
     rdfs:label "Job" ;
     rdfs:comment "A single stage/job within a pipeline (gitlab_jobs)." .
+
+:CheckRun a owl:Class ;
+    rdfs:label "Check Run" ;
+    rdfs:comment "Alias of :Job in the autonomous-SDLC-loop lifecycle vocabulary — a single stage/job of a PipelineRun, ingested by gitlab_api.kg_ingest.ingest_pipeline_runs (id gitlab:checkrun:<project>:<pipeline>:<job>)." ;
+    owl:equivalentClass :Job .
 
 :Issue a owl:Class ;
     rdfs:label "Issue" ;
@@ -141,6 +151,41 @@
 :sha a owl:DatatypeProperty ;
     rdfs:label "sha" ;
     rdfs:comment "Full git commit SHA." ;
+    rdfs:range xsd:string .
+
+:triggerSource a owl:DatatypeProperty ;
+    rdfs:label "trigger source" ;
+    rdfs:comment "How a Pipeline or Job was triggered (push, web, schedule, api, merge_request_event, …). Named apart from the shared provenance `source` field." ;
+    rdfs:range xsd:string .
+
+:failureReason a owl:DatatypeProperty ;
+    rdfs:label "failure reason" ;
+    rdfs:comment "GitLab's classification of why a Job failed (e.g. script_failure, runner_system_failure)." ;
+    rdfs:range xsd:string .
+
+:duration a owl:DatatypeProperty ;
+    rdfs:label "duration" ;
+    rdfs:comment "Wall-clock duration of a Pipeline or Job run, in seconds." ;
+    rdfs:range xsd:decimal .
+
+:createdAt a owl:DatatypeProperty ;
+    rdfs:label "created at" ;
+    rdfs:comment "Timestamp an object was created." ;
+    rdfs:range xsd:dateTime .
+
+:startedAt a owl:DatatypeProperty ;
+    rdfs:label "started at" ;
+    rdfs:comment "Timestamp a Pipeline or Job started running." ;
+    rdfs:range xsd:dateTime .
+
+:finishedAt a owl:DatatypeProperty ;
+    rdfs:label "finished at" ;
+    rdfs:comment "Timestamp a Pipeline or Job finished running." ;
+    rdfs:range xsd:dateTime .
+
+:logUrl a owl:DatatypeProperty ;
+    rdfs:label "log url" ;
+    rdfs:comment "URL to the raw log output of a Job." ;
     rdfs:range xsd:string .
 
 <http://knuckles.team/kg/gitlab> a owl:Ontology ;

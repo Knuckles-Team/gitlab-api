@@ -112,6 +112,69 @@ def register_misc_tools(mcp: FastMCP):
         result = ingest_projects(projects)
         return {"listed": len(projects), "ingested": result}
 
+    @mcp.tool(tags={"misc", "kg"})
+    async def gitlab_ingest_pipelines(
+        project_id: str = Field(
+            description="GitLab project id or URL-encoded path to ingest recent pipeline runs for."
+        ),
+        params_json: str = Field(
+            default="{}",
+            description="JSON string of get_pipelines filters (e.g. status, ref, per_page).",
+        ),
+        include_jobs: bool = Field(
+            default=True,
+            description="Also fetch + ingest each pipeline's jobs as :Job/:CheckRun nodes.",
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = None,
+    ) -> Any:
+        """Natively ingest GitLab CI pipeline runs (+ jobs) into epistemic-graph.
+
+        Lists recent pipelines for ``project_id`` via the GitLab API (optionally each
+        pipeline's jobs) and pushes them as typed ``:Pipeline``/``:Job`` nodes (aliased
+        ``:PipelineRun``/``:CheckRun`` in the ontology) — linked to the ``:Project``
+        and, when resolvable, the triggering ``:Commit`` — into the knowledge graph via
+        the fast engine client. This is the substrate the autonomous-SDLC loop needs to
+        observe CI. Best-effort: returns ``{"ingested": None}`` when no engine is
+        reachable. CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        """
+        import json as _json
+
+        from gitlab_api.kg_ingest import ingest_pipeline_runs
+
+        kwargs = _json.loads(params_json) if params_json else {}
+        kwargs["project_id"] = project_id
+        resp = await run_blocking(client.get_pipelines, **kwargs)
+        data = getattr(resp, "data", resp)
+        records = data if isinstance(data, list) else [data]
+        pipelines = [
+            r.model_dump() if hasattr(r, "model_dump") else r
+            for r in records
+            if r is not None
+        ]
+
+        jobs_by_pipeline: dict[Any, list[dict[str, Any]]] = {}
+        if include_jobs:
+            for pipe in pipelines:
+                pid = pipe.get("id")
+                if pid is None:
+                    continue
+                jresp = await run_blocking(
+                    client.get_pipeline_jobs, project_id=project_id, pipeline_id=pid
+                )
+                jdata = getattr(jresp, "data", jresp)
+                jrecords = jdata if isinstance(jdata, list) else [jdata]
+                jobs_by_pipeline[pid] = [
+                    j.model_dump() if hasattr(j, "model_dump") else j
+                    for j in jrecords
+                    if j is not None
+                ]
+
+        result = ingest_pipeline_runs(
+            project_id, pipelines, jobs_by_pipeline=jobs_by_pipeline
+        )
+        return {"listed": len(pipelines), "ingested": result}
+
     return None
 
 
