@@ -84,21 +84,63 @@ def list_configured_instances() -> list[GitLabInstance]:
     return _from_shared_config() or _single_host_fallback()
 
 
+def _entitled(namespace: str, names: list[str]) -> list[str]:
+    """Filter an instance-name list to what the calling identity may reach.
+
+    Routes the names through agent-utilities' shared identity-scoped resolver
+    (CONCEPT:AU-OS.identity.identity-scoped-resource-autoload): a caller's
+    Okta/Keycloak groups decide which GitLab tenants auto-load for them. The
+    ambient ``SYSTEM_ACTOR`` (unauthenticated/local) holds ``admin`` → sees
+    all, so behaviour is unchanged until a real identity scopes it down.
+    Degrades to the full list if agent-utilities predates the resolver.
+    """
+    try:
+        from agent_utilities.security.entitlements import identity_scoped_resources
+    except Exception:
+        return list(names)
+    return list(identity_scoped_resources(namespace, names))
+
+
 def get_instance(name: str | None = None) -> GitLabInstance | None:
-    """Resolve one instance by name, or the default (first configured) when ``name`` is None."""
+    """Resolve one instance by name, or the caller's entitled default when ``name`` is None.
+
+    Resolved against the caller's identity entitlements
+    (CONCEPT:AU-OS.identity.identity-scoped-resource-autoload): an omitted
+    ``name`` auto-selects the caller's entitled default (falling back to
+    ``None`` — the legacy single-host resolution — if the caller is entitled
+    to none of the configured tenants), and a named instance they are not
+    entitled to is denied with ``PermissionError``.
+    """
     instances = list_configured_instances()
     if not instances:
         return None
+    entitled = _entitled("gitlab", [i.name for i in instances])
     if name is None:
-        return instances[0]
+        for inst in instances:
+            if inst.name in entitled:
+                return inst
+        return None
     for inst in instances:
         if inst.name == name:
+            if inst.name not in entitled:
+                raise PermissionError(
+                    f"Your identity is not entitled to the GitLab instance "
+                    f"'{name}'. Entitled: {', '.join(entitled) or '(none)'}"
+                )
             return inst
     return None
 
 
 def instance_summaries() -> list[dict[str, object]]:
-    """Tenant list for discovery — names/urls/verify only, NEVER tokens."""
+    """Entitled tenant list for discovery — names/urls/verify only, NEVER tokens.
+
+    Scoped to the caller's Okta/Keycloak identity
+    (CONCEPT:AU-OS.identity.identity-scoped-resource-autoload); an
+    unauthenticated/local caller (SYSTEM_ACTOR) sees all — unchanged from
+    today.
+    """
+    instances = list_configured_instances()
+    entitled = set(_entitled("gitlab", [i.name for i in instances]))
     return [
         {
             "name": i.name,
@@ -106,5 +148,6 @@ def instance_summaries() -> list[dict[str, object]]:
             "verify_ssl": i.verify_ssl,
             "has_token": bool(i.token),
         }
-        for i in list_configured_instances()
+        for i in instances
+        if i.name in entitled
     ]
