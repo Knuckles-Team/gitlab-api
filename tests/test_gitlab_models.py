@@ -131,6 +131,24 @@ def test_merge_request_model():
     sys.platform in ["darwin"] or skip,
     reason=reason,
 )
+def test_merge_request_model_no_title_required():
+    """Regression test: listing/filtering merge requests must not require a
+    title. Only creating a merge request should enforce that (handled
+    explicitly by GitLabApiMergeRequests.create_merge_request via
+    MissingParameterError).
+    """
+    merge_request = MergeRequestModel()
+    assert merge_request.title is None
+
+    merge_request = MergeRequestModel(project_id=2)
+    assert merge_request.title is None
+    assert str(merge_request.project_id) == "2"
+
+
+@pytest.mark.skipif(
+    sys.platform in ["darwin"] or skip,
+    reason=reason,
+)
 def test_merge_request_rule_model():
     project_id = 2
     group_ids = [1, 2, 3, 4]

@@ -1252,7 +1252,7 @@ class MergeRequestModel(BaseModel):
     with_labels_details: bool | None = None
     with_merge_status_recheck: bool | None = None
     wip: str | None = None
-    title: str | None
+    title: str | None = None
     allow_collaboration: bool | None = None
     allow_maintainer_to_push: bool | None = None
     approvals_before_merge: int | None = None
