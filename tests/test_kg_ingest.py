@@ -130,7 +130,8 @@ def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner():
     assert res == {"nodes": 4, "edges": 5}
 
     pipe_node = c.txn.nodes["gitlab:pipelinerun:42:101"]
-    assert pipe_node["type"] == "Pipeline"
+    # Same class name github-agent uses, so both CI systems unify.
+    assert pipe_node["type"] == "PipelineRun"
     assert pipe_node["status"] == "failed"
     assert pipe_node["sha"] == "abc123"
     assert pipe_node["triggerSource"] == "push"
@@ -140,7 +141,7 @@ def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner():
     assert pipe_node["domain"] == "gitlab"
 
     job_node = c.txn.nodes["gitlab:checkrun:42:101:501"]
-    assert job_node["type"] == "Job"
+    assert job_node["type"] == "CheckRun"
     assert job_node["failureReason"] == "script_failure"
     assert job_node["logUrl"] == "https://gl/grp/demo/-/jobs/501/raw"
     assert job_node["externalToolId"] == "501"
@@ -152,17 +153,18 @@ def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner():
     assert runner_node["type"] == "Runner"
     assert runner_node["name"] == "shared-runner"
 
+    # ranFor / hasJob edge names match github-agent's twin producer.
     edges = {(s, t, p["type"]) for s, t, p in c.edges.edges}
-    assert ("gitlab:pipelinerun:42:101", "gitlab:project:42", "belongsToProject") in edges
+    assert ("gitlab:pipelinerun:42:101", "gitlab:project:42", "ranFor") in edges
     assert (
-        "gitlab:commit:42:abc123",
         "gitlab:pipelinerun:42:101",
-        "triggeredPipeline",
+        "gitlab:commit:42:abc123",
+        "ranFor",
     ) in edges
     assert (
-        "gitlab:mr:42:7",
         "gitlab:pipelinerun:42:101",
-        "triggeredPipeline",
+        "gitlab:mr:42:7",
+        "ranFor",
     ) in edges
     assert (
         "gitlab:pipelinerun:42:101",

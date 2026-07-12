@@ -84,6 +84,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_graphql` | `GRAPHQLTOOL` | Execute raw GraphQL queries and mutations natively on GitLab. |
 | `gitlab_graphql_ops` | `GRAPHQL_OPSTOOL` | Run a typed GitLab GraphQL operation by name. |
 | `gitlab_groups` | `GROUPSTOOL` | Manage gitlab groups operations. |
+| `gitlab_ingest_pipelines` | `MISCTOOL` | Natively ingest GitLab CI pipeline runs (+ jobs) into epistemic-graph. |
 | `gitlab_ingest_projects` | `MISCTOOL` | Natively ingest GitLab projects into epistemic-graph as typed :Project nodes. |
 | `gitlab_instances` | `MISCTOOL` | List the configured GitLab tenants (CONCEPT:AU-KG.backend.declared-columns-so-schema). |
 | `gitlab_issues` | `ISSUESTOOL` | Manage GitLab issues. |
@@ -314,7 +315,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 </details>
 
-_33 action-routed tool(s) (default) · 196 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_34 action-routed tool(s) (default) · 196 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).

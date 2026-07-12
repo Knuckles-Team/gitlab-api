@@ -150,25 +150,26 @@ def ingest_pipeline_runs(
     client: Any | None = None,
     graph: str | None = None,
 ) -> dict[str, int] | None:
-    """Map GitLab pipeline runs (+ their jobs) → ``:Pipeline``/``:Job`` nodes and ingest.
+    """Map GitLab pipeline runs (+ their jobs) → ``:PipelineRun``/``:CheckRun`` nodes.
 
     This is the substrate the autonomous-SDLC loop needs to observe CI (closes gap #2,
     "CI has no graph representation", of ``reports/autonomous-sdlc-loop-design.md``).
+
+    Uses the SAME ``:PipelineRun``/``:CheckRun`` classes and ``ranFor``/``hasJob`` edge
+    names as github-agent's ingestion so GitLab CI/CD and GitHub Actions unify under one
+    CI node shape in the knowledge graph. ``ranFor`` is emitted once per known target —
+    the ``:Project``, the head ``:Commit``, and (if resolved) the triggering
+    ``:MergeRequest``. Stable ids: ``gitlab:pipelinerun:<project>:<id>`` /
+    ``gitlab:checkrun:<project>:<pipeline>:<job>``.
 
     ``pipelines``: raw GitLab pipeline records (``id``, ``status``, ``ref``, ``sha``,
     ``source``, ``web_url``, ``name``, timestamps, ``duration``; optionally
     ``merge_request_iid`` if the caller has resolved the triggering merge request).
     ``jobs_by_pipeline``: maps a pipeline ``id`` to its list of raw GitLab job records
     (``id``, ``name``, ``stage``, ``status``, ``failure_reason``, ``web_url``,
-    timestamps, ``duration``, optional ``runner``).
-
-    Builds one ``:Pipeline`` node per pipeline (id
-    ``gitlab:pipelinerun:<project>:<id>``, aliased ``:PipelineRun`` in the ontology),
-    linked to the owning ``:Project`` (``belongsToProject``) and, when known, the
-    triggering ``:Commit``/``:MergeRequest`` (``triggeredPipeline``); one child
-    ``:Job`` node per job (id ``gitlab:checkrun:<project>:<pipeline>:<job>``, aliased
-    ``:CheckRun``), linked to its ``:Pipeline`` (``hasJob``) and, when known, its
-    ``:Runner`` (``ranOnRunner``).
+    timestamps, ``duration``, optional ``runner``); each becomes a child ``:CheckRun``
+    linked via ``hasJob`` (and, when known, its ``:Runner`` via the GitLab-specific
+    ``ranOnRunner``).
     """
     pipelines = pipelines or []
     if not pipelines:
@@ -186,7 +187,7 @@ def ingest_pipeline_runs(
         entities.append(
             {
                 "id": pipe_node,
-                "type": "Pipeline",
+                "type": "PipelineRun",
                 "status": pipe.get("status"),
                 "ref": pipe.get("ref"),
                 "sha": pipe.get("sha"),
@@ -201,7 +202,7 @@ def ingest_pipeline_runs(
             }
         )
         relationships.append(
-            {"source": pipe_node, "target": project_node, "type": "belongsToProject"}
+            {"source": pipe_node, "target": project_node, "type": "ranFor"}
         )
 
         sha = pipe.get("sha")
@@ -209,18 +210,14 @@ def ingest_pipeline_runs(
             commit_node = f"gitlab:commit:{project_id}:{sha}"
             entities.append({"id": commit_node, "type": "Commit", "sha": sha})
             relationships.append(
-                {
-                    "source": commit_node,
-                    "target": pipe_node,
-                    "type": "triggeredPipeline",
-                }
+                {"source": pipe_node, "target": commit_node, "type": "ranFor"}
             )
 
         mr_iid = pipe.get("merge_request_iid")
         if mr_iid is not None:
             mr_node = f"gitlab:mr:{project_id}:{mr_iid}"
             relationships.append(
-                {"source": mr_node, "target": pipe_node, "type": "triggeredPipeline"}
+                {"source": pipe_node, "target": mr_node, "type": "ranFor"}
             )
 
         for job in jobs_by_pipeline.get(pid, []) or []:
@@ -232,7 +229,7 @@ def ingest_pipeline_runs(
             entities.append(
                 {
                     "id": job_node,
-                    "type": "Job",
+                    "type": "CheckRun",
                     "name": job.get("name"),
                     "stage": job.get("stage"),
                     "status": job.get("status"),

@@ -29,7 +29,10 @@
 
 :PipelineRun a owl:Class ;
     rdfs:label "Pipeline Run" ;
-    rdfs:comment "Alias of :Pipeline in the autonomous-SDLC-loop lifecycle vocabulary — a single executed run of a project's CI/CD pipeline for a commit/ref/merge request, ingested by gitlab_api.kg_ingest.ingest_pipeline_runs (id gitlab:pipelinerun:<project>:<id>)." ;
+    rdfs:comment """A single CI/CD execution for a commit/ref/merge request (a GitLab pipeline
+    run, ingested by gitlab_api.kg_ingest.ingest_pipeline_runs, id gitlab:pipelinerun:<project>:<id>).
+    Shares its class name with the twin github-agent producer so GitLab CI/CD and GitHub Actions
+    unify under one node shape in the knowledge graph.""" ;
     owl:equivalentClass :Pipeline .
 
 :Job a owl:Class ;
@@ -38,7 +41,9 @@
 
 :CheckRun a owl:Class ;
     rdfs:label "Check Run" ;
-    rdfs:comment "Alias of :Job in the autonomous-SDLC-loop lifecycle vocabulary — a single stage/job of a PipelineRun, ingested by gitlab_api.kg_ingest.ingest_pipeline_runs (id gitlab:checkrun:<project>:<pipeline>:<job>)." ;
+    rdfs:comment """A single job/check within a PipelineRun (a GitLab pipeline job, ingested by
+    gitlab_api.kg_ingest.ingest_pipeline_runs, id gitlab:checkrun:<project>:<pipeline>:<job>).
+    Shares its class name with the twin github-agent producer.""" ;
     owl:equivalentClass :Job .
 
 :Issue a owl:Class ;
@@ -93,9 +98,17 @@
     rdfs:comment "Links a Commit or MergeRequest to a Pipeline it started." ;
     rdfs:range :Pipeline .
 
+:ranFor a owl:ObjectProperty ;
+    rdfs:label "ran for" ;
+    rdfs:comment """Links a PipelineRun to what it ran for — its Project, the Commit it built,
+    and/or the MergeRequest it validated. Same predicate name as the twin github-agent producer
+    (PipelineRun ranFor Repository/Commit/PullRequest), unifying GitLab CI/CD and GitHub Actions.""" ;
+    rdfs:domain :PipelineRun .
+
 :hasJob a owl:ObjectProperty ;
     rdfs:label "has job" ;
-    rdfs:comment "Links a Pipeline to a Job it contains." ;
+    rdfs:comment """Links a PipelineRun to a CheckRun (job/check) it contains. Same predicate name
+    as the twin github-agent producer (PipelineRun hasJob CheckRun).""" ;
     rdfs:domain :Pipeline ;
     rdfs:range :Job .
 

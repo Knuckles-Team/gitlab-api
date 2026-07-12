@@ -131,12 +131,13 @@ def register_misc_tools(mcp: FastMCP):
         """Natively ingest GitLab CI pipeline runs (+ jobs) into epistemic-graph.
 
         Lists recent pipelines for ``project_id`` via the GitLab API (optionally each
-        pipeline's jobs) and pushes them as typed ``:Pipeline``/``:Job`` nodes (aliased
-        ``:PipelineRun``/``:CheckRun`` in the ontology) — linked to the ``:Project``
-        and, when resolvable, the triggering ``:Commit`` — into the knowledge graph via
-        the fast engine client. This is the substrate the autonomous-SDLC loop needs to
-        observe CI. Best-effort: returns ``{"ingested": None}`` when no engine is
-        reachable. CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        pipeline's jobs) and pushes them as typed ``:PipelineRun``/``:CheckRun`` nodes
+        (the SAME classes + ``ranFor``/``hasJob`` edges github-agent uses, so GitLab
+        CI/CD and GitHub Actions unify) — ``ranFor`` the ``:Project``, the ``:Commit``,
+        and any triggering ``:MergeRequest`` — into the knowledge graph via the fast
+        engine client. This is the substrate the autonomous-SDLC loop needs to observe
+        CI. Best-effort: returns ``{"ingested": None}`` when no engine is reachable.
+        CONCEPT:AU-KG.ingest.enterprise-source-extractor.
         """
         import json as _json
 
