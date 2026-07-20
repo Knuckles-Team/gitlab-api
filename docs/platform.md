@@ -67,7 +67,8 @@ docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
 ```bash
 export GITLAB_URL=http://localhost:8080
 export GITLAB_TOKEN=<your-gitlab-token>
-export GITLAB_SSL_VERIFY=False          # if the instance uses a self-signed cert
+export GITLAB_TLS_PROFILE=private-pki
+export SSL_CERT_FILE=/run/secrets/private-ca-bundle.pem
 
 gitlab-mcp --transport streamable-http --host 0.0.0.0 --port 8000
 ```
@@ -92,12 +93,13 @@ services:
       - gitlab_data:/var/opt/gitlab
 
   gitlab-api-mcp:
-    image: knucklessg1/gitlab-api:latest
+    image: example/gitlab-api@sha256:<digest>
     depends_on: [gitlab]
     environment:
       - GITLAB_URL=http://gitlab
       - GITLAB_TOKEN=<your-gitlab-token>
-      - GITLAB_SSL_VERIFY=False
+      - GITLAB_TLS_PROFILE=private-pki
+      - SSL_CERT_FILE=/run/secrets/private-ca-bundle.pem
       - TRANSPORT=streamable-http
       - HOST=0.0.0.0
       - PORT=8000

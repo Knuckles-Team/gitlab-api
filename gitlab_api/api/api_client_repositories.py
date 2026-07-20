@@ -83,8 +83,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
@@ -113,8 +111,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{branch.project_id}/repository/branches",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
                 json=branch.api_parameters,
             )
             response.raise_for_status()
@@ -144,8 +140,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{branch.project_id}/repository/branches/{branch.branch}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
@@ -174,8 +168,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{branch.project_id}/repository/merged_branches",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
@@ -227,8 +219,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Commit(**response.json())
@@ -254,8 +244,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/refs",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Commit(**response.json())
@@ -281,8 +269,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/cherry_pick",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
                 json=commit.data,
             )
             response.raise_for_status()
@@ -309,8 +295,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
                 json=commit.data,
             )
             response.raise_for_status()
@@ -337,8 +321,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/revert",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
                 json=commit.data,
             )
             response.raise_for_status()
@@ -365,8 +347,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/diff",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = [Diff(**item) for item in response.json()]
@@ -392,8 +372,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/comments",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = [Comment(**item) for item in response.json()]
@@ -419,8 +397,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/comments",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
                 json=commit.data,
             )
             response.raise_for_status()
@@ -447,8 +423,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/discussions",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = [Comment(**item) for item in response.json()]
@@ -474,8 +448,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/statuses",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = [Commit(**item) for item in response.json()]
@@ -501,8 +473,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{commit.project_id}/statuses/{commit.commit_hash}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
                 json=commit.data,
             )
             response.raise_for_status()
@@ -529,8 +499,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/merge_requests",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = [MergeRequest(**item) for item in response.json()]
@@ -556,8 +524,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{commit.project_id}/repository/commits/{commit.commit_hash}/signatures",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = CommitSignature(**response.json())
@@ -615,8 +581,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{protected_branch.project_id}/protected_branches/{protected_branch.branch}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
@@ -646,8 +610,6 @@ class GitLabApiRepositories(GitLabApiBase):
                 url=f"{self.url}/projects/{protected_branch.project_id}/protected_branches",
                 json=protected_branch.data,  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
@@ -676,8 +638,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{protected_branch.project_id}/protected_branches/{protected_branch.branch}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -706,8 +666,6 @@ class GitLabApiRepositories(GitLabApiBase):
                 url=f"{self.url}/projects/{protected_branch.project_id}/protected_branches/{protected_branch.branch}",
                 json=protected_branch.data,  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Branch(**response.json())
@@ -736,8 +694,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{release.project_id}/releases/{release.tag_name}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Release(**response.json())
@@ -795,8 +751,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{tag.project_id}/repository/tags/{tag.name}",  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Tag(**response.json())
@@ -826,8 +780,6 @@ class GitLabApiRepositories(GitLabApiBase):
                 url=f"{self.url}/projects/{tag.project_id}/repository/tags",
                 json=tag.data,  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Tag(**response.json())
@@ -856,8 +808,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{tag.project_id}/repository/tags/{tag.name}",  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -914,8 +864,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{tag.project_id}/protected_tags/{tag.name}",  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Tag(**response.json())
@@ -945,8 +893,6 @@ class GitLabApiRepositories(GitLabApiBase):
                 url=f"{self.url}/projects/{tag.project_id}/protected_tags",
                 json=tag.data,  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Tag(**response.json())
@@ -975,8 +921,6 @@ class GitLabApiRepositories(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{tag.project_id}/protected_tags/{tag.name}",  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)

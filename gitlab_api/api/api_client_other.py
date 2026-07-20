@@ -89,8 +89,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.put(
                 url=f"{self.url}/projects/{package.project_id}/packages/generic/{package.package_name}/{package.package_version}/{package.file_name}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Package(**response.json())
@@ -124,8 +122,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{package.project_id}/packages/generic/{package.package_name}/{package.package_version}/{package.file_name}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.content
@@ -155,8 +151,6 @@ class GitLabApiOther(GitLabApiBase):
                 url=f"{self.url}/runners/{runner.runner_id}/reset_authentication_token",
                 headers=self.headers,
                 json=runner.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
@@ -214,8 +208,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = WikiPage(**response.json())
@@ -244,8 +236,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{wiki.project_id}/wikis",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
                 json=wiki.data,
             )
             response.raise_for_status()
@@ -275,8 +265,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.put(
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
                 json=wiki.data,
             )
             response.raise_for_status()
@@ -306,8 +294,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/{wiki.slug}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -337,8 +323,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{wiki.project_id}/wikis/attachments",
                 headers=headers,
-                verify=self.verify,
-                proxies=self.proxies,
                 files={"file": wiki.file},
             )
             response.raise_for_status()
@@ -369,8 +353,6 @@ class GitLabApiOther(GitLabApiBase):
                 url=url,
                 json=snippet.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Snippet(**response.json())
@@ -414,8 +396,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.get(
                 url=url,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Snippet(**response.json())
@@ -439,8 +419,6 @@ class GitLabApiOther(GitLabApiBase):
                 url=url,
                 json=snippet.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Snippet(**response.json())
@@ -463,8 +441,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.delete(
                 url=url,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response, data=None)
@@ -485,8 +461,6 @@ class GitLabApiOther(GitLabApiBase):
                 url=f"{self.url}/projects/{note.project_id}/issues/{note.issue_iid}/notes",
                 json=note.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Note(**response.json())
@@ -528,8 +502,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{note.project_id}/issues/{note.issue_iid}/notes/{note.note_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Note(**response.json())
@@ -556,8 +528,6 @@ class GitLabApiOther(GitLabApiBase):
                 url=f"{self.url}/projects/{note.project_id}/issues/{note.issue_iid}/notes/{note.note_id}",
                 json=note.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Note(**response.json())
@@ -578,8 +548,6 @@ class GitLabApiOther(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{note.project_id}/issues/{note.issue_iid}/notes/{note.note_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response, data=None)

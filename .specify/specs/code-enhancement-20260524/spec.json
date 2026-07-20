@@ -273,7 +273,7 @@
     },
     {
       "id": "FR-044",
-      "description": "16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_LOG_LEVEL, GITLAB_SSL_VERIFY, ISSUESTOOL",
+      "description": "16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_LOG_LEVEL, GITLAB_TLS_PROFILE, ISSUESTOOL",
       "testable": true
     },
     {

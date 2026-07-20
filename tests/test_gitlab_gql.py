@@ -313,5 +313,5 @@ def test_graphql_brute_force_coverage(mock_gql_client):
             res = method(**kwargs)
             assert res is not None
         except Exception as e:
-            print(f"Failed GraphQL.{name} with {type(e).__name__}: {e}")
+            print(f"Operation failed: {type(e).__name__}")
             pass

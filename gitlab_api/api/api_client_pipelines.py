@@ -112,8 +112,6 @@ class GitLabApiPipelines(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{pipeline.project_id}/pipelines/{pipeline.pipeline_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Pipeline(**response.json())
@@ -143,8 +141,6 @@ class GitLabApiPipelines(GitLabApiBase):
                 url=f"{self.url}/projects/{pipeline.project_id}/pipeline",
                 headers=self.headers,
                 json=pipeline.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Pipeline(**response.json())
@@ -202,8 +198,6 @@ class GitLabApiPipelines(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = PipelineSchedule(**response.json())
@@ -262,8 +256,6 @@ class GitLabApiPipelines(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/pipeline_schedules",
                 json=project.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = PipelineSchedule(**response.json())
@@ -293,8 +285,6 @@ class GitLabApiPipelines(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}",
                 json=project.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = PipelineSchedule(**response.json())
@@ -323,8 +313,6 @@ class GitLabApiPipelines(GitLabApiBase):
             response = self._session.put(
                 url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/take_ownership",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = PipelineSchedule(**response.json())
@@ -353,8 +341,6 @@ class GitLabApiPipelines(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -382,8 +368,6 @@ class GitLabApiPipelines(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/play",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -412,8 +396,6 @@ class GitLabApiPipelines(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/variables",
                 json=project.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = PipelineVariable(**response.json())
@@ -446,8 +428,6 @@ class GitLabApiPipelines(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{project.project_id}/pipeline_schedules/{project.pipeline_schedule_id}/variables/{project.key}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -501,8 +481,6 @@ class GitLabApiPipelines(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
@@ -532,8 +510,6 @@ class GitLabApiPipelines(GitLabApiBase):
                 url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
                 json=runner.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
@@ -563,8 +539,6 @@ class GitLabApiPipelines(GitLabApiBase):
                 url=f"{self.url}/runners/{runner.runner_id}",
                 headers=self.headers,
                 json=runner.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
@@ -652,8 +626,6 @@ class GitLabApiPipelines(GitLabApiBase):
                 url=f"{self.url}/runners",
                 headers=self.headers,
                 json=runner.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
@@ -683,16 +655,12 @@ class GitLabApiPipelines(GitLabApiBase):
                 response = self._session.delete(
                     url=f"{self.url}/runners/{runner.runner_id}",
                     headers=self.headers,
-                    verify=self.verify,
-                    proxies=self.proxies,
                 )
             else:
                 response = self._session.delete(
                     url=f"{self.url}/runners",
                     headers=self.headers,
                     json=runner.data,
-                    verify=self.verify,
-                    proxies=self.proxies,
                 )
             response.raise_for_status()
             return Response(response=response)
@@ -721,8 +689,6 @@ class GitLabApiPipelines(GitLabApiBase):
                 url=f"{self.url}/runners/verify",
                 headers=self.headers,
                 json=runner.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -743,8 +709,6 @@ class GitLabApiPipelines(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/runners/reset_registration_token",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.json()
@@ -773,8 +737,6 @@ class GitLabApiPipelines(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/groups/{runner.group_id}/runners/reset_registration_token",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.json()

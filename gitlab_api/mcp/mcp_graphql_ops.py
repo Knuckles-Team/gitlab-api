@@ -5,7 +5,8 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import resolve_action, run_blocking
+from agent_utilities.mcp.action_dispatch import resolve_action
+from agent_utilities.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -62,7 +63,7 @@ def register_graphql_ops_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -90,4 +91,4 @@ def register_graphql_ops_tools(mcp: FastMCP):
                 return await run_blocking(method, **{required[0].name: model})
             return await run_blocking(method, **kwargs)
         except Exception as e:
-            return {"error": f"GraphQL operation '{action}' failed: {str(e)}"}
+            return {"error": f"GraphQL operation '{action}' failed: {type(e).__name__}"}

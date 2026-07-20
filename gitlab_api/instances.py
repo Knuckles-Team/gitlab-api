@@ -8,7 +8,7 @@ no instances are configured it falls back to the single-host `GITLAB_URL` /
 `GITLAB_TOKEN` env the connector has always used.
 
 `get_client(instance="<name>")` (auth.py) resolves a configured instance by
-name; a bare URL still works (back-compat), and an unset instance resolves to
+name; a bare URL is also accepted, and an unset instance resolves to
 the default (first configured, else `GITLAB_URL`).
 """
 
@@ -18,7 +18,7 @@ import os
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
-from agent_utilities.base_utilities import get_logger, to_boolean
+from agent_utilities.base_utilities import get_logger
 
 logger = get_logger(__name__)
 
@@ -30,7 +30,7 @@ class GitLabInstance:
     name: str
     url: str
     token: str = ""
-    verify_ssl: bool = True
+    tls_profile_name: str | None = None
 
 
 def _host_slug(url: str) -> str:
@@ -57,7 +57,11 @@ def _from_shared_config() -> list[GitLabInstance]:
                 name=str(item.get("name") or _host_slug(url)),
                 url=url,
                 token=str(item.get("token", "")),
-                verify_ssl=bool(item.get("verify_ssl", True)),
+                tls_profile_name=(
+                    str(item["tls_profile"]).strip()
+                    if item.get("tls_profile")
+                    else None
+                ),
             )
         )
     return out
@@ -74,7 +78,7 @@ def _single_host_fallback() -> list[GitLabInstance]:
             name=_host_slug(url),
             url=url,
             token=token,
-            verify_ssl=to_boolean(string=os.getenv("GITLAB_SSL_VERIFY", "True")),
+            tls_profile_name=os.getenv("GITLAB_TLS_PROFILE") or None,
         )
     ]
 
@@ -98,12 +102,12 @@ def get_instance(name: str | None = None) -> GitLabInstance | None:
 
 
 def instance_summaries() -> list[dict[str, object]]:
-    """Tenant list for discovery — names/urls/verify only, NEVER tokens."""
+    """Tenant list for discovery — names/URLs/profile state only, never tokens."""
     return [
         {
             "name": i.name,
             "url": i.url,
-            "verify_ssl": i.verify_ssl,
+            "tls_profile_configured": bool(i.tls_profile_name),
             "has_token": bool(i.token),
         }
         for i in list_configured_instances()

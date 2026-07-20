@@ -1,9 +1,9 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
+
 import pytest
 from requests import Response
 
 from gitlab_api.auth import get_client, get_graphql_client
-from agent_utilities.core.exceptions import AuthError, UnauthorizedError
 
 
 def test_get_client_fixed_credentials():
@@ -29,10 +29,6 @@ def test_get_client_oidc_delegation():
         patch(
             "agent_utilities.mcp.delegated_auth.get_delegated_token",
             return_value="delegated_tok",
-        ),
-        patch(
-            "agent_utilities.mcp.delegated_auth.get_user_identity",
-            return_value={"email": "user@test.com"},
         ),
     ):
         client = get_client(
@@ -78,10 +74,6 @@ def test_get_graphql_client_oidc_delegation():
         patch(
             "agent_utilities.mcp.delegated_auth.get_delegated_token",
             return_value="delegated_tok",
-        ),
-        patch(
-            "agent_utilities.mcp.delegated_auth.get_user_identity",
-            return_value={"email": "user@test.com"},
         ),
     ):
         gql_client = get_graphql_client(

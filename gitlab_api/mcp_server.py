@@ -25,14 +25,11 @@ import os
 import sys
 from typing import Any
 
-from agent_utilities.core.config import setting
-from agent_utilities.mcp_utilities import (
-    create_mcp_server,
-    load_config,
-    register_tool_surface,
-    resolve_action,
-    run_blocking,
-)
+from agent_utilities.core.config import load_config, setting
+from agent_utilities.mcp.action_dispatch import resolve_action
+from agent_utilities.mcp.concurrency import run_blocking
+from agent_utilities.mcp.server_factory import create_mcp_server
+from agent_utilities.mcp.verbose_tools import register_tool_surface
 
 from gitlab_api.api_client import Api
 from gitlab_api.auth import get_client
@@ -43,7 +40,6 @@ print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 logger = get_logger(name="mcp_server")
 logger.setLevel(logging.DEBUG)
 
-DEFAULT_GITLAB_SSL_VERIFY = setting("GITLAB_SSL_VERIFY", True)
 DEFAULT_GITLAB_URL = setting("GITLAB_URL", "https://gitlab.com")
 DEFAULT_GITLAB_TOKEN = setting("GITLAB_TOKEN", None)
 
@@ -75,7 +71,7 @@ def register_misc_tools(mcp: FastMCP):
             return {
                 "name": inst.name,
                 "url": inst.url,
-                "verify_ssl": inst.verify_ssl,
+                "tls_profile_configured": bool(inst.tls_profile_name),
                 "has_token": bool(inst.token),
             }
         return {"instances": instance_summaries()}
@@ -93,7 +89,7 @@ def register_misc_tools(mcp: FastMCP):
 
         Lists projects via the GitLab API and pushes them (with their :GitLabGroup +
         :partOfGroup links) into the knowledge graph via the fast engine client.
-        Best-effort: returns ``{"ingested": None}`` when no engine is reachable.
+        Native-ingestion failures propagate to the caller.
         CONCEPT:AU-KG.ingest.enterprise-source-extractor.
         """
         import json as _json
@@ -201,7 +197,7 @@ def register_branches_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -247,7 +243,7 @@ def register_protected_branches_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -297,7 +293,7 @@ def register_commits_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -377,7 +373,7 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -441,7 +437,7 @@ def register_environments_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -517,7 +513,7 @@ def register_groups_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -576,7 +572,7 @@ def register_jobs_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -639,7 +635,7 @@ def register_members_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -679,7 +675,7 @@ def register_merge_requests_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -731,7 +727,7 @@ def register_merge_rules_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -818,7 +814,7 @@ def register_packages_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -860,7 +856,7 @@ def register_pipelines_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -900,7 +896,7 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -975,7 +971,7 @@ def register_projects_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1052,7 +1048,7 @@ def register_releases_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1126,7 +1122,7 @@ def register_runners_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1213,7 +1209,7 @@ def register_tags_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1275,7 +1271,7 @@ def register_labels_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1321,7 +1317,7 @@ def register_milestones_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1367,7 +1363,7 @@ def register_snippets_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1413,7 +1409,7 @@ def register_notes_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1459,7 +1455,7 @@ def register_epics_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1505,7 +1501,7 @@ def register_issues_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1559,7 +1555,7 @@ def register_custom_api_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         return await run_blocking(
@@ -1589,7 +1585,7 @@ def register_users_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1637,7 +1633,7 @@ def register_wiki_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1687,7 +1683,7 @@ def register_namespaces_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1727,7 +1723,7 @@ def register_vulnerabilities_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1837,7 +1833,7 @@ def register_graphql_tools(mcp: FastMCP):
         try:
             vars_dict = json.loads(variables) if variables else None
         except Exception as e:
-            return {"error": f"Invalid variables JSON: {e}"}
+            return {"error": "Operation failed"}
 
         try:
             return await run_blocking(
@@ -1847,7 +1843,7 @@ def register_graphql_tools(mcp: FastMCP):
                 operation_name=operation_name,
             )
         except Exception as e:
-            return {"error": f"GraphQL execution failed: {str(e)}"}
+            return {"error": f"GraphQL execution failed: {type(e).__name__}"}
 
     @mcp.tool(tags={"graphql"})
     async def gitlab_discover_graphql_schema(
@@ -1880,7 +1876,7 @@ def register_graphql_tools(mcp: FastMCP):
                 return await ctx_graphql_get_type_details(execute_fn, type_name)
             return await ctx_graphql_list_types(execute_fn)
         except Exception as e:
-            return {"error": f"Failed to discover GitLab GraphQL schema: {str(e)}"}
+            return {"error": "Failed to discover GitLab GraphQL schema"}
 
 
 def register_graphql_ops_tools(mcp: FastMCP):
@@ -1934,7 +1930,7 @@ def register_graphql_ops_tools(mcp: FastMCP):
         try:
             kwargs = json.loads(params_json)
         except Exception as e:
-            return {"error": f"Invalid params_json: {e}"}
+            return {"error": "Operation failed"}
 
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
@@ -1962,7 +1958,7 @@ def register_graphql_ops_tools(mcp: FastMCP):
                 return await run_blocking(method, **{required[0].name: model})
             return await run_blocking(method, **kwargs)
         except Exception as e:
-            return {"error": f"GraphQL operation '{action}' failed: {str(e)}"}
+            return {"error": f"GraphQL operation '{action}' failed: {type(e).__name__}"}
 
 
 def get_mcp_instance() -> tuple[Any, Any, Any, Any]:

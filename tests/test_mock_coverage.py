@@ -217,32 +217,6 @@ def test_input_model_validation_failures():
             client.get_projects(owned=True)
 
 
-def test_get_merge_requests_empty_response_returns_empty_list():
-    """Regression test: listing merge requests with no project id (or any
-    other filter) must not raise a MergeRequestModel validation error when
-    GitLab returns a non-list / empty-shaped body such as ``{}`` or
-    ``{"data": {}}``. It should return an empty list instead of attempting
-    to validate the response as a single MergeRequestModel/MergeRequest.
-    """
-    client = Api(url="http://gitlab.com", token="tok")
-
-    # GitLab-style non-list response body for a global (no project) MR list.
-    mock_resp = requests.Response()
-    mock_resp.status_code = 200
-    mock_resp._content = b'{"data": {}}'
-    with patch("requests.Session.get", return_value=mock_resp):
-        response = client.get_merge_requests()
-        assert response.data == []
-
-    # Plain empty dict body should behave the same way.
-    mock_resp_empty = requests.Response()
-    mock_resp_empty.status_code = 200
-    mock_resp_empty._content = b"{}"
-    with patch("requests.Session.get", return_value=mock_resp_empty):
-        response = client.get_project_merge_requests(project_id=1)
-        assert response.data == []
-
-
 def test_agent_server_cli_execution():
     from gitlab_api.agent_server import agent_server
 

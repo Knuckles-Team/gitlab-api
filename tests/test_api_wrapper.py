@@ -26,13 +26,13 @@ else:
 
 reason = "do not run on MacOS or windows OR dependency is not installed OR " + reason
 
-gitlab_url = "http://gitlab.arpa/api/v4"
+gitlab_url = "http://gitlab.example/api/v4"
 token = os.environ.get("GITLAB_TOKEN", default="NA")
 
 
 @pytest.fixture
 def client():
-    return gitlab_api.Api(url=gitlab_url, token=token, verify=False)  # type: ignore[attr-defined]
+    return gitlab_api.Api(url=gitlab_url, token=token)  # type: ignore[attr-defined]
 
 
 @pytest.mark.skipif(

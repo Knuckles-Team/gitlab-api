@@ -7,12 +7,16 @@ GitLab project → :Project/:GitLabGroup mapping. CONCEPT:AU-KG.ingest.enterpris
 
 from __future__ import annotations
 
+import pytest
+from agent_utilities.knowledge_graph.memory.native_ingest import NativeIngestError
+
 from gitlab_api.kg_ingest import ingest_entities, ingest_pipeline_runs, ingest_projects
 
 
 class _FakeTxn:
     def __init__(self):
         self.nodes = {}
+        self.edges = []
         self.committed = False
 
     def begin(self, graph=None):
@@ -22,30 +26,27 @@ class _FakeTxn:
     def add_node(self, txn, node_id, props):
         self.nodes[node_id] = props
 
+    def add_edge(self, txn, src, dst, props):
+        self.edges.append((src, dst, props))
+
     def commit(self, txn):
         self.committed = True
         return True
 
 
-class _FakeEdges:
-    def __init__(self):
-        self.edges = []
-
-    def add(self, src, dst, props):
-        self.edges.append((src, dst, props))
-
-
 class _FakeClient:
     def __init__(self):
         self.txn = _FakeTxn()
-        self.edges = _FakeEdges()
 
 
 def test_ingest_entities_writes_nodes_and_edges():
     c = _FakeClient()
     res = ingest_entities(
-        [{"id": "a", "type": "Project", "name": "p"}, {"id": "b", "type": "GitLabGroup"}],
-        [{"source": "a", "target": "b", "type": "partOfGroup"}],
+        [
+            {"id": "a", "node_type": "Project", "name": "p"},
+            {"id": "b", "node_type": "GitLabGroup"},
+        ],
+        [{"source": "a", "target": "b", "relationship": "partOfGroup"}],
         client=c,
         graph="__commons__",
     )
@@ -55,7 +56,7 @@ def test_ingest_entities_writes_nodes_and_edges():
     # provenance is stamped
     assert c.txn.nodes["a"]["source"] == "gitlab-api"
     assert c.txn.nodes["a"]["domain"] == "gitlab"
-    assert c.edges.edges == [("a", "b", {"type": "partOfGroup"})]
+    assert c.txn.edges == [("a", "b", {"relationship": "partOfGroup"})]
 
 
 def test_ingest_projects_maps_project_and_group():
@@ -74,23 +75,23 @@ def test_ingest_projects_maps_project_and_group():
         graph="__commons__",
     )
     assert res == {"nodes": 2, "edges": 1}
-    assert c.txn.nodes["gitlab:project:42"]["type"] == "Project"
+    assert c.txn.nodes["gitlab:project:42"]["node_type"] == "Project"
     assert c.txn.nodes["gitlab:project:42"]["path_with_namespace"] == "grp/demo"
     assert c.txn.nodes["gitlab:project:42"]["externalToolId"] == "42"
-    assert c.txn.nodes["gitlab:group:7"]["type"] == "GitLabGroup"
-    assert c.edges.edges == [
-        ("gitlab:project:42", "gitlab:group:7", {"type": "partOfGroup"})
+    assert c.txn.nodes["gitlab:group:7"]["node_type"] == "GitLabGroup"
+    assert c.txn.edges == [
+        ("gitlab:project:42", "gitlab:group:7", {"relationship": "partOfGroup"})
     ]
 
 
-def test_ingest_noops_without_engine():
-    # No injected client + no reachable engine -> clean no-op.
-    assert ingest_entities([{"id": "a", "type": "Project"}]) is None
+def test_ingest_rejects_legacy_structural_fields():
+    with pytest.raises(NativeIngestError, match="canonical node_type"):
+        ingest_entities([{"id": "legacy", "type": "Legacy"}], client=_FakeClient())
 
 
-def test_ingest_empty_is_noop():
-    assert ingest_entities([], client=_FakeClient()) is None
-    assert ingest_projects([], client=_FakeClient()) is None
+def test_ingest_empty_is_rejected():
+    with pytest.raises(NativeIngestError, match="at least one entity"):
+        ingest_entities([], client=_FakeClient())
 
 
 def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner():
@@ -131,7 +132,7 @@ def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner():
 
     pipe_node = c.txn.nodes["gitlab:pipelinerun:42:101"]
     # Same class name github-agent uses, so both CI systems unify.
-    assert pipe_node["type"] == "PipelineRun"
+    assert pipe_node["node_type"] == "PipelineRun"
     assert pipe_node["status"] == "failed"
     assert pipe_node["sha"] == "abc123"
     assert pipe_node["triggerSource"] == "push"
@@ -141,20 +142,20 @@ def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner():
     assert pipe_node["domain"] == "gitlab"
 
     job_node = c.txn.nodes["gitlab:checkrun:42:101:501"]
-    assert job_node["type"] == "CheckRun"
+    assert job_node["node_type"] == "CheckRun"
     assert job_node["failureReason"] == "script_failure"
     assert job_node["logUrl"] == "https://gl/grp/demo/-/jobs/501/raw"
     assert job_node["externalToolId"] == "501"
 
     commit_node = c.txn.nodes["gitlab:commit:42:abc123"]
-    assert commit_node["type"] == "Commit"
+    assert commit_node["node_type"] == "Commit"
 
     runner_node = c.txn.nodes["gitlab:runner:9"]
-    assert runner_node["type"] == "Runner"
+    assert runner_node["node_type"] == "Runner"
     assert runner_node["name"] == "shared-runner"
 
     # ranFor / hasJob edge names match github-agent's twin producer.
-    edges = {(s, t, p["type"]) for s, t, p in c.edges.edges}
+    edges = {(s, t, p["relationship"]) for s, t, p in c.txn.edges}
     assert ("gitlab:pipelinerun:42:101", "gitlab:project:42", "ranFor") in edges
     assert (
         "gitlab:pipelinerun:42:101",
@@ -178,5 +179,6 @@ def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner():
     ) in edges
 
 
-def test_ingest_pipeline_runs_empty_is_noop():
-    assert ingest_pipeline_runs(42, [], client=_FakeClient()) is None
+def test_ingest_pipeline_runs_empty_is_rejected():
+    with pytest.raises(NativeIngestError, match="at least one entity"):
+        ingest_pipeline_runs(42, [], client=_FakeClient())

@@ -6,6 +6,10 @@ from typing import Any
 
 from agent_utilities.core.decorators import require_auth
 from agent_utilities.core.exceptions import MissingParameterError, ParameterError
+from agent_utilities.core.transport_security import (
+    ResolvedTLSProfile,
+    resolve_tls_profile,
+)
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
@@ -40,8 +44,7 @@ class GraphQL:
         self,
         url: str | None = None,
         token: str | None = None,
-        proxies: dict | None = None,
-        verify: bool = True,
+        tls_profile: ResolvedTLSProfile | None = None,
         debug: bool = False,
     ):
         if not url:
@@ -51,8 +54,7 @@ class GraphQL:
 
         self.url = f"{url.rstrip('/')}/api/graphql"
         self.token = token
-        self.proxies = proxies
-        self.verify = verify
+        self.tls_profile = tls_profile or resolve_tls_profile("GITLAB")
         self.debug = debug
 
         logging.basicConfig(
@@ -65,8 +67,7 @@ class GraphQL:
         self.transport = RequestsHTTPTransport(
             url=self.url,
             headers=headers,
-            verify=verify,
-            proxies=proxies,
+            **self.tls_profile.requests_kwargs(),
         )
         self.client = Client(transport=self.transport, fetch_schema_from_transport=True)
 
@@ -100,8 +101,8 @@ class GraphQL:
                 raise ParameterError(f"GraphQL errors: {result['errors']}")
             return result
         except Exception as e:
-            logging.error(f"GraphQL execution failed: {str(e)}")
-            raise ParameterError(f"Query execution failed: {str(e)}") from e
+            logging.error("GraphQL execution failed: error_type=%s", type(e).__name__)
+            raise ParameterError(f"Query execution failed: {type(e).__name__}") from e
 
     @require_auth
     def get_branches(

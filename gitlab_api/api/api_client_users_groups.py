@@ -68,7 +68,7 @@ class GitLabApiUsersGroups(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get group deploy tokens: {str(e)}") from e
+            raise ParameterError(f"Failed to get group deploy tokens: {type(e).__name__}") from e
 
     def get_group_deploy_token(self, **kwargs) -> Response:
         """
@@ -91,8 +91,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.deploy_token_id}",  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = DeployToken(**response.json())
@@ -100,7 +98,7 @@ class GitLabApiUsersGroups(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get group deploy token: {str(e)}") from e
+            raise ParameterError(f"Failed to get group deploy token: {type(e).__name__}") from e
 
     def create_group_deploy_token(self, **kwargs) -> Response:
         """
@@ -128,8 +126,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
                 url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens",
                 headers=self.headers,
                 json=deploy_token.model_dump(exclude_none=True),
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = DeployToken(**response.json())
@@ -138,7 +134,7 @@ class GitLabApiUsersGroups(GitLabApiBase):
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
             raise ParameterError(
-                f"Failed to create group deploy token: {str(e)}"
+                f"Failed to create group deploy token: {type(e).__name__}"
             ) from e
 
     def delete_group_deploy_token(self, **kwargs) -> Response:
@@ -162,8 +158,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/groups/{deploy_token.group_id}/deploy_tokens/{deploy_token.deploy_token_id}",  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -171,7 +165,7 @@ class GitLabApiUsersGroups(GitLabApiBase):
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
             raise ParameterError(
-                f"Failed to delete group deploy token: {str(e)}"
+                f"Failed to delete group deploy token: {type(e).__name__}"
             ) from e
 
     def get_groups(self, **kwargs) -> Response:
@@ -221,8 +215,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/groups/{group.group_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Group(**response.json())
@@ -252,8 +244,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
                 url=f"{self.url}/groups/{group.group_id}",
                 json=group.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Group(**response.json())
@@ -370,8 +360,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
                 url=f"{self.url}/groups/{merge_rule_setting.group_id}/merge_request_approval_setting",
                 headers=self.headers,
                 params=merge_rule_setting.api_parameters,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequestRuleSettings(**response.json())
@@ -401,8 +389,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
                 url=f"{self.url}/groups/{merge_rule_setting.group_id}/merge_request_approval_setting",
                 headers=self.headers,
                 json=merge_rule_setting.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequestRuleSettings(**response.json())
@@ -486,8 +472,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/users/{user.user_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = User(**response.json())
@@ -542,8 +526,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/namespaces/{namespace.namespace_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Namespace(**response.json())
@@ -570,8 +552,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
                 url=f"{self.url}/users",
                 json=user.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = User(**response.json())
@@ -591,8 +571,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
                 url=f"{self.url}/users/{user.user_id}",
                 json=user.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = User(**response.json())
@@ -611,8 +589,6 @@ class GitLabApiUsersGroups(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/users/{user.user_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response, data=None)

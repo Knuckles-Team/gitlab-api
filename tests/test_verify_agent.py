@@ -28,7 +28,7 @@ def send_rpc(method, params, id=1):
             logger.error(f"Response text: {response.text}")
             raise
     except Exception as e:
-        logger.error(f"RPC {method} failed: {e}")
+        logger.error("Operation failed: error_type=%s", type(e).__name__)
         return None
 
 

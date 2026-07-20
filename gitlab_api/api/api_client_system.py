@@ -51,8 +51,6 @@ class GitLabApiSystem(GitLabApiBase):
                 headers=self.headers,
                 data=data,
                 json=json,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = (
@@ -65,5 +63,5 @@ class GitLabApiSystem(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except Exception as e:
-            logger.error(f"Request Error: {str(e)}")
+            logger.error("GitLab request failed: error_type=%s", type(e).__name__)
             raise

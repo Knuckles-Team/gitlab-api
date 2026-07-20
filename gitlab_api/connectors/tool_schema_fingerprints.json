@@ -1,0 +1,8 @@
+{
+  "algorithm": "agent-utilities:mcp-tool-schema-compat:v1",
+  "connector": "gitlab-api",
+  "schema_version": "1",
+  "tools": {
+    "gitlab_projects": "9949c8ae5d2415f22ebf5357da3a43b27a6e79758d56c641cf4d90db6aa41e24"
+  }
+}

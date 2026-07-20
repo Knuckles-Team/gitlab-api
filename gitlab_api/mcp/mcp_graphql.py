@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from typing import Any
 
-from agent_utilities.mcp_utilities import run_blocking
+from agent_utilities.mcp.concurrency import run_blocking
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -40,7 +40,7 @@ def register_graphql_tools(mcp: FastMCP):
         try:
             vars_dict = json.loads(variables) if variables else None
         except Exception as e:
-            return {"error": f"Invalid variables JSON: {e}"}
+            return {"error": "Operation failed"}
 
         try:
             return await run_blocking(
@@ -50,7 +50,7 @@ def register_graphql_tools(mcp: FastMCP):
                 operation_name=operation_name,
             )
         except Exception as e:
-            return {"error": f"GraphQL execution failed: {str(e)}"}
+            return {"error": f"GraphQL execution failed: {type(e).__name__}"}
 
     @mcp.tool(tags={"graphql"})
     async def gitlab_discover_graphql_schema(
@@ -83,4 +83,4 @@ def register_graphql_tools(mcp: FastMCP):
                 return await ctx_graphql_get_type_details(execute_fn, type_name)
             return await ctx_graphql_list_types(execute_fn)
         except Exception as e:
-            return {"error": f"Failed to discover GitLab GraphQL schema: {str(e)}"}
+            return {"error": "Failed to discover GitLab GraphQL schema"}

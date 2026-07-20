@@ -38,7 +38,7 @@ def test_mcp_server_up():
         logger.info(f"Found {len(tools)} tools.")
         return True
     except Exception as e:
-        logger.error(f"MCP Server down: {e}")
+        logger.error("Operation failed: error_type=%s", type(e).__name__)
         return False
 
 

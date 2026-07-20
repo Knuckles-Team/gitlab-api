@@ -1,0 +1,6 @@
+{
+  "connector": "gitlab-api",
+  "current_ontology_source": "gitlab",
+  "migrations": [],
+  "schema_version": "1"
+}

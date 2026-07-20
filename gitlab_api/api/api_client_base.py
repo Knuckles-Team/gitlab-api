@@ -5,8 +5,11 @@ from base64 import b64encode
 from typing import Any, TypeVar
 
 import requests
-import urllib3
 from agent_utilities.base_utilities import get_logger
+from agent_utilities.core.transport_security import (
+    ResolvedTLSProfile,
+    resolve_tls_profile,
+)
 
 logger = get_logger(__name__)
 
@@ -28,8 +31,7 @@ class GitLabApiBase:
         password: str | None = None,
         token: str | None = None,
         tokens: list | None = None,
-        proxies: dict | None = None,
-        verify: bool = True,
+        tls_profile: ResolvedTLSProfile | None = None,
         debug: bool = False,
     ):
         if debug:
@@ -49,13 +51,10 @@ class GitLabApiBase:
         self.url = self.url + "/api/v4"
         self.headers = None
         self.headers_parallel = None
-        self.verify = verify
-        self.proxies = proxies
+        self.tls_profile = tls_profile or resolve_tls_profile("GITLAB")
+        self.tls_profile.configure_requests_session(self._session)
         self.debug = debug
         self._current_header_index = 0
-
-        if self.verify is False:
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         if token:
             self.headers = {
@@ -89,15 +88,15 @@ class GitLabApiBase:
             response = self._session.get(
                 url=f"{self.url}/projects",
                 headers=header,
-                verify=self.verify,
-                proxies=self.proxies,
                 timeout=10,
             )
             if response.status_code in (401, 403):
-                logger.error(f"Authentication Error with header: {response.content}")  # type: ignore
+                logger.error(
+                    "GitLab request rejected by authentication or authorization"
+                )
                 raise AuthError if response.status_code == 401 else UnauthorizedError
             elif response.status_code == 404:
-                logger.error(f"Parameter Error: {response.content}")  # type: ignore
+                logger.error("GitLab resource lookup failed")
                 raise ParameterError
 
     def switch_to_next_headers(self) -> bool:
@@ -131,8 +130,6 @@ class GitLabApiBase:
             url=f"{self.url}{endpoint}",
             params=local_model.api_parameters,  # type: ignore
             headers=header,
-            verify=self.verify,
-            proxies=self.proxies,
         )
         page_data = response.json()
         return page_data if isinstance(page_data, list) else []
@@ -161,16 +158,15 @@ class GitLabApiBase:
             url=f"{self.url}{initial_endpoint}",
             params=model.api_parameters,  # type: ignore
             headers=headers_to_use[0],
-            verify=self.verify,
-            proxies=self.proxies,
         )
         total_pages = int(total_pages_response.headers.get("X-Total-Pages", 1))
         try:
             initial_data = total_pages_response.json()
         except Exception:
-            logging.error(f"Failed to decode JSON from {self.url}{initial_endpoint}")
-            logging.error(f"Status Code: {total_pages_response.status_code}")
-            logging.error(f"Response Content: {total_pages_response.text}")
+            logging.error(
+                "GitLab response decoding failed: status_code=%s",
+                total_pages_response.status_code,
+            )
             raise
         if isinstance(initial_data, list):
             all_data.extend(initial_data)
@@ -208,7 +204,8 @@ class GitLabApiBase:
                         all_data.extend(page_data)
                     except Exception as e:
                         logging.error(
-                            f"Error fetching page {future_to_page[future]}: {str(e)}"
+                            "Paginated request failed: error_type=%s",
+                            type(e).__name__,
                         )
 
         return total_pages_response, all_data

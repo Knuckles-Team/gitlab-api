@@ -1,0 +1,37 @@
+{
+  "api_version": "graphos.io/v1",
+  "artifacts": {
+    "a2a.json": "c6a3a0e5b70db8d37aa0e25013f94fbe375ac0a743ec61c2e8687bf0fb8d7352",
+    "connector_manifest.yml": "52eecad24646d9bca3561dc9ade22ee20568cdc7f1a2b71d4be7eab855fa8a6f",
+    "gitlab_api/connectors/mcp_source_presets.json": "a7093f28b0eb3a211531a66fea312e0400bea643ac9f8536c14298079c0fdd35",
+    "gitlab_api/connectors/tool_schema_fingerprints.json": "74f3e6a172be003056bb74279281308a900b53c4d2d12de7fc2affee9fbcc6a3",
+    "gitlab_api/ontology/fixtures/records.json": "5f0417820053941933f15b3f459750753f4e8e34cf1e7853fd030c1143356b40",
+    "gitlab_api/ontology/gitlab.ttl": "19fa64000d2e51c60c53074b1fae4ab98aed85318337b5a2199f4837ae9f3fc0",
+    "gitlab_api/ontology/mappings/source.yaml": "5fc8629402243afe7223564e58233ab7273ba3b2286dc03aca20de617d5ca9fa",
+    "gitlab_api/ontology/migrations/manifest.json": "442c3c53df0b42c866eef7255b1889b8ada6f9f9c5125cad65d6b50dc6362a3e",
+    "gitlab_api/ontology/shapes/connector.shacl.ttl": "20d2bfc3827fd6327a3b6f25828b41d9de3f855867c46264a7e0aa7f951c76fa"
+  },
+  "checks": {
+    "declared_tool_schema": "passed",
+    "manifest_integrity": "passed",
+    "privacy_contract": "passed",
+    "shacl_parse": "passed",
+    "synthetic_fixture_contract": "passed"
+  },
+  "compatibility": {
+    "agent_utilities": ">=1.27.1,<2",
+    "bundle_schema": "2",
+    "epistemic_graph": ">=2.23.1,<3"
+  },
+  "connector": "gitlab-api",
+  "kind": "ConnectorSourceAttestation",
+  "live_certified": false,
+  "mode": "offline-source",
+  "schema_version": "2",
+  "signature": "OT056oBz7h-O2BX29pZq-quN0J0yqx8c2NSYsVGz30yeovPFTzc3kOzRWJhx7dQU1Vd-yIfXVbudXVy0TqzYBQ",
+  "signature_algorithm": "ed25519",
+  "signer": "ontology-manifest-generator",
+  "signing_public_key": "q0Cp7bmQMqJhbofGKKw8xXC6KbFzukBDDke0UYVi8y4",
+  "status": "source-validated",
+  "validated_at": "2026-07-18T15:00:00Z"
+}

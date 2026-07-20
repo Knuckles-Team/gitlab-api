@@ -318,7 +318,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 _34 action-routed tool(s) (default) · 196 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
-Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
+Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/usage.md](docs/usage.md).
 
 ### Dynamic Tool Selection & Visibility
 
@@ -345,11 +345,10 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 <!-- MCP-CONFIG-EXAMPLES:START -->
 
-> **Install the slim `[mcp]` extra.** All examples install `gitlab-api[mcp]` — the
-> MCP-server extra that pulls only the FastMCP / FastAPI tooling (`agent-utilities[mcp]`).
-> It deliberately **excludes** the heavy agent runtime (`pydantic-ai`, the epistemic-graph
-> engine, `dspy`, `llama-index`), so `uvx` / container installs are far smaller. Use the
-> full `[agent]` extra only when you need the integrated Pydantic AI agent.
+> **Install the connector-focused `[mcp]` extra.** Examples use `gitlab-api[mcp]` to add
+> FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
+> still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
+> enables model orchestration.
 
 #### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
 
@@ -364,7 +363,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "gitlab-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "condensed",
+        "MCP_TOOL_MODE": "intent",
         "BRANCHESTOOL": "True",
         "COMMITSTOOL": "True",
         "CUSTOM_APITOOL": "True",
@@ -404,6 +403,10 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 }
 ```
 
+Runtime references require an alias-aware launcher such as GraphOS. Other
+launchers must omit those entries and inject the resolved values through their
+own runtime secret boundary.
+
 #### Streamable-HTTP Transport (networked / production)
 
 ```json
@@ -422,9 +425,9 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
       ],
       "env": {
         "TRANSPORT": "streamable-http",
-        "HOST": "0.0.0.0",
+        "HOST": "127.0.0.1",
         "PORT": "8000",
-        "MCP_TOOL_MODE": "condensed",
+        "MCP_TOOL_MODE": "intent",
         "BRANCHESTOOL": "True",
         "COMMITSTOOL": "True",
         "CUSTOM_APITOOL": "True",
@@ -476,16 +479,18 @@ Alternatively, connect to a pre-deployed Streamable-HTTP instance by `url`:
 }
 ```
 
-Deploying the Streamable-HTTP server via Docker:
+Run a reviewed container image as a least-privilege stdio child (no
+listener or published port):
 
 ```bash
-docker run -d \
-  --name gitlab-mcp-mcp \
-  -p 8000:8000 \
-  -e TRANSPORT=streamable-http \
-  -e HOST=0.0.0.0 \
-  -e PORT=8000 \
-  -e MCP_TOOL_MODE=condensed \
+docker run -i --rm \
+  --read-only \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
+  --pids-limit=256 \
+  --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+  -e TRANSPORT=stdio \
+  -e MCP_TOOL_MODE=intent \
   -e BRANCHESTOOL=True \
   -e COMMITSTOOL=True \
   -e CUSTOM_APITOOL=True \
@@ -519,8 +524,13 @@ docker run -d \
   -e USERSTOOL=True \
   -e VULNERABILITIESTOOL=True \
   -e WIKITOOL=True \
-  knucklessg1/gitlab-api:mcp
+  registry.example.invalid/gitlab-api@sha256:<digest> gitlab-mcp
 ```
+
+For containerized network HTTP, supply an authenticated TLS ingress (or
+direct server TLS), exact `MCP_ALLOWED_HOSTS`, and an exact trusted-proxy
+CIDR policy through the operator-owned deployment profile. The generator
+does not emit an unauthenticated non-loopback listener.
 
 _Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
 <!-- MCP-CONFIG-EXAMPLES:END -->
@@ -528,16 +538,16 @@ _Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) 
 <!-- BEGIN GENERATED: additional-deployment-options -->
 ### Additional Deployment Options
 
-`gitlab-api` can also run as a **local container** (Docker / Podman / `uv`) or be
-consumed from a **remote deployment**. The
-[Deployment guide](https://knuckles-team.github.io/gitlab-api/deployment/) has full, copy-paste
-`mcp_config.json` for all four transports — **stdio**, **streamable-http**,
-**local container / uv**, and **remote URL**:
+`gitlab-api` can run as a local stdio process or container, or behind a remote
+network boundary. The
+[Deployment guide](https://knuckles-team.github.io/gitlab-api/deployment/) carries
+the detailed transport contract.
 
-- **Local container / uv** — launch the server from `mcp_config.json` via `uvx`,
-  `docker run`, or `podman run`, or point at a local streamable-http container by `url`.
-- **Remote URL** — connect to a server deployed behind Caddy at
-  `http://gitlab-mcp.arpa/mcp` using the `"url"` key.
+- **Local container** — launch a reviewed immutable image as a least-privilege
+  stdio child with no listener or published port.
+- **Remote URL** — connect through an operator-supplied authenticated HTTPS
+  ingress. Keep its URL, outbound identity references, trust profile, and exact
+  `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->
 
 ---
@@ -563,7 +573,7 @@ consumed from a **remote deployment**. The
 | `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
 | `GITLAB_URL` | `https://gitlab.example.com` |  |
 | `GITLAB_TOKEN` | `your_gitlab_token_here` |  |
-| `GITLAB_SSL_VERIFY` | `True` | verify TLS certs; set False for self-signed homelab instances |
+| `GITLAB_TLS_PROFILE` | _(unset)_ | Optional runtime TLS profile selector; verification is mandatory |
 | `MISCTOOL` | `True` |  |
 | `BRANCHESTOOL` | `True` |  |
 | `PROTECTED_BRANCHESTOOL` | `True` |  |
@@ -630,11 +640,11 @@ instances are configured, it falls back to the single-host `GITLAB_*` values bel
 |----------|-------------|---------|
 | `GITLAB_URL` | Base GitLab instance URL | `https://gitlab.example.com` |
 | `GITLAB_TOKEN` | GitLab personal/project access token (`glpat-…`) | — |
-| `GITLAB_SSL_VERIFY` | TLS certificate verification | `True` |
+| `GITLAB_TLS_PROFILE` | Optional runtime TLS profile selector | _(unset)_ |
 
 > Multiple instances are declared once under `gitlab_instances` in the shared
 > agent-utilities XDG config (`~/.config/agent-utilities/config.json`) — each entry has
-> `name`, `url`, `token`, and `verify_ssl`. Target a tenant by **name** from the client
+> `name`, `url`, `token`, and optional `tls_profile`. Target a tenant by **name** from the client
 > factory; an unset instance resolves to the first configured one (else `GITLAB_URL` /
 > `GITLAB_TOKEN`).
 
@@ -700,7 +710,7 @@ version: '3.8'
 
 services:
   gitlab-api-mcp:
-    image: knucklessg1/gitlab-api:mcp
+    image: example/gitlab-api:mcp
     container_name: gitlab-api-mcp
     hostname: gitlab-api-mcp
     restart: always
@@ -726,7 +736,7 @@ services:
         max-file: "3"
 
   gitlab-api-agent:
-    image: knucklessg1/gitlab-api:latest
+    image: example/gitlab-api@sha256:<digest>
     container_name: gitlab-api-agent
     hostname: gitlab-api-agent
     restart: always
@@ -760,7 +770,7 @@ services:
 
 ```
 
-Detailed graph node architecture explanations, custom skill configurations, and agentic trace guides are available in [docs/agent.md](docs/agent.md).
+Detailed graph node architecture explanations, custom skill configurations, and agentic trace guides are available in [docs/deployment.md](docs/deployment.md).
 
 ---
 
@@ -774,8 +784,8 @@ config drives both code/metadata indexing and every API/MCP call:
 ```json
 {
   "gitlab_instances": [
-    {"name": "internal", "url": "https://gitlab.arpa", "token": "glpat-xxxx", "verify_ssl": false},
-    {"name": "public",   "url": "https://gitlab.com",  "token": "glpat-yyyy", "verify_ssl": true}
+    {"name": "internal", "url": "https://gitlab.example.invalid", "token": "<GITLAB_TOKEN>", "tls_profile": "private-pki"},
+    {"name": "public",   "url": "https://gitlab.com",  "token": "<GITLAB_TOKEN>"}
   ]
 }
 ```
@@ -787,7 +797,7 @@ unset instance resolves to the first configured one (else `GITLAB_URL`/`GITLAB_T
 from gitlab_api.auth import get_client
 from gitlab_api.instances import list_configured_instances
 
-internal = get_client(instance="internal")   # resolves url+token+verify from config
+internal = get_client(instance="internal")   # resolves URL, token, and TLS profile
 public   = get_client(instance="public")
 default  = get_client()                        # first configured / GITLAB_URL fallback
 names    = [i.name for i in list_configured_instances()]
@@ -821,15 +831,15 @@ Pick the extra that matches what you want to run:
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `gitlab-api[mcp]` | Slim MCP server only (`agent-utilities[mcp]` — FastMCP/FastAPI) | You only run the **MCP server** (smallest install / image) |
-| `gitlab-api[agent]` | Full agent runtime (`agent-utilities[agent,logfire]` — Pydantic AI + the epistemic-graph engine) | You run the **integrated agent** |
+| `gitlab-api[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | You only run the **MCP server** (smallest install / image) |
+| `gitlab-api[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
 | `gitlab-api[all]` | Everything (`mcp` + `agent` + `gql` + `logfire`) | Development / both surfaces |
 
 ```bash
-# MCP server only (recommended for tool hosting — slim deps)
+# Connector-focused MCP server (includes the shared graph engine)
 uv pip install "gitlab-api[mcp]"
 
-# Full agent runtime (Pydantic AI + epistemic-graph engine)
+# Agent runtime (adds model orchestration to the shared graph engine)
 uv pip install "gitlab-api[agent]"
 
 # Everything (development)
@@ -842,26 +852,27 @@ One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `knucklessg1/gitlab-api:mcp` | `--target mcp` | `gitlab-api[mcp]` — **slim**, no engine/`pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` | `gitlab-mcp` |
-| `knucklessg1/gitlab-api:latest` | `--target agent` (default) | `gitlab-api[agent]` — **full** agent runtime + epistemic-graph engine | `gitlab-agent` |
+| `example/gitlab-api:mcp` | `--target mcp` | `gitlab-api[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `gitlab-mcp` |
+| `example/gitlab-api@sha256:<digest>` | `--target agent` (default) | `gitlab-api[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `gitlab-agent` |
 
 ```bash
-docker build --target mcp   -t knucklessg1/gitlab-api:mcp    docker/   # slim MCP server
-docker build --target agent -t knucklessg1/gitlab-api:latest docker/   # full agent
+docker build --target mcp   -t example/gitlab-api:mcp    docker/   # connector-focused MCP server
+docker build --target agent -t example/gitlab-api:agent-local docker/   # agent runtime
 ```
 
-`docker/mcp.compose.yml` runs the slim `:mcp` server; `docker/agent.compose.yml` runs the
-agent (`:latest`) with a co-located `:mcp` sidecar.
+`docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
+agent (`immutable agent digest`) with a co-located `:mcp` sidecar.
 
 ### Knowledge-graph database (`epistemic-graph`)
 
-The **full agent** (`[agent]` / `:latest`) embeds the **epistemic-graph** engine (pulled in
-transitively via `agent-utilities[agent]`). For production — or to share one knowledge graph
-across multiple agents — run **epistemic-graph as its own database container** and point the
-agent at it instead of embedding it. Deployment recipes (single-node + Raft HA), connection
-config, and the full database architecture (with diagrams) are documented in the
+Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
+Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
+the server connector-focused; `[agent]` additionally enables model orchestration. Local
+deployments can use the bundled engine. For production or shared state, run
+**epistemic-graph as a dedicated database service** and configure the runtime to use it.
+Deployment recipes (single-node + Raft HA), connection configuration, and architecture
+diagrams are documented in the
 [epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
-The slim `[mcp]` server does **not** require the database.
 
 ---
 
@@ -884,10 +895,10 @@ recommended reference for installation, deployment, and day-to-day operation.
 
 ## Repository Owners
 
-<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=Knucklessg1&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
+<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
 
-![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
-![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
+![GitHub followers](https://img.shields.io/github/followers/example)
+![GitHub User's stars](https://img.shields.io/github/stars/example)
 
 ---
 
@@ -900,23 +911,40 @@ Contributions are welcome! Please ensure code quality by executing local checks 
 - Execute test suites using `pytest`
 
 
-<!-- BEGIN agent-os-genesis-deploy (generated; do not edit between markers) -->
+<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
 
-## Deploy with `agent-os-genesis`
+## Deploy with `agent-utilities-deployment`
 
-This package can be provisioned for you — skill-guided — by the **`agent-os-genesis`**
-universal skill (its *single-package deploy mode*): it picks your install method, seeds
-secrets to OpenBao/Vault (or `.env`), trusts your enterprise CA, registers the MCP
-server, and verifies it — the same machinery that stands up the whole Agent OS, narrowed
-to just this package. Ask your agent to **"deploy `gitlab-api` with agent-os-genesis"**.
+Provision this package with the consolidated **`agent-utilities-deployment`**
+workflow. It selects an installed-package, editable-source, or immutable-container
+path; records only runtime secret and TLS-profile references in `AgentConfig`; and
+runs doctor, registration, policy, observability, and rollback gates. Ask your agent
+to **"deploy `gitlab-api` with agent-utilities-deployment"**.
 
 | Install mode | Command |
 |------|---------|
-| Bare-metal, prod (PyPI) | `uvx gitlab-mcp` · or `uv tool install gitlab-api` |
-| Bare-metal, dev (editable) | `uv pip install -e ".[all]"` · or `pip install -e ".[all]"` |
-| Container, prod | deploy `knucklessg1/gitlab-api:latest` via docker-compose / swarm / podman / podman-compose / kubernetes |
-| Container, dev (editable) | deploy `docker/compose.dev.yml` (source-mounted at `/src`; edits live on restart) |
+| Installed package | `uv tool install "gitlab-api[mcp]"`, then run `gitlab-mcp` |
+| Editable source | `uv pip install -e ".[agent]"`, then run `gitlab-mcp` |
+| Immutable container | deploy `registry.example.invalid/gitlab-api@sha256:<digest>` through the operator-selected orchestrator |
 
-Secrets are read-existing + seeded via `vault_sync` — you are only prompted for what's missing.
+The repository embeds no deployment profile, credential value, certificate path, or
+environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
+configured secret provider.
 
-<!-- END agent-os-genesis-deploy -->
+<!-- END agent-utilities-deployment -->
+
+<!-- GOVERNED-CAPABILITY:START -->
+## Governed capability contract
+
+This package ships a compact canonical skill surface with specialist procedures
+kept as referenced workflows. The current MCP tools, skill metadata,
+`connector_manifest.yml`, ontology, mappings, shapes, fixtures, migrations,
+tool-schema fingerprints, and certification metadata form one versioned
+capability contract. Validate them together; do not rely on stale tool names or
+historical per-task skill wrappers.
+
+Runtime endpoints, credentials, certificate trust, tenant identity, retention,
+and observability policy are deployment inputs and are never packaged values.
+See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
+network transport, connector ingestion, GraphOS delegation, or trace export.
+<!-- GOVERNED-CAPABILITY:END -->

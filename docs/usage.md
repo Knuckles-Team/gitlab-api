@@ -46,11 +46,12 @@ Construct it explicitly instead of relying on the environment:
 
 ```python
 from gitlab_api.api_client import Api
+from agent_utilities.core.transport_security import resolve_configured_tls_profile
 
 api = Api(
     url="https://gitlab.example.com",
     token="<your-gitlab-token>",
-    verify=True,
+    tls_profile=resolve_configured_tls_profile("GITLAB"),
 )
 groups = api.get_groups()
 ```

@@ -18,7 +18,7 @@ def send_rpc(method, params, id=1):
         response.raise_for_status()
         return response.json()
     except Exception as e:
-        logger.error(f"RPC {method} failed: {e}")
+        logger.error("Operation failed: error_type=%s", type(e).__name__)
         return None
 
 

@@ -57,7 +57,7 @@ class GitLabApiEnvironments(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get deploy tokens: {str(e)}") from e
+            raise ParameterError(f"Failed to get deploy tokens: {type(e).__name__}") from e
 
     def get_environments(self, **kwargs) -> Response:
         """
@@ -110,8 +110,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/environments/{project.environment_id}",
                 headers=self.headers,
                 params=project.api_parameters,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
@@ -141,8 +139,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/environments",
                 headers=self.headers,
                 json=project.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
@@ -172,8 +168,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/environments/{project.environment_id}",
                 headers=self.headers,
                 json=project.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
@@ -202,8 +196,6 @@ class GitLabApiEnvironments(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{project.project_id}/environments/{project.environment_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -232,8 +224,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/environments/{project.environment_id}/stop",
                 headers=self.headers,
                 params=project.api_parameters,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
@@ -263,8 +253,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/environments/stop_stale",
                 headers=self.headers,
                 params=project.api_parameters,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -293,8 +281,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/environments/review_apps",
                 headers=self.headers,
                 params=project.api_parameters,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -351,8 +337,6 @@ class GitLabApiEnvironments(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{project.project_id}/protected_environments/{project.name}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
@@ -382,8 +366,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/protected_environments",
                 headers=self.headers,
                 json=project.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
@@ -413,8 +395,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/protected_environments/{project.name}",
                 headers=self.headers,
                 json=project.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Environment(**response.json())
@@ -443,8 +423,6 @@ class GitLabApiEnvironments(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{project.project_id}/protected_environments/{project.name}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -501,8 +479,6 @@ class GitLabApiEnvironments(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{release.project_id}/releases/permalink/latest",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Release(**response.json())
@@ -531,8 +507,6 @@ class GitLabApiEnvironments(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{release.project_id}/releases/permalink/latest/evidence",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.json()
@@ -561,8 +535,6 @@ class GitLabApiEnvironments(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{release.project_id}/releases/permalink/latest/{release.direct_asset_path}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.content
@@ -595,8 +567,6 @@ class GitLabApiEnvironments(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/groups/{release.group_id}/releases/{release.tag_name}/downloads/{release.direct_asset_path}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.content
@@ -626,8 +596,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{release.project_id}/releases",
                 json=release.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Release(**response.json())
@@ -656,8 +624,6 @@ class GitLabApiEnvironments(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{release.project_id}/releases/{release.tag_name}/evidence",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -686,8 +652,6 @@ class GitLabApiEnvironments(GitLabApiBase):
                 url=f"{self.url}/projects/{release.project_id}/releases/{release.tag_name}",
                 json=release.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Release(**response.json())
@@ -716,8 +680,6 @@ class GitLabApiEnvironments(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{release.project_id}/releases/{release.tag_name}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)

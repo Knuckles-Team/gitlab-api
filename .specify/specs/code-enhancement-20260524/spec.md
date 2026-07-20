@@ -60,7 +60,7 @@
 - **FR-041**: 21 tests exceed 100 lines — likely doing too much per test
 - **FR-042**: Only 16% of env vars documented in README.md
 - **FR-043**: Undocumented env vars: AUTH_TYPE, BRANCHESTOOL, COMMITSTOOL, CUSTOM_APITOOL, DEFAULT_AGENT_NAME, DEPLOY_TOKENSTOOL, ENVIRONMENTSTOOL, EPICSTOOL, EUNOMIA_POLICY_FILE, EUNOMIA_TYPE
-- **FR-044**: 16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_LOG_LEVEL, GITLAB_SSL_VERIFY, ISSUESTOOL
+- **FR-044**: 16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_LOG_LEVEL, GITLAB_TLS_PROFILE, ISSUESTOOL
 - **FR-045**: Analysis error: No module named 'agent_utilities.knowledge_graph'
 
 ## Success Criteria

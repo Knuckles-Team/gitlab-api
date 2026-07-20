@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gitlab API Operations"
+  short_description: "Help with Gitlab API Operations tasks"
+  default_prompt: "Use $gitlab-api-operations to complete a governed provider workflow."

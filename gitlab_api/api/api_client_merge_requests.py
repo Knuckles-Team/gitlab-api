@@ -85,8 +85,6 @@ class GitLabApiMergeRequests(GitLabApiBase):
                 url=f"{self.url}/projects/{merge_request.project_id}/merge_requests",
                 headers=self.headers,
                 json=merge_request.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequest(**response.json())
@@ -141,8 +139,6 @@ class GitLabApiMergeRequests(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approvals",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.json()
@@ -171,8 +167,6 @@ class GitLabApiMergeRequests(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approval_state",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.json()
@@ -230,8 +224,6 @@ class GitLabApiMergeRequests(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/approve",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequest(**response.json())
@@ -279,8 +271,6 @@ class GitLabApiMergeRequests(GitLabApiBase):
                 url=f"{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/merge",
                 headers=self.headers,
                 json=payload or None,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequest(**response.json())
@@ -309,8 +299,6 @@ class GitLabApiMergeRequests(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/cancel_merge_when_pipeline_succeeds",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequest(**response.json())
@@ -339,8 +327,6 @@ class GitLabApiMergeRequests(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{merge_rule.project_id}/merge_requests/{merge_rule.merge_request_iid}/unapprove",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)

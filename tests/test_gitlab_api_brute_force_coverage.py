@@ -366,7 +366,7 @@ def test_mcp_server_coverage(mock_session):
                                 prompt = await mcp.get_prompt(prompt_name)
                                 await prompt.render(prompt_args)
                             except Exception as e:
-                                print(f"Prompt {prompt_name} failed: {e}")
+                                print(f"Operation failed: {type(e).__name__}")
 
                 loop = asyncio.new_event_loop()
                 loop.run_until_complete(run_tools())

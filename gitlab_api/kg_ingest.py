@@ -3,46 +3,22 @@
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. This is the record-source twin of
 media-downloader's blob ingestion: the package natively pushes its data into the
 epistemic-graph knowledge graph as **typed OWL nodes** (`:Project`, `:GitLabGroup`,
-`:MergeRequest`, `:Issue`, …) + links, using the lightweight engine client
-(``GraphComputeEngine()._client`` + ``txn``) — the same fast client the blob
-``MediaStore`` uses, NOT the heavy in-process ingestion engine.
-
-Entirely best-effort and dependency-/engine-guarded: with no agent-utilities KG stack
-or no reachable engine, every entry point **no-ops** (returns ``None``), so the
-connector keeps working with zero KG infrastructure. Nodes carry the shared provenance
-(``domain``/``source``) and match the classes federated by ``gitlab_api.ontology``.
+`:MergeRequest`, `:Issue`, …) + links through the required
+``agent_utilities.knowledge_graph.memory.native_ingest`` authority. Nodes carry shared
+provenance (``domain``/``source``) and match the classes federated by
+``gitlab_api.ontology``.
 """
 
 from __future__ import annotations
 
-import logging
 from typing import Any
 
-logger = logging.getLogger("gitlab_api.kg")
+from agent_utilities.knowledge_graph.memory.native_ingest import (
+    ingest_entities as _native_ingest_entities,
+)
 
 _SOURCE = "gitlab-api"
 _DOMAIN = "gitlab"
-
-
-def _client() -> tuple[Any | None, str]:
-    """Return ``(engine_client, graph_name)`` or ``(None, "")`` when unavailable."""
-    try:
-        from agent_utilities.knowledge_graph.core.graph_compute import (
-            GraphComputeEngine,
-        )
-    except Exception as e:  # noqa: BLE001 — KG stack absent
-        logger.debug("KG ingest unavailable (import): %s", e)
-        return None, ""
-    try:
-        engine = GraphComputeEngine()
-        client = getattr(engine, "_client", None)
-        if client is None:
-            return None, ""
-        graph = getattr(engine, "graph_name", None) or "__commons__"
-        return client, graph
-    except Exception as e:  # noqa: BLE001 — engine unreachable
-        logger.debug("KG ingest: engine unreachable: %s", e)
-        return None, ""
 
 
 def ingest_entities(
@@ -51,50 +27,16 @@ def ingest_entities(
     *,
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
-    """Write typed nodes (+ edges) into epistemic-graph via the fast engine client.
-
-    ``entities``: ``[{"id":..., "type":..., ...props}]``.
-    ``relationships``: ``[{"source":id, "target":id, "type":rel}]``.
-    Returns ``{"nodes":n, "edges":m}`` or ``None`` (no engine / failure; never raises).
-    ``client``/``graph`` may be injected (tests); otherwise resolved on demand.
-    """
-    entities = [e for e in (entities or []) if e.get("id")]
-    if not entities:
-        return None
-    if client is None:
-        client, graph = _client()
-    if client is None:
-        return None
-    graph = graph or "__commons__"
-
-    try:
-        txn = client.txn.begin(graph=graph)
-        for ent in entities:
-            props = {k: v for k, v in ent.items() if k != "id" and v is not None}
-            props.setdefault("source", _SOURCE)
-            props.setdefault("domain", _DOMAIN)
-            client.txn.add_node(txn, ent["id"], props)
-        committed = client.txn.commit(txn)
-    except Exception as e:  # noqa: BLE001 — engine/txn failure is non-fatal
-        logger.warning("KG ingest: txn failed: %s", e)
-        return None
-    if not committed:
-        logger.warning("KG ingest: txn not committed (conflict)")
-        return None
-
-    edges = 0
-    for rel in relationships or []:
-        try:
-            client.edges.add(
-                rel["source"], rel["target"], {"type": rel.get("type", "RELATED")}
-            )
-            edges += 1
-        except Exception as e:  # noqa: BLE001 — pure edge link, best-effort
-            logger.debug("KG ingest: edge skipped: %s", e)
-
-    logger.info("KG ingest: wrote %d nodes, %d edges", len(entities), edges)
-    return {"nodes": len(entities), "edges": edges}
+) -> dict[str, int]:
+    """Write canonical typed nodes and relationships through native ingestion."""
+    return _native_ingest_entities(
+        entities,
+        relationships,
+        source=_SOURCE,
+        domain=_DOMAIN,
+        client=client,
+        graph=graph,
+    )
 
 
 def ingest_projects(
@@ -102,7 +44,7 @@ def ingest_projects(
     *,
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
+) -> dict[str, int]:
     """Map GitLab project records → ``:Project`` (+ ``:GitLabGroup``) nodes and ingest."""
     entities: list[dict[str, Any]] = []
     relationships: list[dict[str, Any]] = []
@@ -113,7 +55,7 @@ def ingest_projects(
         entities.append(
             {
                 "id": f"gitlab:project:{pid}",
-                "type": "Project",
+                "node_type": "Project",
                 "name": proj.get("name"),
                 "path_with_namespace": proj.get("path_with_namespace"),
                 "web_url": proj.get("web_url"),
@@ -128,7 +70,7 @@ def ingest_projects(
             entities.append(
                 {
                     "id": f"gitlab:group:{gid}",
-                    "type": "GitLabGroup",
+                    "node_type": "GitLabGroup",
                     "name": namespace.get("name") or namespace.get("full_path"),
                 }
             )
@@ -136,7 +78,7 @@ def ingest_projects(
                 {
                     "source": f"gitlab:project:{pid}",
                     "target": f"gitlab:group:{gid}",
-                    "type": "partOfGroup",
+                    "relationship": "partOfGroup",
                 }
             )
     return ingest_entities(entities, relationships, client=client, graph=graph)
@@ -149,7 +91,7 @@ def ingest_pipeline_runs(
     jobs_by_pipeline: dict[Any, list[dict[str, Any]]] | None = None,
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
+) -> dict[str, int]:
     """Map GitLab pipeline runs (+ their jobs) → ``:PipelineRun``/``:CheckRun`` nodes.
 
     This is the substrate the autonomous-SDLC loop needs to observe CI (closes gap #2,
@@ -172,8 +114,6 @@ def ingest_pipeline_runs(
     ``ranOnRunner``).
     """
     pipelines = pipelines or []
-    if not pipelines:
-        return None
     jobs_by_pipeline = jobs_by_pipeline or {}
     entities: list[dict[str, Any]] = []
     relationships: list[dict[str, Any]] = []
@@ -187,7 +127,7 @@ def ingest_pipeline_runs(
         entities.append(
             {
                 "id": pipe_node,
-                "type": "PipelineRun",
+                "node_type": "PipelineRun",
                 "status": pipe.get("status"),
                 "ref": pipe.get("ref"),
                 "sha": pipe.get("sha"),
@@ -202,22 +142,34 @@ def ingest_pipeline_runs(
             }
         )
         relationships.append(
-            {"source": pipe_node, "target": project_node, "type": "ranFor"}
+            {
+                "source": pipe_node,
+                "target": project_node,
+                "relationship": "ranFor",
+            }
         )
 
         sha = pipe.get("sha")
         if sha:
             commit_node = f"gitlab:commit:{project_id}:{sha}"
-            entities.append({"id": commit_node, "type": "Commit", "sha": sha})
+            entities.append({"id": commit_node, "node_type": "Commit", "sha": sha})
             relationships.append(
-                {"source": pipe_node, "target": commit_node, "type": "ranFor"}
+                {
+                    "source": pipe_node,
+                    "target": commit_node,
+                    "relationship": "ranFor",
+                }
             )
 
         mr_iid = pipe.get("merge_request_iid")
         if mr_iid is not None:
             mr_node = f"gitlab:mr:{project_id}:{mr_iid}"
             relationships.append(
-                {"source": pipe_node, "target": mr_node, "type": "ranFor"}
+                {
+                    "source": pipe_node,
+                    "target": mr_node,
+                    "relationship": "ranFor",
+                }
             )
 
         for job in jobs_by_pipeline.get(pid, []) or []:
@@ -229,7 +181,7 @@ def ingest_pipeline_runs(
             entities.append(
                 {
                     "id": job_node,
-                    "type": "CheckRun",
+                    "node_type": "CheckRun",
                     "name": job.get("name"),
                     "stage": job.get("stage"),
                     "status": job.get("status"),
@@ -245,7 +197,11 @@ def ingest_pipeline_runs(
                 }
             )
             relationships.append(
-                {"source": pipe_node, "target": job_node, "type": "hasJob"}
+                {
+                    "source": pipe_node,
+                    "target": job_node,
+                    "relationship": "hasJob",
+                }
             )
             runner = job.get("runner") or {}
             runner_id = runner.get("id")
@@ -254,7 +210,7 @@ def ingest_pipeline_runs(
                 entities.append(
                     {
                         "id": runner_node,
-                        "type": "Runner",
+                        "node_type": "Runner",
                         "name": runner.get("description") or runner.get("name"),
                     }
                 )
@@ -262,7 +218,7 @@ def ingest_pipeline_runs(
                     {
                         "source": job_node,
                         "target": runner_node,
-                        "type": "ranOnRunner",
+                        "relationship": "ranOnRunner",
                     }
                 )
 

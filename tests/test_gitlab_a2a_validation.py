@@ -87,7 +87,7 @@ def test_b_respond_to_query():
                 break
 
     except Exception as e:
-        logger.warning(f"Error calling {method}: {e}")
+        logger.warning("Operation failed: error_type=%s", type(e).__name__)
 
     if not success:
         pytest.fail("Could not find a working JSON-RPC params for message/send.")
@@ -157,5 +157,5 @@ if __name__ == "__main__":
         test_c_d_e_f_full_flow()
         print("All Tests Passed!")
     except Exception as e:
-        print(f"Test Failed: {e}")
+        print(f"Operation failed: {type(e).__name__}")
         exit(1)

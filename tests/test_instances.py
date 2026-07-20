@@ -21,14 +21,20 @@ def test_list_from_shared_config(monkeypatch):
     _patch_config(
         monkeypatch,
         [
-            {"name": "prod", "url": "https://gl.acme.io", "token": "t1", "verify_ssl": False},
+            {
+                "name": "prod",
+                "url": "https://gl.acme.io",
+                "token": "t1",
+                "tls_profile": "private-pki",
+            },
             {"url": "https://gitlab.com", "token": "t2"},  # name → host slug
             {"name": "bad"},  # no url → skipped
         ],
     )
     insts = instances.list_configured_instances()
     assert [i.name for i in insts] == ["prod", "gitlab.com"]
-    assert insts[0].url == "https://gl.acme.io" and insts[0].verify_ssl is False
+    assert insts[0].url == "https://gl.acme.io"
+    assert insts[0].tls_profile_name == "private-pki"
 
 
 def test_single_host_fallback(monkeypatch):
@@ -57,16 +63,23 @@ def test_get_instance_by_name_and_default(monkeypatch):
 def test_summaries_never_expose_tokens(monkeypatch):
     _patch_config(monkeypatch, [{"name": "a", "url": "https://a.io", "token": "secret"}])
     summary = instances.instance_summaries()[0]
-    assert summary == {"name": "a", "url": "https://a.io", "verify_ssl": True, "has_token": True}
+    assert summary == {
+        "name": "a",
+        "url": "https://a.io",
+        "tls_profile_configured": False,
+        "has_token": True,
+    }
     assert "token" not in summary
 
 
 def test_resolve_connection_by_name(monkeypatch):
     _patch_config(
-        monkeypatch, [{"name": "prod", "url": "https://gl.acme.io", "token": "t1", "verify_ssl": False}]
+        monkeypatch,
+        [{"name": "prod", "url": "https://gl.acme.io", "token": "t1"}],
     )
-    url, token, verify = _resolve_connection("prod", None, None)
-    assert url == "https://gl.acme.io" and token == "t1" and verify is False
+    url, token, tls_profile = _resolve_connection("prod", None, None)
+    assert url == "https://gl.acme.io" and token == "t1"
+    assert tls_profile.verify_enabled is True
 
 
 def test_resolve_connection_bare_url_passthrough(monkeypatch):
@@ -81,7 +94,7 @@ def test_resolve_connection_bare_url_passthrough(monkeypatch):
 
 
 def test_resolve_connection_default_uses_env_token(monkeypatch):
-    # No instance + no config → legacy single-host env defaults (env token DOES apply).
+    # No instance + no structured config uses single-host environment settings.
     _patch_config(monkeypatch, None)
     monkeypatch.setenv("GITLAB_URL", "https://gl.env")
     monkeypatch.setenv("GITLAB_TOKEN", "envtok")

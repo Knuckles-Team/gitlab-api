@@ -48,15 +48,15 @@ uv run gitlab-mcp
 
 ## Prebuilt Docker image
 
-A multi-stage, slim image is published on every release (entrypoint `gitlab-mcp`):
+A multi-stage runtime image is published on every release (entrypoint `gitlab-mcp`):
 
 ```bash
-docker pull knucklessg1/gitlab-api:latest
+docker pull example/gitlab-api@sha256:<digest>
 
 docker run --rm -i \
   -e GITLAB_URL=https://gitlab.example.com \
   -e GITLAB_TOKEN=<your-gitlab-token> \
-  knucklessg1/gitlab-api:latest        # stdio transport (default)
+  example/gitlab-api@sha256:<digest>        # stdio transport (default)
 ```
 
 For an HTTP server with a published port and the agent server, see

@@ -74,7 +74,7 @@ class GitLabApiProjects(GitLabApiBase):
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
             raise ParameterError(
-                f"Failed to get project deploy tokens: {str(e)}"
+                f"Failed to get project deploy tokens: {type(e).__name__}"
             ) from e
 
     def get_project_deploy_token(self, **kwargs) -> Response:
@@ -98,8 +98,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.deploy_token_id}",  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = DeployToken(**response.json())
@@ -107,7 +105,7 @@ class GitLabApiProjects(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get project deploy token: {str(e)}") from e
+            raise ParameterError(f"Failed to get project deploy token: {type(e).__name__}") from e
 
     def create_project_deploy_token(self, **kwargs) -> Response:
         """
@@ -135,8 +133,6 @@ class GitLabApiProjects(GitLabApiBase):
                 url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens",
                 headers=self.headers,
                 json=deploy_token.model_dump(exclude_none=True),
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = DeployToken(**response.json())
@@ -145,7 +141,7 @@ class GitLabApiProjects(GitLabApiBase):
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
             raise ParameterError(
-                f"Failed to create project deploy token: {str(e)}"
+                f"Failed to create project deploy token: {type(e).__name__}"
             ) from e
 
     def delete_project_deploy_token(self, **kwargs) -> Response:
@@ -169,8 +165,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{deploy_token.project_id}/deploy_tokens/{deploy_token.deploy_token_id}",  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -178,7 +172,7 @@ class GitLabApiProjects(GitLabApiBase):
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
             raise ParameterError(
-                f"Failed to delete project deploy token: {str(e)}"
+                f"Failed to delete project deploy token: {type(e).__name__}"
             ) from e
 
     def get_group_projects(self, **kwargs) -> Response:
@@ -260,8 +254,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
@@ -290,8 +282,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/trace",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.text
@@ -320,8 +310,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/cancel",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
@@ -350,8 +338,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/retry",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
@@ -380,8 +366,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/erase",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
@@ -411,8 +395,6 @@ class GitLabApiProjects(GitLabApiBase):
                 url=f"{self.url}/projects/{job.project_id}/jobs/{job.job_id}/play",
                 headers=self.headers,
                 json=job.data,  # type: ignore
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Job(**response.json())
@@ -499,8 +481,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{merge_request.project_id}/merge_requests/{merge_request.merge_request_iid}",  # type: ignore
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequest(**response.json())
@@ -558,8 +538,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{merge_rule.project_id}/approval_rules/{merge_rule.approval_rule_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = ApprovalRule(**response.json())
@@ -589,8 +567,6 @@ class GitLabApiProjects(GitLabApiBase):
                 url=f"{self.url}/projects/{merge_rule.project_id}/approval_rules",
                 headers=self.headers,
                 json=merge_rule.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = ApprovalRule(**response.json())
@@ -620,8 +596,6 @@ class GitLabApiProjects(GitLabApiBase):
                 url=f"{self.url}/projects/{merge_rule.project_id}/approval_rules/{merge_rule.approval_rule_id}",
                 headers=self.headers,
                 json=merge_rule.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = ApprovalRule(**response.json())
@@ -650,8 +624,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{merge_rule.project_id}/approval_rules/{merge_rule.approval_rule_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -679,8 +651,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{merge_rule_setting.project_id}/merge_request_approval_setting",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequestRuleSettings(**response.json())
@@ -710,8 +680,6 @@ class GitLabApiProjects(GitLabApiBase):
                 url=f"{self.url}/projects/{merge_rule_setting.project_id}/merge_request_approval_setting",
                 headers=self.headers,
                 json=merge_rule_setting.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = MergeRequestRuleSettings(**response.json())
@@ -766,8 +734,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{project.project_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
@@ -871,8 +837,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{project.project_id}?statistics=true",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.json()
@@ -906,8 +870,6 @@ class GitLabApiProjects(GitLabApiBase):
                 url=f"{self.url}/projects",
                 json=body,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
@@ -937,8 +899,6 @@ class GitLabApiProjects(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}",
                 json=project.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
@@ -996,8 +956,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{project.project_id}/archive",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
@@ -1026,8 +984,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{project.project_id}/unarchive",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
@@ -1056,8 +1012,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{project.project_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -1090,8 +1044,6 @@ class GitLabApiProjects(GitLabApiBase):
                 url=f"{self.url}/projects/{project.project_id}/share",
                 json=project.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Project(**response.json())
@@ -1120,8 +1072,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{project.project_id}/share/{project.group_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -1179,8 +1129,6 @@ class GitLabApiProjects(GitLabApiBase):
                 url=f"{self.url}/projects/{runner.project_id}/runners",
                 headers=self.headers,
                 json=runner.data,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Runner(**response.json())
@@ -1209,8 +1157,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{runner.project_id}/runners/{runner.runner_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response)
@@ -1238,8 +1184,6 @@ class GitLabApiProjects(GitLabApiBase):
             response = self._session.post(
                 url=f"{self.url}/projects/{runner.project_id}/runners/reset_registration_token",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = response.json()

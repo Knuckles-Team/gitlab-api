@@ -46,8 +46,6 @@ class GitLabApiIssues(GitLabApiBase):
                 url=f"{self.url}/projects/{issue.project_id}/issues",
                 json=issue.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Issue(**response.json())
@@ -120,8 +118,6 @@ class GitLabApiIssues(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{issue.project_id}/issues/{issue.issue_iid}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Issue(**response.json())
@@ -143,8 +139,6 @@ class GitLabApiIssues(GitLabApiBase):
                 url=f"{self.url}/projects/{issue.project_id}/issues/{issue.issue_iid}",
                 json=issue.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Issue(**response.json())
@@ -165,8 +159,6 @@ class GitLabApiIssues(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{issue.project_id}/issues/{issue.issue_iid}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response, data=None)
@@ -187,8 +179,6 @@ class GitLabApiIssues(GitLabApiBase):
                 url=f"{self.url}/projects/{label.project_id}/labels",
                 json=label.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Label(**response.json())
@@ -245,8 +235,6 @@ class GitLabApiIssues(GitLabApiBase):
                 url=f"{self.url}/projects/{label.project_id}/labels",
                 json=label.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Label(**response.json())
@@ -266,8 +254,6 @@ class GitLabApiIssues(GitLabApiBase):
                 url=f"{self.url}/projects/{label.project_id}/labels",
                 json=label.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response, data=None)
@@ -288,8 +274,6 @@ class GitLabApiIssues(GitLabApiBase):
                 url=f"{self.url}/projects/{milestone.project_id}/milestones",
                 json=milestone.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Milestone(**response.json())
@@ -327,8 +311,6 @@ class GitLabApiIssues(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/projects/{milestone.project_id}/milestones/{milestone.milestone_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Milestone(**response.json())
@@ -350,8 +332,6 @@ class GitLabApiIssues(GitLabApiBase):
                 url=f"{self.url}/projects/{milestone.project_id}/milestones/{milestone.milestone_id}",
                 json=milestone.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Milestone(**response.json())
@@ -372,8 +352,6 @@ class GitLabApiIssues(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/projects/{milestone.project_id}/milestones/{milestone.milestone_id}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response, data=None)
@@ -392,8 +370,6 @@ class GitLabApiIssues(GitLabApiBase):
                 url=f"{self.url}/groups/{epic.group_id}/epics",
                 json=epic.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Epic(**response.json())
@@ -431,8 +407,6 @@ class GitLabApiIssues(GitLabApiBase):
             response = self._session.get(
                 url=f"{self.url}/groups/{epic.group_id}/epics/{epic.epic_iid}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Epic(**response.json())
@@ -454,8 +428,6 @@ class GitLabApiIssues(GitLabApiBase):
                 url=f"{self.url}/groups/{epic.group_id}/epics/{epic.epic_iid}",
                 json=epic.data,
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             parsed_data = Epic(**response.json())
@@ -476,8 +448,6 @@ class GitLabApiIssues(GitLabApiBase):
             response = self._session.delete(
                 url=f"{self.url}/groups/{epic.group_id}/epics/{epic.epic_iid}",
                 headers=self.headers,
-                verify=self.verify,
-                proxies=self.proxies,
             )
             response.raise_for_status()
             return Response(response=response, data=None)

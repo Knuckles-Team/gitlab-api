@@ -561,7 +561,7 @@
   {
     "id": "T044",
     "title": "[Environment Variables] 16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_L",
-    "description": "16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_LOG_LEVEL, GITLAB_SSL_VERIFY, ISSUESTOOL",
+    "description": "16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_LOG_LEVEL, GITLAB_TLS_PROFILE, ISSUESTOOL",
     "domain": "Environment Variables",
     "priority": "P2-Medium",
     "effort": "Medium",
