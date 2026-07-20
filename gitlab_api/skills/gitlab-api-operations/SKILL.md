@@ -1,5 +1,6 @@
 ---
 name: gitlab-api-operations
+skill_type: skill
 description: >-
   Operate gitlab-api through its governed MCP and GraphOS capabilities, including gitlab issues, gitlab merge request create, gitlab merge request review, gitlab pipelines, gitlab vulnerabilities. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
 ---
