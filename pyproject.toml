@@ -8,7 +8,7 @@ version = "26.4.0"
 description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
-requires-python = ">=3.11, <3.15"
+requires-python = ">=3.12, <3.15"
 dependencies = [ "agent-utilities>=1.27.1,<2.0.0", "python-dotenv>=1.2.2", "gql[requests]>=4.0.0",]
 [[project.authors]]
 name = "Project Maintainers"
