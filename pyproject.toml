@@ -9,7 +9,7 @@ description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12, <3.15"
-dependencies = [ "agent-utilities>=1.27.1,<2.0.0", "python-dotenv>=1.2.2", "gql[requests]>=4.0.0",]
+dependencies = [ "agent-utilities>=2.0.0,<3.0.0", "python-dotenv>=1.2.2", "gql[requests]>=4.0.0",]
 [[project.authors]]
 name = "Project Maintainers"
 email = "maintainers@users.noreply.github.com"
@@ -18,8 +18,8 @@ email = "maintainers@users.noreply.github.com"
 text = "MIT"
 
 [project.optional-dependencies]
-mcp = [ "agent-utilities[mcp]>=1.27.1,<2.0.0",]
-agent = [ "agent-utilities[agent-runtime,logfire]>=1.27.1,<2.0.0",]
+mcp = [ "agent-utilities[mcp]>=2.0.0,<3.0.0",]
+agent = [ "agent-utilities[agent-runtime,logfire]>=2.0.0,<3.0.0",]
 gql = [ "gql[requests]>=4.0.0",]
 all = [ "gitlab-api[mcp,agent,gql,logfire]>=27.0.0",]
 test = [
