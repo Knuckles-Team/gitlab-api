@@ -34,7 +34,7 @@ from agent_utilities.mcp.verbose_tools import register_tool_surface
 from gitlab_api.api_client import Api
 from gitlab_api.auth import get_client
 
-__version__ = "26.4.0"
+__version__ = "27.0.0"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
