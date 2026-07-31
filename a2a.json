@@ -2,7 +2,7 @@
   "name": "gitlab-api-agent",
   "type": "agent",
   "version": "27.0.0",
-  "description": "Agent package for gitlab-api",
+  "description": "GitLab API + MCP Server + A2A Server",
   "url": "https://github.com/Knuckles-Team/gitlab-api/tree/main",
   "license": "MIT",
   "capabilities": [
@@ -10,6 +10,17 @@
       "id": "run_graph_flow",
       "name": "Graph Flow Execution",
       "description": "Execute a workflow through the agent's graph orchestration engine"
+    },
+    {
+      "id": "epistemic-answer",
+      "name": "Epistemic Answer",
+      "description": "Answers epistemic_status/why/what_changed queries over the shared knowledge graph: calibrated confidence, evidence/source citations, belief justification trees, bitemporal valid/tx history, and policy-redaction-aware provenance.",
+      "tags": [
+        "epistemic",
+        "provenance",
+        "confidence",
+        "kg"
+      ]
     }
   ],
   "tools": [
