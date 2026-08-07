@@ -3,7 +3,7 @@ connector: gitlab-api
 ontology_source: gitlab
 sync:
 - preset: gitlab-projects
-  server: gitlab-api
+  server: gitlab-mcp
   tool: gitlab_projects
   action: get
   records_path: data
