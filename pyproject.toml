@@ -44,6 +44,26 @@ gitlab-api = "gitlab_api.prompts"
 [tool.setuptools]
 include-package-data = true
 
+# P0.2 (graph-os-completion-program): this repo lives nested inside the
+# ecosystem-wide uv workspace at /home/apps/workspace/pyproject.toml, whose
+# `agent-utilities` member is ALSO its own self-contained uv workspace root --
+# uv unconditionally refuses that nesting ("Nested workspaces are not
+# supported"), so plain `uv run`/`uv lock` fail here in under a second
+# whenever this checkout is reached from inside /home/apps/workspace. Mirrors
+# the proven agent-webui/geniusbot/repository-manager BUG-074/B6 fix: a plain
+# editable PATH dependency instead of a version-range one, resolved through a
+# gitignored `.uv-workspace-siblings/agent-utilities` symlink to the real
+# sibling checkout (materialized by the pre-commit hooks that need it, not
+# committed). Path deps have no such nesting restriction, and this repo has
+# no other reason to be a uv workspace itself.
+[tool.uv]
+override-dependencies = [
+    "fastmcp-slim[client,server]>=4.0.0b1",
+]
+
+[tool.uv.sources]
+agent-utilities = { path = ".uv-workspace-siblings/agent-utilities", editable = true }
+
 [tool.ruff]
 line-length = 88
 target-version = "py310"

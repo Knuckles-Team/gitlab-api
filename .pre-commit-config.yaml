@@ -1,5 +1,8 @@
 default_language_version:
   python: python3
+# Phase 0 dev-velocity contract (graph-os-completion-program): a hook with no
+# explicit `stages:` below is commit-only, never both.
+default_stages: [pre-commit]
 exclude: 'dotnet|node_modules'
 ci:
   autofix_prs: true
@@ -64,10 +67,15 @@ repos:
   hooks:
   - id: nbqa-ruff
     args: ["--fix"]
-- repo: https://github.com/astral-sh/uv-pre-commit
-  rev: 659a7789596d520c849e9c96525119e9fbaa731f # 0.11.8
+- repo: local
   hooks:
   - id: uv-lock
+    name: uv-lock (verify, never mutate)
+    entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else au_d="$repo"; root=""; while [ "$au_d" != "/" ]; do if [ -d "$au_d/agent-utilities/scripts" ]; then root="$au_d/agent-utilities"; break; fi; au_d=$(dirname "$au_d"); done; fi; if [ -d "$root" ] && [ "$repo" != "$root" ]; then mkdir -p .uv-workspace-siblings && ln -sfn "$root" .uv-workspace-siblings/agent-utilities; fi; uv lock --check'
+    language: system
+    files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
+    pass_filenames: false
+    stages: [pre-push, manual]
 - repo: local
   hooks:
   - id: okf-no-legacy-concepts
@@ -152,11 +160,12 @@ repos:
   hooks:
   - id: pytest
     name: pytest
-    entry: bash -c 'test_target="tests"; for d in tests/unit test/unit tests test; do if [ -d "$d" ]; then test_target="$d"; break; fi; done; if [ -f uv.lock ]; then uv run --all-extras pytest "$test_target" -q --tb=short -m "not slow" --timeout=60; else pytest "$test_target" -q --tb=short -m "not slow" --timeout=60; fi'
+    entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else au_d="$repo"; root=""; while [ "$au_d" != "/" ]; do if [ -d "$au_d/agent-utilities/scripts" ]; then root="$au_d/agent-utilities"; break; fi; au_d=$(dirname "$au_d"); done; fi; if [ -d "$root" ] && [ "$repo" != "$root" ]; then mkdir -p .uv-workspace-siblings && ln -sfn "$root" .uv-workspace-siblings/agent-utilities; fi; test_target="tests"; for d in tests/unit test/unit tests test; do if [ -d "$d" ]; then test_target="$d"; break; fi; done; if [ -f uv.lock ]; then uv run --all-extras pytest "$test_target" -q --tb=short -m "not slow" --timeout=60; else pytest "$test_target" -q --tb=short -m "not slow" --timeout=60; fi'
     language: system
     types: [python]
     pass_filenames: false
     always_run: true
+    stages: [pre-push, manual]
 - repo: https://github.com/AleksaC/hadolint-py
   rev: 458cb25edf664682e3e856a53a2f9af33e068297 # v2.14.0
   hooks:

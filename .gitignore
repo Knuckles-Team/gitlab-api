@@ -157,3 +157,10 @@ knowledge_graph.db*
 *errors*.txt
 failed_tests.txt
 trace.txt
+
+# P0.2 (graph-os-completion-program): materialized, dev-machine-only symlink
+# to the real agent-utilities checkout, used so this repo resolves/tests
+# standalone against its own tracked lock instead of the larger, untracked
+# ecosystem workspace. See the matching comment in pyproject.toml. Never
+# tracked.
+.uv-workspace-siblings/
