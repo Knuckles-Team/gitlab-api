@@ -39,7 +39,7 @@ def register_graphql_tools(mcp: FastMCP):
 
         try:
             vars_dict = json.loads(variables) if variables else None
-        except Exception as e:
+        except Exception:
             return {"error": "Operation failed"}
 
         try:
@@ -82,5 +82,5 @@ def register_graphql_tools(mcp: FastMCP):
             if type_name:
                 return await ctx_graphql_get_type_details(execute_fn, type_name)
             return await ctx_graphql_list_types(execute_fn)
-        except Exception as e:
+        except Exception:
             return {"error": "Failed to discover GitLab GraphQL schema"}
