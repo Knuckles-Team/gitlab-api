@@ -44,9 +44,11 @@ from __future__ import annotations
 import argparse
 import builtins
 import importlib
+import importlib.util
 import pkgutil
 import sys
 import traceback
+from pathlib import Path
 
 # Stdlib modules that exist only on POSIX. An unconditional top-level import
 # of any of these is exactly the defect class this gate exists to catch --
@@ -140,12 +142,38 @@ def discover_modules(package_name: str) -> tuple[list[str], list[tuple[str, str]
     return sorted(names), walk_failures
 
 
+def import_standalone_script(path: Path) -> None:
+    """Import a standalone .py file (e.g. under scripts/) that is NOT part
+    of the installed package, so it is invisible to pkgutil.walk_packages.
+
+    This closes a real, confirmed blind spot: scripts/security_contract.py
+    (synchronized across ~68-75 of the fleet's repos) has an unguarded
+    module-level ``import resource`` and is invoked directly (``python
+    scripts/security_contract.py``), never imported as part of the
+    installed package -- a package-only walk with ``--package`` alone
+    would never see it. Raises on any import-time exception; the caller
+    decides how to report it.
+    """
+    spec = importlib.util.spec_from_file_location(f"_import_safety_script_check__{path.stem}", path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"could not build an import spec for {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "--package",
         required=True,
         help="top-level package/module name to walk, e.g. agent_utilities",
+    )
+    parser.add_argument(
+        "--script",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help="standalone .py file NOT part of --package to import directly (repeatable) -- e.g. scripts/security_contract.py, which pkgutil.walk_packages can never see",
     )
     parser.add_argument(
         "--simulate-windows",
@@ -201,7 +229,17 @@ def main() -> int:
             failures.append((name, f"{type(exc).__name__}: {exc}"))
     checked += len(already_recorded)
 
-    print(f"import-safety[{mode}]: checked {checked} modules under {args.package!r}")
+    for script_path in args.script:
+        path = Path(script_path)
+        if is_excluded(str(path)):
+            continue
+        checked += 1
+        try:
+            import_standalone_script(path)
+        except Exception as exc:
+            failures.append((str(path), f"{type(exc).__name__}: {exc}"))
+
+    print(f"import-safety[{mode}]: checked {checked} modules/scripts under {args.package!r}" + (f" (+{len(args.script)} standalone script(s))" if args.script else ""))
 
     if failures:
         print(f"import-safety[{mode}]: {len(failures)} module(s) FAILED to import:")
