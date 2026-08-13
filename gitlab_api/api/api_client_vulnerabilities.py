@@ -61,7 +61,9 @@ class GitLabApiVulnerabilities(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get project dependencies: {type(e).__name__}") from e
+            raise ParameterError(
+                f"Failed to get project dependencies: {type(e).__name__}"
+            ) from e
 
     def get_project_vulnerabilities(self, **kwargs) -> Response:
         """
@@ -163,4 +165,6 @@ class GitLabApiVulnerabilities(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get vulnerability: {type(e).__name__}") from e
+            raise ParameterError(
+                f"Failed to get vulnerability: {type(e).__name__}"
+            ) from e

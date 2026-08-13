@@ -117,7 +117,10 @@ def get_client(
         except Exception as e:
             logger.error(
                 "OIDC delegation failed for GitLab",
-                extra={"error_type": type(e).__name__, "error_message": type(e).__name__},
+                extra={
+                    "error_type": type(e).__name__,
+                    "error_message": type(e).__name__,
+                },
             )
             raise RuntimeError(f"Token exchange failed: {type(e).__name__}") from e
 
@@ -175,7 +178,10 @@ def get_graphql_client(
         except Exception as e:
             logger.error(
                 "OIDC delegation failed for GitLab GraphQL",
-                extra={"error_type": type(e).__name__, "error_message": type(e).__name__},
+                extra={
+                    "error_type": type(e).__name__,
+                    "error_message": type(e).__name__,
+                },
             )
             raise RuntimeError(f"Token exchange failed: {type(e).__name__}") from e
 

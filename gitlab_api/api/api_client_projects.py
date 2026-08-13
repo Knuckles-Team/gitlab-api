@@ -105,7 +105,9 @@ class GitLabApiProjects(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get project deploy token: {type(e).__name__}") from e
+            raise ParameterError(
+                f"Failed to get project deploy token: {type(e).__name__}"
+            ) from e
 
     def create_project_deploy_token(self, **kwargs) -> Response:
         """

@@ -57,7 +57,9 @@ class GitLabApiEnvironments(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get deploy tokens: {type(e).__name__}") from e
+            raise ParameterError(
+                f"Failed to get deploy tokens: {type(e).__name__}"
+            ) from e
 
     def get_environments(self, **kwargs) -> Response:
         """
