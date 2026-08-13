@@ -357,7 +357,7 @@ sync:
     doc_type: repository
 provenance:
   generated_by: scripts/generate_connector_manifests.py
-  generated_at: '2026-07-18T15:00:00Z'
+  generated_at: '2026-07-28T10:14:00Z'
   source_artifacts:
   - a2a.json
   - gitlab_api/connectors/mcp_source_presets.json
@@ -369,8 +369,8 @@ provenance:
     triple_count: 113
   signer: ontology-manifest-generator
   signature_algorithm: ed25519
-  signing_public_key: q0Cp7bmQMqJhbofGKKw8xXC6KbFzukBDDke0UYVi8y4
-  signature: rcp7_l7pwsKtsDEEA97SE1UfVWfYMe1vsvZoSyybLuq-Kg8xgG4ADnbI9ZLgeJXLjbsJEjIFtLcbUs31rI7NCQ
+  signing_public_key: QkigdPNpcUU7x7NcSkwCsUXIQpaFncMQbYSoiSgI2SY
+  signature: q8Hnc8BtVF5EtFvbJxXr6RNn5IvXVH7Oc44iG5xt_kHWjCWQZcpPsWPA808UxDoRUo3DwLhX27q_ATX1TkFIDw
 policy:
   pii_fields: {}
   tenant_boundary: null
