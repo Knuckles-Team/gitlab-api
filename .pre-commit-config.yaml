@@ -99,6 +99,36 @@ repos:
     language: system
     pass_filenames: false
     always_run: true
+  - id: check-import-safety
+    name: Cross-platform import safety (native + simulated-Windows fcntl/termios/pwd/resource)
+    # Same tool as agent-utilities' own check-import-safety hook (copied,
+    # not vendored as a dependency). Walks every gitlab_api module, with
+    # fcntl/termios/pwd/resource poisoned out of sys.modules first to
+    # reproduce a Windows import failure on this POSIX dev machine -- see
+    # scripts/check_import_safety.py's own docstring for exactly what
+    # --simulate-windows does and does not model.
+    #
+    # gitlab_api's own package has NO fcntl/termios/pwd/resource usage
+    # (confirmed by audit) -- this repo is the fleet's golden-shape
+    # reference and is the one used to validate this hook stays GREEN on a
+    # clean package, in contrast to agent-utilities and repository-manager
+    # where it is deliberately red against real, currently-unfixed
+    # specimens. The two exclusions below are the same documented
+    # sys.modules-only-shim false positive as agent-utilities' hook,
+    # confirmed by direct traceback: gitlab_api.mcp/mcp_server import
+    # `fastmcp`, which imports the third-party `mcp` package, which hits
+    # mcp/server/stdio.py's `if sys.platform != "win32": import fcntl` --
+    # already correctly guarded, flagged only because this shim blocks the
+    # fcntl MODULE without flipping sys.platform (see the script's
+    # docstring for why: flipping it corrupts pathlib's
+    # WindowsPath/PosixPath dispatch on a live POSIX host).
+    entry: >-
+      python3 scripts/check_import_safety.py --package gitlab_api --simulate-windows
+      --exclude gitlab_api.mcp
+      --exclude gitlab_api.mcp_server
+    language: system
+    pass_filenames: false
+    always_run: true
   - id: check-stubs
     name: Check for Active Stubs and TODOs
     entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else d="$repo"; root=""; while [ "$d" != "/" ]; do if [ -d "$d/agent-utilities/scripts" ]; then root="$d/agent-utilities"; break; fi; d=$(dirname "$d"); done; fi; if [ ! -d "$root/scripts" ]; then echo "REFUSED - cannot locate agent-utilities/scripts from $repo (set AGENT_UTILITIES_ROOT)" >&2; exit 1; fi; python3 "$root/scripts/check_stubs.py" "$@"' --
