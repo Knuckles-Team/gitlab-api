@@ -68,7 +68,9 @@ class GitLabApiUsersGroups(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get group deploy tokens: {type(e).__name__}") from e
+            raise ParameterError(
+                f"Failed to get group deploy tokens: {type(e).__name__}"
+            ) from e
 
     def get_group_deploy_token(self, **kwargs) -> Response:
         """
@@ -98,7 +100,9 @@ class GitLabApiUsersGroups(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
         except requests.RequestException as e:
-            raise ParameterError(f"Failed to get group deploy token: {type(e).__name__}") from e
+            raise ParameterError(
+                f"Failed to get group deploy token: {type(e).__name__}"
+            ) from e
 
     def create_group_deploy_token(self, **kwargs) -> Response:
         """
