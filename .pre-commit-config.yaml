@@ -72,6 +72,13 @@ repos:
     args: ["--fix"]
 - repo: local
   hooks:
+  - id: dependency-readiness
+    name: Dependency readiness — every declared intra-fleet constraint is installable
+    entry: bash -c 'uv run --with repository-manager python -m repository_manager.dependency_readiness .'
+    language: system
+    pass_filenames: false
+    always_run: true
+    stages: [manual, pre-push]
   - id: uv-lock
     name: uv-lock (verify, never mutate)
     entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else au_d="$repo"; root=""; while [ "$au_d" != "/" ]; do if [ -d "$au_d/agent-utilities/scripts" ]; then root="$au_d/agent-utilities"; break; fi; au_d=$(dirname "$au_d"); done; fi; if [ -d "$root" ] && [ "$repo" != "$root" ]; then mkdir -p .uv-workspace-siblings && ln -sfn "$root" .uv-workspace-siblings/agent-utilities; fi; uv lock --check'
