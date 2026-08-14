@@ -925,7 +925,7 @@ wheels = [
 
 [[package]]
 name = "gitlab-api"
-version = "27.0.0"
+version = "27.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "agent-utilities" },
@@ -964,7 +964,7 @@ requires-dist = [
     { name = "agent-utilities", editable = ".uv-workspace-siblings/agent-utilities" },
     { name = "agent-utilities", extras = ["agent-runtime", "logfire"], marker = "extra == 'agent'", editable = ".uv-workspace-siblings/agent-utilities" },
     { name = "agent-utilities", extras = ["mcp"], marker = "extra == 'mcp'", editable = ".uv-workspace-siblings/agent-utilities" },
-    { name = "gitlab-api", extras = ["mcp", "agent", "gql", "logfire"], marker = "extra == 'all'", specifier = ">=27.0.0" },
+    { name = "gitlab-api", extras = ["mcp", "agent", "gql", "logfire"], marker = "extra == 'all'", specifier = ">=27.1.0" },
     { name = "gql", extras = ["requests"], specifier = ">=4.0.0" },
     { name = "gql", extras = ["requests"], marker = "extra == 'gql'", specifier = ">=4.0.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=9.1.1" },
