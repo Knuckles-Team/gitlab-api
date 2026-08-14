@@ -41,6 +41,9 @@ gitlab-api = "gitlab_api.connectors"
 [project.entry-points."agent_utilities.prompt_providers"]
 gitlab-api = "gitlab_api.prompts"
 
+[tool.uv.workspace]
+members = ["."]
+
 [tool.setuptools]
 include-package-data = true
 
