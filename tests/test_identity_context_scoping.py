@@ -38,12 +38,16 @@ def test_instance_summaries_filters_to_entitled(monkeypatch):
 def test_auto_selects_entitled_default(monkeypatch):
     # default = first configured ("prod")
     _setup(monkeypatch, {"prod"})
-    assert instances.get_instance(None).name == "prod"
+    instance = instances.get_instance(None)
+    assert instance is not None
+    assert instance.name == "prod"
 
 
 def test_default_not_entitled_falls_to_first_entitled(monkeypatch):
     _setup(monkeypatch, {"dev"})
-    assert instances.get_instance(None).name == "dev"
+    instance = instances.get_instance(None)
+    assert instance is not None
+    assert instance.name == "dev"
 
 
 def test_named_instance_not_entitled_is_denied(monkeypatch):
@@ -54,7 +58,9 @@ def test_named_instance_not_entitled_is_denied(monkeypatch):
 
 def test_named_entitled_instance_allowed(monkeypatch):
     _setup(monkeypatch, {"prod", "dev"})
-    assert instances.get_instance("dev").name == "dev"
+    instance = instances.get_instance("dev")
+    assert instance is not None
+    assert instance.name == "dev"
 
 
 def test_no_entitled_instances_returns_none(monkeypatch):
