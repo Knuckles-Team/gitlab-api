@@ -37,6 +37,7 @@ and `GITLAB_TOKEN` to connect it to a GitLab instance.
 - :material-server-network: **[Deployment](deployment.md)** — run the MCP and agent servers, Docker Compose, Caddy + Technitium.
 - :material-console: **[Usage](usage.md)** — the MCP tools, the `Api` client, and the CLI.
 - :material-database-cog: **[Backing Platform](platform.md)** — deploy GitLab with Docker.
+- :material-shield-check: **[Connector preparation](connector-prep.md)** — bounded, governed source ingest.
 - :material-sitemap: **[Overview](overview.md)** — the action-routed tool surface and architecture.
 - :material-tag-multiple: **[Concepts](concepts.md)** — the `CONCEPT:GL-*` registry.
 
