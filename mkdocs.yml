@@ -89,6 +89,7 @@ nav:
   - Overview: overview.md
   - Installation: installation.md
   - Configuration, trust, and privacy: configuration.md
+  - Governed connector preparation: connector-prep.md
   - Deployment: deployment.md
   - Usage (API / CLI / MCP): usage.md
   - Backing Platform (GitLab): platform.md
