@@ -362,9 +362,8 @@ sync:
     doc_type: repository
 provenance:
   generated_by: scripts/generate_connector_manifests.py
-  generated_at: '2026-07-31T04:00:00Z'
+  generated_at: '2026-08-21T04:30:39Z'
   source_artifacts:
-  - a2a.json
   - gitlab_api/connectors/mcp_source_presets.json
   - gitlab_api/connectors/tool_schema_fingerprints.json
   - gitlab_api/ontology/gitlab.ttl
@@ -372,10 +371,11 @@ provenance:
     algorithm: urdna2015-sha256
     hash: 04166832216194b97043c9b0a2a4620483e5f498d0b304c96765ea1f0e3fb6e9
     triple_count: 113
-  signer: ontology-manifest-generator
-  signature_algorithm: ed25519
-  signing_public_key: QkigdPNpcUU7x7NcSkwCsUXIQpaFncMQbYSoiSgI2SY
-  signature: BTYLm4xWqKMjRQpCU__C6Bdve_9nRL0yefTC8kmm_H-zNQtipceMaAdzCwg9ob6G9GDIKfb5KjOMgKFVlyQtDA
+  signer: UNSIGNED-PREVIEW
+  signature_algorithm: none
+  signing_public_key: ''
+  signature: null
+  dependency_lock_digest: d9a7a8eafa985d82a117af04bd873825c6ee2cae172ea813fdad13e2db9df1fd
 policy:
   pii_fields: {}
   tenant_boundary: null
