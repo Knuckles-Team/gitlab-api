@@ -1,7 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "ca3450280d70185a347ac7f261f870272e7a8b0b2120f5af53f2089c09603c0e",
+    "connector_manifest.yml": "a54aac9929e2f281fc34b5e87c3224b60bad4ef2e5d5556a868bf3dc8d2198af",
     "gitlab_api/connectors/mcp_source_presets.json": "e3d608244e0b66694fc82ab039613181a98e9e4c25a9bf2c8f0a2b09a0c23061",
     "gitlab_api/connectors/tool_schema_fingerprints.json": "74f3e6a172be003056bb74279281308a900b53c4d2d12de7fc2affee9fbcc6a3",
     "gitlab_api/ontology/fixtures/records.json": "5f0417820053941933f15b3f459750753f4e8e34cf1e7853fd030c1143356b40",
@@ -18,9 +18,9 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.4.0,<3",
+    "agent_utilities": ">=2.5.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.26.0,<3"
+    "epistemic_graph": ">=2.27.0,<3"
   },
   "connector": "gitlab-api",
   "kind": "ConnectorSourceAttestation",
@@ -32,5 +32,5 @@
   "signer": "UNSIGNED-PREVIEW",
   "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-08-21T04:30:39Z"
+  "validated_at": "2026-08-26T13:42:55Z"
 }
