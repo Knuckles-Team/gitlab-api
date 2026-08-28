@@ -23,6 +23,7 @@ warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 import logging
 import os
 import sys
+from collections.abc import Callable
 from typing import Any
 
 from agent_utilities.core.config import load_config, setting
@@ -42,6 +43,415 @@ logger.setLevel(logging.DEBUG)
 
 DEFAULT_GITLAB_URL = setting("GITLAB_URL", "https://gitlab.com")
 DEFAULT_GITLAB_TOKEN = setting("GITLAB_TOKEN", None)
+
+
+def _parse_params(params_json: str) -> dict[str, Any] | None:
+    """Decode a ``params_json`` payload, dropping null values.
+
+    Returns ``None`` when the payload is not decodable JSON; callers surface
+    that as the generic ``{"error": "Operation failed"}`` response.
+    """
+    import json
+
+    try:
+        kwargs = json.loads(params_json)
+    except Exception:
+        return None
+    return {k: v for k, v in kwargs.items() if v is not None}
+
+
+def _by_keys(
+    keys: tuple[str, ...], present: str, absent: str
+) -> Callable[[dict[str, Any]], str]:
+    """Selector picking ``present`` when any of ``keys`` was supplied."""
+
+    def _select(kwargs: dict[str, Any]) -> str:
+        return present if any(k in kwargs for k in keys) else absent
+
+    return _select
+
+
+def _deploy_token_get(kwargs: dict[str, Any]) -> str:
+    """Selector for the deploy-token read that matches the given identifiers."""
+    if "token_id" in kwargs and "project_id" in kwargs:
+        return "get_project_deploy_token"
+    if "token_id" in kwargs and "group_id" in kwargs:
+        return "get_group_deploy_token"
+    return "get_deploy_tokens"
+
+
+async def _dispatch_tool_action(
+    action: str,
+    params_json: str,
+    client: Any,
+    ctx: Context | None,
+    table: dict[str, Any],
+) -> Any:
+    """Resolve ``action`` against ``table`` and run the matching client method.
+
+    ``table`` maps each canonical action either to an ``Api`` method name or to
+    a selector callable that picks one from the decoded parameters. This is the
+    single shared body behind every condensed ``gitlab_<domain>`` tool.
+    """
+    if ctx:
+        await ctx.info("Executing tool...")
+    kwargs = _parse_params(params_json)
+    if kwargs is None:
+        return {"error": "Operation failed"}
+    resolved = resolve_action(action, set(table), service="gitlab-api")
+    if isinstance(resolved, dict):
+        return resolved
+    target = table.get(resolved)
+    if target is None:
+        raise ValueError(f"Unknown action: {resolved}")
+    method = target(kwargs) if callable(target) else target
+    return await run_blocking(getattr(client, method), **kwargs)
+
+
+def _records_as_dicts(resp: Any) -> list[dict[str, Any]]:
+    """Normalize an Api response into a list of plain dicts."""
+    data = getattr(resp, "data", resp)
+    records = data if isinstance(data, list) else [data]
+    return [
+        r.model_dump() if hasattr(r, "model_dump") else r
+        for r in records
+        if r is not None
+    ]
+
+
+async def _fetch_pipeline_jobs(
+    client: Any, project_id: str, pipelines: list[dict[str, Any]]
+) -> dict[Any, list[dict[str, Any]]]:
+    """Fetch each pipeline's jobs, keyed by pipeline id."""
+    jobs_by_pipeline: dict[Any, list[dict[str, Any]]] = {}
+    for pipe in pipelines:
+        pid = pipe.get("id")
+        if pid is None:
+            continue
+        jresp = await run_blocking(
+            client.get_pipeline_jobs, project_id=project_id, pipeline_id=pid
+        )
+        jobs_by_pipeline[pid] = _records_as_dicts(jresp)
+    return jobs_by_pipeline
+
+
+def _sole_model_parameter(method: Any) -> Any:
+    """The one required parameter of ``method`` when it is a pydantic model.
+
+    Returns ``None`` unless the operation takes exactly one required argument
+    and that argument is annotated with a ``BaseModel`` subclass.
+    """
+    import inspect
+
+    from pydantic import BaseModel
+
+    required = [
+        p
+        for p in inspect.signature(method).parameters.values()
+        if p.default is inspect.Parameter.empty
+        and p.kind in (p.POSITIONAL_OR_KEYWORD, p.KEYWORD_ONLY)
+    ]
+    if (
+        len(required) == 1
+        and isinstance(required[0].annotation, type)
+        and issubclass(required[0].annotation, BaseModel)
+    ):
+        return required[0]
+    return None
+
+
+#: Action -> Api method for the ``gitlab_branches`` tool.
+_BRANCHES_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("branch",), "get_branch", "get_branches"),
+    "create": "create_branch",
+    "delete": "delete_branch",
+    "delete_merged": "delete_merged_branches",
+}
+
+#: Action -> Api method for the ``gitlab_protected_branches`` tool.
+_PROTECTED_BRANCHES_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("branch",), "get_protected_branch", "get_protected_branches"),
+    "protect": "protect_branch",
+    "unprotect": "unprotect_branch",
+    "require_code_owner_approvals": "require_code_owner_approvals_single_branch",
+}
+
+#: Action -> Api method for the ``gitlab_commits`` tool.
+_COMMITS_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("commit_sha",), "get_commit", "get_commits"),
+    "create": "create_commit",
+    "diff": "get_commit_diff",
+    "revert": "revert_commit",
+    "get_comments": "get_commit_comments",
+    "create_comment": "create_commit_comment",
+    "get_discussions": "get_commit_discussions",
+    "get_statuses": "get_commit_statuses",
+    "post_status": "post_build_status_to_commit",
+    "get_merge_requests": "get_commit_merge_requests",
+    "get_gpg_signature": "get_commit_gpg_signature",
+    "cherry_pick": "cherry_pick_commit",
+    "get_references": "get_commit_references",
+}
+
+#: Action -> Api method for the ``gitlab_deploy_tokens`` tool.
+_DEPLOY_TOKENS_ACTIONS: dict[str, Any] = {
+    "get": _deploy_token_get,
+    "get_project": "get_project_deploy_tokens",
+    "create_project": "create_project_deploy_token",
+    "delete_project": "delete_project_deploy_token",
+    "get_group": "get_group_deploy_tokens",
+    "create_group": "create_group_deploy_token",
+    "delete_group": "delete_group_deploy_token",
+}
+
+#: Action -> Api method for the ``gitlab_environments`` tool.
+_ENVIRONMENTS_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("environment_id",), "get_environment", "get_environments"),
+    "create": "create_environment",
+    "update": "update_environment",
+    "delete": "delete_environment",
+    "stop": "stop_environment",
+    "stop_stale": "stop_stale_environments",
+    "delete_stopped": "delete_stopped_environments",
+    "get_protected": _by_keys(
+        ("environment_name",), "get_protected_environment", "get_protected_environments"
+    ),
+    "protect": "protect_environment",
+    "update_protected": "update_protected_environment",
+    "unprotect": "unprotect_environment",
+}
+
+#: Action -> Api method for the ``gitlab_groups`` tool.
+_GROUPS_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("group_id",), "get_group", "get_groups"),
+    "edit": "edit_group",
+    "get_subgroups": "get_group_subgroups",
+    "get_descendants": "get_group_descendant_groups",
+    "get_projects": "get_group_projects",
+    "get_merge_requests": "get_group_merge_requests",
+}
+
+#: Action -> Api method for the ``gitlab_jobs`` tool.
+_JOBS_ACTIONS: dict[str, Any] = {
+    "get_project_jobs": "get_project_jobs",
+    "get_job": "get_project_job",
+    "get_log": "get_project_job_log",
+    "cancel": "cancel_project_job",
+    "retry": "retry_project_job",
+    "erase": "erase_project_job",
+    "run": "run_project_job",
+    "get_pipeline_jobs": "get_pipeline_jobs",
+}
+
+#: Action -> Api method for the ``gitlab_members`` tool.
+_MEMBERS_ACTIONS: dict[str, Any] = {
+    "get_group": "get_group_members",
+    "get_project": "get_project_members",
+}
+
+#: Action -> Api method for the ``gitlab_merge_requests`` tool.
+_MERGE_REQUESTS_ACTIONS: dict[str, Any] = {
+    "create": "create_merge_request",
+    "get": _by_keys(
+        ("merge_request_iid",), "get_project_merge_request", "get_merge_requests"
+    ),
+    "get_project": "get_project_merge_requests",
+    "accept": "accept_merge_request",
+    "cancel_auto_merge": "cancel_merge_when_pipeline_succeeds",
+}
+
+#: Action -> Api method for the ``gitlab_merge_rules`` tool.
+_MERGE_RULES_ACTIONS: dict[str, Any] = {
+    "get_project_level": _by_keys(
+        ("approval_rule_id",),
+        "get_project_level_merge_request_rule",
+        "get_project_level_merge_request_rules",
+    ),
+    "create_project_level": "create_project_level_rule",
+    "update_project_level": "update_project_level_rule",
+    "delete_project_level": "delete_project_level_rule",
+    "get_mr_approvals": "get_approval_state_merge_requests",
+    "get_mr_approval_state": "get_approval_state_merge_requests",
+    "get_mr_level": "get_merge_request_level_rules",
+    "approve_mr": "approve_merge_request",
+    "unapprove_mr": "unapprove_merge_request",
+    "get_group_level": "get_group_level_rule",
+    "edit_group_level": "edit_group_level_rule",
+    "edit_project_level": "edit_project_level_rule",
+    "set_mr_approvals": "merge_request_level_approvals",
+    "get_project_rule": "get_project_level_rule",
+}
+
+#: Action -> Api method for the ``gitlab_packages`` tool.
+_PACKAGES_ACTIONS: dict[str, Any] = {
+    "get": "get_repository_packages",
+    "publish": "publish_repository_package",
+    "download": "download_repository_package",
+}
+
+#: Action -> Api method for the ``gitlab_pipelines`` tool.
+_PIPELINES_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("pipeline_id",), "get_pipeline", "get_pipelines"),
+    "run": "run_pipeline",
+}
+
+#: Action -> Api method for the ``gitlab_pipeline_schedules`` tool.
+_PIPELINE_SCHEDULES_ACTIONS: dict[str, Any] = {
+    "get_all": "get_pipeline_schedules",
+    "get": "get_pipeline_schedule",
+    "get_triggered": "get_pipelines_triggered_from_schedule",
+    "create": "create_pipeline_schedule",
+    "edit": "edit_pipeline_schedule",
+    "take_ownership": "take_pipeline_schedule_ownership",
+    "delete": "delete_pipeline_schedule",
+    "run": "run_pipeline_schedule",
+    "create_variable": "create_pipeline_schedule_variable",
+    "delete_variable": "delete_pipeline_schedule_variable",
+}
+
+#: Action -> Api method for the ``gitlab_projects`` tool.
+_PROJECTS_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("project_id", "id"), "get_project", "get_projects"),
+    "create": "create_project",
+    "delete": "delete_project",
+    "get_nested_by_group": "get_nested_projects_by_group",
+    "get_contributors": "get_project_contributors",
+    "get_statistics": "get_project_statistics",
+    "edit": "edit_project",
+    "share_with_group": "share_project",
+    "unshare_with_group": "delete_shared_project_link",
+    "archive": "archive_project",
+    "unarchive": "unarchive_project",
+    "get_project_groups": "get_project_groups",
+}
+
+#: Action -> Api method for the ``gitlab_releases`` tool.
+_RELEASES_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("tag_name",), "get_release_by_tag", "get_releases"),
+    "get_latest": "get_latest_release",
+    "get_latest_evidence": "get_latest_release_evidence",
+    "get_latest_asset": "get_latest_release_asset",
+    "get_group_releases": "get_group_releases",
+    "download_asset": "download_release_asset",
+    "get_by_tag": "get_release_by_tag",
+    "create": "create_release",
+    "create_evidence": "create_release_evidence",
+    "update": "update_release",
+    "delete": "delete_release",
+}
+
+#: Action -> Api method for the ``gitlab_runners`` tool.
+_RUNNERS_ACTIONS: dict[str, Any] = {
+    "get_all": "get_runners",
+    "get": "get_runner",
+    "update_details": "update_runner_details",
+    "pause": "pause_runner",
+    "get_jobs": "get_runner_jobs",
+    "get_project": "get_project_runners",
+    "enable_project": "enable_project_runner",
+    "delete_project": "delete_project_runner",
+    "get_group": "get_group_runners",
+    "register": "register_new_runner",
+    "delete": "delete_runner",
+    "verify_auth": "verify_runner_authentication",
+    "reset_gitlab_token": "reset_gitlab_runner_token",
+    "reset_project_token": "reset_project_runner_token",
+    "reset_group_token": "reset_group_runner_token",
+    "reset_token": "reset_token",
+}
+
+#: Action -> Api method for the ``gitlab_tags`` tool.
+_TAGS_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("tag", "tag_name"), "get_tag", "get_tags"),
+    "create": "create_tag",
+    "delete": "delete_tag",
+    "get_protected": "get_protected_tags",
+    "get_protected_tag": "get_protected_tag",
+    "protect": "protect_tag",
+    "unprotect": "unprotect_tag",
+}
+
+#: Action -> Api method for the ``gitlab_labels`` tool.
+_LABELS_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("name", "label_id"), "get_label", "get_labels"),
+    "create": "create_label",
+    "update": "update_label",
+    "delete": "delete_label",
+}
+
+#: Action -> Api method for the ``gitlab_milestones`` tool.
+_MILESTONES_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("milestone_id",), "get_milestone", "get_milestones"),
+    "create": "create_milestone",
+    "update": "update_milestone",
+    "delete": "delete_milestone",
+}
+
+#: Action -> Api method for the ``gitlab_snippets`` tool.
+_SNIPPETS_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("snippet_id",), "get_snippet", "get_snippets"),
+    "create": "create_snippet",
+    "update": "update_snippet",
+    "delete": "delete_snippet",
+}
+
+#: Action -> Api method for the ``gitlab_notes`` tool.
+_NOTES_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("note_id",), "get_note", "get_notes"),
+    "create": "create_note",
+    "update": "update_note",
+    "delete": "delete_note",
+}
+
+#: Action -> Api method for the ``gitlab_epics`` tool.
+_EPICS_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("epic_iid", "epic_id"), "get_epic", "get_epics"),
+    "create": "create_epic",
+    "update": "update_epic",
+    "delete": "delete_epic",
+}
+
+#: Action -> Api method for the ``gitlab_issues`` tool.
+_ISSUES_ACTIONS: dict[str, Any] = {
+    "get": _by_keys(("issue_iid", "issue_id"), "get_issue", "get_issues"),
+    "create": "create_issue",
+    "update": "update_issue",
+    "delete": "delete_issue",
+    "get_group": "get_group_issues",
+}
+
+#: Action -> Api method for the ``gitlab_users`` tool.
+_USERS_ACTIONS: dict[str, Any] = {
+    "get": "get_users",
+    "get_user": "get_user",
+    "create": "create_user",
+    "update": "update_user",
+    "delete": "delete_user",
+}
+
+#: Action -> Api method for the ``gitlab_wiki`` tool.
+_WIKI_ACTIONS: dict[str, Any] = {
+    "get_list": "get_wiki_list",
+    "get": "get_wiki_page",
+    "create": "create_wiki_page",
+    "update": "update_wiki_page",
+    "delete": "delete_wiki_page",
+    "upload_attachment": "upload_wiki_page_attachment",
+}
+
+#: Action -> Api method for the ``gitlab_namespaces`` tool.
+_NAMESPACES_ACTIONS: dict[str, Any] = {
+    "get": "get_namespaces",
+    "get_namespace": "get_namespace",
+}
+
+#: Action -> Api method for the ``gitlab_vulnerabilities`` tool.
+_VULNERABILITIES_ACTIONS: dict[str, Any] = {
+    "dependencies": "get_project_dependencies",
+    "get_project": "get_project_vulnerabilities",
+    "get_group": "get_group_vulnerabilities",
+    "get": "get_vulnerability",
+}
 
 
 def register_misc_tools(mcp: FastMCP):
@@ -98,13 +508,7 @@ def register_misc_tools(mcp: FastMCP):
 
         kwargs = _json.loads(params_json) if params_json else {}
         resp = await run_blocking(client.get_projects, **kwargs)
-        data = getattr(resp, "data", resp)
-        records = data if isinstance(data, list) else [data]
-        projects = [
-            r.model_dump() if hasattr(r, "model_dump") else r
-            for r in records
-            if r is not None
-        ]
+        projects = _records_as_dicts(resp)
         result = ingest_projects(projects)
         return {"listed": len(projects), "ingested": result}
 
@@ -142,30 +546,11 @@ def register_misc_tools(mcp: FastMCP):
         kwargs = _json.loads(params_json) if params_json else {}
         kwargs["project_id"] = project_id
         resp = await run_blocking(client.get_pipelines, **kwargs)
-        data = getattr(resp, "data", resp)
-        records = data if isinstance(data, list) else [data]
-        pipelines = [
-            r.model_dump() if hasattr(r, "model_dump") else r
-            for r in records
-            if r is not None
-        ]
+        pipelines = _records_as_dicts(resp)
 
         jobs_by_pipeline: dict[Any, list[dict[str, Any]]] = {}
         if include_jobs:
-            for pipe in pipelines:
-                pid = pipe.get("id")
-                if pid is None:
-                    continue
-                jresp = await run_blocking(
-                    client.get_pipeline_jobs, project_id=project_id, pipeline_id=pid
-                )
-                jdata = getattr(jresp, "data", jresp)
-                jrecords = jdata if isinstance(jdata, list) else [jdata]
-                jobs_by_pipeline[pid] = [
-                    j.model_dump() if hasattr(j, "model_dump") else j
-                    for j in jrecords
-                    if j is not None
-                ]
+            jobs_by_pipeline = await _fetch_pipeline_jobs(client, project_id, pipelines)
 
         result = ingest_pipeline_runs(
             project_id, pipelines, jobs_by_pipeline=jobs_by_pipeline
@@ -190,35 +575,9 @@ def register_branches_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab branches operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action, {"get", "create", "delete", "delete_merged"}, service="gitlab-api"
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _BRANCHES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "branch" in kwargs:
-                return await run_blocking(client.get_branch, **kwargs)
-            return await run_blocking(client.get_branches, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_branch, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_branch, **kwargs)
-        if action == "delete_merged":
-            return await run_blocking(client.delete_merged_branches, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_protected_branches_tools(mcp: FastMCP):
@@ -236,39 +595,9 @@ def register_protected_branches_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab protected branches operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {"get", "protect", "unprotect", "require_code_owner_approvals"},
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _PROTECTED_BRANCHES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "branch" in kwargs:
-                return await run_blocking(client.get_protected_branch, **kwargs)
-            return await run_blocking(client.get_protected_branches, **kwargs)
-        if action == "protect":
-            return await run_blocking(client.protect_branch, **kwargs)
-        if action == "unprotect":
-            return await run_blocking(client.unprotect_branch, **kwargs)
-        if action == "require_code_owner_approvals":
-            return await run_blocking(
-                client.require_code_owner_approvals_single_branch, **kwargs
-            )
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_commits_tools(mcp: FastMCP):
@@ -286,69 +615,9 @@ def register_commits_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab commits operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get",
-                "create",
-                "diff",
-                "revert",
-                "get_comments",
-                "create_comment",
-                "get_discussions",
-                "get_statuses",
-                "post_status",
-                "get_merge_requests",
-                "get_gpg_signature",
-                "cherry_pick",
-                "get_references",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _COMMITS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "commit_sha" in kwargs:
-                return await run_blocking(client.get_commit, **kwargs)
-            return await run_blocking(client.get_commits, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_commit, **kwargs)
-        if action == "diff":
-            return await run_blocking(client.get_commit_diff, **kwargs)
-        if action == "revert":
-            return await run_blocking(client.revert_commit, **kwargs)
-        if action == "get_comments":
-            return await run_blocking(client.get_commit_comments, **kwargs)
-        if action == "create_comment":
-            return await run_blocking(client.create_commit_comment, **kwargs)
-        if action == "get_discussions":
-            return await run_blocking(client.get_commit_discussions, **kwargs)
-        if action == "get_statuses":
-            return await run_blocking(client.get_commit_statuses, **kwargs)
-        if action == "post_status":
-            return await run_blocking(client.post_build_status_to_commit, **kwargs)
-        if action == "get_merge_requests":
-            return await run_blocking(client.get_commit_merge_requests, **kwargs)
-        if action == "get_gpg_signature":
-            return await run_blocking(client.get_commit_gpg_signature, **kwargs)
-        if action == "cherry_pick":
-            return await run_blocking(client.cherry_pick_commit, **kwargs)
-        if action == "get_references":
-            return await run_blocking(client.get_commit_references, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_deploy_tokens_tools(mcp: FastMCP):
@@ -366,53 +635,9 @@ def register_deploy_tokens_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab deploy tokens operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get",
-                "get_project",
-                "create_project",
-                "delete_project",
-                "get_group",
-                "create_group",
-                "delete_group",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _DEPLOY_TOKENS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "token_id" in kwargs and "project_id" in kwargs:
-                return await run_blocking(client.get_project_deploy_token, **kwargs)
-            elif "token_id" in kwargs and "group_id" in kwargs:
-                return await run_blocking(client.get_group_deploy_token, **kwargs)
-            return await run_blocking(client.get_deploy_tokens, **kwargs)
-        if action == "get_project":
-            return await run_blocking(client.get_project_deploy_tokens, **kwargs)
-        if action == "create_project":
-            return await run_blocking(client.create_project_deploy_token, **kwargs)
-        if action == "delete_project":
-            return await run_blocking(client.delete_project_deploy_token, **kwargs)
-        if action == "get_group":
-            return await run_blocking(client.get_group_deploy_tokens, **kwargs)
-        if action == "create_group":
-            return await run_blocking(client.create_group_deploy_token, **kwargs)
-        if action == "delete_group":
-            return await run_blocking(client.delete_group_deploy_token, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_environments_tools(mcp: FastMCP):
@@ -430,65 +655,9 @@ def register_environments_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab environments operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get",
-                "create",
-                "update",
-                "delete",
-                "stop",
-                "stop_stale",
-                "delete_stopped",
-                "get_protected",
-                "protect",
-                "update_protected",
-                "unprotect",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _ENVIRONMENTS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "environment_id" in kwargs:
-                return await run_blocking(client.get_environment, **kwargs)
-            return await run_blocking(client.get_environments, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_environment, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_environment, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_environment, **kwargs)
-        if action == "stop":
-            return await run_blocking(client.stop_environment, **kwargs)
-        if action == "stop_stale":
-            return await run_blocking(client.stop_stale_environments, **kwargs)
-        if action == "delete_stopped":
-            return await run_blocking(client.delete_stopped_environments, **kwargs)
-        if action == "get_protected":
-            if "environment_name" in kwargs:
-                return await run_blocking(client.get_protected_environment, **kwargs)
-            return await run_blocking(client.get_protected_environments, **kwargs)
-        if action == "protect":
-            return await run_blocking(client.protect_environment, **kwargs)
-        if action == "update_protected":
-            return await run_blocking(client.update_protected_environment, **kwargs)
-        if action == "unprotect":
-            return await run_blocking(client.unprotect_environment, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_groups_tools(mcp: FastMCP):
@@ -506,48 +675,9 @@ def register_groups_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab groups operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get",
-                "edit",
-                "get_subgroups",
-                "get_descendants",
-                "get_projects",
-                "get_merge_requests",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _GROUPS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "group_id" in kwargs:
-                return await run_blocking(client.get_group, **kwargs)
-            return await run_blocking(client.get_groups, **kwargs)
-        if action == "edit":
-            return await run_blocking(client.edit_group, **kwargs)
-        if action == "get_subgroups":
-            return await run_blocking(client.get_group_subgroups, **kwargs)
-        if action == "get_descendants":
-            return await run_blocking(client.get_group_descendant_groups, **kwargs)
-        if action == "get_projects":
-            return await run_blocking(client.get_group_projects, **kwargs)
-        if action == "get_merge_requests":
-            return await run_blocking(client.get_group_merge_requests, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_jobs_tools(mcp: FastMCP):
@@ -565,52 +695,9 @@ def register_jobs_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab jobs operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get_project_jobs",
-                "get_job",
-                "get_log",
-                "cancel",
-                "retry",
-                "erase",
-                "run",
-                "get_pipeline_jobs",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _JOBS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get_project_jobs":
-            return await run_blocking(client.get_project_jobs, **kwargs)
-        if action == "get_job":
-            return await run_blocking(client.get_project_job, **kwargs)
-        if action == "get_log":
-            return await run_blocking(client.get_project_job_log, **kwargs)
-        if action == "cancel":
-            return await run_blocking(client.cancel_project_job, **kwargs)
-        if action == "retry":
-            return await run_blocking(client.retry_project_job, **kwargs)
-        if action == "erase":
-            return await run_blocking(client.erase_project_job, **kwargs)
-        if action == "run":
-            return await run_blocking(client.run_project_job, **kwargs)
-        if action == "get_pipeline_jobs":
-            return await run_blocking(client.get_pipeline_jobs, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_members_tools(mcp: FastMCP):
@@ -628,29 +715,9 @@ def register_members_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab members operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action, {"get_group", "get_project"}, service="gitlab-api"
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _MEMBERS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get_group":
-            return await run_blocking(client.get_group_members, **kwargs)
-        if action == "get_project":
-            return await run_blocking(client.get_project_members, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_merge_requests_tools(mcp: FastMCP):
@@ -668,41 +735,9 @@ def register_merge_requests_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab merge requests operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {"create", "get", "get_project", "accept", "cancel_auto_merge"},
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _MERGE_REQUESTS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "create":
-            return await run_blocking(client.create_merge_request, **kwargs)
-        if action == "get":
-            if "merge_request_iid" in kwargs:
-                return await run_blocking(client.get_project_merge_request, **kwargs)
-            return await run_blocking(client.get_merge_requests, **kwargs)
-        if action == "get_project":
-            return await run_blocking(client.get_project_merge_requests, **kwargs)
-        if action == "accept":
-            return await run_blocking(client.accept_merge_request, **kwargs)
-        if action == "cancel_auto_merge":
-            return await run_blocking(
-                client.cancel_merge_when_pipeline_succeeds, **kwargs
-            )
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_merge_rules_tools(mcp: FastMCP):
@@ -720,76 +755,9 @@ def register_merge_rules_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab merge rules operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get_project_level",
-                "create_project_level",
-                "update_project_level",
-                "delete_project_level",
-                "get_mr_approvals",
-                "get_mr_approval_state",
-                "get_mr_level",
-                "approve_mr",
-                "unapprove_mr",
-                "get_group_level",
-                "edit_group_level",
-                "edit_project_level",
-                "set_mr_approvals",
-                "get_project_rule",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _MERGE_RULES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get_project_level":
-            if "approval_rule_id" in kwargs:
-                return await run_blocking(
-                    client.get_project_level_merge_request_rule, **kwargs
-                )
-            return await run_blocking(
-                client.get_project_level_merge_request_rules, **kwargs
-            )
-        if action == "create_project_level":
-            return await run_blocking(client.create_project_level_rule, **kwargs)
-        if action == "update_project_level":
-            return await run_blocking(client.update_project_level_rule, **kwargs)
-        if action == "delete_project_level":
-            return await run_blocking(client.delete_project_level_rule, **kwargs)
-        if action == "get_mr_approvals" or action == "get_mr_approval_state":
-            return await run_blocking(
-                client.get_approval_state_merge_requests, **kwargs
-            )
-        if action == "get_mr_level":
-            return await run_blocking(client.get_merge_request_level_rules, **kwargs)
-        if action == "approve_mr":
-            return await run_blocking(client.approve_merge_request, **kwargs)
-        if action == "unapprove_mr":
-            return await run_blocking(client.unapprove_merge_request, **kwargs)
-        if action == "get_group_level":
-            return await run_blocking(client.get_group_level_rule, **kwargs)
-        if action == "edit_group_level":
-            return await run_blocking(client.edit_group_level_rule, **kwargs)
-        if action == "edit_project_level":
-            return await run_blocking(client.edit_project_level_rule, **kwargs)
-        if action == "set_mr_approvals":
-            return await run_blocking(client.merge_request_level_approvals, **kwargs)
-        if action == "get_project_rule":
-            return await run_blocking(client.get_project_level_rule, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_packages_tools(mcp: FastMCP):
@@ -807,31 +775,9 @@ def register_packages_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab packages operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action, {"get", "publish", "download"}, service="gitlab-api"
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _PACKAGES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            return await run_blocking(client.get_repository_packages, **kwargs)
-        if action == "publish":
-            return await run_blocking(client.publish_repository_package, **kwargs)
-        if action == "download":
-            return await run_blocking(client.download_repository_package, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_pipelines_tools(mcp: FastMCP):
@@ -849,29 +795,9 @@ def register_pipelines_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab pipelines operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(action, {"get", "run"}, service="gitlab-api")
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "pipeline_id" in kwargs:
-                return await run_blocking(client.get_pipeline, **kwargs)
-            return await run_blocking(client.get_pipelines, **kwargs)
-        if action == "run":
-            return await run_blocking(client.run_pipeline, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _PIPELINES_ACTIONS
+        )
 
 
 def register_pipeline_schedules_tools(mcp: FastMCP):
@@ -889,64 +815,9 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab pipeline schedules operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get_all",
-                "get",
-                "get_triggered",
-                "create",
-                "edit",
-                "take_ownership",
-                "delete",
-                "run",
-                "create_variable",
-                "delete_variable",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _PIPELINE_SCHEDULES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get_all":
-            return await run_blocking(client.get_pipeline_schedules, **kwargs)
-        if action == "get":
-            return await run_blocking(client.get_pipeline_schedule, **kwargs)
-        if action == "get_triggered":
-            return await run_blocking(
-                client.get_pipelines_triggered_from_schedule, **kwargs
-            )
-        if action == "create":
-            return await run_blocking(client.create_pipeline_schedule, **kwargs)
-        if action == "edit":
-            return await run_blocking(client.edit_pipeline_schedule, **kwargs)
-        if action == "take_ownership":
-            return await run_blocking(client.take_pipeline_schedule_ownership, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_pipeline_schedule, **kwargs)
-        if action == "run":
-            return await run_blocking(client.run_pipeline_schedule, **kwargs)
-        if action == "create_variable":
-            return await run_blocking(
-                client.create_pipeline_schedule_variable, **kwargs
-            )
-        if action == "delete_variable":
-            return await run_blocking(
-                client.delete_pipeline_schedule_variable, **kwargs
-            )
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_projects_tools(mcp: FastMCP):
@@ -964,66 +835,9 @@ def register_projects_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab projects operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get",
-                "create",
-                "delete",
-                "get_nested_by_group",
-                "get_contributors",
-                "get_statistics",
-                "edit",
-                "share_with_group",
-                "unshare_with_group",
-                "archive",
-                "unarchive",
-                "get_project_groups",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _PROJECTS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "project_id" in kwargs or "id" in kwargs:
-                return await run_blocking(client.get_project, **kwargs)
-            return await run_blocking(client.get_projects, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_project, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_project, **kwargs)
-        if action == "get_nested_by_group":
-            return await run_blocking(client.get_nested_projects_by_group, **kwargs)
-        if action == "get_contributors":
-            return await run_blocking(client.get_project_contributors, **kwargs)
-        if action == "get_statistics":
-            return await run_blocking(client.get_project_statistics, **kwargs)
-        if action == "edit":
-            return await run_blocking(client.edit_project, **kwargs)
-        if action == "share_with_group":
-            return await run_blocking(client.share_project, **kwargs)
-        if action == "unshare_with_group":
-            return await run_blocking(client.delete_shared_project_link, **kwargs)
-        if action == "archive":
-            return await run_blocking(client.archive_project, **kwargs)
-        if action == "unarchive":
-            return await run_blocking(client.unarchive_project, **kwargs)
-        if action == "get_project_groups":
-            return await run_blocking(client.get_project_groups, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_releases_tools(mcp: FastMCP):
@@ -1041,63 +855,9 @@ def register_releases_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab releases operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get",
-                "get_latest",
-                "get_latest_evidence",
-                "get_latest_asset",
-                "get_group_releases",
-                "download_asset",
-                "get_by_tag",
-                "create",
-                "create_evidence",
-                "update",
-                "delete",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _RELEASES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "tag_name" in kwargs:
-                return await run_blocking(client.get_release_by_tag, **kwargs)
-            return await run_blocking(client.get_releases, **kwargs)
-        if action == "get_latest":
-            return await run_blocking(client.get_latest_release, **kwargs)
-        if action == "get_latest_evidence":
-            return await run_blocking(client.get_latest_release_evidence, **kwargs)
-        if action == "get_latest_asset":
-            return await run_blocking(client.get_latest_release_asset, **kwargs)
-        if action == "get_group_releases":
-            return await run_blocking(client.get_group_releases, **kwargs)
-        if action == "download_asset":
-            return await run_blocking(client.download_release_asset, **kwargs)
-        if action == "get_by_tag":
-            return await run_blocking(client.get_release_by_tag, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_release, **kwargs)
-        if action == "create_evidence":
-            return await run_blocking(client.create_release_evidence, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_release, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_release, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_runners_tools(mcp: FastMCP):
@@ -1115,76 +875,9 @@ def register_runners_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab runners operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get_all",
-                "get",
-                "update_details",
-                "pause",
-                "get_jobs",
-                "get_project",
-                "enable_project",
-                "delete_project",
-                "get_group",
-                "register",
-                "delete",
-                "verify_auth",
-                "reset_gitlab_token",
-                "reset_project_token",
-                "reset_group_token",
-                "reset_token",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _RUNNERS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get_all":
-            return await run_blocking(client.get_runners, **kwargs)
-        if action == "get":
-            return await run_blocking(client.get_runner, **kwargs)
-        if action == "update_details":
-            return await run_blocking(client.update_runner_details, **kwargs)
-        if action == "pause":
-            return await run_blocking(client.pause_runner, **kwargs)
-        if action == "get_jobs":
-            return await run_blocking(client.get_runner_jobs, **kwargs)
-        if action == "get_project":
-            return await run_blocking(client.get_project_runners, **kwargs)
-        if action == "enable_project":
-            return await run_blocking(client.enable_project_runner, **kwargs)
-        if action == "delete_project":
-            return await run_blocking(client.delete_project_runner, **kwargs)
-        if action == "get_group":
-            return await run_blocking(client.get_group_runners, **kwargs)
-        if action == "register":
-            return await run_blocking(client.register_new_runner, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_runner, **kwargs)
-        if action == "verify_auth":
-            return await run_blocking(client.verify_runner_authentication, **kwargs)
-        if action == "reset_gitlab_token":
-            return await run_blocking(client.reset_gitlab_runner_token, **kwargs)
-        if action == "reset_project_token":
-            return await run_blocking(client.reset_project_runner_token, **kwargs)
-        if action == "reset_group_token":
-            return await run_blocking(client.reset_group_runner_token, **kwargs)
-        if action == "reset_token":
-            return await run_blocking(client.reset_token, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_tags_tools(mcp: FastMCP):
@@ -1202,51 +895,9 @@ def register_tags_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab tags operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {
-                "get",
-                "create",
-                "delete",
-                "get_protected",
-                "get_protected_tag",
-                "protect",
-                "unprotect",
-            },
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _TAGS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "tag" in kwargs or "tag_name" in kwargs:
-                return await run_blocking(client.get_tag, **kwargs)
-            return await run_blocking(client.get_tags, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_tag, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_tag, **kwargs)
-        if action == "get_protected":
-            return await run_blocking(client.get_protected_tags, **kwargs)
-        if action == "get_protected_tag":
-            return await run_blocking(client.get_protected_tag, **kwargs)
-        if action == "protect":
-            return await run_blocking(client.protect_tag, **kwargs)
-        if action == "unprotect":
-            return await run_blocking(client.unprotect_tag, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_labels_tools(mcp: FastMCP):
@@ -1264,35 +915,9 @@ def register_labels_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage GitLab labels."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _LABELS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "name" in kwargs or "label_id" in kwargs:
-                return await run_blocking(client.get_label, **kwargs)
-            return await run_blocking(client.get_labels, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_label, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_label, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_label, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_milestones_tools(mcp: FastMCP):
@@ -1310,35 +935,9 @@ def register_milestones_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage GitLab milestones."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _MILESTONES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "milestone_id" in kwargs:
-                return await run_blocking(client.get_milestone, **kwargs)
-            return await run_blocking(client.get_milestones, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_milestone, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_milestone, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_milestone, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_snippets_tools(mcp: FastMCP):
@@ -1356,35 +955,9 @@ def register_snippets_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage GitLab snippets."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _SNIPPETS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "snippet_id" in kwargs:
-                return await run_blocking(client.get_snippet, **kwargs)
-            return await run_blocking(client.get_snippets, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_snippet, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_snippet, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_snippet, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_notes_tools(mcp: FastMCP):
@@ -1402,35 +975,9 @@ def register_notes_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage GitLab notes/comments on issues, merge requests, commits, and epics."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _NOTES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "note_id" in kwargs:
-                return await run_blocking(client.get_note, **kwargs)
-            return await run_blocking(client.get_notes, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_note, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_note, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_note, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_epics_tools(mcp: FastMCP):
@@ -1448,35 +995,9 @@ def register_epics_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage GitLab epics."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action, {"get", "create", "update", "delete"}, service="gitlab-api"
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _EPICS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "epic_iid" in kwargs or "epic_id" in kwargs:
-                return await run_blocking(client.get_epic, **kwargs)
-            return await run_blocking(client.get_epics, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_epic, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_epic, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_epic, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_issues_tools(mcp: FastMCP):
@@ -1494,39 +1015,9 @@ def register_issues_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage GitLab issues."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {"get", "create", "update", "delete", "get_group"},
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _ISSUES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            if "issue_iid" in kwargs or "issue_id" in kwargs:
-                return await run_blocking(client.get_issue, **kwargs)
-            return await run_blocking(client.get_issues, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_issue, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_issue, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_issue, **kwargs)
-        if action == "get_group":
-            return await run_blocking(client.get_group_issues, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_custom_api_tools(mcp: FastMCP):
@@ -1578,37 +1069,9 @@ def register_users_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab users operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {"get", "get_user", "create", "update", "delete"},
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _USERS_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            return await run_blocking(client.get_users, **kwargs)
-        if action == "get_user":
-            return await run_blocking(client.get_user, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_user, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_user, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_user, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_wiki_tools(mcp: FastMCP):
@@ -1626,39 +1089,9 @@ def register_wiki_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab wiki operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {"get_list", "get", "create", "update", "delete", "upload_attachment"},
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _WIKI_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get_list":
-            return await run_blocking(client.get_wiki_list, **kwargs)
-        if action == "get":
-            return await run_blocking(client.get_wiki_page, **kwargs)
-        if action == "create":
-            return await run_blocking(client.create_wiki_page, **kwargs)
-        if action == "update":
-            return await run_blocking(client.update_wiki_page, **kwargs)
-        if action == "delete":
-            return await run_blocking(client.delete_wiki_page, **kwargs)
-        if action == "upload_attachment":
-            return await run_blocking(client.upload_wiki_page_attachment, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_namespaces_tools(mcp: FastMCP):
@@ -1676,29 +1109,9 @@ def register_namespaces_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Manage gitlab namespaces operations."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action, {"get", "get_namespace"}, service="gitlab-api"
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _NAMESPACES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "get":
-            return await run_blocking(client.get_namespaces, **kwargs)
-        if action == "get_namespace":
-            return await run_blocking(client.get_namespace, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_vulnerabilities_tools(mcp: FastMCP):
@@ -1716,35 +1129,9 @@ def register_vulnerabilities_tools(mcp: FastMCP):
         ),
     ) -> Any:
         """Review a project's dependency list and security vulnerabilities (the GitLab counterpart to GitHub Dependabot)."""
-        if ctx:
-            await ctx.info("Executing tool...")
-        import json
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
-            return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-
-        resolved = resolve_action(
-            action,
-            {"dependencies", "get_project", "get_group", "get"},
-            service="gitlab-api",
+        return await _dispatch_tool_action(
+            action, params_json, client, ctx, _VULNERABILITIES_ACTIONS
         )
-        if isinstance(resolved, dict):
-            return resolved
-        action = resolved
-
-        if action == "dependencies":
-            return await run_blocking(client.get_project_dependencies, **kwargs)
-        if action == "get_project":
-            return await run_blocking(client.get_project_vulnerabilities, **kwargs)
-        if action == "get_group":
-            return await run_blocking(client.get_group_vulnerabilities, **kwargs)
-        if action == "get":
-            return await run_blocking(client.get_vulnerability, **kwargs)
-        raise ValueError(f"Unknown action: {action}")
 
 
 def register_prompts(mcp: FastMCP):
@@ -1922,17 +1309,9 @@ def register_graphql_ops_tools(mcp: FastMCP):
         """
         if ctx:
             await ctx.info("Executing GitLab GraphQL operation...")
-        import inspect
-        import json
-
-        from pydantic import BaseModel
-
-        try:
-            kwargs = json.loads(params_json)
-        except Exception:
+        kwargs = _parse_params(params_json)
+        if kwargs is None:
             return {"error": "Operation failed"}
-
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
         resolved = resolve_action(
             action, set(_GRAPHQL_OPS_ACTIONS), service="gitlab-api"
@@ -1942,20 +1321,11 @@ def register_graphql_ops_tools(mcp: FastMCP):
         action = resolved
 
         method = getattr(client, action)
-        required = [
-            p
-            for p in inspect.signature(method).parameters.values()
-            if p.default is inspect.Parameter.empty
-            and p.kind in (p.POSITIONAL_OR_KEYWORD, p.KEYWORD_ONLY)
-        ]
+        sole_model = _sole_model_parameter(method)
         try:
-            if (
-                len(required) == 1
-                and isinstance(required[0].annotation, type)
-                and issubclass(required[0].annotation, BaseModel)
-            ):
-                model = required[0].annotation(**kwargs)
-                return await run_blocking(method, **{required[0].name: model})
+            if sole_model is not None:
+                model = sole_model.annotation(**kwargs)
+                return await run_blocking(method, **{sole_model.name: model})
             return await run_blocking(method, **kwargs)
         except Exception as e:
             return {"error": f"GraphQL operation '{action}' failed: {type(e).__name__}"}
