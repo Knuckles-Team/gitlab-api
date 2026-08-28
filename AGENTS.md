@@ -109,34 +109,6 @@ gitlab_api.agent_server:agent_server
 │   │   ├── api_client_repositories.py
 │   │   ├── api_client_system.py
 │   │   └── api_client_users_groups.py
-│   ├── mcp/
-│   │   ├── __init__.py
-│   │   ├── mcp_branches.py
-│   │   ├── mcp_commits.py
-│   │   ├── mcp_custom_api.py
-│   │   ├── mcp_deploy_tokens.py
-│   │   ├── mcp_environments.py
-│   │   ├── mcp_epics.py
-│   │   ├── mcp_graphql.py
-│   │   ├── mcp_groups.py
-│   │   ├── mcp_issues.py
-│   │   ├── mcp_jobs.py
-│   │   ├── mcp_labels.py
-│   │   ├── mcp_members.py
-│   │   ├── mcp_merge_requests.py
-│   │   ├── mcp_merge_rules.py
-│   │   ├── mcp_milestones.py
-│   │   ├── mcp_misc.py
-│   │   ├── mcp_notes.py
-│   │   ├── mcp_packages.py
-│   │   ├── mcp_pipeline_schedules.py
-│   │   ├── mcp_pipelines.py
-│   │   ├── mcp_projects.py
-│   │   ├── mcp_protected_branches.py
-│   │   ├── mcp_releases.py
-│   │   ├── mcp_runners.py
-│   │   ├── mcp_snippets.py
-│   │   └── mcp_tags.py
 │   ├── __init__.py
 │   ├── __main__.py
 │   ├── agent_server.py
