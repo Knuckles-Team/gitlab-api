@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
@@ -32,6 +33,10 @@ from gitlab_api.gitlab_input_models import (
     UserModel,
     WikiModel,
 )
+
+
+class UnsupportedGraphQLParameterError(ValueError):
+    """A meaningful REST-only argument was supplied to the GraphQL client."""
 
 
 @dataclass
@@ -86,6 +91,31 @@ def _build_project_list_variables(
     _add_project_id_and_path_filters(variables, filters)
     _add_project_scalar_filters(variables, filters)
     return variables
+
+
+def _reject_unsupported_graphql_parameters(**parameters: Any) -> None:
+    """Reject meaningful REST-only arguments instead of silently dropping them.
+
+    The GraphQL client keeps a few REST-compatible parameters in its public
+    signatures.  ``None``, ``False``, and empty containers preserve the
+    historical no-op defaults; any meaningful value is a caller request that
+    GraphQL cannot honor and must be sent through the REST client instead.
+    """
+    unsupported = [
+        name
+        for name, value in parameters.items()
+        if value is not None
+        and value is not False
+        and not (
+            isinstance(value, (str, bytes, list, tuple, set, frozenset, dict))
+            and not value
+        )
+    ]
+    if unsupported:
+        names = ", ".join(f"`{name}`" for name in unsupported)
+        raise UnsupportedGraphQLParameterError(
+            f"GitLab GraphQL does not support {names}; use the GitLab REST API instead."
+        )
 
 
 class GraphQL:
@@ -155,6 +185,8 @@ class GraphQL:
             if "errors" in result:
                 raise ParameterError(f"GraphQL errors: {result['errors']}")
             return result
+        except ParameterError:
+            raise
         except Exception as e:
             logging.error("GraphQL execution failed: error_type=%s", type(e).__name__)
             raise ParameterError(f"Query execution failed: {type(e).__name__}") from e
@@ -181,6 +213,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with branch data.
         """
+        _reject_unsupported_graphql_parameters(_regex=_regex)
         BranchModel(project_id=project_id, search=search)  # type: ignore
         query = """
         query ($fullPath: ID!, $search: String, $first: Int, $after: String) {
@@ -259,6 +292,9 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with deletion result.
         """
+        _reject_unsupported_graphql_parameters(
+            _delete_merged_branches=_delete_merged_branches
+        )
         branch_model = BranchModel(project_id=project_id, branch=branch)
         query = """
         mutation ($input: DestroyBranchInput!) {
@@ -337,6 +373,11 @@ class GraphQL:
         Note:
             Uses branchRuleUpdate mutation; some parameters (e.g., access levels) may require REST API.
         """
+        _reject_unsupported_graphql_parameters(
+            push_access_level=push_access_level,
+            merge_access_level=merge_access_level,
+            unprotect_access_level=unprotect_access_level,
+        )
         branch_model = BranchModel(project_id=project_id, branch=branch)
         query = """
         mutation ($input: BranchRuleUpdateInput!) {
@@ -446,6 +487,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with tag data.
         """
+        _reject_unsupported_graphql_parameters(sort=sort)
         TagModel(project_id=project_id)  # type: ignore
         query = """
         query ($fullPath: ID!, $search: String, $first: Int, $after: String) {
@@ -658,6 +700,10 @@ class GraphQL:
         Note:
             Uses branchRuleUpdate for tag patterns; full tag protection requires REST API.
         """
+        _reject_unsupported_graphql_parameters(
+            _create_access_level=_create_access_level,
+            _allowed_to_create=_allowed_to_create,
+        )
         tag_model = TagModel(project_id=project_id, tag=name)  # type: ignore
         query = """
         mutation ($input: BranchRuleUpdateInput!) {
@@ -732,7 +778,7 @@ class GraphQL:
         Args:
             project_id: Project ID or full path.
             ref: Optional reference (branch, tag, or SHA).
-            path: Optional file path filter.
+            path: Optional file path filter (not supported in GraphQL).
             author: Optional author filter (not supported in GraphQL).
             since: Optional start date filter (not supported in GraphQL).
             until: Optional end date filter (not supported in GraphQL).
@@ -744,6 +790,14 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with commit data.
         """
+        _reject_unsupported_graphql_parameters(
+            path=path,
+            _author=_author,
+            since=since,
+            until=until,
+            all=all,
+            with_stats=with_stats,
+        )
         CommitModel(project_id=project_id, ref=ref)
         query = """
         query ($fullPath: ID!, $ref: String, $first: Int, $after: String) {
@@ -837,6 +891,13 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with created commit data.
         """
+        _reject_unsupported_graphql_parameters(
+            _start_branch=_start_branch,
+            _start_sha=_start_sha,
+            _start_project=_start_project,
+            _stats=_stats,
+            force=force,
+        )
         CommitModel(
             project_id=project_id, branch=branch, message=message, actions=actions
         )
@@ -1083,6 +1144,15 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with merge request data.
         """
+        _reject_unsupported_graphql_parameters(
+            labels=labels,
+            milestone=milestone,
+            author_username=author_username,
+            reviewer_username=reviewer_username,
+            source_branch=source_branch,
+            target_branch=target_branch,
+            search=search,
+        )
         MergeRequestModel(project_id=project_id, state=state)  # type: ignore
         query = """
         query ($fullPath: ID!, $state: MergeRequestState, $first: Int, $after: String) {
@@ -1169,6 +1239,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with created merge request data.
         """
+        _reject_unsupported_graphql_parameters(_milestone_id=_milestone_id)
         MergeRequestModel(
             project_id=project_id,
             source_branch=source_branch,
@@ -1356,7 +1427,7 @@ class GraphQL:
 
         Args:
             project_id: Project ID or full path.
-            ref: Optional reference filter (branch, tag, or SHA).
+            ref: Optional reference filter (not supported in GraphQL).
             status: Optional pipeline status filter (not supported in GraphQL).
             source: Optional source filter (not supported in GraphQL).
             username: Optional username filter (not supported in GraphQL).
@@ -1370,6 +1441,16 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with pipeline data.
         """
+        _reject_unsupported_graphql_parameters(
+            ref=ref,
+            status=status,
+            _source=_source,
+            username=username,
+            updated_after=updated_after,
+            updated_before=updated_before,
+            order_by=order_by,
+            sort=sort,
+        )
         PipelineModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
@@ -1893,6 +1974,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with job data.
         """
+        _reject_unsupported_graphql_parameters(scope=scope)
         JobModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
@@ -2020,6 +2102,10 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with package data.
         """
+        _reject_unsupported_graphql_parameters(
+            _package_type=_package_type,
+            package_name=package_name,
+        )
         PackageModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
@@ -2190,6 +2276,7 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with user data.
         """
+        _reject_unsupported_graphql_parameters(username=username)
         UserModel()
         query = """
         query ($search: String, $first: Int, $after: String) {
@@ -2261,6 +2348,10 @@ class GraphQL:
         Returns:
             Dict[str, Any]: Raw GraphQL response with member data.
         """
+        _reject_unsupported_graphql_parameters(
+            _include_inherited=_include_inherited,
+            search=search,
+        )
         MembersModel(project_id=project_id)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
@@ -2619,6 +2710,10 @@ class GraphQL:
         Note:
             Some filters (e.g., author_username, milestone) are not fully supported in GitLab GraphQL.
         """
+        _reject_unsupported_graphql_parameters(
+            milestone=milestone,
+            author_username=author_username,
+        )
         IssueModel(project_id=project_id)  # type: ignore
         query = """
         query ($fullPath: ID!, $state: IssueState, $labels: [String!], $assigneeUsernames: [String!], $search: String, $first: Int, $after: String) {
@@ -2817,6 +2912,7 @@ class GraphQL:
         Note:
             project_id is not supported in GitLab GraphQL for todos; included for REST parity.
         """
+        _reject_unsupported_graphql_parameters(project_id=project_id)
         query = """
         query ($state: TodoStateEnum, $type: TodoTargetTypeEnum, $first: Int, $after: String) {
             currentUser {

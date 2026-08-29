@@ -70,7 +70,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 <!-- MCP-TOOLS-TABLE:START -->
 
-#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+#### Condensed action-routed tools (`MCP_TOOL_MODE=condensed`)
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
@@ -315,7 +315,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 </details>
 
-_34 action-routed tool(s) (default) · 196 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_34 action-routed tool(s) · 196 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/usage.md](docs/usage.md).
@@ -565,15 +565,18 @@ the detailed transport contract.
 | `TRANSPORT` | `stdio` | options: stdio, streamable-http, sse |
 | `ENABLE_OTEL` | `True` |  |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:8080/api/public/otel` |  |
-| `OTEL_EXPORTER_OTLP_PUBLIC_KEY` | secret-injected |  |
-| `OTEL_EXPORTER_OTLP_SECRET_KEY` | secret-injected |  |
+| `OTEL_EXPORTER_OTLP_PUBLIC_KEY_REF` | — |  |
+| `OTEL_EXPORTER_OTLP_SECRET_KEY_REF` | — |  |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` |  |
+| `GITLAB_API_MCP_IMAGE` | `registry.example.invalid/gitlab-api@sha256:0000000000000000000000000000000000000000000000000000000000000000` |  |
+| `GITLAB_API_AGENT_IMAGE` | `registry.example.invalid/gitlab-api@sha256:0000000000000000000000000000000000000000000000000000000000000000` |  |
 | `EUNOMIA_TYPE` | `none` | options: none, embedded, remote |
 | `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
 | `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
 | `GITLAB_URL` | `https://gitlab.example.com` |  |
 | `GITLAB_TOKEN` | secret-injected |  |
 | `GITLAB_TLS_PROFILE` | — | named AgentConfig TLS profile; blank uses the configured default |
+| `GITLAB_TLS_PROFILE_REF` | — | optional indirection reference resolved by AgentConfig |
 | `MISCTOOL` | `True` |  |
 | `BRANCHESTOOL` | `True` |  |
 | `PROTECTED_BRANCHESTOOL` | `True` |  |
@@ -627,7 +630,7 @@ the detailed transport contract.
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_45 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_48 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 

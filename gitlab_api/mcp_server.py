@@ -354,10 +354,11 @@ _RUNNERS_ACTIONS: dict[str, Any] = {
     "register": "register_new_runner",
     "delete": "delete_runner",
     "verify_auth": "verify_runner_authentication",
-    "reset_gitlab_token": "reset_gitlab_runner_token",
-    "reset_project_token": "reset_project_runner_token",
-    "reset_group_token": "reset_group_runner_token",
-    "reset_token": "reset_token",
+    # The values below are Api method identifiers, never credential values.
+    "reset_gitlab_token": "reset_gitlab_runner_token",  # nosec B105
+    "reset_project_token": "reset_project_runner_token",  # nosec B105
+    "reset_group_token": "reset_group_runner_token",  # nosec B105
+    "reset_token": "reset_token",  # nosec B105
 }
 
 #: Action -> Api method for the ``gitlab_tags`` tool.
@@ -1266,19 +1267,50 @@ def register_graphql_tools(mcp: FastMCP):
             return {"error": "Failed to discover GitLab GraphQL schema"}
 
 
-def register_graphql_ops_tools(mcp: FastMCP):
-    from gitlab_api.auth import get_graphql_client
-    from gitlab_api.gitlab_gql import GraphQL as _GitlabGraphQL
+#: Methods on the GraphQL client that are not callable GraphQL operations.
+#: Keep the exclusions categorized so the catalog contract records why a
+#: method is omitted without affecting the corresponding REST surface.
+_GRAPHQL_OPS_EXCLUSION_CATEGORIES: dict[str, frozenset[str]] = {
+    "unsupported": frozenset(
+        {
+            "get_deploy_tokens",
+            "create_deploy_token",
+            "delete_deploy_token",
+            "upload_wiki_page_attachment",
+        }
+    ),
+    "lifecycle": frozenset({"close"}),
+}
+_GRAPHQL_OPS_EXCLUSIONS = frozenset(
+    name for names in _GRAPHQL_OPS_EXCLUSION_CATEGORIES.values() for name in names
+)
 
-    #: Every typed operation on the GraphQL client (all methods except the raw
-    #: execute_gql passthrough, which the gitlab_graphql tool already exposes).
-    _GRAPHQL_OPS_ACTIONS = tuple(
+
+def _graphql_operation_names(client_cls: type) -> tuple[str, ...]:
+    """Return callable GraphQL operations eligible for MCP action discovery."""
+    return tuple(
         sorted(
             name
-            for name, attr in vars(_GitlabGraphQL).items()
-            if not name.startswith("_") and callable(attr) and name != "execute_gql"
+            for name, attr in vars(client_cls).items()
+            if not name.startswith("_")
+            and callable(attr)
+            and name != "execute_gql"
+            and name not in _GRAPHQL_OPS_EXCLUSIONS
         )
     )
+
+
+def register_graphql_ops_tools(mcp: FastMCP):
+    from gitlab_api.auth import get_graphql_client
+    from gitlab_api.gitlab_gql import (
+        GraphQL as _GitlabGraphQL,
+    )
+    from gitlab_api.gitlab_gql import (
+        UnsupportedGraphQLParameterError,
+    )
+
+    #: Every supported typed operation; raw execute_gql is exposed separately.
+    _GRAPHQL_OPS_ACTIONS = _graphql_operation_names(_GitlabGraphQL)
 
     @mcp.tool(tags={"graphql_ops"})
     async def gitlab_graphql_ops(
@@ -1327,6 +1359,8 @@ def register_graphql_ops_tools(mcp: FastMCP):
                 model = sole_model.annotation(**kwargs)
                 return await run_blocking(method, **{sole_model.name: model})
             return await run_blocking(method, **kwargs)
+        except UnsupportedGraphQLParameterError as exc:
+            return {"error": str(exc)}
         except Exception as e:
             return {"error": f"GraphQL operation '{action}' failed: {type(e).__name__}"}
 

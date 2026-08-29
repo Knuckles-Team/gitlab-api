@@ -2,7 +2,7 @@
 
 
 from datetime import datetime
-from typing import Any, Generic, Optional, TypeVar, Union
+from typing import Any, Optional, Union
 
 import requests
 from pydantic import (
@@ -3710,10 +3710,7 @@ class Agents(BaseModel):
     )
 
 
-T = TypeVar("T")
-
-
-class Response(BaseModel, Generic[T]):
+class Response[T](BaseModel):
     """
     A wrapper class to hold the original requests.Response along with the parsed Pydantic data.
     This allows access to response metadata (e.g., status_code, headers) while providing

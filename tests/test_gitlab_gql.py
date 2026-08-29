@@ -213,7 +213,7 @@ def test_graphql_execute_exceptions(mock_gql_client):
 
     # Test exception raised by client execute
     mock_gql_client.execute.side_effect = Exception("network error")
-    with pytest.raises(ParameterError, match="Query execution failed: network error"):
+    with pytest.raises(ParameterError, match="Query execution failed: Exception"):
         gql_client.execute_gql("query { test }")
 
 

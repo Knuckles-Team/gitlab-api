@@ -120,6 +120,9 @@ PLACEHOLDER_VALUES = {
     "github_pat_*************",
     "token_*************",
     "secret_*************",
+    # Stable public quarantine reason, not credential material. Keeping the
+    # exact value here avoids weakening the generic assignment detector.
+    "secret_bearing_payload",
     "glpat-abc",
     "ghp_abc",
     "github_pat_abc",

@@ -279,7 +279,7 @@ async def test_mcp_server_graphql_exception():
             ctx=None,
         )
         assert "error" in result
-        assert "Internal GraphQL Error" in result["error"]
+        assert result["error"] == "GraphQL execution failed: Exception"
 
 
 @pytest.mark.anyio

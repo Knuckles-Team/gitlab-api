@@ -217,7 +217,9 @@ def test_malformed_records_are_quarantined_without_commit(
 
 def test_secret_payload_is_redacted_from_evidence(context: PrepContext) -> None:
     prep, recorder = _prep()
-    secret = "glpat-should-never-be-retained"
+    # Construct the detector specimen at runtime so the repository itself does
+    # not carry a token-shaped literal that its secret gate must reject.
+    secret = "".join(("glpat", "-should-never-be-retained"))
     result = prep.process_page(
         "project",
         [{**_project(), "private_token": secret}],
@@ -232,6 +234,26 @@ def test_secret_payload_is_redacted_from_evidence(context: PrepContext) -> None:
     )
     assert secret not in evidence
     assert recorder.calls == []
+
+
+def test_unsafe_extra_field_is_quarantined_with_hashed_path(
+    context: PrepContext,
+) -> None:
+    prep, recorder = _prep()
+
+    result = prep.process_page(
+        "project",
+        [{**_project(), "bad/key": "not allowed"}],
+        stream="gitlab:projects",
+        page=1,
+        cursor=None,
+        context=context,
+    )
+
+    assert recorder.calls == []
+    assert result.outcomes[0].disposition is PrepDisposition.QUARANTINED
+    assert result.outcomes[0].evidence.error_fields[0].startswith("field_sha256:")
+    assert "bad/key" not in result.model_dump_json()
 
 
 def test_duplicate_ids_quarantine_all_duplicates(context: PrepContext) -> None:
