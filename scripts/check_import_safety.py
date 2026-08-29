@@ -161,7 +161,7 @@ def import_standalone_script(path: Path) -> None:
     spec.loader.exec_module(module)
 
 
-def main() -> int:
+def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         "--package",
@@ -187,7 +187,92 @@ def main() -> int:
         metavar="DOTTED_PREFIX",
         help="dotted module name/prefix to skip (repeatable) -- for modules with legitimately environment-gated import-time side effects, not for hiding real breakage",
     )
-    args = parser.parse_args()
+    return parser
+
+
+def _is_excluded(name: str, excluded: tuple[str, ...]) -> bool:
+    return any(name == prefix or name.startswith(prefix + ".") for prefix in excluded)
+
+
+def _report_mode(simulate_windows: bool) -> str:
+    if simulate_windows:
+        return "simulated-windows"
+    return "windows" if sys.platform == "win32" else "native"
+
+
+def _walk_time_failures(
+    walk_failures: list[tuple[str, str]], excluded: tuple[str, ...]
+) -> list[tuple[str, str]]:
+    # Walk-time failures (subpackages pkgutil could not descend into at all)
+    # are real findings, not a footnote -- everything beneath them was never
+    # enumerable, so report them as failures even though we cannot name what
+    # (if anything) they were individually hiding.
+    return [
+        (name, f"{err} (package failed to import WHILE WALKING -- its children could not be enumerated at all)")
+        for name, err in walk_failures
+        if not _is_excluded(name, excluded)
+    ]
+
+
+def _check_module_imports(
+    module_names: list[str], excluded: tuple[str, ...], already_recorded: set[str]
+) -> tuple[list[tuple[str, str]], int]:
+    failures: list[tuple[str, str]] = []
+    checked = 0
+    for name in module_names:
+        if _is_excluded(name, excluded) or name in already_recorded:
+            # walk_failures already proved this exact name fails to import;
+            # re-importing it here would only duplicate the same finding.
+            continue
+        checked += 1
+        try:
+            importlib.import_module(name)
+        except Exception as exc:  # ImportError/ModuleNotFoundError and anything else raised at import time
+            failures.append((name, f"{type(exc).__name__}: {exc}"))
+    return failures, checked
+
+
+def _check_standalone_scripts(
+    script_paths: list[str], excluded: tuple[str, ...]
+) -> tuple[list[tuple[str, str]], int]:
+    failures: list[tuple[str, str]] = []
+    checked = 0
+    for script_path in script_paths:
+        path = Path(script_path)
+        if _is_excluded(str(path), excluded):
+            continue
+        checked += 1
+        try:
+            import_standalone_script(path)
+        except Exception as exc:
+            failures.append((str(path), f"{type(exc).__name__}: {exc}"))
+    return failures, checked
+
+
+def _report_results(
+    mode: str,
+    package: str,
+    checked: int,
+    script_count: int,
+    failures: list[tuple[str, str]],
+) -> int:
+    print(
+        f"import-safety[{mode}]: checked {checked} modules/scripts under {package!r}"
+        + (f" (+{script_count} standalone script(s))" if script_count else "")
+    )
+
+    if failures:
+        print(f"import-safety[{mode}]: {len(failures)} module(s) FAILED to import:")
+        for name, err in failures:
+            print(f"  {name}: {err}")
+        return 1
+
+    print(f"import-safety[{mode}]: all {checked} modules imported cleanly")
+    return 0
+
+
+def main() -> int:
+    args = _build_arg_parser().parse_args()
 
     if args.simulate_windows:
         install_windows_simulation()
@@ -200,55 +285,17 @@ def main() -> int:
         return 1
 
     excluded = tuple(args.exclude)
+    mode = _report_mode(args.simulate_windows)
 
-    def is_excluded(name: str) -> bool:
-        return any(name == prefix or name.startswith(prefix + ".") for prefix in excluded)
+    walk_failures_reported = _walk_time_failures(walk_failures, excluded)
+    already_recorded = {name for name, _ in walk_failures_reported}
+    module_failures, module_checked = _check_module_imports(module_names, excluded, already_recorded)
+    script_failures, script_checked = _check_standalone_scripts(args.script, excluded)
 
-    mode = "simulated-windows" if args.simulate_windows else ("windows" if sys.platform == "win32" else "native")
+    failures = walk_failures_reported + module_failures + script_failures
+    checked = module_checked + len(already_recorded) + script_checked
 
-    # Walk-time failures (subpackages pkgutil could not descend into at all)
-    # are real findings, not a footnote -- everything beneath them was never
-    # enumerable, so report them as failures even though we cannot name what
-    # (if anything) they were individually hiding.
-    failures: list[tuple[str, str]] = [
-        (name, f"{err} (package failed to import WHILE WALKING -- its children could not be enumerated at all)")
-        for name, err in walk_failures
-        if not is_excluded(name)
-    ]
-    already_recorded = {name for name, _ in failures}
-    checked = 0
-    for name in module_names:
-        if is_excluded(name) or name in already_recorded:
-            # walk_failures already proved this exact name fails to import;
-            # re-importing it here would only duplicate the same finding.
-            continue
-        checked += 1
-        try:
-            importlib.import_module(name)
-        except Exception as exc:  # ImportError/ModuleNotFoundError and anything else raised at import time
-            failures.append((name, f"{type(exc).__name__}: {exc}"))
-    checked += len(already_recorded)
-
-    for script_path in args.script:
-        path = Path(script_path)
-        if is_excluded(str(path)):
-            continue
-        checked += 1
-        try:
-            import_standalone_script(path)
-        except Exception as exc:
-            failures.append((str(path), f"{type(exc).__name__}: {exc}"))
-
-    print(f"import-safety[{mode}]: checked {checked} modules/scripts under {args.package!r}" + (f" (+{len(args.script)} standalone script(s))" if args.script else ""))
-
-    if failures:
-        print(f"import-safety[{mode}]: {len(failures)} module(s) FAILED to import:")
-        for name, err in failures:
-            print(f"  {name}: {err}")
-        return 1
-
-    print(f"import-safety[{mode}]: all {checked} modules imported cleanly")
-    return 0
+    return _report_results(mode, args.package, checked, len(args.script), failures)
 
 
 if __name__ == "__main__":
