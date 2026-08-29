@@ -93,6 +93,31 @@ def test_b_respond_to_query():
         pytest.fail("Could not find a working JSON-RPC params for message/send.")
 
 
+def _poll_task_until_terminal(endpoint: str, task_id: object) -> None:
+    """Poll tasks/get (up to 10 tries, 2s apart) until a terminal state or attempts run out."""
+    for _ in range(10):
+        time.sleep(2)
+        poll_payload = {
+            "jsonrpc": "2.0",
+            "method": "tasks/get",
+            "params": {"id": task_id},
+            "id": 3,
+        }
+        poll_resp = requests.post(f"{BASE_URL}{endpoint}", json=poll_payload)
+        if poll_resp.status_code != 200:
+            logger.warning(f"Poll failed: {poll_resp.status_code}")
+            continue
+        poll_body = poll_resp.json()
+        task_status = poll_body.get("result", {}).get("status", {}).get("state")
+        logger.info(f"Task State: {task_status}")
+        if task_status == "completed":
+            logger.info(f"Task result: {poll_body}")
+            return
+        if task_status == "failed":
+            logger.warning("Task failed")
+            return
+
+
 def test_c_d_e_f_full_flow():
     """Validate C, D, E, F"""
     logger.info("Verifying Complex Flow...")
@@ -123,31 +148,12 @@ def test_c_d_e_f_full_flow():
 
     result = body.get("result", {})
     task_id = result.get("id")
-    if task_id:
-        logger.info(f"Task submitted with ID: {task_id}. Polling for result...")
-        for _ in range(10):
-            time.sleep(2)
-            poll_payload = {
-                "jsonrpc": "2.0",
-                "method": "tasks/get",
-                "params": {"id": task_id},
-                "id": 3,
-            }
-            poll_resp = requests.post(f"{BASE_URL}{endpoint}", json=poll_payload)
-            if poll_resp.status_code == 200:
-                poll_body = poll_resp.json()
-                task_status = poll_body.get("result", {}).get("status", {}).get("state")
-                logger.info(f"Task State: {task_status}")
-                if task_status == "completed":
-                    logger.info(f"Task result: {poll_body}")
-                    break
-                if task_status == "failed":
-                    logger.warning("Task failed")
-                    break
-            else:
-                logger.warning(f"Poll failed: {poll_resp.status_code}")
-    else:
+    if not task_id:
         logger.warning("No taskId returned, cannot poll.")
+        return
+
+    logger.info(f"Task submitted with ID: {task_id}. Polling for result...")
+    _poll_task_until_terminal(endpoint, task_id)
 
 
 if __name__ == "__main__":

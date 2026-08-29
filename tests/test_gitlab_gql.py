@@ -1,4 +1,5 @@
 import inspect
+from typing import Any
 from unittest.mock import MagicMock, patch
 import pytest
 
@@ -224,10 +225,8 @@ def test_graphql_parameter_errors(mock_gql_client):
         gql_client.get_admin_projects(full_paths=["path"] * 51)
 
 
-def test_graphql_brute_force_coverage(mock_gql_client):
-    gql_client = GraphQL(url="http://test", token="test", debug=True)
-
-    common_kwargs = {
+def _build_graphql_brute_force_kwargs() -> dict[str, Any]:
+    return {
         "project_id": "1",
         "group_id": "1",
         "id": "1",
@@ -287,31 +286,41 @@ def test_graphql_brute_force_coverage(mock_gql_client):
         "project_model": MagicMock(),
     }
 
+
+def _kwargs_for_graphql_method(method: Any, common_kwargs: dict[str, Any]) -> dict[str, Any]:
+    sig = inspect.signature(method)
+    has_kwargs = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
+    )
+    if has_kwargs:
+        return common_kwargs.copy()
+
+    kwargs = {k: v for k, v in common_kwargs.items() if k in sig.parameters}
+    # Fill missing mandatory ones
+    for p_name, p in sig.parameters.items():
+        if p.default == inspect.Parameter.empty and p_name not in kwargs:
+            kwargs[p_name] = MagicMock() if p_name.endswith("_model") else "test"
+    return kwargs
+
+
+def _call_graphql_method_for_coverage(
+    name: str, method: Any, common_kwargs: dict[str, Any]
+) -> None:
+    print(f"Calling GraphQL.{name}...")
+    kwargs = _kwargs_for_graphql_method(method, common_kwargs)
+    try:
+        res = method(**kwargs)
+        assert res is not None
+    except Exception as e:
+        print(f"Operation failed: {type(e).__name__}")
+
+
+def test_graphql_brute_force_coverage(mock_gql_client):
+    gql_client = GraphQL(url="http://test", token="test", debug=True)
+    common_kwargs = _build_graphql_brute_force_kwargs()
+
     # Introspect all methods
     for name, method in inspect.getmembers(gql_client, predicate=inspect.ismethod):
         if name.startswith("_") or name == "execute_gql":
             continue
-        print(f"Calling GraphQL.{name}...")
-        sig = inspect.signature(method)
-        has_kwargs = any(
-            p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
-        )
-        if has_kwargs:
-            kwargs = common_kwargs.copy()
-        else:
-            kwargs = {k: v for k, v in common_kwargs.items() if k in sig.parameters}
-            # Fill missing mandatory ones
-            for p_name, p in sig.parameters.items():
-                if p.default == inspect.Parameter.empty and p_name not in kwargs:
-                    if p_name.endswith("_model"):
-                        kwargs[p_name] = MagicMock()
-                    else:
-                        kwargs[p_name] = "test"
-
-        # Call the method
-        try:
-            res = method(**kwargs)
-            assert res is not None
-        except Exception as e:
-            print(f"Operation failed: {type(e).__name__}")
-            pass
+        _call_graphql_method_for_coverage(name, method, common_kwargs)

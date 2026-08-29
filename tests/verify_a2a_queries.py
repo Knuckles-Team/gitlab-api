@@ -22,22 +22,32 @@ def send_rpc(method, params, id=1):
         return None
 
 
+def _terminal_poll_result(res: dict) -> dict | None:
+    """Log one tasks/get response; return its result once it reaches a
+    terminal state ("completed"/"failed"), else None to keep polling."""
+    logger.debug(f"Full poll response: {json.dumps(res, indent=2)}")
+    if "error" in res:
+        logger.error(f"RPC error: {res['error']}")
+    if "result" not in res:
+        return None
+    state = res["result"].get("status", {}).get("state")
+    logger.info(f"Task State: {state}")
+    if state not in ["completed", "failed"]:
+        return None
+    if state == "failed" and "error" in res["result"]:
+        logger.error(f"Task error details: {res['result']['error']}")
+    return res["result"]
+
+
 def poll_task(task_id, timeout=120, interval=1):
     start = time.time()
     logger.info(f"Polling task {task_id}...")
     while time.time() - start < timeout:
         res = send_rpc("tasks/get", {"id": task_id}, id=99)
         if res:
-            logger.debug(f"Full poll response: {json.dumps(res, indent=2)}")
-            if "error" in res:
-                logger.error(f"RPC error: {res['error']}")
-            if "result" in res:
-                state = res["result"].get("status", {}).get("state")
-                logger.info(f"Task State: {state}")
-                if state in ["completed", "failed"]:
-                    if state == "failed" and "error" in res["result"]:
-                        logger.error(f"Task error details: {res['result']['error']}")
-                    return res["result"]
+            terminal_result = _terminal_poll_result(res)
+            if terminal_result is not None:
+                return terminal_result
         time.sleep(interval)
     return None
 
