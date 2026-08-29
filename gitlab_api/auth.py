@@ -26,6 +26,61 @@ from gitlab_api.api_client import Api
 logger = get_logger(__name__)
 
 
+def _resolve_tls_profile_for(
+    tls_profile: ResolvedTLSProfile | None, profile_name: str | None
+) -> ResolvedTLSProfile:
+    """An explicit runtime profile wins over the configured profile selector."""
+    return tls_profile or resolve_configured_tls_profile(
+        "GITLAB", profile_name=profile_name
+    )
+
+
+def _resolve_url_connection(
+    instance: str,
+    token: str | None,
+    tls_profile: ResolvedTLSProfile | None,
+) -> tuple[str, str | None, ResolvedTLSProfile]:
+    """A URL is used directly; its token remains caller-owned."""
+    return (
+        instance,
+        token,
+        _resolve_tls_profile_for(tls_profile, setting("GITLAB_TLS_PROFILE")),
+    )
+
+
+def _resolve_unconfigured_connection(
+    instance: str | None,
+    token: str | None,
+    tls_profile: ResolvedTLSProfile | None,
+) -> tuple[str, str | None, ResolvedTLSProfile]:
+    """No structured tenant config: fall back to single-host env settings."""
+    if instance:
+        raise RuntimeError(
+            f"GitLab instance '{instance}' is not configured. Add it to "
+            "gitlab_instances in ~/.config/agent-utilities/config.json, or pass "
+            "a full URL / set GITLAB_URL+GITLAB_TOKEN."
+        )
+    return (
+        setting("GITLAB_URL", "https://gitlab.com"),
+        token or setting("GITLAB_TOKEN"),
+        _resolve_tls_profile_for(tls_profile, setting("GITLAB_TLS_PROFILE")),
+    )
+
+
+def _resolve_named_instance_connection(
+    inst: Any,
+    token: str | None,
+    tls_profile: ResolvedTLSProfile | None,
+) -> tuple[str, str | None, ResolvedTLSProfile]:
+    return (
+        inst.url,
+        token or inst.token or setting("GITLAB_TOKEN"),
+        _resolve_tls_profile_for(
+            tls_profile, inst.tls_profile_name or setting("GITLAB_TLS_PROFILE")
+        ),
+    )
+
+
 def _resolve_connection(
     instance: str | None,
     token: str | None,
@@ -39,44 +94,14 @@ def _resolve_connection(
     """
     from gitlab_api.instances import get_instance
 
-    # A URL is used directly; its token remains caller-owned.
     if instance and str(instance).startswith(("http://", "https://")):
-        return (
-            instance,
-            token,
-            tls_profile
-            or resolve_configured_tls_profile(
-                "GITLAB", profile_name=setting("GITLAB_TLS_PROFILE")
-            ),
-        )
+        return _resolve_url_connection(instance, token, tls_profile)
 
     # A name (or None=default) resolves against the configured tenants.
     inst = get_instance(instance)
     if inst is None:
-        if instance:
-            raise RuntimeError(
-                f"GitLab instance '{instance}' is not configured. Add it to "
-                "gitlab_instances in ~/.config/agent-utilities/config.json, or pass "
-                "a full URL / set GITLAB_URL+GITLAB_TOKEN."
-            )
-        # No structured config: use the single-host environment settings.
-        return (
-            setting("GITLAB_URL", "https://gitlab.com"),
-            token or setting("GITLAB_TOKEN"),
-            tls_profile
-            or resolve_configured_tls_profile(
-                "GITLAB", profile_name=setting("GITLAB_TLS_PROFILE")
-            ),
-        )
-    return (
-        inst.url,
-        token or inst.token or setting("GITLAB_TOKEN"),
-        tls_profile
-        or resolve_configured_tls_profile(
-            "GITLAB",
-            profile_name=inst.tls_profile_name or setting("GITLAB_TLS_PROFILE"),
-        ),
-    )
+        return _resolve_unconfigured_connection(instance, token, tls_profile)
+    return _resolve_named_instance_connection(inst, token, tls_profile)
 
 
 def get_client(

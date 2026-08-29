@@ -26,7 +26,7 @@ from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from enum import StrEnum
 from threading import RLock
-from typing import Any, Literal, Protocol, cast
+from typing import Any, Literal, NamedTuple, Protocol, cast
 from urllib.parse import urlsplit
 
 from pydantic import (
@@ -142,39 +142,60 @@ def _optional_text(value: object, *, field: str, limit: int = MAX_TEXT_LENGTH) -
     return value or None
 
 
-def _safe_url(value: object, *, field: str = "web_url") -> str:
-    value = _bounded_string(value, field=field, limit=MAX_URL_LENGTH).strip()
+def _parse_safe_url(value: str, *, field: str):
     try:
         parsed = urlsplit(value)
-        hostname = parsed.hostname
+        _ = parsed.hostname
         _ = parsed.port
     except ValueError as exc:
         raise ValueError(f"{field} is not a safe URL") from exc
-    if parsed.scheme not in {"http", "https"} or not hostname:
+    return parsed
+
+
+def _check_url_scheme_and_host(parsed, *, field: str) -> None:
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
         raise ValueError(f"{field} must use an HTTP(S) URL")
+
+
+def _check_url_credentials_and_fragment(parsed, *, field: str) -> None:
     if parsed.username is not None or parsed.password is not None:
         raise ValueError(f"{field} may not contain credentials")
     if parsed.fragment:
         raise ValueError(f"{field} may not contain a fragment")
+
+
+def _check_url_path_traversal(parsed, *, field: str) -> None:
     path = parsed.path.lower()
     if "\\" in path or any(part in {".", ".."} for part in path.split("/")):
         raise ValueError(f"{field} contains path traversal")
     if "%2e" in path or "%2f" in path or "%5c" in path:
         raise ValueError(f"{field} contains encoded path traversal")
+
+
+_SENSITIVE_QUERY_TOKENS = (
+    "token=",
+    "secret=",
+    "password=",
+    "apikey=",
+    "api_key=",
+    "access_key=",
+    "authorization=",
+)
+
+
+def _check_url_sensitive_query(parsed, *, field: str) -> None:
     query = parsed.query.lower()
-    if any(
-        token in query
-        for token in (
-            "token=",
-            "secret=",
-            "password=",
-            "apikey=",
-            "api_key=",
-            "access_key=",
-            "authorization=",
-        )
-    ):
+    if any(token in query for token in _SENSITIVE_QUERY_TOKENS):
         raise ValueError(f"{field} contains sensitive query data")
+
+
+def _safe_url(value: object, *, field: str = "web_url") -> str:
+    value = _bounded_string(value, field=field, limit=MAX_URL_LENGTH).strip()
+    parsed = _parse_safe_url(value, field=field)
+    _check_url_scheme_and_host(parsed, field=field)
+    _check_url_credentials_and_fragment(parsed, field=field)
+    _check_url_path_traversal(parsed, field=field)
+    _check_url_sensitive_query(parsed, field=field)
     return value
 
 
@@ -861,19 +882,28 @@ def _walk_payload(value: object, path: str = "") -> Sequence[tuple[str, object]]
     return found
 
 
+def _check_field_path_not_secret(path: str) -> None:
+    if _SECRET_FIELD.search(path):
+        raise PrepError(PrepErrorCode.SECRET, "secret-bearing payload rejected")
+
+
+def _check_field_value_bounds(value: object, limits: PrepLimits) -> None:
+    if not isinstance(value, str):
+        return
+    if len(value) > limits.max_text_length:
+        raise PrepError(PrepErrorCode.TEXT_LIMIT, "record text exceeds the bound")
+    if any(pattern.search(value) for pattern in _SECRET_VALUE):
+        raise PrepError(PrepErrorCode.SECRET, "secret-bearing payload rejected")
+
+
 def _check_payload_bounds(payload: object, limits: PrepLimits) -> None:
     if not isinstance(payload, Mapping):
         raise PrepError(PrepErrorCode.INVALID_PAYLOAD, "record must be an object")
     if len(payload) > limits.max_fields:
         raise PrepError(PrepErrorCode.FIELD_LIMIT, "record field count exceeds the bound")
     for path, value in _walk_payload(payload):
-        if _SECRET_FIELD.search(path):
-            raise PrepError(PrepErrorCode.SECRET, "secret-bearing payload rejected")
-        if isinstance(value, str):
-            if len(value) > limits.max_text_length:
-                raise PrepError(PrepErrorCode.TEXT_LIMIT, "record text exceeds the bound")
-            if any(pattern.search(value) for pattern in _SECRET_VALUE):
-                raise PrepError(PrepErrorCode.SECRET, "secret-bearing payload rejected")
+        _check_field_path_not_secret(path)
+        _check_field_value_bounds(value, limits)
 
 
 def _clean_payload(payload: Mapping[str, object]) -> dict[str, object]:
@@ -1104,6 +1134,28 @@ def _checkpoint_outcome(outcome: PreparedOutcome) -> CheckpointOutcome:
     )
 
 
+def _record_identity(model: BaseModel) -> tuple[object, ...]:
+    """The de-duplication key for one accepted record within a page."""
+    if isinstance(model, GitLabProjectPayload):
+        return ("project", model.id)
+    if isinstance(model, GitLabIssuePayload):
+        return ("issue", model.project_id, model.iid)
+    return ("merge_request", model.project_id, model.iid)
+
+
+class _PageRecordContext(NamedTuple):
+    """The per-page values shared by every record processed within one page."""
+
+    kind: RecordKind
+    model_cls: type[BaseModel]
+    page: int
+    cursor_digest: str | None
+    context: PrepContext
+
+
+AcceptedRecord = tuple[int, BaseModel, list[dict[str, object]], list[dict[str, object]], str]
+
+
 class ConnectorPrep:
     """Strict, bounded, checkpointed GitLab source preparation."""
 
@@ -1206,6 +1258,287 @@ class ConnectorPrep:
             commit=NativeCommitResult(nodes=0, edges=0, replayed=True),
         )
 
+    def _reject_if_oversized_page(
+        self,
+        kind: RecordKind,
+        records: Sequence[Mapping[str, object]],
+        *,
+        stream: str,
+        page: int,
+        context: PrepContext,
+        cursor_digest: str | None,
+    ) -> PrepResult | None:
+        """Oversized pages are never enumerated, hashed, or checkpointed.
+
+        The response remains bounded and the caller must quarantine/re-drive
+        the source page explicitly.
+        """
+        if len(records) <= self.limits.max_page_records:
+            return None
+        digest = _digest(
+            {"kind": kind, "page": page, "oversized_records": len(records)}
+        )
+        ref = f"gitlab:{kind}:page:{page}:oversized"
+        outcome = self._quarantine(
+            kind,
+            page=page,
+            ordinal=0,
+            context=context,
+            cursor_digest=cursor_digest,
+            code=PrepErrorCode.PAGE_LIMIT,
+            ref=ref,
+        )
+        return PrepResult(
+            record_kind=kind,
+            stream=_safe_reference(stream, field="stream"),
+            page=page,
+            page_digest=digest,
+            plan=arrow_prep_plan(kind),
+            outcomes=(outcome,),
+        )
+
+    def _checkpoint_replay_or_conflict(
+        self,
+        kind: RecordKind,
+        stream: str,
+        page: int,
+        page_digest: str,
+        context: PrepContext,
+        plan: ArrowPrepPlan,
+    ) -> PrepResult | None:
+        """A replay result for an already-checkpointed page, else None to proceed.
+
+        Raises ``CheckpointConflict`` when the page cannot legally be applied
+        next (digest drift, a skipped page, or a page behind the stream).
+        """
+        existing = self.checkpoints.read(stream, page)
+        if existing is not None:
+            if existing.page_digest != page_digest:
+                raise CheckpointConflict("page digest changed after checkpoint")
+            return self._replay_result(
+                kind, stream, page, page_digest, existing, context, plan
+            )
+        latest = self.checkpoints.latest(stream)
+        if latest is None and page != 1:
+            raise CheckpointConflict("first page checkpoint must be page one")
+        if latest is not None and page > latest.page + 1:
+            raise CheckpointConflict("page checkpoint gap")
+        if latest is not None and page <= latest.page:
+            raise CheckpointConflict("page checkpoint is missing from an advanced stream")
+        return None
+
+    def _prepare_one_record(
+        self,
+        page_ctx: _PageRecordContext,
+        raw: Mapping[str, object],
+        ordinal: int,
+    ) -> tuple[PreparedOutcome | None, AcceptedRecord | None, tuple[object, ...] | None]:
+        """Validate, clean, and map one record.
+
+        Returns ``(outcome, None, None)`` when the record is rejected, or
+        ``(None, accepted_item, identity)`` when it is accepted.
+        """
+        ref = f"gitlab:{page_ctx.kind}:page:{page_ctx.page}:ordinal:{ordinal}"
+        try:
+            _check_payload_bounds(raw, self.limits)
+            cleaned = _clean_payload(raw)
+            model = page_ctx.model_cls.model_validate(cleaned)
+            record_ref = _record_ref(page_ctx.kind, model, page_ctx.page, ordinal)
+            nodes, relationships = _map_payload(
+                page_ctx.kind,
+                cast(PayloadModel, model),
+                page_ctx.context,
+                page=page_ctx.page,
+                cursor_digest=page_ctx.cursor_digest,
+            )
+            accepted = (ordinal, model, nodes, relationships, record_ref)
+            return None, accepted, _record_identity(model)
+        except PrepError as exc:
+            outcome = self._quarantine(
+                page_ctx.kind,
+                page=page_ctx.page,
+                ordinal=ordinal,
+                context=page_ctx.context,
+                cursor_digest=page_ctx.cursor_digest,
+                code=exc.code,
+                ref=ref,
+            )
+        except ValidationError as exc:
+            codes, fields = _validation_codes(exc, self.limits)
+            outcome = self._quarantine(
+                page_ctx.kind,
+                page=page_ctx.page,
+                ordinal=ordinal,
+                context=page_ctx.context,
+                cursor_digest=page_ctx.cursor_digest,
+                code=_validation_reason(codes, fields),
+                fields=fields,
+                ref=ref,
+            )
+        except (TypeError, ValueError):
+            outcome = self._quarantine(
+                page_ctx.kind,
+                page=page_ctx.page,
+                ordinal=ordinal,
+                context=page_ctx.context,
+                cursor_digest=page_ctx.cursor_digest,
+                code=PrepErrorCode.INVALID_PAYLOAD,
+                ref=ref,
+            )
+        return outcome, None, None
+
+    def _validate_and_map_records(
+        self,
+        page_ctx: _PageRecordContext,
+        records: Sequence[Mapping[str, object]],
+    ) -> tuple[list[PreparedOutcome], list[AcceptedRecord], dict[tuple[object, ...], list[int]]]:
+        outcomes: list[PreparedOutcome] = []
+        accepted: list[AcceptedRecord] = []
+        seen: dict[tuple[object, ...], list[int]] = {}
+
+        for ordinal, raw in enumerate(records):
+            outcome, item, identity = self._prepare_one_record(page_ctx, raw, ordinal)
+            if outcome is not None:
+                outcomes.append(outcome)
+                continue
+            seen.setdefault(identity, []).append(ordinal)
+            accepted.append(item)  # type: ignore[arg-type]
+        return outcomes, accepted, seen
+
+    def _drop_duplicate_records(
+        self,
+        page_ctx: _PageRecordContext,
+        accepted: list[AcceptedRecord],
+        seen: dict[tuple[object, ...], list[int]],
+    ) -> tuple[list[AcceptedRecord], list[PreparedOutcome]]:
+        """Quarantine every record whose identity repeats within the page."""
+        duplicate_ordinals = {
+            ordinal
+            for ordinals in seen.values()
+            if len(ordinals) > 1
+            for ordinal in ordinals
+        }
+        if not duplicate_ordinals:
+            return accepted, []
+
+        outcomes: list[PreparedOutcome] = []
+        retained: list[AcceptedRecord] = []
+        for item in accepted:
+            if item[0] in duplicate_ordinals:
+                outcomes.append(
+                    self._quarantine(
+                        page_ctx.kind,
+                        page=page_ctx.page,
+                        ordinal=item[0],
+                        context=page_ctx.context,
+                        cursor_digest=page_ctx.cursor_digest,
+                        code=PrepErrorCode.DUPLICATE_ID,
+                        ref=item[4],
+                    )
+                )
+            else:
+                retained.append(item)
+        return retained, outcomes
+
+    def _commit_accepted_records(
+        self,
+        accepted: list[AcceptedRecord],
+        *,
+        client: Any | None,
+        graph: str | None,
+        page_digest: str,
+    ) -> NativeCommitResult:
+        if not accepted:
+            return NativeCommitResult(nodes=0, edges=0)
+
+        entities: list[dict[str, object]] = []
+        relationships: list[dict[str, object]] = []
+        for _ordinal, _model, nodes, rels, _ref in accepted:
+            entities.extend(nodes)
+            relationships.extend(rels)
+        # A page may include several issues/MRs from the same project.  The
+        # native envelope gets each deterministic node exactly once.
+        unique_entities = {str(entity["id"]): entity for entity in entities}
+        entities = list(unique_entities.values())
+
+        try:
+            commit = self.committer.commit(
+                entities,
+                relationships,
+                client=client,
+                graph=graph,
+                idempotency_key=page_digest,
+            )
+            return _commit_result(commit)
+        except ConnectorCommitError:
+            raise
+        except Exception as exc:  # noqa: BLE001 - no raw engine detail
+            raise ConnectorCommitError from exc
+
+    def _build_committed_outcomes(
+        self,
+        page_ctx: _PageRecordContext,
+        accepted: list[AcceptedRecord],
+        commit: NativeCommitResult,
+    ) -> list[PreparedOutcome]:
+        disposition = (
+            PrepDisposition.REPLAYED if commit.replayed else PrepDisposition.COMMITTED
+        )
+        outcomes: list[PreparedOutcome] = []
+        for ordinal, model, _nodes, _rels, record_ref in accepted:
+            input_digest = _digest(model.model_dump(mode="json"))
+            evidence = PrepEvidence(
+                record_kind=page_ctx.kind,
+                record_ref=record_ref,
+                disposition=disposition,
+                page=page_ctx.page,
+                ordinal=ordinal,
+                cursor_digest=page_ctx.cursor_digest,
+                source_instance_reference=page_ctx.context.source_instance_reference,
+                tenant_reference=page_ctx.context.tenant_reference,
+                access_policy_reference=page_ctx.context.access_policy_reference,
+                retention_reference=page_ctx.context.retention_reference,
+                provenance_reference=page_ctx.context.provenance_reference,
+                classification=page_ctx.context.classification,
+                validation_codes=("strict_payload", "shape_context"),
+                clean_operations=("trim_strings", "normalize_timestamps"),
+                input_digest=input_digest,
+            )
+            outcomes.append(
+                PreparedOutcome(
+                    record_kind=page_ctx.kind,
+                    ordinal=ordinal,
+                    record_ref=record_ref,
+                    disposition=evidence.disposition,
+                    evidence=evidence,
+                )
+            )
+        return outcomes
+
+    def _advance_page_checkpoint(
+        self,
+        stream: str,
+        page: int,
+        cursor_digest: str | None,
+        page_digest: str,
+        outcomes: list[PreparedOutcome],
+    ) -> Checkpoint:
+        latest = self.checkpoints.latest(stream)
+        expected_version = latest.version if latest else 0
+        checkpoint = Checkpoint(
+            stream=stream,
+            page=page,
+            cursor_digest=cursor_digest,
+            page_digest=page_digest,
+            version=expected_version + 1,
+            outcomes=tuple(_checkpoint_outcome(outcome) for outcome in outcomes),
+        )
+        # The native commit was deterministic; callers can safely retry this
+        # page and receive a replay or an explicit CheckpointConflict.
+        return self.checkpoints.advance(
+            stream, checkpoint, expected_version=expected_version
+        )
+
     def process_page(
         self,
         kind: RecordKind,
@@ -1233,220 +1566,56 @@ class ConnectorPrep:
         if not isinstance(records, Sequence) or isinstance(records, (str, bytes)):
             raise PrepError(PrepErrorCode.INVALID_PAYLOAD, "page must be a record sequence")
         cursor_digest = _cursor_digest(cursor)
-        if len(records) > self.limits.max_page_records:
-            # Do not enumerate an oversized page: the response remains bounded
-            # and the caller must quarantine/re-drive the source page explicitly.
-            # Do not serialize/hash an unbounded rejected page.  The marker is
-            # only a bounded diagnostic; oversized pages are never checkpointed.
-            digest = _digest(
-                {"kind": kind, "page": page, "oversized_records": len(records)}
-            )
-            ref = f"gitlab:{kind}:page:{page}:oversized"
-            outcome = self._quarantine(
-                kind,
-                page=page,
-                ordinal=0,
-                context=context,
-                cursor_digest=cursor_digest,
-                code=PrepErrorCode.PAGE_LIMIT,
-                ref=ref,
-            )
-            return PrepResult(
-                record_kind=kind,
-                stream=_safe_reference(stream, field="stream"),
-                page=page,
-                page_digest=digest,
-                plan=arrow_prep_plan(kind),
-                outcomes=(outcome,),
-            )
+
+        oversized = self._reject_if_oversized_page(
+            kind,
+            records,
+            stream=stream,
+            page=page,
+            context=context,
+            cursor_digest=cursor_digest,
+        )
+        if oversized is not None:
+            return oversized
         if len(records) > self.limits.max_selected_records:
             raise PrepError(PrepErrorCode.RECORD_LIMIT, "selected record count exceeds the bound")
 
         stream = _safe_reference(stream, field="stream")
         page_digest = _digest(records)
         plan = arrow_prep_plan(kind)
-        existing = self.checkpoints.read(stream, page)
-        if existing is not None:
-            if existing.page_digest != page_digest:
-                raise CheckpointConflict("page digest changed after checkpoint")
-            return self._replay_result(kind, stream, page, page_digest, existing, context, plan)
-        latest = self.checkpoints.latest(stream)
-        if latest is None and page != 1:
-            raise CheckpointConflict("first page checkpoint must be page one")
-        if latest is not None and page > latest.page + 1:
-            raise CheckpointConflict("page checkpoint gap")
-        if latest is not None and page <= latest.page:
-            raise CheckpointConflict("page checkpoint is missing from an advanced stream")
 
-        outcomes: list[PreparedOutcome] = []
-        accepted: list[tuple[int, BaseModel, list[dict[str, object]], list[dict[str, object]], str]] = []
-        seen: dict[tuple[object, ...], list[int]] = {}
-        model_cls = _PAYLOAD_MODELS[kind]
+        replay = self._checkpoint_replay_or_conflict(
+            kind, stream, page, page_digest, context, plan
+        )
+        if replay is not None:
+            return replay
 
-        for ordinal, raw in enumerate(records):
-            ref = f"gitlab:{kind}:page:{page}:ordinal:{ordinal}"
-            try:
-                _check_payload_bounds(raw, self.limits)
-                cleaned = _clean_payload(raw)
-                model = model_cls.model_validate(cleaned)
-                record_ref = _record_ref(kind, model, page, ordinal)
-                if isinstance(model, GitLabProjectPayload):
-                    identity = ("project", model.id)
-                elif isinstance(model, GitLabIssuePayload):
-                    identity = ("issue", model.project_id, model.iid)
-                else:
-                    identity = ("merge_request", model.project_id, model.iid)
-                seen.setdefault(identity, []).append(ordinal)
-                nodes, relationships = _map_payload(
-                    kind,
-                    cast(PayloadModel, model),
-                    context,
-                    page=page,
-                    cursor_digest=cursor_digest,
-                )
-                accepted.append((ordinal, model, nodes, relationships, record_ref))
-            except PrepError as exc:
-                outcomes.append(
-                    self._quarantine(
-                        kind,
-                        page=page,
-                        ordinal=ordinal,
-                        context=context,
-                        cursor_digest=cursor_digest,
-                        code=exc.code,
-                        ref=ref,
-                    )
-                )
-            except ValidationError as exc:
-                codes, fields = _validation_codes(exc, self.limits)
-                outcomes.append(
-                    self._quarantine(
-                        kind,
-                        page=page,
-                        ordinal=ordinal,
-                        context=context,
-                        cursor_digest=cursor_digest,
-                        code=_validation_reason(codes, fields),
-                        fields=fields,
-                        ref=ref,
-                    )
-                )
-            except (TypeError, ValueError):
-                outcomes.append(
-                    self._quarantine(
-                        kind,
-                        page=page,
-                        ordinal=ordinal,
-                        context=context,
-                        cursor_digest=cursor_digest,
-                        code=PrepErrorCode.INVALID_PAYLOAD,
-                        ref=ref,
-                    )
-                )
+        page_ctx = _PageRecordContext(
+            kind=kind,
+            model_cls=_PAYLOAD_MODELS[kind],
+            page=page,
+            cursor_digest=cursor_digest,
+            context=context,
+        )
+        outcomes, accepted, seen = self._validate_and_map_records(page_ctx, records)
+        accepted, duplicate_outcomes = self._drop_duplicate_records(
+            page_ctx, accepted, seen
+        )
+        outcomes.extend(duplicate_outcomes)
 
-        duplicate_ordinals = {
-            ordinal
-            for ordinals in seen.values()
-            if len(ordinals) > 1
-            for ordinal in ordinals
-        }
-        if duplicate_ordinals:
-            retained: list[tuple[int, BaseModel, list[dict[str, object]], list[dict[str, object]], str]] = []
-            for item in accepted:
-                if item[0] in duplicate_ordinals:
-                    outcomes.append(
-                        self._quarantine(
-                            kind,
-                            page=page,
-                            ordinal=item[0],
-                            context=context,
-                            cursor_digest=cursor_digest,
-                            code=PrepErrorCode.DUPLICATE_ID,
-                            ref=item[4],
-                        )
-                    )
-                else:
-                    retained.append(item)
-            accepted = retained
+        commit = self._commit_accepted_records(
+            accepted, client=client, graph=graph, page_digest=page_digest
+        )
+        outcomes.extend(self._build_committed_outcomes(page_ctx, accepted, commit))
 
-        entities: list[dict[str, object]] = []
-        relationships: list[dict[str, object]] = []
-        for ordinal, model, nodes, rels, record_ref in accepted:
-            entities.extend(nodes)
-            relationships.extend(rels)
-        # A page may include several issues/MRs from the same project.  The
-        # native envelope gets each deterministic node exactly once.
-        unique_entities = {str(entity["id"]): entity for entity in entities}
-        entities = list(unique_entities.values())
-        if accepted:
-            try:
-                commit = self.committer.commit(
-                    entities,
-                    relationships,
-                    client=client,
-                    graph=graph,
-                    idempotency_key=page_digest,
-                )
-                commit = _commit_result(commit)
-            except ConnectorCommitError:
-                raise
-            except Exception as exc:  # noqa: BLE001 - no raw engine detail
-                raise ConnectorCommitError from exc
-        else:
-            commit = NativeCommitResult(nodes=0, edges=0)
-
-        for ordinal, model, _nodes, _rels, record_ref in accepted:
-            input_digest = _digest(model.model_dump(mode="json"))
-            evidence = PrepEvidence(
-                record_kind=kind,
-                record_ref=record_ref,
-                disposition=(
-                    PrepDisposition.REPLAYED if commit.replayed else PrepDisposition.COMMITTED
-                ),
-                page=page,
-                ordinal=ordinal,
-                cursor_digest=cursor_digest,
-                source_instance_reference=context.source_instance_reference,
-                tenant_reference=context.tenant_reference,
-                access_policy_reference=context.access_policy_reference,
-                retention_reference=context.retention_reference,
-                provenance_reference=context.provenance_reference,
-                classification=context.classification,
-                validation_codes=("strict_payload", "shape_context"),
-                clean_operations=("trim_strings", "normalize_timestamps"),
-                input_digest=input_digest,
-            )
-            outcomes.append(
-                PreparedOutcome(
-                    record_kind=kind,
-                    ordinal=ordinal,
-                    record_ref=record_ref,
-                    disposition=evidence.disposition,
-                    evidence=evidence,
-                )
-            )
         outcomes.sort(key=lambda item: item.ordinal)
         if len(outcomes) != len(records):
             raise ConnectorCommitError
 
-        latest = self.checkpoints.latest(stream)
-        expected_version = latest.version if latest else 0
-        checkpoint = Checkpoint(
-            stream=stream,
-            page=page,
-            cursor_digest=cursor_digest,
-            page_digest=page_digest,
-            version=expected_version + 1,
-            outcomes=tuple(_checkpoint_outcome(outcome) for outcome in outcomes),
+        checkpoint = self._advance_page_checkpoint(
+            stream, page, cursor_digest, page_digest, outcomes
         )
-        try:
-            checkpoint = self.checkpoints.advance(
-                stream, checkpoint, expected_version=expected_version
-            )
-        except CheckpointConflict:
-            # The native commit was deterministic; callers can safely retry
-            # this page and receive a replay or an explicit conflict.
-            raise
+
         return PrepResult(
             record_kind=kind,
             stream=stream,
