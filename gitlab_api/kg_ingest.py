@@ -84,6 +84,131 @@ def ingest_projects(
     return ingest_entities(entities, relationships, client=client, graph=graph)
 
 
+def _map_pipeline_run(
+    project_id: str | int, pipe: dict[str, Any]
+) -> tuple[str | None, list[dict[str, Any]], list[dict[str, Any]]]:
+    """Map one raw pipeline record to its ``:PipelineRun`` node + ``ranFor`` edges.
+
+    Returns ``(pipe_node, entities, relationships)``; ``pipe_node`` is ``None``
+    (with empty entities/relationships) when the record carries no ``id``.
+    """
+    pid = pipe.get("id")
+    if pid is None:
+        return None, [], []
+
+    project_node = f"gitlab:project:{project_id}"
+    pipe_node = f"gitlab:pipelinerun:{project_id}:{pid}"
+    entities: list[dict[str, Any]] = [
+        {
+            "id": pipe_node,
+            "node_type": "PipelineRun",
+            "status": pipe.get("status"),
+            "ref": pipe.get("ref"),
+            "sha": pipe.get("sha"),
+            "triggerSource": pipe.get("source"),
+            "webUrl": pipe.get("web_url"),
+            "name": pipe.get("name"),
+            "createdAt": pipe.get("created_at"),
+            "startedAt": pipe.get("started_at"),
+            "finishedAt": pipe.get("finished_at"),
+            "duration": pipe.get("duration"),
+            "externalToolId": str(pid),
+        }
+    ]
+    relationships: list[dict[str, Any]] = [
+        {"source": pipe_node, "target": project_node, "relationship": "ranFor"}
+    ]
+
+    sha = pipe.get("sha")
+    if sha:
+        commit_node = f"gitlab:commit:{project_id}:{sha}"
+        entities.append({"id": commit_node, "node_type": "Commit", "sha": sha})
+        relationships.append(
+            {"source": pipe_node, "target": commit_node, "relationship": "ranFor"}
+        )
+
+    mr_iid = pipe.get("merge_request_iid")
+    if mr_iid is not None:
+        mr_node = f"gitlab:mr:{project_id}:{mr_iid}"
+        relationships.append(
+            {"source": pipe_node, "target": mr_node, "relationship": "ranFor"}
+        )
+
+    return pipe_node, entities, relationships
+
+
+def _map_pipeline_job(
+    project_id: str | int, pid: Any, pipe_node: str, job: dict[str, Any]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Map one raw job record to its ``:CheckRun`` node + ``hasJob``/``ranOnRunner`` edges."""
+    jid = job.get("id")
+    if jid is None:
+        return [], []
+
+    job_node = f"gitlab:checkrun:{project_id}:{pid}:{jid}"
+    web_url = job.get("web_url")
+    entities: list[dict[str, Any]] = [
+        {
+            "id": job_node,
+            "node_type": "CheckRun",
+            "name": job.get("name"),
+            "stage": job.get("stage"),
+            "status": job.get("status"),
+            "failureReason": job.get("failure_reason"),
+            "webUrl": web_url,
+            "logUrl": f"{web_url}/raw" if web_url else None,
+            "triggerSource": job.get("source"),
+            "createdAt": job.get("created_at"),
+            "startedAt": job.get("started_at"),
+            "finishedAt": job.get("finished_at"),
+            "duration": job.get("duration"),
+            "externalToolId": str(jid),
+        }
+    ]
+    relationships: list[dict[str, Any]] = [
+        {"source": pipe_node, "target": job_node, "relationship": "hasJob"}
+    ]
+
+    runner = job.get("runner") or {}
+    runner_id = runner.get("id")
+    if runner_id is not None:
+        runner_node = f"gitlab:runner:{runner_id}"
+        entities.append(
+            {
+                "id": runner_node,
+                "node_type": "Runner",
+                "name": runner.get("description") or runner.get("name"),
+            }
+        )
+        relationships.append(
+            {
+                "source": job_node,
+                "target": runner_node,
+                "relationship": "ranOnRunner",
+            }
+        )
+
+    return entities, relationships
+
+
+def _map_pipeline_jobs(
+    project_id: str | int,
+    pid: Any,
+    pipe_node: str,
+    jobs_by_pipeline: dict[Any, list[dict[str, Any]]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Map every job of one pipeline via `_map_pipeline_job`, flattening the results."""
+    entities: list[dict[str, Any]] = []
+    relationships: list[dict[str, Any]] = []
+    for job in jobs_by_pipeline.get(pid, []) or []:
+        job_entities, job_relationships = _map_pipeline_job(
+            project_id, pid, pipe_node, job
+        )
+        entities.extend(job_entities)
+        relationships.extend(job_relationships)
+    return entities, relationships
+
+
 def ingest_pipeline_runs(
     project_id: str | int,
     pipelines: list[dict[str, Any]],
@@ -117,109 +242,20 @@ def ingest_pipeline_runs(
     jobs_by_pipeline = jobs_by_pipeline or {}
     entities: list[dict[str, Any]] = []
     relationships: list[dict[str, Any]] = []
-    project_node = f"gitlab:project:{project_id}"
 
     for pipe in pipelines:
-        pid = pipe.get("id")
-        if pid is None:
+        pipe_node, pipe_entities, pipe_relationships = _map_pipeline_run(
+            project_id, pipe
+        )
+        if pipe_node is None:
             continue
-        pipe_node = f"gitlab:pipelinerun:{project_id}:{pid}"
-        entities.append(
-            {
-                "id": pipe_node,
-                "node_type": "PipelineRun",
-                "status": pipe.get("status"),
-                "ref": pipe.get("ref"),
-                "sha": pipe.get("sha"),
-                "triggerSource": pipe.get("source"),
-                "webUrl": pipe.get("web_url"),
-                "name": pipe.get("name"),
-                "createdAt": pipe.get("created_at"),
-                "startedAt": pipe.get("started_at"),
-                "finishedAt": pipe.get("finished_at"),
-                "duration": pipe.get("duration"),
-                "externalToolId": str(pid),
-            }
+        entities.extend(pipe_entities)
+        relationships.extend(pipe_relationships)
+
+        job_entities, job_relationships = _map_pipeline_jobs(
+            project_id, pipe.get("id"), pipe_node, jobs_by_pipeline
         )
-        relationships.append(
-            {
-                "source": pipe_node,
-                "target": project_node,
-                "relationship": "ranFor",
-            }
-        )
-
-        sha = pipe.get("sha")
-        if sha:
-            commit_node = f"gitlab:commit:{project_id}:{sha}"
-            entities.append({"id": commit_node, "node_type": "Commit", "sha": sha})
-            relationships.append(
-                {
-                    "source": pipe_node,
-                    "target": commit_node,
-                    "relationship": "ranFor",
-                }
-            )
-
-        mr_iid = pipe.get("merge_request_iid")
-        if mr_iid is not None:
-            mr_node = f"gitlab:mr:{project_id}:{mr_iid}"
-            relationships.append(
-                {
-                    "source": pipe_node,
-                    "target": mr_node,
-                    "relationship": "ranFor",
-                }
-            )
-
-        for job in jobs_by_pipeline.get(pid, []) or []:
-            jid = job.get("id")
-            if jid is None:
-                continue
-            job_node = f"gitlab:checkrun:{project_id}:{pid}:{jid}"
-            web_url = job.get("web_url")
-            entities.append(
-                {
-                    "id": job_node,
-                    "node_type": "CheckRun",
-                    "name": job.get("name"),
-                    "stage": job.get("stage"),
-                    "status": job.get("status"),
-                    "failureReason": job.get("failure_reason"),
-                    "webUrl": web_url,
-                    "logUrl": f"{web_url}/raw" if web_url else None,
-                    "triggerSource": job.get("source"),
-                    "createdAt": job.get("created_at"),
-                    "startedAt": job.get("started_at"),
-                    "finishedAt": job.get("finished_at"),
-                    "duration": job.get("duration"),
-                    "externalToolId": str(jid),
-                }
-            )
-            relationships.append(
-                {
-                    "source": pipe_node,
-                    "target": job_node,
-                    "relationship": "hasJob",
-                }
-            )
-            runner = job.get("runner") or {}
-            runner_id = runner.get("id")
-            if runner_id is not None:
-                runner_node = f"gitlab:runner:{runner_id}"
-                entities.append(
-                    {
-                        "id": runner_node,
-                        "node_type": "Runner",
-                        "name": runner.get("description") or runner.get("name"),
-                    }
-                )
-                relationships.append(
-                    {
-                        "source": job_node,
-                        "target": runner_node,
-                        "relationship": "ranOnRunner",
-                    }
-                )
+        entities.extend(job_entities)
+        relationships.extend(job_relationships)
 
     return ingest_entities(entities, relationships, client=client, graph=graph)
