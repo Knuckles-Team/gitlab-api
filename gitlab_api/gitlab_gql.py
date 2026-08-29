@@ -2,6 +2,7 @@
 
 
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 from agent_utilities.core.decorators import require_auth
@@ -31,6 +32,60 @@ from gitlab_api.gitlab_input_models import (
     UserModel,
     WikiModel,
 )
+
+
+@dataclass
+class ProjectListFilters:
+    """Optional filters for a `projects` GraphQL list query."""
+
+    ids: list[int | str] | None = None
+    full_paths: list[str] | None = None
+    search: str | None = None
+    membership: bool | None = False
+    after: str | None = None
+    archived: str | None = None
+    visibility_level: str | None = None
+    min_access_level: int | None = None
+
+
+def _add_project_id_and_path_filters(
+    variables: dict[str, Any], filters: ProjectListFilters
+) -> None:
+    if filters.ids:
+        variables["ids"] = [
+            f"gid://gitlab/Project/{id}" if isinstance(id, int) else id
+            for id in filters.ids
+        ]
+    if filters.full_paths:
+        if len(filters.full_paths) > 50:
+            raise ParameterError("Cannot provide more than 50 full paths")
+        variables["fullPaths"] = filters.full_paths
+
+
+def _add_project_scalar_filters(
+    variables: dict[str, Any], filters: ProjectListFilters
+) -> None:
+    if filters.search:
+        variables["search"] = filters.search
+    if filters.membership is not None:
+        variables["membership"] = filters.membership
+    if filters.after:
+        variables["after"] = filters.after
+    if filters.archived:
+        variables["archived"] = filters.archived.upper()
+    if filters.visibility_level:
+        variables["visibilityLevel"] = filters.visibility_level.upper()
+    if filters.min_access_level:
+        variables["minAccessLevel"] = filters.min_access_level
+
+
+def _build_project_list_variables(
+    filters: ProjectListFilters, *, first: int | None, sort: str | None
+) -> dict[str, Any]:
+    variables: dict[str, Any] = {"first": first, "sort": sort}
+    _add_project_id_and_path_filters(variables, filters)
+    _add_project_scalar_filters(variables, filters)
+    return variables
 
 
 class GraphQL:
@@ -1711,28 +1766,17 @@ class GraphQL:
             }
         }
         """
-        variables = {"first": first, "sort": sort}
-        if ids:
-            variables["ids"] = [  # type: ignore
-                f"gid://gitlab/Project/{id}" if isinstance(id, int) else id
-                for id in ids
-            ]
-        if full_paths:
-            if len(full_paths) > 50:
-                raise ParameterError("Cannot provide more than 50 full paths")
-            variables["fullPaths"] = full_paths  # type: ignore
-        if search:
-            variables["search"] = search
-        if membership is not None:
-            variables["membership"] = membership
-        if after:
-            variables["after"] = after
-        if archived:
-            variables["archived"] = archived.upper()
-        if visibility_level:
-            variables["visibilityLevel"] = visibility_level.upper()
-        if min_access_level:
-            variables["minAccessLevel"] = min_access_level
+        filters = ProjectListFilters(
+            ids=ids,
+            full_paths=full_paths,
+            search=search,
+            membership=membership,
+            after=after,
+            archived=archived,
+            visibility_level=visibility_level,
+            min_access_level=min_access_level,
+        )
+        variables = _build_project_list_variables(filters, first=first, sort=sort)
         return self.execute_gql(query, variables=variables)
 
     @require_auth
