@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import re
+from collections.abc import Sequence
 from typing import Any
 
 from agent_utilities.core.exceptions import (
@@ -13,6 +14,17 @@ from pydantic import (
     field_validator,
     model_validator,
 )
+
+
+def _set_truthy_attrs(target: dict[str, Any], obj: Any, names: Sequence[str]) -> None:
+    """Copy every named attribute of ``obj`` into ``target`` under its own
+    name, but only when the attribute is truthy (mirrors the repeated
+    ``if self.x: params["x"] = self.x`` pattern used to build api_parameters).
+    """
+    for name in names:
+        value = getattr(obj, name)
+        if value:
+            target[name] = value
 
 
 class BranchModel(BaseModel):
@@ -63,6 +75,32 @@ class BranchModel(BaseModel):
             self.api_parameters["page"] = self.page
         if self.per_page:
             self.api_parameters["per_page"] = self.per_page
+
+
+_COMMIT_DATA_FIELDS = (
+    "branch",
+    "commit_message",
+    "start_branch",
+    "start_sha",
+    "start_project",
+    "actions",
+    "author_email",
+    "author_name",
+    "stats",
+    "force",
+    "note",
+    "path",
+    "line",
+    "line_type",
+    "state",
+    "ref",
+    "name",
+    "context",
+    "target_url",
+    "description",
+    "coverage",
+    "pipeline_id",
+)
 
 
 class CommitModel(BaseModel):
@@ -355,53 +393,9 @@ class CommitModel(BaseModel):
         Raises:
         - ValueError: If no key is present in the data dictionary.
         """
-        data: dict[str, Any] = {}
-
-        if "branch" in values:
-            data["branch"] = values.get("branch")
-        if "commit_message" in values:
-            data["commit_message"] = values.get("commit_message")
-        if "start_branch" in values:
-            data["start_branch"] = values.get("start_branch")
-        if "start_sha" in values:
-            data["start_sha"] = values.get("start_sha")
-        if "start_project" in values:
-            data["start_project"] = values.get("start_project")
-        if "actions" in values:
-            data["actions"] = values.get("actions")
-        if "author_email" in values:
-            data["author_email"] = values.get("author_email")
-        if "author_name" in values:
-            data["author_name"] = values.get("author_name")
-        if "stats" in values:
-            data["stats"] = values.get("stats")
-        if "force" in values:
-            data["force"] = values.get("force")
-        if "note" in values:
-            data["note"] = values.get("note")
-        if "path" in values:
-            data["path"] = values.get("path")
-        if "line" in values:
-            data["line"] = values.get("line")
-        if "line_type" in values:
-            data["line_type"] = values.get("line_type")
-        if "state" in values:
-            data["state"] = values.get("state")
-        if "ref" in values:
-            data["ref"] = values.get("ref")
-        if "name" in values:
-            data["name"] = values.get("name")
-        if "context" in values:
-            data["context"] = values.get("context")
-        if "target_url" in values:
-            data["target_url"] = values.get("target_url")
-        if "description" in values:
-            data["description"] = values.get("description")
-        if "coverage" in values:
-            data["coverage"] = values.get("coverage")
-        if "pipeline_id" in values:
-            data["pipeline_id"] = values.get("pipeline_id")
-
+        data: dict[str, Any] = {
+            field: values.get(field) for field in _COMMIT_DATA_FIELDS if field in values
+        }
         data = {k: v for k, v in data.items() if v is not None}
 
         if "data" not in values or values["data"] is None:
@@ -1165,6 +1159,38 @@ class MembersModel(BaseModel):
             self.api_parameters["per_page"] = self.per_page
 
 
+_MERGE_REQUEST_LIST_PARAM_FIELDS = (
+    "approved_by_ids",
+    "approver_ids",
+    "assignee_id",
+    "author_id",
+    "author_username",
+    "created_after",
+    "deployed_after",
+    "deployed_before",
+    "environment",
+    "search_in",
+    "labels",
+    "milestone",
+    "my_reaction_emoji",
+    "search_exclude",
+    "order_by",
+    "reviewer_id",
+    "reviewer_username",
+    "scope",
+    "search",
+    "source_branch",
+    "state",
+    "target_branch",
+    "updated_after",
+    "updated_before",
+    "view",
+    "with_labels_details",
+    "with_merge_status_recheck",
+    "wip",
+)
+
+
 class MergeRequestModel(BaseModel):
     """
     Pydantic model representing a merge request.
@@ -1274,72 +1300,9 @@ class MergeRequestModel(BaseModel):
         Build the API parameters
         """
         self.api_parameters = {}
-        if self.approved_by_ids:
-            self.api_parameters["approved_by_ids"] = self.approved_by_ids
-        if self.approver_ids:
-            self.api_parameters["approver_ids"] = self.approver_ids
-        if self.assignee_id:
-            self.api_parameters["assignee_id"] = self.assignee_id
-        if self.author_id:
-            self.api_parameters["author_id"] = self.author_id
-        if self.author_username:
-            self.api_parameters["author_username"] = self.author_username
-        if self.created_after:
-            self.api_parameters["created_after"] = self.created_after
-        if self.deployed_after:
-            self.api_parameters["deployed_after"] = self.deployed_after
-        if self.deployed_before:
-            self.api_parameters["deployed_before"] = self.deployed_before
-        if self.environment:
-            self.api_parameters["environment"] = self.environment
-        if self.search_in:
-            self.api_parameters["search_in"] = self.search_in
-        if self.labels:
-            self.api_parameters["labels"] = self.labels
-        if self.milestone:
-            self.api_parameters["milestone"] = self.milestone
-        if self.my_reaction_emoji:
-            self.api_parameters["my_reaction_emoji"] = self.my_reaction_emoji
-        if self.search_exclude:
-            self.api_parameters["search_exclude"] = self.search_exclude
-        if self.order_by:
-            self.api_parameters["order_by"] = self.order_by
-        if self.reviewer_id:
-            self.api_parameters["reviewer_id"] = self.reviewer_id
-        if self.reviewer_username:
-            self.api_parameters["reviewer_username"] = self.reviewer_username
-        if self.scope:
-            self.api_parameters["scope"] = self.scope
-        if self.search:
-            self.api_parameters["search"] = self.search
-        if self.source_branch:
-            self.api_parameters["source_branch"] = self.source_branch
-        if self.state:
-            self.api_parameters["state"] = self.state
-        if self.target_branch:
-            self.api_parameters["target_branch"] = self.target_branch
-        if self.updated_after:
-            self.api_parameters["updated_after"] = self.updated_after
-        if self.updated_before:
-            self.api_parameters["updated_before"] = self.updated_before
-        if self.view:
-            self.api_parameters["view"] = self.view
-        if self.with_labels_details:
-            self.api_parameters["with_labels_details"] = self.with_labels_details
-        if self.with_merge_status_recheck:
-            self.api_parameters["with_merge_status_recheck"] = (
-                self.with_merge_status_recheck
-            )
-        if self.wip:
-            self.api_parameters["wip"] = self.wip
-        if self.with_merge_status_recheck:
-            self.api_parameters["with_merge_status_recheck"] = (
-                self.with_merge_status_recheck
-            )
-        if self.with_merge_status_recheck:
-            self.api_parameters["with_merge_status_recheck"] = (
-                self.with_merge_status_recheck
-            )
+        _set_truthy_attrs(
+            self.api_parameters, self, _MERGE_REQUEST_LIST_PARAM_FIELDS
+        )
 
     @model_validator(mode="before")
     def build_data(cls, values):
@@ -1563,6 +1526,19 @@ class MergeRequestModel(BaseModel):
         return v
 
 
+_MERGE_REQUEST_RULE_DATA_FIELDS = (
+    "approvals_required",
+    "name",
+    "applies_to_all_protected_branches",
+    "group_ids",
+    "protected_branch_ids",
+    "report_type",
+    "rule_type",
+    "user_ids",
+    "usernames",
+)
+
+
 class MergeRequestRuleModel(BaseModel):
     """
     Documentation for the MergeRequestRuleModel Pydantic model.
@@ -1659,29 +1635,11 @@ class MergeRequestRuleModel(BaseModel):
         Raises:
         - ValueError: If the data dictionary is empty.
         """
-        data: dict[str, Any] = {}
-
-        if "approvals_required" in values:
-            data["approvals_required"] = values.get("approvals_required")
-        if "name" in values:
-            data["name"] = values.get("name")
-        if "applies_to_all_protected_branches" in values:
-            data["applies_to_all_protected_branches"] = values.get(
-                "applies_to_all_protected_branches"
-            )
-        if "group_ids" in values:
-            data["group_ids"] = values.get("group_ids")
-        if "protected_branch_ids" in values:
-            data["protected_branch_ids"] = values.get("protected_branch_ids")
-        if "report_type" in values:
-            data["report_type"] = values.get("report_type")
-        if "rule_type" in values:
-            data["rule_type"] = values.get("rule_type")
-        if "user_ids" in values:
-            data["user_ids"] = values.get("user_ids")
-        if "usernames" in values:
-            data["usernames"] = values.get("usernames")
-
+        data: dict[str, Any] = {
+            field: values.get(field)
+            for field in _MERGE_REQUEST_RULE_DATA_FIELDS
+            if field in values
+        }
         data = {k: v for k, v in data.items() if v is not None}
 
         if "data" not in values or values["data"] is None:
@@ -2034,6 +1992,45 @@ class PipelineModel(BaseModel):
             self.api_parameters["ref"] = self.ref
 
 
+_PROJECT_LIST_PARAM_FIELDS = (
+    "group_id",
+    "archived",
+    "before",
+    "limit",
+    "dry_run",
+    "force",
+    "group_access",
+    "expires_at",
+    "max_pages",
+    "tag_name",
+    "page",
+    "per_page",
+    "total_pages",
+    "id_after",
+    "id_before",
+    "imported",
+    "include_hidden",
+    "include_pending_delete",
+    "membership",
+    "min_access_level",
+    "order_by",
+    "owned",
+    "repository_checksum_failed",
+    "repository_storage",
+    "search_namespaces",
+    "search",
+    "simple",
+    "sort",
+    "states",
+    "starred",
+    "statistics",
+    "topic_id",
+    "topic",
+    "visibility",
+    "ref",
+)
+
+
 class ProjectModel(BaseModel):
     """
     Documentation for the ProjectModel Pydantic model.
@@ -2274,78 +2271,7 @@ class ProjectModel(BaseModel):
         Build the API parameters
         """
         self.api_parameters = {}
-        if self.group_id:
-            self.api_parameters["group_id"] = self.group_id
-        if self.archived:
-            self.api_parameters["archived"] = self.archived
-        if self.before:
-            self.api_parameters["before"] = self.before
-        if self.limit:
-            self.api_parameters["limit"] = self.limit
-        if self.dry_run:
-            self.api_parameters["dry_run"] = self.dry_run
-        if self.force:
-            self.api_parameters["force"] = self.force
-        if self.group_access:
-            self.api_parameters["group_access"] = self.group_access
-        if self.expires_at:
-            self.api_parameters["expires_at"] = self.expires_at
-        if self.max_pages:
-            self.api_parameters["max_pages"] = self.max_pages
-        if self.tag_name:
-            self.api_parameters["tag_name"] = self.tag_name
-        if self.page:
-            self.api_parameters["page"] = self.page
-        if self.per_page:
-            self.api_parameters["per_page"] = self.per_page
-        if self.total_pages:
-            self.api_parameters["total_pages"] = self.total_pages
-        if self.id_after:
-            self.api_parameters["id_after"] = self.id_after
-        if self.id_before:
-            self.api_parameters["id_before"] = self.id_before
-        if self.imported:
-            self.api_parameters["imported"] = self.imported
-        if self.include_hidden:
-            self.api_parameters["include_hidden"] = self.include_hidden
-        if self.include_pending_delete:
-            self.api_parameters["include_pending_delete"] = self.include_pending_delete
-        if self.membership:
-            self.api_parameters["membership"] = self.membership
-        if self.min_access_level:
-            self.api_parameters["min_access_level"] = self.min_access_level
-        if self.order_by:
-            self.api_parameters["order_by"] = self.order_by
-        if self.owned:
-            self.api_parameters["owned"] = self.owned
-        if self.repository_checksum_failed:
-            self.api_parameters["repository_checksum_failed"] = (
-                self.repository_checksum_failed
-            )
-        if self.repository_storage:
-            self.api_parameters["repository_storage"] = self.repository_storage
-        if self.search_namespaces:
-            self.api_parameters["search_namespaces"] = self.search_namespaces
-        if self.search:
-            self.api_parameters["search"] = self.search
-        if self.simple:
-            self.api_parameters["simple"] = self.simple
-        if self.sort:
-            self.api_parameters["sort"] = self.sort
-        if self.states:
-            self.api_parameters["states"] = self.states
-        if self.starred:
-            self.api_parameters["starred"] = self.starred
-        if self.statistics:
-            self.api_parameters["statistics"] = self.statistics
-        if self.topic_id:
-            self.api_parameters["topic_id"] = self.topic_id
-        if self.topic:
-            self.api_parameters["topic"] = self.topic
-        if self.visibility:
-            self.api_parameters["visibility"] = self.visibility
-        if self.ref:
-            self.api_parameters["ref"] = self.ref
+        _set_truthy_attrs(self.api_parameters, self, _PROJECT_LIST_PARAM_FIELDS)
 
     @model_validator(mode="before")
     def build_data(cls, values):
@@ -3019,6 +2945,33 @@ class RunnerModel(BaseModel):
         return value.lower()
 
 
+_USER_LIST_PARAM_FIELDS = (
+    "username",
+    "blocked",
+    "external",
+    "humans",
+    "exclude_internal",
+    "exclude_external",
+    "without_project_bots",
+    "order_by",
+    "sort",
+    "two_factor",
+    "without_projects",
+    "admins",
+    "saml_provider_id",
+    "extern_uid",
+    "provider",
+    "created_before",
+    "created_after",
+    "with_custom_attributes",
+    "user_id",
+    "max_pages",
+    "page",
+    "per_page",
+    "total_pages",
+)
+
+
 class UserModel(BaseModel):
     """
     Documentation for the UserModel Pydantic model.
@@ -3112,56 +3065,13 @@ class UserModel(BaseModel):
         Build the API parameters
         """
         self.api_parameters = {}
-        if self.username:
-            self.api_parameters["username"] = self.username
-        if self.username:
-            self.api_parameters["username"] = self.username
-        if self.blocked:
-            self.api_parameters["blocked"] = self.blocked
-        if self.external:
-            self.api_parameters["external"] = self.external
-        if self.humans:
-            self.api_parameters["humans"] = self.humans
-        if self.exclude_internal:
-            self.api_parameters["exclude_internal"] = self.exclude_internal
-        if self.exclude_external:
-            self.api_parameters["exclude_external"] = self.exclude_external
-        if self.without_project_bots:
-            self.api_parameters["without_project_bots"] = self.without_project_bots
-        if self.order_by:
-            self.api_parameters["order_by"] = self.order_by
-        if self.sort:
-            self.api_parameters["sort"] = self.sort
-        if self.two_factor:
-            self.api_parameters["two_factor"] = self.two_factor
-        if self.without_projects:
-            self.api_parameters["without_projects"] = self.without_projects
-        if self.admins:
-            self.api_parameters["admins"] = self.admins
-        if self.saml_provider_id:
-            self.api_parameters["saml_provider_id"] = self.saml_provider_id
-        if self.extern_uid:
-            self.api_parameters["extern_uid"] = self.extern_uid
-        if self.provider:
-            self.api_parameters["provider"] = self.provider
-        if self.created_before:
-            self.api_parameters["created_before"] = self.created_before
-        if self.created_after:
-            self.api_parameters["created_after"] = self.created_after
-        if self.with_custom_attributes:
-            self.api_parameters["with_custom_attributes"] = self.with_custom_attributes
+        _set_truthy_attrs(self.api_parameters, self, _USER_LIST_PARAM_FIELDS)
+        # NOTE (pre-existing behavior, preserved as-is): this branch's
+        # condition checks self.sudo but writes self.user_id under the
+        # "sudo" key -- not a typo introduced by this refactor, see the
+        # lane report for a proposed fix.
         if self.sudo:
             self.api_parameters["sudo"] = self.user_id
-        if self.user_id:
-            self.api_parameters["user_id"] = self.user_id
-        if self.max_pages:
-            self.api_parameters["max_pages"] = self.max_pages
-        if self.page:
-            self.api_parameters["page"] = self.page
-        if self.per_page:
-            self.api_parameters["per_page"] = self.per_page
-        if self.total_pages:
-            self.api_parameters["total_pages"] = self.total_pages
 
     @field_validator("order_by")
     def validate_order_by(cls, value):
