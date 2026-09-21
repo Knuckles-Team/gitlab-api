@@ -217,7 +217,7 @@ def test_malformed_records_are_quarantined_without_commit(
 
 def test_secret_payload_is_redacted_from_evidence(context: PrepContext) -> None:
     prep, recorder = _prep()
-    secret = "glpat-should-never-be-retained"
+    secret = "glpat-askdfalskdvjas"
     result = prep.process_page(
         "project",
         [{**_project(), "private_token": secret}],

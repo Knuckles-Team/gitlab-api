@@ -354,10 +354,10 @@ _RUNNERS_ACTIONS: dict[str, Any] = {
     "register": "register_new_runner",
     "delete": "delete_runner",
     "verify_auth": "verify_runner_authentication",
-    "reset_gitlab_token": "reset_gitlab_runner_token",
-    "reset_project_token": "reset_project_runner_token",
-    "reset_group_token": "reset_group_runner_token",
-    "reset_token": "reset_token",
+    "reset_gitlab_token": "reset_gitlab_runner_token",  # nosec B105 - method name
+    "reset_project_token": "reset_project_runner_token",  # nosec B105 - method name
+    "reset_group_token": "reset_group_runner_token",  # nosec B105 - method name
+    "reset_token": "reset_token",  # nosec B105 - method name
 }
 
 #: Action -> Api method for the ``gitlab_tags`` tool.
