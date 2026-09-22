@@ -24,7 +24,7 @@ import logging
 import os
 import sys
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Literal
 
 from agent_utilities.core.config import load_config, setting
 from agent_utilities.mcp.action_dispatch import resolve_action
@@ -823,7 +823,20 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
 def register_projects_tools(mcp: FastMCP):
     @mcp.tool(tags={"projects"})
     async def gitlab_projects(
-        action: str = Field(
+        action: Literal[
+            "archive",
+            "create",
+            "delete",
+            "edit",
+            "get",
+            "get_contributors",
+            "get_nested_by_group",
+            "get_project_groups",
+            "get_statistics",
+            "share_with_group",
+            "unarchive",
+            "unshare_with_group",
+        ] = Field(
             description="Action to perform. Must be one of: 'get', 'create', 'delete', 'get_nested_by_group', 'get_contributors', 'get_statistics', 'edit', 'share_with_group', 'unshare_with_group', 'archive', 'unarchive', 'get_project_groups'"
         ),
         params_json: str = Field(
