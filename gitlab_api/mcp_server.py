@@ -821,7 +821,18 @@ def register_pipeline_schedules_tools(mcp: FastMCP):
 
 
 def register_projects_tools(mcp: FastMCP):
-    @mcp.tool(tags={"projects"})
+    @mcp.tool(
+        tags={"projects"},
+        annotations={
+            "readOnlyHint": False,
+            "destructiveHint": True,
+            "idempotentHint": False,
+            "openWorldHint": True,
+        },
+        meta={
+            "eg.annotations": {"modalities_in": ["text"], "modalities_out": ["text"]}
+        },
+    )
     async def gitlab_projects(
         action: Literal[
             "archive",
