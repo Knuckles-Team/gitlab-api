@@ -557,6 +557,39 @@ def register_misc_tools(mcp: FastMCP):
         )
         return {"listed": len(pipelines), "ingested": result}
 
+    @mcp.tool(tags={"misc", "kg", "cicd"})
+    async def gitlab_ingest_pipeline_events(
+        project_id: str = Field(description="GitLab project id or URL-encoded path."),
+        since: str = Field(
+            default="",
+            description="The cursor the previous poll returned (ISO-8601 updated_at).",
+        ),
+        client=Depends(get_client),
+        ctx: Context | None = None,
+    ) -> Any:
+        """EH-410 polling fallback of the signed GitLab pipeline hook: ingest one
+        :PipelineRunEvent per pipeline status change after ``since``; returns the
+        next cursor. The webhook and this poll write the same event ids."""
+        from gitlab_api.pipeline_events import ingest_pipeline_events
+
+        query: dict[str, Any] = {
+            "project_id": project_id,
+            "order_by": "updated_at",
+            "sort": "asc",
+        }
+        if since:
+            query["updated_after"] = since
+        resp = await run_blocking(client.get_pipelines, **query)
+        pipelines = _records_as_dicts(resp)
+        result = await run_blocking(
+            ingest_pipeline_events, project_id, pipelines, since=since or None
+        )
+        return {
+            "listed": len(pipelines),
+            "ingested": result,
+            "cursor": result["cursor"],
+        }
+
     return None
 
 
@@ -1352,6 +1385,10 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
         tools_module=sys.modules[__name__],
     )
     register_prompts(mcp)
+    # EH-410: GitLab's signed pipeline hook (internal ingress).
+    from gitlab_api.pipeline_events import register_webhook_route
+
+    register_webhook_route(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
