@@ -10,18 +10,9 @@ Authentication priority:
 import threading
 from typing import Any
 
-import httpx
-from agent_connector_sdk.auth.delegation import (
-    DelegationSettings,
-    current_user_token,
-    exchange_token,
-)
+from agent_connector_sdk.auth.delegation import DelegationSettings, delegated_token
 from agent_connector_sdk.config import setting
-from agent_connector_sdk.exceptions import (
-    AuthError,
-    LoginRequiredError,
-    UnauthorizedError,
-)
+from agent_connector_sdk.exceptions import AuthError, UnauthorizedError
 from agent_connector_sdk.tls.profile import ResolvedTLSProfile
 from agent_connector_sdk.tls.resolve import resolve_tls_profile
 from agent_connector_sdk.utilities import get_logger
@@ -126,17 +117,11 @@ def get_client(
     # --- Path 1: OIDC Delegation (RFC 8693 Token Exchange) ---
     if settings.enabled:
         try:
-            subject_token = current_user_token()
-            if not subject_token:
-                raise LoginRequiredError("no verified caller token to delegate")
-            with httpx.Client(timeout=30) as http_client:
-                delegated_token = exchange_token(
-                    settings, subject_token=subject_token, http_client=http_client
-                ).value
+            token_value = delegated_token(settings)
             logger.info(
                 "Using OIDC delegated token for GitLab API",
             )
-            return Api(url=instance, token=delegated_token, tls_profile=tls_profile)
+            return Api(url=instance, token=token_value, tls_profile=tls_profile)
         except Exception as e:
             logger.error(
                 "OIDC delegation failed for GitLab",
@@ -178,19 +163,13 @@ def get_graphql_client(
     # --- Path 1: OIDC Delegation (RFC 8693 Token Exchange) ---
     if settings.enabled:
         try:
-            subject_token = current_user_token()
-            if not subject_token:
-                raise LoginRequiredError("no verified caller token to delegate")
-            with httpx.Client(timeout=30) as http_client:
-                delegated_token = exchange_token(
-                    settings, subject_token=subject_token, http_client=http_client
-                ).value
+            token_value = delegated_token(settings)
             logger.info(
                 "Using OIDC delegated token for GitLab GraphQL API",
             )
             return GraphQL(
                 url=instance,
-                token=delegated_token,
+                token=token_value,
                 tls_profile=tls_profile,
             )
         except Exception as e:

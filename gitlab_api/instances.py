@@ -91,18 +91,21 @@ def list_configured_instances() -> list[GitLabInstance]:
 def _entitled(namespace: str, names: list[str]) -> list[str]:
     """Filter an instance-name list to what the calling identity may reach.
 
-    Routes the names through agent-utilities' shared identity-scoped resolver
+    Routes the names through the SDK's shared identity-scoped resolver
     (CONCEPT:AU-OS.identity.identity-scoped-resource-autoload): a caller's
     Okta/Keycloak groups decide which GitLab tenants auto-load for them. The
-    ambient ``SYSTEM_ACTOR`` (unauthenticated/local) holds ``admin`` → sees
-    all, so behaviour is unchanged until a real identity scopes it down.
-    Degrades to the full list if agent-utilities predates the resolver.
+    ambient caller is the bound SDK ``ActorContext``, else the verified MCP
+    access token (tenant + roles/groups/realm roles); an unauthenticated/local
+    caller (SYSTEM_ACTOR) sees all, so behaviour is unchanged until a real
+    identity scopes it down. Degrades to the full list when no identity is
+    available at all.
     """
-    try:
-        from agent_utilities.security.entitlements import identity_scoped_resources
+    from agent_connector_sdk.entitlements import identity_scoped_resources
+    from agent_connector_sdk.identity import IdentityRequiredError
 
+    try:
         return list(identity_scoped_resources(namespace, names))
-    except Exception:
+    except IdentityRequiredError:
         return list(names)
 
 

@@ -1268,9 +1268,9 @@ def register_graphql_tools(mcp: FastMCP):
         ),
     ) -> dict:
         """Discover the dynamic GitLab GraphQL schema including types, fields, and custom attributes in real-time."""
-        from agent_utilities.mcp.context_helpers import (
-            ctx_graphql_get_type_details,
-            ctx_graphql_list_types,
+        from agent_connector_sdk.mcp.graphql import (
+            graphql_schema_types,
+            graphql_type_details,
         )
 
         if ctx:
@@ -1284,8 +1284,8 @@ def register_graphql_tools(mcp: FastMCP):
 
         try:
             if type_name:
-                return await ctx_graphql_get_type_details(execute_fn, type_name)
-            return await ctx_graphql_list_types(execute_fn)
+                return dict(await graphql_type_details(execute_fn, type_name))
+            return dict(await graphql_schema_types(execute_fn))
         except Exception:
             return {"error": "Failed to discover GitLab GraphQL schema"}
 
