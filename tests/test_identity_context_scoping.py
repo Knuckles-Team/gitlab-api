@@ -25,7 +25,9 @@ def _setup(monkeypatch, entitled):
         raising=False,
     )
     monkeypatch.setattr(
-        instances, "_entitled", lambda namespace, names: [n for n in names if n in entitled]
+        instances,
+        "_entitled",
+        lambda namespace, names: [n for n in names if n in entitled],
     )
 
 

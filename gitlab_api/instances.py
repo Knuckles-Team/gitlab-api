@@ -18,7 +18,7 @@ import os
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
-from agent_utilities.base_utilities import get_logger
+from agent_connector_sdk.utilities import get_logger
 
 logger = get_logger(__name__)
 

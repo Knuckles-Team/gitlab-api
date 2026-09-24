@@ -26,8 +26,12 @@ async def test_condensed_default(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_verbose(monkeypatch):
+    # SDK contract (agent_connector_sdk.mcp.tool_surface): condensed tools always
+    # register -- including in "verbose" mode -- because the verbose aliases route
+    # through them; they are tagged "gated" so a fleet gateway can hold them back
+    # from a default session view, rather than being absent from list_tools().
     names = await _names(monkeypatch, "verbose")
-    assert "gitlab_branches" not in names
+    assert "gitlab_branches" in names
     # one 1:1 tool per public Api method
     from gitlab_api.api_client import Api
 

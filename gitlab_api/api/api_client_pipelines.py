@@ -2,12 +2,12 @@
 
 from typing import TypeVar
 
-from agent_utilities.base_utilities import get_logger
+from agent_connector_sdk.utilities import get_logger
 from pydantic import ValidationError
 
 logger = get_logger(__name__)
 
-from agent_utilities.core.exceptions import (
+from agent_connector_sdk.exceptions import (
     MissingParameterError,
     ParameterError,
 )

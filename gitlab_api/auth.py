@@ -2,23 +2,29 @@
 
 Authentication priority:
 1. **OIDC Delegation** — If ``ENABLE_DELEGATION`` is active, exchanges
-   the IdP-issued user token for a downstream GitLab access token
-   via RFC 8693 Token Exchange using the shared ``delegated_auth`` helper.
+   the caller's verified MCP token for a downstream GitLab access token
+   via RFC 8693 Token Exchange using ``agent_connector_sdk.auth.delegation``.
 2. **Fixed Credentials** — Falls back to ``GITLAB_TOKEN`` env var.
-
-See ``docs/guides/oauth_sso.md`` in agent-utilities for full details.
 """
 
 import threading
 from typing import Any
 
-from agent_utilities.base_utilities import get_logger
-from agent_utilities.core.config import setting
-from agent_utilities.core.exceptions import AuthError, UnauthorizedError
-from agent_utilities.core.transport_security import (
-    ResolvedTLSProfile,
-    resolve_configured_tls_profile,
+import httpx
+from agent_connector_sdk.auth.delegation import (
+    DelegationSettings,
+    current_user_token,
+    exchange_token,
 )
+from agent_connector_sdk.config import setting
+from agent_connector_sdk.exceptions import (
+    AuthError,
+    LoginRequiredError,
+    UnauthorizedError,
+)
+from agent_connector_sdk.tls.profile import ResolvedTLSProfile
+from agent_connector_sdk.tls.resolve import resolve_tls_profile
+from agent_connector_sdk.utilities import get_logger
 
 local = threading.local()
 from gitlab_api.api_client import Api
@@ -30,9 +36,7 @@ def _resolve_tls_profile_for(
     tls_profile: ResolvedTLSProfile | None, profile_name: str | None
 ) -> ResolvedTLSProfile:
     """An explicit runtime profile wins over the configured profile selector."""
-    return tls_profile or resolve_configured_tls_profile(
-        "GITLAB", profile_name=profile_name
-    )
+    return tls_profile or resolve_tls_profile("GITLAB", profile_name=profile_name)
 
 
 def _resolve_url_connection(
@@ -108,33 +112,27 @@ def get_client(
     instance: str | None = None,
     token: str | None = None,
     tls_profile: ResolvedTLSProfile | None = None,
-    config: dict | None = None,
 ) -> Api:
     """Factory function to create the GitLab Api client.
 
     Multi-tenant (CONCEPT:AU-KG.backend.declared-columns-so-schema): ``instance`` selects a configured tenant by
     name (from the shared ``gitlab_instances`` config), accepts a bare URL, or
     defaults to the first configured instance / ``GITLAB_URL``. Supports OIDC
-    delegation and fixed credentials (token) via the shared ``delegated_auth``
-    helper from agent-utilities.
+    delegation and fixed credentials (token) via ``agent_connector_sdk.auth.delegation``.
     """
     instance, token, tls_profile = _resolve_connection(instance, token, tls_profile)
-    from agent_utilities.mcp.delegated_auth import (
-        get_delegated_token,
-        is_delegation_enabled,
-    )
-
-    # Resolve delegation config — prefer shared mcp_auth_config
-    delegation_enabled = is_delegation_enabled(config)
+    settings = DelegationSettings.from_settings()
 
     # --- Path 1: OIDC Delegation (RFC 8693 Token Exchange) ---
-    if delegation_enabled:
+    if settings.enabled:
         try:
-            delegated_token = get_delegated_token(
-                config=config,
-                audience=(config or {}).get("audience", instance),
-                scopes=(config or {}).get("delegated_scopes", "api"),
-            )
+            subject_token = current_user_token()
+            if not subject_token:
+                raise LoginRequiredError("no verified caller token to delegate")
+            with httpx.Client(timeout=30) as http_client:
+                delegated_token = exchange_token(
+                    settings, subject_token=subject_token, http_client=http_client
+                ).value
             logger.info(
                 "Using OIDC delegated token for GitLab API",
             )
@@ -165,7 +163,6 @@ def get_graphql_client(
     instance: str | None = None,
     token: str | None = None,
     tls_profile: ResolvedTLSProfile | None = None,
-    config: dict | None = None,
 ) -> Any:
     """Factory function to create the GitLab GraphQL client.
 
@@ -174,24 +171,20 @@ def get_graphql_client(
     credentials (token).
     """
     instance, token, tls_profile = _resolve_connection(instance, token, tls_profile)
-    from agent_utilities.mcp.delegated_auth import (
-        get_delegated_token,
-        is_delegation_enabled,
-    )
-
     from gitlab_api.gitlab_gql import GraphQL
 
-    # Resolve delegation config — prefer shared mcp_auth_config
-    delegation_enabled = is_delegation_enabled(config)
+    settings = DelegationSettings.from_settings()
 
     # --- Path 1: OIDC Delegation (RFC 8693 Token Exchange) ---
-    if delegation_enabled:
+    if settings.enabled:
         try:
-            delegated_token = get_delegated_token(
-                config=config,
-                audience=(config or {}).get("audience", instance),
-                scopes=(config or {}).get("delegated_scopes", "api"),
-            )
+            subject_token = current_user_token()
+            if not subject_token:
+                raise LoginRequiredError("no verified caller token to delegate")
+            with httpx.Client(timeout=30) as http_client:
+                delegated_token = exchange_token(
+                    settings, subject_token=subject_token, http_client=http_client
+                ).value
             logger.info(
                 "Using OIDC delegated token for GitLab GraphQL API",
             )

@@ -61,7 +61,9 @@ def test_get_instance_by_name_and_default(monkeypatch):
 
 
 def test_summaries_never_expose_tokens(monkeypatch):
-    _patch_config(monkeypatch, [{"name": "a", "url": "https://a.io", "token": "secret"}])
+    _patch_config(
+        monkeypatch, [{"name": "a", "url": "https://a.io", "token": "secret"}]
+    )
     summary = instances.instance_summaries()[0]
     assert summary == {
         "name": "a",
@@ -103,7 +105,9 @@ def test_resolve_connection_default_uses_env_token(monkeypatch):
 
 
 def test_resolve_connection_explicit_token_wins(monkeypatch):
-    _patch_config(monkeypatch, [{"name": "prod", "url": "https://gl.io", "token": "stored"}])
+    _patch_config(
+        monkeypatch, [{"name": "prod", "url": "https://gl.io", "token": "stored"}]
+    )
     _, token, _ = _resolve_connection("prod", "override", None)
     assert token == "override"
 

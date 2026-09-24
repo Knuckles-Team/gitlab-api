@@ -1,9 +1,20 @@
 from unittest.mock import patch
 
 import pytest
+from agent_connector_sdk.auth.delegation import DelegationSettings
+from agent_connector_sdk.auth.tokens import AccessToken
 from requests import Response
 
 from gitlab_api.auth import get_client, get_graphql_client
+
+_DELEGATION_SETTINGS = DelegationSettings(
+    enabled=True,
+    token_endpoint="https://idp.example/token",
+    client_id="gitlab-api",
+    client_secret_ref="env://GITLAB_OIDC_CLIENT_SECRET",
+    audience="https://gitlab.com",
+    scopes="api",
+)
 
 
 def test_get_client_fixed_credentials():
@@ -21,31 +32,27 @@ def test_get_client_auth_error():
 
 
 def test_get_client_oidc_delegation():
+    fake_token = AccessToken("delegated_tok", 300.0, 0.0)
     with (
-        patch(
-            "agent_utilities.mcp.delegated_auth.is_delegation_enabled",
-            return_value=True,
+        patch.object(
+            DelegationSettings, "from_settings", return_value=_DELEGATION_SETTINGS
         ),
-        patch(
-            "agent_utilities.mcp.delegated_auth.get_delegated_token",
-            return_value="delegated_tok",
-        ),
+        patch("gitlab_api.auth.current_user_token", return_value="user-token"),
+        patch("gitlab_api.auth.exchange_token", return_value=fake_token),
     ):
-        client = get_client(
-            instance="http://gitlab.com", token=None, config={"some": "config"}
-        )
+        client = get_client(instance="http://gitlab.com", token=None)
         assert client.headers is not None
         assert client.headers["Authorization"] == "Bearer delegated_tok"
 
 
 def test_get_client_oidc_delegation_failed():
     with (
-        patch(
-            "agent_utilities.mcp.delegated_auth.is_delegation_enabled",
-            return_value=True,
+        patch.object(
+            DelegationSettings, "from_settings", return_value=_DELEGATION_SETTINGS
         ),
+        patch("gitlab_api.auth.current_user_token", return_value="user-token"),
         patch(
-            "agent_utilities.mcp.delegated_auth.get_delegated_token",
+            "gitlab_api.auth.exchange_token",
             side_effect=Exception("Exchange failed"),
         ),
     ):
@@ -66,30 +73,26 @@ def test_get_graphql_client_missing_token():
 
 
 def test_get_graphql_client_oidc_delegation():
+    fake_token = AccessToken("delegated_tok", 300.0, 0.0)
     with (
-        patch(
-            "agent_utilities.mcp.delegated_auth.is_delegation_enabled",
-            return_value=True,
+        patch.object(
+            DelegationSettings, "from_settings", return_value=_DELEGATION_SETTINGS
         ),
-        patch(
-            "agent_utilities.mcp.delegated_auth.get_delegated_token",
-            return_value="delegated_tok",
-        ),
+        patch("gitlab_api.auth.current_user_token", return_value="user-token"),
+        patch("gitlab_api.auth.exchange_token", return_value=fake_token),
     ):
-        gql_client = get_graphql_client(
-            instance="http://gitlab.com", token=None, config={"some": "config"}
-        )
+        gql_client = get_graphql_client(instance="http://gitlab.com", token=None)
         assert gql_client.token == "delegated_tok"
 
 
 def test_get_graphql_client_oidc_delegation_failed():
     with (
-        patch(
-            "agent_utilities.mcp.delegated_auth.is_delegation_enabled",
-            return_value=True,
+        patch.object(
+            DelegationSettings, "from_settings", return_value=_DELEGATION_SETTINGS
         ),
+        patch("gitlab_api.auth.current_user_token", return_value="user-token"),
         patch(
-            "agent_utilities.mcp.delegated_auth.get_delegated_token",
+            "gitlab_api.auth.exchange_token",
             side_effect=Exception("Exchange failed"),
         ),
     ):

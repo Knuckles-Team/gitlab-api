@@ -5,15 +5,13 @@ from base64 import b64encode
 from typing import Any, TypeVar
 
 import requests
-from agent_utilities.base_utilities import get_logger
-from agent_utilities.core.transport_security import (
-    ResolvedTLSProfile,
-    resolve_tls_profile,
-)
+from agent_connector_sdk.tls.profile import ResolvedTLSProfile
+from agent_connector_sdk.tls.resolve import resolve_tls_profile
+from agent_connector_sdk.utilities import get_logger
 
 logger = get_logger(__name__)
 
-from agent_utilities.core.exceptions import (
+from agent_connector_sdk.exceptions import (
     AuthError,
     MissingParameterError,
     ParameterError,
@@ -101,9 +99,7 @@ class GitLabApiBase:
     @staticmethod
     def _raise_for_auth_status(response: requests.Response) -> None:
         if response.status_code in (401, 403):
-            logger.error(
-                "GitLab request rejected by authentication or authorization"
-            )
+            logger.error("GitLab request rejected by authentication or authorization")
             raise AuthError if response.status_code == 401 else UnauthorizedError
         elif response.status_code == 404:
             logger.error("GitLab resource lookup failed")

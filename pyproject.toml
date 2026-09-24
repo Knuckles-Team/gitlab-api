@@ -9,7 +9,7 @@ description = "GitLab API + MCP Server + A2A Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12, <3.15"
-dependencies = [ "agent-utilities>=2.0.0,<3.0.0", "python-dotenv>=1.2.2", "gql[requests]>=4.0.0",]
+dependencies = [ "agent-utilities>=2.0.0,<3.0.0", "agent-connector-sdk>=0.1.0,<1.0.0", "python-dotenv>=1.2.2", "gql[requests]>=4.0.0",]
 [[project.authors]]
 name = "Project Maintainers"
 email = "maintainers@users.noreply.github.com"
@@ -18,7 +18,7 @@ email = "maintainers@users.noreply.github.com"
 text = "MIT"
 
 [project.optional-dependencies]
-mcp = [ "agent-utilities[mcp]>=2.0.0,<3.0.0",]
+mcp = [ "agent-connector-sdk>=0.1.0,<1.0.0",]
 agent = [ "agent-utilities[agent-runtime,logfire]>=2.0.0,<3.0.0",]
 gql = [ "gql[requests]>=4.0.0",]
 all = [ "gitlab-api[mcp,agent,gql,logfire]>=27.1.0",]
@@ -54,6 +54,7 @@ override-dependencies = [
 
 [tool.uv.sources]
 agent-utilities = { path = ".uv-workspace-siblings/agent-utilities", editable = true }
+agent-connector-sdk = { path = ".uv-workspace-siblings/agent-connector-sdk", editable = true }
 
 [tool.ruff]
 line-length = 88

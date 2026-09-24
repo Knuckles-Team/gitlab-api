@@ -1,10 +1,11 @@
 import inspect
 from typing import Any
 from unittest.mock import MagicMock, patch
+
 import pytest
+from agent_connector_sdk.exceptions import MissingParameterError, ParameterError
 
 from gitlab_api.gitlab_gql import GraphQL
-from agent_utilities.core.exceptions import MissingParameterError, ParameterError
 
 
 @pytest.fixture
@@ -287,7 +288,9 @@ def _build_graphql_brute_force_kwargs() -> dict[str, Any]:
     }
 
 
-def _kwargs_for_graphql_method(method: Any, common_kwargs: dict[str, Any]) -> dict[str, Any]:
+def _kwargs_for_graphql_method(
+    method: Any, common_kwargs: dict[str, Any]
+) -> dict[str, Any]:
     sig = inspect.signature(method)
     has_kwargs = any(
         p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
