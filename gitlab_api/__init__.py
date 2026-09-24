@@ -14,7 +14,6 @@ CORE_MODULES: list[str] = [
 
 OPTIONAL_MODULES = {
     "gitlab_api.gitlab_gql": "gql",
-    "gitlab_api.agent_server": "agent",
     "gitlab_api.mcp_server": "mcp",
 }
 
@@ -36,7 +35,7 @@ for module_name in CORE_MODULES:
         module = importlib.import_module(module_name)
         _expose_members(module)
 
-# Dynamic/lazy loading of optional modules (agent_server, mcp_server)
+# Dynamic/lazy loading of optional modules (gitlab_gql, mcp_server)
 _loaded_optional_modules: dict[str, Any] = {}
 
 
@@ -52,7 +51,6 @@ def _import_module_safely(module_name: str):
 # by the substring that identifies the module in OPTIONAL_MODULES.
 _AVAILABILITY_FLAGS = {
     "_MCP_AVAILABLE": "mcp_server",
-    "_AGENT_AVAILABLE": "agent_server",
 }
 
 

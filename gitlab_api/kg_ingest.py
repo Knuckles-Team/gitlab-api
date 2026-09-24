@@ -3,71 +3,22 @@
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. This is the record-source twin of
 media-downloader's blob ingestion: the package natively pushes its data into the
 epistemic-graph knowledge graph as **typed OWL nodes** (`:Project`, `:GitLabGroup`,
-`:MergeRequest`, `:Issue`, …) + links. Nodes carry shared provenance
-(``domain``/``source``) and match the classes federated by ``gitlab_api.ontology``.
-
-SDK GAP (EH-481/SDK-GAPS.md): this used to commit through the required
-``agent_utilities.knowledge_graph.memory.native_ingest`` authority (dependency-injected
-via a ``client`` exposing ``.changes``/``.nodes``/``.rdf``/``.supports()``). The SDK's
-only epistemic-graph write path, ``agent_connector_sdk.sinks.epistemic_graph.
-EpistemicGraphSink``, requires a verified client plus a ``PackImportAuthorityResolver``
-wired at the composition root — not a same-shaped drop-in. Until the gap is filled, the
-structural validation that ``native_ingest`` used to do (reject records missing
-``node_type``/using the retired ``type`` alias, reject empty input) is vendored locally
-so callers keep the same contract; the actual commit is a stub that reports zero
-nodes/edges written.
+`:MergeRequest`, `:Issue`, …) + links through the required
+``agent_utilities.knowledge_graph.memory.native_ingest`` authority. Nodes carry shared
+provenance (``domain``/``source``) and match the classes federated by
+``gitlab_api.ontology``.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
+from agent_utilities.knowledge_graph.memory.native_ingest import (
+    ingest_entities as _native_ingest_entities,
+)
+
 _SOURCE = "gitlab-api"
 _DOMAIN = "gitlab"
-
-
-class NativeIngestError(Exception):
-    """A record failed the native-ingest structural contract, or was empty."""
-
-
-def _validate_nodes(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    identified = [n for n in nodes if n.get("id")]
-    if not identified:
-        raise NativeIngestError("native ingest requires at least one identified node")
-    for node in identified:
-        if "type" in node or not node.get("node_type"):
-            raise NativeIngestError("native ingest nodes require canonical node_type")
-    return identified
-
-
-def _validate_edges(relationships: list[dict[str, Any]] | None) -> None:
-    for rel in relationships or []:
-        if (
-            "type" in rel
-            or not rel.get("relationship")
-            or not rel.get("source")
-            or not rel.get("target")
-        ):
-            raise NativeIngestError(
-                "native ingest edges require source, target, and canonical relationship"
-            )
-
-
-def _native_ingest_entities(
-    entities: list[dict[str, Any]],
-    relationships: list[dict[str, Any]] | None = None,
-    *,
-    source: str,
-    domain: str,
-    client: Any | None = None,
-    graph: str | None = None,
-) -> dict[str, int]:
-    """Validate, then no-op the commit; see the SDK-GAPS note above."""
-    if not entities:
-        raise NativeIngestError("native ingest requires at least one entity")
-    _validate_nodes(entities)
-    _validate_edges(relationships)
-    return {"nodes": 0, "edges": 0}
 
 
 def ingest_entities(

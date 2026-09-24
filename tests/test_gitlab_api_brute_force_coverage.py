@@ -217,7 +217,7 @@ def _target_value_for_param(
     value, type-coerced to the parameter's annotation."""
     p_default = p.default
     if p_default != inspect.Parameter.empty and hasattr(p_default, "default"):
-        p_default = getattr(p_default, "default")
+        p_default = p_default.default
 
     if (
         p_default == inspect.Parameter.empty
@@ -280,7 +280,7 @@ def _default_or_common_value(
 ) -> Any:
     p_default = p.default
     if p_default != inspect.Parameter.empty and hasattr(p_default, "default"):
-        p_default = getattr(p_default, "default")
+        p_default = p_default.default
     if (
         p_default == inspect.Parameter.empty
         or str(p_default).endswith("Undefined")
@@ -353,9 +353,10 @@ async def _run_prompts_coverage(mcp: Any) -> None:
 def test_mcp_server_coverage(mock_session):
     _ = mock_session
     from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
-    from gitlab_api.mcp_server import get_mcp_instance
+
     from gitlab_api.api_client import Api
     from gitlab_api.gitlab_gql import GraphQL
+    from gitlab_api.mcp_server import get_mcp_instance
 
     # Patch RateLimitingMiddleware to do nothing
     async def mock_on_request(self, context, call_next):
@@ -420,19 +421,6 @@ def test_mcp_server_coverage(mock_session):
                 loop = asyncio.new_event_loop()
                 loop.run_until_complete(run_tools())
                 loop.close()
-
-
-def test_agent_server_coverage():
-    import gitlab_api.agent_server as mod
-    from gitlab_api.agent_server import agent_server
-
-    with patch("agent_utilities.create_agent_server") as mock_s:
-        with patch("sys.argv", ["agent_server.py"]):
-            if inspect.isfunction(agent_server):
-                agent_server()
-            else:
-                mod.agent_server()
-            assert mock_s.called
 
 
 def test_mcp_server_main():
