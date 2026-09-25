@@ -840,6 +840,8 @@ class GraphQL:
         CommitModel(
             project_id=project_id, branch=branch, message=message, actions=actions
         )
+        # Keep REST-compatible keywords accepted while GraphQL lacks support.
+        _ = force
         query = """
         mutation ($input: CommitCreateInput!) {
             commitCreate(input: $input) {
@@ -1084,6 +1086,8 @@ class GraphQL:
             Dict[str, Any]: Raw GraphQL response with merge request data.
         """
         MergeRequestModel(project_id=project_id, state=state)  # type: ignore
+        # Keep REST-compatible filters accepted while GraphQL lacks support.
+        _ = (author_username, reviewer_username)
         query = """
         query ($fullPath: ID!, $state: MergeRequestState, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -1371,6 +1375,8 @@ class GraphQL:
             Dict[str, Any]: Raw GraphQL response with pipeline data.
         """
         PipelineModel(project_id=project_id)
+        # Keep REST-compatible filters accepted while GraphQL lacks support.
+        _ = (updated_after, updated_before, order_by)
         query = """
         query ($fullPath: ID!, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
@@ -2620,6 +2626,8 @@ class GraphQL:
             Some filters (e.g., author_username, milestone) are not fully supported in GitLab GraphQL.
         """
         IssueModel(project_id=project_id)  # type: ignore
+        # Keep the REST-compatible filter accepted while GraphQL lacks support.
+        _ = author_username
         query = """
         query ($fullPath: ID!, $state: IssueState, $labels: [String!], $assigneeUsernames: [String!], $search: String, $first: Int, $after: String) {
             project(fullPath: $fullPath) {

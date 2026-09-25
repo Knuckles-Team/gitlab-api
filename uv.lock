@@ -57,6 +57,7 @@ dependencies = [
     { name = "click" },
     { name = "cryptography" },
     { name = "defusedxml" },
+    { name = "epistemic-graph" },
     { name = "filelock" },
     { name = "graphql-core" },
     { name = "idna" },
@@ -70,6 +71,7 @@ dependencies = [
     { name = "psutil" },
     { name = "pydantic", extra = ["email"] },
     { name = "pydantic-settings" },
+    { name = "pypdf" },
     { name = "pyyaml" },
     { name = "requests" },
     { name = "urllib3" },
@@ -113,10 +115,10 @@ mcp = [
 [package.metadata]
 requires-dist = [
     { name = "agent-terminal-ui", marker = "extra == 'terminal'", specifier = ">=1.0.0" },
-    { name = "agent-utilities", extras = ["acp", "agent-anthropic", "agent-google", "agent-groq", "agent-huggingface", "agent-mistral", "agent-runtime", "ann", "auth", "browser", "documents", "embeddings-huggingface", "embeddings-ollama", "embeddings-openai", "feeds", "finance", "graph", "graphos", "langfuse", "logfire", "mcp", "messaging", "owl", "pyarrow", "sandbox", "stardog", "test", "vault"], marker = "extra == 'all'", specifier = ">=1.0.0" },
-    { name = "agent-utilities", extras = ["acp", "agent-runtime", "event-kafka", "feeds", "finance", "graph", "graphos", "owl", "sandbox"], marker = "extra == 'test'" },
+    { name = "agent-utilities", extras = ["acp", "agent-anthropic", "agent-google", "agent-groq", "agent-huggingface", "agent-mistral", "agent-runtime", "ann", "auth", "browser", "documents", "embeddings-huggingface", "embeddings-ollama", "embeddings-openai", "feeds", "finance", "graph", "langfuse", "logfire", "mcp", "messaging", "owl", "pyarrow", "sandbox", "stardog", "test", "vault"], marker = "extra == 'all'", specifier = ">=1.0.0" },
+    { name = "agent-utilities", extras = ["acp", "agent-runtime", "event-kafka", "feeds", "finance", "graph", "owl", "sandbox"], marker = "extra == 'test'" },
     { name = "agent-utilities", extras = ["ag-ui", "mcp", "sandbox", "terminal"], marker = "extra == 'agent-runtime'", specifier = ">=1.0.0" },
-    { name = "agent-utilities", extras = ["agent-headless", "auth", "embeddings-openai", "falkordb", "feeds", "graphos", "langfuse", "logfire", "mcp", "messaging-mattermost", "messaging-telegram", "metrics", "neo4j", "ontology-guardrails", "otel", "rdf", "vault"], marker = "extra == 'serving'" },
+    { name = "agent-utilities", extras = ["agent-headless", "auth", "embeddings-openai", "falkordb", "feeds", "gateway-widgets", "langfuse", "logfire", "mcp", "messaging-mattermost", "messaging-telegram", "metrics", "neo4j", "ontology-guardrails", "otel", "rdf", "vault"], marker = "extra == 'serving'" },
     { name = "agent-utilities", extras = ["embeddings"], marker = "extra == 'embeddings-huggingface'", specifier = ">=1.0.0" },
     { name = "agent-utilities", extras = ["embeddings"], marker = "extra == 'embeddings-ollama'", specifier = ">=1.0.0" },
     { name = "agent-utilities", extras = ["embeddings"], marker = "extra == 'embeddings-openai'", specifier = ">=1.0.0" },
@@ -126,18 +128,23 @@ requires-dist = [
     { name = "agent-utilities", extras = ["messaging-discord", "messaging-googlechat", "messaging-googlemeet", "messaging-irc", "messaging-line", "messaging-matrix", "messaging-mattermost", "messaging-nextcloud", "messaging-signal", "messaging-slack", "messaging-synology", "messaging-teams", "messaging-telegram", "messaging-twitch", "messaging-voicecall", "messaging-whatsapp"], marker = "extra == 'messaging'" },
     { name = "agent-utilities", extras = ["owl"], marker = "extra == 'stardog'" },
     { name = "agent-webui", marker = "extra == 'ag-ui'", specifier = ">=2.4.0" },
-    { name = "aiohttp", marker = "extra == 'documents'", specifier = ">=3.14.1" },
     { name = "aiohttp", marker = "extra == 'test'", specifier = ">=3.14.1" },
     { name = "aiokafka", marker = "extra == 'kafka'", specifier = ">=0.14.0" },
-    { name = "banks", marker = "extra == 'documents'", specifier = ">=2.4.5" },
+    { name = "ansible-tower-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=2.0.1" },
+    { name = "arr-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=2.1.0" },
+    { name = "atlassian-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.1.0" },
     { name = "botbuilder-core", marker = "extra == 'messaging-teams'", specifier = ">=4.17.1" },
+    { name = "caddy-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "click", specifier = ">=8.4.2" },
     { name = "confluent-kafka", marker = "extra == 'event-kafka'", specifier = ">=2.15.0" },
     { name = "container-manager-mcp", marker = "extra == 'computer-use'", specifier = ">=2.3.0" },
+    { name = "container-manager-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=2.3.0" },
     { name = "cryptography", specifier = ">=50.0.0" },
     { name = "defusedxml", specifier = ">=0.7.1" },
     { name = "discord-py", marker = "extra == 'messaging-discord'", specifier = ">=2.7.1" },
-    { name = "epistemic-graph", extras = ["full"], marker = "extra == 'graphos'", editable = ".uv-workspace-siblings/agent-utilities/.uv-workspace-siblings/epistemic-graph" },
+    { name = "documentdb-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
+    { name = "epistemic-graph", extras = ["full"], editable = ".uv-workspace-siblings/agent-utilities/.uv-workspace-siblings/epistemic-graph" },
+    { name = "erpnext-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "eunomia-core", marker = "extra == 'mcp'", specifier = ">=0.3.10" },
     { name = "falkordb", marker = "extra == 'falkordb'", specifier = ">=1.6.2" },
     { name = "fasta2a", extras = ["pydantic-ai"], marker = "extra == 'agent-headless'", specifier = ">=0.6.1" },
@@ -146,6 +153,8 @@ requires-dist = [
     { name = "fastmcp", marker = "extra == 'mcp'", specifier = ">=4.0.0b1" },
     { name = "feedparser", marker = "extra == 'feeds'", specifier = ">=6.0.12" },
     { name = "filelock", specifier = ">=3.32.0" },
+    { name = "github-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.4.2" },
+    { name = "gitlab-api", marker = "extra == 'gateway-widgets'", specifier = ">=26.4.0" },
     { name = "google-api-python-client", marker = "extra == 'messaging-googlechat'", specifier = ">=2.198.0" },
     { name = "google-api-python-client", marker = "extra == 'messaging-googlemeet'", specifier = ">=2.198.0" },
     { name = "google-auth", marker = "extra == 'messaging-googlechat'", specifier = ">=2.56.1" },
@@ -154,6 +163,7 @@ requires-dist = [
     { name = "great-expectations", marker = "extra == 'data-quality-ge'", specifier = ">=1.3.0,<2" },
     { name = "hmmlearn", marker = "extra == 'finance'", specifier = ">=0.3.3" },
     { name = "hnswlib", marker = "extra == 'ann'", specifier = ">=0.8.0" },
+    { name = "home-assistant-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.2" },
     { name = "httpx", marker = "extra == 'finance'", specifier = ">=0.28.1" },
     { name = "httpx", marker = "extra == 'fuseki'", specifier = ">=0.28.1" },
     { name = "httpx", marker = "extra == 'mcp'", specifier = ">=0.28.1" },
@@ -165,21 +175,22 @@ requires-dist = [
     { name = "idna", specifier = ">=3.18" },
     { name = "inflect", marker = "extra == 'ingest-dedup'", specifier = ">=7.5.0" },
     { name = "irc", marker = "extra == 'messaging-irc'", specifier = ">=20.5.0" },
+    { name = "jellyfin-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "joserfc", specifier = ">=1.7.4" },
     { name = "jsonschema", specifier = ">=4.26.0" },
+    { name = "keycloak-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "ladybug", marker = "extra == 'graph'", specifier = ">=0.18.2" },
     { name = "langfuse", marker = "extra == 'langfuse'", specifier = ">=4.14.1,<5" },
+    { name = "langfuse-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "line-bot-sdk", marker = "extra == 'messaging-line'", specifier = ">=3.25.0" },
-    { name = "llama-index-core", marker = "extra == 'documents'", specifier = ">=0.14.23" },
-    { name = "llama-index-core", marker = "extra == 'embeddings'", specifier = ">=0.14.23" },
-    { name = "llama-index-embeddings-huggingface", marker = "extra == 'embeddings-huggingface'", specifier = ">=0.7.0" },
-    { name = "llama-index-embeddings-ollama", marker = "extra == 'embeddings-ollama'", specifier = ">=0.9.0" },
-    { name = "llama-index-embeddings-openai", marker = "extra == 'embeddings-openai'", specifier = ">=0.6.0" },
-    { name = "llama-index-llms-openai", marker = "extra == 'embeddings-openai'", specifier = ">=0.7.9" },
-    { name = "llama-index-readers-file", marker = "extra == 'documents'", specifier = ">=0.6.0" },
+    { name = "listmonk-api", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "logfire", extras = ["httpx"], marker = "extra == 'logfire'", specifier = ">=4.38.0,<5" },
     { name = "matrix-nio", marker = "extra == 'messaging-matrix'", specifier = ">=0.25.2" },
+    { name = "mattermost-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "mattermostdriver", marker = "extra == 'messaging-mattermost'", specifier = ">=7.3.2" },
+    { name = "mealie-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=0.3.0" },
+    { name = "media-downloader", marker = "extra == 'gateway-widgets'", specifier = ">=3.0.1" },
+    { name = "microsoft-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "msgpack", specifier = ">=1.2.1" },
     { name = "mutmut", marker = "extra == 'test'", specifier = ">=3.6.0" },
     { name = "mypy", marker = "extra == 'test'", specifier = ">=2.3.0" },
@@ -188,7 +199,9 @@ requires-dist = [
     { name = "neonize", marker = "extra == 'messaging-whatsapp'", specifier = ">=0.4.3.post0" },
     { name = "nest-asyncio", marker = "extra == 'test'", specifier = ">=1.6.0" },
     { name = "networkx", marker = "extra == 'test'", specifier = ">=3.6.1" },
-    { name = "nltk", marker = "extra == 'documents'", specifier = ">=3.10.0" },
+    { name = "nextcloud-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
+    { name = "openbao-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
+    { name = "opensearch-py", marker = "extra == 'opensearch'", specifier = ">=2.6.0" },
     { name = "opentelemetry-exporter-otlp-proto-http", marker = "extra == 'otel'", specifier = ">=1.30.0,<2" },
     { name = "opentelemetry-instrumentation-asgi", marker = "extra == 'test'", specifier = ">=0.60b0" },
     { name = "opentelemetry-instrumentation-fastapi", marker = "extra == 'test'", specifier = ">=0.60b0" },
@@ -196,13 +209,17 @@ requires-dist = [
     { name = "opentelemetry-sdk", marker = "extra == 'otel'", specifier = ">=1.30.0,<2" },
     { name = "owlready2", marker = "extra == 'owl'", specifier = ">=0.51" },
     { name = "owlrl", marker = "extra == 'ontology-guardrails'", specifier = ">=7.6.2" },
+    { name = "owncast-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "packaging", specifier = ">=26.2.0" },
     { name = "pandas", marker = "extra == 'finance'", specifier = ">=2.2,<3" },
     { name = "pandera", marker = "extra == 'data-quality-pandera'", specifier = ">=0.26.0,<1" },
     { name = "pathspec", specifier = ">=1.1.1" },
     { name = "pillow", specifier = ">=12.3.0" },
+    { name = "plane-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.1.0" },
     { name = "platformdirs", specifier = ">=4.11.0" },
     { name = "playwright", marker = "extra == 'browser'", specifier = ">=1.61.0" },
+    { name = "portainer-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.1.0" },
+    { name = "postiz-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "prometheus-client", marker = "extra == 'metrics'", specifier = ">=0.25.0" },
     { name = "psutil", specifier = ">=7.2.2" },
     { name = "psycopg", extras = ["binary"], marker = "extra == 'postgresql'", specifier = ">=3.3.4" },
@@ -230,7 +247,7 @@ requires-dist = [
     { name = "pydantic-monty", marker = "extra == 'sandbox'", specifier = ">=0.0.18,<0.1.0" },
     { name = "pydantic-settings", specifier = ">=2.14.2" },
     { name = "pyjwt", marker = "extra == 'mcp'", specifier = ">=2.13.0" },
-    { name = "pypdf", marker = "extra == 'documents'", specifier = ">=6.15.0" },
+    { name = "pypdf", specifier = ">=6.16.1" },
     { name = "pyshacl", marker = "extra == 'ontology-guardrails'", specifier = ">=0.40.0" },
     { name = "pyshacl", marker = "extra == 'owl'", specifier = ">=0.40.0" },
     { name = "pystardog", marker = "extra == 'stardog'", specifier = ">=0.20.0" },
@@ -242,31 +259,42 @@ requires-dist = [
     { name = "python-multipart", marker = "extra == 'mcp'", specifier = ">=0.0.32" },
     { name = "python-telegram-bot", marker = "extra == 'messaging-telegram'", specifier = ">=22.8" },
     { name = "pyyaml", specifier = ">=6.0.3" },
+    { name = "qbittorrent-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "rdflib", marker = "extra == 'fuseki'", specifier = ">=7.6.0" },
     { name = "rdflib", marker = "extra == 'owl'", specifier = ">=7.6.0" },
     { name = "rdflib", marker = "extra == 'rdf'", specifier = ">=7.6.0" },
+    { name = "repository-manager", marker = "extra == 'gateway-widgets'", specifier = ">=2.0.1" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "ruff", marker = "extra == 'test'", specifier = "==0.16.0" },
     { name = "safetensors", marker = "extra == 'finance-kronos'", specifier = ">=0.8.0" },
+    { name = "servicenow-api", marker = "extra == 'gateway-widgets'", specifier = ">=2.0.1" },
     { name = "setuptools", marker = "extra == 'test'", specifier = ">=83.0.0" },
     { name = "skill-graphs", marker = "extra == 'agent-headless'", specifier = ">=1.1.0" },
     { name = "skill-graphs", marker = "extra == 'agent-runtime'", specifier = ">=1.1.0" },
     { name = "slack-bolt", marker = "extra == 'messaging-slack'", specifier = ">=1.30.0" },
+    { name = "sqlalchemy", marker = "extra == 'trino'", specifier = ">=2.0.51" },
+    { name = "sqlalchemy-trino", marker = "extra == 'trino'", specifier = ">=0.5.0" },
     { name = "starlette", marker = "extra == 'mcp'", specifier = ">=1.3.1" },
     { name = "statsmodels", marker = "extra == 'finance'", specifier = ">=0.14.6" },
     { name = "syrupy", marker = "extra == 'test'", specifier = ">=5.5.3" },
+    { name = "technitium-dns-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "testcontainers", marker = "extra == 'test-backends'", specifier = ">=4.14.2" },
     { name = "transformers", marker = "extra == 'finance-kronos'", specifier = ">=5.14.1" },
+    { name = "trino", marker = "extra == 'trino'", specifier = ">=0.339.0" },
+    { name = "tunnel-manager", marker = "extra == 'gateway-widgets'", specifier = ">=2.1.0" },
+    { name = "twenty-mcp", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "twilio", marker = "extra == 'messaging-voicecall'", specifier = ">=9.10.9" },
     { name = "twitchio", marker = "extra == 'messaging-twitch'", specifier = ">=3.2.2" },
-    { name = "universal-skills", marker = "extra == 'agent-headless'", specifier = ">=1.2.1" },
-    { name = "universal-skills", marker = "extra == 'agent-runtime'", specifier = ">=1.2.1" },
+    { name = "universal-skills", marker = "extra == 'agent-headless'", specifier = ">=1.3.1" },
+    { name = "universal-skills", marker = "extra == 'agent-runtime'", specifier = ">=1.3.1" },
+    { name = "uptime-kuma-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "urllib3", specifier = ">=2.7.0" },
     { name = "wasmtime", marker = "extra == 'sandbox'", specifier = ">=47.0.1" },
     { name = "websockets", marker = "extra == 'finance'", specifier = ">=16.1.1" },
+    { name = "wger-agent", marker = "extra == 'gateway-widgets'", specifier = ">=1.0.1" },
     { name = "yfinance", marker = "extra == 'finance'", specifier = ">=1.5.1" },
 ]
-provides-extras = ["graphos", "sandbox", "feeds", "kafka", "metrics", "otel", "nats", "pyarrow", "data-quality-ge", "data-quality-pandera", "mcp", "agent-runtime", "agent-headless", "agent-google", "agent-groq", "agent-mistral", "agent-anthropic", "agent-huggingface", "dynamic-workflow", "ag-ui", "terminal", "browser", "computer-use", "acp", "documents", "embeddings", "embeddings-openai", "embeddings-huggingface", "embeddings-ollama", "logfire", "langfuse", "graph", "ann", "neo4j", "falkordb", "owl", "rdf", "ontology-guardrails", "stardog", "fuseki", "event-kafka", "ingest-dedup", "vault", "auth", "serving", "finance", "finance-kronos", "hr", "medical", "science", "law", "government", "postgresql", "messaging-discord", "messaging-slack", "messaging-telegram", "messaging-whatsapp", "messaging-teams", "messaging-googlechat", "messaging-googlemeet", "messaging-mattermost", "messaging-matrix", "messaging-irc", "messaging-signal", "messaging-imessage", "messaging-line", "messaging-twitch", "messaging-synology", "messaging-voicecall", "messaging-nextcloud", "messaging", "test", "test-backends", "all"]
+provides-extras = ["graphos", "sandbox", "feeds", "kafka", "opensearch", "metrics", "otel", "nats", "pyarrow", "data-quality-ge", "data-quality-pandera", "mcp", "agent-runtime", "agent-headless", "agent-google", "agent-groq", "agent-mistral", "agent-anthropic", "agent-huggingface", "dynamic-workflow", "ag-ui", "terminal", "browser", "computer-use", "gateway-widgets", "acp", "documents", "embeddings", "embeddings-openai", "embeddings-huggingface", "embeddings-ollama", "logfire", "langfuse", "graph", "ann", "neo4j", "falkordb", "owl", "rdf", "ontology-guardrails", "stardog", "fuseki", "event-kafka", "ingest-dedup", "vault", "auth", "serving", "finance", "finance-kronos", "hr", "medical", "science", "law", "government", "postgresql", "trino", "messaging-discord", "messaging-slack", "messaging-telegram", "messaging-whatsapp", "messaging-teams", "messaging-googlechat", "messaging-googlemeet", "messaging-mattermost", "messaging-matrix", "messaging-irc", "messaging-signal", "messaging-imessage", "messaging-line", "messaging-twitch", "messaging-synology", "messaging-voicecall", "messaging-nextcloud", "messaging", "test", "test-backends", "all"]
 
 [package.metadata.requires-dev]
 build = [
@@ -769,6 +797,32 @@ sdist = { url = "https://files.pythonhosted.org/packages/f5/22/900cb125c76b7aaa4
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/15/545e2b6cf2e3be84bc1ed85613edd75b8aea69807a71c26f4ca6a9258e82/email_validator-2.3.0-py3-none-any.whl", hash = "sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4", size = 35604, upload-time = "2025-08-26T13:09:05.858Z" },
 ]
+
+[[package]]
+name = "epistemic-graph"
+source = { editable = ".uv-workspace-siblings/agent-utilities/.uv-workspace-siblings/epistemic-graph" }
+dependencies = [
+    { name = "httpx" },
+    { name = "msgpack" },
+    { name = "pyoxigraph" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx", specifier = ">=0.24.0" },
+    { name = "httpx", marker = "extra == 'lmcache'", specifier = ">=0.24.0" },
+    { name = "maturin", marker = "extra == 'test'", specifier = ">=1.0,<2.0" },
+    { name = "msgpack", specifier = ">=1.2.1" },
+    { name = "pyoxigraph", specifier = ">=0.3.22" },
+    { name = "pyoxigraph", marker = "extra == 'owl'", specifier = ">=0.3.22" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0.0" },
+    { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=0.23.0" },
+    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=4.0.0" },
+    { name = "pytest-timeout", marker = "extra == 'test'", specifier = ">=2.1.0" },
+    { name = "pytest-xdist", marker = "extra == 'test'", specifier = ">=3.0.0" },
+    { name = "pyyaml", marker = "extra == 'test'", specifier = ">=6.0.3" },
+]
+provides-extras = ["all", "ast", "datascience", "finance", "full", "lake-parity", "lmcache", "numeric", "owl", "quant", "reasoning", "server", "test"]
 
 [[package]]
 name = "eunomia-core"
@@ -2366,6 +2420,46 @@ crypto = [
 ]
 
 [[package]]
+name = "pyoxigraph"
+version = "0.5.11"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/bb/df1eebcf8cfe6783a63b871f53bddeb461cac663505b18028ad44f0ccabf/pyoxigraph-0.5.11.tar.gz", hash = "sha256:2b7d9bf02e7ed89cb0cbcf6c376aef361f1c3c9de49a7a8fb3ac231544bb6ba8", size = 5303115, upload-time = "2026-09-02T20:05:42.8Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/19/a6/d074486e9dc33ba3e7ebe1dced90e79f0fe220bf5c8720335c151f208a0c/pyoxigraph-0.5.11-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:e405b50389c0b41601516479fb81030dcada459a1b01d204371f09e6283c6c76", size = 7682857, upload-time = "2026-09-02T20:04:48.058Z" },
+    { url = "https://files.pythonhosted.org/packages/76/72/58d553f050049ef2666abca85bc60ebaf1b4ca972d73e74b80e0a8b6070c/pyoxigraph-0.5.11-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:e3097d62e4fb903238ef074744ecf54c4328cf20e7787e925e670f6f7d33d345", size = 8185478, upload-time = "2026-09-02T20:04:49.86Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/91/f4e5dbfef1fc44fa673f7f614d9fe619372fa1a364c9bb11dbdd3f662639/pyoxigraph-0.5.11-cp312-cp312-win_amd64.whl", hash = "sha256:11bdebeb6d1725a885d39bd2c8d31927c2f375c23375f6a61c85e5802809e217", size = 5426489, upload-time = "2026-09-02T20:04:51.83Z" },
+    { url = "https://files.pythonhosted.org/packages/ac/33/6a5fe4bf238753c620c5c6f7e53b9b912488c792a2c1c47367077825304a/pyoxigraph-0.5.11-cp312-cp312-win_arm64.whl", hash = "sha256:d4847b3ba44796e2f796e939c89ebc6b0a37f8d70e02b4843d75e4ef01117d5f", size = 5082561, upload-time = "2026-09-02T20:04:53.464Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/70/470f1fd094ad6931e6c63b1130ff75000f2e01d69d75e293c0d2910bebdf/pyoxigraph-0.5.11-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:f2e94296ce723ed030784a79c02f7e780522588840c5a8c44e118bd7c0d280a4", size = 7683421, upload-time = "2026-09-02T20:04:55.259Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/0a/4ee81724aa7817aa0d15d762c8acec8a90cc0e843f57c883d2e108afe543/pyoxigraph-0.5.11-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:3de0588f90a467fe2467ec76588bccb8c18e57f05f63c89b6ea921b057b37365", size = 8186692, upload-time = "2026-09-02T20:04:57.22Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/29/816040a8fd51026aefa5323939424a190cd69068d5beddf91e651243f2ad/pyoxigraph-0.5.11-cp313-cp313-win_amd64.whl", hash = "sha256:8aaebe4656b9e9d7ee575dad1c1fd810bb52bfa0690f13bdd408e975ae28b868", size = 5427768, upload-time = "2026-09-02T20:04:59.647Z" },
+    { url = "https://files.pythonhosted.org/packages/01/b0/bcde9432c0044369eb1b2e48c826559787ab7b1e713a38362f1e6bc1f9f2/pyoxigraph-0.5.11-cp313-cp313-win_arm64.whl", hash = "sha256:acbc9f82b75d8c39aa80fcf3c6d9f897c9bb23776af868fb6e9e39dc054e0d2e", size = 5084241, upload-time = "2026-09-02T20:05:01.934Z" },
+    { url = "https://files.pythonhosted.org/packages/50/d2/873dad18e44c49c6d395c6b50e3dd97e45807dc645f46a9efa0f5c07798d/pyoxigraph-0.5.11-cp313-cp313t-win_amd64.whl", hash = "sha256:f6caa21919d0ebd4f165a4ade703e1f24cdd9cdb0a12fffa56440228d1106873", size = 5423392, upload-time = "2026-09-02T20:05:03.881Z" },
+    { url = "https://files.pythonhosted.org/packages/de/9c/1618c0fd2e68608c2034d122fc620a080294b26bf3c2e039ef6706e50d91/pyoxigraph-0.5.11-cp314-cp314-manylinux_2_28_aarch64.whl", hash = "sha256:18143baee09f6a3f17c096d6d58dbb3b1bf023ac5d6a52521cb2437cbf24b4a3", size = 7680302, upload-time = "2026-09-02T20:05:05.611Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/e4/9ae9d8014cf039a12c1d174e202587d2b3947226f9da173391cd3e344fa0/pyoxigraph-0.5.11-cp314-cp314-manylinux_2_28_x86_64.whl", hash = "sha256:e02906504ad2ac399d1f30cbae2e47b85932d39bf89ef5c7508268faa6ae3bc4", size = 8182140, upload-time = "2026-09-02T20:05:07.496Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/85/e8d325f5c001d16a67df710d14a8d8e2eb9a68c806a92dc62621ecb6bbd7/pyoxigraph-0.5.11-cp314-cp314-win_amd64.whl", hash = "sha256:81ccae2810d6f6b699c49f39a157a060b5713421e91ab7edb0ef354be04af583", size = 5421318, upload-time = "2026-09-02T20:05:09.182Z" },
+    { url = "https://files.pythonhosted.org/packages/f1/8a/0a40ecae761d3e559873e20ac07f138ede16d3ce9f23f2cbd2f6a7cf239f/pyoxigraph-0.5.11-cp314-cp314t-manylinux_2_28_aarch64.whl", hash = "sha256:b5167ed8771e9cdfeb8640c8f04aed06c295e5049752899d0ca221477ed327bb", size = 7674974, upload-time = "2026-09-02T20:05:10.997Z" },
+    { url = "https://files.pythonhosted.org/packages/50/7b/f5582bab4d251ab9fbd4de20dfee17fe88d5fa3e73fb96683ea692c66421/pyoxigraph-0.5.11-cp314-cp314t-manylinux_2_28_x86_64.whl", hash = "sha256:13ed2633b72cf4a7cd6ef405d225e1a3e505228ffadb73c5f0aea4fd65f95cd9", size = 8178709, upload-time = "2026-09-02T20:05:12.938Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/d7/ba4406bdc3d3fe7a5f0e3718e2838d1b40aa73f61090d801c36ca0591468/pyoxigraph-0.5.11-cp314-cp314t-win_amd64.whl", hash = "sha256:f58294bd2695f2fc8074f9bf8a381281c737f2903159ca602f5bfc3834559174", size = 5418434, upload-time = "2026-09-02T20:05:15.458Z" },
+    { url = "https://files.pythonhosted.org/packages/38/c0/824cdec1e1ea9f6d4d05da51a843be668d3a2d02d223b780c138fcc4b2f9/pyoxigraph-0.5.11-cp38-abi3-macosx_10_14_x86_64.whl", hash = "sha256:aae8c162fd349a33255f580c665d8f950aaa875d65f64fae4a6c6fb93b5b7ccd", size = 6305518, upload-time = "2026-09-02T20:05:17.462Z" },
+    { url = "https://files.pythonhosted.org/packages/18/fe/23899fc8e17fb6bfa37d606f8afc755c05dd081bd690d360d3754ea7d520/pyoxigraph-0.5.11-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:3b67839b598fc806dbed8e99eb2d75b26b0ded6d52ca8bff1496d6a3cc002036", size = 5817955, upload-time = "2026-09-02T20:05:19.199Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/27/175c5099548c76f85b1b80a8017ad98bff5bc92adc568b472d615e1f712d/pyoxigraph-0.5.11-cp38-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:96c9c4d117a0f4d0eae2c9092a490c6c51b0b8114ab7b126b8dfb0a8f0be2745", size = 7681128, upload-time = "2026-09-02T20:05:21.084Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/3a/9ec824aca0377ba56a7834222454c19392ff85b00e55fff9894f5211d655/pyoxigraph-0.5.11-cp38-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:ed906c05164d4766046a899f5944b4cf63309e717e3f464b2c0c80e8de91fa16", size = 8185704, upload-time = "2026-09-02T20:05:23.211Z" },
+    { url = "https://files.pythonhosted.org/packages/98/25/5b0b9ecdebbd7600c3642be4b090cbe1c9ac5bae440c4bf2e5f82311cd0c/pyoxigraph-0.5.11-cp38-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:1c0462f03c4e3789fdee48faaab0edf780379fe812d1d70073eae14da86eadc9", size = 8879152, upload-time = "2026-09-02T20:05:25.423Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/b4/fda0014c1ee5bc7950dfb7b9ce1c5f0bbb611d61560a9ef7e38dba9b83af/pyoxigraph-0.5.11-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:c4f2c4c907dd751cc7f7966217dcb33ecb89c89c30b1992665ae965ec5064f01", size = 9412532, upload-time = "2026-09-02T20:05:27.772Z" },
+    { url = "https://files.pythonhosted.org/packages/72/83/1588895bad95d257529a0b5bf47872f0c49602dae3cf2f6f1bbe9a5d583c/pyoxigraph-0.5.11-cp38-abi3-win_amd64.whl", hash = "sha256:1057b853663e3fa296f92dba3bb4145f545600261da0943266f4f449d8f7f0a9", size = 5424225, upload-time = "2026-09-02T20:05:29.95Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/61/fdb038cff915024cbfd5f6b8637e747c2e054261206a376aede1ee71588b/pyoxigraph-0.5.11-cp38-abi3-win_arm64.whl", hash = "sha256:ec99a70bfc9683dcecaea1f3000b6d6ba9c34a641dda48e660c456454f642ee6", size = 5083910, upload-time = "2026-09-02T20:05:31.573Z" },
+]
+
+[[package]]
+name = "pypdf"
+version = "6.19.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1f/ac/63d71aaedb59acbcdef491e6ca6469165e3771c9c74358204818fd9bc5a6/pypdf-6.19.0.tar.gz", hash = "sha256:bbc43aca292369ccc6cbc8a921991ecf2538a3587ab5a116eff06c321d647155", size = 7033266, upload-time = "2026-09-16T09:32:05.946Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3c/2c/c43c03eaf630435f023f1dc61ec4a4a78951ad5530a62c71cc89bde307b7/pypdf-6.19.0-py3-none-any.whl", hash = "sha256:7e5d6e730e7dae87d560a2cee218b852f6498c8be61966f3cd02ead971e48d14", size = 395480, upload-time = "2026-09-16T09:32:04.087Z" },
+]
+
+[[package]]
 name = "pyperclip"
 version = "1.11.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2948,11 +3042,11 @@ wheels = [
 
 [[package]]
 name = "universal-skills"
-version = "1.2.1"
+version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/67/28/3301cbbb75e3137c954905aaa3dad2552a833c104ea4b741da141ec21359/universal_skills-1.2.1.tar.gz", hash = "sha256:201b52a7e98802d056de56674c570253659cb411bb0ddd13b981af38f8a538c2", size = 633274, upload-time = "2026-07-13T14:17:33.056Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c1/c0/9fe06aed8175a25aea7491c84d9e33ac6165d616670c20888e1a730538a5/universal_skills-1.3.1.tar.gz", hash = "sha256:3306cc960c58a836fdb0b138c77eefe4b62ab2474558efde287685b0857b62f4", size = 3014138, upload-time = "2026-08-31T14:38:27.935Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f0/d4/fa7f69e557e0b6983b65503a09575bdfc3a648abbda8d97986b2335d8ee2/universal_skills-1.2.1-py3-none-any.whl", hash = "sha256:1d16d693b1a49e07b40d639c6698fa1ffc2a7cd7fc65a42d470d746e0483ed17", size = 806513, upload-time = "2026-07-13T14:17:31.126Z" },
+    { url = "https://files.pythonhosted.org/packages/16/0f/550fd9286ecbe0195f3aab1dde4f42f9ff724772f74e711d9750a4b4351e/universal_skills-1.3.1-py3-none-any.whl", hash = "sha256:853a18551dcd3674a20bbbb54dcfe085f1d89eb8524d4137a0eb32f40d4f8a90", size = 3807302, upload-time = "2026-08-31T14:38:24.916Z" },
 ]
 
 [[package]]
