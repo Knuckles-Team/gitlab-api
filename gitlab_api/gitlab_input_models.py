@@ -1942,6 +1942,10 @@ class PipelineModel(BaseModel):
     status: str | None = Field(description="Status", default=None)
     pipeline_id: int | str | None = None
     ref: str | None = None
+    # EH-410 polling fallback: pipelines changed after the event cursor, oldest first.
+    updated_after: str | None = None
+    order_by: str | None = None
+    sort: str | None = None
     variables: dict | None = None
     api_parameters: dict | None = Field(description="API Parameters", default=None)
     data: dict | None = Field(description="Data Payload", default=None)
@@ -1978,18 +1982,20 @@ class PipelineModel(BaseModel):
         Build the API parameters
         """
         self.api_parameters = {}
-        if self.max_pages:
-            self.api_parameters["max_pages"] = self.max_pages
-        if self.page:
-            self.api_parameters["page"] = self.page
-        if self.per_page:
-            self.api_parameters["per_page"] = self.per_page
-        if self.total_pages:
-            self.api_parameters["total_pages"] = self.total_pages
-        if self.status:
-            self.api_parameters["status"] = self.status
-        if self.ref:
-            self.api_parameters["ref"] = self.ref
+        _set_truthy_attrs(self.api_parameters, self, _PIPELINE_QUERY_FIELDS)
+
+
+_PIPELINE_QUERY_FIELDS = (
+    "max_pages",
+    "page",
+    "per_page",
+    "total_pages",
+    "status",
+    "ref",
+    "updated_after",
+    "order_by",
+    "sort",
+)
 
 
 _PROJECT_LIST_PARAM_FIELDS = (
