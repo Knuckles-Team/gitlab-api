@@ -1300,9 +1300,7 @@ class MergeRequestModel(BaseModel):
         Build the API parameters
         """
         self.api_parameters = {}
-        _set_truthy_attrs(
-            self.api_parameters, self, _MERGE_REQUEST_LIST_PARAM_FIELDS
-        )
+        _set_truthy_attrs(self.api_parameters, self, _MERGE_REQUEST_LIST_PARAM_FIELDS)
 
     @model_validator(mode="before")
     def build_data(cls, values):

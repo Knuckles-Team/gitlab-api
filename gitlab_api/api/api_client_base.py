@@ -101,9 +101,7 @@ class GitLabApiBase:
     @staticmethod
     def _raise_for_auth_status(response: requests.Response) -> None:
         if response.status_code in (401, 403):
-            logger.error(
-                "GitLab request rejected by authentication or authorization"
-            )
+            logger.error("GitLab request rejected by authentication or authorization")
             raise AuthError if response.status_code == 401 else UnauthorizedError
         elif response.status_code == 404:
             logger.error("GitLab resource lookup failed")

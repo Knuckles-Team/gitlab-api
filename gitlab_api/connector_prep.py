@@ -135,7 +135,9 @@ def _required_text(value: object, *, field: str, limit: int = MAX_TEXT_LENGTH) -
     return value
 
 
-def _optional_text(value: object, *, field: str, limit: int = MAX_TEXT_LENGTH) -> str | None:
+def _optional_text(
+    value: object, *, field: str, limit: int = MAX_TEXT_LENGTH
+) -> str | None:
     if value is None:
         return None
     value = _bounded_string(value, field=field, limit=limit).strip()
@@ -315,8 +317,10 @@ class GitLabProjectPayload(_PrepModel):
     def _state_or_visibility(cls, value: object, info: Any) -> str | None:
         if value is None:
             return None
-        return _state(value) if info.field_name == "state" else _required_text(
-            value, field=info.field_name, limit=128
+        return (
+            _state(value)
+            if info.field_name == "state"
+            else _required_text(value, field=info.field_name, limit=128)
         )
 
     @field_validator("last_activity_at", mode="before")
@@ -451,21 +455,29 @@ _PAYLOAD_MODELS: dict[RecordKind, type[BaseModel]] = {
 class PrepLimits(_PrepModel):
     """Operator-tunable bounds.  Every limit is finite and positive."""
 
-    max_page_records: StrictInt = Field(default=MAX_PAGE_RECORDS, gt=0, le=MAX_PAGE_RECORDS)
+    max_page_records: StrictInt = Field(
+        default=MAX_PAGE_RECORDS, gt=0, le=MAX_PAGE_RECORDS
+    )
     max_selected_records: StrictInt = Field(
         default=MAX_SELECTED_RECORDS, gt=0, le=MAX_SELECTED_RECORDS
     )
     max_pages: StrictInt = Field(default=MAX_PAGES, gt=0, le=MAX_PAGES)
     max_fields: StrictInt = Field(default=MAX_FIELDS, gt=0, le=MAX_FIELDS)
     max_errors: StrictInt = Field(default=MAX_ERRORS, gt=0, le=MAX_ERRORS)
-    max_text_length: StrictInt = Field(default=MAX_TEXT_LENGTH, gt=0, le=MAX_TEXT_LENGTH)
+    max_text_length: StrictInt = Field(
+        default=MAX_TEXT_LENGTH, gt=0, le=MAX_TEXT_LENGTH
+    )
 
 
-def _safe_reference(value: object, *, field: str, limit: int = MAX_REFERENCE_LENGTH) -> str:
+def _safe_reference(
+    value: object, *, field: str, limit: int = MAX_REFERENCE_LENGTH
+) -> str:
     value = _required_text(value, field=field, limit=limit)
     if "://" in value or value.startswith(("/", "\\")):
         raise ValueError(f"{field} must be an opaque reference")
-    if any(marker in value.lower() for marker in ("token", "secret", "password", "bearer")):
+    if any(
+        marker in value.lower() for marker in ("token", "secret", "password", "bearer")
+    ):
         raise ValueError(f"{field} is not an opaque reference")
     return value
 
@@ -475,7 +487,9 @@ class PrepContext(_PrepModel):
 
     tenant_reference: StrictStr
     access_policy_reference: StrictStr
-    classification: Literal["public", "internal", "confidential", "restricted"] = "internal"
+    classification: Literal["public", "internal", "confidential", "restricted"] = (
+        "internal"
+    )
     retention_reference: StrictStr
     provenance_reference: StrictStr
     source_instance_reference: StrictStr
@@ -610,12 +624,16 @@ class PrepEvidence(_PrepModel):
             raise ValueError(f"{info.field_name} must be a SHA-256 digest")
         return digest
 
-    @field_validator("validation_codes", "clean_operations", "error_codes", "error_fields")
+    @field_validator(
+        "validation_codes", "clean_operations", "error_codes", "error_fields"
+    )
     @classmethod
     def _bounded_codes(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         if len(value) > MAX_ERRORS:
             raise ValueError("evidence error list is too large")
-        return tuple(_safe_reference(item, field="evidence_code", limit=128) for item in value)
+        return tuple(
+            _safe_reference(item, field="evidence_code", limit=128) for item in value
+        )
 
 
 class PreparedOutcome(_PrepModel):
@@ -900,7 +918,9 @@ def _check_payload_bounds(payload: object, limits: PrepLimits) -> None:
     if not isinstance(payload, Mapping):
         raise PrepError(PrepErrorCode.INVALID_PAYLOAD, "record must be an object")
     if len(payload) > limits.max_fields:
-        raise PrepError(PrepErrorCode.FIELD_LIMIT, "record field count exceeds the bound")
+        raise PrepError(
+            PrepErrorCode.FIELD_LIMIT, "record field count exceeds the bound"
+        )
     for path, value in _walk_payload(payload):
         _check_field_path_not_secret(path)
         _check_field_value_bounds(value, limits)
@@ -923,7 +943,9 @@ def _clean_payload(payload: Mapping[str, object]) -> dict[str, object]:
     return cast(dict[str, object], clean(payload))
 
 
-def _validation_codes(error: ValidationError, limits: PrepLimits) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _validation_codes(
+    error: ValidationError, limits: PrepLimits
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Reduce Pydantic errors to bounded types/paths without inputs or messages."""
 
     codes: list[str] = []
@@ -938,9 +960,7 @@ def _validation_codes(error: ValidationError, limits: PrepLimits) -> tuple[tuple
     return tuple(codes), tuple(fields)
 
 
-def _validation_reason(
-    codes: Sequence[str], fields: Sequence[str]
-) -> PrepErrorCode:
+def _validation_reason(codes: Sequence[str], fields: Sequence[str]) -> PrepErrorCode:
     if "extra_forbidden" in codes:
         return PrepErrorCode.EXTRA_FIELD
     if any(
@@ -952,7 +972,9 @@ def _validation_reason(
     return PrepErrorCode.SHAPE_VIOLATION
 
 
-def _record_ref(kind: RecordKind, model: BaseModel | None, page: int, ordinal: int) -> str:
+def _record_ref(
+    kind: RecordKind, model: BaseModel | None, page: int, ordinal: int
+) -> str:
     if isinstance(model, GitLabProjectPayload):
         return f"gitlab:project:{model.id}"
     if isinstance(model, GitLabIssuePayload):
@@ -962,7 +984,9 @@ def _record_ref(kind: RecordKind, model: BaseModel | None, page: int, ordinal: i
     return f"gitlab:{kind}:page:{page}:ordinal:{ordinal}"
 
 
-def _base_properties(context: PrepContext, *, record_ref: str, page: int, cursor_digest: str | None) -> dict[str, object]:
+def _base_properties(
+    context: PrepContext, *, record_ref: str, page: int, cursor_digest: str | None
+) -> dict[str, object]:
     return {
         "sourceRecordRef": record_ref,
         "tenantReference": context.tenant_reference,
@@ -976,13 +1000,17 @@ def _base_properties(context: PrepContext, *, record_ref: str, page: int, cursor
     }
 
 
-def _project_stub(project_id: int, context: PrepContext, page: int, cursor_digest: str | None) -> dict[str, object]:
+def _project_stub(
+    project_id: int, context: PrepContext, page: int, cursor_digest: str | None
+) -> dict[str, object]:
     ref = f"gitlab:project:{project_id}"
     return {
         "id": ref,
         "node_type": "Project",
         "externalToolId": str(project_id),
-        **_base_properties(context, record_ref=ref, page=page, cursor_digest=cursor_digest),
+        **_base_properties(
+            context, record_ref=ref, page=page, cursor_digest=cursor_digest
+        ),
     }
 
 
@@ -1011,12 +1039,18 @@ def _map_payload(
             if model.last_activity_at
             else None,
             "externalToolId": str(model.id),
-            **_base_properties(context, record_ref=ref, page=page, cursor_digest=cursor_digest),
+            **_base_properties(
+                context, record_ref=ref, page=page, cursor_digest=cursor_digest
+            ),
         }
         nodes = [node]
         relationships: list[dict[str, object]] = []
         if model.namespace is not None:
-            group_identity = str(model.namespace.id) if model.namespace.id is not None else model.namespace.full_path
+            group_identity = (
+                str(model.namespace.id)
+                if model.namespace.id is not None
+                else model.namespace.full_path
+            )
             assert group_identity is not None
             group_ref = f"gitlab:group:{group_identity}"
             nodes.append(
@@ -1053,15 +1087,15 @@ def _map_payload(
             "description": model.description,
             "labels": list(model.labels),
             "externalToolId": str(model.id),
-            **_base_properties(context, record_ref=ref, page=page, cursor_digest=cursor_digest),
+            **_base_properties(
+                context, record_ref=ref, page=page, cursor_digest=cursor_digest
+            ),
         }
         project_ref = f"gitlab:project:{model.project_id}"
         return [
             _project_stub(model.project_id, context, page, cursor_digest),
             node,
-        ], [
-            {"source": ref, "target": project_ref, "relationship": "belongsToProject"}
-        ]
+        ], [{"source": ref, "target": project_ref, "relationship": "belongsToProject"}]
 
     ref = f"gitlab:mr:{model.project_id}:{model.iid}"
     node = {
@@ -1080,15 +1114,15 @@ def _map_payload(
         "description": model.description,
         "sha": model.sha,
         "externalToolId": str(model.id),
-        **_base_properties(context, record_ref=ref, page=page, cursor_digest=cursor_digest),
+        **_base_properties(
+            context, record_ref=ref, page=page, cursor_digest=cursor_digest
+        ),
     }
     project_ref = f"gitlab:project:{model.project_id}"
     return [
         _project_stub(model.project_id, context, page, cursor_digest),
         node,
-    ], [
-        {"source": ref, "target": project_ref, "relationship": "belongsToProject"}
-    ]
+    ], [{"source": ref, "target": project_ref, "relationship": "belongsToProject"}]
 
 
 def _error_evidence(
@@ -1153,7 +1187,9 @@ class _PageRecordContext(NamedTuple):
     context: PrepContext
 
 
-AcceptedRecord = tuple[int, BaseModel, list[dict[str, object]], list[dict[str, object]], str]
+AcceptedRecord = tuple[
+    int, BaseModel, list[dict[str, object]], list[dict[str, object]], str
+]
 
 
 class ConnectorPrep:
@@ -1324,7 +1360,9 @@ class ConnectorPrep:
         if latest is not None and page > latest.page + 1:
             raise CheckpointConflict("page checkpoint gap")
         if latest is not None and page <= latest.page:
-            raise CheckpointConflict("page checkpoint is missing from an advanced stream")
+            raise CheckpointConflict(
+                "page checkpoint is missing from an advanced stream"
+            )
         return None
 
     def _prepare_one_record(
@@ -1332,7 +1370,9 @@ class ConnectorPrep:
         page_ctx: _PageRecordContext,
         raw: Mapping[str, object],
         ordinal: int,
-    ) -> tuple[PreparedOutcome | None, AcceptedRecord | None, tuple[object, ...] | None]:
+    ) -> tuple[
+        PreparedOutcome | None, AcceptedRecord | None, tuple[object, ...] | None
+    ]:
         """Validate, clean, and map one record.
 
         Returns ``(outcome, None, None)`` when the record is rejected, or
@@ -1391,7 +1431,9 @@ class ConnectorPrep:
         self,
         page_ctx: _PageRecordContext,
         records: Sequence[Mapping[str, object]],
-    ) -> tuple[list[PreparedOutcome], list[AcceptedRecord], dict[tuple[object, ...], list[int]]]:
+    ) -> tuple[
+        list[PreparedOutcome], list[AcceptedRecord], dict[tuple[object, ...], list[int]]
+    ]:
         outcomes: list[PreparedOutcome] = []
         accepted: list[AcceptedRecord] = []
         seen: dict[tuple[object, ...], list[int]] = {}
@@ -1564,7 +1606,9 @@ class ConnectorPrep:
         if page < 1 or page > self.limits.max_pages:
             raise CheckpointConflict("page is outside the configured bound")
         if not isinstance(records, Sequence) or isinstance(records, (str, bytes)):
-            raise PrepError(PrepErrorCode.INVALID_PAYLOAD, "page must be a record sequence")
+            raise PrepError(
+                PrepErrorCode.INVALID_PAYLOAD, "page must be a record sequence"
+            )
         cursor_digest = _cursor_digest(cursor)
 
         oversized = self._reject_if_oversized_page(
@@ -1578,7 +1622,9 @@ class ConnectorPrep:
         if oversized is not None:
             return oversized
         if len(records) > self.limits.max_selected_records:
-            raise PrepError(PrepErrorCode.RECORD_LIMIT, "selected record count exceeds the bound")
+            raise PrepError(
+                PrepErrorCode.RECORD_LIMIT, "selected record count exceeds the bound"
+            )
 
         stream = _safe_reference(stream, field="stream")
         page_digest = _digest(records)
