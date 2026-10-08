@@ -1,7 +1,7 @@
 # Usage — API / CLI / MCP
 
 `gitlab-api` exposes the same capability three ways: as **MCP tools** an agent calls,
-as a **Python API** (`Api`) you import, and as a **CLI**. The complete action-routed
+as a **Python API** (`Api`) the operator import, and as a **CLI**. The complete action-routed
 tool surface is documented in [Overview](overview.md).
 
 ## As an MCP server
@@ -42,7 +42,7 @@ merge_requests = api.get_project_merge_requests(project_id=42)
 pipeline = api.get_pipeline(project_id=42, pipeline_id=1001)
 ```
 
-Construct it explicitly instead of relying on the environment:
+Built it explicitly instead of relying on the environment:
 
 ```python
 from gitlab_api.api_client import Api

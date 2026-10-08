@@ -67,7 +67,7 @@ references only.
 1. Validate the capability bundle and skill metadata against the installed tool
    schemas.
 2. Confirm required secrets are present without printing their values.
-3. Verify the complete TLS chain with certificate verification enabled.
+3. Check the complete TLS chain with certificate verification enabled.
 4. Exercise health/readiness and one least-privilege read operation.
 5. Confirm traces arrive under the expected opaque tenant/run identifiers and
    contain no captured content.
