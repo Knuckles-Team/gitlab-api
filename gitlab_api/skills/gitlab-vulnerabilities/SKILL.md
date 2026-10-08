@@ -2,7 +2,7 @@
 name: gitlab-vulnerabilities
 skill_type: skill
 description: >-
-  Dependency & security-vulnerability review on GitLab via the gitlab-api MCP server — the
+  Dependency and security-vulnerability review on GitLab via the gitlab-api MCP server — the
   GitLab counterpart to GitHub Dependabot. Read a project's Dependency List, review a project's
   or group's security vulnerabilities/findings, and fetch a single vulnerability by ID. Use when
   the agent must audit a project's dependencies for known vulnerabilities, review the security
