@@ -1,10 +1,11 @@
 import inspect
 from typing import Any
 from unittest.mock import MagicMock, patch
+
 import pytest
+from agent_connector_sdk.exceptions import MissingParameterError, ParameterError
 
 from gitlab_api.gitlab_gql import GraphQL
-from agent_utilities.core.exceptions import MissingParameterError, ParameterError
 
 
 @pytest.fixture

@@ -5,12 +5,13 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from agent_utilities.core.decorators import require_auth
-from agent_utilities.core.exceptions import MissingParameterError, ParameterError
-from agent_utilities.core.transport_security import (
-    ResolvedTLSProfile,
-    resolve_tls_profile,
+from agent_connector_sdk.exceptions import (
+    MissingParameterError,
+    ParameterError,
+    require_auth,
 )
+from agent_connector_sdk.tls.profile import ResolvedTLSProfile
+from agent_connector_sdk.tls.resolve import resolve_tls_profile
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 

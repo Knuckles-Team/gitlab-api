@@ -1,20 +1,19 @@
-import sys
-import logging
 import inspect
 from unittest.mock import MagicMock, patch
+
 import pytest
 import requests
-from pydantic import ValidationError
-
-from gitlab_api.api_client import Api
-from agent_utilities.core.exceptions import (
+from agent_connector_sdk.exceptions import (
     AuthError,
     MissingParameterError,
     ParameterError,
     UnauthorizedError,
 )
+from pydantic import ValidationError
+
 import gitlab_api
-from gitlab_api.gitlab_input_models import ProjectModel, CommitModel
+from gitlab_api.api_client import Api
+from gitlab_api.gitlab_input_models import CommitModel, ProjectModel
 from gitlab_api.mcp_server import get_mcp_instance
 
 
