@@ -701,20 +701,27 @@ class ExistingNativeCommitter:
         idempotency_key: str | None = None,
     ) -> NativeCommitResult:
         # The import is lazy so model-only tooling does not resolve the engine.
+        import asyncio
+
         from .kg_ingest import ingest_entities
 
-        # ``ingest_entities`` is the only connector write authority.  Its
-        # native ChangeEnvelope implementation derives a content identity from
-        # the complete deterministic slice.  ``idempotency_key`` remains in
-        # this adapter contract for NE-110, but is intentionally not routed to
-        # a second or private transaction implementation here.
-        del idempotency_key
+        # ``ingest_entities`` is the only connector write authority.  Its SDK
+        # ingest facade is async; this adapter's ``commit`` contract (NE-110)
+        # is sync and has no production caller on the engine's own event loop
+        # today, so bridging with ``asyncio.run`` is safe here (never bridge a
+        # handler that already runs on that loop -- see
+        # FLEET-SDK-MIGRATION-RECIPE.md). ``client``/``graph`` are no longer
+        # accepted by the SDK facade (process-global ``current_ingest()``);
+        # ``idempotency_key`` remains in this adapter contract for NE-110,
+        # but is intentionally not routed to a second or private transaction
+        # implementation here.
+        del client, graph, idempotency_key
         try:
-            result = ingest_entities(
-                [dict(entity) for entity in entities],
-                [dict(relationship) for relationship in relationships],
-                client=client,
-                graph=graph,
+            result = asyncio.run(
+                ingest_entities(
+                    [dict(entity) for entity in entities],
+                    [dict(relationship) for relationship in relationships],
+                )
             )
         except Exception as exc:  # noqa: BLE001 - never leak engine details
             raise ConnectorCommitError from exc

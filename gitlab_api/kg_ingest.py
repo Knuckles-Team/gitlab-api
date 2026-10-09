@@ -1,11 +1,11 @@
-"""Native epistemic-graph ingestion for GitLab records (typed graph nodes).
+"""Epistemic-graph ingestion for GitLab records (typed graph nodes).
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. This is the record-source twin of
-media-downloader's blob ingestion: the package natively pushes its data into the
+media-downloader's blob ingestion: the package pushes its data into the ONE
 epistemic-graph knowledge graph as **typed OWL nodes** (`:Project`, `:GitLabGroup`,
-`:MergeRequest`, `:Issue`, …) + links through the required
-``agent_utilities.knowledge_graph.memory.native_ingest`` authority. Nodes carry shared
-provenance (``domain``/``source``) and match the classes federated by
+`:MergeRequest`, `:Issue`, …) + links through ``agent_connector_sdk.ingest`` -- the
+generated ``SourceIngest`` client, not a local ingestion helper. Nodes carry shared
+provenance (via ``IngestBinding``) and match the classes federated by
 ``gitlab_api.ontology``.
 """
 
@@ -13,37 +13,72 @@ from __future__ import annotations
 
 from typing import Any
 
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_entities as _native_ingest_entities,
+from agent_connector_sdk.ingest import (
+    ChangeSet,
+    Entity,
+    IngestBinding,
+    IngestError,
+    KnowledgeIngest,
+    Relationship,
+    current_ingest,
 )
 
-_SOURCE = "gitlab-api"
-_DOMAIN = "gitlab"
+_BINDING = IngestBinding(connector="gitlab-api", stream="gitlab")
+
+_ENTITY_RESERVED_KEYS = frozenset({"id", "node_type"})
+_RELATIONSHIP_RESERVED_KEYS = frozenset({"source", "target", "relationship"})
 
 
-def ingest_entities(
-    entities: list[dict[str, Any]],
-    relationships: list[dict[str, Any]] | None = None,
-    *,
-    client: Any | None = None,
-    graph: str | None = None,
-) -> dict[str, int]:
-    """Write canonical typed nodes and relationships through native ingestion."""
-    return _native_ingest_entities(
-        entities,
-        relationships,
-        source=_SOURCE,
-        domain=_DOMAIN,
-        client=client,
-        graph=graph,
+def _to_entity(record: dict[str, Any]) -> Entity:
+    return Entity(
+        id=record.get("id"),
+        node_type=record.get("node_type"),
+        properties={
+            key: value
+            for key, value in record.items()
+            if key not in _ENTITY_RESERVED_KEYS
+        },
     )
 
 
-def ingest_projects(
+def _to_relationship(record: dict[str, Any]) -> Relationship:
+    properties = {
+        key: value
+        for key, value in record.items()
+        if key not in _RELATIONSHIP_RESERVED_KEYS
+    }
+    return Relationship(
+        source=record["source"],
+        target=record["target"],
+        relationship=record["relationship"],
+        properties=properties or None,
+    )
+
+
+async def ingest_entities(
+    entities: list[dict[str, Any]],
+    relationships: list[dict[str, Any]] | None = None,
+    *,
+    ingest: KnowledgeIngest | None = None,
+) -> dict[str, int]:
+    """Write canonical typed nodes and relationships through the SDK ingest facade."""
+    if not entities:
+        raise IngestError("ingest_entities needs at least one entity")
+    change_set = ChangeSet(
+        entities=tuple(_to_entity(entity) for entity in entities),
+        relationships=tuple(
+            _to_relationship(relationship) for relationship in relationships or ()
+        ),
+    )
+    service = ingest or current_ingest()
+    receipt = await service.submit(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
+
+
+async def ingest_projects(
     projects: list[dict[str, Any]],
     *,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """Map GitLab project records → ``:Project`` (+ ``:GitLabGroup``) nodes and ingest."""
     entities: list[dict[str, Any]] = []
@@ -81,7 +116,7 @@ def ingest_projects(
                     "relationship": "partOfGroup",
                 }
             )
-    return ingest_entities(entities, relationships, client=client, graph=graph)
+    return await ingest_entities(entities, relationships, ingest=ingest)
 
 
 def _map_pipeline_run(
@@ -209,13 +244,12 @@ def _map_pipeline_jobs(
     return entities, relationships
 
 
-def ingest_pipeline_runs(
+async def ingest_pipeline_runs(
     project_id: str | int,
     pipelines: list[dict[str, Any]],
     *,
     jobs_by_pipeline: dict[Any, list[dict[str, Any]]] | None = None,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """Map GitLab pipeline runs (+ their jobs) → ``:PipelineRun``/``:CheckRun`` nodes.
 
@@ -258,4 +292,4 @@ def ingest_pipeline_runs(
         entities.extend(job_entities)
         relationships.extend(job_relationships)
 
-    return ingest_entities(entities, relationships, client=client, graph=graph)
+    return await ingest_entities(entities, relationships, ingest=ingest)

@@ -509,7 +509,7 @@ def register_misc_tools(mcp: FastMCP):
         kwargs = _json.loads(params_json) if params_json else {}
         resp = await run_blocking(client.get_projects, **kwargs)
         projects = _records_as_dicts(resp)
-        result = ingest_projects(projects)
+        result = await ingest_projects(projects)
         return {"listed": len(projects), "ingested": result}
 
     @mcp.tool(tags={"misc", "kg"})
@@ -552,7 +552,7 @@ def register_misc_tools(mcp: FastMCP):
         if include_jobs:
             jobs_by_pipeline = await _fetch_pipeline_jobs(client, project_id, pipelines)
 
-        result = ingest_pipeline_runs(
+        result = await ingest_pipeline_runs(
             project_id, pipelines, jobs_by_pipeline=jobs_by_pipeline
         )
         return {"listed": len(pipelines), "ingested": result}

@@ -5,6 +5,19 @@ from requests import Response
 
 from gitlab_api.auth import get_client, get_graphql_client
 
+_DELEGATION_SETTINGS_ENV = {
+    "ENABLE_DELEGATION": "true",
+    "OIDC_TOKEN_URL": "https://idp.example.invalid/token",
+    "OIDC_CLIENT_ID": "gitlab-connector",
+    "OIDC_CLIENT_SECRET_REF": "env://TEST_GITLAB_OIDC_SECRET_UNUSED",
+    "AUDIENCE": "https://gitlab.example.invalid",
+}
+
+
+def _set_delegation_settings_env(monkeypatch) -> None:
+    for key, value in _DELEGATION_SETTINGS_ENV.items():
+        monkeypatch.setenv(key, value)
+
 
 def test_get_client_fixed_credentials():
     client = get_client(instance="http://gitlab.com", token="valid_token")
@@ -20,37 +33,47 @@ def test_get_client_auth_error():
             get_client(instance="http://gitlab.com", token="bad_token")
 
 
-def test_get_client_oidc_delegation():
-    with (
-        patch(
-            "agent_utilities.mcp.delegated_auth.is_delegation_enabled",
-            return_value=True,
+def test_get_client_oidc_delegation(monkeypatch):
+    """Delegation path: exchange_token's return becomes the client's bearer token."""
+    _set_delegation_settings_env(monkeypatch)
+
+    import agent_connector_sdk.auth.delegation as delegation
+    from agent_connector_sdk.auth.tokens import AccessToken
+
+    monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
+    monkeypatch.setattr(
+        delegation,
+        "exchange_token",
+        lambda settings, *, subject_token, http_client, resolver=None: AccessToken(
+            value="delegated_tok", ttl_seconds=3600, expires_at=0.0
         ),
-        patch(
-            "agent_utilities.mcp.delegated_auth.get_delegated_token",
-            return_value="delegated_tok",
-        ),
-    ):
-        client = get_client(
-            instance="http://gitlab.com", token=None, config={"some": "config"}
+    )
+
+    client = get_client(
+        instance="http://gitlab.com", token=None, config={"enable_delegation": True}
+    )
+    assert client.headers is not None
+    assert client.headers["Authorization"] == "Bearer delegated_tok"
+
+
+def test_get_client_oidc_delegation_failed(monkeypatch):
+    _set_delegation_settings_env(monkeypatch)
+
+    import agent_connector_sdk.auth.delegation as delegation
+
+    monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
+
+    def _boom(settings, *, subject_token, http_client, resolver=None):
+        raise ValueError("Exchange failed")
+
+    monkeypatch.setattr(delegation, "exchange_token", _boom)
+
+    with pytest.raises(RuntimeError, match="Token exchange failed"):
+        get_client(
+            instance="http://gitlab.com",
+            token=None,
+            config={"enable_delegation": True},
         )
-        assert client.headers is not None
-        assert client.headers["Authorization"] == "Bearer delegated_tok"
-
-
-def test_get_client_oidc_delegation_failed():
-    with (
-        patch(
-            "agent_utilities.mcp.delegated_auth.is_delegation_enabled",
-            return_value=True,
-        ),
-        patch(
-            "agent_utilities.mcp.delegated_auth.get_delegated_token",
-            side_effect=Exception("Exchange failed"),
-        ),
-    ):
-        with pytest.raises(RuntimeError, match="Token exchange failed"):
-            get_client(instance="http://gitlab.com", token=None)
 
 
 def test_get_graphql_client_fixed_credentials():
@@ -65,33 +88,42 @@ def test_get_graphql_client_missing_token():
         get_graphql_client(instance="http://gitlab.com", token=None)
 
 
-def test_get_graphql_client_oidc_delegation():
-    with (
-        patch(
-            "agent_utilities.mcp.delegated_auth.is_delegation_enabled",
-            return_value=True,
+def test_get_graphql_client_oidc_delegation(monkeypatch):
+    _set_delegation_settings_env(monkeypatch)
+
+    import agent_connector_sdk.auth.delegation as delegation
+    from agent_connector_sdk.auth.tokens import AccessToken
+
+    monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
+    monkeypatch.setattr(
+        delegation,
+        "exchange_token",
+        lambda settings, *, subject_token, http_client, resolver=None: AccessToken(
+            value="delegated_tok", ttl_seconds=3600, expires_at=0.0
         ),
-        patch(
-            "agent_utilities.mcp.delegated_auth.get_delegated_token",
-            return_value="delegated_tok",
-        ),
-    ):
-        gql_client = get_graphql_client(
-            instance="http://gitlab.com", token=None, config={"some": "config"}
+    )
+
+    gql_client = get_graphql_client(
+        instance="http://gitlab.com", token=None, config={"enable_delegation": True}
+    )
+    assert gql_client.token == "delegated_tok"
+
+
+def test_get_graphql_client_oidc_delegation_failed(monkeypatch):
+    _set_delegation_settings_env(monkeypatch)
+
+    import agent_connector_sdk.auth.delegation as delegation
+
+    monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
+
+    def _boom(settings, *, subject_token, http_client, resolver=None):
+        raise ValueError("Exchange failed")
+
+    monkeypatch.setattr(delegation, "exchange_token", _boom)
+
+    with pytest.raises(RuntimeError, match="Token exchange failed"):
+        get_graphql_client(
+            instance="http://gitlab.com",
+            token=None,
+            config={"enable_delegation": True},
         )
-        assert gql_client.token == "delegated_tok"
-
-
-def test_get_graphql_client_oidc_delegation_failed():
-    with (
-        patch(
-            "agent_utilities.mcp.delegated_auth.is_delegation_enabled",
-            return_value=True,
-        ),
-        patch(
-            "agent_utilities.mcp.delegated_auth.get_delegated_token",
-            side_effect=Exception("Exchange failed"),
-        ),
-    ):
-        with pytest.raises(RuntimeError, match="Token exchange failed"):
-            get_graphql_client(instance="http://gitlab.com", token=None)
