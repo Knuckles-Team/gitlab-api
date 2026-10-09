@@ -26,11 +26,11 @@ import sys
 from collections.abc import Callable
 from typing import Any
 
-from agent_utilities.core.config import load_config, setting
-from agent_utilities.mcp.action_dispatch import resolve_action
-from agent_utilities.mcp.concurrency import run_blocking
-from agent_utilities.mcp.server_factory import create_mcp_server
-from agent_utilities.mcp.verbose_tools import register_tool_surface
+from agent_connector_sdk.config import load_config, setting
+from agent_connector_sdk.mcp.action_dispatch import resolve_action
+from agent_connector_sdk.mcp.concurrency import run_blocking
+from agent_connector_sdk.mcp.server import create_mcp_server
+from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
 from gitlab_api.api_client import Api
 from gitlab_api.auth import get_client

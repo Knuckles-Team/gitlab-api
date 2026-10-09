@@ -1,10 +1,9 @@
 #!/usr/bin/python
 
+import logging
 from typing import TypeVar
 
-from agent_utilities.base_utilities import get_logger
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 T = TypeVar("T")

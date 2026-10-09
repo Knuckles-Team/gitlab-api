@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
+import logging
 from typing import TypeVar
 
-from agent_utilities.base_utilities import get_logger
 from pydantic import ValidationError
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-from agent_utilities.core.exceptions import (
+from agent_connector_sdk.exceptions import (
     MissingParameterError,
     ParameterError,
 )

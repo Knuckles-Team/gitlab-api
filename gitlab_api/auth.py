@@ -9,28 +9,26 @@ Authentication priority:
 See ``docs/guides/oauth_sso.md`` in agent-utilities for full details.
 """
 
+import logging
 import threading
 from typing import Any
 
-from agent_utilities.base_utilities import get_logger
-from agent_utilities.core.config import setting
-from agent_utilities.core.exceptions import AuthError, UnauthorizedError
-from agent_utilities.core.transport_security import (
-    ResolvedTLSProfile,
-    resolve_configured_tls_profile,
-)
+from agent_connector_sdk.config import setting
+from agent_connector_sdk.exceptions import AuthError, UnauthorizedError
+from agent_connector_sdk.tls.profile import ResolvedTLSProfile
+from agent_connector_sdk.tls.resolve import resolve_tls_profile
 
 local = threading.local()
 from gitlab_api.api_client import Api
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def _resolve_tls_profile_for(
     tls_profile: ResolvedTLSProfile | None, profile_name: str | None
 ) -> ResolvedTLSProfile:
     """An explicit runtime profile wins over the configured profile selector."""
-    return tls_profile or resolve_configured_tls_profile(
+    return tls_profile or resolve_tls_profile(
         "GITLAB", profile_name=profile_name
     )
 

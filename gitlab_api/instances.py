@@ -14,13 +14,12 @@ the default (first configured, else `GITLAB_URL`).
 
 from __future__ import annotations
 
+import logging
 import os
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
-from agent_utilities.base_utilities import get_logger
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)

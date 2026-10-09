@@ -3,7 +3,7 @@ import re
 from collections.abc import Sequence
 from typing import Any
 
-from agent_utilities.core.exceptions import (
+from agent_connector_sdk.exceptions import (
     ParameterError,
 )
 from pydantic import (
