@@ -206,5 +206,5 @@
     rdfs:comment """GitLab source-control and CI/CD delivery model — groups, projects,
     merge requests, pipelines, jobs, issues, epics, milestones, commits, branches,
     releases and runners, with their review and delivery relationships — federated into
-    the agent-utilities knowledge-graph hub.""" ;
+    the agent-connector-sdk knowledge-graph hub.""" ;
     owl:imports <http://knuckles.team/kg> .

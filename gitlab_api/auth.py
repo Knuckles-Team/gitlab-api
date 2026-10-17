@@ -6,7 +6,7 @@ Authentication priority:
    via RFC 8693 Token Exchange using ``agent_connector_sdk.auth.delegation``.
 2. **Fixed Credentials** — Falls back to ``GITLAB_TOKEN`` env var.
 
-See ``docs/guides/oauth_sso.md`` in agent-utilities for full details.
+See ``docs/guides/oauth_sso.md`` in agent-connector-sdk for full details.
 """
 
 import logging
@@ -53,7 +53,7 @@ def _resolve_unconfigured_connection(
     if instance:
         raise RuntimeError(
             f"GitLab instance '{instance}' is not configured. Add it to "
-            "gitlab_instances in ~/.config/agent-utilities/config.json, or pass "
+            "gitlab_instances in ~/.config/agent-connector-sdk/config.json, or pass "
             "a full URL / set GITLAB_URL+GITLAB_TOKEN."
         )
     return (
@@ -120,7 +120,7 @@ def _delegated_token(config: dict[str, Any] | None) -> str:
     Reads delegation settings (``OIDC_TOKEN_URL``/``OIDC_CLIENT_ID``/
     ``OIDC_CLIENT_SECRET_REF``/``AUDIENCE``/``DELEGATED_SCOPES``) from the
     process settings via ``agent_connector_sdk.auth.delegation.DelegationSettings``;
-    unlike the old ``agent_utilities`` helper, this has no per-call ``config``
+    unlike the old ``agent_connector_sdk`` helper, this has no per-call ``config``
     override for those fields, only for whether delegation is attempted at all
     (see :func:`_is_delegation_enabled`).
     """

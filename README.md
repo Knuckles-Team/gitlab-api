@@ -58,11 +58,11 @@ This server use dynamic Action-Routed tools to optimize token overhead and maxim
 
 ### Tool surface — `MCP_TOOL_MODE`
 
-Set `MCP_TOOL_MODE` (in the shared `~/.config/agent-utilities/config.json` or env):
+Set `MCP_TOOL_MODE` (in the shared `~/.config/agent-connector-sdk/config.json` or env):
 `condensed` (default — the action-routed tools below), `verbose` (one named 1:1 tool
 per API method, e.g. `gitlab_get_branches(...)`, tagged `verbose`), or `both`. Filter
 the verbose set with `--tools tag:verbose` / `MCP_ENABLED_TAGS=verbose`. See the
-agent-utilities *MCP Tool Modes* guide.
+agent-connector-sdk *MCP Tool Modes* guide.
 
 ### Available MCP Tools
 
@@ -346,7 +346,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 <!-- MCP-CONFIG-EXAMPLES:START -->
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `gitlab-api[mcp]` to add
-> FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
+> FastMCP / FastAPI through `agent-connector-sdk`; the required Agent Connector SDK core
 > still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
 > enables model orchestration.
 
@@ -606,7 +606,7 @@ the detailed transport contract.
 | `GRAPHQLTOOL` | `True` |  |
 | `GRAPHQL_OPSTOOL` | `True` |  |
 
-#### Inherited agent-utilities variables (apply to every connector)
+#### Inherited agent-connector-sdk variables (apply to every connector)
 
 | Variable | Example | Description |
 |----------|---------|-------------|
@@ -627,7 +627,7 @@ the detailed transport contract.
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_45 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_45 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-connector-sdk set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 
@@ -645,7 +645,7 @@ instances are configured, it falls back to the single-host `GITLAB_*` values bel
 | `GITLAB_TLS_PROFILE` | Optional runtime TLS profile selector | _(unset)_ |
 
 > Multiple instances are declared once under `gitlab_instances` in the shared
-> agent-utilities XDG config (`~/.config/agent-utilities/config.json`) — each entry has
+> agent-connector-sdk XDG config (`~/.config/agent-connector-sdk/config.json`) — each entry has
 > `name`, `url`, `token`, and optional `tls_profile`. Target a tenant by **name** from the client
 > factory; an unset instance resolves to the first configured one (else `GITLAB_URL` /
 > `GITLAB_TOKEN`).
@@ -779,7 +779,7 @@ Detailed graph node architecture explanations, custom skill configurations, and 
 ## Multi-Tenancy (multiple GitLab instances)
 
 The client is natively multi-tenant. The set of instances is declared once in the
-shared **agent-utilities XDG config** (`~/.config/agent-utilities/config.json`) under
+shared **agent-connector-sdk XDG config** (`~/.config/agent-connector-sdk/config.json`) under
 `gitlab_instances` — the **same** list the Knowledge-Graph GitLab indexer reads, so one
 config drives both code/metadata indexing and every API/MCP call:
 
@@ -811,7 +811,7 @@ connector falls back to the single-host `GITLAB_URL`/`GITLAB_TOKEN` it has alway
 
 ## Security & Governance
 
-Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/Knuckles-Team/agent-utilities) core, standard security parameters are fully supported:
+Built directly upon the enterprise-ready [`agent-connector-sdk`](https://github.com/Knuckles-Team/agent-connector-sdk) core, standard security parameters are fully supported:
 
 ### Access Control & Policy Enforcement
 - **Eunomia Policies:** Fine-grained, policy-driven tool authorization. Supports `none`, local `embedded` (`mcp_policies.json`), or centralized `remote` modes.
@@ -833,8 +833,8 @@ Pick the extra that matches what the operator want to run:
 
 | Extra | Installs | Use when |
 |-------|----------|----------|
-| `gitlab-api[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
-| `gitlab-api[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
+| `gitlab-api[mcp]` | Connector-focused MCP server (`agent-connector-sdk` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
+| `gitlab-api[agent]` | Agent runtime (`agent-connector-sdk` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
 | `gitlab-api[all]` | Everything (`mcp` + `agent` + `gql` + `logfire`) | Development / both surfaces |
 
 ```bash
@@ -868,7 +868,7 @@ agent (`immutable agent digest`) with a co-located `:mcp` sidecar.
 ### Knowledge-graph database (`epistemic-graph`)
 
 Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
-Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
+Agent Connector SDK core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
 the server connector-focused; `[agent]` also enables model orchestration. Local
 deployments can use the bundled engine. For production or shared state, run
 **epistemic-graph as a dedicated database service** and configure the runtime to use it.
@@ -913,15 +913,15 @@ Contributions are welcome! Please ensure code quality by running local checks be
 - Run test suites using `pytest`
 
 
-<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
+<!-- BEGIN agent-connector-sdk-deployment (generated; do not edit between markers) -->
 
-## Deploy with `agent-utilities-deployment`
+## Deploy with `agent-connector-sdk-deployment`
 
-Provision this package with the consolidated **`agent-utilities-deployment`**
+Provision this package with the consolidated **`agent-connector-sdk-deployment`**
 workflow. It selects an installed-package, editable-source, or immutable-container
 path; records only runtime secret and TLS-profile references in `AgentConfig`; and
 runs doctor, registration, policy, observability, and rollback gates. Ask your agent
-to **"deploy `gitlab-api` with agent-utilities-deployment"**.
+to **"deploy `gitlab-api` with agent-connector-sdk-deployment"**.
 
 | Install mode | Command |
 |------|---------|
@@ -933,7 +933,7 @@ The repository embeds no deployment profile, credential value, certificate path,
 environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
 configured secret provider.
 
-<!-- END agent-utilities-deployment -->
+<!-- END agent-connector-sdk-deployment -->
 
 <!-- GOVERNED-CAPABILITY:START -->
 ## Governed capability contract

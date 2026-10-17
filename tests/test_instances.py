@@ -9,11 +9,11 @@ from gitlab_api.auth import _resolve_connection
 
 
 def _patch_config(monkeypatch, gitlab_instances):
-    """Point the registry at a fake agent-utilities config singleton."""
+    """Point the registry at a fake agent-connector-sdk config singleton."""
     monkeypatch.setattr(
-        "agent_utilities.core.config.config",
-        SimpleNamespace(gitlab_instances=gitlab_instances),
-        raising=False,
+        instances,
+        "setting",
+        lambda key, default=None, cast=None: gitlab_instances,
     )
 
 

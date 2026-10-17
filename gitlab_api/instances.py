@@ -1,9 +1,8 @@
 """Multi-tenant GitLab instance registry.
 
 The single source of truth for *which* GitLab instances exist is the
-agent-utilities XDG config (`~/.config/agent-utilities/config.json`,
-`gitlab_instances`) — the same list the KG GitLab indexer reads — so one config
-drives both code/metadata indexing AND every `gitlab-api` client/MCP call. When
+`GITLAB_INSTANCES` setting (a JSON list read through the connector SDK's
+`setting`) so one config drives every `gitlab-api` client/MCP call. When
 no instances are configured it falls back to the single-host `GITLAB_URL` /
 `GITLAB_TOKEN` env the connector has always used.
 
@@ -18,6 +17,8 @@ import logging
 import os
 from dataclasses import dataclass
 from urllib.parse import urlparse
+
+from agent_connector_sdk.config import setting
 
 logger = logging.getLogger(__name__)
 
@@ -37,11 +38,9 @@ def _host_slug(url: str) -> str:
 
 
 def _from_shared_config() -> list[GitLabInstance]:
-    """Read the structured `gitlab_instances` list from the agent-utilities config."""
+    """Read the structured `GITLAB_INSTANCES` JSON list through the SDK settings."""
     try:
-        from agent_utilities.core.config import config
-
-        raw = getattr(config, "gitlab_instances", None) or []
+        raw = setting("GITLAB_INSTANCES", []) or []
     except Exception:  # noqa: BLE001 - config optional; fall back to env
         return []
     out: list[GitLabInstance] = []
@@ -90,15 +89,15 @@ def list_configured_instances() -> list[GitLabInstance]:
 def _entitled(namespace: str, names: list[str]) -> list[str]:
     """Filter an instance-name list to what the calling identity may reach.
 
-    Routes the names through agent-utilities' shared identity-scoped resolver
+    Routes the names through agent-connector-sdk' shared identity-scoped resolver
     (CONCEPT:AU-OS.identity.identity-scoped-resource-autoload): a caller's
     Okta/Keycloak groups decide which GitLab tenants auto-load for them. The
     ambient ``SYSTEM_ACTOR`` (unauthenticated/local) holds ``admin`` → sees
     all, so behaviour is unchanged until a real identity scopes it down.
-    Degrades to the full list if agent-utilities predates the resolver.
+    Degrades to the full list if agent-connector-sdk predates the resolver.
     """
     try:
-        from agent_utilities.security.entitlements import identity_scoped_resources
+        from agent_connector_sdk.entitlements import identity_scoped_resources
 
         return list(identity_scoped_resources(namespace, names))
     except Exception:

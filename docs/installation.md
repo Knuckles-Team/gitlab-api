@@ -21,7 +21,7 @@ The base install is intentionally minimal. Install the extra for what the operat
 
 | Extra | Install | Pulls in |
 |---|---|---|
-| `mcp` | `pip install "gitlab-api[mcp]"` | FastMCP MCP-server runtime (`agent-utilities[mcp]`) |
+| `mcp` | `pip install "gitlab-api[mcp]"` | FastMCP MCP-server runtime (`agent-connector-sdk`) |
 | `agent` | `pip install "gitlab-api[agent]"` | Pydantic-AI agent + Logfire tracing |
 | `gql` | `pip install "gitlab-api[gql]"` | `gql` client for the GitLab GraphQL API |
 | `all` | `pip install "gitlab-api[all]"` | Everything above |

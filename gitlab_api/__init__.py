@@ -14,7 +14,6 @@ CORE_MODULES: list[str] = [
 
 OPTIONAL_MODULES = {
     "gitlab_api.gitlab_gql": "gql",
-    "gitlab_api.agent_server": "agent",
     "gitlab_api.mcp_server": "mcp",
 }
 

@@ -57,11 +57,11 @@ Prefer the **condensed** tool; it takes `action` + a `params_json` **JSON string
 ## Recipes (`params_json`)
 Open a merge request:
 ```json
-{"project_id":"platform/agent-utilities","data":{"source_branch":"feat/fleet-enrichment","target_branch":"main","title":"Fleet enrichment: gitlab ontology + skills","description":"Adds ontology + specialist skills.","remove_source_branch":true}}
+{"project_id":"platform/agent-connector-sdk","data":{"source_branch":"feat/fleet-enrichment","target_branch":"main","title":"Fleet enrichment: gitlab ontology + skills","description":"Adds ontology + specialist skills.","remove_source_branch":true}}
 ```
 Open an MR with reviewers and assignees:
 ```json
-{"project_id":"platform/agent-utilities","data":{"source_branch":"fix/runner-link","target_branch":"main","title":"Fix runner link","reviewer_ids":[12,34],"assignee_ids":[12],"labels":"bug","squash":true}}
+{"project_id":"platform/agent-connector-sdk","data":{"source_branch":"fix/runner-link","target_branch":"main","title":"Fix runner link","reviewer_ids":[12,34],"assignee_ids":[12],"labels":"bug","squash":true}}
 ```
 
 ## Gotchas

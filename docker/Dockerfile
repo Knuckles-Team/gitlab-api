@@ -2,14 +2,14 @@
 # slim multi-stage (build in a builder, ship only /usr/local — no dev-tools/source):
 #
 #   --target agent  (DEFAULT)  installs gitlab-api[agent] = the FULL runtime
-#                              (agent-utilities[agent-runtime]: pydantic-ai + skills;
+#                              (agent-connector-sdk: pydantic-ai + skills;
 #                              the full epistemic-graph engine is a base dependency).
 #                              The provider's [agent] also includes [mcp], so this image
 #                              can run EITHER the agent OR the mcp server. Push as the
 #                              default tags: latest / main / <version>.
 #
 #   --target mcp               installs gitlab-api[mcp]   = MCP-server tooling ONLY
-#                              (agent-utilities[mcp]: FastMCP/FastAPI plus the mandatory
+#                              (agent-connector-sdk: FastMCP/FastAPI plus the mandatory
 #                              full epistemic-graph base runtime). It omits the optional
 #                              provider agent/frontends. Push as the :mcp / :mcp-<version> tag.
 #

@@ -46,7 +46,7 @@ Built it explicitly instead of relying on the environment:
 
 ```python
 from gitlab_api.api_client import Api
-from agent_utilities.core.transport_security import resolve_configured_tls_profile
+from agent_connector_sdk.core.transport_security import resolve_configured_tls_profile
 
 api = Api(
     url="https://gitlab.example.com",
