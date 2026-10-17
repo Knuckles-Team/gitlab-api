@@ -1,0 +1,135 @@
+# Without this, `pre-commit install` wires ONLY the pre-commit hook, so `git push`
+# runs nothing and every hook staged pre-push is silently dead code.
+default_install_hook_types: [pre-commit, pre-push]
+default_language_version:
+  python: python3
+# Phase 0 dev-velocity contract (graph-os-completion-program): a hook with no
+# explicit `stages:` below is commit-only, never both.
+default_stages: [pre-commit]
+exclude: 'dotnet|node_modules'
+ci:
+  autofix_prs: true
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
+  autoupdate_schedule: 'monthly'
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0 # v6.0.0
+  hooks:
+  - id: check-added-large-files
+    args: ["--maxkb=2000"]
+  - id: check-ast
+    exclude: ^(tests/|test/|scripts/|script/)
+  - id: check-yaml
+    args: ["--unsafe"]
+  - id: check-toml
+  - id: check-json
+  - id: fix-byte-order-marker
+    exclude: .gitignore
+  - id: check-merge-conflict
+  - id: detect-private-key
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: no-commit-to-branch
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.17.1 # v0.15.12
+  hooks:
+  - id: ruff-check
+    args: ["--fix", "--ignore=E402,B008,E501"]
+    exclude: ^(tests/|test/|scripts/|script/)
+  - id: ruff-format
+    exclude: ^(tests/|test/|scripts/|script/)
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v2.4.0 # v1.20.2
+  hooks:
+  - id: mypy
+    additional_dependencies: [pydantic==2.13.4, types-PyYAML==6.0.12.20260518, types-requests==2.33.0.20260518,
+        types-setuptools==83.0.0.20260706]
+    args: ["--ignore-missing-imports"]
+- repo: https://github.com/jendrikseipp/vulture
+  rev: v2.16 # v2.16
+  hooks:
+  - id: vulture
+    pass_filenames: false
+    args: [".", "--min-confidence", "95", "--exclude", "node_modules,dotnet,.venv"]
+    require_serial: true
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.4.3 # v2.4.2
+  hooks:
+  - id: codespell
+    args: ["-L", "ans,linar,nam,tread,ot,", "--ignore-words=.codespellignore"]
+    exclude: ^(tests/|test/|scripts/|script/|.*lock.*)
+- repo: https://github.com/PyCQA/bandit
+  rev: 1.9.4 # 1.9.4
+  hooks:
+  - id: bandit
+    args: ["--skip", "B101,B404,B603"]
+    exclude: ^(tests/|test/|scripts/|script/|__tests__/)
+- repo: https://github.com/nbQA-dev/nbQA
+  rev: 1.9.1 # 1.9.1
+  hooks:
+  - id: nbqa-ruff
+    args: ["--fix"]
+- repo: local
+  hooks:
+  - id: dependency-readiness
+    name: Dependency readiness — every declared intra-fleet constraint is installable
+    entry: bash -c 'P=""; d="$PWD"; while [ "$d" != "/" ]; do [ -d "$d/agent-packages/agents/repository-manager" ] && { P="$d/agent-packages/agents/repository-manager"; break; }; d=$(dirname "$d"); done; [ -n "$P" ] || P=repository-manager; uv run --no-project --python 3.12 --prerelease=allow --with "$P" python -m repository_manager.dependency_readiness .'
+    language: system
+    pass_filenames: false
+    always_run: true
+    stages: [manual, pre-push]
+- repo: local
+  hooks:
+  - id: mermaid-validate
+    name: mermaid-validate
+    entry: mermaid-validate
+    language: node
+    additional_dependencies: ['@zabaca/mermaid-validate@1.0.1']
+    types: [markdown]
+    pass_filenames: true
+  - id: check-cli-help
+    name: check cli help
+    entry: |-
+      bash -c 'for f in $(find . -type f -name "mcp_server.py" -not -path "*/\.venv/*" -not -path "*/__pycache__/*"); do mod=$(echo "$f" | sed -e "s/^\.\///" -e "s/\.py$//" -e "s/\//./g"); uv run python -m "$mod" --help >/dev/null || exit 1; done'
+    language: system
+    pass_filenames: false
+    always_run: true
+  - id: check-bumpversion
+    name: validate bumpversion config
+    entry: |-
+      bash -c 'if [ -f ".bumpversion.cfg" ]; then bump2version patch --dry-run --allow-dirty; fi'
+    language: system
+    pass_filenames: false
+    always_run: true
+- repo: https://github.com/AleksaC/hadolint-py
+  rev: v2.15.1 # v2.14.0
+  hooks:
+  - id: hadolint
+    args:
+    - --ignore=DL3008
+    - --ignore=DL3015
+    - --ignore=DL3009
+    - --ignore=DL4006
+    - --ignore=SC2102
+- repo: https://github.com/IamTheFij/docker-pre-commit
+  rev: v3.0.1 # v3.0.1
+  hooks:
+  - id: docker-compose-check
+
+- repo: local
+  hooks:
+  - id: verify-api-integration
+    name: Verify API-to-MCP Integration Coverage
+    entry: python scripts/verify_api_integration.py --local
+    language: system
+    pass_filenames: false
+    always_run: true
+- repo: local
+  hooks:
+  - id: security-sanitizer
+    name: Security and Garbage Sanitizer
+    entry: python scripts/security_sanitizer.py
+    language: python
+    pass_filenames: false
+    always_run: true

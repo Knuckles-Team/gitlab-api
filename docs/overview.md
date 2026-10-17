@@ -1,11 +1,10 @@
 # gitlab-api — Concept Overview
 
-> **Category**: Development | **Ecosystem Role**: MCP Server + A2A Agent
 > Built on [`agent-connector-sdk`](https://github.com/Knuckles-Team/agent-connector-sdk) — the unified AGI Harness.
 
 ## Description
 
-GitLab API + MCP Server + A2A Server
+GitLab API + MCP Server
 
 ## Enterprise Readiness
 
@@ -31,28 +30,12 @@ This project implements or inherits the following ecosystem concepts:
 | Concept ID | Description | Source |
 |:-----------|:------------|:-------|
 | ECO-4.1 | MCP & Universal Skills | `agent-connector-sdk` (inherited) |
-| AU-ECO.toolkit.journey-map-narrative | A2A Network & Consensus | `agent-connector-sdk` (inherited) |
 
 > 📖 **Full Registry**: See [`agent-connector-sdk/docs/overview.md`](https://github.com/Knuckles-Team/agent-connector-sdk/blob/main/docs/overview.md) for the complete 5-Pillar concept index.
 
 ## Architecture
 
 This project follows the standardized agent-package pattern:
-
-```
-gitlab-api/
-├── gitlab_api/        # Source code
-│   ├── __init__.py
-│   ├── agent_server.py      # Entry point (create_graph_agent_server)
-│   ├── api_client.py        # REST/GraphQL API wrapper
-│   └── mcp_server.py        # FastMCP tool definitions
-├── tests/                   # Test suite
-├── docs/                    # Documentation
-├── pyproject.toml           # Package metadata
-├── mcp_config.json          # MCP server configuration
-├── main_agent.json          # Agent identity & system prompt
-└── Dockerfile               # Container deployment
-```
 
 ## MCP Configuration
 

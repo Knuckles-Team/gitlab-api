@@ -9,19 +9,9 @@
 - Key principles: Functional patterns, Pydantic for data validation, asynchronous tool execution.
 - Architecture:
     - `mcp_server.py`: Main MCP server entry point and tool registration.
-    - `agent.py`: Pydantic AI agent definition and logic.
     - `skills/`: Directory containing modular agent skills (if applicable).
 
 ### Architecture Diagram
-```mermaid
-graph TD
-    User([User/A2A]) --> Server[A2A Server / FastAPI]
-    Server --> Agent[Pydantic AI Agent]
-    Agent --> Skills[Modular Skills]
-    Agent --> MCP[MCP Server / FastMCP]
-    MCP --> Client[API Client / Wrapper]
-    Client --> ExternalAPI([External Service API])
-```
 
 ### Workflow Diagram
 ```mermaid
@@ -53,117 +43,13 @@ pre-commit run --all-files
 # gitlab-mcp
 gitlab_api.mcp_server:mcp_server
 # gitlab-agent
-gitlab_api.agent_server:agent_server
 
 ## Project Structure Quick Reference
 - MCP Entry Point → `mcp_server.py`
-- Agent Entry Point → `agent_server.py`
 - Source Code → `gitlab_api/`
 - Skills → `skills/` (if exists)
 
 ### File Tree
-```text
-├── .github/
-│   └── workflows/
-│       ├── docs.yml
-│       ├── pages.yml
-│       └── pipeline.yml
-├── .specify/
-│   └── specs/
-│       ├── code-enhancement-20260512/
-│       │   ├── CHECKLIST.md
-│       │   ├── DRIFT_REPORT.md
-│       │   ├── spec.json
-│       │   ├── spec.md
-│       │   ├── tasks.json
-│       │   └── tasks.md
-│       └── code-enhancement-20260524/
-│           ├── spec.json
-│           ├── spec.md
-│           ├── tasks.json
-│           └── tasks.md
-├── docker/
-│   ├── agent.compose.yml
-│   ├── debug.Dockerfile
-│   ├── Dockerfile
-│   ├── mcp.compose.yml
-│   └── starship.toml
-├── docs/
-│   ├── concepts.md
-│   ├── deployment.md
-│   ├── index.md
-│   ├── installation.md
-│   ├── overview.md
-│   ├── platform.md
-│   └── usage.md
-├── gitlab_api/
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── api_client_base.py
-│   │   ├── api_client_environments.py
-│   │   ├── api_client_issues.py
-│   │   ├── api_client_merge_requests.py
-│   │   ├── api_client_other.py
-│   │   ├── api_client_pipelines.py
-│   │   ├── api_client_projects.py
-│   │   ├── api_client_repositories.py
-│   │   ├── api_client_system.py
-│   │   └── api_client_users_groups.py
-│   ├── __init__.py
-│   ├── __main__.py
-│   ├── agent_server.py
-│   ├── api_client.py
-│   ├── auth.py
-│   ├── gitlab_gql.py
-│   ├── gitlab_input_models.py
-│   ├── gitlab_response_models.py
-│   ├── main_agent.json
-│   ├── mcp_config.json
-│   └── mcp_server.py
-├── scripts/
-│   ├── security_sanitizer.py
-│   ├── validate_a2a_agent.py
-│   ├── validate_agent.py
-│   └── verify_api_integration.py
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   ├── test_api_wrapper.py
-│   ├── test_auth.py
-│   ├── test_concept_parity.py
-│   ├── test_gitlab_a2a_validation.py
-│   ├── test_gitlab_api_brute_force_coverage.py
-│   ├── test_gitlab_gql.py
-│   ├── test_gitlab_mcp_validation.py
-│   ├── test_gitlab_models.py
-│   ├── test_init_dynamics.py
-│   ├── test_mock_coverage.py
-│   ├── test_startup.py
-│   ├── test_verify_agent.py
-│   └── verify_a2a_queries.py
-├── .bumpversion.cfg
-├── .codespellignore
-├── .dockerignore
-├── .env.example
-├── .gitattributes
-├── .gitignore
-├── .pre-commit-config.yaml
-├── .vulture_ignore
-├── a2a.json
-├── AGENTS.md
-├── CHANGELOG.md
-├── CLAUDE.md
-├── LICENSE
-├── MANIFEST.in
-├── mcp_config.json
-├── mkdocs.yml
-├── opencode.json
-├── pyproject.toml
-├── pytest.ini
-├── README.md
-├── requirements.txt
-└── uv.lock
-```
 
 ## Code Style & Conventions
 **Always:**

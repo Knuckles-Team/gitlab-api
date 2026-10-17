@@ -1,5 +1,5 @@
 [build-system]
-requires = [ "setuptools>=80.9.0", "wheel",]
+requires = [ "setuptools>=84.0.0", "wheel",]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,7 +9,7 @@ description = "GitLab API + MCP Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12, <3.15"
-dependencies = [ "agent-connector-sdk>=0.2.0,<1.0.0", "python-dotenv>=1.2.2", "gql[requests]>=4.0.0",]
+dependencies = [ "agent-connector-sdk>=0.2.0,<1.0.0", "python-dotenv>=1.2.4", "gql[requests]>=4.4.0",]
 [[project.authors]]
 name = "Project Maintainers"
 email = "maintainers@users.noreply.github.com"
@@ -19,8 +19,8 @@ text = "MIT"
 
 [project.optional-dependencies]
 mcp = [ "agent-connector-sdk>=0.2.0,<1.0.0",]
-gql = [ "gql[requests]>=4.0.0",]
-all = [ "gitlab-api[mcp,agent,gql,logfire]>=27.1.0",]
+gql = [ "gql[requests]>=4.4.0",]
+all = [ "gitlab-api[mcp,gql]>=27.1.0",]
 test = [
     "pytest-xdist>=3.8.0", "pytest>=9.1.1", "pytest-asyncio>=1.4.0", "pytest-cov>=7.1.0",]
 
@@ -47,7 +47,7 @@ include-package-data = true
 
 [tool.uv]
 override-dependencies = [
-    "fastmcp-slim[client,server]>=4.0.0b1",
+    "fastmcp-slim[client,server]>=4.1.0",
 ]
 
 

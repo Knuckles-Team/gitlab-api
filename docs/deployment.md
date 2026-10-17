@@ -63,14 +63,10 @@ Store the real remote URL, outbound identity reference, and TLS-profile referenc
 <!-- END GENERATED: deployment-options -->
 
 This page covers running `gitlab-api` as long-lived servers: the transports, a Docker
-Compose stack, the optional A2A agent server, putting it behind a Caddy reverse proxy,
 and giving it a DNS name with Technitium. To provision the **GitLab instance** it
 connects to, see [Backing Platform](platform.md).
 
 > `gitlab-api` ships both an **MCP server** (console script `gitlab-mcp`) and an
-> **A2A agent server** (console script `gitlab-agent`). The MCP server is a typed,
-> deterministic tool surface a policy router / agent calls; the agent server is a
-> Pydantic-AI graph agent that wraps that surface with an AG-UI web interface.
 
 ## Run the MCP server
 
@@ -155,59 +151,6 @@ cp .env.example .env          # then edit GITLAB_URL / GITLAB_TOKEN
 docker compose -f docker/mcp.compose.yml up -d
 docker compose -f docker/mcp.compose.yml logs -f
 ```
-
-## Agent server (A2A)
-
-`gitlab-api` also ships an A2A **agent server** (console script `gitlab-agent`). It
-runs the Pydantic-AI graph agent, calls the MCP tool surface over `MCP_URL`, and
-exposes an AG-UI web interface on port `9017`. The repo ships
-[`docker/agent.compose.yml`](https://github.com/Knuckles-Team/gitlab-api/blob/main/docker/agent.compose.yml),
-which deploys the MCP server and the agent server together:
-
-```yaml
-services:
-  gitlab-api-mcp:
-    image: example/gitlab-api@sha256:<digest>
-    container_name: gitlab-api-mcp
-    hostname: gitlab-api-mcp
-    restart: always
-    env_file:
-      - ../.env
-    environment:
-      - HOST=0.0.0.0
-      - PORT=8000
-      - TRANSPORT=streamable-http
-    ports:
-      - "8000:8000"
-
-  gitlab-api-agent:
-    image: example/gitlab-api@sha256:<digest>
-    container_name: gitlab-api-agent
-    hostname: gitlab-api-agent
-    restart: always
-    depends_on:
-      - gitlab-api-mcp
-    env_file:
-      - ../.env
-    command: ["gitlab-agent"]
-    environment:
-      - HOST=0.0.0.0
-      - PORT=9017
-      - MCP_URL=http://gitlab-api-mcp:8000/mcp
-      - PROVIDER=${PROVIDER:-openai}
-      - MODEL_ID=${MODEL_ID:-gpt-4o}
-      - ENABLE_WEB_UI=True
-    ports:
-      - "9017:9017"
-```
-
-```bash
-docker compose -f docker/agent.compose.yml up -d
-curl -s http://localhost:9017/health        # {"status":"OK"}
-```
-
-The agent reaches the MCP server by container name through `MCP_URL`; set `PROVIDER`
-and `MODEL_ID` (plus the matching provider API key) to select the model.
 
 ## Behind a Caddy reverse proxy
 

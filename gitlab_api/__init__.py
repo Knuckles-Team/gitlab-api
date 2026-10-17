@@ -51,7 +51,6 @@ def _import_module_safely(module_name: str):
 # by the substring that identifies the module in OPTIONAL_MODULES.
 _AVAILABILITY_FLAGS = {
     "_MCP_AVAILABLE": "mcp_server",
-    "_AGENT_AVAILABLE": "agent_server",
 }
 
 
