@@ -44,7 +44,7 @@ def test_get_client_oidc_delegation(monkeypatch):
     monkeypatch.setattr(
         delegation,
         "exchange_token",
-        lambda settings, *, subject_token, http_client, resolver=None: AccessToken(
+        lambda settings, *, subject_token, http_client, **_unused: AccessToken(
             value="delegated_tok", ttl_seconds=3600, expires_at=0.0
         ),
     )
@@ -63,7 +63,7 @@ def test_get_client_oidc_delegation_failed(monkeypatch):
 
     monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
 
-    def _boom(settings, *, subject_token, http_client, resolver=None):
+    def _boom(settings, *, subject_token, http_client, **_unused):
         raise ValueError("Exchange failed")
 
     monkeypatch.setattr(delegation, "exchange_token", _boom)
@@ -98,7 +98,7 @@ def test_get_graphql_client_oidc_delegation(monkeypatch):
     monkeypatch.setattr(
         delegation,
         "exchange_token",
-        lambda settings, *, subject_token, http_client, resolver=None: AccessToken(
+        lambda settings, *, subject_token, http_client, **_unused: AccessToken(
             value="delegated_tok", ttl_seconds=3600, expires_at=0.0
         ),
     )
@@ -116,7 +116,7 @@ def test_get_graphql_client_oidc_delegation_failed(monkeypatch):
 
     monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
 
-    def _boom(settings, *, subject_token, http_client, resolver=None):
+    def _boom(settings, *, subject_token, http_client, **_unused):
         raise ValueError("Exchange failed")
 
     monkeypatch.setattr(delegation, "exchange_token", _boom)

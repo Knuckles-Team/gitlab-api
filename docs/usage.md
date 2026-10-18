@@ -34,7 +34,7 @@ groups. Build a client from the environment with `get_client()`:
 ```python
 from gitlab_api.auth import get_client
 
-api = get_client()        # reads GITLAB_URL / GITLAB_TOKEN from the environment / .env
+api = get_client()  # reads GITLAB_URL / GITLAB_TOKEN from the environment / .env
 
 # Reads
 projects = api.get_projects()
@@ -61,7 +61,7 @@ For the GitLab GraphQL API, build a `gql` client with `get_graphql_client()`:
 ```python
 from gitlab_api.auth import get_graphql_client
 
-gql_client = get_graphql_client()      # reads GITLAB_URL / GITLAB_TOKEN
+gql_client = get_graphql_client()  # reads GITLAB_URL / GITLAB_TOKEN
 ```
 
 ## As a CLI

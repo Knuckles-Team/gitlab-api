@@ -817,7 +817,7 @@ class GraphQL:
         author_email: str | None = None,
         author_name: str | None = None,
         _stats: bool | None = False,
-        force: bool | None = False,
+        _force: bool | None = False,
     ) -> dict[str, Any]:
         """
         Create a commit in a project.
@@ -1073,8 +1073,8 @@ class GraphQL:
             state: Optional merge request state (e.g., 'opened').
             labels: Optional list of labels (not supported in GraphQL).
             milestone: Optional milestone title (not supported in GraphQL).
-            author_username: Optional author username (not supported in GraphQL).
-            reviewer_username: Optional reviewer username (not supported in GraphQL).
+            author_username: Optional author username filter.
+            reviewer_username: Optional reviewer username filter.
             source_branch: Optional source branch (not supported in GraphQL).
             target_branch: Optional target branch (not supported in GraphQL).
             search: Optional search term (not supported in GraphQL).
@@ -1086,9 +1086,9 @@ class GraphQL:
         """
         MergeRequestModel(project_id=project_id, state=state)  # type: ignore
         query = """
-        query ($fullPath: ID!, $state: MergeRequestState, $first: Int, $after: String) {
+        query ($fullPath: ID!, $state: MergeRequestState, $authorUsername: String, $reviewerUsername: String, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
-                mergeRequests(state: $state, first: $first, after: $after) {
+                mergeRequests(state: $state, authorUsername: $authorUsername, reviewerUsername: $reviewerUsername, first: $first, after: $after) {
                     nodes {
                         iid
                         title
@@ -1106,6 +1106,10 @@ class GraphQL:
         variables = {"fullPath": str(project_id), "first": first}
         if state:
             variables["state"] = state
+        if author_username:
+            variables["authorUsername"] = author_username
+        if reviewer_username:
+            variables["reviewerUsername"] = reviewer_username
         if after:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
@@ -1347,7 +1351,7 @@ class GraphQL:
         username: str | None = None,
         updated_after: str | None = None,
         updated_before: str | None = None,
-        order_by: str | None = None,
+        _order_by: str | None = None,
         sort: str | None = None,
         first: int | None = 20,
         after: str | None = None,
@@ -1361,8 +1365,8 @@ class GraphQL:
             status: Optional pipeline status filter (not supported in GraphQL).
             source: Optional source filter (not supported in GraphQL).
             username: Optional username filter (not supported in GraphQL).
-            updated_after: Optional updated after filter (not supported in GraphQL).
-            updated_before: Optional updated before filter (not supported in GraphQL).
+            updated_after: Optional filter: pipelines updated after this time.
+            updated_before: Optional filter: pipelines updated before this time.
             order_by: Optional order by field (not supported in GraphQL).
             sort: Optional sort order (not supported in GraphQL).
             first: Number of pipelines to fetch.
@@ -1373,9 +1377,9 @@ class GraphQL:
         """
         PipelineModel(project_id=project_id)
         query = """
-        query ($fullPath: ID!, $first: Int, $after: String) {
+        query ($fullPath: ID!, $updatedAfter: Time, $updatedBefore: Time, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
-                pipelines(first: $first, after: $after) {
+                pipelines(updatedAfter: $updatedAfter, updatedBefore: $updatedBefore, first: $first, after: $after) {
                     nodes {
                         id
                         status
@@ -1390,6 +1394,10 @@ class GraphQL:
         }
         """
         variables = {"fullPath": str(project_id), "first": first}
+        if updated_after:
+            variables["updatedAfter"] = updated_after
+        if updated_before:
+            variables["updatedBefore"] = updated_before
         if after:
             variables["after"] = after
         return self.execute_gql(query, variables=variables)
@@ -2622,9 +2630,9 @@ class GraphQL:
         """
         IssueModel(project_id=project_id)  # type: ignore
         query = """
-        query ($fullPath: ID!, $state: IssueState, $labels: [String!], $assigneeUsernames: [String!], $search: String, $first: Int, $after: String) {
+        query ($fullPath: ID!, $state: IssueState, $labels: [String!], $authorUsername: String, $assigneeUsernames: [String!], $search: String, $first: Int, $after: String) {
             project(fullPath: $fullPath) {
-                issues(state: $state, labels: $labels, assigneeUsernames: $assigneeUsernames, search: $search, first: $first, after: $after) {
+                issues(state: $state, labels: $labels, authorUsername: $authorUsername, assigneeUsernames: $assigneeUsernames, search: $search, first: $first, after: $after) {
                     nodes {
                         iid
                         title
@@ -2643,6 +2651,8 @@ class GraphQL:
             variables["state"] = state
         if labels:
             variables["labels"] = labels  # type: ignore
+        if author_username:
+            variables["authorUsername"] = author_username
         if assignee_username:
             variables["assigneeUsernames"] = [assignee_username]  # type: ignore
         if search:

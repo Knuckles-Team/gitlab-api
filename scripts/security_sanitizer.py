@@ -232,7 +232,15 @@ def _should_secret_scan(file_path: Path) -> bool:
     return True
 
 
+#: The fleet's one inline exemption: ``# sanitizer:ignore - <reason>`` on the
+#: exact line of a reviewed synthetic literal. A bare marker without a reason
+#: exempts nothing; there is no file-, path- or value-level exemption.
+SANITIZER_IGNORE_RE = re.compile(r"#\s*sanitizer:ignore\s*[-\u2014:]\s*\S")
+
+
 def _secret_violations_in_line(line: str, rel_path: Path, idx: int):
+    if SANITIZER_IGNORE_RE.search(line):
+        return []
     violations = []
     for label, pattern in SECRET_PATTERNS:
         for match in pattern.findall(line):

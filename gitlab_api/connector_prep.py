@@ -40,9 +40,14 @@ from pydantic import (
     model_validator,
 )
 
-PREP_CONTRACT_VERSION = "1"
-ARROW_IPC = "arrow_ipc"
-SOURCE = "gitlab-api"
+# A typing.Literal takes literal values, not variable names: each constant
+# has its own literal type, and the fields annotate with that type.
+PrepContractVersion = Literal["1"]
+ArrowIpc = Literal["arrow_ipc"]
+SourceName = Literal["gitlab-api"]
+PREP_CONTRACT_VERSION: PrepContractVersion = "1"
+ARROW_IPC: ArrowIpc = "arrow_ipc"
+SOURCE: SourceName = "gitlab-api"
 DOMAIN = "gitlab"
 
 MAX_PAGE_RECORDS = 100
@@ -76,7 +81,7 @@ class PrepErrorCode(StrEnum):
     FIELD_LIMIT = "field_limit"
     PAGE_LIMIT = "page_too_large"
     RECORD_LIMIT = "record_limit"
-    SECRET = "sensitive_payload"
+    SECRET = "sensitive_payload"  # nosec B105  # sanitizer:ignore - enum value naming a refusal reason, not a credential
     TEXT_LIMIT = "text_limit"
     DUPLICATE_ID = "duplicate_id"
     PATH_ABUSE = "path_or_url_abuse"
@@ -276,7 +281,7 @@ class NamespacePayload(_PrepModel):
 class GitLabProjectPayload(_PrepModel):
     """Versioned strict projection of the GitLab project response."""
 
-    schema_version: Literal[PREP_CONTRACT_VERSION] = PREP_CONTRACT_VERSION
+    schema_version: PrepContractVersion = PREP_CONTRACT_VERSION
     id: StrictInt = Field(gt=0, le=MAX_IDENTIFIER)
     name: StrictStr
     path_with_namespace: StrictStr
@@ -332,7 +337,7 @@ class GitLabProjectPayload(_PrepModel):
 class GitLabIssuePayload(_PrepModel):
     """Versioned strict projection of the GitLab issue response."""
 
-    schema_version: Literal[PREP_CONTRACT_VERSION] = PREP_CONTRACT_VERSION
+    schema_version: PrepContractVersion = PREP_CONTRACT_VERSION
     id: StrictInt = Field(gt=0, le=MAX_IDENTIFIER)
     iid: StrictInt = Field(gt=0, le=MAX_IDENTIFIER)
     project_id: StrictInt = Field(gt=0, le=MAX_IDENTIFIER)
@@ -390,7 +395,7 @@ class GitLabIssuePayload(_PrepModel):
 class GitLabMergeRequestPayload(_PrepModel):
     """Versioned strict projection of the GitLab merge-request response."""
 
-    schema_version: Literal[PREP_CONTRACT_VERSION] = PREP_CONTRACT_VERSION
+    schema_version: PrepContractVersion = PREP_CONTRACT_VERSION
     id: StrictInt = Field(gt=0, le=MAX_IDENTIFIER)
     iid: StrictInt = Field(gt=0, le=MAX_IDENTIFIER)
     project_id: StrictInt = Field(gt=0, le=MAX_IDENTIFIER)
@@ -515,9 +520,9 @@ class ArrowField(_PrepModel):
 class ArrowPrepPlan(_PrepModel):
     """A versioned declaration of the Arrow boundary, not an Arrow runtime."""
 
-    schema_version: Literal[PREP_CONTRACT_VERSION] = PREP_CONTRACT_VERSION
+    schema_version: PrepContractVersion = PREP_CONTRACT_VERSION
     record_kind: RecordKind
-    handoff_format: Literal[ARROW_IPC] = ARROW_IPC
+    handoff_format: ArrowIpc = ARROW_IPC
     operations: tuple[StrictStr, ...]
     arrow_schema: tuple[ArrowField, ...]
     engine_dependencies: tuple[StrictStr, ...] = ()
@@ -577,8 +582,8 @@ def arrow_prep_plan(record_kind: RecordKind) -> ArrowPrepPlan:
 class PrepEvidence(_PrepModel):
     """Safe lineage and validation evidence; never stores a source row."""
 
-    schema_version: Literal[PREP_CONTRACT_VERSION] = PREP_CONTRACT_VERSION
-    source: Literal[SOURCE] = SOURCE
+    schema_version: PrepContractVersion = PREP_CONTRACT_VERSION
+    source: SourceName = SOURCE
     record_kind: RecordKind
     record_ref: StrictStr
     disposition: PrepDisposition
@@ -754,7 +759,7 @@ class CheckpointOutcome(_PrepModel):
 class Checkpoint(_PrepModel):
     """A page digest plus safe terminal outcomes, suitable for CAS storage."""
 
-    schema_version: Literal[PREP_CONTRACT_VERSION] = PREP_CONTRACT_VERSION
+    schema_version: PrepContractVersion = PREP_CONTRACT_VERSION
     stream: StrictStr
     page: StrictInt = Field(ge=1, le=MAX_PAGES)
     cursor_digest: StrictStr | None = None
@@ -833,7 +838,7 @@ class MemoryCheckpointStore:
 class PrepResult(_PrepModel):
     """Page-level result with bounded evidence and checkpoint state."""
 
-    schema_version: Literal[PREP_CONTRACT_VERSION] = PREP_CONTRACT_VERSION
+    schema_version: PrepContractVersion = PREP_CONTRACT_VERSION
     record_kind: RecordKind
     stream: StrictStr
     page: StrictInt = Field(ge=1, le=MAX_PAGES)
@@ -1181,7 +1186,9 @@ def _record_identity(model: BaseModel) -> tuple[object, ...]:
         return ("project", model.id)
     if isinstance(model, GitLabIssuePayload):
         return ("issue", model.project_id, model.iid)
-    return ("merge_request", model.project_id, model.iid)
+    if isinstance(model, GitLabMergeRequestPayload):
+        return ("merge_request", model.project_id, model.iid)
+    raise TypeError(f"no record identity for {type(model).__name__}")
 
 
 class _PageRecordContext(NamedTuple):
@@ -1450,8 +1457,10 @@ class ConnectorPrep:
             if outcome is not None:
                 outcomes.append(outcome)
                 continue
+            if item is None or identity is None:
+                raise RuntimeError("an accepted record has no item or identity")
             seen.setdefault(identity, []).append(ordinal)
-            accepted.append(item)  # type: ignore[arg-type]
+            accepted.append(item)
         return outcomes, accepted, seen
 
     def _drop_duplicate_records(
