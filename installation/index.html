@@ -6,8 +6,6 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="GitLab API + MCP Server + A2A Agent — a typed, action-routed GitLab connector for the agent-utilities ecosystem.">
-      
       
       
         <link rel="canonical" href="https://knuckles-team.github.io/gitlab-api/installation/">
@@ -982,12 +980,7 @@ path that matches how the operator want to run it.</p>
 <tr>
 <td><code>mcp</code></td>
 <td><code>pip install "gitlab-api[mcp]"</code></td>
-<td>FastMCP MCP-server runtime (<code>agent-utilities[mcp]</code>)</td>
-</tr>
-<tr>
-<td><code>agent</code></td>
-<td><code>pip install "gitlab-api[agent]"</code></td>
-<td>Pydantic-AI agent + Logfire tracing</td>
+<td>FastMCP MCP-server runtime (<code>agent-connector-sdk</code>)</td>
 </tr>
 <tr>
 <td><code>gql</code></td>
@@ -1022,16 +1015,10 @@ path that matches how the operator want to run it.</p>
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">GITLAB_TOKEN</span><span class="o">=</span>&lt;your-gitlab-token&gt;<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>example/gitlab-api@sha256:&lt;digest&gt;<span class="w">        </span><span class="c1"># stdio transport (default)</span>
 </span></code></pre></div>
-<p>For an HTTP server with a published port and the agent server, see
-<a href="../deployment/">Deployment</a>.</p>
+<p><a href="../deployment/">Deployment</a>.</p>
 <h2 id="verify-the-install">Verify the install<a class="headerlink" href="#verify-the-install" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>gitlab-mcp<span class="w"> </span>--help
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>gitlab-agent<span class="w"> </span>--help
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import gitlab_api; print(gitlab_api.__version__)"</span>
-</span></code></pre></div>
 <h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong><a href="../deployment/">Deployment</a></strong> — run it as a long-lived MCP / agent server behind Caddy + DNS.</li>
 <li><strong><a href="../usage/">Usage</a></strong> — call the tools, the API, and the CLI.</li>
 <li><strong><a href="../deployment/#configuration-environment">Configuration</a></strong> — every environment variable.</li>
 </ul>

@@ -6,8 +6,6 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="GitLab API + MCP Server + A2A Agent — a typed, action-routed GitLab connector for the agent-utilities ecosystem.">
-      
       
       
         <link rel="canonical" href="https://knuckles-team.github.io/gitlab-api/">
@@ -855,8 +853,7 @@
 
 
 <h1 id="gitlab-api">gitlab-api<a class="headerlink" href="#gitlab-api" title="Permanent link">&para;</a></h1>
-<p>GitLab <strong>API + MCP Server + A2A Agent</strong> for the agent-utilities ecosystem — a typed,
-action-routed connector for the GitLab REST and GraphQL APIs.</p>
+<p>action-routed connector for the GitLab REST and GraphQL APIs.</p>
 <div class="admonition info">
 <p class="admonition-title">Official documentation</p>
 <p>This site is the canonical reference for <code>gitlab-api</code>, maintained alongside every
@@ -867,8 +864,7 @@ release.</p>
 <a href="https://github.com/Knuckles-Team/gitlab-api/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/pypi/l/gitlab-api" /></a>
 <a href="https://github.com/Knuckles-Team/gitlab-api"><img alt="GitHub" src="https://img.shields.io/badge/source-GitHub-181717?logo=github" /></a></p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p><code>gitlab-api</code> wraps the GitLab REST and GraphQL surface with typed, deterministic MCP
-tools and an optional Pydantic-AI agent server. It provides:</p>
+<p><code>gitlab-api</code> wraps the GitLab REST and GraphQL surface with typed, deterministic MCP</p>
 <ul>
 <li><strong><code>Api</code></strong> — a Python client (<code>gitlab_api.api_client.Api</code>) composed from per-domain
   mixins covering projects, repositories, merge requests, pipelines, environments,
@@ -876,8 +872,6 @@ tools and an optional Pydantic-AI agent server. It provides:</p>
 <li><strong>Action-routed MCP tools</strong> — consolidated, togglable tool modules (branches,
   commits, merge requests, pipelines, releases, runners, and more) that minimize
   token overhead in LLM contexts.</li>
-<li><strong>An A2A agent server</strong> — a Pydantic-AI graph agent (console script <code>gitlab-agent</code>)
-  that calls the MCP tool surface and exposes an AG-UI web interface.</li>
 </ul>
 <p>The connector remains inactive when credentials are absent: configure <code>GITLAB_URL</code>
 and <code>GITLAB_TOKEN</code> to connect it to a GitLab instance.</p>
@@ -885,7 +879,6 @@ and <code>GITLAB_TOKEN</code> to connect it to a GitLab instance.</p>
 <div class="grid cards">
 <ul>
 <li>:material-rocket-start: <strong><a href="installation/">Installation</a></strong> — pip, source, extras, and the prebuilt Docker image.</li>
-<li><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 19h1a1 1 0 0 1 1 1h7v2h-7a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1H2v-2h7a1 1 0 0 1 1-1h1v-2H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-7zM4 3h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1m5 4h1V5H9zm0 8h1v-2H9zM5 5v2h2V5zm0 8v2h2v-2z"/></svg></span> <strong><a href="deployment/">Deployment</a></strong> — run the MCP and agent servers, Docker Compose, Caddy + Technitium.</li>
 <li><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 19V7H4v12zm0-16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm-7 14v-2h5v2zm-3.42-4L5.57 9H8.4l3.3 3.3c.39.39.39 1.03 0 1.42L8.42 17H5.59z"/></svg></span> <strong><a href="usage/">Usage</a></strong> — the MCP tools, the <code>Api</code> client, and the CLI.</li>
 <li><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4-3.58 4-8 4-8-1.79-8-4m8.08 11H12c-4.42 0-8-1.79-8-4v3c0 2.21 3.58 4 8 4h.29a7.4 7.4 0 0 1-.29-2c0-.34.03-.67.08-1M20 12.08V9c0 2.21-3.58 4-8 4s-8-1.79-8-4v3c0 2.21 3.58 4 8 4h.69c1.13-2.37 3.53-4 6.31-4 .34 0 .67.03 1 .08m3.8 8.32c.1 0 .1.1 0 .2l-1 1.7c-.1.1-.2.1-.3.1l-1.2-.4c-.3.2-.5.3-.8.5l-.2 1.3c0 .1-.1.2-.2.2h-2c-.1 0-.2-.1-.3-.2l-.2-1.3c-.3-.1-.6-.3-.8-.5l-1.2.5c-.1 0-.2 0-.3-.1l-1-1.7c-.1-.1 0-.2.1-.3l1.1-.8v-1l-1.1-.8c-.1-.1-.1-.2-.1-.3l1-1.7c.1-.1.2-.1.3-.1l1.2.5c.3-.2.5-.3.8-.5l.2-1.3c0-.1.1-.2.3-.2h2c.1 0 .2.1.2.2l.2 1.3c.3.1.6.3.9.5l1.2-.5c.1 0 .3 0 .3.1l1 1.7c.1.1 0 .2-.1.3l-1.1.8v1zM20.5 19c0-.8-.7-1.5-1.5-1.5s-1.5.7-1.5 1.5.7 1.5 1.5 1.5 1.5-.7 1.5-1.5"/></svg></span> <strong><a href="platform/">Backing Platform</a></strong> — deploy GitLab with Docker.</li>
 <li><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m10 17-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9m-6-8L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5z"/></svg></span> <strong><a href="connector-prep/">Connector preparation</a></strong> — bounded, governed source ingest.</li>
@@ -903,7 +896,6 @@ and <code>GITLAB_TOKEN</code> to connect it to a GitLab instance.</p>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>gitlab-mcp<span class="w"> </span>--transport<span class="w"> </span>streamable-http<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span>
 </span></code></pre></div>
 <p>See <strong><a href="installation/">Installation</a></strong> and <strong><a href="deployment/">Deployment</a></strong> for the
-full matrix (PyPI extras, Docker image, all transports, the agent server, reverse
 proxy, DNS).</p>
 
 
