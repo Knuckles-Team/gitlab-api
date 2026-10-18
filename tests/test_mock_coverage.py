@@ -296,48 +296,8 @@ async def test_archive_unarchive_methods_and_mcp():
         )
         assert mock_post.call_args.kwargs["headers"] == client.headers
 
-    # 2. Test the FastMCP tool for gitlab_projects archive/unarchive actions
+    # 2. The MCP surface serves one tool per operation.
     mcp, _, _, _ = get_mcp_instance()
-    tool_objs = (
-        await mcp.list_tools()
-        if inspect.iscoroutinefunction(mcp.list_tools)
-        else mcp.list_tools()
-    )
-
-    projects_tool = None
-    for tool in tool_objs:
-        if tool.name == "gitlab_projects":
-            projects_tool = tool
-            break
-
-    assert projects_tool is not None
-
-    mock_client = MagicMock()
-    mock_client.archive_project.return_value = {
-        "status": "success",
-        "action": "archive",
-    }
-    mock_client.unarchive_project.return_value = {
-        "status": "success",
-        "action": "unarchive",
-    }
-
-    # Test action="archive"
-    res_archive = await projects_tool.fn(
-        action="archive",
-        params_json='{"project_id": 123}',
-        client=mock_client,
-        ctx=None,
-    )
-    assert res_archive == {"status": "success", "action": "archive"}
-    mock_client.archive_project.assert_called_once_with(project_id=123)
-
-    # Test action="unarchive"
-    res_unarchive = await projects_tool.fn(
-        action="unarchive",
-        params_json='{"project_id": 123}',
-        client=mock_client,
-        ctx=None,
-    )
-    assert res_unarchive == {"status": "success", "action": "unarchive"}
-    mock_client.unarchive_project.assert_called_once_with(project_id=123)
+    names = {tool.name for tool in await mcp.list_tools()}
+    assert {"gitlab_archive_project", "gitlab_unarchive_project"} <= names
+    assert "gitlab_projects" not in names

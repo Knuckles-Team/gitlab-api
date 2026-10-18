@@ -1,4 +1,4 @@
-"""MCP_TOOL_MODE: condensed (default) / verbose / both surfaces (ECO-4.82)."""
+"""MCP_TOOL_MODE: condensed surface (ECO-4.82)."""
 
 from unittest.mock import patch
 
@@ -20,9 +20,5 @@ async def _names(monkeypatch, mode):
 @pytest.mark.asyncio
 async def test_condensed_default(monkeypatch):
     names = await _names(monkeypatch, None)
-    assert "gitlab_branches" in names  # action-routed tool
-    assert "gitlab_get_branches" not in names  # verbose absent
-
-
-
-
+    assert "gitlab_get_branches" in names  # one tool per operation
+    assert "gitlab_branches" not in names  # action-routed tool retired

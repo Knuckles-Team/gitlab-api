@@ -3,6 +3,6 @@
   "connector": "gitlab-api",
   "schema_version": "1",
   "tools": {
-    "gitlab_projects": "dc3f211d87b545429087ffd95b83a35a3f2ed269a4cd8ff927c9d72fc08d5c81"
+    "gitlab_get_projects": "18b7c440b1165616ba8455535985becf3c14d643a22f40c34d4f321c736c9e06"
   }
 }
