@@ -35,7 +35,7 @@ from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 from gitlab_api.api_client import Api
 from gitlab_api.auth import get_client
 
-__version__ = "27.3.0"
+__version__ = "27.3.1"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
@@ -354,10 +354,10 @@ _RUNNERS_ACTIONS: dict[str, Any] = {
     "register": "register_new_runner",
     "delete": "delete_runner",
     "verify_auth": "verify_runner_authentication",
-    "reset_gitlab_token": "reset_gitlab_runner_token",
-    "reset_project_token": "reset_project_runner_token",
-    "reset_group_token": "reset_group_runner_token",
-    "reset_token": "reset_token",
+    "reset_gitlab_token": "reset_gitlab_runner_token",  # nosec B105 - an action name, not a credential
+    "reset_project_token": "reset_project_runner_token",  # nosec B105 - an action name, not a credential
+    "reset_group_token": "reset_group_runner_token",  # nosec B105 - an action name, not a credential
+    "reset_token": "reset_token",  # nosec B105 - an action name, not a credential
 }
 
 #: Action -> Api method for the ``gitlab_tags`` tool.
