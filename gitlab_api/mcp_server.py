@@ -35,7 +35,7 @@ from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 from gitlab_api.api_client import Api
 from gitlab_api.auth import get_client
 
-__version__ = "27.1.0"
+__version__ = "27.2.0"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
@@ -1244,8 +1244,10 @@ def register_graphql_tools(mcp: FastMCP):
         ),
     ) -> dict:
         """Discover the dynamic GitLab GraphQL schema including types, fields, and custom attributes in real-time."""
-        from agent_connector_sdk.mcp.graphql import ctx_graphql_get_type_details
-        from agent_connector_sdk.mcp.graphql import ctx_graphql_list_types
+        from agent_connector_sdk.mcp.graphql import (
+            ctx_graphql_get_type_details,
+            ctx_graphql_list_types,
+        )
 
         if ctx:
             await ctx.info("Retrieving dynamic GitLab GraphQL schema...")
