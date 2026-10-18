@@ -2,17 +2,17 @@
   "_comment": "Tier-1 mcp_tool source presets for gitlab-api (AU-KG.ingest.mcp-tool-connector). Syncs GitLab projects into the KG as repository documents via the gitlab-api MCP server. Contributed presets win over the central MCP_TOOL_PRESETS. Extend with merge-request / pipeline presets as needed.",
   "gitlab-projects": {
     "server": "gitlab-mcp",
-    "tool": "gitlab_projects",
-    "action": "get",
+    "tool": "gitlab_get_projects",
     "records_path": "data",
     "id_field": "id",
     "title_field": "path_with_namespace",
     "text_field": "description",
     "updated_field": "last_activity_at",
     "pagination": "page",
-    "page_kind": "page",
+    "page_kind": "number",
     "page_param": "page",
     "page_size_param": "per_page",
-    "doc_type": "repository"
+    "doc_type": "repository",
+    "params_style": "args"
   }
 }

@@ -846,16 +846,27 @@ class GitLabApiProjects(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def create_project(self, **kwargs) -> Response:
+    def create_project(
+        self,
+        name: str | None = None,
+        path: str | None = None,
+        namespace_id: int | None = None,
+        visibility: str | None = None,
+        description: str | None = None,
+        initialize_with_readme: bool | None = None,
+        **kwargs,
+    ) -> Response:
         """
         Create a new project.
 
         Args:
-            **kwargs: GitLab POST /projects body fields. Common: name (required
-                unless path given), path, namespace_id (group/user namespace),
-                visibility ('private'|'internal'|'public'), description,
-                initialize_with_readme. A flexible body is sent so any documented
-                create field is accepted (ProjectModel does not cover namespace_id).
+            name: Project name (required unless path is given).
+            path: Repository path.
+            namespace_id: Group or user namespace id.
+            visibility: 'private', 'internal' or 'public'.
+            description: Project description.
+            initialize_with_readme: Create an initial README.
+            **kwargs: Any other documented GitLab POST /projects body field.
 
         Returns:
             Response: A wrapper containing the original response and a Project model.
@@ -864,8 +875,16 @@ class GitLabApiProjects(GitLabApiBase):
             MissingParameterError: If neither name nor path is provided.
             ParameterError: If invalid parameters are provided.
         """
-        if not kwargs.get("name") and not kwargs.get("path"):
+        if not name and not path:
             raise MissingParameterError
+        kwargs.update(
+            name=name,
+            path=path,
+            namespace_id=namespace_id,
+            visibility=visibility,
+            description=description,
+            initialize_with_readme=initialize_with_readme,
+        )
         body = {k: v for k, v in kwargs.items() if v is not None}
         try:
             response = self._session.post(

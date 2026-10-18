@@ -1,9 +1,9 @@
 {
   "api_version": "arbora.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "a54aac9929e2f281fc34b5e87c3224b60bad4ef2e5d5556a868bf3dc8d2198af",
-    "gitlab_api/connectors/mcp_source_presets.json": "e3d608244e0b66694fc82ab039613181a98e9e4c25a9bf2c8f0a2b09a0c23061",
-    "gitlab_api/connectors/tool_schema_fingerprints.json": "74f3e6a172be003056bb74279281308a900b53c4d2d12de7fc2affee9fbcc6a3",
+    "connector_manifest.yml": "994ca982e951c529bbc3ae0206bbe94e0f5cc66d5ffb659c94e2d925a15af130",
+    "gitlab_api/connectors/mcp_source_presets.json": "08401d486ad760f128203a710577be5be0a7c892acd6f46685077d19294b641e",
+    "gitlab_api/connectors/tool_schema_fingerprints.json": "5e7928f836de01dc652c26eff3dbbdbde221f5cfe03b90b2d1479b83502c05ce",
     "gitlab_api/ontology/fixtures/records.json": "5f0417820053941933f15b3f459750753f4e8e34cf1e7853fd030c1143356b40",
     "gitlab_api/ontology/gitlab.ttl": "19fa64000d2e51c60c53074b1fae4ab98aed85318337b5a2199f4837ae9f3fc0",
     "gitlab_api/ontology/mappings/source.yaml": "167206b5387f7ca97ce02e0f15164f8fe41f06b413b591d0008c29e9f0a95e7f",
