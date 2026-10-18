@@ -12,7 +12,7 @@ overrides = [{ name = "fastmcp-slim", extras = ["client", "server"], specifier =
 
 [[package]]
 name = "agent-connector-sdk"
-version = "0.3.0"
+version = "0.3.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -24,8 +24,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/fa/b9/151d9bf8bde8a2682df9b1cdec8af9b487f9fb34b9c77bb79407dde7ff0c/agent_connector_sdk-0.3.3.tar.gz", hash = "sha256:0e0916589c68f99c78d192c37011a34ec0ed773212e4042fed4ca4a670f11aef", size = 717762, upload-time = "2026-10-18T09:40:21.861Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/67/0bd17fcf77c53560aeda1a7801920e6783a8f2575080da72158e14833657/agent_connector_sdk-0.3.0-py3-none-any.whl", hash = "sha256:4bbbf66a04bff9b80dfa48d3cbb1c8697ebc78b562f1b8e3a859f9336943c18c", size = 714783, upload-time = "2026-10-18T05:05:24.058Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/c0/30b635e1ea988a4a0f7c1d24699d18e1601681ca4195714c062472b2e980/agent_connector_sdk-0.3.3-py3-none-any.whl", hash = "sha256:6d2679bb2827cf736c516724c8de5a2b2709fe9a3f16462e5b9a6d811b4cc02d", size = 723989, upload-time = "2026-10-18T09:40:23.005Z" },
 ]
 
 [package.optional-dependencies]
@@ -606,7 +607,7 @@ server = [
 
 [[package]]
 name = "gitlab-api"
-version = "27.3.0"
+version = "27.3.1"
 source = { editable = "." }
 dependencies = [
     { name = "agent-connector-sdk", extra = ["mcp"] },
@@ -639,8 +640,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agent-connector-sdk", extras = ["mcp"], specifier = ">=0.3.0,<1.0.0" },
-    { name = "agent-connector-sdk", extras = ["mcp"], marker = "extra == 'mcp'", specifier = ">=0.3.0,<1.0.0" },
+    { name = "agent-connector-sdk", extras = ["mcp"], specifier = ">=0.3.3,<1.0.0" },
+    { name = "agent-connector-sdk", extras = ["mcp"], marker = "extra == 'mcp'", specifier = ">=0.3.3,<1.0.0" },
     { name = "gitlab-api", extras = ["mcp", "gql"], marker = "extra == 'all'", specifier = ">=27.2.0" },
     { name = "gql", extras = ["requests"], specifier = ">=4.4.0" },
     { name = "gql", extras = ["requests"], marker = "extra == 'gql'", specifier = ">=4.4.0" },

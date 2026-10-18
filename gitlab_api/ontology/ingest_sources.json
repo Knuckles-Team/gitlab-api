@@ -1,0 +1,19 @@
+{
+  "connector": "gitlab-api",
+  "sources": [
+    {
+      "source_id": "projects",
+      "record_type": "Project",
+      "tools": [
+        "gitlab_get_projects"
+      ],
+      "records_path": "data",
+      "id_field": "id",
+      "title_field": "path_with_namespace",
+      "text_field": "description",
+      "cursor_field": "last_activity_at",
+      "incremental": true,
+      "description": "GitLab projects visible to the configured token."
+    }
+  ]
+}
