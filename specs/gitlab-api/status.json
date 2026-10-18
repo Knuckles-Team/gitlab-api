@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "CONN-GITLAB-API",
   "owner_repo": "gitlab-api",
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "VERIFIED",
   "requirement_ids": [
     "CONN-GITLAB-API-R001"
   ],
@@ -10,9 +10,13 @@
     {
       "id": "CONN-GITLAB-API-R001",
       "title": "Declare the `projects` source",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "a299b729b5e6"
+      ],
+      "verified_by": [
+        "tests/test_ingest_sources.py:17"
+      ]
     }
   ]
 }
