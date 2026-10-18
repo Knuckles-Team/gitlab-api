@@ -3,7 +3,7 @@
 The caller's entitled GitLab instances auto-load; a non-entitled named instance
 is denied; the default falls to the first entitled when the first-configured
 instance is off-limits. Tests the resolution/enforcement logic with the
-entitlement source mocked (the resolver itself is tested in agent-utilities).
+entitlement source mocked (the resolver itself is tested in agent-connector-sdk).
 """
 
 from types import SimpleNamespace
@@ -15,14 +15,12 @@ from gitlab_api import instances
 
 def _setup(monkeypatch, entitled):
     monkeypatch.setattr(
-        "agent_utilities.core.config.config",
-        SimpleNamespace(
-            gitlab_instances=[
+        instances,
+        "setting",
+        lambda key, default=None, cast=None: [
                 {"name": "prod", "url": "https://gl.acme.io", "token": "t1"},
                 {"name": "dev", "url": "https://gl-dev.acme.io", "token": "t2"},
-            ]
-        ),
-        raising=False,
+            ],
     )
     monkeypatch.setattr(
         instances, "_entitled", lambda namespace, names: [n for n in names if n in entitled]

@@ -76,7 +76,7 @@ class PrepErrorCode(StrEnum):
     FIELD_LIMIT = "field_limit"
     PAGE_LIMIT = "page_too_large"
     RECORD_LIMIT = "record_limit"
-    SECRET = "secret_bearing_payload"
+    SECRET = "sensitive_payload"
     TEXT_LIMIT = "text_limit"
     DUPLICATE_ID = "duplicate_id"
     PATH_ABUSE = "path_or_url_abuse"

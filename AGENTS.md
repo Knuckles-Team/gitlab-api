@@ -5,23 +5,13 @@
 
 ## Tech Stack & Architecture
 - Language/Version: Python 3.10+
-- Core Libraries: `agent-utilities`, `fastmcp`, `pydantic-ai`
+- Core Libraries: `agent-connector-sdk`, `fastmcp`, `pydantic-ai`
 - Key principles: Functional patterns, Pydantic for data validation, asynchronous tool execution.
 - Architecture:
     - `mcp_server.py`: Main MCP server entry point and tool registration.
-    - `agent.py`: Pydantic AI agent definition and logic.
     - `skills/`: Directory containing modular agent skills (if applicable).
 
 ### Architecture Diagram
-```mermaid
-graph TD
-    User([User/A2A]) --> Server[A2A Server / FastAPI]
-    Server --> Agent[Pydantic AI Agent]
-    Agent --> Skills[Modular Skills]
-    Agent --> MCP[MCP Server / FastMCP]
-    MCP --> Client[API Client / Wrapper]
-    Client --> ExternalAPI([External Service API])
-```
 
 ### Workflow Diagram
 ```mermaid
@@ -53,128 +43,24 @@ pre-commit run --all-files
 # gitlab-mcp
 gitlab_api.mcp_server:mcp_server
 # gitlab-agent
-gitlab_api.agent_server:agent_server
 
 ## Project Structure Quick Reference
 - MCP Entry Point → `mcp_server.py`
-- Agent Entry Point → `agent_server.py`
 - Source Code → `gitlab_api/`
 - Skills → `skills/` (if exists)
 
 ### File Tree
-```text
-├── .github/
-│   └── workflows/
-│       ├── docs.yml
-│       ├── pages.yml
-│       └── pipeline.yml
-├── .specify/
-│   └── specs/
-│       ├── code-enhancement-20260512/
-│       │   ├── CHECKLIST.md
-│       │   ├── DRIFT_REPORT.md
-│       │   ├── spec.json
-│       │   ├── spec.md
-│       │   ├── tasks.json
-│       │   └── tasks.md
-│       └── code-enhancement-20260524/
-│           ├── spec.json
-│           ├── spec.md
-│           ├── tasks.json
-│           └── tasks.md
-├── docker/
-│   ├── agent.compose.yml
-│   ├── debug.Dockerfile
-│   ├── Dockerfile
-│   ├── mcp.compose.yml
-│   └── starship.toml
-├── docs/
-│   ├── concepts.md
-│   ├── deployment.md
-│   ├── index.md
-│   ├── installation.md
-│   ├── overview.md
-│   ├── platform.md
-│   └── usage.md
-├── gitlab_api/
-│   ├── api/
-│   │   ├── __init__.py
-│   │   ├── api_client_base.py
-│   │   ├── api_client_environments.py
-│   │   ├── api_client_issues.py
-│   │   ├── api_client_merge_requests.py
-│   │   ├── api_client_other.py
-│   │   ├── api_client_pipelines.py
-│   │   ├── api_client_projects.py
-│   │   ├── api_client_repositories.py
-│   │   ├── api_client_system.py
-│   │   └── api_client_users_groups.py
-│   ├── __init__.py
-│   ├── __main__.py
-│   ├── agent_server.py
-│   ├── api_client.py
-│   ├── auth.py
-│   ├── gitlab_gql.py
-│   ├── gitlab_input_models.py
-│   ├── gitlab_response_models.py
-│   ├── main_agent.json
-│   ├── mcp_config.json
-│   └── mcp_server.py
-├── scripts/
-│   ├── security_sanitizer.py
-│   ├── validate_a2a_agent.py
-│   ├── validate_agent.py
-│   └── verify_api_integration.py
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   ├── test_api_wrapper.py
-│   ├── test_auth.py
-│   ├── test_concept_parity.py
-│   ├── test_gitlab_a2a_validation.py
-│   ├── test_gitlab_api_brute_force_coverage.py
-│   ├── test_gitlab_gql.py
-│   ├── test_gitlab_mcp_validation.py
-│   ├── test_gitlab_models.py
-│   ├── test_init_dynamics.py
-│   ├── test_mock_coverage.py
-│   ├── test_startup.py
-│   ├── test_verify_agent.py
-│   └── verify_a2a_queries.py
-├── .bumpversion.cfg
-├── .codespellignore
-├── .dockerignore
-├── .env.example
-├── .gitattributes
-├── .gitignore
-├── .pre-commit-config.yaml
-├── .vulture_ignore
-├── a2a.json
-├── AGENTS.md
-├── CHANGELOG.md
-├── CLAUDE.md
-├── LICENSE
-├── MANIFEST.in
-├── mcp_config.json
-├── mkdocs.yml
-├── opencode.json
-├── pyproject.toml
-├── pytest.ini
-├── README.md
-├── requirements.txt
-└── uv.lock
-```
 
 ## Code Style & Conventions
 **Always:**
-- Use `agent-utilities` for common patterns (e.g., `create_mcp_server`, `create_agent`).
+- Use `agent-connector-sdk` for common patterns (e.g., `create_mcp_server`, `create_agent`).
 - Define input/output models using Pydantic.
 - Include descriptive docstrings for all tools (they are used as tool descriptions for LLMs).
 - Check for optional dependencies using `try/except ImportError`.
 
 **Good example:**
 ```python
-from agent_utilities import create_mcp_server
+from agent_connector_sdk import create_mcp_server
 from mcp.server.fastmcp import FastMCP
 
 mcp = create_mcp_server("my-agent")
@@ -188,7 +74,7 @@ async def my_tool(param: str) -> str:
 ## Dos and Don'ts
 **Do:**
 - Run `pre-commit` before pushing changes.
-- Use existing patterns from `agent-utilities`.
+- Use existing patterns from `agent-connector-sdk`.
 - Keep tools focused and idempotent where possible.
 
 **Don't:**
@@ -199,7 +85,7 @@ async def my_tool(param: str) -> str:
 ## Safety & Boundaries
 **Always do:**
 - Run lint/test via `pre-commit`.
-- Use `agent-utilities` base classes.
+- Use `agent-connector-sdk` base classes.
 
 **Ask first:**
 - Major refactors of `mcp_server.py` or `agent.py`.
@@ -207,11 +93,11 @@ async def my_tool(param: str) -> str:
 
 **Never do:**
 - Commit `.env` files or secrets.
-- Modify `agent-utilities` or `universal-skills` files from within this package.
+- Modify `agent-connector-sdk` or `universal-skills` files from within this package.
 
 ## When Stuck
 - Propose a plan first before making large changes.
-- Check `agent-utilities` documentation for existing helpers.
+- Check `agent-connector-sdk` documentation for existing helpers.
 
 ## ⛔ No Scratch or Temporary Files in Repository
 
@@ -335,10 +221,10 @@ alone).
 Working in parallel with other sessions/worktrees? **Reserve a concept id before you write its `CONCEPT:` marker** so two sessions never collide:
 
 ```bash
-agent-utilities --json concept reserve --ns EG-KG.compute.backend   # or a package prefix, e.g. KEY
+agent-connector-sdk --json concept reserve --ns EG-KG.compute.backend   # or a package prefix, e.g. KEY
 ```
 
-Full protocol (ledger, merge=union, reconcile, MCP/REST): <https://knuckles-team.github.io/agent-utilities/concept_coordination/>
+Full protocol (ledger, merge=union, reconcile, MCP/REST): <https://knuckles-team.github.io/agent-connector-sdk/concept_coordination/>
 <!-- END concept-coordination (generated) -->
 
 ## Version & lockfile drift edict (keep the version mirrors AND the lock in sync)
@@ -366,14 +252,14 @@ is what Dependabot flags. Rules:
 ## Upstream currency edict — target the newest release; a pin is a hypothesis, not a fact (READ BEFORE capping, deferring, or opt-in-gating an upgrade)
 
 This governs how this repository treat **other people's** releases, deprecations, and version caps in
-this repo (fleet-wide edict, propagated from `agent-utilities/AGENTS.md`).
+this repo (fleet-wide edict, propagated from `agent-connector-sdk/AGENTS.md`).
 
 1. **Latest by default.** Target the newest upstream release -- including a pre-release
    where the ecosystem has already moved onto it. Sitting on an old major because the
    upgrade is work is not a reason to defer it.
 2. **A conservative upstream pin is a hypothesis, not a fact -- test it, don't inherit
    it.** Upstream maintainers cap defensively (an unreleased major, an untested surface)
-   as often as they cap for a known break. Worked example (from `agent-utilities`):
+   as often as they cap for a known break. Worked example (from `agent-connector-sdk`):
    `pydantic-ai-slim` 2.18.0 declared `fastmcp-slim[client]>=3.3.0` with no upper bound;
    2.19.0 added `<4` purely as a defensive guard while fastmcp 4 was still pre-release --
    not because of an observed incompatibility. Blocking an upgrade on that kind of cap

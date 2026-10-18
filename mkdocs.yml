@@ -1,5 +1,4 @@
 site_name: "gitlab-api"
-site_description: "GitLab API + MCP Server + A2A Agent — a typed, action-routed GitLab connector for the agent-utilities ecosystem."
 site_url: "https://knuckles-team.github.io/gitlab-api/"
 repo_name: "Knuckles-Team/gitlab-api"
 repo_url: "https://github.com/Knuckles-Team/gitlab-api"

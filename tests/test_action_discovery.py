@@ -1,7 +1,7 @@
 """Action-discovery standardization tests.
 
 Verifies that action-routed tools expose `list_actions` discovery and raise a
-rich did-you-mean error on unknown actions, via the shared agent-utilities
+rich did-you-mean error on unknown actions, via the shared agent-connector-sdk
 `resolve_action` helper wired into `mcp_server.py`.
 """
 

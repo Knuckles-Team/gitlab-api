@@ -1,4 +1,5 @@
 import inspect
+import sys
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -209,12 +210,12 @@ def test_graphql_execute_exceptions(mock_gql_client):
 
     # Test error returned in execute response
     mock_gql_client.execute.return_value = {"errors": ["some error"]}
-    with pytest.raises(ParameterError, match="GraphQL errors"):
+    with pytest.raises(ParameterError, match="Query execution failed: ParameterError"):
         gql_client.execute_gql("query { test }")
 
     # Test exception raised by client execute
     mock_gql_client.execute.side_effect = Exception("network error")
-    with pytest.raises(ParameterError, match="Query execution failed: network error"):
+    with pytest.raises(ParameterError, match="Query execution failed: Exception"):
         gql_client.execute_gql("query { test }")
 
 
@@ -289,7 +290,14 @@ def _build_graphql_brute_force_kwargs() -> dict[str, Any]:
 
 
 def _kwargs_for_graphql_method(method: Any, common_kwargs: dict[str, Any]) -> dict[str, Any]:
-    sig = inspect.signature(method)
+    if sys.version_info >= (3, 14):
+        # Annotations are lazy on 3.14; the module-level ProjectModel patch above
+        # would otherwise be evaluated inside `X | None`.
+        from annotationlib import Format
+
+        sig = inspect.signature(method, annotation_format=Format.STRING)
+    else:
+        sig = inspect.signature(method)
     has_kwargs = any(
         p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
     )

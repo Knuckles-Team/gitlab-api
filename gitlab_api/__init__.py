@@ -14,7 +14,6 @@ CORE_MODULES: list[str] = [
 
 OPTIONAL_MODULES = {
     "gitlab_api.gitlab_gql": "gql",
-    "gitlab_api.agent_server": "agent",
     "gitlab_api.mcp_server": "mcp",
 }
 
@@ -52,7 +51,6 @@ def _import_module_safely(module_name: str):
 # by the substring that identifies the module in OPTIONAL_MODULES.
 _AVAILABILITY_FLAGS = {
     "_MCP_AVAILABLE": "mcp_server",
-    "_AGENT_AVAILABLE": "agent_server",
 }
 
 

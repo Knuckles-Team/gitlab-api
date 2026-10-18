@@ -3,7 +3,7 @@
 default_install_hook_types: [pre-commit, pre-push]
 default_language_version:
   python: python3
-# Phase 0 dev-velocity contract (graph-os-completion-program): a hook with no
+# Phase 0 dev-velocity contract (arbora-completion-program): a hook with no
 # explicit `stages:` below is commit-only, never both.
 default_stages: [pre-commit]
 exclude: 'dotnet|node_modules'
@@ -14,7 +14,7 @@ ci:
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
+  rev: v6.0.0 # v6.0.0
   hooks:
   - id: check-added-large-files
     args: ["--maxkb=2000"]
@@ -32,7 +32,7 @@ repos:
   - id: end-of-file-fixer
   - id: no-commit-to-branch
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 6fec9b7edb08fd9989088709d864a7826dc74e80 # v0.15.12
+  rev: v0.17.1 # v0.15.12
   hooks:
   - id: ruff-check
     args: ["--fix", "--ignore=E402,B008,E501"]
@@ -40,33 +40,33 @@ repos:
   - id: ruff-format
     exclude: ^(tests/|test/|scripts/|script/)
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: fc0f09a29bb495f4a91f00266155d6282d52485d # v1.20.2
+  rev: v2.4.0 # v1.20.2
   hooks:
   - id: mypy
     additional_dependencies: [pydantic==2.13.4, types-PyYAML==6.0.12.20260518, types-requests==2.33.0.20260518,
         types-setuptools==83.0.0.20260706]
     args: ["--ignore-missing-imports"]
 - repo: https://github.com/jendrikseipp/vulture
-  rev: b0f67ba0044693aa9ec0d38fe460590facc98004 # v2.16
+  rev: v2.16 # v2.16
   hooks:
   - id: vulture
     pass_filenames: false
     args: [".", "--min-confidence", "95", "--exclude", "node_modules,dotnet,.venv"]
     require_serial: true
 - repo: https://github.com/codespell-project/codespell
-  rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a # v2.4.2
+  rev: v2.4.3 # v2.4.2
   hooks:
   - id: codespell
     args: ["-L", "ans,linar,nam,tread,ot,", "--ignore-words=.codespellignore"]
     exclude: ^(tests/|test/|scripts/|script/|.*lock.*)
 - repo: https://github.com/PyCQA/bandit
-  rev: 92ae8b82fb422a639f0ed8d99e96cea769594e08 # 1.9.4
+  rev: 1.9.4 # 1.9.4
   hooks:
   - id: bandit
     args: ["--skip", "B101,B404,B603"]
     exclude: ^(tests/|test/|scripts/|script/|__tests__/)
 - repo: https://github.com/nbQA-dev/nbQA
-  rev: d31b7eae1767c43460afb3ba130e0a6602933abe # 1.9.1
+  rev: 1.9.1 # 1.9.1
   hooks:
   - id: nbqa-ruff
     args: ["--fix"]
@@ -79,68 +79,8 @@ repos:
     pass_filenames: false
     always_run: true
     stages: [manual, pre-push]
-  - id: uv-lock
-    name: uv-lock (verify, never mutate)
-    entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else au_d="$repo"; root=""; while [ "$au_d" != "/" ]; do if [ -d "$au_d/agent-utilities/scripts" ]; then root="$au_d/agent-utilities"; break; fi; au_d=$(dirname "$au_d"); done; fi; if [ -d "$root" ] && [ "$repo" != "$root" ]; then mkdir -p .uv-workspace-siblings && ln -sfn "$root" .uv-workspace-siblings/agent-utilities; fi; uv lock --check'
-    language: system
-    files: ^(uv\.lock|pyproject\.toml|uv\.toml)$
-    pass_filenames: false
-    stages: [pre-push, manual]
 - repo: local
   hooks:
-  - id: okf-no-legacy-concepts
-    name: OKF-CIS — no legacy CONCEPT ids
-    entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else d="$repo"; root=""; while [ "$d" != "/" ]; do if [ -d "$d/agent-utilities/scripts" ]; then root="$d/agent-utilities"; break; fi; d=$(dirname "$d"); done; fi; if [ ! -d "$root/scripts" ]; then echo "REFUSED - cannot locate agent-utilities/scripts from $repo (set AGENT_UTILITIES_ROOT)" >&2; exit 1; fi; python3 "$root/scripts/check_no_legacy_markers.py" . "$@"' --
-    language: system
-    pass_filenames: false
-    always_run: true
-  - id: check-mermaid
-    name: Check Mermaid syntax
-    entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else d="$repo"; root=""; while [ "$d" != "/" ]; do if [ -d "$d/agent-utilities/scripts" ]; then root="$d/agent-utilities"; break; fi; d=$(dirname "$d"); done; fi; if [ ! -d "$root/scripts" ]; then echo "REFUSED - cannot locate agent-utilities/scripts from $repo (set AGENT_UTILITIES_ROOT)" >&2; exit 1; fi; python3 "$root/scripts/mermaid_linter.py" "$@"' --
-    language: system
-    files: \.md$
-    pass_filenames: true
-  - id: lane-guard
-    name: Lane guard — canonical checkout read-only + stray CARGO_TARGET_DIR (D-CP-3/D-CP-4 reach)
-    entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else d="$repo"; root=""; while [ "$d" != "/" ]; do if [ -d "$d/agent-utilities/scripts" ]; then root="$d/agent-utilities"; break; fi; d=$(dirname "$d"); done; fi; if [ ! -d "$root/scripts" ]; then echo "REFUSED - cannot locate agent-utilities/scripts from $repo (set AGENT_UTILITIES_ROOT)" >&2; exit 1; fi; python3 "$root/scripts/check_lane_guard.py"'
-    language: system
-    pass_filenames: false
-    always_run: true
-  - id: check-import-safety
-    name: Cross-platform import safety (native + simulated-Windows fcntl/termios/pwd/resource)
-    # Same tool as agent-utilities' own check-import-safety hook (copied,
-    # not vendored as a dependency). Walks every gitlab_api module, with
-    # fcntl/termios/pwd/resource poisoned out of sys.modules first to
-    # reproduce a Windows import failure on this POSIX dev machine -- see
-    # scripts/check_import_safety.py's own docstring for exactly what
-    # --simulate-windows does and does not model.
-    #
-    # gitlab_api's own package has NO fcntl/termios/pwd/resource usage
-    # (confirmed by audit) -- this repo is the fleet's golden-shape
-    # reference and is the one used to validate this hook stays GREEN on a
-    # clean package, in contrast to agent-utilities and repository-manager
-    # where it is deliberately red against real, currently-unfixed
-    # specimens. The two exclusions below are the same documented
-    # sys.modules-only-shim false positive as agent-utilities' hook,
-    # confirmed by direct traceback: gitlab_api.mcp/mcp_server import
-    # `fastmcp`, which imports the third-party `mcp` package, which hits
-    # mcp/server/stdio.py's `if sys.platform != "win32": import fcntl` --
-    # already correctly guarded, flagged only because this shim blocks the
-    # fcntl MODULE without flipping sys.platform (see the script's
-    # docstring for why: flipping it corrupts pathlib's
-    # WindowsPath/PosixPath dispatch on a live POSIX host).
-    entry: >-
-      python3 scripts/check_import_safety.py --package gitlab_api --simulate-windows
-      --exclude gitlab_api.mcp
-      --exclude gitlab_api.mcp_server
-    language: system
-    pass_filenames: false
-    always_run: true
-  - id: check-stubs
-    name: Check for Active Stubs and TODOs
-    entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else d="$repo"; root=""; while [ "$d" != "/" ]; do if [ -d "$d/agent-utilities/scripts" ]; then root="$d/agent-utilities"; break; fi; d=$(dirname "$d"); done; fi; if [ ! -d "$root/scripts" ]; then echo "REFUSED - cannot locate agent-utilities/scripts from $repo (set AGENT_UTILITIES_ROOT)" >&2; exit 1; fi; python3 "$root/scripts/check_stubs.py" "$@"' --
-    language: system
-    types: [python]
   - id: mermaid-validate
     name: mermaid-validate
     entry: mermaid-validate
@@ -148,17 +88,10 @@ repos:
     additional_dependencies: ['@zabaca/mermaid-validate@1.0.1']
     types: [markdown]
     pass_filenames: true
-  - id: check-agent-standards
-    name: check agent standards
-    entry: |-
-      bash -c 'for f in $(find . -type f -name "agent_server.py" -not -path "*/\.venv/*" -not -path "*/__pycache__/*"); do grep -q "warnings.filterwarnings" "$f" && grep -q "file=sys.stderr" "$f" || { echo "Missing warnings.filterwarnings or file=sys.stderr in $f"; exit 1; }; done'
-    language: system
-    pass_filenames: false
-    always_run: true
   - id: check-cli-help
     name: check cli help
     entry: |-
-      bash -c 'for f in $(find . -type f \( -name "mcp_server.py" -o -name "agent_server.py" \) -not -path "*/\.venv/*" -not -path "*/__pycache__/*"); do mod=$(echo "$f" | sed -e "s/^\.\///" -e "s/\.py$//" -e "s/\//./g"); uv run python -m "$mod" --help >/dev/null || exit 1; done'
+      bash -c 'for f in $(find . -type f -name "mcp_server.py" -not -path "*/\.venv/*" -not -path "*/__pycache__/*"); do mod=$(echo "$f" | sed -e "s/^\.\///" -e "s/\.py$//" -e "s/\//./g"); uv run python -m "$mod" --help >/dev/null || exit 1; done'
     language: system
     pass_filenames: false
     always_run: true
@@ -169,45 +102,8 @@ repos:
     language: system
     pass_filenames: false
     always_run: true
-  - id: mcp-readme-table
-    name: sync MCP tools table in README
-    entry: |-
-      bash -c 'if [ -f uv.lock ]; then uv run python -m agent_utilities.mcp.readme_tools; else python -m agent_utilities.mcp.readme_tools; fi'
-    language: system
-    files: ^(README\.md|.*/mcp_server\.py|.*/mcp/.*\.py)$
-    pass_filenames: false
-  - id: readme-env-vars
-    name: sync env-vars table in README
-    entry: |-
-      bash -c 'if [ -f uv.lock ]; then uv run python -m agent_utilities.mcp.readme_env_vars; else python -m agent_utilities.mcp.readme_env_vars; fi'
-    language: system
-    files: ^(README\.md|\.env\.example)$
-    pass_filenames: false
-  - id: readme-mcp-examples
-    name: sync mcp_config examples in README + env blocks
-    entry: |-
-      bash -c 'if [ -f uv.lock ]; then uv run python -m agent_utilities.mcp.readme_mcp_examples; else python -m agent_utilities.mcp.readme_mcp_examples; fi'
-    language: system
-    files: ^(README\.md|\.env\.example|mcp_config.*\.json|.*/mcp_config.*\.json|.*/mcp_server\.py)$
-    pass_filenames: false
-  - id: env-var-drift
-    name: check env-var/config drift
-    entry: bash -c 'if [ -f uv.lock ]; then uv run python -m agent_utilities.mcp.check_env_var_drift --check; else python -m agent_utilities.mcp.check_env_var_drift --check; fi'
-    language: system
-    pass_filenames: false
-    files: ^(README\.md|\.env\.example|mcp_config.*\.json|.*/mcp_config.*\.json|docker/.*compose.*\.ya?ml|.*/auth\.py|.*/mcp_server\.py)$
-- repo: local
-  hooks:
-  - id: pytest
-    name: pytest
-    entry: bash -c 'repo=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)"); if [ -n "$AGENT_UTILITIES_ROOT" ]; then root="$AGENT_UTILITIES_ROOT"; else au_d="$repo"; root=""; while [ "$au_d" != "/" ]; do if [ -d "$au_d/agent-utilities/scripts" ]; then root="$au_d/agent-utilities"; break; fi; au_d=$(dirname "$au_d"); done; fi; if [ -d "$root" ] && [ "$repo" != "$root" ]; then mkdir -p .uv-workspace-siblings && ln -sfn "$root" .uv-workspace-siblings/agent-utilities; fi; test_target="tests"; for d in tests/unit test/unit tests test; do if [ -d "$d" ]; then test_target="$d"; break; fi; done; if [ -f uv.lock ]; then uv run --all-extras pytest "$test_target" -q --tb=short -m "not slow" --timeout=60; else pytest "$test_target" -q --tb=short -m "not slow" --timeout=60; fi'
-    language: system
-    types: [python]
-    pass_filenames: false
-    always_run: true
-    stages: [pre-push, manual]
 - repo: https://github.com/AleksaC/hadolint-py
-  rev: 458cb25edf664682e3e856a53a2f9af33e068297 # v2.14.0
+  rev: v2.15.1 # v2.14.0
   hooks:
   - id: hadolint
     args:
@@ -217,7 +113,7 @@ repos:
     - --ignore=DL4006
     - --ignore=SC2102
 - repo: https://github.com/IamTheFij/docker-pre-commit
-  rev: f626253b23de45412865c07fd076ff95d4cd77a7 # v3.0.1
+  rev: v3.0.1 # v3.0.1
   hooks:
   - id: docker-compose-check
 

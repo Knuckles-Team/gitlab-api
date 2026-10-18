@@ -35,7 +35,7 @@ from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 from gitlab_api.api_client import Api
 from gitlab_api.auth import get_client
 
-__version__ = "27.1.0"
+__version__ = "27.2.0"
 print(f"Gitlab MCP v{__version__}", file=sys.stderr)
 
 logger = get_logger(name="mcp_server")
@@ -466,8 +466,8 @@ def register_misc_tools(mcp: FastMCP):
     ) -> Any:
         """List the configured GitLab tenants (CONCEPT:AU-KG.backend.declared-columns-so-schema).
 
-        Multi-tenancy is driven by the shared agent-utilities XDG config
-        (``gitlab_instances`` in ~/.config/agent-utilities/config.json). Every
+        Multi-tenancy is driven by the shared agent-connector-sdk XDG config
+        (``gitlab_instances`` in ~/.config/agent-connector-sdk/config.json). Every
         gitlab-api tool targets a tenant by passing that instance NAME to the
         client factory; this tool surfaces the available names (tokens are never
         returned). Falls back to the single-host GITLAB_URL/GITLAB_TOKEN.
@@ -1244,7 +1244,7 @@ def register_graphql_tools(mcp: FastMCP):
         ),
     ) -> dict:
         """Discover the dynamic GitLab GraphQL schema including types, fields, and custom attributes in real-time."""
-        from agent_utilities.mcp.context_helpers import (
+        from agent_connector_sdk.mcp.graphql import (
             ctx_graphql_get_type_details,
             ctx_graphql_list_types,
         )

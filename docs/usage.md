@@ -46,7 +46,7 @@ Built it explicitly instead of relying on the environment:
 
 ```python
 from gitlab_api.api_client import Api
-from agent_utilities.core.transport_security import resolve_configured_tls_profile
+from agent_connector_sdk.core.transport_security import resolve_configured_tls_profile
 
 api = Api(
     url="https://gitlab.example.com",
@@ -65,16 +65,6 @@ gql_client = get_graphql_client()      # reads GITLAB_URL / GITLAB_TOKEN
 ```
 
 ## As a CLI
-
-The MCP and agent servers are themselves command-line entry points:
-
-```bash
-# MCP server — stdio (default) or an HTTP transport
-gitlab-mcp --transport streamable-http --host 0.0.0.0 --port 8000
-
-# A2A agent server — Pydantic-AI graph agent + AG-UI web interface (port 9017)
-MCP_URL=http://localhost:8000/mcp gitlab-agent
-```
 
 Both honor the same environment configuration documented in
 [Deployment](deployment.md#configuration-environment) and remain inactive when

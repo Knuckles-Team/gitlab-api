@@ -1,5 +1,5 @@
 # Gitlab Api
-## CLI or API | MCP | Agent
+## CLI or API | MCP
 
 ![PyPI - Version](https://img.shields.io/pypi/v/gitlab-api)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
@@ -20,10 +20,9 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 27.1.0*
+*Version: 27.2.0*
 
 > **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
-> interfaces, the integrated A2A agent server, and guidance for provisioning the
 > backing GitLab instance are maintained in the
 > [official documentation](https://knuckles-team.github.io/gitlab-api/).
 
@@ -31,7 +30,7 @@
 
 ## Overview
 
-**Gitlab Api** is a production-grade Agent and Model Context Protocol (MCP) server designed to interface directly with GitLab API + MCP Server + A2A Server.
+**Gitlab Api** is a production-grade Agent and Model Context Protocol (MCP) server designed to interface directly with GitLab API + MCP Server.
 
 ---
 
@@ -39,14 +38,13 @@
 
 - **Consolidated Action-Routed MCP Tools:** Minimizes token overhead and eliminates tool bloat in LLM contexts by grouping methods into optimized, togglable tool modules.
 - **Enterprise-Grade Security:** Complete support for Eunomia policies, OIDC token delegation, and granular execution context tracking.
-- **Integrated Graph Agent:** Built-in Pydantic AI agent supporting the Agent Control Protocol (ACP) and standard Web interfaces (AG-UI).
 - **Native Telemetry & Tracing:** Out-of-the-box OpenTelemetry exports and native Langfuse tracing.
 
 ---
 
 ## CLI or API
 
-This agent wraps the GitLab API + MCP Server + A2A Server API. The operator can interact with it programmatically or via its integrated execution entrypoints.
+This agent wraps the GitLab API + MCP Server API. The operator can interact with it programmatically or via its integrated execution entrypoints.
 
 Detailed instructions on how to use the underlying API wrappers, extended schema bindings, and developer SDK references are maintained in [docs/index.md](docs/index.md).
 
@@ -58,11 +56,11 @@ This server use dynamic Action-Routed tools to optimize token overhead and maxim
 
 ### Tool surface — `MCP_TOOL_MODE`
 
-Set `MCP_TOOL_MODE` (in the shared `~/.config/agent-utilities/config.json` or env):
+Set `MCP_TOOL_MODE` (in the shared `~/.config/agent-connector-sdk/config.json` or env):
 `condensed` (default — the action-routed tools below), `verbose` (one named 1:1 tool
 per API method, e.g. `gitlab_get_branches(...)`, tagged `verbose`), or `both`. Filter
 the verbose set with `--tools tag:verbose` / `MCP_ENABLED_TAGS=verbose`. See the
-agent-utilities *MCP Tool Modes* guide.
+agent-connector-sdk *MCP Tool Modes* guide.
 
 ### Available MCP Tools
 
@@ -346,7 +344,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 <!-- MCP-CONFIG-EXAMPLES:START -->
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `gitlab-api[mcp]` to add
-> FastMCP / FastAPI through `agent-utilities[mcp]`; the required Agent Utilities core
+> FastMCP / FastAPI through `agent-connector-sdk`; the required Agent Connector SDK core
 > still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
 > enables model orchestration.
 
@@ -403,7 +401,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 }
 ```
 
-Runtime references require an alias-aware launcher such as GraphOS. Other
+Runtime references require an alias-aware launcher such as Arbora. Other
 launchers must omit those entries and inject the resolved values through their
 own runtime secret boundary.
 
@@ -606,7 +604,7 @@ the detailed transport contract.
 | `GRAPHQLTOOL` | `True` |  |
 | `GRAPHQL_OPSTOOL` | `True` |  |
 
-#### Inherited agent-utilities variables (apply to every connector)
+#### Inherited agent-connector-sdk variables (apply to every connector)
 
 | Variable | Example | Description |
 |----------|---------|-------------|
@@ -625,11 +623,9 @@ the detailed transport contract.
 | `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
 | `PROVIDER` | `openai` | LLM provider for the agent |
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
-| `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_45 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_45 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-connector-sdk set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
-
 
 Every variable the server reads.
 
@@ -645,7 +641,7 @@ instances are configured, it falls back to the single-host `GITLAB_*` values bel
 | `GITLAB_TLS_PROFILE` | Optional runtime TLS profile selector | _(unset)_ |
 
 > Multiple instances are declared once under `gitlab_instances` in the shared
-> agent-utilities XDG config (`~/.config/agent-utilities/config.json`) — each entry has
+> agent-connector-sdk XDG config (`~/.config/agent-connector-sdk/config.json`) — each entry has
 > `name`, `url`, `token`, and optional `tls_profile`. Target a tenant by **name** from the client
 > factory; an unset instance resolves to the first configured one (else `GITLAB_URL` /
 > `GITLAB_TOKEN`).
@@ -678,275 +674,26 @@ The full list is in the [Available MCP Tools](#available-mcp-tools) table above
 | `EUNOMIA_POLICY_FILE` | Embedded policy file | `mcp_policies.json` |
 | `EUNOMIA_REMOTE_URL` | Remote Eunomia server URL | — |
 
-### Agent CLI (full `[agent]` runtime only)
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `MCP_URL` | URL of the MCP server the agent connects to | `http://localhost:8000/mcp` |
-| `PROVIDER` | LLM provider (e.g. `openai`) | `openai` |
-| `MODEL_ID` | Model id (e.g. `gpt-4o`) | `gpt-4o` |
-| `ENABLE_WEB_UI` | Serve the AG-UI web interface | `True` |
-
-See [`.env.example`](.env.example) for a copy-paste starting point.
-
 ## Agent
 
-This repository features a fully integrated Pydantic AI Graph Agent. It communicates over the **Agent Control Protocol (ACP)** and interacts smoothly with the **Agent Web UI (AG-UI)** and Terminal interface.
-
-### Running the Agent CLI
-To start the interactive command-line agent:
-
-```bash
 # Set credentials
 export GITLAB_URL="your_value"
 export GITLAB_TOKEN="your_value"
 
-# Run the agent server
-gitlab-agent --provider openai --model-id gpt-4o
-```
-
-### Docker Compose Orchestration
-The following `docker/agent.compose.yml` configures the Agent, Web UI, and Terminal Interface together:
-
-```yaml
-version: '3.8'
-
-services:
-  gitlab-api-mcp:
-    image: example/gitlab-api:mcp
-    container_name: gitlab-api-mcp
-    hostname: gitlab-api-mcp
-    restart: always
-    env_file:
-      - ../.env
-    environment:
-      - PYTHONUNBUFFERED=1
-      - HOST=0.0.0.0
-      - PORT=8000
-      - TRANSPORT=streamable-http
-    ports:
-      - "8000:8000"
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  gitlab-api-agent:
-    image: example/gitlab-api@sha256:<digest>
-    container_name: gitlab-api-agent
-    hostname: gitlab-api-agent
-    restart: always
-    depends_on:
-      - gitlab-api-mcp
-    env_file:
-      - ../.env
-    command: [ "gitlab-agent" ]
-    environment:
-      - PYTHONUNBUFFERED=1
-      - HOST=0.0.0.0
-      - PORT=9017
-      - MCP_URL=http://gitlab-api-mcp:8000/mcp
-      - PROVIDER=${PROVIDER:-openai}
-      - MODEL_ID=${MODEL_ID:-gpt-4o}
-      - ENABLE_WEB_UI=True
-      - ENABLE_OTEL=True
-    ports:
-      - "9017:9017"
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9017/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-```
-
-Detailed graph node architecture explanations, custom skill configurations, and agentic trace guides are available in [docs/deployment.md](docs/deployment.md).
-
----
-
-## Multi-Tenancy (multiple GitLab instances)
-
-The client is natively multi-tenant. The set of instances is declared once in the
-shared **agent-utilities XDG config** (`~/.config/agent-utilities/config.json`) under
-`gitlab_instances` — the **same** list the Knowledge-Graph GitLab indexer reads, so one
-config drives both code/metadata indexing and every API/MCP call:
-
-```json
-{
-  "gitlab_instances": [
-    {"name": "internal", "url": "https://gitlab.example.invalid", "token": "<GITLAB_TOKEN>", "tls_profile": "private-pki"},
-    {"name": "public",   "url": "https://gitlab.com",  "token": "<GITLAB_TOKEN>"}
-  ]
-}
-```
-
-Target a tenant by **name** from the client factory; a bare URL still works, and an
-unset instance resolves to the first configured one (else `GITLAB_URL`/`GITLAB_TOKEN`):
-
-```python
-from gitlab_api.auth import get_client
-from gitlab_api.instances import list_configured_instances
-
-internal = get_client(instance="internal")   # resolves URL, token, and TLS profile
-public   = get_client(instance="public")
-default  = get_client()                        # first configured / GITLAB_URL fallback
-names    = [i.name for i in list_configured_instances()]
-```
-
-The MCP server exposes a `gitlab_instances` tool (`action=list|get`) to discover the
-configured tenants (tokens are never returned). When no instances are configured, the
-connector falls back to the single-host `GITLAB_URL`/`GITLAB_TOKEN` it has always used.
-
-## Security & Governance
-
-Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/Knuckles-Team/agent-utilities) core, standard security parameters are fully supported:
-
-### Access Control & Policy Enforcement
-- **Eunomia Policies:** Fine-grained, policy-driven tool authorization. Supports `none`, local `embedded` (`mcp_policies.json`), or centralized `remote` modes.
-- **OIDC Token Delegation:** Compliant with RFC 8693 token exchange for flowing authenticating user credentials from Web UI / ACP → Agent → MCP.
-- **Scoped Credentials:** Execution context runs restricted to the specific caller identity.
-
-### Runtime Security Grid
-| Feature | Feature | Enablement |
-|---------|---------------|------------|
-| **Tool Guard** | Sensitivity inspection with human-in-the-loop validation | Enabled by default |
-| **Prompt Injection Defense** | Input scanning, repetition monitoring, and recursive loop blocks | Enabled by default |
-| **Context Safety Guard** | Stuck-loop detectors and contextual overflow preemptive alerts | Enabled by default |
-
----
-
-## Installation
-
-Pick the extra that matches what the operator want to run:
-
-| Extra | Installs | Use when |
-|-------|----------|----------|
-| `gitlab-api[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | The operator only run the **MCP server** (smallest install / image) |
-| `gitlab-api[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | The operator run the **integrated agent** |
-| `gitlab-api[all]` | Everything (`mcp` + `agent` + `gql` + `logfire`) | Development / both surfaces |
-
-```bash
 # Connector-focused MCP server (includes the shared graph engine)
 uv pip install "gitlab-api[mcp]"
-
-# Agent runtime (adds model orchestration to the shared graph engine)
-uv pip install "gitlab-api[agent]"
 
 # Everything (development)
 uv pip install "gitlab-api[all]"      # or: python -m pip install "gitlab-api[all]"
 ```
 
-### Container images (`:mcp` vs `:agent`)
+### Container images (`:mcp`)
 
-One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+One multi-stage `docker/Dockerfile` builds the MCP-only image (`--target mcp`):
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
 | `example/gitlab-api:mcp` | `--target mcp` | `gitlab-api[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `gitlab-mcp` |
-| `example/gitlab-api@sha256:<digest>` | `--target agent` (default) | `gitlab-api[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `gitlab-agent` |
 
 ```bash
 docker build --target mcp   -t example/gitlab-api:mcp    docker/   # connector-focused MCP server
-docker build --target agent -t example/gitlab-api:agent-local docker/   # agent runtime
-```
-
-`docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
-agent (`immutable agent digest`) with a co-located `:mcp` sidecar.
-
-### Knowledge-graph database (`epistemic-graph`)
-
-Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
-Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
-the server connector-focused; `[agent]` also enables model orchestration. Local
-deployments can use the bundled engine. For production or shared state, run
-**epistemic-graph as a dedicated database service** and configure the runtime to use it.
-Deployment recipes (single-node + Raft HA), connection configuration, and architecture
-diagrams are documented in the
-[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
-
----
-
-## Documentation
-
-The complete documentation is published as the
-[official documentation site](https://knuckles-team.github.io/gitlab-api/) and is the
-recommended reference for installation, deployment, and day-to-day operation.
-
-| Page | Contents |
-|---|---|
-| [Installation](https://knuckles-team.github.io/gitlab-api/installation/) | pip, source, extras, prebuilt Docker image |
-| [Deployment](https://knuckles-team.github.io/gitlab-api/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
-| [Usage](https://knuckles-team.github.io/gitlab-api/usage/) | the MCP tools, the `Api` client, the CLI |
-| [Backing Platform](https://knuckles-team.github.io/gitlab-api/platform/) | deploy GitLab with Docker |
-| [Overview](https://knuckles-team.github.io/gitlab-api/overview/) | the action-routed tool surface and architecture |
-| [Concepts](https://knuckles-team.github.io/gitlab-api/concepts/) | concept registry (`CONCEPT:GL-*`) |
-
----
-
-## Repository Owners
-
-<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
-
-![GitHub followers](https://img.shields.io/github/followers/example)
-![GitHub User's stars](https://img.shields.io/github/stars/example)
-
----
-
-## Contribute
-
-Contributions are welcome! Please ensure code quality by running local checks before submitting pull requests:
-- Format code using `ruff format .`
-- Lint code using `ruff check .`
-- Validate type-safety with `mypy .`
-- Run test suites using `pytest`
-
-
-<!-- BEGIN agent-utilities-deployment (generated; do not edit between markers) -->
-
-## Deploy with `agent-utilities-deployment`
-
-Provision this package with the consolidated **`agent-utilities-deployment`**
-workflow. It selects an installed-package, editable-source, or immutable-container
-path; records only runtime secret and TLS-profile references in `AgentConfig`; and
-runs doctor, registration, policy, observability, and rollback gates. Ask your agent
-to **"deploy `gitlab-api` with agent-utilities-deployment"**.
-
-| Install mode | Command |
-|------|---------|
-| Installed package | `uv tool install "gitlab-api[mcp]"`, then run `gitlab-mcp` |
-| Editable source | `uv pip install -e ".[agent]"`, then run `gitlab-mcp` |
-| Immutable container | deploy `registry.example.invalid/gitlab-api@sha256:<digest>` through the operator-selected orchestrator |
-
-The repository embeds no deployment profile, credential value, certificate path, or
-environment-specific endpoint. Supply those at runtime through `AgentConfig` and the
-configured secret provider.
-
-<!-- END agent-utilities-deployment -->
-
-<!-- GOVERNED-CAPABILITY:START -->
-## Governed capability contract
-
-This package ships a compact canonical skill surface with specialist procedures
-kept as referenced workflows. The current MCP tools, skill metadata,
-`connector_manifest.yml`, ontology, mappings, shapes, fixtures, migrations,
-tool-schema fingerprints, and certification metadata form one versioned
-capability contract. Validate them together; do not rely on stale tool names or
-historical per-task skill wrappers.
-
-Runtime endpoints, credentials, certificate trust, tenant identity, retention,
-and observability policy are deployment inputs and are never packaged values.
-See [Configuration, trust, and privacy](docs/configuration.md) before enabling a
-network transport, connector ingestion, GraphOS delegation, or trace export.
-<!-- GOVERNED-CAPABILITY:END -->

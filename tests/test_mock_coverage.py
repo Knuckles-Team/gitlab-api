@@ -24,7 +24,6 @@ def test_init_getattr_and_availability():
 
     # Test dynamic attributes
     assert gitlab_api._MCP_AVAILABLE is True
-    assert gitlab_api._AGENT_AVAILABLE is True
 
     # Test custom import failure inside __getattr__
     with patch("gitlab_api._import_module_safely", return_value=None):
@@ -216,33 +215,6 @@ def test_input_model_validation_failures():
             client.get_projects(owned=True)
 
 
-def test_agent_server_cli_execution():
-    from gitlab_api.agent_server import agent_server
-
-    # Set up argparse mock and create_agent_server mock
-    mock_args = MagicMock()
-    mock_args.debug = True
-    mock_args.mcp_url = "http://localhost:8000"
-    mock_args.mcp_config = "mcp_config.json"
-    mock_args.host = "127.0.0.1"
-    mock_args.port = 8000
-    mock_args.provider = "openai"
-    mock_args.model_id = "gpt-4o"
-    mock_args.base_url = None
-    mock_args.api_key = None
-    mock_args.custom_skills_directory = None
-    mock_args.web = False
-    mock_args.otel = False
-
-    with (
-        patch("argparse.ArgumentParser.parse_args", return_value=mock_args),
-        patch("agent_utilities.create_agent_server") as mock_create_server,
-        patch("agent_utilities.initialize_workspace"),
-        patch("agent_utilities.load_identity") as mock_identity,
-    ):
-        mock_identity.return_value = {"name": "Test GitLab Agent"}
-        agent_server()
-        mock_create_server.assert_called_once()
 
 
 @pytest.mark.anyio
@@ -278,7 +250,7 @@ async def test_mcp_server_graphql_exception():
             ctx=None,
         )
         assert "error" in result
-        assert "Internal GraphQL Error" in result["error"]
+        assert "GraphQL execution failed: Exception" in result["error"]
 
 
 @pytest.mark.anyio

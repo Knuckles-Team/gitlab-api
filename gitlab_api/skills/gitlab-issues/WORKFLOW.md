@@ -47,7 +47,7 @@ Full env/tag matrix: the mcp-client reference `agent-tools/mcp-client/references
 ## Recipes (`params_json`)
 Review open `bug` issues for a project, newest first:
 ```json
-{"project_id":"platform/agent-utilities","state":"opened","labels":"bug","order_by":"created_at","sort":"desc","per_page":25}
+{"project_id":"platform/agent-connector-sdk","state":"opened","labels":"bug","order_by":"created_at","sort":"desc","per_page":25}
 ```
 Review every open issue across a group / organization:
 ```json
@@ -55,11 +55,11 @@ Review every open issue across a group / organization:
 ```
 Create an issue:
 ```json
-{"project_id":"platform/agent-utilities","data":{"title":"Fleet ontology: gitlab domain missing runners link","labels":"ontology,enhancement"}}
+{"project_id":"platform/agent-connector-sdk","data":{"title":"Fleet ontology: gitlab domain missing runners link","labels":"ontology,enhancement"}}
 ```
 Close an issue:
 ```json
-{"project_id":"platform/agent-utilities","issue_iid":17,"data":{"state_event":"close"}}
+{"project_id":"platform/agent-connector-sdk","issue_iid":17,"data":{"state_event":"close"}}
 ```
 
 ## Gotchas

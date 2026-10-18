@@ -21,8 +21,7 @@ The base install is intentionally minimal. Install the extra for what the operat
 
 | Extra | Install | Pulls in |
 |---|---|---|
-| `mcp` | `pip install "gitlab-api[mcp]"` | FastMCP MCP-server runtime (`agent-utilities[mcp]`) |
-| `agent` | `pip install "gitlab-api[agent]"` | Pydantic-AI agent + Logfire tracing |
+| `mcp` | `pip install "gitlab-api[mcp]"` | FastMCP MCP-server runtime (`agent-connector-sdk`) |
 | `gql` | `pip install "gitlab-api[gql]"` | `gql` client for the GitLab GraphQL API |
 | `all` | `pip install "gitlab-api[all]"` | Everything above |
 
@@ -59,19 +58,11 @@ docker run --rm -i \
   example/gitlab-api@sha256:<digest>        # stdio transport (default)
 ```
 
-For an HTTP server with a published port and the agent server, see
 [Deployment](deployment.md).
 
 ## Verify the install
 
-```bash
-gitlab-mcp --help
-gitlab-agent --help
-python -c "import gitlab_api; print(gitlab_api.__version__)"
-```
-
 ## Next steps
 
-- **[Deployment](deployment.md)** — run it as a long-lived MCP / agent server behind Caddy + DNS.
 - **[Usage](usage.md)** — call the tools, the API, and the CLI.
 - **[Configuration](deployment.md#configuration-environment)** — every environment variable.
