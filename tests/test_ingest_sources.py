@@ -18,7 +18,7 @@ from gitlab_api.api_client import Api
 def test_declares_ingestible_sources() -> None:
     declaration = load_ingest_sources(Path(gitlab_api.__file__).parent)
     assert declaration is not None
-    assert declaration.connector == "gitlab-api"
+    assert declaration.connector == "gitlab-mcp"
     source = declaration.source("projects")
     assert source is not None and source.record_type == "Project"
     prefix = operation_prefix("gitlab-api")
