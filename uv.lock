@@ -607,7 +607,7 @@ server = [
 
 [[package]]
 name = "gitlab-api"
-version = "27.3.2"
+version = "27.3.3"
 source = { editable = "." }
 dependencies = [
     { name = "agent-connector-sdk", extra = ["mcp"] },
