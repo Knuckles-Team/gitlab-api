@@ -4,7 +4,8 @@
   "owner_repo": "gitlab-api",
   "delivery_state": "VERIFIED",
   "requirement_ids": [
-    "CONN-GITLAB-API-R001"
+    "CONN-GITLAB-API-R001",
+    "CONN-GITLAB-API-R002"
   ],
   "requirements": [
     {
@@ -16,6 +17,17 @@
       ],
       "verified_by": [
         "tests/test_ingest_sources.py:17"
+      ]
+    },
+    {
+      "id": "CONN-GITLAB-API-R002",
+      "title": "Fleet name",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "45015c3c9ddc"
+      ],
+      "verified_by": [
+        "tests/test_fleet_name.py:35"
       ]
     }
   ]
