@@ -1,4 +1,4 @@
-connector: gitlab-api
+connector: gitlab-mcp
 ontology_source: gitlab
 schema_version: '1'
 resources:

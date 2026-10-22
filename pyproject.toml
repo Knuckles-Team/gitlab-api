@@ -39,6 +39,10 @@ gitlab-api = "gitlab_api.connectors"
 [project.entry-points."agent_connector_sdk.prompt_providers"]
 gitlab-api = "gitlab_api.prompts"
 
+# The one declared connector identity: the fleet name (SDK-CONNECTOR-CONTROL-R071).
+[project.entry-points."agent_connector_sdk.connector"]
+gitlab-mcp = "gitlab_api"
+
 [tool.uv.workspace]
 members = ["."]
 
