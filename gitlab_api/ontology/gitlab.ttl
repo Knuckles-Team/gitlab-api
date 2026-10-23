@@ -11,6 +11,9 @@
 # per-package IRI. Backs the gitlab-api MCP tool surface (gitlab_projects / gitlab_merge_requests
 # / gitlab_pipelines / gitlab_issues / …).
 
+# Shared concepts owned by the epistemic-graph ontology and referenced here, never redeclared:
+# Commit, Branch, Release, Runner, Milestone, PipelineRun. Only the GitLab-specific subclasses and properties are declared in this pack.
+
 :GitLabGroup a owl:Class ;
     rdfs:subClassOf :IdentityGroup ;
     rdfs:label "GitLab Group" ;
@@ -22,6 +25,7 @@
     rdfs:comment "A GitLab project / repository (gitlab_projects)." .
 
 :MergeRequest a owl:Class ;
+    rdfs:subClassOf :PullRequest ;
     rdfs:label "Merge Request" ;
     rdfs:comment "A proposed change under review, from a source to a target branch (gitlab_merge_requests)." .
 
@@ -30,19 +34,12 @@
     rdfs:label "Pipeline" ;
     rdfs:comment "A CI/CD pipeline run for a commit/ref (gitlab_pipelines)." .
 
-:PipelineRun a owl:Class ;
-    rdfs:label "Pipeline Run" ;
-    rdfs:comment """A single CI/CD execution for a commit/ref/merge request (a GitLab pipeline
-    run, ingested by gitlab_api.kg_ingest.ingest_pipeline_runs, id gitlab:pipelinerun:<project>:<id>).
-    Shares its class name with the twin github-agent producer so GitLab CI/CD and GitHub Actions
-    unify under one node shape in the knowledge graph.""" ;
-    owl:equivalentClass :Pipeline .
-
 :Job a owl:Class ;
     rdfs:label "Job" ;
     rdfs:comment "A single stage/job within a pipeline (gitlab_jobs)." .
 
 :CheckRun a owl:Class ;
+    rdfs:subClassOf :PipelineRun ;
     rdfs:label "Check Run" ;
     rdfs:comment """A single job/check within a PipelineRun (a GitLab pipeline job, ingested by
     gitlab_api.kg_ingest.ingest_pipeline_runs, id gitlab:checkrun:<project>:<pipeline>:<job>).
@@ -58,26 +55,6 @@
     rdfs:subClassOf :WorkItem ;
     rdfs:label "Epic" ;
     rdfs:comment "A group-level container aggregating related issues (gitlab_epics)." .
-
-:Milestone a owl:Class ;
-    rdfs:label "Milestone" ;
-    rdfs:comment "A time-boxed delivery target grouping issues and merge requests (gitlab_milestones)." .
-
-:Commit a owl:Class ;
-    rdfs:label "Commit" ;
-    rdfs:comment "A git commit recorded in a project (gitlab_commits)." .
-
-:Branch a owl:Class ;
-    rdfs:label "Branch" ;
-    rdfs:comment "A named git branch within a project (gitlab_branches)." .
-
-:Release a owl:Class ;
-    rdfs:label "Release" ;
-    rdfs:comment "A tagged, published project release (gitlab_releases)." .
-
-:Runner a owl:Class ;
-    rdfs:label "Runner" ;
-    rdfs:comment "A CI runner that executes pipeline jobs (gitlab_runners)." .
 
 # --- links (owl:ObjectProperty) ---
 
@@ -154,6 +131,7 @@
 :state a owl:DatatypeProperty ;
     rdfs:label "state" ;
     rdfs:comment "Lifecycle state (opened, closed, merged, locked)." ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( :Issue :MergeRequest ) ] ;
     rdfs:range xsd:string .
 
 :pipelineStatus a owl:DatatypeProperty ;

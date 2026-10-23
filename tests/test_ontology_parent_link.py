@@ -32,12 +32,7 @@ PARENT_CLASSES = frozenset(
 # parent class (see the orphan mapping report); a class leaves this set when it gains a parent.
 PENDING_NEW_PARENT: frozenset[str] = frozenset(
     (
-        "http://knuckles.team/kg#Branch",
-        "http://knuckles.team/kg#CheckRun",
         "http://knuckles.team/kg#Job",
-        "http://knuckles.team/kg#Milestone",
-        "http://knuckles.team/kg#Release",
-        "http://knuckles.team/kg#Runner",
     )
 )
 
