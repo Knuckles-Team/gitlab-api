@@ -63,9 +63,9 @@ async def test_ingest_entities_writes_nodes_and_edges(ingest):
     assert record_ids == {"a", "b"}
     a_record = next(r for r in request.records if r.record_id == "a")
     assert a_record.payload["name"] == "p"
-    assert a_record.mapping_reference.endswith("schema_mappings/Project")
+    assert a_record.mapping_reference.endswith("mappings/Project")
     assert request.relationships[0].relation_reference.endswith(
-        "resources/Project/relations/partOfGroup"
+        "relations/Project/partOfGroup"
     )
 
 
@@ -87,13 +87,13 @@ async def test_ingest_projects_maps_project_and_group(ingest):
     assert res == {"nodes": 2, "edges": 1}
     request = transport.requests[0]
     project = next(r for r in request.records if r.record_id == "gitlab:project:42")
-    assert project.mapping_reference.endswith("schema_mappings/Project")
+    assert project.mapping_reference.endswith("mappings/Project")
     assert project.payload["path_with_namespace"] == "grp/demo"
     assert project.payload["externalToolId"] == "42"
     group = next(r for r in request.records if r.record_id == "gitlab:group:7")
-    assert group.mapping_reference.endswith("schema_mappings/GitLabGroup")
+    assert group.mapping_reference.endswith("mappings/GitLabGroup")
     assert request.relationships[0].relation_reference.endswith(
-        "resources/Project/relations/partOfGroup"
+        "relations/Project/partOfGroup"
     )
 
 
@@ -152,7 +152,7 @@ async def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner(ingest):
         r for r in request.records if r.record_id == "gitlab:pipelinerun:42:101"
     )
     # Same class name github-agent uses, so both CI systems unify.
-    assert pipe_record.mapping_reference.endswith("schema_mappings/PipelineRun")
+    assert pipe_record.mapping_reference.endswith("mappings/PipelineRun")
     assert pipe_record.payload["status"] == "failed"
     assert pipe_record.payload["sha"] == "abc123"
     assert pipe_record.payload["triggerSource"] == "push"
@@ -161,7 +161,7 @@ async def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner(ingest):
     job_record = next(
         r for r in request.records if r.record_id == "gitlab:checkrun:42:101:501"
     )
-    assert job_record.mapping_reference.endswith("schema_mappings/CheckRun")
+    assert job_record.mapping_reference.endswith("mappings/CheckRun")
     assert job_record.payload["failureReason"] == "script_failure"
     assert job_record.payload["logUrl"] == "https://gl/grp/demo/-/jobs/501/raw"
     assert job_record.payload["externalToolId"] == "501"
@@ -169,10 +169,10 @@ async def test_ingest_pipeline_runs_maps_pipeline_job_commit_and_runner(ingest):
     commit_record = next(
         r for r in request.records if r.record_id == "gitlab:commit:42:abc123"
     )
-    assert commit_record.mapping_reference.endswith("schema_mappings/Commit")
+    assert commit_record.mapping_reference.endswith("mappings/Commit")
 
     runner_record = next(r for r in request.records if r.record_id == "gitlab:runner:9")
-    assert runner_record.mapping_reference.endswith("schema_mappings/Runner")
+    assert runner_record.mapping_reference.endswith("mappings/Runner")
     assert runner_record.payload["name"] == "shared-runner"
 
     # ranFor / hasJob edge names match github-agent's twin producer.

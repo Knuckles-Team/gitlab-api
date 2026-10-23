@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "27.3.9"
+version = "27.3.10"
 description = "GitLab API + MCP Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12"
-dependencies = [ "agent-connector-sdk[mcp,graphql]>=0.4.0,<1.0.0", "python-dotenv>=1.2.4",]
+dependencies = [ "agent-connector-sdk[mcp,graphql]>=0.4.1,<1.0.0", "python-dotenv>=1.2.4",]
 [[project.authors]]
 name = "Project Maintainers"
 email = "maintainers@users.noreply.github.com"
