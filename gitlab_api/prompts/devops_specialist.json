@@ -4,8 +4,6 @@
   "schema_version": "1.0",
   "prompt_version": "0.1.0",
   "source": "gitlab-api",
-  "extends": "agent-connector-sdk:base",
-  "compose": "append",
   "description": "GitLab DevOps specialist: code review, CI/CD delivery, and issue tracking over the gitlab-api MCP server.",
   "metadata": {
     "topic": "GitLab DevOps",

@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "27.3.8"
+version = "27.3.9"
 description = "GitLab API + MCP Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12"
-dependencies = [ "agent-connector-sdk[mcp,graphql]>=0.3.18,<1.0.0", "python-dotenv>=1.2.4",]
+dependencies = [ "agent-connector-sdk[mcp,graphql]>=0.4.0,<1.0.0", "python-dotenv>=1.2.4",]
 [[project.authors]]
 name = "Project Maintainers"
 email = "maintainers@users.noreply.github.com"
@@ -69,7 +69,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-gitlab_api = [ "mcp_config.json", "connector_manifest.yml", "agent_data/**", "prompts/**", "skills/**", "ontology/**", "connectors/**",]
+gitlab_api = [ "mcp_config.json", "agent_data/**", "prompts/**", "skills/**", "ontology/**", "connectors/**",]
 
 [tool.ruff.lint]
 select = [ "E", "F", "I", "UP", "B",]
