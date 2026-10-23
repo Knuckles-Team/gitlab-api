@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+from gitlab_api.connector_sources import declaration as declared_sources
 import re
 from pathlib import Path
 
 import pytest
-import yaml
 
 import gitlab_api
 
@@ -35,17 +35,15 @@ def test_state_is_declared_on_the_issue_type() -> None:
 
 
 def test_merge_request_and_check_run_extend_shared_classes() -> None:
-    assert "rdfs:subClassOf :PullRequest" in _block("MergeRequest")
+    # The EG ontology owns MergeRequest's parent (a sibling of PullRequest); the pack gives it none.
+    assert "rdfs:subClassOf" not in _block("MergeRequest")
     assert "rdfs:subClassOf :PipelineRun" in _block("CheckRun")
 
 
 def test_no_mapping_has_a_null_ontology_class() -> None:
-    manifest = yaml.safe_load(
-        (PACKAGE.parent / "connector_manifest.yml").read_text("utf-8")
-    )
     unmapped = [
         name
-        for name, mapping in manifest["schema_mappings"].items()
-        if not mapping["ontology_class"]
+        for name, mapping in declared_sources().schema_mappings.items()
+        if not mapping.ontology_class
     ]
     assert unmapped == []

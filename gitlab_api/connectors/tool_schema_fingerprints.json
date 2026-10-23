@@ -1,8 +1,0 @@
-{
-  "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
-  "connector": "gitlab-mcp",
-  "schema_version": "1",
-  "tools": {
-    "gitlab_get_projects": "18b7c440b1165616ba8455535985becf3c14d643a22f40c34d4f321c736c9e06"
-  }
-}
