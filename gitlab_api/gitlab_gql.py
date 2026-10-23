@@ -12,8 +12,7 @@ from agent_connector_sdk.exceptions import (
 )
 from agent_connector_sdk.tls.profile import ResolvedTLSProfile
 from agent_connector_sdk.tls.resolve import resolve_tls_profile
-from gql import Client, gql
-from gql.transport.requests import RequestsHTTPTransport
+from agent_connector_sdk.transports.graphql import GraphQLAuth, GraphQLClient
 
 from gitlab_api.gitlab_input_models import (
     BranchModel,
@@ -120,12 +119,13 @@ class GraphQL:
 
         headers = {"Authorization": f"Bearer {token}"}
         self.headers = headers
-        self.transport = RequestsHTTPTransport(
-            url=self.url,
-            headers=headers,
-            **self.tls_profile.requests_kwargs(),
+        self.client = GraphQLClient(
+            self.url,
+            auth=GraphQLAuth.bearer(token),
+            tls_profile=self.tls_profile,
+            tls_service="gitlab",
+            fetch_schema=True,
         )
-        self.client = Client(transport=self.transport, fetch_schema_from_transport=True)
 
     @require_auth
     def execute_gql(
@@ -148,17 +148,7 @@ class GraphQL:
         Raises:
             ParameterError: If the query execution fails or returns errors.
         """
-        try:
-            query = gql(query_str)
-            result = self.client.execute(
-                query, variable_values=variables, operation_name=operation_name
-            )
-            if "errors" in result:
-                raise ParameterError(f"GraphQL errors: {result['errors']}")
-            return result
-        except Exception as e:
-            logging.error("GraphQL execution failed: error_type=%s", type(e).__name__)
-            raise ParameterError(f"Query execution failed: {type(e).__name__}") from e
+        return self.client.execute(query_str, variables, operation_name)
 
     @require_auth
     def get_branches(
