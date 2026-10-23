@@ -2,17 +2,9 @@ connector: gitlab-mcp
 ontology_source: gitlab
 schema_version: '1'
 resources:
-- name: Branch
-  label: Branch
-  id_prefix: branch
-  relations: []
 - name: CheckRun
   label: Check Run
   id_prefix: checkrun
-  relations: []
-- name: Commit
-  label: Commit
-  id_prefix: commit
   relations: []
 - name: Epic
   label: Epic
@@ -46,10 +38,6 @@ resources:
     label: targets branch
     target: Branch
     lpg_rel_type: ''
-- name: Milestone
-  label: Milestone
-  id_prefix: milestone
-  relations: []
 - name: Pipeline
   label: Pipeline
   id_prefix: pipeline
@@ -57,14 +45,6 @@ resources:
   - name: hasJob
     label: has job
     target: Job
-    lpg_rel_type: ''
-- name: PipelineRun
-  label: Pipeline Run
-  id_prefix: pipelinerun
-  relations:
-  - name: ranFor
-    label: ran for
-    target: owl:Thing
     lpg_rel_type: ''
 - name: Project
   label: Project
@@ -74,14 +54,6 @@ resources:
     label: part of group
     target: GitLabGroup
     lpg_rel_type: ''
-- name: Release
-  label: Release
-  id_prefix: release
-  relations: []
-- name: Runner
-  label: Runner
-  id_prefix: runner
-  relations: []
 actions:
 - id: epistemic-answer
   name: Epistemic Answer
@@ -123,40 +95,8 @@ permissions:
   tenant_field: null
   read_roles: []
 schema_mappings:
-  Branch:
-    ontology_class: null
-    fields:
-      createdAt: xsd:dateTime
-      duration: xsd:decimal
-      failureReason: xsd:string
-      finishedAt: xsd:dateTime
-      iid: xsd:string
-      logUrl: xsd:string
-      pipelineStatus: xsd:string
-      ref: xsd:string
-      sha: xsd:string
-      startedAt: xsd:dateTime
-      state: xsd:string
-      triggerSource: xsd:string
-      webUrl: xsd:string
   CheckRun:
-    ontology_class: null
-    fields:
-      createdAt: xsd:dateTime
-      duration: xsd:decimal
-      failureReason: xsd:string
-      finishedAt: xsd:dateTime
-      iid: xsd:string
-      logUrl: xsd:string
-      pipelineStatus: xsd:string
-      ref: xsd:string
-      sha: xsd:string
-      startedAt: xsd:dateTime
-      state: xsd:string
-      triggerSource: xsd:string
-      webUrl: xsd:string
-  Commit:
-    ontology_class: null
+    ontology_class: PipelineRun
     fields:
       createdAt: xsd:dateTime
       duration: xsd:decimal
@@ -172,7 +112,7 @@ schema_mappings:
       triggerSource: xsd:string
       webUrl: xsd:string
   Epic:
-    ontology_class: null
+    ontology_class: WorkItem
     fields:
       createdAt: xsd:dateTime
       duration: xsd:decimal
@@ -188,7 +128,7 @@ schema_mappings:
       triggerSource: xsd:string
       webUrl: xsd:string
   GitLabGroup:
-    ontology_class: Organization
+    ontology_class: IdentityGroup
     fields:
       createdAt: xsd:dateTime
       duration: xsd:decimal
@@ -204,7 +144,7 @@ schema_mappings:
       triggerSource: xsd:string
       webUrl: xsd:string
   Issue:
-    ontology_class: Incident
+    ontology_class: WorkItem
     fields:
       createdAt: xsd:dateTime
       duration: xsd:decimal
@@ -236,23 +176,7 @@ schema_mappings:
       triggerSource: xsd:string
       webUrl: xsd:string
   MergeRequest:
-    ontology_class: null
-    fields:
-      createdAt: xsd:dateTime
-      duration: xsd:decimal
-      failureReason: xsd:string
-      finishedAt: xsd:dateTime
-      iid: xsd:string
-      logUrl: xsd:string
-      pipelineStatus: xsd:string
-      ref: xsd:string
-      sha: xsd:string
-      startedAt: xsd:dateTime
-      state: xsd:string
-      triggerSource: xsd:string
-      webUrl: xsd:string
-  Milestone:
-    ontology_class: null
+    ontology_class: PullRequest
     fields:
       createdAt: xsd:dateTime
       duration: xsd:decimal
@@ -268,23 +192,7 @@ schema_mappings:
       triggerSource: xsd:string
       webUrl: xsd:string
   Pipeline:
-    ontology_class: null
-    fields:
-      createdAt: xsd:dateTime
-      duration: xsd:decimal
-      failureReason: xsd:string
-      finishedAt: xsd:dateTime
-      iid: xsd:string
-      logUrl: xsd:string
-      pipelineStatus: xsd:string
-      ref: xsd:string
-      sha: xsd:string
-      startedAt: xsd:dateTime
-      state: xsd:string
-      triggerSource: xsd:string
-      webUrl: xsd:string
-  PipelineRun:
-    ontology_class: null
+    ontology_class: PipelineRun
     fields:
       createdAt: xsd:dateTime
       duration: xsd:decimal
@@ -301,38 +209,6 @@ schema_mappings:
       webUrl: xsd:string
   Project:
     ontology_class: SoftwareProject
-    fields:
-      createdAt: xsd:dateTime
-      duration: xsd:decimal
-      failureReason: xsd:string
-      finishedAt: xsd:dateTime
-      iid: xsd:string
-      logUrl: xsd:string
-      pipelineStatus: xsd:string
-      ref: xsd:string
-      sha: xsd:string
-      startedAt: xsd:dateTime
-      state: xsd:string
-      triggerSource: xsd:string
-      webUrl: xsd:string
-  Release:
-    ontology_class: null
-    fields:
-      createdAt: xsd:dateTime
-      duration: xsd:decimal
-      failureReason: xsd:string
-      finishedAt: xsd:dateTime
-      iid: xsd:string
-      logUrl: xsd:string
-      pipelineStatus: xsd:string
-      ref: xsd:string
-      sha: xsd:string
-      startedAt: xsd:dateTime
-      state: xsd:string
-      triggerSource: xsd:string
-      webUrl: xsd:string
-  Runner:
-    ontology_class: null
     fields:
       createdAt: xsd:dateTime
       duration: xsd:decimal
@@ -376,20 +252,20 @@ sync:
     params_style: args
 provenance:
   generated_by: scripts/generate_connector_manifests.py
-  generated_at: '2026-10-18T00:00:00Z'
+  generated_at: '2026-10-23T00:00:00Z'
   source_artifacts:
   - gitlab_api/connectors/mcp_source_presets.json
   - gitlab_api/connectors/tool_schema_fingerprints.json
   - gitlab_api/ontology/gitlab.ttl
   integrity:
     algorithm: urdna2015-sha256
-    hash: 832bf7f47b008ce2c318e1d89f2a2a306992994ec0f44d2ee102919eac7bedb4
-    triple_count: 113
+    hash: 51cdef79ba7080a662846127c295b57fed42f9c35abd42d513112051eeebf473
+    triple_count: 95
   signer: UNSIGNED-PREVIEW
   signature_algorithm: none
   signing_public_key: ''
   signature: null
-  source_commit: 868761312fcdc217b3f596fcf4cfcc8a173752e6
+  source_commit: 0ad207db86cf74ee989ebf72581f432906efe85a
 policy:
   pii_fields: {}
   tenant_boundary: null
@@ -403,37 +279,24 @@ review_todos:
   \ ontology \u2014 not attached to any resource; verify its true domain manually."
 - "relation 'hasMilestone' has no declared rdfs:domain resolving to a known resource in this connector's\
   \ ontology \u2014 not attached to any resource; verify its true domain manually."
+- "relation 'ranFor' has no declared rdfs:domain resolving to a known resource in this connector's ontology\
+  \ \u2014 not attached to any resource; verify its true domain manually."
 - "relation 'triggeredPipeline' has no declared rdfs:domain resolving to a known resource in this connector's\
   \ ontology \u2014 not attached to any resource; verify its true domain manually."
-- "schema_mappings.Branch.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
-- "schema_mappings.CheckRun.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
-- "schema_mappings.Commit.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
-- "schema_mappings.Epic.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
-- "schema_mappings.GitLabGroup.ontology_class = 'Organization' [DRAFT \u2014 nearest hub-canonical-class-by-name\
-  \ heuristic (D16 residue; human sign-off required before use)] \u2014 verify manually before relying\
-  \ on this crosswalk for reasoning/joins."
-- "schema_mappings.Issue.ontology_class = 'Incident' [DRAFT \u2014 nearest hub-canonical-class-by-name\
-  \ heuristic (D16 residue; human sign-off required before use)] \u2014 verify manually before relying\
-  \ on this crosswalk for reasoning/joins."
+- "schema_mappings.CheckRun.ontology_class = 'PipelineRun' [source ttl rdfs:subClassOf] \u2014 verify\
+  \ manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Epic.ontology_class = 'WorkItem' [source ttl rdfs:subClassOf] \u2014 verify manually\
+  \ before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.GitLabGroup.ontology_class = 'IdentityGroup' [source ttl rdfs:subClassOf] \u2014 verify\
+  \ manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Issue.ontology_class = 'WorkItem' [source ttl rdfs:subClassOf] \u2014 verify manually\
+  \ before relying on this crosswalk for reasoning/joins."
 - "schema_mappings.Job.ontology_class = 'Action' [DRAFT \u2014 nearest hub-canonical-class-by-name heuristic\
   \ (D16 residue; human sign-off required before use)] \u2014 verify manually before relying on this crosswalk\
   \ for reasoning/joins."
-- "schema_mappings.MergeRequest.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
-- "schema_mappings.Milestone.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
-- "schema_mappings.Pipeline.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
-- "schema_mappings.PipelineRun.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
-- "schema_mappings.Project.ontology_class = 'SoftwareProject' [DRAFT \u2014 nearest hub-canonical-class-by-name\
-  \ heuristic (D16 residue; human sign-off required before use)] \u2014 verify manually before relying\
-  \ on this crosswalk for reasoning/joins."
-- "schema_mappings.Release.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
-- "schema_mappings.Runner.ontology_class = None [UNRESOLVED \u2014 no crosswalk found by any heuristic]\
-  \ \u2014 verify manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.MergeRequest.ontology_class = 'PullRequest' [source ttl rdfs:subClassOf] \u2014 verify\
+  \ manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Pipeline.ontology_class = 'PipelineRun' [source ttl rdfs:subClassOf] \u2014 verify\
+  \ manually before relying on this crosswalk for reasoning/joins."
+- "schema_mappings.Project.ontology_class = 'SoftwareProject' [source ttl rdfs:subClassOf] \u2014 verify\
+  \ manually before relying on this crosswalk for reasoning/joins."
