@@ -5,7 +5,8 @@
   "delivery_state": "VERIFIED",
   "requirement_ids": [
     "CONN-GITLAB-API-R001",
-    "CONN-GITLAB-API-R002"
+    "CONN-GITLAB-API-R002",
+    "CONN-GITLAB-API-R003"
   ],
   "requirements": [
     {
@@ -13,6 +14,7 @@
       "title": "Declare the `projects` source",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "637495f7aa34",
         "a299b729b5e6"
       ],
       "verified_by": [
@@ -29,6 +31,19 @@
       ],
       "verified_by": [
         "tests/test_fleet_name.py:35"
+      ]
+    },
+    {
+      "id": "CONN-GITLAB-API-R003",
+      "title": "Shared GraphQL client",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "60456cbf66d2",
+        "95835b9c8a59"
+      ],
+      "verified_by": [
+        "tests/test_gitlab_gql.py:220",
+        "tests/test_gitlab_gql.py:237"
       ]
     }
   ]
