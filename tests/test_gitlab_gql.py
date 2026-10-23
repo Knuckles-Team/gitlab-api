@@ -5,14 +5,18 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from agent_connector_sdk.exceptions import MissingParameterError, ParameterError
+from agent_connector_sdk.transports.graphql import GraphQLExecutionError
 
 from gitlab_api.gitlab_gql import GraphQL
 
 
 @pytest.fixture
 def mock_gql_client():
-    with patch("gitlab_api.gitlab_gql.Client") as mock_client_cls:
-        mock_client = mock_client_cls.return_value
+    with patch(
+        "agent_connector_sdk.transports.graphql.GraphQLClient.execute"
+    ) as mock_execute:
+        mock_client = MagicMock()
+        mock_client.execute = mock_execute
         # Mock the execute method to return a standard structure
         mock_client.execute.return_value = {
             "project": {
@@ -208,15 +212,41 @@ def test_graphql_init_exceptions():
 def test_graphql_execute_exceptions(mock_gql_client):
     gql_client = GraphQL(url="http://test", token="test")
 
-    # Test error returned in execute response
-    mock_gql_client.execute.return_value = {"errors": ["some error"]}
-    with pytest.raises(ParameterError, match="Query execution failed: ParameterError"):
-        gql_client.execute_gql("query { test }")
-
-    # Test exception raised by client execute
-    mock_gql_client.execute.side_effect = Exception("network error")
+    mock_gql_client.execute.side_effect = GraphQLExecutionError(Exception("x"))
     with pytest.raises(ParameterError, match="Query execution failed: Exception"):
         gql_client.execute_gql("query { test }")
+
+
+@pytest.mark.spec("CONN-GITLAB-API-R003")
+def test_wrapper_delegates_to_shared_graphql_client():
+    tls = MagicMock()
+    with patch("gitlab_api.gitlab_gql.GraphQLClient") as cls:
+        cls.return_value.execute.return_value = {"ok": 1}
+        g = GraphQL(url="https://gl.example/", token="tok", tls_profile=tls)
+        assert g.execute_gql("query { x }", {"a": 1}, "X") == {"ok": 1}
+    args, kwargs = cls.call_args
+    assert args == ("https://gl.example/api/graphql",)
+    assert kwargs["auth"].headers() == {"Authorization": "Bearer tok"}
+    assert kwargs["tls_profile"] is tls
+    assert kwargs["tls_service"] == "gitlab"
+    assert kwargs["fetch_schema"] is True
+    assert g.headers == {"Authorization": "Bearer tok"}
+    cls.return_value.execute.assert_called_once_with("query { x }", {"a": 1}, "X")
+
+
+@pytest.mark.spec("CONN-GITLAB-API-R003")
+def test_graphql_declared_only_via_sdk_extra():
+    import tomllib
+    from pathlib import Path
+
+    data = tomllib.loads(
+        (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text()
+    )
+    blob = str(data["project"]["dependencies"]) + str(
+        data["project"]["optional-dependencies"]
+    )
+    assert "graphql]" in blob or "graphql," in blob
+    assert "gql" not in blob.replace("graphql", "")
 
 
 def test_graphql_parameter_errors(mock_gql_client):
@@ -289,7 +319,9 @@ def _build_graphql_brute_force_kwargs() -> dict[str, Any]:
     }
 
 
-def _kwargs_for_graphql_method(method: Any, common_kwargs: dict[str, Any]) -> dict[str, Any]:
+def _kwargs_for_graphql_method(
+    method: Any, common_kwargs: dict[str, Any]
+) -> dict[str, Any]:
     if sys.version_info >= (3, 14):
         # Annotations are lazy on 3.14; the module-level ProjectModel patch above
         # would otherwise be evaluated inside `X | None`.
