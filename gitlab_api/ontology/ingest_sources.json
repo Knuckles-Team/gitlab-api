@@ -1,5 +1,5 @@
 {
-  "connector": "gitlab-api",
+  "connector": "gitlab-mcp",
   "sources": [
     {
       "source_id": "projects",
