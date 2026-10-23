@@ -2,7 +2,7 @@
 
 | Requirement | Test | Observation |
 |---|---|---|
-| `CONN-GITLAB-API-R001` | `tests/test_ingest_sources.py::test_declares_ingestible_sources` | The declaration validates and its tool is the read operation `get_projects`. |
+| `CONN-GITLAB-API-R001` | `tests/test_ingest_sources.py::test_declares_ingestible_sources` | The declaration validates and its tools are the read operations `get_projects` and `get_issues`. |
 
 ## CONN-GITLAB-API-R002
 
