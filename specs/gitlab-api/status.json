@@ -14,7 +14,7 @@
       "title": "Declare the `projects` source",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "637495f7aa34",
+        "94d8638b3db8",
         "a299b729b5e6"
       ],
       "verified_by": [
@@ -38,8 +38,8 @@
       "title": "Shared GraphQL client",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "60456cbf66d2",
-        "95835b9c8a59"
+        "5acc86f15a5a",
+        "8c87ec5c2652"
       ],
       "verified_by": [
         "tests/test_gitlab_gql.py:220",
