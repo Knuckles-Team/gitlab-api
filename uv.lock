@@ -611,7 +611,7 @@ server = [
 
 [[package]]
 name = "gitlab-api"
-version = "27.3.6"
+version = "27.3.7"
 source = { editable = "." }
 dependencies = [
     { name = "agent-connector-sdk", extra = ["graphql", "mcp"] },
