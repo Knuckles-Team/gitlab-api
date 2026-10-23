@@ -14,6 +14,25 @@
       "cursor_field": "last_activity_at",
       "incremental": true,
       "description": "GitLab projects visible to the configured token."
+    },
+    {
+      "source_id": "issues",
+      "record_type": "Issue",
+      "tools": [
+        "gitlab_get_issues"
+      ],
+      "records_path": "data",
+      "id_field": "id",
+      "title_field": "title",
+      "text_field": "description",
+      "cursor_field": "updated_at",
+      "incremental": false,
+      "arguments": {
+        "state": "opened",
+        "per_page": 50,
+        "max_pages": 1
+      },
+      "description": "Open GitLab issues visible to the configured token (first 50)."
     }
   ]
 }

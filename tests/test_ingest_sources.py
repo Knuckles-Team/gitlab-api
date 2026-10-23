@@ -33,3 +33,23 @@ def test_declares_ingestible_sources() -> None:
     method = getattr(Api, "get_projects")
     annotations = operation_annotations("get_projects", operation_verb(method))
     assert annotations.read_only_hint is True
+
+
+@pytest.mark.spec("CONN-GITLAB-API-R001")
+def test_declares_issues_source() -> None:
+    declaration = load_ingest_sources(Path(gitlab_api.__file__).parent)
+    assert declaration is not None
+    assert declaration.connector == "gitlab-mcp"
+    source = declaration.source("issues")
+    assert source is not None and source.record_type == "Issue"
+    prefix = operation_prefix("gitlab-api")
+    assert source.tools == (f"{prefix}_get_issues",)
+    manifest = yaml.safe_load(
+        (Path(gitlab_api.__file__).parent / "connector_manifest.yml").read_text(
+            "utf-8"
+        )
+    )
+    assert source.record_type in manifest["schema_mappings"]
+    method = getattr(Api, "get_issues")
+    annotations = operation_annotations("get_issues", operation_verb(method))
+    assert annotations.read_only_hint is True
