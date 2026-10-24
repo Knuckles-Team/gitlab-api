@@ -7,9 +7,6 @@ Served live as ``connector://resources``. Regenerate by editing the declarations
 from __future__ import annotations
 
 from agent_connector_sdk.ingest.live_declaration import source_meta
-from agent_connector_sdk.ingest.sources import IngestSourceDeclaration, IngestSourceSpec
-
-CONNECTOR = "gitlab-mcp"
 
 SOURCES = (
     source_meta(
@@ -51,149 +48,57 @@ SOURCES = (
     ),
 )
 
+SCHEMA_VERSION = 2
+
+FIELD_SETS = {
+    "fields_1": {
+        "createdAt": "xsd:dateTime",
+        "duration": "xsd:decimal",
+        "failureReason": "xsd:string",
+        "finishedAt": "xsd:dateTime",
+        "iid": "xsd:string",
+        "logUrl": "xsd:string",
+        "pipelineStatus": "xsd:string",
+        "ref": "xsd:string",
+        "sha": "xsd:string",
+        "startedAt": "xsd:dateTime",
+        "state": "xsd:string",
+        "triggerSource": "xsd:string",
+        "webUrl": "xsd:string",
+    },
+}
+
 SCHEMA_MAPPINGS = {
     "CheckRun": {
-        "fields": {
-            "createdAt": "xsd:dateTime",
-            "duration": "xsd:decimal",
-            "failureReason": "xsd:string",
-            "finishedAt": "xsd:dateTime",
-            "iid": "xsd:string",
-            "logUrl": "xsd:string",
-            "pipelineStatus": "xsd:string",
-            "ref": "xsd:string",
-            "sha": "xsd:string",
-            "startedAt": "xsd:dateTime",
-            "state": "xsd:string",
-            "triggerSource": "xsd:string",
-            "webUrl": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "PipelineRun",
     },
     "Epic": {
-        "fields": {
-            "createdAt": "xsd:dateTime",
-            "duration": "xsd:decimal",
-            "failureReason": "xsd:string",
-            "finishedAt": "xsd:dateTime",
-            "iid": "xsd:string",
-            "logUrl": "xsd:string",
-            "pipelineStatus": "xsd:string",
-            "ref": "xsd:string",
-            "sha": "xsd:string",
-            "startedAt": "xsd:dateTime",
-            "state": "xsd:string",
-            "triggerSource": "xsd:string",
-            "webUrl": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "WorkItem",
     },
     "GitLabGroup": {
-        "fields": {
-            "createdAt": "xsd:dateTime",
-            "duration": "xsd:decimal",
-            "failureReason": "xsd:string",
-            "finishedAt": "xsd:dateTime",
-            "iid": "xsd:string",
-            "logUrl": "xsd:string",
-            "pipelineStatus": "xsd:string",
-            "ref": "xsd:string",
-            "sha": "xsd:string",
-            "startedAt": "xsd:dateTime",
-            "state": "xsd:string",
-            "triggerSource": "xsd:string",
-            "webUrl": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "IdentityGroup",
     },
     "Issue": {
-        "fields": {
-            "createdAt": "xsd:dateTime",
-            "duration": "xsd:decimal",
-            "failureReason": "xsd:string",
-            "finishedAt": "xsd:dateTime",
-            "iid": "xsd:string",
-            "logUrl": "xsd:string",
-            "pipelineStatus": "xsd:string",
-            "ref": "xsd:string",
-            "sha": "xsd:string",
-            "startedAt": "xsd:dateTime",
-            "state": "xsd:string",
-            "triggerSource": "xsd:string",
-            "webUrl": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "WorkItem",
     },
     "Job": {
-        "fields": {
-            "createdAt": "xsd:dateTime",
-            "duration": "xsd:decimal",
-            "failureReason": "xsd:string",
-            "finishedAt": "xsd:dateTime",
-            "iid": "xsd:string",
-            "logUrl": "xsd:string",
-            "pipelineStatus": "xsd:string",
-            "ref": "xsd:string",
-            "sha": "xsd:string",
-            "startedAt": "xsd:dateTime",
-            "state": "xsd:string",
-            "triggerSource": "xsd:string",
-            "webUrl": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "Action",
     },
     "MergeRequest": {
-        "fields": {
-            "createdAt": "xsd:dateTime",
-            "duration": "xsd:decimal",
-            "failureReason": "xsd:string",
-            "finishedAt": "xsd:dateTime",
-            "iid": "xsd:string",
-            "logUrl": "xsd:string",
-            "pipelineStatus": "xsd:string",
-            "ref": "xsd:string",
-            "sha": "xsd:string",
-            "startedAt": "xsd:dateTime",
-            "state": "xsd:string",
-            "triggerSource": "xsd:string",
-            "webUrl": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "PullRequest",
     },
     "Pipeline": {
-        "fields": {
-            "createdAt": "xsd:dateTime",
-            "duration": "xsd:decimal",
-            "failureReason": "xsd:string",
-            "finishedAt": "xsd:dateTime",
-            "iid": "xsd:string",
-            "logUrl": "xsd:string",
-            "pipelineStatus": "xsd:string",
-            "ref": "xsd:string",
-            "sha": "xsd:string",
-            "startedAt": "xsd:dateTime",
-            "state": "xsd:string",
-            "triggerSource": "xsd:string",
-            "webUrl": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "PipelineRun",
     },
     "Project": {
-        "fields": {
-            "createdAt": "xsd:dateTime",
-            "duration": "xsd:decimal",
-            "failureReason": "xsd:string",
-            "finishedAt": "xsd:dateTime",
-            "iid": "xsd:string",
-            "logUrl": "xsd:string",
-            "pipelineStatus": "xsd:string",
-            "ref": "xsd:string",
-            "sha": "xsd:string",
-            "startedAt": "xsd:dateTime",
-            "state": "xsd:string",
-            "triggerSource": "xsd:string",
-            "webUrl": "xsd:string",
-        },
+        "field_sets": ["fields_1"],
         "ontology_class": "SoftwareProject",
     },
 }
@@ -240,22 +145,3 @@ RESOURCES = (
         "name": "Project",
     },
 )
-
-
-def declaration() -> IngestSourceDeclaration:
-    """The declaration the server assembles from this module."""
-    specs = []
-    for item in SOURCES:
-        for entry in item["connector_sources"]:
-            body = {k: v for k, v in entry.items() if k not in ("tool", "mapping")}
-            specs.append(
-                IngestSourceSpec.model_validate({**body, "tools": (entry["tool"],)})
-            )
-    return IngestSourceDeclaration.model_validate(
-        {
-            "connector": CONNECTOR,
-            "sources": specs,
-            "schema_mappings": SCHEMA_MAPPINGS,
-            "resources": RESOURCES,
-        }
-    )

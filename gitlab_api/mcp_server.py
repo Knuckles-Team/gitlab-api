@@ -3,7 +3,6 @@ import warnings
 
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
-from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
 # Filter RequestsDependencyWarning early to prevent log spam
@@ -20,26 +19,14 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
-import logging
-import os
-import sys
 from collections.abc import Callable
 from typing import Any
 
-from agent_connector_sdk.config import load_config, setting
+from agent_connector_sdk.config import setting
 from agent_connector_sdk.mcp.action_dispatch import resolve_action
 from agent_connector_sdk.mcp.concurrency import run_blocking
-from agent_connector_sdk.mcp.server import create_mcp_server
-from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
-from gitlab_api.api_client import Api
 from gitlab_api.auth import get_client
-
-__version__ = "27.3.10"
-print(f"Gitlab MCP v{__version__}", file=sys.stderr)
-
-logger = get_logger(name="mcp_server")
-logger.setLevel(logging.DEBUG)
 
 DEFAULT_GITLAB_URL = setting("GITLAB_URL", "https://gitlab.com")
 DEFAULT_GITLAB_TOKEN = setting("GITLAB_TOKEN", None)
@@ -1329,54 +1316,3 @@ def register_graphql_ops_tools(mcp: FastMCP):
             return await run_blocking(method, **kwargs)
         except Exception as e:
             return {"error": f"GraphQL operation '{action}' failed: {type(e).__name__}"}
-
-
-def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
-    """Initialize and return the GitLab MCP instance, args, and middlewares."""
-    load_config()
-    os.environ["FASTMCP_LOG_LEVEL"] = "ERROR"
-    os.environ["TERM"] = "dumb"
-    os.environ["NO_COLOR"] = "1"
-
-    args, mcp, middlewares = create_mcp_server(
-        name="GitLab",
-        version=__version__,
-        instructions="GitLab API MCP Server - Manage projects, issues, merge requests, branches, and more.",
-    )
-
-    registered_tags = register_tool_surface(
-        mcp,
-        client_cls=Api,
-        get_client=get_client,
-        service="gitlab-api",
-        tools_module=sys.modules[__name__],
-    )
-    register_prompts(mcp)
-
-    for mw in middlewares:
-        mcp.add_middleware(mw)
-
-    return mcp, args, middlewares, registered_tags
-
-
-def mcp_server() -> None:
-    mcp, args, middlewares, registered_tags = get_mcp_instance()
-    print(f"{'gitlab-api'} MCP v{__version__}", file=sys.stderr)
-    print("\nStarting MCP Server", file=sys.stderr)
-    print(f"  Transport: {args.transport.upper()}", file=sys.stderr)
-    print(f"  Auth: {args.auth_type}", file=sys.stderr)
-    print(f"  Dynamic Tags Loaded: {len(set(registered_tags))}", file=sys.stderr)
-
-    if args.transport == "stdio":
-        mcp.run(transport="stdio")
-    elif args.transport == "streamable-http":
-        mcp.run(transport="streamable-http", host=args.host, port=args.port)
-    elif args.transport == "sse":
-        mcp.run(transport="sse", host=args.host, port=args.port)
-    else:
-        logger.error("Invalid transport", extra={"transport": args.transport})
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    mcp_server()

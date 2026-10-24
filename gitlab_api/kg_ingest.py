@@ -14,65 +14,11 @@ from __future__ import annotations
 from typing import Any
 
 from agent_connector_sdk.ingest import (
-    ChangeSet,
-    Entity,
-    IngestBinding,
-    IngestError,
     KnowledgeIngest,
-    Relationship,
-    current_ingest,
+    SourceStream,
 )
 
-_BINDING = IngestBinding(connector="gitlab-mcp", stream="gitlab")
-
-_ENTITY_RESERVED_KEYS = frozenset({"id", "node_type"})
-_RELATIONSHIP_RESERVED_KEYS = frozenset({"source", "target", "relationship"})
-
-
-def _to_entity(record: dict[str, Any]) -> Entity:
-    return Entity(
-        id=record.get("id"),
-        node_type=record.get("node_type"),
-        properties={
-            key: value
-            for key, value in record.items()
-            if key not in _ENTITY_RESERVED_KEYS
-        },
-    )
-
-
-def _to_relationship(record: dict[str, Any]) -> Relationship:
-    properties = {
-        key: value
-        for key, value in record.items()
-        if key not in _RELATIONSHIP_RESERVED_KEYS
-    }
-    return Relationship(
-        source=record["source"],
-        target=record["target"],
-        relationship=record["relationship"],
-        properties=properties or None,
-    )
-
-
-async def ingest_entities(
-    entities: list[dict[str, Any]],
-    relationships: list[dict[str, Any]] | None = None,
-    *,
-    ingest: KnowledgeIngest | None = None,
-) -> dict[str, int]:
-    """Write canonical typed nodes and relationships through the SDK ingest facade."""
-    if not entities:
-        raise IngestError("ingest_entities needs at least one entity")
-    change_set = ChangeSet(
-        entities=tuple(_to_entity(entity) for entity in entities),
-        relationships=tuple(
-            _to_relationship(relationship) for relationship in relationships or ()
-        ),
-    )
-    service = ingest or current_ingest()
-    receipt = await service.submit(_BINDING, change_set)
-    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
+STREAM = SourceStream.for_package(__package__.split(".")[0], "gitlab")
 
 
 async def ingest_projects(
@@ -116,7 +62,7 @@ async def ingest_projects(
                     "relationship": "partOfGroup",
                 }
             )
-    return await ingest_entities(entities, relationships, ingest=ingest)
+    return await STREAM.entities(entities, relationships, ingest=ingest)
 
 
 def _map_pipeline_run(
@@ -292,4 +238,4 @@ async def ingest_pipeline_runs(
         entities.extend(job_entities)
         relationships.extend(job_relationships)
 
-    return await ingest_entities(entities, relationships, ingest=ingest)
+    return await STREAM.entities(entities, relationships, ingest=ingest)
