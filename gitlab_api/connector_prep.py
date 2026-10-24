@@ -708,7 +708,7 @@ class ExistingNativeCommitter:
         # The import is lazy so model-only tooling does not resolve the engine.
         import asyncio
 
-        from .kg_ingest import ingest_entities
+        from .kg_ingest import STREAM
 
         # ``ingest_entities`` is the only connector write authority.  Its SDK
         # ingest facade is async; this adapter's ``commit`` contract (NE-110)
@@ -723,7 +723,7 @@ class ExistingNativeCommitter:
         del client, graph, idempotency_key
         try:
             result = asyncio.run(
-                ingest_entities(
+                STREAM.entities(
                     [dict(entity) for entity in entities],
                     [dict(relationship) for relationship in relationships],
                 )

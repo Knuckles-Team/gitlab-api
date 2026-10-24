@@ -13,3 +13,4 @@ Read the existing specs first. Extend the spec that owns the behavior. Create a 
 ## Local specifications
 
 - [`CONN-GITLAB-API`](gitlab-api/spec.md) — GitLab ingestible source declarations.
+- [`CONN-GITLAB-API-CONNECTOR-CONTENT`](connector-content/spec.md) — The connector serves its packaged content.
