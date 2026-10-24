@@ -2,32 +2,38 @@
   "schema_version": 2,
   "spec_id": "CONN-GITLAB-API-CONNECTOR-CONTENT",
   "owner_repo": "gitlab-api",
-  "delivery_state": "VERIFIED",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
     "CONN-GITLAB-API-CONNECTOR-CONTENT-R001",
-    "CONN-GITLAB-API-CONNECTOR-CONTENT-R002"
+    "CONN-GITLAB-API-CONNECTOR-CONTENT-R002",
+    "CONN-GITLAB-API-CONNECTOR-CONTENT-R004"
   ],
   "requirements": [
     {
       "id": "CONN-GITLAB-API-CONNECTOR-CONTENT-R001",
       "title": "Default content",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "LANDED",
       "landed_in": [
         "6640513dcfa9"
       ],
-      "verified_by": [
-        "tests/test_default_content_surfaces.py:15"
-      ]
+      "verified_by": []
     },
     {
       "id": "CONN-GITLAB-API-CONNECTOR-CONTENT-R002",
       "title": "Ontology joins the parent graph",
-      "delivery_state": "VERIFIED",
-      "landed_in": [
-        "4833c07791bf"
-      ],
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": [
         "tests/test_ontology_parent_link.py:10"
+      ]
+    },
+    {
+      "id": "CONN-GITLAB-API-CONNECTOR-CONTENT-R004",
+      "title": "Competency-question paths",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": [
+        "tests/test_cq_paths.py:13"
       ]
     }
   ]
