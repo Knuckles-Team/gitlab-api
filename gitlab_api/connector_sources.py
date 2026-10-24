@@ -24,6 +24,24 @@ SOURCES = (
         records_path="data",
         text_field="description",
         title_field="title",
+        edges=[
+            {
+                "relationship": "issueAuthoredBy",
+                "target_field": "author",
+                "target_type": "Person",
+                "target_id_key": "id",
+                "target_id_template": "user:{id}",
+                "target_fields": {"name": "name", "username": "username"},
+            },
+            {
+                "relationship": "issueAssignedTo",
+                "target_field": "assignees",
+                "target_type": "Person",
+                "target_id_key": "id",
+                "target_id_template": "user:{id}",
+                "target_fields": {"name": "name", "username": "username"},
+            },
+        ],
     ),
     source_meta(
         tool="gitlab_get_projects",
@@ -45,6 +63,24 @@ SOURCES = (
         server="gitlab-mcp",
         text_field="description",
         title_field="path_with_namespace",
+        edges=[
+            {
+                "relationship": "projectOwnedBy",
+                "target_field": "owner",
+                "target_type": "Person",
+                "target_id_key": "id",
+                "target_id_template": "user:{id}",
+                "target_fields": {"name": "name", "username": "username"},
+            },
+            {
+                "relationship": "partOfGroup",
+                "target_field": "namespace",
+                "target_type": "GitLabGroup",
+                "target_id_key": "id",
+                "target_id_template": "group:{id}",
+                "target_fields": {"name": "full_path"},
+            },
+        ],
     ),
 )
 
@@ -97,6 +133,10 @@ SCHEMA_MAPPINGS = {
         "field_sets": ["fields_1"],
         "ontology_class": "PipelineRun",
     },
+    "Person": {
+        "fields": {},
+        "ontology_class": "Person",
+    },
     "Project": {
         "field_sets": ["fields_1"],
         "ontology_class": "SoftwareProject",
@@ -133,6 +173,11 @@ RESOURCES = (
         "id_prefix": "mergerequest",
         "label": "Merge Request",
         "name": "MergeRequest",
+    },
+    {
+        "id_prefix": "person",
+        "label": "Person",
+        "name": "Person",
     },
     {
         "id_prefix": "pipeline",
