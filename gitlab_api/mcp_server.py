@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import warnings
 
+from agent_connector_sdk.connector_hooks import RegistrationContext
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
@@ -1121,7 +1122,9 @@ def register_vulnerabilities_tools(mcp: FastMCP):
         )
 
 
-def register_prompts(mcp: FastMCP):
+def register_prompts(context: RegistrationContext) -> None:
+    mcp = context.server
+
     @mcp.prompt
     def create_branch_prompt(
         new_branch: str,
