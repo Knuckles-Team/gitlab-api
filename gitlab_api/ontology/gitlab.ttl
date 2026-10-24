@@ -114,6 +114,26 @@
     rdfs:comment "Links a MergeRequest, Issue, or Commit to the Person who created it." ;
     rdfs:range :Person .
 
+:projectOwnedBy a owl:ObjectProperty ;
+    rdfs:label "project owned by" ;
+    rdfs:comment "Links a Project to the Person who owns it (projects.owner, user-namespace projects)." ;
+    rdfs:subPropertyOf :ownedBy ;
+    rdfs:domain :Project ;
+    rdfs:range :Person .
+
+:issueAuthoredBy a owl:ObjectProperty ;
+    rdfs:label "issue authored by" ;
+    rdfs:comment "Links an Issue to the Person who opened it (issues.author)." ;
+    rdfs:subPropertyOf :authoredBy ;
+    rdfs:domain :Issue ;
+    rdfs:range :Person .
+
+:issueAssignedTo a owl:ObjectProperty ;
+    rdfs:label "issue assigned to" ;
+    rdfs:comment "Links an Issue to a Person it is assigned to (issues.assignees)." ;
+    rdfs:domain :Issue ;
+    rdfs:range :Person .
+
 # --- fields (owl:DatatypeProperty) ---
 
 :iid a owl:DatatypeProperty ;
