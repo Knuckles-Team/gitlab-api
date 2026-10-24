@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from gitlab_api.mcp_server import get_mcp_instance
+from agent_connector_sdk.connector import build_server
 
 
 async def _names(monkeypatch, mode):
@@ -13,7 +13,7 @@ async def _names(monkeypatch, mode):
     else:
         monkeypatch.setenv("MCP_TOOL_MODE", mode)
     with patch("sys.argv", ["gitlab-mcp"]):
-        mcp, *_ = get_mcp_instance()
+        _, mcp = build_server("gitlab_api", command_args=[])
         return {t.name for t in await mcp.list_tools()}
 
 

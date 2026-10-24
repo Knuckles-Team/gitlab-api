@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "27.3.10"
+version = "27.3.11"
 description = "GitLab API + MCP Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12"
-dependencies = [ "agent-connector-sdk[mcp,graphql]>=0.4.1,<1.0.0", "python-dotenv>=1.2.4",]
+dependencies = [ "agent-connector-sdk[graphql,mcp]>=0.5.2,<0.6.0", "python-dotenv>=1.2.4",]
 [[project.authors]]
-name = "Project Maintainers"
-email = "maintainers@users.noreply.github.com"
+name = "Repository Maintainers"
+email = "maintainers@knuckles.team"
 
 [project.license]
 text = "MIT"
@@ -24,23 +24,14 @@ test = [
     "pytest-xdist>=3.8.0", "pytest>=9.1.1", "pytest-asyncio>=1.4.0", "pytest-cov>=7.1.0",]
 
 [project.scripts]
-gitlab-mcp = "gitlab_api.mcp_server:mcp_server"
-
-[project.entry-points."agent_connector_sdk.skill_providers"]
-gitlab-api = "gitlab_api.skills"
-
-[project.entry-points."agent_connector_sdk.ontology_providers"]
-gitlab-api = "gitlab_api.ontology"
-
-[project.entry-points."agent_connector_sdk.source_connector_providers"]
-gitlab-api = "gitlab_api.connectors"
+gitlab-mcp = "agent_connector_sdk.cli:serve"
 
 [project.entry-points."agent_connector_sdk.prompt_providers"]
 gitlab-api = "gitlab_api.prompts"
 
 # The one declared connector identity: the fleet name (SDK-CONNECTOR-CONTROL-R071).
 [project.entry-points."agent_connector_sdk.connector"]
-gitlab-mcp = "gitlab_api"
+gitlab-mcp = "gitlab_api:connector"
 
 [tool.uv.workspace]
 members = ["."]
@@ -55,6 +46,7 @@ override-dependencies = [
 
 
 [tool.ruff]
+extend-exclude = ["tests", "scripts"]
 line-length = 88
 target-version = "py312"
 
@@ -83,3 +75,12 @@ ignore_names = ["request", "config"]
 
 [tool.pipelines_hooks.ste]
 exempt = ["specs/*", "specs/**/*"]
+
+[tool.pipelines.container]
+debug_apt = ["default-jre", "ripgrep", "tree", "fd-find", "curl", "nano", "build-essential", "cmake", "libssl-dev", "libcurl4-openssl-dev", "pkg-config", "cargo", "rustc"]
+
+[tool.pipelines.ontology]
+shape_classes = ["Branch", "CheckRun", "Commit", "Epic", "GitLabGroup", "Issue", "Job", "MergeRequest", "Milestone", "Pipeline", "PipelineRun", "Project", "Release", "Runner"]
+
+[tool.pipelines.api_integration]
+baseline = 1.5
