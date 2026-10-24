@@ -6,7 +6,8 @@
   "requirement_ids": [
     "CONN-GITLAB-API-CONNECTOR-CONTENT-R001",
     "CONN-GITLAB-API-CONNECTOR-CONTENT-R002",
-    "CONN-GITLAB-API-CONNECTOR-CONTENT-R004"
+    "CONN-GITLAB-API-CONNECTOR-CONTENT-R004",
+    "CONN-GITLAB-API-CONNECTOR-CONTENT-R005"
   ],
   "requirements": [
     {
@@ -25,7 +26,8 @@
       "landed_in": [],
       "verified_by": [
         "tests/test_ontology_parent_link.py:10"
-      ]
+      ],
+      "priority": 0
     },
     {
       "id": "CONN-GITLAB-API-CONNECTOR-CONTENT-R004",
@@ -34,7 +36,28 @@
       "landed_in": [],
       "verified_by": [
         "tests/test_cq_paths.py:13"
+      ],
+      "priority": 0
+    },
+    {
+      "id": "CONN-GITLAB-API-CONNECTOR-CONTENT-R005",
+      "title": "Owner and assignee edges",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "715430199fa0"
+      ],
+      "verified_by": [
+        "tests/test_catalog_edges.py:26",
+        "tests/test_catalog_edges.py:43"
       ]
     }
+  ],
+  "frontier": [
+    "CONN-GITLAB-API-CONNECTOR-CONTENT-R002",
+    "CONN-GITLAB-API-CONNECTOR-CONTENT-R004"
+  ],
+  "unserved": [
+    "CONN-GITLAB-API-CONNECTOR-CONTENT-R002",
+    "CONN-GITLAB-API-CONNECTOR-CONTENT-R004"
   ]
 }
