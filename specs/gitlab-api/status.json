@@ -11,14 +11,15 @@
   "requirements": [
     {
       "id": "CONN-GITLAB-API-R001",
-      "title": "Declare the `projects` source",
+      "title": "Declare the `projects` and `issues` sources",
       "delivery_state": "VERIFIED",
       "landed_in": [
         "94d8638b3db8",
         "a299b729b5e6"
       ],
       "verified_by": [
-        "tests/test_ingest_sources.py:17"
+        "tests/test_ingest_sources.py:14",
+        "tests/test_ingest_sources.py:30"
       ]
     },
     {
@@ -30,7 +31,7 @@
         "6fc79b1c781d"
       ],
       "verified_by": [
-        "tests/test_fleet_name.py:35"
+        "tests/test_fleet_name.py:34"
       ]
     },
     {
