@@ -12,7 +12,7 @@ overrides = [{ name = "fastmcp-slim", extras = ["client", "server"], specifier =
 
 [[package]]
 name = "agent-connector-sdk"
-version = "0.5.2"
+version = "0.5.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -24,9 +24,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3a/bb/9ff0e3291a03d22f4bb869c5fa018f06c4da1943859159b0b285a2072c41/agent_connector_sdk-0.5.2.tar.gz", hash = "sha256:e047235f1419e0823e070b43eb38770933f9c737939834cd292df5261f0260ea", size = 785473, upload-time = "2026-10-24T02:39:19.229Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1e/3d/1efe0141e0e16a31cada15f5540d8425b97ea6d4397a733243a949d91a09/agent_connector_sdk-0.5.3.tar.gz", hash = "sha256:f5869d07ae83eeb782ac08e7e32dfb9af02d20af0b4a41fdac55fc692a36e04a", size = 793110, upload-time = "2026-10-24T06:17:26.353Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ca/0e/89915f720065b041d6c8288538562c4000d8c9664ed77978f67ba27fc831/agent_connector_sdk-0.5.2-py3-none-any.whl", hash = "sha256:3f580758e06e38df60ebd281305cd40a5acff86ea064a7cbdf6a12063062b704", size = 777571, upload-time = "2026-10-24T02:39:17.996Z" },
+    { url = "https://files.pythonhosted.org/packages/2b/b7/74976a6f2861f36a6777ce623e31842bb8ee15c9086bc83ab48c330d7c8d/agent_connector_sdk-0.5.3-py3-none-any.whl", hash = "sha256:af2e5532e9d7206625e1ab2dc472198d369ecc59d8771a701a2a495f13dd22d8", size = 783633, upload-time = "2026-10-24T06:17:24.493Z" },
 ]
 
 [package.optional-dependencies]
@@ -611,7 +611,7 @@ server = [
 
 [[package]]
 name = "gitlab-api"
-version = "27.3.11"
+version = "27.3.12"
 source = { editable = "." }
 dependencies = [
     { name = "agent-connector-sdk", extra = ["graphql", "mcp"] },
@@ -633,7 +633,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agent-connector-sdk", extras = ["graphql", "mcp"], specifier = ">=0.5.2,<0.6.0" },
+    { name = "agent-connector-sdk", extras = ["graphql", "mcp"], specifier = ">=0.5.3,<0.6.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=9.1.1" },
     { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=1.4.0" },
     { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=7.1.0" },
