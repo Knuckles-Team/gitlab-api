@@ -1,5 +1,5 @@
 schema_version: '1'
-connector: gitlab-api
+connector: gitlab-mcp
 ontology_source: gitlab
 sync:
 - preset: gitlab-projects

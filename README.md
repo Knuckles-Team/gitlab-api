@@ -20,8 +20,6 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-*Version: 27.3.10*
-
 > **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
 > backing GitLab instance are maintained in the
 > [official documentation](https://knuckles-team.github.io/gitlab-api/).

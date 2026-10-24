@@ -11,29 +11,9 @@ from agent_connector_sdk.exceptions import (
 )
 from pydantic import ValidationError
 
-import gitlab_api
 from gitlab_api.api_client import Api
 from gitlab_api.gitlab_input_models import CommitModel, ProjectModel
-from gitlab_api.mcp_server import get_mcp_instance
-
-
-def test_init_getattr_and_availability():
-    # Test __dir__
-    dir_list = dir(gitlab_api)
-    assert "Api" in dir_list
-
-    # Test dynamic attributes
-    assert gitlab_api._MCP_AVAILABLE is True
-
-    # Test custom import failure inside __getattr__
-    with patch("gitlab_api._import_module_safely", return_value=None):
-        # We temporarily mock OPTIONAL_MODULES to trigger alternative paths
-        with patch.dict(
-            "gitlab_api.OPTIONAL_MODULES", {"gitlab_api.mcp_server": "mcp"}
-        ):
-            # Test __getattr__ for unknown attributes
-            with pytest.raises(AttributeError, match="has no attribute"):
-                _ = gitlab_api.non_existent_attribute
+from agent_connector_sdk.connector import build_server
 
 
 def test_client_initialization_variations():
@@ -220,7 +200,7 @@ def test_input_model_validation_failures():
 @pytest.mark.anyio
 async def test_mcp_server_graphql_exception():
     # Initialize FastMCP instance
-    mcp, _, _, _ = get_mcp_instance()
+    _, mcp = build_server("gitlab_api", command_args=[])
 
     # Get the graphql tool handler using list_tools API
     tool_objs = (
@@ -297,7 +277,7 @@ async def test_archive_unarchive_methods_and_mcp():
         assert mock_post.call_args.kwargs["headers"] == client.headers
 
     # 2. The MCP surface serves one tool per operation.
-    mcp, _, _, _ = get_mcp_instance()
+    _, mcp = build_server("gitlab_api", command_args=[])
     names = {tool.name for tool in await mcp.list_tools()}
     assert {"gitlab_archive_project", "gitlab_unarchive_project"} <= names
     assert "gitlab_projects" not in names
