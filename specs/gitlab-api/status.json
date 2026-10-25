@@ -47,7 +47,5 @@
         "tests/test_gitlab_gql.py:237"
       ]
     }
-  ],
-  "frontier": [],
-  "unserved": []
+  ]
 }
