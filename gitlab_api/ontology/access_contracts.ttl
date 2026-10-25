@@ -1,0 +1,287 @@
+@prefix ac: <https://knuckles-team.github.io/agent-connector-sdk/access#> .
+@prefix gl: <http://knuckles.team/kg#> .
+
+# Read contracts for the classes declared by gitlab.ttl.  The MCP tools expose
+# both read and write actions, but these mappings are read-only query routes:
+# callers select the listed get action through the operation's action envelope.
+# The source classes stay in GitLab's ontology namespace.  No heuristic
+# crosswalk to a hub class is asserted here.
+
+gl:gitlabGroupAccess a ac:AccessContract ;
+    ac:classIri gl:GitLabGroup ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "group" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_groups" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 300 ;
+    ac:costHint "medium" .
+
+gl:gitlabGroupWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:gitlabGroupAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:projectAccess a ac:AccessContract ;
+    ac:classIri gl:Project ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "project" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_projects" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 300 ;
+    ac:costHint "low" .
+
+gl:projectWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:projectAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:mergeRequestAccess a ac:AccessContract ;
+    ac:classIri gl:MergeRequest ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "merge_request" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_merge_requests" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 60 ;
+    ac:costHint "medium" .
+
+gl:mergeRequestIidBinding a ac:PropertyBinding ;
+    ac:contract gl:mergeRequestAccess ; ac:property gl:iid ; ac:field "iid" .
+
+gl:mergeRequestStateBinding a ac:PropertyBinding ;
+    ac:contract gl:mergeRequestAccess ; ac:property gl:state ; ac:field "state" .
+
+gl:mergeRequestWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:mergeRequestAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:pipelineAccess a ac:AccessContract ;
+    ac:classIri gl:Pipeline ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "pipeline" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_pipelines" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 60 ;
+    ac:costHint "medium" .
+
+gl:pipelineStatusBinding a ac:PropertyBinding ;
+    ac:contract gl:pipelineAccess ; ac:property gl:pipelineStatus ; ac:field "status" .
+
+gl:pipelineRefBinding a ac:PropertyBinding ;
+    ac:contract gl:pipelineAccess ; ac:property gl:ref ; ac:field "ref" .
+
+gl:pipelineShaBinding a ac:PropertyBinding ;
+    ac:contract gl:pipelineAccess ; ac:property gl:sha ; ac:field "sha" .
+
+gl:pipelineWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:pipelineAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:pipelineRunAccess a ac:AccessContract ;
+    ac:classIri gl:PipelineRun ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "pipeline" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_pipelines" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 60 ;
+    ac:costHint "medium" .
+
+gl:jobAccess a ac:AccessContract ;
+    ac:classIri gl:Job ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "job" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_jobs" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 60 ;
+    ac:costHint "medium" .
+
+gl:jobStatusBinding a ac:PropertyBinding ;
+    ac:contract gl:jobAccess ; ac:property gl:pipelineStatus ; ac:field "status" .
+
+gl:jobRefBinding a ac:PropertyBinding ;
+    ac:contract gl:jobAccess ; ac:property gl:ref ; ac:field "ref" .
+
+gl:jobWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:jobAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:checkRunAccess a ac:AccessContract ;
+    ac:classIri gl:CheckRun ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "job" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_jobs" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 60 ;
+    ac:costHint "medium" .
+
+gl:issueAccess a ac:AccessContract ;
+    ac:classIri gl:Issue ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "issue" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_issues" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 60 ;
+    ac:costHint "medium" .
+
+gl:issueIidBinding a ac:PropertyBinding ;
+    ac:contract gl:issueAccess ; ac:property gl:iid ; ac:field "iid" .
+
+gl:issueStateBinding a ac:PropertyBinding ;
+    ac:contract gl:issueAccess ; ac:property gl:state ; ac:field "state" .
+
+gl:issueWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:issueAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:epicAccess a ac:AccessContract ;
+    ac:classIri gl:Epic ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "epic" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_epics" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 300 ;
+    ac:costHint "medium" .
+
+gl:epicIidBinding a ac:PropertyBinding ;
+    ac:contract gl:epicAccess ; ac:property gl:iid ; ac:field "iid" .
+
+gl:epicWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:epicAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:milestoneAccess a ac:AccessContract ;
+    ac:classIri gl:Milestone ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "milestone" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_milestones" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 300 ;
+    ac:costHint "medium" .
+
+gl:milestoneStateBinding a ac:PropertyBinding ;
+    ac:contract gl:milestoneAccess ; ac:property gl:state ; ac:field "state" .
+
+gl:milestoneWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:milestoneAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:commitAccess a ac:AccessContract ;
+    ac:classIri gl:Commit ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "commit" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_commits" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 60 ;
+    ac:costHint "medium" .
+
+gl:commitShaBinding a ac:PropertyBinding ;
+    ac:contract gl:commitAccess ; ac:property gl:sha ; ac:field "sha" .
+
+gl:commitWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:commitAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:branchAccess a ac:AccessContract ;
+    ac:classIri gl:Branch ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "branch" ;
+    ac:keyField "name" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_branches" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 300 ;
+    ac:costHint "low" .
+
+gl:branchWebUrlBinding a ac:PropertyBinding ;
+    ac:contract gl:branchAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+
+gl:releaseAccess a ac:AccessContract ;
+    ac:classIri gl:Release ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "release" ;
+    ac:keyField "tag_name" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_releases" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 300 ;
+    ac:costHint "medium" .
+
+gl:runnerAccess a ac:AccessContract ;
+    ac:classIri gl:Runner ;
+    ac:sourceId "gitlab-api" ;
+    ac:entity "runner" ;
+    ac:keyField "id" ;
+    ac:accessKind "mcp_tool" ;
+    ac:operation "gitlab_runners" ;
+    ac:parameter "action", "params_json" ;
+    ac:pagination "page" ;
+    ac:pushdown "filter", "limit", "sort" ;
+    ac:authRef "env://GITLAB_TOKEN" ;
+    ac:rateLimitPerMinute 60 ;
+    ac:freshnessSeconds 300 ;
+    ac:costHint "medium" .
+
+gl:runnerStateBinding a ac:PropertyBinding ;
+    ac:contract gl:runnerAccess ; ac:property gl:state ; ac:field "status" .

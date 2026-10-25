@@ -26,8 +26,7 @@
       "landed_in": [],
       "verified_by": [
         "tests/test_ontology_parent_link.py:10"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "CONN-GITLAB-API-CONNECTOR-CONTENT-R004",
@@ -36,8 +35,7 @@
       "landed_in": [],
       "verified_by": [
         "tests/test_cq_paths.py:13"
-      ],
-      "priority": 0
+      ]
     },
     {
       "id": "CONN-GITLAB-API-CONNECTOR-CONTENT-R005",
@@ -51,13 +49,5 @@
         "tests/test_catalog_edges.py:43"
       ]
     }
-  ],
-  "frontier": [
-    "CONN-GITLAB-API-CONNECTOR-CONTENT-R002",
-    "CONN-GITLAB-API-CONNECTOR-CONTENT-R004"
-  ],
-  "unserved": [
-    "CONN-GITLAB-API-CONNECTOR-CONTENT-R002",
-    "CONN-GITLAB-API-CONNECTOR-CONTENT-R004"
   ]
 }
