@@ -16,6 +16,8 @@ pytestmark = pytest.mark.spec("PIPE-CONNSPEC-R125.3")
 
 
 def test_pages_caller_enables_dashboard_and_rebuilds_for_spec_changes() -> None:
+    assert not (ROOT / ".github/workflows/docs.yml").exists()
+
     workflow = WORKFLOW.read_text(encoding="utf-8")
 
     assert "uses: Knuckles-Team/pipelines/.github/workflows/pages_pipeline.yml@main" in workflow
