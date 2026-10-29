@@ -1,6 +1,6 @@
 # CONN-GITLAB-API — GitLab ingestible sources
 
-Owner: gitlab-api. Cross-repo IDs: SDK-SOURCE-INGEST-R004.19, SDK-SOURCE-INGEST-R004.21, ARBORA-OPS-R020.6.
+Owner: gitlab-api. Cross-repo IDs: SCION-SOURCE-INGEST-R004.19, SCION-SOURCE-INGEST-R004.21, ARBORA-OPS-R020.6.
 
 ## Purpose and user stories
 
