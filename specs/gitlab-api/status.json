@@ -14,6 +14,7 @@
       "title": "Declare the `projects` and `issues` sources",
       "delivery_state": "VERIFIED",
       "landed_in": [
+        "0ad207db86cf",
         "94d8638b3db8",
         "a299b729b5e6"
       ],
