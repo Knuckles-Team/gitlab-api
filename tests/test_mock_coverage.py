@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
-from agent_connector_sdk.exceptions import (
+from scion_sdk.exceptions import (
     AuthError,
     MissingParameterError,
     ParameterError,
@@ -13,7 +13,7 @@ from pydantic import ValidationError
 
 from gitlab_api.api_client import Api
 from gitlab_api.gitlab_input_models import CommitModel, ProjectModel
-from agent_connector_sdk.connector import build_server
+from scion_sdk.connector import build_server
 
 
 def test_client_initialization_variations():

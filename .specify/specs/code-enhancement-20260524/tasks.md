@@ -5,7 +5,7 @@ Skipped informational: 6
 
 - [ ] [P] **T001** [Dependency Audit] Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
   - Priority: P3-Low | Effort: Small
-- [ ] [P] **T002** [Dependency Audit] Minor update: agent-connector-sdk 0.2.40 (installed) -> 0.16.0
+- [ ] [P] **T002** [Dependency Audit] Minor update: scion-sdk 0.2.40 (installed) -> 0.16.0
   - Priority: P3-Low | Effort: Small
 - [ ] [P] **T003** [Codebase Optimization] 5 functions exceed 200 lines (actionable refactoring targets): test_project_resp
   - Priority: P2-Medium | Effort: Large
@@ -91,5 +91,5 @@ Skipped informational: 6
   - Priority: P2-Medium | Effort: Medium
 - [ ] [P] **T044** [Environment Variables] 16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_L
   - Priority: P2-Medium | Effort: Medium
-- [ ] [P] **T045** [analyze_xdg_kg] Analysis error: No module named 'agent_connector_sdk.knowledge_graph'
+- [ ] [P] **T045** [analyze_xdg_kg] Analysis error: No module named 'scion_sdk.knowledge_graph'
   - Priority: P1-High | Effort: Medium

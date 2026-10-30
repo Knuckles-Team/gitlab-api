@@ -5,12 +5,12 @@ from base64 import b64encode
 from typing import Any, TypeVar
 
 import requests
-from agent_connector_sdk.tls.profile import ResolvedTLSProfile
-from agent_connector_sdk.tls.resolve import resolve_tls_profile
+from scion_sdk.tls.profile import ResolvedTLSProfile
+from scion_sdk.tls.resolve import resolve_tls_profile
 
 logger = logging.getLogger(__name__)
 
-from agent_connector_sdk.exceptions import (
+from scion_sdk.exceptions import (
     AuthError,
     MissingParameterError,
     ParameterError,

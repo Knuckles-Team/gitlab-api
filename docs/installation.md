@@ -21,7 +21,7 @@ The base install is intentionally minimal. Install the extra for what the operat
 
 | Extra | Install | Pulls in |
 |---|---|---|
-| `mcp` | `pip install "gitlab-api[mcp]"` | FastMCP MCP-server runtime (`agent-connector-sdk`) |
+| `mcp` | `pip install "gitlab-api[mcp]"` | FastMCP MCP-server runtime (`scion-sdk`) |
 | `gql` | `pip install "gitlab-api[gql]"` | `gql` client for the GitLab GraphQL API |
 | `all` | `pip install "gitlab-api[all]"` | Everything above |
 

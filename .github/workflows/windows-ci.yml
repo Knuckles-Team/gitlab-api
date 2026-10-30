@@ -9,7 +9,7 @@ name: Windows coverage
 #
 # gitlab-api is the fleet's golden-shape reference (AGENTS.md: "gitlab-api,
 # servicenow-api, and onetrust-api are the reference implementations").
-# Unlike agent-connector-sdk and repository-manager, its own package has NO
+# Unlike scion-sdk and repository-manager, its own package has NO
 # fcntl/termios/pwd/resource usage -- this job is the fleet's "does the
 # golden shape actually pass?" control, in contrast to the other two,
 # which are deliberately red against real, currently-unfixed specimens.

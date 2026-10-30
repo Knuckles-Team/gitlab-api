@@ -12,7 +12,7 @@ description: >-
 license: MIT
 tags: [gitlab, security, vulnerabilities, dependencies, dependabot, sca, group, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # GitLab Vulnerabilities
@@ -72,15 +72,15 @@ Action → REST endpoint → client method:
 ## Recipes (`params_json`)
 List a project's full Dependency List:
 ```json
-{"project_id":"platform/agent-connector-sdk","per_page":100}
+{"project_id":"platform/scion-sdk","per_page":100}
 ```
 Only the npm dependencies:
 ```json
-{"project_id":"platform/agent-connector-sdk","package_manager":"npm"}
+{"project_id":"platform/scion-sdk","package_manager":"npm"}
 ```
 Review a project's security vulnerabilities:
 ```json
-{"project_id":"platform/agent-connector-sdk","per_page":50}
+{"project_id":"platform/scion-sdk","per_page":50}
 ```
 Review a group's vulnerability findings across its projects:
 ```json

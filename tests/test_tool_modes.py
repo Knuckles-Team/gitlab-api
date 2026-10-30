@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from agent_connector_sdk.connector import build_server
+from scion_sdk.connector import build_server
 
 
 async def _names(monkeypatch, mode):

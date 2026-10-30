@@ -18,7 +18,7 @@
 ## Functional Requirements
 
 - **FR-001**: Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
-- **FR-002**: Minor update: agent-connector-sdk 0.2.40 (installed) -> 0.16.0
+- **FR-002**: Minor update: scion-sdk 0.2.40 (installed) -> 0.16.0
 - **FR-003**: 5 functions exceed 200 lines (actionable refactoring targets): test_project_response_3 (4001L), test_project_response_1 (355L), test_mcp_server_coverage (284L), run_tools (237L), test_group_response_23 (221L)
 - **FR-004**: Monolithic: mcp_server.py (1329L) — 6 functions with high complexity (worst: get_mcp_instance at 103L, CC=28); Low cohesion: 34 distinct concepts in one file
 - **FR-005**: Monolithic: gitlab_input_models.py (3464L) — 4 functions with high complexity (worst: ProjectModel.model_post_init at 77L, CC=36); Low cohesion: 27 distinct concepts in one file
@@ -61,7 +61,7 @@
 - **FR-042**: Only 16% of env vars documented in README.md
 - **FR-043**: Undocumented env vars: AUTH_TYPE, BRANCHESTOOL, COMMITSTOOL, CUSTOM_APITOOL, DEFAULT_AGENT_NAME, DEPLOY_TOKENSTOOL, ENVIRONMENTSTOOL, EPICSTOOL, EUNOMIA_POLICY_FILE, EUNOMIA_TYPE
 - **FR-044**: 16 Python env vars not in .env.example: DEFAULT_AGENT_NAME, EPICSTOOL, FASTMCP_LOG_LEVEL, GITLAB_TLS_PROFILE, ISSUESTOOL
-- **FR-045**: Analysis error: No module named 'agent_connector_sdk.knowledge_graph'
+- **FR-045**: Analysis error: No module named 'scion_sdk.knowledge_graph'
 
 ## Success Criteria
 

@@ -1,10 +1,10 @@
 #!/usr/bin/python
 import warnings
 
-from agent_connector_sdk.connector_hooks import RegistrationContext
 from fastmcp import Context, FastMCP
 from fastmcp.dependencies import Depends
 from pydantic import Field
+from scion_sdk.connector_hooks import RegistrationContext
 
 # Filter RequestsDependencyWarning early to prevent log spam
 with warnings.catch_warnings():
@@ -23,9 +23,9 @@ warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 from collections.abc import Callable
 from typing import Any
 
-from agent_connector_sdk.config import setting
-from agent_connector_sdk.mcp.action_dispatch import resolve_action
-from agent_connector_sdk.mcp.concurrency import run_blocking
+from scion_sdk.config import setting
+from scion_sdk.mcp.action_dispatch import resolve_action
+from scion_sdk.mcp.concurrency import run_blocking
 
 from gitlab_api.auth import get_client
 
@@ -454,8 +454,8 @@ def register_misc_tools(mcp: FastMCP):
     ) -> Any:
         """List the configured GitLab tenants (CONCEPT:AU-KG.backend.declared-columns-so-schema).
 
-        Multi-tenancy is driven by the shared agent-connector-sdk XDG config
-        (``gitlab_instances`` in ~/.config/agent-connector-sdk/config.json). Every
+        Multi-tenancy is driven by the shared scion-sdk XDG config
+        (``gitlab_instances`` in ~/.config/scion-sdk/config.json). Every
         gitlab-api tool targets a tenant by passing that instance NAME to the
         client factory; this tool surfaces the available names (tokens are never
         returned). Falls back to the single-host GITLAB_URL/GITLAB_TOKEN.
@@ -1234,7 +1234,7 @@ def register_graphql_tools(mcp: FastMCP):
         ),
     ) -> dict:
         """Discover the dynamic GitLab GraphQL schema including types, fields, and custom attributes in real-time."""
-        from agent_connector_sdk.mcp.graphql import (
+        from scion_sdk.mcp.graphql import (
             ctx_graphql_get_type_details,
             ctx_graphql_list_types,
         )

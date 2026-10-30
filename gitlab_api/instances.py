@@ -18,7 +18,7 @@ import os
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
-from agent_connector_sdk.config import setting
+from scion_sdk.config import setting
 
 logger = logging.getLogger(__name__)
 
@@ -89,15 +89,15 @@ def list_configured_instances() -> list[GitLabInstance]:
 def _entitled(namespace: str, names: list[str]) -> list[str]:
     """Filter an instance-name list to what the calling identity may reach.
 
-    Routes the names through agent-connector-sdk' shared identity-scoped resolver
+    Routes the names through scion-sdk' shared identity-scoped resolver
     (CONCEPT:AU-OS.identity.identity-scoped-resource-autoload): a caller's
     Okta/Keycloak groups decide which GitLab tenants auto-load for them. The
     ambient ``SYSTEM_ACTOR`` (unauthenticated/local) holds ``admin`` → sees
     all, so behaviour is unchanged until a real identity scopes it down.
-    Degrades to the full list if agent-connector-sdk predates the resolver.
+    Degrades to the full list if scion-sdk predates the resolver.
     """
     try:
-        from agent_connector_sdk.entitlements import identity_scoped_resources
+        from scion_sdk.entitlements import identity_scoped_resources
 
         return list(identity_scoped_resources(namespace, names))
     except Exception:
