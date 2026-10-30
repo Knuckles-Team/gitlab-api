@@ -4,8 +4,8 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
-from agent_connector_sdk.exceptions import MissingParameterError, ParameterError
-from agent_connector_sdk.transports.graphql import GraphQLExecutionError
+from scion_sdk.exceptions import MissingParameterError, ParameterError
+from scion_sdk.transports.graphql import GraphQLExecutionError
 
 from gitlab_api.gitlab_gql import GraphQL
 
@@ -13,7 +13,7 @@ from gitlab_api.gitlab_gql import GraphQL
 @pytest.fixture
 def mock_gql_client():
     with patch(
-        "agent_connector_sdk.transports.graphql.GraphQLClient.execute"
+        "scion_sdk.transports.graphql.GraphQLClient.execute"
     ) as mock_execute:
         mock_client = MagicMock()
         mock_client.execute = mock_execute

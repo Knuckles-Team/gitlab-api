@@ -3,9 +3,6 @@ import re
 from collections.abc import Sequence
 from typing import Any
 
-from agent_connector_sdk.exceptions import (
-    ParameterError,
-)
 from pydantic import (
     BaseModel,
     EmailStr,
@@ -13,6 +10,9 @@ from pydantic import (
     HttpUrl,
     field_validator,
     model_validator,
+)
+from scion_sdk.exceptions import (
+    ParameterError,
 )
 
 

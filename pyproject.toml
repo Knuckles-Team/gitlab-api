@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "27.3.15"
+version = "27.3.16"
 description = "GitLab API + MCP Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12"
-dependencies = [ "scion-sdk[graphql,mcp]>=0.5.9,<0.6.0", "python-dotenv>=1.2.4",]
+dependencies = [ "scion-sdk[graphql,mcp]>=0.6.2,<0.7.0", "python-dotenv>=1.2.4",]
 [[project.authors]]
 name = "Repository Maintainers"
 email = "maintainers@knuckles.team"
@@ -24,13 +24,13 @@ test = [
     "pytest-xdist>=3.8.0", "pytest>=9.1.1", "pytest-asyncio>=1.4.0", "pytest-cov>=7.1.0",]
 
 [project.scripts]
-gitlab-mcp = "agent_connector_sdk.cli:serve"
+gitlab-mcp = "scion_sdk.cli:serve"
 
-[project.entry-points."agent_connector_sdk.prompt_providers"]
+[project.entry-points."scion_sdk.prompt_providers"]
 gitlab-api = "gitlab_api.prompts"
 
 # The one declared connector identity: the fleet name (SCION-CONNECTOR-CONTROL-R071).
-[project.entry-points."agent_connector_sdk.connector"]
+[project.entry-points."scion_sdk.connector"]
 gitlab-mcp = "gitlab_api:connector"
 
 [tool.uv.workspace]

@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
-from agent_connector_sdk.exceptions import (
+from scion_sdk.exceptions import (
     ParameterError,
 )
 

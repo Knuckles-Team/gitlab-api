@@ -159,7 +159,7 @@ failed_tests.txt
 trace.txt
 
 # P0.2/P0.3 (arbora-completion-program): materialized, dev-machine-only
-# symlink to the real agent-connector-sdk checkout, used so this repo resolves
+# symlink to the real scion-sdk checkout, used so this repo resolves
 # standalone against its own tracked lock instead of the ecosystem workspace.
 # Never tracked.
 .uv-workspace-siblings/
@@ -168,3 +168,6 @@ docker/debug.Dockerfile
 docker/*.compose.yml
 gitlab_api/ontology/shapes/connector.shacl.ttl
 gitlab_api/ontology/certification.json
+
+# Spec status is computed at read time (pipelines-hook spec-status --write), never committed.
+specs/*/status.json

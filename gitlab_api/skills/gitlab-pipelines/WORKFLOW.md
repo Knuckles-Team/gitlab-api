@@ -52,7 +52,7 @@ Full env/tag matrix: the mcp-client reference `agent-tools/mcp-client/references
 ## Recipes (`params_json`)
 Review recent pipelines for a ref, newest first:
 ```json
-{"project_id":"platform/agent-connector-sdk","ref":"main","order_by":"id","sort":"desc","per_page":10}
+{"project_id":"platform/scion-sdk","ref":"main","order_by":"id","sort":"desc","per_page":10}
 ```
 Enumerate a group's projects to sweep CI across the org:
 ```json
@@ -60,19 +60,19 @@ Enumerate a group's projects to sweep CI across the org:
 ```
 Failed pipelines for a project:
 ```json
-{"project_id":"platform/agent-connector-sdk","status":"failed","per_page":20}
+{"project_id":"platform/scion-sdk","status":"failed","per_page":20}
 ```
 Jobs of a pipeline:
 ```json
-{"project_id":"platform/agent-connector-sdk","pipeline_id":123456}
+{"project_id":"platform/scion-sdk","pipeline_id":123456}
 ```
 Read a job's log:
 ```json
-{"project_id":"platform/agent-connector-sdk","job_id":554433}
+{"project_id":"platform/scion-sdk","job_id":554433}
 ```
 Trigger a pipeline on a branch with a variable:
 ```json
-{"project_id":"platform/agent-connector-sdk","ref":"main","variables":{"DEPLOY":"true"}}
+{"project_id":"platform/scion-sdk","ref":"main","variables":{"DEPLOY":"true"}}
 ```
 
 ## Gotchas

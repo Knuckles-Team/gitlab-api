@@ -3,7 +3,7 @@
 The caller's entitled GitLab instances auto-load; a non-entitled named instance
 is denied; the default falls to the first entitled when the first-configured
 instance is off-limits. Tests the resolution/enforcement logic with the
-entitlement source mocked (the resolver itself is tested in agent-connector-sdk).
+entitlement source mocked (the resolver itself is tested in scion-sdk).
 """
 
 from types import SimpleNamespace

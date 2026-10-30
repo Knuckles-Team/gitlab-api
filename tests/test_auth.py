@@ -37,8 +37,8 @@ def test_get_client_oidc_delegation(monkeypatch):
     """Delegation path: exchange_token's return becomes the client's bearer token."""
     _set_delegation_settings_env(monkeypatch)
 
-    import agent_connector_sdk.auth.delegation as delegation
-    from agent_connector_sdk.auth.tokens import AccessToken
+    import scion_sdk.auth.delegation as delegation
+    from scion_sdk.auth.tokens import AccessToken
 
     monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
     monkeypatch.setattr(
@@ -59,7 +59,7 @@ def test_get_client_oidc_delegation(monkeypatch):
 def test_get_client_oidc_delegation_failed(monkeypatch):
     _set_delegation_settings_env(monkeypatch)
 
-    import agent_connector_sdk.auth.delegation as delegation
+    import scion_sdk.auth.delegation as delegation
 
     monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
 
@@ -91,8 +91,8 @@ def test_get_graphql_client_missing_token():
 def test_get_graphql_client_oidc_delegation(monkeypatch):
     _set_delegation_settings_env(monkeypatch)
 
-    import agent_connector_sdk.auth.delegation as delegation
-    from agent_connector_sdk.auth.tokens import AccessToken
+    import scion_sdk.auth.delegation as delegation
+    from scion_sdk.auth.tokens import AccessToken
 
     monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
     monkeypatch.setattr(
@@ -112,7 +112,7 @@ def test_get_graphql_client_oidc_delegation(monkeypatch):
 def test_get_graphql_client_oidc_delegation_failed(monkeypatch):
     _set_delegation_settings_env(monkeypatch)
 
-    import agent_connector_sdk.auth.delegation as delegation
+    import scion_sdk.auth.delegation as delegation
 
     monkeypatch.setattr(delegation, "current_user_token", lambda: "caller-token")
 

@@ -12,7 +12,7 @@ description: >-
 license: MIT
 tags: [gitlab, merge-requests, code-review, approve, merge, auto-merge, ci, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # GitLab Merge Request Review
@@ -83,26 +83,26 @@ Open MRs for a group:
 ```
 One MR by iid:
 ```json
-{"project_id":"platform/agent-connector-sdk","merge_request_iid":42}
+{"project_id":"platform/scion-sdk","merge_request_iid":42}
 ```
 Gate on CI — jobs of the MR's pipeline, then a failing job's log:
 ```json
-{"project_id":"platform/agent-connector-sdk","pipeline_id":998877}
+{"project_id":"platform/scion-sdk","pipeline_id":998877}
 ```
 ```json
-{"project_id":"platform/agent-connector-sdk","job_id":554433}
+{"project_id":"platform/scion-sdk","job_id":554433}
 ```
 Approve the MR:
 ```json
-{"project_id":"platform/agent-connector-sdk","merge_request_iid":42}
+{"project_id":"platform/scion-sdk","merge_request_iid":42}
 ```
 Set auto-merge (merge when the pipeline succeeds):
 ```json
-{"project_id":"platform/agent-connector-sdk","merge_request_iid":42,"merge_when_pipeline_succeeds":true,"squash":true}
+{"project_id":"platform/scion-sdk","merge_request_iid":42,"merge_when_pipeline_succeeds":true,"squash":true}
 ```
 Merge now:
 ```json
-{"project_id":"platform/agent-connector-sdk","merge_request_iid":42,"should_remove_source_branch":true}
+{"project_id":"platform/scion-sdk","merge_request_iid":42,"should_remove_source_branch":true}
 ```
 
 ## Guarded write actions

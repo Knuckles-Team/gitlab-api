@@ -10,7 +10,7 @@ license: MIT
 tags: [gitlab, rest, graphql, mcp, development, connector, test, gates]
 tier: repository
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 
@@ -20,7 +20,7 @@ This repository owns the GitLab REST and GraphQL API facades, tenant and
 authentication boundary, action-routed MCP tools, GitLab ontology and KG
 ingestion mappings, and packaged connector content. Shared connector
 contracts, transports, TLS profiles, and credential helpers belong to
-`agent-connector-sdk`; admission, serving, and durable graph state belong to
+`scion-sdk`; admission, serving, and durable graph state belong to
 their owning repositories. Read `AGENTS.md` before changing code and keep
 credentials, private endpoints, tenant data, and customer records out of
 source, logs, fixtures, and skill content.
@@ -61,7 +61,7 @@ owning spec row in the commit trailer.
   come from shared hooks; never hand-edit them.
 - Keep `skills/**`, `ontology/**`, `connectors/**`, prompts, and
   `mcp_config.json` coherent with package data and the
-  `agent_connector_sdk.connector` entry point (`gitlab-mcp =
+  `scion_sdk.connector` entry point (`gitlab-mcp =
   gitlab_api:connector`). Do not add a second publisher or runtime plane.
 
 ## Setup and gates
@@ -110,7 +110,7 @@ copy those hooks locally or bypass a failing check.
 
 ## Packaging and publication
 
-`pyproject.toml` declares the `agent_connector_sdk.connector` entry point
+`pyproject.toml` declares the `scion_sdk.connector` entry point
 `gitlab-mcp = "gitlab_api:connector"` and packages `skills/**`, `ontology/**`,
 `connectors/**`, prompts, and `mcp_config.json`. When packaged content changes,
 use `uv version --bump patch` and let the lockfile update with the project; add

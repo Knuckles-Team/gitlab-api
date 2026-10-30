@@ -9,7 +9,7 @@ from gitlab_api.auth import _resolve_connection
 
 
 def _patch_config(monkeypatch, gitlab_instances):
-    """Point the registry at a fake agent-connector-sdk config singleton."""
+    """Point the registry at a fake scion-sdk config singleton."""
     monkeypatch.setattr(
         instances,
         "setting",

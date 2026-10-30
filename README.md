@@ -54,11 +54,11 @@ This server use dynamic Action-Routed tools to optimize token overhead and maxim
 
 ### Tool surface — `MCP_TOOL_MODE`
 
-Set `MCP_TOOL_MODE` (in the shared `~/.config/agent-connector-sdk/config.json` or env):
+Set `MCP_TOOL_MODE` (in the shared `~/.config/scion-sdk/config.json` or env):
 `condensed` (default — the action-routed tools below), `verbose` (one named 1:1 tool
 per API method, e.g. `gitlab_get_branches(...)`, tagged `verbose`), or `both`. Filter
 the verbose set with `--tools tag:verbose` / `MCP_ENABLED_TAGS=verbose`. See the
-agent-connector-sdk *MCP Tool Modes* guide.
+scion-sdk *MCP Tool Modes* guide.
 
 ### Available MCP Tools
 
@@ -342,7 +342,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 <!-- MCP-CONFIG-EXAMPLES:START -->
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `gitlab-api[mcp]` to add
-> FastMCP / FastAPI through `agent-connector-sdk`; the required Agent Connector SDK core
+> FastMCP / FastAPI through `scion-sdk`; the required Scion SDK core
 > still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
 > enables model orchestration.
 
@@ -602,7 +602,7 @@ the detailed transport contract.
 | `GRAPHQLTOOL` | `True` |  |
 | `GRAPHQL_OPSTOOL` | `True` |  |
 
-#### Inherited agent-connector-sdk variables (apply to every connector)
+#### Inherited scion-sdk variables (apply to every connector)
 
 | Variable | Example | Description |
 |----------|---------|-------------|
@@ -622,7 +622,7 @@ the detailed transport contract.
 | `PROVIDER` | `openai` | LLM provider for the agent |
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 
-_45 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-connector-sdk set — do not edit._
+_45 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared scion-sdk set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 Every variable the server reads.
@@ -639,7 +639,7 @@ instances are configured, it falls back to the single-host `GITLAB_*` values bel
 | `GITLAB_TLS_PROFILE` | Optional runtime TLS profile selector | _(unset)_ |
 
 > Multiple instances are declared once under `gitlab_instances` in the shared
-> agent-connector-sdk XDG config (`~/.config/agent-connector-sdk/config.json`) — each entry has
+> scion-sdk XDG config (`~/.config/scion-sdk/config.json`) — each entry has
 > `name`, `url`, `token`, and optional `tls_profile`. Target a tenant by **name** from the client
 > factory; an unset instance resolves to the first configured one (else `GITLAB_URL` /
 > `GITLAB_TOKEN`).

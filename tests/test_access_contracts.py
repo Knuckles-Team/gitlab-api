@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from agent_connector_sdk.access_contract import parse_access_contracts
+from scion_sdk.access_contract import parse_access_contracts
 
 
 ROOT = Path(__file__).resolve().parents[1]
