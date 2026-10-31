@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlab-api"
-version = "27.3.16"
+version = "27.3.17"
 description = "GitLab API + MCP Server"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: OSI Approved :: MIT License", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12"
-dependencies = [ "scion-sdk[graphql,mcp]>=0.6.3,<0.7.0", "python-dotenv>=1.2.4",]
+dependencies = [ "scion-sdk[graphql,mcp]>=0.6.4,<0.7.0", "python-dotenv>=1.2.4",]
 [[project.authors]]
 name = "Repository Maintainers"
 email = "maintainers@knuckles.team"
