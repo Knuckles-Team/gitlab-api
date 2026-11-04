@@ -483,7 +483,7 @@ def register_misc_tools(mcp: FastMCP):
         client=Depends(get_client),
         ctx: Context | None = None,
     ) -> Any:
-        """Natively ingest GitLab projects into epistemic-graph as typed :Project nodes.
+        """Natively ingest GitLab projects into medulla as typed :Project nodes.
 
         Lists projects via the GitLab API and pushes them (with their :GitLabGroup +
         :partOfGroup links) into the knowledge graph via the fast engine client.
@@ -516,7 +516,7 @@ def register_misc_tools(mcp: FastMCP):
         client=Depends(get_client),
         ctx: Context | None = None,
     ) -> Any:
-        """Natively ingest GitLab CI pipeline runs (+ jobs) into epistemic-graph.
+        """Natively ingest GitLab CI pipeline runs (+ jobs) into medulla.
 
         Lists recent pipelines for ``project_id`` via the GitLab API (optionally each
         pipeline's jobs) and pushes them as typed ``:PipelineRun``/``:CheckRun`` nodes

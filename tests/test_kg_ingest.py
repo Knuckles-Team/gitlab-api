@@ -21,7 +21,7 @@ from gitlab_api.kg_ingest import STREAM, ingest_pipeline_runs, ingest_projects
 
 
 class _FakeTransport:
-    """Records every submitted request; no epistemic-graph engine required."""
+    """Records every submitted request; no medulla engine required."""
 
     def __init__(self) -> None:
         self.requests: list[SourceIngestionRequest] = []
