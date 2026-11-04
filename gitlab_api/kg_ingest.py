@@ -2,7 +2,7 @@
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. This is the record-source twin of
 media-downloader's blob ingestion: the package pushes its data into the ONE
-epistemic-graph knowledge graph as **typed OWL nodes** (`:Project`, `:GitLabGroup`,
+medulla knowledge graph as **typed OWL nodes** (`:Project`, `:GitLabGroup`,
 `:MergeRequest`, `:Issue`, …) + links through ``scion_sdk.ingest`` -- the
 generated ``SourceIngest`` client, not a local ingestion helper. Nodes carry shared
 provenance (via ``IngestBinding``) and match the classes federated by

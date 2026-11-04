@@ -14,7 +14,7 @@ pytestmark = pytest.mark.spec("CONN-GITLAB-API-CONNECTOR-CONTENT-R004")
 
 PACKAGE = Path(gitlab_api.__file__).parent
 TTL = (PACKAGE / "ontology" / "gitlab.ttl").read_text("utf-8")
-# Concepts the epistemic-graph ontology owns: referenced, never declared here.
+# Concepts the medulla ontology owns: referenced, never declared here.
 SHARED = ("Commit", "Branch", "Release", "Runner", "Milestone", "PipelineRun")
 
 

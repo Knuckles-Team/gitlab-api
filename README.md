@@ -80,8 +80,8 @@ _Auto-generated from the live MCP server — do not edit by hand._
 | `gitlab_graphql` | `GRAPHQLTOOL` | Execute raw GraphQL queries and mutations natively on GitLab. |
 | `gitlab_graphql_ops` | `GRAPHQL_OPSTOOL` | Run a typed GitLab GraphQL operation by name. |
 | `gitlab_groups` | `GROUPSTOOL` | Manage gitlab groups operations. |
-| `gitlab_ingest_pipelines` | `MISCTOOL` | Natively ingest GitLab CI pipeline runs (+ jobs) into epistemic-graph. |
-| `gitlab_ingest_projects` | `MISCTOOL` | Natively ingest GitLab projects into epistemic-graph as typed :Project nodes. |
+| `gitlab_ingest_pipelines` | `MISCTOOL` | Natively ingest GitLab CI pipeline runs (+ jobs) into medulla. |
+| `gitlab_ingest_projects` | `MISCTOOL` | Natively ingest GitLab projects into medulla as typed :Project nodes. |
 | `gitlab_instances` | `MISCTOOL` | List the configured GitLab tenants (CONCEPT:AU-KG.backend.declared-columns-so-schema). |
 | `gitlab_issues` | `ISSUESTOOL` | Manage GitLab issues. |
 | `gitlab_jobs` | `JOBSTOOL` | Manage gitlab jobs operations. |
@@ -343,7 +343,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `gitlab-api[mcp]` to add
 > FastMCP / FastAPI through `scion-sdk`; the required Scion SDK core
-> still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
+> still carries `medulla`. The `[agent-runtime]` extra additionally
 > enables model orchestration.
 
 #### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
@@ -691,7 +691,7 @@ One multi-stage `docker/Dockerfile` builds the MCP-only image (`--target mcp`):
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `example/gitlab-api:mcp` | `--target mcp` | `gitlab-api[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `gitlab-mcp` |
+| `example/gitlab-api:mcp` | `--target mcp` | `gitlab-api[mcp]` — **connector-focused**, includes `medulla`; no model-orchestration stack | `gitlab-mcp` |
 
 ```bash
 docker build --target mcp   -t example/gitlab-api:mcp    docker/   # connector-focused MCP server

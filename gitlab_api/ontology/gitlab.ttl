@@ -11,7 +11,7 @@
 # per-package IRI. Backs the gitlab-api MCP tool surface (gitlab_projects / gitlab_merge_requests
 # / gitlab_pipelines / gitlab_issues / …).
 
-# Shared concepts owned by the epistemic-graph ontology and referenced here, never redeclared:
+# Shared concepts owned by the medulla ontology and referenced here, never redeclared:
 # Commit, Branch, Release, Runner, Milestone, PipelineRun. Only the GitLab-specific subclasses and properties are declared in this pack.
 
 :GitLabGroup a owl:Class ;
