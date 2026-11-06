@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [27.3.20] - 2026-11-06
+
+### Changed
+- Connector surface: agent-definition prompts (operator, release manager, project administrator, triage lead), task skills, tool-use contracts for all 208 tools, data locations and roles.
+- Require `scion-sdk[graphql,mcp]>=0.9.0`; `uv.lock` relocked.
+- The `Api` client methods now take explicit typed keyword parameters instead of `**kwargs`; `create_project` gains typed fields for the common body parameters.
+- The condensed action-routed `gitlab_<domain>` modules and `api_request` are removed; the GraphQL operations, instance and ingestion tools are typed (`gitlab_graphql_ops_*`, `gitlab_instances_*`).
+
 ## [27.3.18] - 2026-11-05
 
 ### Fixed

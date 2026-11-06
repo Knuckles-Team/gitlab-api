@@ -2,127 +2,70 @@
 name: gitlab-merge-request-review
 skill_type: skill
 description: >-
-  Review and merge GitLab merge requests via the gitlab-api MCP server — by default the MRs
-  assigned to you or where you are a reviewer, optionally scoped to a project, group, or the
-  whole instance. Read an MR, gate it on a green pipeline (pipeline → jobs → job log), then
-  approve, accept/merge, or set merge-when-pipeline-succeeds (auto-merge) — writes are confirmed
-  with the user and CI-gated. Use when the agent must review open MRs, verify CI, approve, merge,
-  or set auto-merge. Do NOT use to open an MR (gitlab-merge-request-create), review issues
-  (gitlab-issues), or review pipelines broadly (gitlab-pipelines).
+  Review and merge GitLab merge requests via the gitlab-api MCP server — by default the MRs assigned to you or where you are a reviewer, optionally scoped to a project, group, or the whole instance. Read an MR, gate it on a green pipeline (pipeline → jobs → job log), then approve, accept/merge, or set merge-when-pipeline-succeeds (auto-merge) — writes are confirmed with the user and CI-gated. Use when the agent must review open MRs, verify CI, approve, merge, or set auto-merge. Do NOT use to open an MR (gitlab-merge-request-create), review issues (gitlab-issues), or review pipelines broadly (gitlab-pipelines).
 license: MIT
-tags: [gitlab, merge-requests, code-review, approve, merge, auto-merge, ci, mcp]
+tags: []
 metadata:
   author: Knuckles-Team
-  version: '0.1.0'
+  version: '1.0.0'
 ---
-# GitLab Merge Request Review
+# Gitlab Merge Request Review
 
-Domain-typed review-to-merge for GitLab **Merge Requests** via the gitlab-api MCP server.
-Default focus: the MRs that are *yours to act on* (assigned to you or awaiting your review);
-widen to a project, group, or the whole instance on request.
+Typed gitlab_* tools take project_id (id or URL-encoded path) explicitly; resolve it before acting.
 
-## When to use
-- Review the MRs assigned to you or where you are a reviewer (the default).
-- Scope MR review to a **project**, a **group**, or the **instance**.
-- Read an MR and gate a merge on a green pipeline — pipeline → jobs → job log.
-- **Approve**, **accept (merge)**, or set **merge-when-pipeline-succeeds** (auto-merge); cancel
-  a queued auto-merge.
+## Rules
 
-## When NOT to use
-- Opening a new MR → `gitlab-merge-request-create`.
-- Issue triage → `gitlab-issues`.
-- Broad pipeline/CI review across a group/instance → `gitlab-pipelines`.
+- Resolve project_id (and the merge request or issue iid) before any call.
+- Read first, then change, then read the object back.
+- Delete, erase and merge-class tools need an explicit request; ask first.
 
-## Prerequisites & environment
-Connect via the `mcp-client` skill against the **`gitlab-api`** MCP server.
+## Task workflows
 
-| Variable | Required | Notes |
-|----------|----------|-------|
-| `GITLAB_URL` | ✅ | GitLab instance base URL |
-| `GITLAB_TOKEN` | ✅ | Access token with `api` scope (approve/merge need write) |
-| `GITLAB_SSL_VERIFY` | optional | TLS verification toggle |
+### review-a-merge-request
 
-Full env/tag matrix: the mcp-client reference `agent-tools/mcp-client/references/gitlab-api.md`.
-`MCP_TOOL_MODE` (`condensed`|`verbose`|`both`) selects the condensed surface (below).
+Read a merge request, its approvals, commits and discussions. Contract steps, in order:
 
-## Tools & actions
-Prefer the **condensed** tools; each takes `action` + a `params_json` **JSON string**.
+1. `gitlab_get_approval_state_merge_requests`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
+2. `gitlab_get_commit`(; optional project_id, commit_hash, branch, dry_run, message, state)
+3. `gitlab_get_commit_comments`(; optional project_id, commit_hash, branch, dry_run, message, state)
+4. `gitlab_get_commit_diff`(; optional project_id, commit_hash, branch, dry_run, message, state)
+5. `gitlab_get_commit_discussions`(; optional project_id, commit_hash, branch, dry_run, message, state)
+6. `gitlab_get_commit_gpg_signature`(; optional project_id, commit_hash, branch, dry_run, message, state)
+7. `gitlab_get_commit_merge_requests`(; optional project_id, commit_hash, branch, dry_run, message, state)
+8. `gitlab_get_commit_references`(; optional project_id, commit_hash, branch, dry_run, message, state)
+9. `gitlab_get_commit_statuses`(; optional project_id, commit_hash, branch, dry_run, message, state)
+10. `gitlab_get_commits`(; optional project_id, commit_hash, branch, dry_run, message, state)
+11. `gitlab_get_group_merge_requests`(; optional group_id, name, path, auto_devops_enabled, avatar, default_branch)
+12. `gitlab_get_merge_request_level_rules`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
+13. `gitlab_get_merge_requests`(; optional approved_by_ids, approver_ids, assignee_id, author_id, author_username, created_after)
+14. `gitlab_get_project_level_merge_request_rule`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
+15. `gitlab_get_project_level_merge_request_rules`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
+16. `gitlab_get_project_merge_request`(; optional approved_by_ids, approver_ids, assignee_id, author_id, author_username, created_after)
+17. `gitlab_get_project_merge_requests`(; optional approved_by_ids, approver_ids, assignee_id, author_id, author_username, created_after)
+18. `gitlab_merge_request_level_approvals`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
 
-| Condensed tool | Actions |
-|----------------|---------|
-| `gitlab_merge_requests` | `get`, `get_project`, `accept`, `cancel_auto_merge` |
-| `gitlab_merge_rules` | `get_mr_approvals`, `get_mr_approval_state`, `approve_mr`, `unapprove_mr` |
-| `gitlab_groups` | `get_merge_requests` (group-scoped MRs) |
-| `gitlab_pipelines` | `get` |
-| `gitlab_jobs` | `get_pipeline_jobs`, `get_log` |
+### land-a-merge-request
 
-### Key parameters
-- Default scope — instance-wide `gitlab_merge_requests get` with either `scope=assigned_to_me`
-  or `reviewer_username=<me>` (run both and union). Project scope → `get_project` with
-  `project_id`; group scope → `gitlab_groups get_merge_requests` with `group_id`.
-- Single MR → `gitlab_merge_requests get` with `project_id` + `merge_request_iid`.
-- CI gate — the MR object carries `pipeline`/`head_pipeline`; feed its id to `gitlab_pipelines
-  get` (`pipeline_id`), then `gitlab_jobs get_pipeline_jobs` (`pipeline_id`), then `get_log`
-  (`job_id`).
-- Approve/merge — `gitlab_merge_rules approve_mr` (project_id + merge_request_iid);
-  `gitlab_merge_requests accept` merges now, or pass `merge_when_pipeline_succeeds=true` to set
-  auto-merge; `cancel_auto_merge` cancels a queued auto-merge.
+Approve, merge or auto-merge a merge request and clean up branches. Contract steps, in order:
 
-## Recipes (`params_json`)
-Default — MRs assigned to you, newest first:
-```json
-{"scope":"assigned_to_me","state":"opened","order_by":"updated_at","sort":"desc","per_page":25}
-```
-MRs where you are the reviewer:
-```json
-{"reviewer_username":"me","state":"opened"}
-```
-Open MRs for a group:
-```json
-{"group_id":"platform","state":"opened"}
-```
-One MR by iid:
-```json
-{"project_id":"platform/scion-sdk","merge_request_iid":42}
-```
-Gate on CI — jobs of the MR's pipeline, then a failing job's log:
-```json
-{"project_id":"platform/scion-sdk","pipeline_id":998877}
-```
-```json
-{"project_id":"platform/scion-sdk","job_id":554433}
-```
-Approve the MR:
-```json
-{"project_id":"platform/scion-sdk","merge_request_iid":42}
-```
-Set auto-merge (merge when the pipeline succeeds):
-```json
-{"project_id":"platform/scion-sdk","merge_request_iid":42,"merge_when_pipeline_succeeds":true,"squash":true}
-```
-Merge now:
-```json
-{"project_id":"platform/scion-sdk","merge_request_iid":42,"should_remove_source_branch":true}
-```
+1. `gitlab_accept_merge_request`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
+2. `gitlab_approve_merge_request`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
+3. `gitlab_cancel_merge_when_pipeline_succeeds`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
+4. `gitlab_delete_branch`(; optional project_id, branch, ref, max_pages, page, per_page) (destructive: pass confirm=true only after the person agrees)
+5. `gitlab_delete_merged_branches`(; optional project_id, branch, ref, max_pages, page, per_page) (destructive: pass confirm=true only after the person agrees)
+6. `gitlab_graphql_ops_delete_merge_request`(project_id, merge_request_iid; optional confirm) (destructive: pass confirm=true only after the person agrees)
+7. `gitlab_graphql_ops_update_merge_request`(project_id, merge_request_iid; optional title, description, target_branch)
+8. `gitlab_unapprove_merge_request`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
 
-## Guarded write actions
-`approve_mr`, `accept`, and `cancel_auto_merge` mutate the MR. Before calling any of them:
-1. **Confirm CI is green** — the MR's pipeline `status=success` and no required job log shows a
-   failure. Recommend `accept` (immediate merge) only when the pipeline has passed; otherwise
-   prefer `merge_when_pipeline_succeeds=true`.
-2. **Present the exact action to the user** — project, MR `!iid`/title, and the operation
-   (approve / auto-merge / immediate merge) — and get explicit confirmation.
-3. Only then call the tool.
+### manage-approval-rules
 
-## Gotchas
-- `params_json` is a **string** of JSON, not an object — serialize it.
-- Use `merge_request_iid` (the project `!iid`), not the global MR id.
-- `project_id` accepts the URL-encoded `group/project` path or the numeric id.
-- A pipeline `status=success` doesn't mean every job ran — check for `manual`/`skipped` stages
-  before merging on a release branch.
-- `accept` fails if the MR isn't mergeable (conflicts, unmet approvals, or a running pipeline
-  when the project requires green CI) — read `merge_status`/approval state first.
+Create, change and delete approval rules and code-owner approval. Contract steps, in order:
 
-## Related
-- **Open an MR:** `gitlab-merge-request-create`.
-- **KG mapping:** MRs map to `:MergeRequest` nodes via `gitlab_api.kg_ingest`.
+1. `gitlab_create_project_level_rule`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)
+2. `gitlab_delete_project_level_rule`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches) (destructive: pass confirm=true only after the person agrees)
+3. `gitlab_edit_group_level_rule`(; optional project_id, group_id, allow_author_approval, allow_committer_approval, allow_overrides_to_approver_list_per_merge_request, retain_approvals_on_push)
+4. `gitlab_edit_project_level_rule`(; optional project_id, group_id, allow_author_approval, allow_committer_approval, allow_overrides_to_approver_list_per_merge_request, retain_approvals_on_push)
+5. `gitlab_get_group_level_rule`(; optional project_id, group_id, allow_author_approval, allow_committer_approval, allow_overrides_to_approver_list_per_merge_request, retain_approvals_on_push)
+6. `gitlab_get_project_level_rule`(; optional project_id, group_id, allow_author_approval, allow_committer_approval, allow_overrides_to_approver_list_per_merge_request, retain_approvals_on_push)
+7. `gitlab_require_code_owner_approvals_single_branch`(; optional project_id, branch, ref, max_pages, page, per_page)
+8. `gitlab_update_project_level_rule`(; optional project_id, group_id, approval_rule_id, approvals_required, name, applies_to_all_protected_branches)

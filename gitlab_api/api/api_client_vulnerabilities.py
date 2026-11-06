@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import logging
-from typing import TypeVar
+from typing import Any, TypeVar
 
 import requests
 from pydantic import ValidationError
@@ -29,7 +29,18 @@ class GitLabApiVulnerabilities(GitLabApiBase):
     """Dependency list + security vulnerability surface — the GitLab counterpart
     to GitHub's Dependabot (Dependency List, Vulnerabilities, and findings APIs)."""
 
-    def get_project_dependencies(self, **kwargs) -> Response:
+    def get_project_dependencies(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        vulnerability_id: int | str | None = None,
+        package_manager: str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a project's Dependency List (all detected dependencies).
 
@@ -47,6 +58,20 @@ class GitLabApiVulnerabilities(GitLabApiBase):
             MissingParameterError: If project_id is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "vulnerability_id": vulnerability_id,
+                "package_manager": package_manager,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         vulnerability = VulnerabilityModel(**kwargs)
         if vulnerability.project_id is None:
             raise MissingParameterError("project_id is required")
@@ -65,7 +90,18 @@ class GitLabApiVulnerabilities(GitLabApiBase):
                 f"Failed to get project dependencies: {type(e).__name__}"
             ) from e
 
-    def get_project_vulnerabilities(self, **kwargs) -> Response:
+    def get_project_vulnerabilities(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        vulnerability_id: int | str | None = None,
+        package_manager: str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a project's security vulnerabilities (Ultimate).
 
@@ -82,6 +118,20 @@ class GitLabApiVulnerabilities(GitLabApiBase):
             MissingParameterError: If project_id is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "vulnerability_id": vulnerability_id,
+                "package_manager": package_manager,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         vulnerability = VulnerabilityModel(**kwargs)
         if vulnerability.project_id is None:
             raise MissingParameterError("project_id is required")
@@ -100,7 +150,18 @@ class GitLabApiVulnerabilities(GitLabApiBase):
                 f"Failed to get project vulnerabilities: {type(e).__name__}"
             ) from e
 
-    def get_group_vulnerabilities(self, **kwargs) -> Response:
+    def get_group_vulnerabilities(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        vulnerability_id: int | str | None = None,
+        package_manager: str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a group's security vulnerability findings (Ultimate).
 
@@ -117,6 +178,20 @@ class GitLabApiVulnerabilities(GitLabApiBase):
             MissingParameterError: If group_id is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "vulnerability_id": vulnerability_id,
+                "package_manager": package_manager,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         vulnerability = VulnerabilityModel(**kwargs)
         if vulnerability.group_id is None:
             raise MissingParameterError("group_id is required")
@@ -135,7 +210,18 @@ class GitLabApiVulnerabilities(GitLabApiBase):
                 f"Failed to get group vulnerabilities: {type(e).__name__}"
             ) from e
 
-    def get_vulnerability(self, **kwargs) -> Response:
+    def get_vulnerability(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        vulnerability_id: int | str | None = None,
+        package_manager: str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a single vulnerability by its global ID (Ultimate).
 
@@ -152,6 +238,20 @@ class GitLabApiVulnerabilities(GitLabApiBase):
             MissingParameterError: If vulnerability_id is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "vulnerability_id": vulnerability_id,
+                "package_manager": package_manager,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         vulnerability = VulnerabilityModel(**kwargs)
         if vulnerability.vulnerability_id is None:
             raise MissingParameterError("vulnerability_id is required")

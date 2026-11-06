@@ -52,13 +52,9 @@ Detailed instructions on how to use the underlying API wrappers, extended schema
 
 This server use dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
 
-### Tool surface — `MCP_TOOL_MODE`
+### Tool surface
 
-Set `MCP_TOOL_MODE` (in the shared `~/.config/scion-sdk/config.json` or env):
-`condensed` (default — the action-routed tools below), `verbose` (one named 1:1 tool
-per API method, e.g. `gitlab_get_branches(...)`, tagged `verbose`), or `both`. Filter
-the verbose set with `--tools tag:verbose` / `MCP_ENABLED_TAGS=verbose`. See the
-scion-sdk *MCP Tool Modes* guide.
+Every GitLab operation is one typed tool (`gitlab_get_branches`, `gitlab_create_merge_request`, ...) with explicit parameters. There are no action-routed tools. Destructive tools take `confirm=true`.
 
 ### Available MCP Tools
 
@@ -66,46 +62,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 <!-- MCP-TOOLS-TABLE:START -->
 
-#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
-
-| MCP Tool | Toggle Env Var | Description |
-|----------|----------------|-------------|
-| `api_request` | `CUSTOM_APITOOL` | Execute arbitrary GitLab REST API requests directly. |
-| `gitlab_branches` | `BRANCHESTOOL` | Manage gitlab branches operations. |
-| `gitlab_commits` | `COMMITSTOOL` | Manage gitlab commits operations. |
-| `gitlab_deploy_tokens` | `DEPLOY_TOKENSTOOL` | Manage gitlab deploy tokens operations. |
-| `gitlab_discover_graphql_schema` | `GRAPHQLTOOL` | Discover the dynamic GitLab GraphQL schema including types, fields, and custom attributes in real-time. |
-| `gitlab_environments` | `ENVIRONMENTSTOOL` | Manage gitlab environments operations. |
-| `gitlab_epics` | `EPICSTOOL` | Manage GitLab epics. |
-| `gitlab_graphql` | `GRAPHQLTOOL` | Execute raw GraphQL queries and mutations natively on GitLab. |
-| `gitlab_graphql_ops` | `GRAPHQL_OPSTOOL` | Run a typed GitLab GraphQL operation by name. |
-| `gitlab_groups` | `GROUPSTOOL` | Manage gitlab groups operations. |
-| `gitlab_ingest_pipelines` | `MISCTOOL` | Natively ingest GitLab CI pipeline runs (+ jobs) into medulla. |
-| `gitlab_ingest_projects` | `MISCTOOL` | Natively ingest GitLab projects into medulla as typed :Project nodes. |
-| `gitlab_instances` | `MISCTOOL` | List the configured GitLab tenants (CONCEPT:AU-KG.backend.declared-columns-so-schema). |
-| `gitlab_issues` | `ISSUESTOOL` | Manage GitLab issues. |
-| `gitlab_jobs` | `JOBSTOOL` | Manage gitlab jobs operations. |
-| `gitlab_labels` | `LABELSTOOL` | Manage GitLab labels. |
-| `gitlab_members` | `MEMBERSTOOL` | Manage gitlab members operations. |
-| `gitlab_merge_requests` | `MERGE_REQUESTSTOOL` | Manage gitlab merge requests operations. |
-| `gitlab_merge_rules` | `MERGE_RULESTOOL` | Manage gitlab merge rules operations. |
-| `gitlab_milestones` | `MILESTONESTOOL` | Manage GitLab milestones. |
-| `gitlab_namespaces` | `NAMESPACESTOOL` | Manage gitlab namespaces operations. |
-| `gitlab_notes` | `NOTESTOOL` | Manage GitLab notes/comments on issues, merge requests, commits, and epics. |
-| `gitlab_packages` | `PACKAGESTOOL` | Manage gitlab packages operations. |
-| `gitlab_pipeline_schedules` | `PIPELINE_SCHEDULESTOOL` | Manage gitlab pipeline schedules operations. |
-| `gitlab_pipelines` | `PIPELINESTOOL` | Manage gitlab pipelines operations. |
-| `gitlab_projects` | `PROJECTSTOOL` | Manage gitlab projects operations. |
-| `gitlab_protected_branches` | `PROTECTED_BRANCHESTOOL` | Manage gitlab protected branches operations. |
-| `gitlab_releases` | `RELEASESTOOL` | Manage gitlab releases operations. |
-| `gitlab_runners` | `RUNNERSTOOL` | Manage gitlab runners operations. |
-| `gitlab_snippets` | `SNIPPETSTOOL` | Manage GitLab snippets. |
-| `gitlab_tags` | `TAGSTOOL` | Manage gitlab tags operations. |
-| `gitlab_users` | `USERSTOOL` | Manage gitlab users operations. |
-| `gitlab_vulnerabilities` | `VULNERABILITIESTOOL` | Review a project's dependency list and security vulnerabilities (the GitLab counterpart to GitHub Dependabot). |
-| `gitlab_wiki` | `WIKITOOL` | Manage gitlab wiki operations. |
-
-#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+#### Typed per-operation tools
 
 <details>
 <summary>196 per-operation tools — one per public API method (click to expand)</summary>
@@ -311,7 +268,7 @@ _Auto-generated from the live MCP server — do not edit by hand._
 
 </details>
 
-_34 action-routed tool(s) (default) · 196 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_Typed per-operation tools. Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/usage.md](docs/usage.md).

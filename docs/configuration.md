@@ -10,7 +10,7 @@ content, traces, or generated reports.
 
 The current capability surface is defined by three versioned artifacts:
 
-- the action-routed MCP tools described in the README and `docs/usage.md`;
+- the typed MCP tools described in the README and `docs/usage.md`;
 - the compact canonical skill plus any specialist `WORKFLOW.md` procedures;
 - `connector_manifest.yml` and its ontology, mappings, shapes, fixtures,
   migrations, tool-schema fingerprints, and certification metadata.

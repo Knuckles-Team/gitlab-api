@@ -1,6 +1,6 @@
 # gitlab-api
 
-action-routed connector for the GitLab REST and GraphQL APIs.
+typed connector for the GitLab REST and GraphQL APIs.
 
 !!! info "Official documentation"
     This site is the canonical reference for `gitlab-api`, maintained alongside every
@@ -33,7 +33,7 @@ and `GITLAB_TOKEN` to connect it to a GitLab instance.
 - :material-console: **[Usage](usage.md)** — the MCP tools, the `Api` client, and the CLI.
 - :material-database-cog: **[Backing Platform](platform.md)** — deploy GitLab with Docker.
 - :material-shield-check: **[Connector preparation](connector-prep.md)** — bounded, governed source ingest.
-- :material-sitemap: **[Overview](overview.md)** — the action-routed tool surface and architecture.
+- :material-sitemap: **[Overview](overview.md)** — the typed tool surface and architecture.
 - :material-tag-multiple: **[Concepts](concepts.md)** — the `CONCEPT:GL-*` registry.
 
 </div>

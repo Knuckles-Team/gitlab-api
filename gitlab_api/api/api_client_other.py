@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import logging
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from pydantic import ValidationError
 
@@ -34,7 +34,25 @@ from gitlab_api.api.api_client_base import GitLabApiBase
 
 
 class GitLabApiOther(GitLabApiBase):
-    def get_repository_packages(self, **kwargs) -> Response:
+    def get_repository_packages(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        package_id: int | str | None = None,
+        package_type: str | None = None,
+        package_name: str | None = None,
+        package_version: str | None = None,
+        include_versionless: bool | None = None,
+        status: str | None = None,
+        sort: str | None = None,
+        max_pages: int | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        ref: str | None = None,
+        file_name: str | None = None,
+        select: str | None = None,
+    ) -> Response:
         """
         Get information about repository packages for a specific project.
 
@@ -48,6 +66,27 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the project_id is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "package_id": package_id,
+                "package_type": package_type,
+                "package_name": package_name,
+                "package_version": package_version,
+                "include_versionless": include_versionless,
+                "status": status,
+                "sort": sort,
+                "max_pages": max_pages,
+                "page": page,
+                "per_page": per_page,
+                "ref": ref,
+                "file_name": file_name,
+                "select": select,
+            }.items()
+            if v is not None
+        }
         package = PackageModel(**kwargs)
         if package.project_id is None:
             raise MissingParameterError
@@ -63,7 +102,25 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def publish_repository_package(self, **kwargs) -> Response:
+    def publish_repository_package(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        package_id: int | str | None = None,
+        package_type: str | None = None,
+        package_name: str | None = None,
+        package_version: str | None = None,
+        include_versionless: bool | None = None,
+        status: str | None = None,
+        sort: str | None = None,
+        max_pages: int | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        ref: str | None = None,
+        file_name: str | None = None,
+        select: str | None = None,
+    ) -> Response:
         """
         Publish a repository package for a specific project.
 
@@ -77,6 +134,27 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the project_id, package_name, package_version, or file_name is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "package_id": package_id,
+                "package_type": package_type,
+                "package_name": package_name,
+                "package_version": package_version,
+                "include_versionless": include_versionless,
+                "status": status,
+                "sort": sort,
+                "max_pages": max_pages,
+                "page": page,
+                "per_page": per_page,
+                "ref": ref,
+                "file_name": file_name,
+                "select": select,
+            }.items()
+            if v is not None
+        }
         package = PackageModel(**kwargs)
         if (
             package.project_id is None
@@ -96,7 +174,25 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def download_repository_package(self, **kwargs) -> Response:
+    def download_repository_package(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        package_id: int | str | None = None,
+        package_type: str | None = None,
+        package_name: str | None = None,
+        package_version: str | None = None,
+        include_versionless: bool | None = None,
+        status: str | None = None,
+        sort: str | None = None,
+        max_pages: int | None = None,
+        page: int | None = None,
+        per_page: int | None = None,
+        ref: str | None = None,
+        file_name: str | None = None,
+        select: str | None = None,
+    ) -> Response:
         """
         Download a repository package for a specific project.
 
@@ -110,6 +206,27 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the project_id, package_name, package_version, or file_name is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "package_id": package_id,
+                "package_type": package_type,
+                "package_name": package_name,
+                "package_version": package_version,
+                "include_versionless": include_versionless,
+                "status": status,
+                "sort": sort,
+                "max_pages": max_pages,
+                "page": page,
+                "per_page": per_page,
+                "ref": ref,
+                "file_name": file_name,
+                "select": select,
+            }.items()
+            if v is not None
+        }
         package = PackageModel(**kwargs)
         if (
             package.project_id is None
@@ -129,7 +246,29 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def reset_token(self, **kwargs) -> Response:
+    def reset_token(
+        self,
+        *,
+        runner_id: str | int | None = None,
+        description: str | None = None,
+        active: bool | None = None,
+        paused: bool | None = None,
+        tag_list: list[str] | None = None,
+        run_untagged: bool | None = None,
+        locked: bool | None = None,
+        access_level: str | None = None,
+        maintenance_note: str | None = None,
+        info: str | None = None,
+        token: str | None = None,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        maximum_timeout: int | None = None,
+        runner_type: str | None = None,
+        status: str | None = None,
+        all_runners: bool | None = None,
+        max_pages: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Reset authentication token for a runner.
 
@@ -143,6 +282,31 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the runner_id or token is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "runner_id": runner_id,
+                "description": description,
+                "active": active,
+                "paused": paused,
+                "tag_list": tag_list,
+                "run_untagged": run_untagged,
+                "locked": locked,
+                "access_level": access_level,
+                "maintenance_note": maintenance_note,
+                "info": info,
+                "token": token,
+                "project_id": project_id,
+                "group_id": group_id,
+                "maximum_timeout": maximum_timeout,
+                "runner_type": runner_type,
+                "status": status,
+                "all_runners": all_runners,
+                "max_pages": max_pages,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         runner = RunnerModel(**kwargs)
         if runner.runner_id is None or runner.token is None:
             raise MissingParameterError
@@ -158,7 +322,21 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_wiki_list(self, **kwargs) -> Response:
+    def get_wiki_list(
+        self,
+        *,
+        project_id: int | str | None = None,
+        slug: str | None = None,
+        content: str | None = None,
+        title: str | None = None,
+        format_type: str | None = None,
+        with_content: bool | None = None,
+        render_html: bool | None = None,
+        file: str | None = None,
+        branch: str | None = None,
+        version: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a list of wiki pages for a project.
 
@@ -172,6 +350,23 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the project_id is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "slug": slug,
+                "content": content,
+                "title": title,
+                "format_type": format_type,
+                "with_content": with_content,
+                "render_html": render_html,
+                "file": file,
+                "branch": branch,
+                "version": version,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         wiki = WikiModel(**kwargs)
         if wiki.project_id is None:
             raise MissingParameterError
@@ -187,7 +382,21 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_wiki_page(self, **kwargs) -> Response:
+    def get_wiki_page(
+        self,
+        *,
+        project_id: int | str | None = None,
+        slug: str | None = None,
+        content: str | None = None,
+        title: str | None = None,
+        format_type: str | None = None,
+        with_content: bool | None = None,
+        render_html: bool | None = None,
+        file: str | None = None,
+        branch: str | None = None,
+        version: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get information about a specific wiki page.
 
@@ -201,6 +410,23 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the project_id or slug is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "slug": slug,
+                "content": content,
+                "title": title,
+                "format_type": format_type,
+                "with_content": with_content,
+                "render_html": render_html,
+                "file": file,
+                "branch": branch,
+                "version": version,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
@@ -215,7 +441,21 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def create_wiki_page(self, **kwargs) -> Response:
+    def create_wiki_page(
+        self,
+        *,
+        project_id: int | str | None = None,
+        slug: str | None = None,
+        content: str | None = None,
+        title: str | None = None,
+        format_type: str | None = None,
+        with_content: bool | None = None,
+        render_html: bool | None = None,
+        file: str | None = None,
+        branch: str | None = None,
+        version: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Create a new wiki page for a project.
 
@@ -229,6 +469,23 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the project_id is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "slug": slug,
+                "content": content,
+                "title": title,
+                "format_type": format_type,
+                "with_content": with_content,
+                "render_html": render_html,
+                "file": file,
+                "branch": branch,
+                "version": version,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         wiki = WikiModel(**kwargs)
         if wiki.project_id is None:
             raise MissingParameterError
@@ -244,7 +501,21 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def update_wiki_page(self, **kwargs) -> Response:
+    def update_wiki_page(
+        self,
+        *,
+        project_id: int | str | None = None,
+        slug: str | None = None,
+        content: str | None = None,
+        title: str | None = None,
+        format_type: str | None = None,
+        with_content: bool | None = None,
+        render_html: bool | None = None,
+        file: str | None = None,
+        branch: str | None = None,
+        version: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Update an existing wiki page for a project.
 
@@ -258,6 +529,23 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the project_id or slug is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "slug": slug,
+                "content": content,
+                "title": title,
+                "format_type": format_type,
+                "with_content": with_content,
+                "render_html": render_html,
+                "file": file,
+                "branch": branch,
+                "version": version,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
@@ -273,7 +561,21 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def delete_wiki_page(self, **kwargs) -> Response:
+    def delete_wiki_page(
+        self,
+        *,
+        project_id: int | str | None = None,
+        slug: str | None = None,
+        content: str | None = None,
+        title: str | None = None,
+        format_type: str | None = None,
+        with_content: bool | None = None,
+        render_html: bool | None = None,
+        file: str | None = None,
+        branch: str | None = None,
+        version: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Delete a wiki page for a project.
 
@@ -287,6 +589,23 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the project_id or slug is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "slug": slug,
+                "content": content,
+                "title": title,
+                "format_type": format_type,
+                "with_content": with_content,
+                "render_html": render_html,
+                "file": file,
+                "branch": branch,
+                "version": version,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.slug is None:
             raise MissingParameterError
@@ -300,7 +619,21 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def upload_wiki_page_attachment(self, **kwargs) -> Response:
+    def upload_wiki_page_attachment(
+        self,
+        *,
+        project_id: int | str | None = None,
+        slug: str | None = None,
+        content: str | None = None,
+        title: str | None = None,
+        format_type: str | None = None,
+        with_content: bool | None = None,
+        render_html: bool | None = None,
+        file: str | None = None,
+        branch: str | None = None,
+        version: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Upload an attachment to a wiki page for a project.
 
@@ -314,6 +647,23 @@ class GitLabApiOther(GitLabApiBase):
             MissingParameterError: If the project_id, file, or branch is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "slug": slug,
+                "content": content,
+                "title": title,
+                "format_type": format_type,
+                "with_content": with_content,
+                "render_html": render_html,
+                "file": file,
+                "branch": branch,
+                "version": version,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         wiki = WikiModel(**kwargs)
         if wiki.project_id is None or wiki.file is None or wiki.branch is None:
             raise MissingParameterError
@@ -331,10 +681,33 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def create_snippet(self, **kwargs) -> Response:
+    def create_snippet(
+        self,
+        *,
+        project_id: int | str | None = None,
+        snippet_id: int | str | None = None,
+        title: str | None = None,
+        file_name: str | None = None,
+        content: str | None = None,
+        visibility: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Create a project snippet or personal snippet.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "snippet_id": snippet_id,
+                "title": title,
+                "file_name": file_name,
+                "content": content,
+                "visibility": visibility,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         snippet = SnippetModel(**kwargs)
         if (
             snippet.title is None
@@ -360,10 +733,33 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_snippets(self, **kwargs) -> Response:
+    def get_snippets(
+        self,
+        *,
+        project_id: int | str | None = None,
+        snippet_id: int | str | None = None,
+        title: str | None = None,
+        file_name: str | None = None,
+        content: str | None = None,
+        visibility: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get list of snippets. Can filter by project_id.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "snippet_id": snippet_id,
+                "title": title,
+                "file_name": file_name,
+                "content": content,
+                "visibility": visibility,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         snippet = SnippetModel(**kwargs)
         try:
             if snippet.project_id:
@@ -381,10 +777,33 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_snippet(self, **kwargs) -> Response:
+    def get_snippet(
+        self,
+        *,
+        project_id: int | str | None = None,
+        snippet_id: int | str | None = None,
+        title: str | None = None,
+        file_name: str | None = None,
+        content: str | None = None,
+        visibility: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a specific snippet.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "snippet_id": snippet_id,
+                "title": title,
+                "file_name": file_name,
+                "content": content,
+                "visibility": visibility,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         snippet = SnippetModel(**kwargs)
         if snippet.snippet_id is None:
             raise MissingParameterError("Missing snippet_id")
@@ -403,10 +822,33 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def update_snippet(self, **kwargs) -> Response:
+    def update_snippet(
+        self,
+        *,
+        project_id: int | str | None = None,
+        snippet_id: int | str | None = None,
+        title: str | None = None,
+        file_name: str | None = None,
+        content: str | None = None,
+        visibility: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Update a snippet.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "snippet_id": snippet_id,
+                "title": title,
+                "file_name": file_name,
+                "content": content,
+                "visibility": visibility,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         snippet = SnippetModel(**kwargs)
         if snippet.snippet_id is None:
             raise MissingParameterError("Missing snippet_id")
@@ -426,10 +868,33 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def delete_snippet(self, **kwargs) -> Response:
+    def delete_snippet(
+        self,
+        *,
+        project_id: int | str | None = None,
+        snippet_id: int | str | None = None,
+        title: str | None = None,
+        file_name: str | None = None,
+        content: str | None = None,
+        visibility: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Delete a snippet.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "snippet_id": snippet_id,
+                "title": title,
+                "file_name": file_name,
+                "content": content,
+                "visibility": visibility,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         snippet = SnippetModel(**kwargs)
         if snippet.snippet_id is None:
             raise MissingParameterError("Missing snippet_id")
@@ -447,10 +912,29 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def create_note(self, **kwargs) -> Response:
+    def create_note(
+        self,
+        *,
+        project_id: int | str | None = None,
+        issue_iid: int | str | None = None,
+        note_id: int | str | None = None,
+        body: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Create a new note/comment on an issue.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "issue_iid": issue_iid,
+                "note_id": note_id,
+                "body": body,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         note = NoteModel(**kwargs)
         if note.project_id is None or note.issue_iid is None or note.body is None:
             raise MissingParameterError(
@@ -468,10 +952,29 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_notes(self, **kwargs) -> Response:
+    def get_notes(
+        self,
+        *,
+        project_id: int | str | None = None,
+        issue_iid: int | str | None = None,
+        note_id: int | str | None = None,
+        body: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get all notes for a specific issue.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "issue_iid": issue_iid,
+                "note_id": note_id,
+                "body": body,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         note = NoteModel(**kwargs)
         if note.project_id is None or note.issue_iid is None:
             raise MissingParameterError(
@@ -489,10 +992,29 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_note(self, **kwargs) -> Response:
+    def get_note(
+        self,
+        *,
+        project_id: int | str | None = None,
+        issue_iid: int | str | None = None,
+        note_id: int | str | None = None,
+        body: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a specific note.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "issue_iid": issue_iid,
+                "note_id": note_id,
+                "body": body,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         note = NoteModel(**kwargs)
         if note.project_id is None or note.issue_iid is None or note.note_id is None:
             raise MissingParameterError(
@@ -509,10 +1031,29 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def update_note(self, **kwargs) -> Response:
+    def update_note(
+        self,
+        *,
+        project_id: int | str | None = None,
+        issue_iid: int | str | None = None,
+        note_id: int | str | None = None,
+        body: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Update a note.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "issue_iid": issue_iid,
+                "note_id": note_id,
+                "body": body,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         note = NoteModel(**kwargs)
         if (
             note.project_id is None
@@ -535,10 +1076,29 @@ class GitLabApiOther(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def delete_note(self, **kwargs) -> Response:
+    def delete_note(
+        self,
+        *,
+        project_id: int | str | None = None,
+        issue_iid: int | str | None = None,
+        note_id: int | str | None = None,
+        body: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Delete a note.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "issue_iid": issue_iid,
+                "note_id": note_id,
+                "body": body,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         note = NoteModel(**kwargs)
         if note.project_id is None or note.issue_iid is None or note.note_id is None:
             raise MissingParameterError(
