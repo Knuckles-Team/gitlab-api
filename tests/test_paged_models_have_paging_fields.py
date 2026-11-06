@@ -19,4 +19,3 @@ def test_paged_models_have_max_pages():
             if "max_pages" not in getattr(models, name).model_fields:
                 missing.add(name)
     assert not missing, sorted(missing)
-
