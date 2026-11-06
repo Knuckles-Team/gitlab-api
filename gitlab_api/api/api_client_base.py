@@ -5,6 +5,7 @@ from base64 import b64encode
 from typing import Any, TypeVar
 
 import requests
+from scion_sdk.config import setting
 from scion_sdk.tls.profile import ResolvedTLSProfile
 from scion_sdk.tls.resolve import resolve_tls_profile
 
@@ -18,6 +19,23 @@ from scion_sdk.exceptions import (
 )
 
 T = TypeVar("T")
+
+DEFAULT_REQUEST_TIMEOUT = 30.0
+
+
+def request_timeout() -> float:
+    """Seconds every GitLab REST call may take (env ``GITLAB_REQUEST_TIMEOUT``)."""
+    value = setting("GITLAB_REQUEST_TIMEOUT", DEFAULT_REQUEST_TIMEOUT, cast=float)
+    return value if value > 0 else DEFAULT_REQUEST_TIMEOUT
+
+
+class _TimeoutSession(requests.Session):
+    """A session whose calls carry a timeout unless the caller sets one."""
+
+    def request(self, *args: Any, **kwargs: Any):  # type: ignore[override]
+        if kwargs.get("timeout") is None:
+            kwargs["timeout"] = request_timeout()
+        return super().request(*args, **kwargs)
 
 
 def _normalize_base_url(url: str) -> str:
@@ -75,7 +93,7 @@ class GitLabApiBase:
         if url is None:
             raise MissingParameterError
 
-        self._session = requests.Session()
+        self._session = _TimeoutSession()
         self.url = _normalize_base_url(url)
         self.headers, self.headers_parallel = _build_auth_headers(
             token, tokens, username, password

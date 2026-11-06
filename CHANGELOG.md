@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [27.3.18] - 2026-11-05
+
+### Fixed
+- `MergeRequestModel.title` is optional, so the merge-request read tools no longer demand a title.
+- `gitlab_graphql_ops` failures return the redacted exception message and the expected parameter names.
+- REST and GraphQL requests time out after `GITLAB_REQUEST_TIMEOUT` seconds (default 30).
+
 ## [27.3.17] - 2026-10-30
 
 ### Changed
