@@ -48,6 +48,32 @@ def _parse_params(params_json: str) -> dict[str, Any] | None:
     return {k: v for k, v in kwargs.items() if v is not None}
 
 
+def _graphql_failure(action: str, method: Any, exc: Exception, client: Any) -> dict:
+    """Describe a failed GraphQL operation with its real, redacted message."""
+    import inspect
+
+    from scion_sdk.httpsupport.redaction import redact_text
+
+    secrets = [t for t in (getattr(client, "token", None),) if t]
+    message = redact_text(str(exc), secrets) or type(exc).__name__
+    out: dict[str, Any] = {
+        "error": f"GraphQL operation '{action}' failed: {type(exc).__name__}: {message}"
+    }
+    if isinstance(exc, TypeError):
+        try:
+            params = [
+                p.name
+                for p in inspect.signature(method).parameters.values()
+                if p.kind in (p.POSITIONAL_OR_KEYWORD, p.KEYWORD_ONLY)
+            ]
+        except (TypeError, ValueError):
+            params = []
+        if params:
+            out["expected_params"] = params
+            out["error"] += f" (expected params_json keys: {', '.join(params)})"
+    return out
+
+
 def _by_keys(
     keys: tuple[str, ...], present: str, absent: str
 ) -> Callable[[dict[str, Any]], str]:
@@ -1318,4 +1344,4 @@ def register_graphql_ops_tools(mcp: FastMCP):
                 return await run_blocking(method, **{sole_model.name: model})
             return await run_blocking(method, **kwargs)
         except Exception as e:
-            return {"error": f"GraphQL operation '{action}' failed: {type(e).__name__}"}
+            return _graphql_failure(action, method, e, client)

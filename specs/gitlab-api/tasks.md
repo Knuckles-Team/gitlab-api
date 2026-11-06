@@ -22,3 +22,6 @@ Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is pr
 - [ ] T016 [US1] CONN-GITLAB-API-R004.12 Normalize webhook events to feedback events.
 - [ ] T017 [US1] CONN-GITLAB-API-R004.13 Map delivery records to the shared ontology classes.
 - [ ] T018 [US1] CONN-GITLAB-API-R004.14 Hot-path proof: served merge-request tools.
+- [ ] T019 [US1] CONN-GITLAB-API-R005 Optional input fields stay optional in served tool schemas.
+- [ ] T020 [US1] CONN-GITLAB-API-R006 GraphQL operation failures explain themselves.
+- [ ] T021 [US1] CONN-GITLAB-API-R007 Every GitLab request has a timeout.

@@ -14,6 +14,7 @@ from scion_sdk.tls.profile import ResolvedTLSProfile
 from scion_sdk.tls.resolve import resolve_tls_profile
 from scion_sdk.transports.graphql import GraphQLAuth, GraphQLClient
 
+from gitlab_api.api.api_client_base import request_timeout
 from gitlab_api.gitlab_input_models import (
     BranchModel,
     CommitModel,
@@ -124,6 +125,7 @@ class GraphQL:
             auth=GraphQLAuth.bearer(token),
             tls_profile=self.tls_profile,
             tls_service="gitlab",
+            timeout=request_timeout(),
             fetch_schema=True,
         )
 

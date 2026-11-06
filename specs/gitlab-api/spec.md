@@ -36,6 +36,7 @@ The platform delivers a spec row as a merge request on its own. It reads discuss
 - **FR-001**: The connector declares the `projects` and `issues` sources in its ontology pack. Rows: `CONN-GITLAB-API-R001`.
 - **FR-002**: The connector is filed under its fleet name and uses the shared GraphQL client. Rows: `CONN-GITLAB-API-R002`, `CONN-GITLAB-API-R003`.
 - **FR-003**: The connector serves one tool per merge-request operation and a webhook normalizer. Rows: `CONN-GITLAB-API-R004`.
+- **FR-004**: Served tool schemas never require a nullable field, GraphQL failures return their redacted message and expected parameters, and every GitLab request has a timeout. Rows: `CONN-GITLAB-API-R005`, `CONN-GITLAB-API-R006`, `CONN-GITLAB-API-R007`.
 
 ## Success Criteria
 
