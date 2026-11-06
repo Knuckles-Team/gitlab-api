@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import logging
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from pydantic import ValidationError
 
@@ -32,10 +32,47 @@ from gitlab_api.api.api_client_base import GitLabApiBase
 
 
 class GitLabApiIssues(GitLabApiBase):
-    def create_issue(self, **kwargs) -> Response:
+    def create_issue(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        labels: list[str] | str | None = None,
+        state: str | None = None,
+        state_event: str | None = None,
+        issue_iid: int | str | None = None,
+        assignee_ids: list[int] | None = None,
+        milestone_id: int | str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Create a new issue.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "title": title,
+                "description": description,
+                "labels": labels,
+                "state": state,
+                "state_event": state_event,
+                "issue_iid": issue_iid,
+                "assignee_ids": assignee_ids,
+                "milestone_id": milestone_id,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         issue = IssueModel(**kwargs)
         if issue.project_id is None or issue.title is None:
             raise MissingParameterError(
@@ -53,10 +90,47 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_issues(self, **kwargs) -> Response:
+    def get_issues(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        labels: list[str] | str | None = None,
+        state: str | None = None,
+        state_event: str | None = None,
+        issue_iid: int | str | None = None,
+        assignee_ids: list[int] | None = None,
+        milestone_id: int | str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get list of issues. Can filter by project_id.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "title": title,
+                "description": description,
+                "labels": labels,
+                "state": state,
+                "state_event": state_event,
+                "issue_iid": issue_iid,
+                "assignee_ids": assignee_ids,
+                "milestone_id": milestone_id,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         issue = IssueModel(**kwargs)
         try:
             endpoint = (
@@ -75,7 +149,24 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_group_issues(self, **kwargs) -> Response:
+    def get_group_issues(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        labels: list[str] | str | None = None,
+        state: str | None = None,
+        state_event: str | None = None,
+        issue_iid: int | str | None = None,
+        assignee_ids: list[int] | None = None,
+        milestone_id: int | str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get the list of issues for a group (and, by default, its subgroups).
 
@@ -90,6 +181,26 @@ class GitLabApiIssues(GitLabApiBase):
             MissingParameterError: If the group_id is missing.
             ParameterError: If invalid parameters are provided.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "title": title,
+                "description": description,
+                "labels": labels,
+                "state": state,
+                "state_event": state_event,
+                "issue_iid": issue_iid,
+                "assignee_ids": assignee_ids,
+                "milestone_id": milestone_id,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         issue = IssueModel(**kwargs)
         if issue.group_id is None:
             raise MissingParameterError("Missing required parameter: group_id")
@@ -105,10 +216,47 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_issue(self, **kwargs) -> Response:
+    def get_issue(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        labels: list[str] | str | None = None,
+        state: str | None = None,
+        state_event: str | None = None,
+        issue_iid: int | str | None = None,
+        assignee_ids: list[int] | None = None,
+        milestone_id: int | str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a single issue.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "title": title,
+                "description": description,
+                "labels": labels,
+                "state": state,
+                "state_event": state_event,
+                "issue_iid": issue_iid,
+                "assignee_ids": assignee_ids,
+                "milestone_id": milestone_id,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         issue = IssueModel(**kwargs)
         if issue.project_id is None or issue.issue_iid is None:
             raise MissingParameterError(
@@ -125,10 +273,47 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def update_issue(self, **kwargs) -> Response:
+    def update_issue(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        labels: list[str] | str | None = None,
+        state: str | None = None,
+        state_event: str | None = None,
+        issue_iid: int | str | None = None,
+        assignee_ids: list[int] | None = None,
+        milestone_id: int | str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Update an issue.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "title": title,
+                "description": description,
+                "labels": labels,
+                "state": state,
+                "state_event": state_event,
+                "issue_iid": issue_iid,
+                "assignee_ids": assignee_ids,
+                "milestone_id": milestone_id,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         issue = IssueModel(**kwargs)
         if issue.project_id is None or issue.issue_iid is None:
             raise MissingParameterError(
@@ -146,10 +331,47 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def delete_issue(self, **kwargs) -> Response:
+    def delete_issue(
+        self,
+        *,
+        project_id: int | str | None = None,
+        group_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        labels: list[str] | str | None = None,
+        state: str | None = None,
+        state_event: str | None = None,
+        issue_iid: int | str | None = None,
+        assignee_ids: list[int] | None = None,
+        milestone_id: int | str | None = None,
+        max_pages: int | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Delete an issue.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "group_id": group_id,
+                "title": title,
+                "description": description,
+                "labels": labels,
+                "state": state,
+                "state_event": state_event,
+                "issue_iid": issue_iid,
+                "assignee_ids": assignee_ids,
+                "milestone_id": milestone_id,
+                "max_pages": max_pages,
+                "per_page": per_page,
+                "page": page,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         issue = IssueModel(**kwargs)
         if issue.project_id is None or issue.issue_iid is None:
             raise MissingParameterError(
@@ -165,10 +387,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def create_label(self, **kwargs) -> Response:
+    def create_label(
+        self,
+        *,
+        project_id: int | str | None = None,
+        name: str | None = None,
+        color: str | None = None,
+        new_name: str | None = None,
+        description: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Create a new label.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "name": name,
+                "color": color,
+                "new_name": new_name,
+                "description": description,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         label = LabelModel(**kwargs)
         if label.project_id is None or label.name is None or label.color is None:
             raise MissingParameterError(
@@ -186,10 +429,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_labels(self, **kwargs) -> Response:
+    def get_labels(
+        self,
+        *,
+        project_id: int | str | None = None,
+        name: str | None = None,
+        color: str | None = None,
+        new_name: str | None = None,
+        description: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get all labels for a project.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "name": name,
+                "color": color,
+                "new_name": new_name,
+                "description": description,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         label = LabelModel(**kwargs)
         if label.project_id is None:
             raise MissingParameterError("Missing project_id")
@@ -205,10 +469,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_label(self, **kwargs) -> Response:
+    def get_label(
+        self,
+        *,
+        project_id: int | str | None = None,
+        name: str | None = None,
+        color: str | None = None,
+        new_name: str | None = None,
+        description: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a specific label by name.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "name": name,
+                "color": color,
+                "new_name": new_name,
+                "description": description,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         label = LabelModel(**kwargs)
         if label.project_id is None or label.name is None:
             raise MissingParameterError("Missing project_id or name")
@@ -223,10 +508,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def update_label(self, **kwargs) -> Response:
+    def update_label(
+        self,
+        *,
+        project_id: int | str | None = None,
+        name: str | None = None,
+        color: str | None = None,
+        new_name: str | None = None,
+        description: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Update an existing label.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "name": name,
+                "color": color,
+                "new_name": new_name,
+                "description": description,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         label = LabelModel(**kwargs)
         if label.project_id is None or label.name is None:
             raise MissingParameterError("Missing required parameters: project_id, name")
@@ -242,10 +548,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def delete_label(self, **kwargs) -> Response:
+    def delete_label(
+        self,
+        *,
+        project_id: int | str | None = None,
+        name: str | None = None,
+        color: str | None = None,
+        new_name: str | None = None,
+        description: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Delete a label.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "name": name,
+                "color": color,
+                "new_name": new_name,
+                "description": description,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         label = LabelModel(**kwargs)
         if label.project_id is None or label.name is None:
             raise MissingParameterError("Missing required parameters: project_id, name")
@@ -260,10 +587,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def create_milestone(self, **kwargs) -> Response:
+    def create_milestone(
+        self,
+        *,
+        project_id: int | str | None = None,
+        milestone_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Create a project milestone.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "milestone_id": milestone_id,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         milestone = MilestoneModel(**kwargs)
         if milestone.project_id is None or milestone.title is None:
             raise MissingParameterError(
@@ -281,10 +629,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_milestones(self, **kwargs) -> Response:
+    def get_milestones(
+        self,
+        *,
+        project_id: int | str | None = None,
+        milestone_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get all milestones for a project.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "milestone_id": milestone_id,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         milestone = MilestoneModel(**kwargs)
         if milestone.project_id is None:
             raise MissingParameterError("Missing project_id")
@@ -300,10 +669,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_milestone(self, **kwargs) -> Response:
+    def get_milestone(
+        self,
+        *,
+        project_id: int | str | None = None,
+        milestone_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a specific project milestone.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "milestone_id": milestone_id,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         milestone = MilestoneModel(**kwargs)
         if milestone.project_id is None or milestone.milestone_id is None:
             raise MissingParameterError("Missing project_id or milestone_id")
@@ -318,10 +708,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def update_milestone(self, **kwargs) -> Response:
+    def update_milestone(
+        self,
+        *,
+        project_id: int | str | None = None,
+        milestone_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Update a project milestone.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "milestone_id": milestone_id,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         milestone = MilestoneModel(**kwargs)
         if milestone.project_id is None or milestone.milestone_id is None:
             raise MissingParameterError(
@@ -339,10 +750,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def delete_milestone(self, **kwargs) -> Response:
+    def delete_milestone(
+        self,
+        *,
+        project_id: int | str | None = None,
+        milestone_id: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Delete a project milestone.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "project_id": project_id,
+                "milestone_id": milestone_id,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         milestone = MilestoneModel(**kwargs)
         if milestone.project_id is None or milestone.milestone_id is None:
             raise MissingParameterError(
@@ -358,10 +790,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def create_epic(self, **kwargs) -> Response:
+    def create_epic(
+        self,
+        *,
+        group_id: int | str | None = None,
+        epic_iid: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Create a new group epic.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "group_id": group_id,
+                "epic_iid": epic_iid,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         epic = EpicModel(**kwargs)
         if epic.group_id is None or epic.title is None:
             raise MissingParameterError("Missing required parameters: group_id, title")
@@ -377,10 +830,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_epics(self, **kwargs) -> Response:
+    def get_epics(
+        self,
+        *,
+        group_id: int | str | None = None,
+        epic_iid: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get all epics for a group.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "group_id": group_id,
+                "epic_iid": epic_iid,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         epic = EpicModel(**kwargs)
         if epic.group_id is None:
             raise MissingParameterError("Missing group_id")
@@ -396,10 +870,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def get_epic(self, **kwargs) -> Response:
+    def get_epic(
+        self,
+        *,
+        group_id: int | str | None = None,
+        epic_iid: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Get a specific group epic.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "group_id": group_id,
+                "epic_iid": epic_iid,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         epic = EpicModel(**kwargs)
         if epic.group_id is None or epic.epic_iid is None:
             raise MissingParameterError("Missing group_id or epic_iid")
@@ -414,10 +909,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def update_epic(self, **kwargs) -> Response:
+    def update_epic(
+        self,
+        *,
+        group_id: int | str | None = None,
+        epic_iid: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Update a group epic.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "group_id": group_id,
+                "epic_iid": epic_iid,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         epic = EpicModel(**kwargs)
         if epic.group_id is None or epic.epic_iid is None:
             raise MissingParameterError(
@@ -435,10 +951,31 @@ class GitLabApiIssues(GitLabApiBase):
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
 
-    def delete_epic(self, **kwargs) -> Response:
+    def delete_epic(
+        self,
+        *,
+        group_id: int | str | None = None,
+        epic_iid: int | str | None = None,
+        title: str | None = None,
+        description: str | None = None,
+        state_event: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Response:
         """
         Delete a group epic.
         """
+        kwargs = {
+            k: v
+            for k, v in {
+                "group_id": group_id,
+                "epic_iid": epic_iid,
+                "title": title,
+                "description": description,
+                "state_event": state_event,
+                "data": data,
+            }.items()
+            if v is not None
+        }
         epic = EpicModel(**kwargs)
         if epic.group_id is None or epic.epic_iid is None:
             raise MissingParameterError(

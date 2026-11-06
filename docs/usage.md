@@ -1,29 +1,18 @@
 # Usage — API / CLI / MCP
 
 `gitlab-api` exposes the same capability three ways: as **MCP tools** an agent calls,
-as a **Python API** (`Api`) the operator import, and as a **CLI**. The complete action-routed
+as a **Python API** (`Api`) the operator import, and as a **CLI**. The complete typed
 tool surface is documented in [Overview](overview.md).
 
 ## As an MCP server
 
-Once [deployed](deployment.md), the server registers consolidated, action-routed tool
-modules. Each module is independently togglable with a `*TOOL` environment flag:
+Once [deployed](deployment.md), the server registers one typed tool per GitLab operation,
+for example `gitlab_get_projects`, `gitlab_create_merge_request`, `gitlab_get_pipelines`,
+`gitlab_run_pipeline`, plus `gitlab_graphql`, `gitlab_graphql_ops_*` and the ingestion tools.
+Destructive tools take `confirm=true`. Example agent prompts:
 
-| Group | Tool modules |
-|---|---|
-| Source | `branches`, `protected_branches`, `commits`, `tags`, `repositories` |
-| Project & group | `projects`, `groups`, `members`, `environments`, `deploy_tokens` |
-| CI/CD | `pipelines`, `pipeline_schedules`, `jobs`, `runners`, `releases`, `packages` |
-| Collaboration | `merge_requests`, `merge_rules`, `issues`, `labels`, `milestones`, `notes`, `snippets` |
-| Escape hatches | `custom_api` (arbitrary REST), `graphql` (GitLab GraphQL), `misc` |
-
-Each module is action-routed: a single tool dispatches to named methods (for example
-`branches` routes `create`, `delete`, `get`). Example agent prompts that map onto
-these tools:
-
-- *"List the open merge requests for project `group/app`"* → `merge_requests` (`get_project`)
-- *"Run the pipeline on the `main` branch of project 42"* → `pipelines` (`run`)
-- *"Create a `release/2.0` branch from `main`"* → `branches` (`create`)
+- *"List the open merge requests for project `group/app`"* -> `gitlab_get_project_merge_requests`
+- *"Run a pipeline on main"* -> `gitlab_run_pipeline`
 
 ## As a Python API
 

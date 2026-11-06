@@ -2,86 +2,52 @@
 name: gitlab-issues
 skill_type: skill
 description: >-
-  Issue review and tracking on GitLab via the gitlab-api MCP server — review a project's issues,
-  review issues across a whole group/organization, and read, create, update, or close an issue
-  with the domain-typed tool. Use when the agent must triage a project's issues, see every issue
-  affecting a group, open a new issue, update labels/assignee/state, or delete one. Do NOT use
-  for merge requests (gitlab-merge-request-review / gitlab-merge-request-create), pipelines
-  (gitlab-pipelines), or repo/branch reads (gitlab-repositories); prefer those.
+  Issue review and tracking on GitLab via the gitlab-api MCP server — review a project's issues, review issues across a whole group/organization, and read, create, update, or close an issue with the domain-typed tool. Use when the agent must triage a project's issues, see every issue affecting a group, open a new issue, update labels/assignee/state, or delete one. Do NOT use for merge requests (gitlab-merge-request-review / gitlab-merge-request-create), pipelines (gitlab-pipelines), or repo/branch reads (gitlab-repositories); prefer those.
 license: MIT
-tags: [gitlab, issues, tracking, triage, group, mcp]
+tags: []
 metadata:
   author: Knuckles-Team
-  version: '0.2.0'
+  version: '1.0.0'
 ---
-# GitLab Issues
+# Gitlab Issues
 
-Domain-typed access to GitLab **Issues** for work-item review and triage — at **project** scope
-and across a whole **group / organization**.
+Typed gitlab_* tools take project_id (id or URL-encoded path) explicitly; resolve it before acting.
 
-## When to use
-- Review / triage the issues for a **project** (by state, label, milestone, assignee).
-- Review issues affecting a whole **group / organization** (spans its subgroups).
-- Fetch a single issue by `issue_iid`.
-- Create, update (labels/assignee/state), or delete an issue.
+## Rules
 
-## When NOT to use
-- Merge requests / reviews → `gitlab-merge-request-review`.
-- Pipeline/job status → `gitlab-pipelines`.
-- Branch/commit/tag/project reads → `gitlab-repositories`.
+- Resolve project_id (and the merge request or issue iid) before any call.
+- Read first, then change, then read the object back.
+- Delete, erase and merge-class tools need an explicit request; ask first.
 
-## Prerequisites & environment
-Connect via the `mcp-client` skill against the **`gitlab-api`** MCP server.
+## Task workflows
 
-| Variable | Required | Notes |
-|----------|----------|-------|
-| `GITLAB_URL` | ✅ | GitLab instance base URL |
-| `GITLAB_TOKEN` | ✅ | Access token with `api` scope for writes |
-| `GITLAB_SSL_VERIFY` | optional | TLS verification toggle |
+### work-issues
 
-Full env/tag matrix: the mcp-client reference `agent-tools/mcp-client/references/gitlab-api.md`.
-`MCP_TOOL_MODE` (`condensed`|`verbose`|`both`) selects the condensed vs. one-to-one verbose tools.
+Read, open, change and comment on issues, epics, labels and milestones. Contract steps, in order:
 
-## Tools & actions
-| Condensed tool | Actions |
-|----------------|---------|
-| `gitlab_issues` | `get`, `get_group`, `create`, `update`, `delete` |
-
-### Key parameters
-- `project_id` — for project-scoped `get` (and required for `create`/`update`/`delete`); numeric
-  id or `group/project` path.
-- `group_id` — required for `get_group` (issues across the group and its subgroups).
-- `issue_iid` — required for single `get`/`update`/`delete` (project-scoped `#iid`).
-- `data` — field→value for `create`/`update` (`title`, `description`, `labels`, `assignee_ids`,
-  `milestone_id`, `state_event`: `close`|`reopen`). Read filters: `state`, `labels`,
-  `assignee_username`, `milestone`, `order_by`, `sort`.
-
-## Recipes (`params_json`)
-Review open `bug` issues for a project, newest first:
-```json
-{"project_id":"platform/scion-sdk","state":"opened","labels":"bug","order_by":"created_at","sort":"desc","per_page":25}
-```
-Review every open issue across a group / organization:
-```json
-{"group_id":"platform","state":"opened","per_page":50}
-```
-Create an issue:
-```json
-{"project_id":"platform/scion-sdk","data":{"title":"Fleet ontology: gitlab domain missing runners link","labels":"ontology,enhancement"}}
-```
-Close an issue:
-```json
-{"project_id":"platform/scion-sdk","issue_iid":17,"data":{"state_event":"close"}}
-```
-
-## Gotchas
-- `params_json` is a **string** of JSON, not an object.
-- `get_group` needs `group_id` (not `project_id`) and returns issues from the group **and its
-  subgroups** — filter with `state`/`labels`/`assignee_username` to keep it focused.
-- Use `issue_iid` (project `#iid`), not the global issue id, for `get`/`update`/`delete`.
-- `labels` is a comma-separated string on write, but returned as a list on read.
-
-## Related
-- Epics and milestones that aggregate issues are covered by their own tools (`gitlab_epics`,
-  `gitlab_milestones`).
-- **Siblings:** `gitlab-merge-request-review`, `gitlab-pipelines`.
+1. `gitlab_create_epic`(; optional group_id, epic_iid, title, description, state_event, data)
+2. `gitlab_create_issue`(; optional project_id, group_id, title, description, labels, state)
+3. `gitlab_create_label`(; optional project_id, name, color, new_name, description, data)
+4. `gitlab_create_milestone`(; optional project_id, milestone_id, title, description, state_event, data)
+5. `gitlab_create_note`(; optional project_id, issue_iid, note_id, body, data)
+6. `gitlab_delete_epic`(; optional group_id, epic_iid, title, description, state_event, data) (destructive: pass confirm=true only after the person agrees)
+7. `gitlab_delete_issue`(; optional project_id, group_id, title, description, labels, state) (destructive: pass confirm=true only after the person agrees)
+8. `gitlab_delete_label`(; optional project_id, name, color, new_name, description, data) (destructive: pass confirm=true only after the person agrees)
+9. `gitlab_delete_milestone`(; optional project_id, milestone_id, title, description, state_event, data) (destructive: pass confirm=true only after the person agrees)
+10. `gitlab_delete_note`(; optional project_id, issue_iid, note_id, body, data, confirm) (destructive: pass confirm=true only after the person agrees)
+11. `gitlab_get_epic`(; optional group_id, epic_iid, title, description, state_event, data)
+12. `gitlab_get_epics`(; optional group_id, epic_iid, title, description, state_event, data)
+13. `gitlab_get_group_issues`(; optional project_id, group_id, title, description, labels, state)
+14. `gitlab_get_issue`(; optional project_id, group_id, title, description, labels, state)
+15. `gitlab_get_issues`(; optional project_id, group_id, title, description, labels, state)
+16. `gitlab_get_label`(; optional project_id, name, color, new_name, description, data)
+17. `gitlab_get_labels`(; optional project_id, name, color, new_name, description, data)
+18. `gitlab_get_milestone`(; optional project_id, milestone_id, title, description, state_event, data)
+19. `gitlab_get_milestones`(; optional project_id, milestone_id, title, description, state_event, data)
+20. `gitlab_get_note`(; optional project_id, issue_iid, note_id, body, data)
+21. `gitlab_get_notes`(; optional project_id, issue_iid, note_id, body, data)
+22. `gitlab_update_epic`(; optional group_id, epic_iid, title, description, state_event, data)
+23. `gitlab_update_issue`(; optional project_id, group_id, title, description, labels, state)
+24. `gitlab_update_label`(; optional project_id, name, color, new_name, description, data)
+25. `gitlab_update_milestone`(; optional project_id, milestone_id, title, description, state_event, data)
+26. `gitlab_update_note`(; optional project_id, issue_iid, note_id, body, data)
