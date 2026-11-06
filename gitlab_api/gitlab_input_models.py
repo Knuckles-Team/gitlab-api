@@ -1775,6 +1775,9 @@ class NamespaceModel(BaseModel):
     top_level_only: bool | None = Field(
         description="Only show top level namespaces", default=None
     )
+    max_pages: int | None = Field(
+        description="Maximum number of pages to fetch", default=None
+    )
     api_parameters: dict | None = Field(description="API Parameters", default=None)
     data: dict | None = Field(description="Data Payload", default=None)
 
@@ -2855,6 +2858,9 @@ class RunnerModel(BaseModel):
     runner_type: str | None = None
     status: str | None = None
     all_runners: bool | None = False
+    max_pages: int | None = Field(
+        description="Maximum number of pages to fetch", default=None
+    )
     api_parameters: dict | None = Field(description="API Parameters", default=None)
     data: dict | None = Field(description="Data Payload", default=None)
 
