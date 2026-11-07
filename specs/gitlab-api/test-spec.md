@@ -24,4 +24,5 @@ Governing spec: [spec.md](spec.md).
 | `CONN-GITLAB-API-R004.14` | `tests/test_merge_request_served.py::test_served_tools_and_normalizer_round_trip` | Hot-path proof: served merge-request tools. |
 | `CONN-GITLAB-API-R005` | `tests/test_bug_002_005.py::test_no_tool_schema_requires_an_optional_field` | Optional input fields stay optional in served tool schemas. |
 | `CONN-GITLAB-API-R006` | `tests/test_bug_002_005.py::test_graphql_failure_names_message_and_expected_kwargs` | GraphQL operation failures explain themselves. |
+| `CONN-GITLAB-API-R006.1` | `tests/test_graphql_error_category.py::test_missing_merge_request_update_is_not_found_without_server_text` | Typed GraphQL tools return a typed failure category. |
 | `CONN-GITLAB-API-R007` | `tests/test_bug_002_005.py::test_rest_session_applies_a_default_timeout` | Every GitLab request has a timeout. |
