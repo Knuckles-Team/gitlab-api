@@ -15,7 +15,6 @@ from pydantic import (
     model_validator,
 )
 
-
 _SECRET_NAMES = frozenset(
     {
         "token",
