@@ -23,6 +23,7 @@ from gitlab_api.gitlab_input_models import (
     UserModel,
 )
 from gitlab_api.gitlab_response_models import (
+    CreatedDeployToken,
     DeployToken,
     Group,
     Membership,
@@ -179,6 +180,9 @@ class GitLabApiUsersGroups(GitLabApiBase):
         """
         Create a deploy token for a group.
 
+        Returns a secret: the new token string is returned once, at creation, and never
+        by any read call. Store it now.
+
         Args:
             **kwargs: Additional parameters for the request (e.g., group_id, name, scopes).
 
@@ -219,7 +223,7 @@ class GitLabApiUsersGroups(GitLabApiBase):
                 json=deploy_token.model_dump(exclude_none=True),
             )
             response.raise_for_status()
-            parsed_data = DeployToken(**response.json())
+            parsed_data = CreatedDeployToken(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e

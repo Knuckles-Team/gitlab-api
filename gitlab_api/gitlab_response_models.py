@@ -2,7 +2,7 @@
 
 
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Any, ClassVar, Optional, Union
 
 import requests
 from pydantic import (
@@ -15,8 +15,66 @@ from pydantic import (
     model_validator,
 )
 
+_SECRET_NAMES = frozenset(
+    {
+        "token",
+        "secret",
+        "password",
+        "passwd",
+        "authorization",
+        "private_key",
+        "secret_key",
+        "api_key",
+        "apikey",
+        "access_key",
+    }
+)
+_SECRET_SUFFIXES = (
+    "_token",
+    "_secret",
+    "_password",
+    "_passwd",
+    "_private_key",
+    "_secret_key",
+    "_api_key",
+    "_access_key",
+)
+REDACTED = "[REDACTED_SECRET]"
 
-class IssueStats(BaseModel):
+
+def is_secret_field(name: object) -> bool:
+    """True when a response field name holds a credential (token, secret, password, key)."""
+    lowered = str(name).strip().lower()
+    return lowered in _SECRET_NAMES or lowered.endswith(_SECRET_SUFFIXES)
+
+
+class SecretSafeModel(BaseModel):
+    """Base of every response model: credential fields never reach a tool result.
+
+    GitLab returns tokens (``runners_token``, ``token``, ``*_token``, ``*_secret``,
+    ``password``) inline on project, group, deploy-token and webhook payloads. The
+    models allow extra fields, so a declared-field removal alone is not enough:
+    this validator drops every secret-named key from the input mapping. A model
+    that legitimately returns a newly created secret once lists the field in
+    ``returned_once``.
+    """
+
+    model_config = ConfigDict(extra="allow")
+    returned_once: ClassVar[frozenset[str]] = frozenset()
+
+    @model_validator(mode="before")
+    @classmethod
+    def _drop_secret_fields(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        return {
+            key: value
+            for key, value in data.items()
+            if key in cls.returned_once or not is_secret_field(key)
+        }
+
+
+class IssueStats(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="IssueStats")
@@ -25,7 +83,7 @@ class IssueStats(BaseModel):
     opened: int | None = Field(default=None, description="Number of opened issues")
 
 
-class Milestone(BaseModel):
+class Milestone(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Milestone")
@@ -64,7 +122,7 @@ class Milestone(BaseModel):
     )
 
 
-class TimeStats(BaseModel):
+class TimeStats(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="TimeStats")
@@ -84,7 +142,7 @@ class TimeStats(BaseModel):
     )
 
 
-class TaskCompletionStatus(BaseModel):
+class TaskCompletionStatus(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="TaskCompletionStatus")
@@ -96,7 +154,7 @@ class TaskCompletionStatus(BaseModel):
     )
 
 
-class References(BaseModel):
+class References(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="References")
@@ -111,7 +169,7 @@ class References(BaseModel):
     )
 
 
-class Artifact(BaseModel):
+class Artifact(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Artifact")
@@ -127,7 +185,7 @@ class Artifact(BaseModel):
     )
 
 
-class ArtifactsFile(BaseModel):
+class ArtifactsFile(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="ArtifactsFile")
@@ -137,7 +195,7 @@ class ArtifactsFile(BaseModel):
     size: int | None = Field(default=None, description="Size of the artifacts file.")
 
 
-class RunnerManager(BaseModel):
+class RunnerManager(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="RunnerManager")
@@ -172,7 +230,7 @@ class RunnerManager(BaseModel):
     )
 
 
-class Configuration(BaseModel):
+class Configuration(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Configuration")
@@ -204,7 +262,7 @@ class Configuration(BaseModel):
     )
 
 
-class Iteration(BaseModel):
+class Iteration(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Iteration")
@@ -222,7 +280,7 @@ class Iteration(BaseModel):
     web_url: HttpUrl | str | None = Field(default=None)
 
 
-class Identity(BaseModel):
+class Identity(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Identity")
@@ -232,7 +290,7 @@ class Identity(BaseModel):
     )
 
 
-class GroupSamlIdentity(BaseModel):
+class GroupSamlIdentity(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="GroupSamlIdentity")
@@ -247,7 +305,7 @@ class GroupSamlIdentity(BaseModel):
     )
 
 
-class User(BaseModel):
+class User(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="User")
@@ -410,7 +468,7 @@ class User(BaseModel):
         return v
 
 
-class Namespace(BaseModel):
+class Namespace(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Namespace")
@@ -449,7 +507,7 @@ class Namespace(BaseModel):
     )
 
 
-class ContainerExpirationPolicy(BaseModel):
+class ContainerExpirationPolicy(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="ContainerExpirationPolicy")
@@ -472,7 +530,7 @@ class ContainerExpirationPolicy(BaseModel):
     )
 
 
-class Permissions(BaseModel):
+class Permissions(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Permissions")
@@ -484,7 +542,7 @@ class Permissions(BaseModel):
     )
 
 
-class Statistics(BaseModel):
+class Statistics(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Statistics")
@@ -512,7 +570,7 @@ class Statistics(BaseModel):
     uploads_size: int | None = Field(default=None, description="The size of uploads.")
 
 
-class Diff(BaseModel):
+class Diff(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Diff")
@@ -556,7 +614,7 @@ class Diff(BaseModel):
     )
 
 
-class DetailedStatus(BaseModel):
+class DetailedStatus(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="DetailedStatus")
@@ -587,7 +645,7 @@ class DetailedStatus(BaseModel):
     )
 
 
-class PipelineSchedule(BaseModel):
+class PipelineSchedule(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="PipelineSchedule")
@@ -623,7 +681,7 @@ class PipelineSchedule(BaseModel):
     )
 
 
-class Pipeline(BaseModel):
+class Pipeline(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Pipeline")
@@ -686,7 +744,7 @@ class Pipeline(BaseModel):
     )
 
 
-class PackageLink(BaseModel):
+class PackageLink(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="PackageLink")
@@ -698,7 +756,7 @@ class PackageLink(BaseModel):
     )
 
 
-class PackageVersion(BaseModel):
+class PackageVersion(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="PackageVersion")
@@ -724,7 +782,7 @@ class PackageVersion(BaseModel):
         return v
 
 
-class Package(BaseModel):
+class Package(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Package")
@@ -798,7 +856,7 @@ class Package(BaseModel):
         return v
 
 
-class Contributor(BaseModel):
+class Contributor(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Contributor")
@@ -817,7 +875,7 @@ class Contributor(BaseModel):
     )
 
 
-class CommitStats(BaseModel):
+class CommitStats(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="CommitStats")
@@ -832,7 +890,7 @@ class CommitStats(BaseModel):
     )
 
 
-class CommitSignature(BaseModel):
+class CommitSignature(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="CommitSignature")
@@ -865,7 +923,7 @@ class CommitSignature(BaseModel):
     )
 
 
-class Comment(BaseModel):
+class Comment(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Comment")
@@ -909,14 +967,14 @@ class Comment(BaseModel):
     line: int | None = Field(default=None, description="Line in note")
 
 
-class ParentID(BaseModel):
+class ParentID(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="ParentID")
     parent_id: str | None = Field(default=None, description="Parent ID")
 
 
-class Commit(BaseModel):
+class Commit(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Commit")
@@ -1028,7 +1086,7 @@ class Commit(BaseModel):
         return v
 
 
-class Membership(BaseModel):
+class Membership(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Membership")
@@ -1053,7 +1111,7 @@ class Membership(BaseModel):
     )
 
 
-class Deployable(BaseModel):
+class Deployable(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     id: int | None = Field(
@@ -1115,7 +1173,7 @@ class Deployable(BaseModel):
     )
 
 
-class LastDeployment(BaseModel):
+class LastDeployment(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     id: int | None = Field(
@@ -1140,7 +1198,7 @@ class LastDeployment(BaseModel):
     )
 
 
-class Environment(BaseModel):
+class Environment(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Environment")
@@ -1197,14 +1255,14 @@ class Environment(BaseModel):
     )
 
 
-class Label(BaseModel):
+class Label(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Label")
     name: str | None = Field(default=None)
 
 
-class Tag(BaseModel):
+class Tag(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Tag")
@@ -1213,7 +1271,7 @@ class Tag(BaseModel):
     create_access_levels: list["AccessLevel"] | None = Field(default=None)
 
 
-class Topic(BaseModel):
+class Topic(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Topic")
@@ -1225,21 +1283,21 @@ class Topic(BaseModel):
     avatar_url: str | None = Field(default=None)
 
 
-class ComplianceFrameworks(BaseModel):
+class ComplianceFrameworks(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="ComplianceFrameworks")
     name: str | None = Field(default=None)
 
 
-class CIIDTokenComponents(BaseModel):
+class CIIDTokenComponents(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="CIIDTokenComponents")
     name: str | None = Field(default=None)
 
 
-class Link(BaseModel):
+class Link(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Links")
@@ -1285,7 +1343,7 @@ class Link(BaseModel):
     )
 
 
-class License(BaseModel):
+class License(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="License")
@@ -1303,7 +1361,7 @@ class License(BaseModel):
     )
 
 
-class Project(BaseModel):
+class Project(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Project")
@@ -1700,7 +1758,6 @@ class Project(BaseModel):
         description="Whether warnings for potentially unwanted characters are enabled.",
     )
     owner: User | None = Field(default=None, description="Owner user.")
-    runners_token: str | None = Field(default=None, description="Runners token.")
     secret_push_protection_enabled: bool | None = Field(
         default=None,
         description="Whether secret push protection is enabled (Ultimate only).",
@@ -1838,7 +1895,7 @@ class Project(BaseModel):
         return v
 
 
-class Runner(BaseModel):
+class Runner(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Runner")
@@ -1908,7 +1965,7 @@ class Runner(BaseModel):
         return v
 
 
-class ProjectConfig(BaseModel):
+class ProjectConfig(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="ProjectConfig")
@@ -1930,7 +1987,7 @@ class ProjectConfig(BaseModel):
     )
 
 
-class ClusterAgent(BaseModel):
+class ClusterAgent(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     id: int | None = Field(
@@ -1948,7 +2005,7 @@ class ClusterAgent(BaseModel):
     )
 
 
-class Job(BaseModel):
+class Job(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Job", description="Type of the model")
@@ -2058,7 +2115,7 @@ class Job(BaseModel):
         return v
 
 
-class GroupAccess(BaseModel):
+class GroupAccess(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="GroupAccess")
@@ -2067,7 +2124,7 @@ class GroupAccess(BaseModel):
     )
 
 
-class DefaultBranchProtectionDefaults(BaseModel):
+class DefaultBranchProtectionDefaults(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="DefaultBranchProtectionDefaults")
@@ -2094,7 +2151,7 @@ class DefaultBranchProtectionDefaults(BaseModel):
         return v
 
 
-class RootStorageStatistics(BaseModel):
+class RootStorageStatistics(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="RootStorageStatistics")
@@ -2136,7 +2193,7 @@ class RootStorageStatistics(BaseModel):
     )
 
 
-class Group(BaseModel):
+class Group(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Group")
@@ -2270,9 +2327,6 @@ class Group(BaseModel):
         default=None,
         description="Whether experiment features are enabled (Premium/Ultimate only).",
     )
-    runners_token: str | None = Field(
-        default=None, description="Runners token for the group (admin/owner only)."
-    )
     enabled_git_access_protocol: str | None = Field(
         default=None, description="Enabled Git access protocol (ssh, http, all)."
     )
@@ -2392,7 +2446,7 @@ class Group(BaseModel):
         return v
 
 
-class Webhook(BaseModel):
+class Webhook(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Webhook")
@@ -2483,7 +2537,7 @@ class Webhook(BaseModel):
     )
 
 
-class AccessLevel(BaseModel):
+class AccessLevel(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="AccessLevel")
@@ -2500,7 +2554,7 @@ class AccessLevel(BaseModel):
     )
 
 
-class Branch(BaseModel):
+class Branch(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Branch")
@@ -2566,7 +2620,7 @@ class Branch(BaseModel):
         return v
 
 
-class ApprovalRule(BaseModel):
+class ApprovalRule(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="ApprovalRule")
@@ -2645,7 +2699,7 @@ class ApprovalRule(BaseModel):
         return v
 
 
-class DiffRefs(BaseModel):
+class DiffRefs(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="DiffRefs", description="Type of the model")
@@ -2654,7 +2708,7 @@ class DiffRefs(BaseModel):
     start_sha: str | None = Field(description="Start SHA of the diff")
 
 
-class MergeRequest(BaseModel):
+class MergeRequest(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(
@@ -2952,7 +3006,7 @@ class MergeRequest(BaseModel):
         return v
 
 
-class Epic(BaseModel):
+class Epic(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Epic")
@@ -2967,7 +3021,7 @@ class Epic(BaseModel):
     )
 
 
-class Issue(BaseModel):
+class Issue(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Issue")
@@ -3108,7 +3162,7 @@ class Issue(BaseModel):
         return v
 
 
-class PipelineVariable(BaseModel):
+class PipelineVariable(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="PipelineVariable")
@@ -3118,8 +3172,14 @@ class PipelineVariable(BaseModel):
     )
     value: str | None = Field(default=None, description="The value of the variable.")
 
+    @field_validator("value", mode="after")
+    @classmethod
+    def _redact_value(cls, v):
+        """A CI variable value may hold a credential: only its key and type are returned."""
+        return REDACTED if v else v
 
-class TestCase(BaseModel):
+
+class TestCase(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="TestCase")
@@ -3141,7 +3201,7 @@ class TestCase(BaseModel):
     )
 
 
-class TestSuite(BaseModel):
+class TestSuite(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="TestSuite")
@@ -3186,7 +3246,7 @@ class TestSuite(BaseModel):
         return v
 
 
-class TestReportTotal(BaseModel):
+class TestReportTotal(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="TestReportTotal")
@@ -3213,7 +3273,7 @@ class TestReportTotal(BaseModel):
     )
 
 
-class TestReport(BaseModel):
+class TestReport(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="TestReport")
@@ -3254,7 +3314,7 @@ class TestReport(BaseModel):
         return v
 
 
-class MergeApprovals(BaseModel):
+class MergeApprovals(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="MergeApprovals")
@@ -3305,7 +3365,7 @@ class MergeApprovals(BaseModel):
         return v
 
 
-class DeployToken(BaseModel):
+class DeployToken(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="DeployToken")
@@ -3319,9 +3379,6 @@ class DeployToken(BaseModel):
     )
     expires_at: datetime | None = Field(
         default=None, description="Expiration date of the deploy token"
-    )
-    token: str | None = Field(
-        default=None, description="The actual deploy token string"
     )
     revoked: bool | None = Field(
         default=None, description="Indicates whether the token has been revoked"
@@ -3339,7 +3396,17 @@ class DeployToken(BaseModel):
     )
 
 
-class Rule(BaseModel):
+class CreatedDeployToken(DeployToken):
+    """A deploy token returned once, at creation: the only response that carries ``token``."""
+
+    returned_once: ClassVar[frozenset[str]] = frozenset({"token"})
+    token: str | None = Field(
+        default=None,
+        description="The new deploy token string. Returned once, at creation; store it now.",
+    )
+
+
+class Rule(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Rule")
@@ -3385,7 +3452,7 @@ class Rule(BaseModel):
     )
 
 
-class Setting(BaseModel):
+class Setting(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Setting")
@@ -3399,7 +3466,7 @@ class Setting(BaseModel):
     )
 
 
-class MergeRequestRuleSettings(BaseModel):
+class MergeRequestRuleSettings(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="MergeRequestRuleSettings")
@@ -3432,7 +3499,7 @@ class MergeRequestRuleSettings(BaseModel):
     )
 
 
-class AccessControl(BaseModel):
+class AccessControl(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="AccessControl")
@@ -3445,7 +3512,7 @@ class AccessControl(BaseModel):
     )
 
 
-class Source(BaseModel):
+class Source(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Source")
@@ -3457,7 +3524,7 @@ class Source(BaseModel):
     )
 
 
-class Assets(BaseModel):
+class Assets(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Assets")
@@ -3495,7 +3562,7 @@ class Assets(BaseModel):
         return v
 
 
-class Evidence(BaseModel):
+class Evidence(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Evidence")
@@ -3510,7 +3577,7 @@ class Evidence(BaseModel):
     )
 
 
-class ReleaseLinks(BaseModel):
+class ReleaseLinks(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="ReleaseLinks")
@@ -3535,7 +3602,7 @@ class ReleaseLinks(BaseModel):
     )
 
 
-class Release(BaseModel):
+class Release(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Release")
@@ -3600,18 +3667,17 @@ class Release(BaseModel):
         return v
 
 
-class Token(BaseModel):
+class Token(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Token")
     id: int | None = Field(None, description="Token ID")
-    token: str | None = Field(None, description="Authentication token")
     token_expires_at: datetime | None = Field(
         None, description="Expiration date and time of the token"
     )
 
 
-class ToDo(BaseModel):
+class ToDo(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="ToDo")
@@ -3637,7 +3703,7 @@ class ToDo(BaseModel):
     )
 
 
-class WikiPage(BaseModel):
+class WikiPage(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="WikiPage")
@@ -3654,7 +3720,7 @@ class WikiPage(BaseModel):
     )
 
 
-class WikiAttachmentLink(BaseModel):
+class WikiAttachmentLink(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="WikiAttachmentLink")
@@ -3666,7 +3732,7 @@ class WikiAttachmentLink(BaseModel):
     )
 
 
-class WikiAttachment(BaseModel):
+class WikiAttachment(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="WikiAttachment")
@@ -3680,7 +3746,7 @@ class WikiAttachment(BaseModel):
     )
 
 
-class Agent(BaseModel):
+class Agent(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Agent")
@@ -3690,7 +3756,7 @@ class Agent(BaseModel):
     )
 
 
-class Agents(BaseModel):
+class Agents(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Agents")
@@ -3735,7 +3801,7 @@ class Response[T](BaseModel):
         return self.response.headers if self.response else None  # type: ignore
 
 
-class Snippet(BaseModel):
+class Snippet(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Snippet")
@@ -3746,7 +3812,7 @@ class Snippet(BaseModel):
     visibility: str | None = Field(default=None)
 
 
-class Note(BaseModel):
+class Note(SecretSafeModel):
     model_config = ConfigDict(extra="allow")
     __hash__ = object.__hash__
     base_type: str | None = Field(default="Note")

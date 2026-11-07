@@ -26,6 +26,7 @@ from gitlab_api.gitlab_input_models import (
 )
 from gitlab_api.gitlab_response_models import (
     ApprovalRule,
+    CreatedDeployToken,
     DeployToken,
     Group,
     Job,
@@ -184,6 +185,9 @@ class GitLabApiProjects(GitLabApiBase):
         """
         Create a deploy token for a project.
 
+        Returns a secret: the new token string is returned once, at creation, and never
+        by any read call. Store it now.
+
         Args:
             **kwargs: Additional parameters for the request (e.g., project_id, name, scopes).
 
@@ -224,7 +228,7 @@ class GitLabApiProjects(GitLabApiBase):
                 json=deploy_token.model_dump(exclude_none=True),
             )
             response.raise_for_status()
-            parsed_data = DeployToken(**response.json())
+            parsed_data = CreatedDeployToken(**response.json())
             return Response(response=response, data=parsed_data)
         except ValidationError as e:
             raise ParameterError(f"Invalid parameters: {e.errors()}") from e
