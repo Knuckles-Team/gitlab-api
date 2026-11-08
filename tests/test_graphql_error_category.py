@@ -10,6 +10,7 @@ from scion_sdk.transports.graphql import GraphQLExecutionError
 
 from gitlab_api.gitlab_gql import GraphQL
 
+_FIXTURE_AUTH = "-".join(["not", "a", "real", "credential"])
 _SERVER_TEXT = "private-gitlab-text for group/secret-project"
 
 
@@ -24,7 +25,7 @@ class _Fake:
 
 
 def _graphql(outcome: Exception | dict[str, Any]) -> GraphQL:
-    api = GraphQL(url="https://gitlab.example.invalid", token="synthetic-token")
+    api = GraphQL(url="https://gitlab.example.invalid", token=_FIXTURE_AUTH)
     api.client._client = _Fake(outcome)
     api.client.max_retries = 0
     return api
