@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [27.3.21] - 2026-11-07
+## [27.3.22] - 2026-11-07
 
 ### Changed
 - A GraphQL failure now reaches the caller as a typed error: `Query execution failed: TransportQueryError (<category>)` with a closed category (`not_found`, `forbidden`, `invalid_input`, `conflict`, `server_error` or `unknown`) and no GitLab text. A merge request update whose mutation answers an `errors` list raises `invalid_input`.
