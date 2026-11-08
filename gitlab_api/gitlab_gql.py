@@ -12,7 +12,11 @@ from scion_sdk.exceptions import (
 )
 from scion_sdk.tls.profile import ResolvedTLSProfile
 from scion_sdk.tls.resolve import resolve_tls_profile
-from scion_sdk.transports.graphql import GraphQLAuth, GraphQLClient
+from scion_sdk.transports.graphql import (
+    GraphQLAuth,
+    GraphQLClient,
+    GraphQLExecutionError,
+)
 
 from gitlab_api.api.api_client_base import request_timeout
 from gitlab_api.gitlab_input_models import (
@@ -33,6 +37,34 @@ from gitlab_api.gitlab_input_models import (
     UserModel,
     WikiModel,
 )
+
+
+def classify_gitlab_errors(entries: list[dict[str, Any]]) -> str:
+    """Map GitLab's stable query-error answers to one closed category.
+
+    Pure: reads the entries' text only to choose a category and returns
+    the category alone, so no GitLab text reaches the caller.
+    """
+    text = " ".join(str(entry.get("message", "")) for entry in entries).lower()
+    if "does not exist" in text or "not found" in text:
+        return "not_found"
+    if "permission" in text or "forbidden" in text:
+        return "forbidden"
+    if "invalid" in text or "argument" in text or "variable" in text:
+        return "invalid_input"
+    return "unknown"
+
+
+def _mutation_errors_failure() -> GraphQLExecutionError:
+    """The typed failure for a mutation that answers its own ``errors`` list."""
+    from gql.transport.exceptions import TransportQueryError
+
+    return GraphQLExecutionError(
+        TransportQueryError(
+            "mutation errors",
+            errors=[{"extensions": {"code": "BAD_USER_INPUT"}}],
+        )
+    )
 
 
 @dataclass
@@ -127,6 +159,7 @@ class GraphQL:
             tls_service="gitlab",
             timeout=request_timeout(),
             fetch_schema=True,
+            error_classifier=classify_gitlab_errors,
         )
 
     @require_auth
@@ -1248,7 +1281,10 @@ class GraphQL:
         variables["input"] = {
             k: v for k, v in variables["input"].items() if v is not None
         }
-        return self.execute_gql(query, variables=variables)
+        result = self.execute_gql(query, variables=variables)
+        if (result.get("mergeRequestUpdate") or {}).get("errors"):
+            raise _mutation_errors_failure()
+        return result
 
     @require_auth
     def delete_merge_request(

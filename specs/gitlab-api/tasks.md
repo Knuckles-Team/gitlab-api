@@ -25,4 +25,4 @@ Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is pr
 - [ ] T019 [US1] CONN-GITLAB-API-R005 Optional input fields stay optional in served tool schemas.
 - [ ] T020 [US1] CONN-GITLAB-API-R006 GraphQL operation failures explain themselves.
 - [ ] T021 [US1] CONN-GITLAB-API-R007 Every GitLab request has a timeout.
-- [ ] T022 [US1] CONN-GITLAB-API-R006.1 Typed GraphQL tools return a typed failure category.
+- [x] T022 [US1] CONN-GITLAB-API-R006.1 Typed GraphQL tools return a typed failure category.
