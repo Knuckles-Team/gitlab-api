@@ -1,7 +1,8 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix dc: <http://purl.org/dc/terms/> .
-@prefix : <http://knuckles.team/kg#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/gitlab#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -15,29 +16,31 @@
 # Commit, Branch, Release, Runner, Milestone, PipelineRun. Only the GitLab-specific subclasses and properties are declared in this pack.
 
 :GitLabGroup a owl:Class ;
-    rdfs:subClassOf :IdentityGroup ;
+    rdfs:subClassOf core:IdentityGroup ;
     rdfs:label "GitLab Group" ;
     rdfs:comment "A namespace that owns projects and subgroups (gitlab_groups)." .
 
 :Project a owl:Class ;
-    rdfs:subClassOf :SoftwareProject ;
+    rdfs:subClassOf core:SoftwareProject ;
     rdfs:label "Project" ;
     rdfs:comment "A GitLab project / repository (gitlab_projects)." .
 
-:MergeRequest a owl:Class .
+:MergeRequest a owl:Class ;
+    rdfs:subClassOf core:MergeRequest .
 
 
 :Pipeline a owl:Class ;
-    rdfs:subClassOf :PipelineRun ;
+    rdfs:subClassOf core:PipelineRun ;
     rdfs:label "Pipeline" ;
     rdfs:comment "A CI/CD pipeline run for a commit/ref (gitlab_pipelines)." .
 
 :Job a owl:Class ;
+    rdfs:subClassOf core:Job ;
     rdfs:label "Job" ;
     rdfs:comment "A single stage/job within a pipeline (gitlab_jobs)." .
 
 :CheckRun a owl:Class ;
-    rdfs:subClassOf :PipelineRun ;
+    rdfs:subClassOf core:PipelineRun ;
     rdfs:label "Check Run" ;
     rdfs:comment """A single job/check within a PipelineRun (a GitLab pipeline job, ingested by
     gitlab_api.kg_ingest.ingest_pipeline_runs, id gitlab:checkrun:<project>:<pipeline>:<job>).
@@ -45,12 +48,12 @@
     owl:equivalentClass :Job .
 
 :Issue a owl:Class ;
-    rdfs:subClassOf :WorkItem ;
+    rdfs:subClassOf core:WorkItem ;
     rdfs:label "Issue" ;
     rdfs:comment "A tracked work item or defect (gitlab_issues)." .
 
 :Epic a owl:Class ;
-    rdfs:subClassOf :WorkItem ;
+    rdfs:subClassOf core:WorkItem ;
     rdfs:label "Epic" ;
     rdfs:comment "A group-level container aggregating related issues (gitlab_epics)." .
 
@@ -71,7 +74,7 @@
     rdfs:label "targets branch" ;
     rdfs:comment "Links a MergeRequest to the Branch it merges into." ;
     rdfs:domain :MergeRequest ;
-    rdfs:range :Branch .
+    rdfs:range core:Branch .
 
 :triggeredPipeline a owl:ObjectProperty ;
     rdfs:label "triggered pipeline" ;
@@ -83,7 +86,7 @@
     rdfs:comment """Links a PipelineRun to what it ran for — its Project, the Commit it built,
     and/or the MergeRequest it validated. Same predicate name as the twin github-agent producer
     (PipelineRun ranFor Repository/Commit/PullRequest), unifying GitLab CI/CD and GitHub Actions.""" ;
-    rdfs:domain :PipelineRun .
+    rdfs:domain core:PipelineRun .
 
 :hasJob a owl:ObjectProperty ;
     rdfs:label "has job" ;
@@ -96,7 +99,7 @@
     rdfs:label "ran on runner" ;
     rdfs:comment "Links a Job to the Runner that executed it." ;
     rdfs:domain :Job ;
-    rdfs:range :Runner .
+    rdfs:range core:Runner .
 
 :closesIssue a owl:ObjectProperty ;
     rdfs:label "closes issue" ;
@@ -107,32 +110,32 @@
 :hasMilestone a owl:ObjectProperty ;
     rdfs:label "has milestone" ;
     rdfs:comment "Links an Issue or MergeRequest to its Milestone." ;
-    rdfs:range :Milestone .
+    rdfs:range core:Milestone .
 
 :authoredBy a owl:ObjectProperty ;
     rdfs:label "authored by" ;
     rdfs:comment "Links a MergeRequest, Issue, or Commit to the Person who created it." ;
-    rdfs:range :Person .
+    rdfs:range core:Person .
 
 :projectOwnedBy a owl:ObjectProperty ;
     rdfs:label "project owned by" ;
     rdfs:comment "Links a Project to the Person who owns it (projects.owner, user-namespace projects)." ;
-    rdfs:subPropertyOf :ownedBy ;
+    rdfs:subPropertyOf core:ownedBy ;
     rdfs:domain :Project ;
-    rdfs:range :Person .
+    rdfs:range core:Person .
 
 :issueAuthoredBy a owl:ObjectProperty ;
     rdfs:label "issue authored by" ;
     rdfs:comment "Links an Issue to the Person who opened it (issues.author)." ;
     rdfs:subPropertyOf :authoredBy ;
     rdfs:domain :Issue ;
-    rdfs:range :Person .
+    rdfs:range core:Person .
 
 :issueAssignedTo a owl:ObjectProperty ;
     rdfs:label "issue assigned to" ;
     rdfs:comment "Links an Issue to a Person it is assigned to (issues.assignees)." ;
     rdfs:domain :Issue ;
-    rdfs:range :Person .
+    rdfs:range core:Person .
 
 # --- fields (owl:DatatypeProperty) ---
 
@@ -202,7 +205,7 @@
     rdfs:comment "URL to the raw log output of a Job." ;
     rdfs:range xsd:string .
 
-<http://knuckles.team/kg/gitlab> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/gitlab> a owl:Ontology ;
     rdfs:label "GitLab DevOps Ontology" ;
     rdfs:comment """GitLab source-control and CI/CD delivery model — groups, projects,
     merge requests, pipelines, jobs, issues, epics, milestones, commits, branches,

@@ -9,7 +9,8 @@ from scion_sdk.access_contract import parse_access_contracts
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACTS = ROOT / "gitlab_api" / "ontology" / "access_contracts.ttl"
-KG = "http://knuckles.team/kg#"
+KG = "https://knuckles-team.github.io/ontology/core#"
+CONNECTOR_NS = "https://knuckles-team.github.io/ontology/connector/gitlab#"
 
 EXPECTED = {
     "GitLabGroup": ("gitlab_groups", "group", "id"),
@@ -70,6 +71,6 @@ def test_gitlab_contract_artifact_is_packaged_under_ontology() -> None:
 def test_gitlab_contract_bindings_use_declared_fields() -> None:
     contracts = {contract.class_iri.rsplit("#", 1)[-1]: contract for contract in _contracts()}
 
-    assert (KG + "webUrl", "web_url") in contracts["Project"].predicates
-    assert (KG + "pipelineStatus", "status") in contracts["Pipeline"].predicates
-    assert (KG + "sha", "sha") in contracts["Commit"].predicates
+    assert (CONNECTOR_NS + "webUrl", "web_url") in contracts["Project"].predicates
+    assert (CONNECTOR_NS + "pipelineStatus", "status") in contracts["Pipeline"].predicates
+    assert (CONNECTOR_NS + "sha", "sha") in contracts["Commit"].predicates
