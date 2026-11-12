@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [27.3.23] - 2026-11-12
+
+### Fixed
+- Declare what the package imports directly: the SDK `requests` extra for the API client's HTTP layer and `pydantic[email]` for the email-typed models. The package no longer fails to import in an environment that relied on another package to supply them.
+
 ## [27.3.22] - 2026-11-07
 
 ### Changed
