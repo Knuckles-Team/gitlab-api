@@ -35,9 +35,9 @@ def test_state_is_declared_on_the_issue_type() -> None:
 
 
 def test_merge_request_and_check_run_extend_shared_classes() -> None:
-    # The EG ontology owns MergeRequest's parent (a sibling of PullRequest); the pack gives it none.
-    assert "rdfs:subClassOf" not in _block("MergeRequest")
-    assert "rdfs:subClassOf :PipelineRun" in _block("CheckRun")
+    # The pack's MergeRequest extends the core class of the same name.
+    assert "rdfs:subClassOf core:MergeRequest" in _block("MergeRequest")
+    assert "rdfs:subClassOf core:PipelineRun" in _block("CheckRun")
 
 
 def test_no_mapping_has_a_null_ontology_class() -> None:
