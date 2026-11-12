@@ -715,7 +715,7 @@ requires-dist = [
     { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=7.1.0" },
     { name = "pytest-xdist", marker = "extra == 'test'", specifier = ">=3.8.0" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
-    { name = "scion-sdk", extras = ["graphql", "mcp", "requests"], specifier = ">=0.10.1" },
+    { name = "scion-sdk", extras = ["graphql", "mcp", "requests"], specifier = ">=0.10.1,<0.11" },
 ]
 provides-extras = ["mcp", "all", "test"]
 

@@ -1,4 +1,4 @@
-"""Epistemic-graph typed-node ingestion -- Wire-First coverage for gitlab-api.
+"""Medulla typed-node ingestion -- Wire-First coverage for gitlab-api.
 
 Exercises the real ``ingest_entities`` / ``ingest_projects`` / ``ingest_pipeline_runs``
 seam against a fake ``scion_sdk.ingest`` transport (no engine required). The
