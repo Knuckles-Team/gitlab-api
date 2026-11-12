@@ -20,7 +20,12 @@ def _declaration():
 def _domain_and_range(name: str) -> tuple[str, str]:
     block = ONTOLOGY.read_text(encoding="utf-8").split(f"\n:{name} a owl:ObjectProperty")[1]
     block = block.split(" .\n")[0]
-    return block.split("rdfs:domain :")[1].split()[0], block.split("rdfs:range :")[1].split()[0]
+    import re
+
+    def term(kind: str) -> str:
+        return re.search(rf"rdfs:{kind} (?:core)?:(\w+)", block).group(1)
+
+    return term("domain"), term("range")
 
 
 @pytest.mark.spec("CONN-GITLAB-API-CONNECTOR-CONTENT-R005")
