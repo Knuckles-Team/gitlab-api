@@ -686,11 +686,12 @@ server = [
 
 [[package]]
 name = "gitlab-api"
-version = "27.3.22"
+version = "27.3.23"
 source = { editable = "." }
 dependencies = [
+    { name = "pydantic", extra = ["email"] },
     { name = "python-dotenv" },
-    { name = "scion-sdk", extra = ["graphql", "mcp"] },
+    { name = "scion-sdk", extra = ["graphql", "mcp", "requests"] },
 ]
 
 [package.optional-dependencies]
@@ -708,12 +709,13 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "pydantic", extras = ["email"], specifier = ">=2.14.1" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=9.1.1" },
     { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=1.4.0" },
     { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=7.1.0" },
     { name = "pytest-xdist", marker = "extra == 'test'", specifier = ">=3.8.0" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
-    { name = "scion-sdk", extras = ["graphql", "mcp"], specifier = ">=0.10.1" },
+    { name = "scion-sdk", extras = ["graphql", "mcp", "requests"], specifier = ">=0.10.1" },
 ]
 provides-extras = ["mcp", "all", "test"]
 
@@ -1972,6 +1974,9 @@ graphql = [
 mcp = [
     { name = "fastmcp" },
     { name = "mcp" },
+]
+requests = [
+    { name = "requests" },
 ]
 
 [[package]]
