@@ -1,5 +1,6 @@
-@prefix ac: <https://knuckles-team.github.io/agent-connector-sdk/access#> .
-@prefix gl: <http://knuckles.team/kg#> .
+@prefix ac: <https://knuckles-team.github.io/ontology/access#> .
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/gitlab#> .
 
 # Read contracts for the classes declared by gitlab.ttl.  The MCP tools expose
 # both read and write actions, but these mappings are read-only query routes:
@@ -7,8 +8,8 @@
 # The source classes stay in GitLab's ontology namespace.  No heuristic
 # crosswalk to a hub class is asserted here.
 
-gl:gitlabGroupAccess a ac:AccessContract ;
-    ac:classIri gl:GitLabGroup ;
+:gitlabGroupAccess a ac:AccessContract ;
+    ac:classIri :GitLabGroup ;
     ac:sourceId "gitlab-api" ;
     ac:entity "group" ;
     ac:keyField "id" ;
@@ -22,11 +23,11 @@ gl:gitlabGroupAccess a ac:AccessContract ;
     ac:freshnessSeconds 300 ;
     ac:costHint "medium" .
 
-gl:gitlabGroupWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:gitlabGroupAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:gitlabGroupWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :gitlabGroupAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:projectAccess a ac:AccessContract ;
-    ac:classIri gl:Project ;
+:projectAccess a ac:AccessContract ;
+    ac:classIri :Project ;
     ac:sourceId "gitlab-api" ;
     ac:entity "project" ;
     ac:keyField "id" ;
@@ -40,11 +41,11 @@ gl:projectAccess a ac:AccessContract ;
     ac:freshnessSeconds 300 ;
     ac:costHint "low" .
 
-gl:projectWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:projectAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:projectWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :projectAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:mergeRequestAccess a ac:AccessContract ;
-    ac:classIri gl:MergeRequest ;
+:mergeRequestAccess a ac:AccessContract ;
+    ac:classIri :MergeRequest ;
     ac:sourceId "gitlab-api" ;
     ac:entity "merge_request" ;
     ac:keyField "id" ;
@@ -58,17 +59,17 @@ gl:mergeRequestAccess a ac:AccessContract ;
     ac:freshnessSeconds 60 ;
     ac:costHint "medium" .
 
-gl:mergeRequestIidBinding a ac:PropertyBinding ;
-    ac:contract gl:mergeRequestAccess ; ac:property gl:iid ; ac:field "iid" .
+:mergeRequestIidBinding a ac:PropertyBinding ;
+    ac:contract :mergeRequestAccess ; ac:property :iid ; ac:field "iid" .
 
-gl:mergeRequestStateBinding a ac:PropertyBinding ;
-    ac:contract gl:mergeRequestAccess ; ac:property gl:state ; ac:field "state" .
+:mergeRequestStateBinding a ac:PropertyBinding ;
+    ac:contract :mergeRequestAccess ; ac:property :state ; ac:field "state" .
 
-gl:mergeRequestWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:mergeRequestAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:mergeRequestWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :mergeRequestAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:pipelineAccess a ac:AccessContract ;
-    ac:classIri gl:Pipeline ;
+:pipelineAccess a ac:AccessContract ;
+    ac:classIri :Pipeline ;
     ac:sourceId "gitlab-api" ;
     ac:entity "pipeline" ;
     ac:keyField "id" ;
@@ -82,20 +83,20 @@ gl:pipelineAccess a ac:AccessContract ;
     ac:freshnessSeconds 60 ;
     ac:costHint "medium" .
 
-gl:pipelineStatusBinding a ac:PropertyBinding ;
-    ac:contract gl:pipelineAccess ; ac:property gl:pipelineStatus ; ac:field "status" .
+:pipelineStatusBinding a ac:PropertyBinding ;
+    ac:contract :pipelineAccess ; ac:property :pipelineStatus ; ac:field "status" .
 
-gl:pipelineRefBinding a ac:PropertyBinding ;
-    ac:contract gl:pipelineAccess ; ac:property gl:ref ; ac:field "ref" .
+:pipelineRefBinding a ac:PropertyBinding ;
+    ac:contract :pipelineAccess ; ac:property :ref ; ac:field "ref" .
 
-gl:pipelineShaBinding a ac:PropertyBinding ;
-    ac:contract gl:pipelineAccess ; ac:property gl:sha ; ac:field "sha" .
+:pipelineShaBinding a ac:PropertyBinding ;
+    ac:contract :pipelineAccess ; ac:property :sha ; ac:field "sha" .
 
-gl:pipelineWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:pipelineAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:pipelineWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :pipelineAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:pipelineRunAccess a ac:AccessContract ;
-    ac:classIri gl:PipelineRun ;
+:pipelineRunAccess a ac:AccessContract ;
+    ac:classIri core:PipelineRun ;
     ac:sourceId "gitlab-api" ;
     ac:entity "pipeline" ;
     ac:keyField "id" ;
@@ -109,8 +110,8 @@ gl:pipelineRunAccess a ac:AccessContract ;
     ac:freshnessSeconds 60 ;
     ac:costHint "medium" .
 
-gl:jobAccess a ac:AccessContract ;
-    ac:classIri gl:Job ;
+:jobAccess a ac:AccessContract ;
+    ac:classIri :Job ;
     ac:sourceId "gitlab-api" ;
     ac:entity "job" ;
     ac:keyField "id" ;
@@ -124,17 +125,17 @@ gl:jobAccess a ac:AccessContract ;
     ac:freshnessSeconds 60 ;
     ac:costHint "medium" .
 
-gl:jobStatusBinding a ac:PropertyBinding ;
-    ac:contract gl:jobAccess ; ac:property gl:pipelineStatus ; ac:field "status" .
+:jobStatusBinding a ac:PropertyBinding ;
+    ac:contract :jobAccess ; ac:property :pipelineStatus ; ac:field "status" .
 
-gl:jobRefBinding a ac:PropertyBinding ;
-    ac:contract gl:jobAccess ; ac:property gl:ref ; ac:field "ref" .
+:jobRefBinding a ac:PropertyBinding ;
+    ac:contract :jobAccess ; ac:property :ref ; ac:field "ref" .
 
-gl:jobWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:jobAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:jobWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :jobAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:checkRunAccess a ac:AccessContract ;
-    ac:classIri gl:CheckRun ;
+:checkRunAccess a ac:AccessContract ;
+    ac:classIri :CheckRun ;
     ac:sourceId "gitlab-api" ;
     ac:entity "job" ;
     ac:keyField "id" ;
@@ -148,8 +149,8 @@ gl:checkRunAccess a ac:AccessContract ;
     ac:freshnessSeconds 60 ;
     ac:costHint "medium" .
 
-gl:issueAccess a ac:AccessContract ;
-    ac:classIri gl:Issue ;
+:issueAccess a ac:AccessContract ;
+    ac:classIri :Issue ;
     ac:sourceId "gitlab-api" ;
     ac:entity "issue" ;
     ac:keyField "id" ;
@@ -163,17 +164,17 @@ gl:issueAccess a ac:AccessContract ;
     ac:freshnessSeconds 60 ;
     ac:costHint "medium" .
 
-gl:issueIidBinding a ac:PropertyBinding ;
-    ac:contract gl:issueAccess ; ac:property gl:iid ; ac:field "iid" .
+:issueIidBinding a ac:PropertyBinding ;
+    ac:contract :issueAccess ; ac:property :iid ; ac:field "iid" .
 
-gl:issueStateBinding a ac:PropertyBinding ;
-    ac:contract gl:issueAccess ; ac:property gl:state ; ac:field "state" .
+:issueStateBinding a ac:PropertyBinding ;
+    ac:contract :issueAccess ; ac:property :state ; ac:field "state" .
 
-gl:issueWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:issueAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:issueWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :issueAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:epicAccess a ac:AccessContract ;
-    ac:classIri gl:Epic ;
+:epicAccess a ac:AccessContract ;
+    ac:classIri :Epic ;
     ac:sourceId "gitlab-api" ;
     ac:entity "epic" ;
     ac:keyField "id" ;
@@ -187,14 +188,14 @@ gl:epicAccess a ac:AccessContract ;
     ac:freshnessSeconds 300 ;
     ac:costHint "medium" .
 
-gl:epicIidBinding a ac:PropertyBinding ;
-    ac:contract gl:epicAccess ; ac:property gl:iid ; ac:field "iid" .
+:epicIidBinding a ac:PropertyBinding ;
+    ac:contract :epicAccess ; ac:property :iid ; ac:field "iid" .
 
-gl:epicWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:epicAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:epicWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :epicAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:milestoneAccess a ac:AccessContract ;
-    ac:classIri gl:Milestone ;
+:milestoneAccess a ac:AccessContract ;
+    ac:classIri core:Milestone ;
     ac:sourceId "gitlab-api" ;
     ac:entity "milestone" ;
     ac:keyField "id" ;
@@ -208,14 +209,14 @@ gl:milestoneAccess a ac:AccessContract ;
     ac:freshnessSeconds 300 ;
     ac:costHint "medium" .
 
-gl:milestoneStateBinding a ac:PropertyBinding ;
-    ac:contract gl:milestoneAccess ; ac:property gl:state ; ac:field "state" .
+:milestoneStateBinding a ac:PropertyBinding ;
+    ac:contract :milestoneAccess ; ac:property :state ; ac:field "state" .
 
-gl:milestoneWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:milestoneAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:milestoneWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :milestoneAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:commitAccess a ac:AccessContract ;
-    ac:classIri gl:Commit ;
+:commitAccess a ac:AccessContract ;
+    ac:classIri core:Commit ;
     ac:sourceId "gitlab-api" ;
     ac:entity "commit" ;
     ac:keyField "id" ;
@@ -229,14 +230,14 @@ gl:commitAccess a ac:AccessContract ;
     ac:freshnessSeconds 60 ;
     ac:costHint "medium" .
 
-gl:commitShaBinding a ac:PropertyBinding ;
-    ac:contract gl:commitAccess ; ac:property gl:sha ; ac:field "sha" .
+:commitShaBinding a ac:PropertyBinding ;
+    ac:contract :commitAccess ; ac:property :sha ; ac:field "sha" .
 
-gl:commitWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:commitAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:commitWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :commitAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:branchAccess a ac:AccessContract ;
-    ac:classIri gl:Branch ;
+:branchAccess a ac:AccessContract ;
+    ac:classIri core:Branch ;
     ac:sourceId "gitlab-api" ;
     ac:entity "branch" ;
     ac:keyField "name" ;
@@ -250,11 +251,11 @@ gl:branchAccess a ac:AccessContract ;
     ac:freshnessSeconds 300 ;
     ac:costHint "low" .
 
-gl:branchWebUrlBinding a ac:PropertyBinding ;
-    ac:contract gl:branchAccess ; ac:property gl:webUrl ; ac:field "web_url" .
+:branchWebUrlBinding a ac:PropertyBinding ;
+    ac:contract :branchAccess ; ac:property :webUrl ; ac:field "web_url" .
 
-gl:releaseAccess a ac:AccessContract ;
-    ac:classIri gl:Release ;
+:releaseAccess a ac:AccessContract ;
+    ac:classIri core:Release ;
     ac:sourceId "gitlab-api" ;
     ac:entity "release" ;
     ac:keyField "tag_name" ;
@@ -268,8 +269,8 @@ gl:releaseAccess a ac:AccessContract ;
     ac:freshnessSeconds 300 ;
     ac:costHint "medium" .
 
-gl:runnerAccess a ac:AccessContract ;
-    ac:classIri gl:Runner ;
+:runnerAccess a ac:AccessContract ;
+    ac:classIri core:Runner ;
     ac:sourceId "gitlab-api" ;
     ac:entity "runner" ;
     ac:keyField "id" ;
@@ -283,5 +284,5 @@ gl:runnerAccess a ac:AccessContract ;
     ac:freshnessSeconds 300 ;
     ac:costHint "medium" .
 
-gl:runnerStateBinding a ac:PropertyBinding ;
-    ac:contract gl:runnerAccess ; ac:property gl:state ; ac:field "status" .
+:runnerStateBinding a ac:PropertyBinding ;
+    ac:contract :runnerAccess ; ac:property :state ; ac:field "status" .

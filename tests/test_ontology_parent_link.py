@@ -9,7 +9,7 @@ import pytest
 
 pytestmark = pytest.mark.spec("CONN-GITLAB-API-CONNECTOR-CONTENT-R002")
 
-PARENT_IRI = "http://knuckles.team/kg"
+PARENT_IRI = "https://knuckles-team.github.io/ontology/core"
 ONTOLOGIES = sorted(
     (Path(__file__).resolve().parents[1] / "gitlab_api" / "ontology").glob("*.ttl")
 )
@@ -19,20 +19,20 @@ SUBCLASS = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
 # Parent classes of the medulla ontology that this connector links to or redeclares.
 PARENT_CLASSES = frozenset(
     (
-        "http://knuckles.team/kg#Commit",
-        "http://knuckles.team/kg#IdentityGroup",
-        "http://knuckles.team/kg#MergeRequest",
-        "http://knuckles.team/kg#Person",
-        "http://knuckles.team/kg#PipelineRun",
-        "http://knuckles.team/kg#SoftwareProject",
-        "http://knuckles.team/kg#WorkItem",
+        "https://knuckles-team.github.io/ontology/core#Commit",
+        "https://knuckles-team.github.io/ontology/core#IdentityGroup",
+        "https://knuckles-team.github.io/ontology/connector/gitlab#MergeRequest",
+        "https://knuckles-team.github.io/ontology/core#Person",
+        "https://knuckles-team.github.io/ontology/core#PipelineRun",
+        "https://knuckles-team.github.io/ontology/core#SoftwareProject",
+        "https://knuckles-team.github.io/ontology/core#WorkItem",
     )
 )
 # Classes for which the parent ontology has no fitting class yet. Each is a candidate for a new
 # parent class (see the orphan mapping report); a class leaves this set when it gains a parent.
 PENDING_NEW_PARENT: frozenset[str] = frozenset(
     (
-        "http://knuckles.team/kg#Job",
+        "https://knuckles-team.github.io/ontology/connector/gitlab#Job",
     )
 )
 

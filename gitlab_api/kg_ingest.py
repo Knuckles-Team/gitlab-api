@@ -1,4 +1,4 @@
-"""Epistemic-graph ingestion for GitLab records (typed graph nodes).
+"""Medulla ingestion for GitLab records (typed graph nodes).
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. This is the record-source twin of
 media-downloader's blob ingestion: the package pushes its data into the ONE
