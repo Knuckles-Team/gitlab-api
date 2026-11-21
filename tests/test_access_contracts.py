@@ -29,6 +29,8 @@ EXPECTED = {
     "Runner": ("gitlab_runners", "runner", "id"),
 }
 
+SWARM = "https://knuckles-team.github.io/ontology/swarm#"
+
 
 def _contracts():
     return parse_access_contracts(CONTRACTS.read_text(encoding="utf-8"))
@@ -41,7 +43,11 @@ def test_every_declared_gitlab_class_has_a_typed_read_contract() -> None:
     assert set(by_class) == set(EXPECTED)
     for class_name, (operation, entity, key_field) in EXPECTED.items():
         contract = by_class[class_name]
-        assert contract.class_iri in (CONNECTOR_NS + class_name, KG + class_name)
+        assert contract.class_iri in (
+            CONNECTOR_NS + class_name,
+            KG + class_name,
+            SWARM + class_name,
+        )
         assert contract.source_id == "gitlab-api"
         assert contract.access_kind == "mcp_tool"
         assert contract.operation == operation
@@ -56,7 +62,7 @@ def test_every_declared_gitlab_class_has_a_typed_read_contract() -> None:
 def test_gitlab_contracts_do_not_promote_draft_crosswalks() -> None:
     contracts = _contracts()
 
-    assert all(contract.class_iri.startswith((CONNECTOR_NS, KG)) for contract in contracts)
+    assert all(contract.class_iri.startswith((CONNECTOR_NS, KG, SWARM)) for contract in contracts)
     assert all(
         contract.class_iri not in {KG + "Incident", KG + "SoftwareProject"}
         for contract in contracts
@@ -72,5 +78,5 @@ def test_gitlab_contract_bindings_use_declared_fields() -> None:
     contracts = {contract.class_iri.rsplit("#", 1)[-1]: contract for contract in _contracts()}
 
     assert (CONNECTOR_NS + "webUrl", "web_url") in contracts["Project"].predicates
-    assert (CONNECTOR_NS + "pipelineStatus", "status") in contracts["Pipeline"].predicates
+    assert ("https://knuckles-team.github.io/ontology/core#pipelineStatus", "status") in contracts["Pipeline"].predicates
     assert (CONNECTOR_NS + "sha", "sha") in contracts["Commit"].predicates

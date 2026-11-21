@@ -29,14 +29,13 @@ def test_shared_concepts_are_not_redeclared(name: str) -> None:
     assert not re.search(rf"^:{name} a owl:Class", TTL, flags=re.M), name
 
 
-def test_state_is_declared_on_the_issue_type() -> None:
-    block = _block("state")
-    assert re.search(r"rdfs:domain \[ a owl:Class ; owl:unionOf \( :Issue ", block)
+def test_state_is_the_core_property_not_a_pack_declaration() -> None:
+    assert not re.search(r"^:state a ", TTL, flags=re.M)
 
 
 def test_merge_request_and_check_run_extend_shared_classes() -> None:
-    # The pack's MergeRequest extends the core class of the same name.
-    assert "rdfs:subClassOf core:MergeRequest" in _block("MergeRequest")
+    # MergeRequest is the core class: the pack references it and never declares it.
+    assert not re.search(r"^:MergeRequest a ", TTL, flags=re.M)
     assert "rdfs:subClassOf core:PipelineRun" in _block("CheckRun")
 
 

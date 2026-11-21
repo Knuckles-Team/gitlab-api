@@ -11,3 +11,4 @@ Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is pr
 - [x] T005 [US1] CONN-GITLAB-API-CONNECTOR-CONTENT-R006 Paged models carry paging fields.
 - [x] T006 [US1] CONN-GITLAB-API-CONNECTOR-CONTENT-R007 Responses never carry a credential.
 - [ ] T007 [US1] CONN-GITLAB-API-CONNECTOR-CONTENT-R007.1 The SDK default redaction replaces the local secret-safe model.
+- [x] T008 [US1] CONN-GITLAB-API-CONNECTOR-CONTENT-R008 Pack extends only the core ontology.

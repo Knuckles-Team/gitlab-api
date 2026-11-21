@@ -1,3 +1,4 @@
+@prefix swarm: <https://knuckles-team.github.io/ontology/swarm#> .
 @prefix ac: <https://knuckles-team.github.io/ontology/access#> .
 @prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix : <https://knuckles-team.github.io/ontology/connector/gitlab#> .
@@ -45,7 +46,7 @@
     ac:contract :projectAccess ; ac:property :webUrl ; ac:field "web_url" .
 
 :mergeRequestAccess a ac:AccessContract ;
-    ac:classIri :MergeRequest ;
+    ac:classIri core:MergeRequest ;
     ac:sourceId "gitlab-api" ;
     ac:entity "merge_request" ;
     ac:keyField "id" ;
@@ -63,13 +64,13 @@
     ac:contract :mergeRequestAccess ; ac:property :iid ; ac:field "iid" .
 
 :mergeRequestStateBinding a ac:PropertyBinding ;
-    ac:contract :mergeRequestAccess ; ac:property :state ; ac:field "state" .
+    ac:contract :mergeRequestAccess ; ac:property core:state ; ac:field "state" .
 
 :mergeRequestWebUrlBinding a ac:PropertyBinding ;
     ac:contract :mergeRequestAccess ; ac:property :webUrl ; ac:field "web_url" .
 
 :pipelineAccess a ac:AccessContract ;
-    ac:classIri :Pipeline ;
+    ac:classIri swarm:Pipeline ;
     ac:sourceId "gitlab-api" ;
     ac:entity "pipeline" ;
     ac:keyField "id" ;
@@ -84,7 +85,7 @@
     ac:costHint "medium" .
 
 :pipelineStatusBinding a ac:PropertyBinding ;
-    ac:contract :pipelineAccess ; ac:property :pipelineStatus ; ac:field "status" .
+    ac:contract :pipelineAccess ; ac:property core:pipelineStatus ; ac:field "status" .
 
 :pipelineRefBinding a ac:PropertyBinding ;
     ac:contract :pipelineAccess ; ac:property :ref ; ac:field "ref" .
@@ -111,7 +112,7 @@
     ac:costHint "medium" .
 
 :jobAccess a ac:AccessContract ;
-    ac:classIri :Job ;
+    ac:classIri core:Job ;
     ac:sourceId "gitlab-api" ;
     ac:entity "job" ;
     ac:keyField "id" ;
@@ -126,7 +127,7 @@
     ac:costHint "medium" .
 
 :jobStatusBinding a ac:PropertyBinding ;
-    ac:contract :jobAccess ; ac:property :pipelineStatus ; ac:field "status" .
+    ac:contract :jobAccess ; ac:property core:pipelineStatus ; ac:field "status" .
 
 :jobRefBinding a ac:PropertyBinding ;
     ac:contract :jobAccess ; ac:property :ref ; ac:field "ref" .
@@ -150,7 +151,7 @@
     ac:costHint "medium" .
 
 :issueAccess a ac:AccessContract ;
-    ac:classIri :Issue ;
+    ac:classIri core:Issue ;
     ac:sourceId "gitlab-api" ;
     ac:entity "issue" ;
     ac:keyField "id" ;
@@ -168,7 +169,7 @@
     ac:contract :issueAccess ; ac:property :iid ; ac:field "iid" .
 
 :issueStateBinding a ac:PropertyBinding ;
-    ac:contract :issueAccess ; ac:property :state ; ac:field "state" .
+    ac:contract :issueAccess ; ac:property core:state ; ac:field "state" .
 
 :issueWebUrlBinding a ac:PropertyBinding ;
     ac:contract :issueAccess ; ac:property :webUrl ; ac:field "web_url" .
@@ -210,7 +211,7 @@
     ac:costHint "medium" .
 
 :milestoneStateBinding a ac:PropertyBinding ;
-    ac:contract :milestoneAccess ; ac:property :state ; ac:field "state" .
+    ac:contract :milestoneAccess ; ac:property core:state ; ac:field "state" .
 
 :milestoneWebUrlBinding a ac:PropertyBinding ;
     ac:contract :milestoneAccess ; ac:property :webUrl ; ac:field "web_url" .
@@ -285,4 +286,4 @@
     ac:costHint "medium" .
 
 :runnerStateBinding a ac:PropertyBinding ;
-    ac:contract :runnerAccess ; ac:property :state ; ac:field "status" .
+    ac:contract :runnerAccess ; ac:property core:state ; ac:field "status" .
