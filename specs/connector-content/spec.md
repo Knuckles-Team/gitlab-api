@@ -25,12 +25,14 @@ The `gitlab-mcp` server serves its packaged skills, prompts and ontology to any 
 1. **Given** the connector is configured, **When** the behaviour of row `CONN-GITLAB-API-CONNECTOR-CONTENT-R001` (default content) is exercised, **Then** `resources/list` includes `skill://` and `ontology://`; `prompts/list` includes each packaged prompt.
 2. **Given** the connector is configured, **When** the behaviour of row `CONN-GITLAB-API-CONNECTOR-CONTENT-R002` (ontology joins the parent graph) is exercised, **Then** the test parses each ontology and finds no orphan class beyond the pending list. Test: `tests/test_ontology_parent_link.py::test_ontology_joins_the_parent_graph`.
 3. **Given** the connector is configured, **When** the behaviour of row `CONN-GITLAB-API-CONNECTOR-CONTENT-R004` (competency-question paths) is exercised, **Then** the test finds no shared-class declaration, the `state` domain on `Issue` and no null mapping. Test: `tests/test_cq_paths.py::test_shared_concepts_are_not_redeclared`.
+4. **Given** the connector is configured, **When** the behaviour of row `CONN-GITLAB-API-CONNECTOR-CONTENT-R008` (pack extends only the core ontology) is exercised, **Then** no core class or property is redeclared and no retired IRI base remains. Test: `tests/test_pack_extends_core.py::test_pack_declares_no_core_term`.
 
 ### Edge Cases
 
 - If `CONN-GITLAB-API-CONNECTOR-CONTENT-R001` is not met, its proving test fails: default content.
 - If `CONN-GITLAB-API-CONNECTOR-CONTENT-R002` is not met, its proving test fails: ontology joins the parent graph.
 - If `CONN-GITLAB-API-CONNECTOR-CONTENT-R004` is not met, its proving test fails: competency-question paths.
+- If `CONN-GITLAB-API-CONNECTOR-CONTENT-R008` is not met, its proving test fails: pack extends only the core ontology.
 
 ## Requirements
 
@@ -38,6 +40,7 @@ The `gitlab-mcp` server serves its packaged skills, prompts and ontology to any 
 - **FR-002**: Ontology joins the parent graph. Rows: `CONN-GITLAB-API-CONNECTOR-CONTENT-R002`.
 - **FR-003**: Competency-question paths. Rows: `CONN-GITLAB-API-CONNECTOR-CONTENT-R004`.
 - **FR-004**: Owner and assignee edges. Rows: `CONN-GITLAB-API-CONNECTOR-CONTENT-R005`.
+- **FR-005**: Pack extends only the core ontology. Rows: `CONN-GITLAB-API-CONNECTOR-CONTENT-R008`.
 
 ## Success Criteria
 
@@ -45,6 +48,7 @@ The `gitlab-mcp` server serves its packaged skills, prompts and ontology to any 
 - **SC-002**: The test parses each ontology and finds no orphan class beyond the pending list. Rows: `CONN-GITLAB-API-CONNECTOR-CONTENT-R002`.
 - **SC-003**: The test finds no shared-class declaration, the `state` domain on `Issue` and no null mapping. Rows: `CONN-GITLAB-API-CONNECTOR-CONTENT-R004`.
 - **SC-004**: `tests/test_catalog_edges.py::test_every_declared_edge_is_an_ontology_property_of_its_record_type` and `::test_project_and_issue_references_become_owner_and_assignee_edges`. Rows: `CONN-GITLAB-API-CONNECTOR-CONTENT-R005`.
+- **SC-005**: No pack term redeclares a core term and no retired IRI base remains. Rows: `CONN-GITLAB-API-CONNECTOR-CONTENT-R008`.
 
 ## Assumptions
 
@@ -59,3 +63,4 @@ The `gitlab-mcp` server serves its packaged skills, prompts and ontology to any 
 | FR-002 | `CONN-GITLAB-API-CONNECTOR-CONTENT-R002` | [plan.md](plan.md) | T-002 | [test-spec.md](test-spec.md) |
 | FR-003 | `CONN-GITLAB-API-CONNECTOR-CONTENT-R004` | [plan.md](plan.md) | T-003 | [test-spec.md](test-spec.md) |
 | FR-004 | `CONN-GITLAB-API-CONNECTOR-CONTENT-R005` | [plan.md](plan.md) | T-004 | [test-spec.md](test-spec.md) |
+| FR-005 | `CONN-GITLAB-API-CONNECTOR-CONTENT-R008` | [plan.md](plan.md) | T-007 | [test-spec.md](test-spec.md) |

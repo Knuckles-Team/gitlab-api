@@ -21,7 +21,7 @@ PARENT_CLASSES = frozenset(
     (
         "https://knuckles-team.github.io/ontology/core#Commit",
         "https://knuckles-team.github.io/ontology/core#IdentityGroup",
-        "https://knuckles-team.github.io/ontology/connector/gitlab#MergeRequest",
+        "https://knuckles-team.github.io/ontology/core#MergeRequest",
         "https://knuckles-team.github.io/ontology/core#Person",
         "https://knuckles-team.github.io/ontology/core#PipelineRun",
         "https://knuckles-team.github.io/ontology/core#SoftwareProject",
@@ -32,7 +32,7 @@ PARENT_CLASSES = frozenset(
 # parent class (see the orphan mapping report); a class leaves this set when it gains a parent.
 PENDING_NEW_PARENT: frozenset[str] = frozenset(
     (
-        "https://knuckles-team.github.io/ontology/connector/gitlab#Job",
+        "https://knuckles-team.github.io/ontology/core#Job",
     )
 )
 
