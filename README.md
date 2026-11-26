@@ -20,8 +20,8 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/gitlab-api)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/gitlab-api)
 
-> **Documentation** — Installation, deployment, usage across the API, CLI, and MCP
-> backing GitLab instance are maintained in the
+> **Documentation** — Installation, deployment, and usage across the API, CLI, MCP,
+> and A2A agent interfaces are maintained in the
 > [official documentation](https://knuckles-team.github.io/gitlab-api/).
 
 ---
@@ -505,6 +505,32 @@ the detailed transport contract.
 
 ---
 
+## Agent
+
+# Set credentials
+export GITLAB_URL="your_value"
+export GITLAB_TOKEN="your_value"
+
+# Connector-focused MCP server (includes the shared graph engine)
+uv pip install "gitlab-api[mcp]"
+
+# Everything (development)
+uv pip install "gitlab-api[all]"      # or: python -m pip install "gitlab-api[all]"
+```
+
+### Container images (`:mcp`)
+
+One multi-stage `docker/Dockerfile` builds the MCP-only image (`--target mcp`):
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `example/gitlab-api:mcp` | `--target mcp` | `gitlab-api[mcp]` — **connector-focused**, includes `medulla`; no model-orchestration stack | `gitlab-mcp` |
+
+```bash
+docker build --target mcp   -t example/gitlab-api:mcp    docker/   # connector-focused MCP server
+
+---
+
 ## Environment Variables
 
 <!-- ENV-VARS-TABLE:START -->
@@ -629,26 +655,29 @@ The full list is in the [Available MCP Tools](#available-mcp-tools) table above
 | `EUNOMIA_POLICY_FILE` | Embedded policy file | `mcp_policies.json` |
 | `EUNOMIA_REMOTE_URL` | Remote Eunomia server URL | — |
 
-## Agent
+---
 
-# Set credentials
-export GITLAB_URL="your_value"
-export GITLAB_TOKEN="your_value"
+## Documentation
 
-# Connector-focused MCP server (includes the shared graph engine)
-uv pip install "gitlab-api[mcp]"
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/gitlab-api/) and is
+the recommended reference for installation, deployment, and day-to-day operation.
 
-# Everything (development)
-uv pip install "gitlab-api[all]"      # or: python -m pip install "gitlab-api[all]"
-```
+---
 
-### Container images (`:mcp`)
+## Repository Owners
 
-One multi-stage `docker/Dockerfile` builds the MCP-only image (`--target mcp`):
+<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
 
-| Image tag | Build target | Contents | Entrypoint |
-|-----------|--------------|----------|------------|
-| `example/gitlab-api:mcp` | `--target mcp` | `gitlab-api[mcp]` — **connector-focused**, includes `medulla`; no model-orchestration stack | `gitlab-mcp` |
+![GitHub followers](https://img.shields.io/github/followers/example)
+![GitHub User's stars](https://img.shields.io/github/stars/example)
 
-```bash
-docker build --target mcp   -t example/gitlab-api:mcp    docker/   # connector-focused MCP server
+---
+
+## Contribute
+
+Contributions are welcome! Please ensure code quality by running local checks before submitting pull requests:
+- Format code using `ruff format .`
+- Lint code using `ruff check .`
+- Validate type-safety with `mypy .`
+- Run test suites using `pytest`
