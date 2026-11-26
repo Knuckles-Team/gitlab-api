@@ -2,7 +2,7 @@
 name: gitlab-merge-request-review
 skill_type: skill
 description: >-
-  Review and merge GitLab merge requests via the gitlab-api MCP server — by default the MRs assigned to you or where you are a reviewer, optionally scoped to a project, group, or the whole instance. Read an MR, gate it on a green pipeline (pipeline → jobs → job log), then approve, accept/merge, or set merge-when-pipeline-succeeds (auto-merge) — writes are confirmed with the user and CI-gated. Use when the agent must review open MRs, verify CI, approve, merge, or set auto-merge. Do NOT use to open an MR (gitlab-merge-request-create), review issues (gitlab-issues), or review pipelines broadly (gitlab-pipelines).
+  Review and merge GitLab merge requests via the gitlab-api MCP server — by default the MRs assigned to you or where you are a reviewer, optionally scoped to a project, group, or the whole instance. Use when the agent must review open MRs, verify CI, approve, merge, or set auto-merge.
 license: MIT
 tags: []
 metadata:
@@ -11,6 +11,8 @@ metadata:
 ---
 # Gitlab Merge Request Review
 
+Scope: Review and merge GitLab merge requests via the gitlab-api MCP server — by default the MRs assigned to you or where you are a reviewer, optionally scoped to a project, group, or the whole instance. Read an MR, gate it on a green pipeline (pipeline → jobs → job log), then approve, accept/merge, or set merge-when-pipeline-succeeds (auto-merge) — writes are confirmed with the user and CI-gated. Use when the agent must review open MRs, verify CI, approve, merge, or set auto-merge. Do NOT use to open an MR (gitlab-merge-request-create), review issues (gitlab-issues), or review pipelines broadly (gitlab-pipelines).
+
 Typed gitlab_* tools take project_id (id or URL-encoded path) explicitly; resolve it before acting.
 
 ## Rules
@@ -18,6 +20,22 @@ Typed gitlab_* tools take project_id (id or URL-encoded path) explicitly; resolv
 - Resolve project_id (and the merge request or issue iid) before any call.
 - Read first, then change, then read the object back.
 - Delete, erase and merge-class tools need an explicit request; ask first.
+
+## Steps
+
+1. List the requests to review with `gitlab_get_merge_requests`(assignee_id, state) or `gitlab_get_project_merge_requests`(project_id). Verify each row shows its iid and project.
+2. Read one request with `gitlab_get_project_merge_request`(project_id) and its approvals with `gitlab_get_approval_state_merge_requests`. Verify the diff and approval state load.
+3. Gate on CI with `gitlab_get_pipelines`(project_id, status). Verify the latest pipeline for the source branch is `success`.
+4. Approve with `gitlab_approve_merge_request`(project_id) once reviewed. Verify the approval count in `gitlab_get_approval_state_merge_requests` increased.
+5. Merge with `gitlab_accept_merge_request`(project_id) only on explicit request. Verify the merge request state reads `merged`.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Pipeline not green | CI failed or still running | Read jobs with `gitlab_get_pipeline_jobs`(project_id, pipeline_id) and report the failure; do not merge |
+| Merge refused | Missing approvals or conflicts | Read `gitlab_get_approval_state_merge_requests` and report what is missing |
+| Wrong merge request | Iid or project mismatch | Re-read with `gitlab_get_project_merge_requests` and confirm the iid |
 
 ## Task workflows
 

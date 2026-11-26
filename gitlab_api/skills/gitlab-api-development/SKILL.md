@@ -25,6 +25,22 @@ their owning repositories. Read `AGENTS.md` before changing code and keep
 credentials, private endpoints, tenant data, and customer records out of
 source, logs, fixtures, and skill content.
 
+## Steps
+
+1. Find the owning spec row with `git grep -n "<term>" -- specs`. Verify one row owns the change before editing.
+2. Read `AGENTS.md` and confirm the change belongs to this connector rather than `scion-sdk` or Arbora. Verify no second API, MCP, authentication, or transport plane is introduced.
+3. Implement one small slice in the existing `Api` facade, `gitlab_api/mcp_server.py` dispatch tables, or `gitlab_api/gitlab_gql.py`. Verify `git diff --stat` touches only this connector's paths.
+4. Run the focused test with `uv run --locked --extra test pytest -q tests/test_gitlab_api_development_skill.py`. Verify it passes.
+5. Run the shared gates with `uvx pre-commit run --all-files`. Verify every hook passes without bypassing any.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| `uv sync --locked` fails | Lockfile out of date with `pyproject.toml` | Run `uv lock` in the worktree and commit the updated lockfile with the change |
+| Pre-commit gate fails | Delegated shared hook reports a violation | Read the hook output, fix the named file, and rerun `uvx pre-commit run --all-files` |
+| No spec row found | Requirement not yet written | Extend the nearest row under `specs/` before adding code |
+
 ## Rapid delivery: the 5-minute contract
 
 Specs are already designed. Deliver small, reviewable slices and cite the

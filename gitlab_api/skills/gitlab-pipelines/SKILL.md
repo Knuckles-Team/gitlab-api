@@ -2,7 +2,7 @@
 name: gitlab-pipelines
 skill_type: skill
 description: >-
-  CI/CD pipeline review on GitLab via the gitlab-api MCP server — review pipeline results for a project, a group, or the whole instance, drill into the CI jobs of a pipeline, and read a job's log; also trigger a pipeline on a ref. Use when the agent must review CI results across a project/group/organization, check whether a branch is green, inspect a pipeline's jobs, or read job logs. Do NOT use for merge-request review/merge (gitlab-merge-request-review), issues (gitlab-issues), or repo/branch reads (gitlab-repositories); prefer those.
+  CI/CD pipeline review on GitLab via the gitlab-api MCP server — review pipeline results for a project, a group, or the whole instance, drill into the CI jobs of a pipeline, and read a job's log; also trigger a pipeline on a ref. Use when the agent must review CI results across a project/group/organization, check whether a branch is green, inspect a pipeline's jobs, or read job logs.
 license: MIT
 tags: []
 metadata:
@@ -11,6 +11,8 @@ metadata:
 ---
 # Gitlab Pipelines
 
+Scope: CI/CD pipeline review on GitLab via the gitlab-api MCP server — review pipeline results for a project, a group, or the whole instance, drill into the CI jobs of a pipeline, and read a job's log; also trigger a pipeline on a ref. Use when the agent must review CI results across a project/group/organization, check whether a branch is green, inspect a pipeline's jobs, or read job logs. Do NOT use for merge-request review/merge (gitlab-merge-request-review), issues (gitlab-issues), or repo/branch reads (gitlab-repositories); prefer those.
+
 Typed gitlab_* tools take project_id (id or URL-encoded path) explicitly; resolve it before acting.
 
 ## Rules
@@ -18,6 +20,22 @@ Typed gitlab_* tools take project_id (id or URL-encoded path) explicitly; resolv
 - Resolve project_id (and the merge request or issue iid) before any call.
 - Read first, then change, then read the object back.
 - Delete, erase and merge-class tools need an explicit request; ask first.
+
+## Steps
+
+1. Resolve the project with `gitlab_get_project`(project_id). Verify the id or path returns a project.
+2. List recent runs with `gitlab_get_pipelines`(project_id, status). Verify the newest pipeline for the branch is identified with its status.
+3. Drill into jobs with `gitlab_get_pipeline_jobs`(project_id, pipeline_id). Verify failed jobs are listed with their stage.
+4. Read the failing log with `gitlab_get_project_job_log`(project_id, job_id). Verify the error line is quoted in the report.
+5. Trigger or retry only on request with `gitlab_run_pipeline`(project_id) or `gitlab_retry_project_job`(project_id, job_id). Verify the new pipeline appears in `gitlab_get_pipelines`.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| No pipelines returned | Wrong project or CI not configured | Confirm with `gitlab_get_project` and report that no pipeline exists on the ref |
+| Job log empty | Job not started or log erased | Check the job state with `gitlab_get_project_job` and report it |
+| Trigger refused | Role lacks pipeline permission | Report the permission error and ask for a token with developer access |
 
 ## Task workflows
 

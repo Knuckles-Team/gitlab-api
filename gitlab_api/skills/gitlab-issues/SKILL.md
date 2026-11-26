@@ -2,7 +2,7 @@
 name: gitlab-issues
 skill_type: skill
 description: >-
-  Issue review and tracking on GitLab via the gitlab-api MCP server — review a project's issues, review issues across a whole group/organization, and read, create, update, or close an issue with the domain-typed tool. Use when the agent must triage a project's issues, see every issue affecting a group, open a new issue, update labels/assignee/state, or delete one. Do NOT use for merge requests (gitlab-merge-request-review / gitlab-merge-request-create), pipelines (gitlab-pipelines), or repo/branch reads (gitlab-repositories); prefer those.
+  Issue review and tracking on GitLab via the gitlab-api MCP server — review a project's issues, review issues across a whole group/organization, and read, create, update, or close an issue with the domain-typed tool. Use when the agent must triage a project's issues, see every issue affecting a group, open a new issue, update labels/assignee/state, or delete one.
 license: MIT
 tags: []
 metadata:
@@ -11,6 +11,8 @@ metadata:
 ---
 # Gitlab Issues
 
+Scope: Issue review and tracking on GitLab via the gitlab-api MCP server — review a project's issues, review issues across a whole group/organization, and read, create, update, or close an issue with the domain-typed tool. Use when the agent must triage a project's issues, see every issue affecting a group, open a new issue, update labels/assignee/state, or delete one. Do NOT use for merge requests (gitlab-merge-request-review / gitlab-merge-request-create), pipelines (gitlab-pipelines), or repo/branch reads (gitlab-repositories); prefer those.
+
 Typed gitlab_* tools take project_id (id or URL-encoded path) explicitly; resolve it before acting.
 
 ## Rules
@@ -18,6 +20,22 @@ Typed gitlab_* tools take project_id (id or URL-encoded path) explicitly; resolv
 - Resolve project_id (and the merge request or issue iid) before any call.
 - Read first, then change, then read the object back.
 - Delete, erase and merge-class tools need an explicit request; ask first.
+
+## Steps
+
+1. Resolve the project with `gitlab_get_project`(project_id) or the group id for a group sweep. Verify the id or path returns a project or group.
+2. List issues with `gitlab_get_issues`(project_id, state) or `gitlab_get_group_issues`(group_id, state). Verify the result is non-empty or an explicit empty list is reported.
+3. Read one issue with `gitlab_get_issue`(project_id, group_id, title). Verify its title and state match the request before changing it.
+4. Create or change with `gitlab_create_issue` or `gitlab_update_issue`(project_id, title, description, labels, state). Verify the response echoes the new values.
+5. Delete only on explicit request with `gitlab_delete_issue`(project_id, confirm). Verify `confirm=true` was approved and `gitlab_get_issues` no longer lists it.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Empty issue list | Wrong `state` filter or project | Retry `gitlab_get_issues` with `state="all"` and confirm the project id with `gitlab_get_project` |
+| Update has no effect | Wrong issue iid or label name | Read it with `gitlab_get_issue`, copy the exact iid and labels, and update again |
+| Delete refused | `confirm=true` missing | Ask the person to approve and pass `confirm=true` |
 
 ## Task workflows
 
