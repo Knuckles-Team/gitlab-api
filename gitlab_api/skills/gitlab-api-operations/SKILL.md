@@ -2,7 +2,7 @@
 name: gitlab-api-operations
 skill_type: skill
 description: >-
-  Operate gitlab-api through its governed MCP and Arbora capabilities, including gitlab issues, gitlab merge request create, gitlab merge request review, gitlab pipelines, gitlab vulnerabilities. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
+  Operate gitlab-api through governed MCP and Arbora capabilities for projects, groups, environments, runners, protection, releases, deploy tokens, wikis, snippets, users, and KG ingestion. Use for GitLab read, change, and ingestion work. Do NOT use for issues, merge requests, pipelines, or vulnerabilities (the domain skills).
 license: MIT
 tags: []
 metadata:
@@ -18,6 +18,22 @@ Typed gitlab_* tools take project_id (id or URL-encoded path) explicitly; resolv
 - Resolve project_id (and the merge request or issue iid) before any call.
 - Read first, then change, then read the object back.
 - Delete, erase and merge-class tools need an explicit request; ask first.
+
+## Steps
+
+1. Resolve the target with `gitlab_get_project`(project_id) or `gitlab_get_projects`. Verify the returned id or path matches the project requested.
+2. Select the task workflow below that matches the request, for example `gitlab_get_environments` for environments or `gitlab_get_runners` for runners. Verify the tool named exists in that workflow.
+3. Read the current state first, for example `gitlab_get_environments`(project_id) or `gitlab_get_runners`. Verify the object exists before changing it.
+4. Make the change with the workflow's tool, passing `confirm=true` only for destructive tools after the person agrees. Verify the response reports success and not an error.
+5. Read the object back with the matching `gitlab_get_*` tool. Verify the changed field shows the new value.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| 404 or project not found | `project_id` is wrong or not URL-encoded | Call `gitlab_get_projects` with a search term and reuse the returned id or path |
+| Destructive tool refused | `confirm=true` not given | Ask the person to approve, then call again with `confirm=true` |
+| 403 forbidden | Token lacks the scope or role | Report the missing scope and ask for a token with it; do not change `GITLAB_TOKEN` yourself |
 
 ## Task workflows
 
