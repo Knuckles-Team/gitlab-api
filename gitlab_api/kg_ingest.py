@@ -11,14 +11,25 @@ provenance (via ``IngestBinding``) and match the classes federated by
 
 from __future__ import annotations
 
+import hashlib
+from pathlib import Path
 from typing import Any
 
 from scion_sdk.ingest import (
+    ContractSource,
     KnowledgeIngest,
     SourceStream,
 )
 
-STREAM = SourceStream.for_package(__package__.split(".")[0], "gitlab")
+#: The local declaration the engine must have accepted: the connector's mappings.
+_DECLARATION = Path(__file__).parent / "ontology" / "mappings" / "source.yaml"
+
+#: The contract every binding of this connector runs under; its digest is the
+#: SHA-256 of the shipped mapping declaration, so a changed declaration is
+#: refused (``contract_not_accepted``) until the engine accepts the new one.
+CONTRACT = ContractSource(digest=hashlib.sha256(_DECLARATION.read_bytes()).hexdigest())
+
+STREAM = SourceStream.for_package(__package__.split(".")[0], "gitlab", CONTRACT)
 
 
 async def ingest_projects(
